@@ -25,16 +25,22 @@ pub enum ValidationMessage {
     ExpectedType(TypeReference),
     #[error("The type `{type_}` has no field `{field}`")]
     UnknownField { type_: StringKey, field: StringKey },
-    #[error("Expected no selections on scalar field '{0:?}.{1}'")]
-    InvalidSelectionsOnScalarField(Type, StringKey),
-    #[error("Expected selections on field '{0:?}.{1}'")]
-    ExpectedSelectionsOnObjectField(Type, StringKey),
+    #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
+    InvalidSelectionsOnScalarField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
+    ExpectedSelectionsOnObjectField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
     #[error("Unknown argument '{0}'")]
     UnknownArgument(StringKey),
     #[error("Unknown directive '{0}'")]
     UnknownDirective(StringKey),
     #[error(
-        "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead."
+        "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead."
     )]
     UnnecessaryUncheckedArgumentsDirective,
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
@@ -87,6 +93,8 @@ pub enum ValidationMessage {
         "Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
+    #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
+    ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
     )]
@@ -134,13 +142,19 @@ pub enum ValidationMessage {
     )]
     InvalidArgumentsKeys(String),
 
-    #[error("Unexpected arguments on '__typename' field")]
+    #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
+
+    #[error("Unexpected arguments on '__token' field")]
+    InvalidArgumentsOnFetchTokenField(),
 
     #[error(
         "Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`."
     )]
     DisallowIdAsAliasError(),
+
+    #[error("Relay does not allow `__typename` field on Query, Mutation or Subscription.")]
+    DisallowTypenameOnRoot(),
 
     #[error(
         "Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection."
@@ -441,6 +455,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "A unique query name has to be specified in `@refetchable`, an operation `{query_name}` already exists."
+    )]
+    RefetchableQueryConflictWithQuery { query_name: StringKey },
+
+    #[error(
         "Invalid use of @refetchable on fragment `{fragment_name}`, this fragment already has an `$id` variable in scope."
     )]
     RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
@@ -527,10 +546,8 @@ pub enum ValidationMessage {
     )]
     LiveQueryTransformInvalidConfigId { query_name: StringKey },
 
-    #[error(
-        "Redundant usage of @preloadable directive. Please use only one @preloadable per query - it should be enough."
-    )]
-    RedundantPreloadableDirective,
+    #[error("The directive `@{name}` can only be used once at this location.")]
+    RepeatedNonRepeatableDirective { name: StringKey },
 
     #[error("Invalid use of @{directive_name} on scalar field '{field_name}'.")]
     ConnectionMutationDirectiveOnScalarField {
@@ -604,17 +621,20 @@ pub enum ValidationMessage {
     InvalidFlightFieldReturnType,
 
     #[error(
-        "Expected all fields on the same parent with the name or alias '{field_name}' to have the same name and arguments."
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after appling fragment arguments. This field has the applied argument values: {arguments_a}"
     )]
-    InvalidSameFieldWithDifferentArguments { field_name: StringKey },
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
+    },
 
     #[error(
         "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing beacuse the inline fragment did not match"
     )]
     RequiredWithinAbstractInlineFragment,
 
-    #[error("Unexpected second @required directive. @requried may only be used once per field")]
-    RequiredOncePerField,
+    #[error("@required is not supported within @inline fragments.")]
+    RequiredWithinInlineDirective,
 
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,
@@ -654,4 +674,33 @@ pub enum ValidationMessage {
         "Fragment variable `${name}` conflicts with a global variable generated by the @refetchable generated query"
     )]
     LocalGlobalVariableConflict { name: StringKey },
+
+    #[error("Missing required {}: `{}`",
+        if missing_arg_names.len() > 1 { "arguments" } else { "argument" },
+        missing_arg_names
+            .iter()
+            .map(|arg| arg.lookup())
+            .collect::<Vec<_>>()
+            .join("`, `"))
+    ]
+    MissingRequiredArguments { missing_arg_names: Vec<StringKey> },
+
+    #[error("Duplicate argument `{name}`")]
+    DuplicateArgument { name: StringKey },
+
+    #[error(
+        "Required argument '{argument_name}: {type_string}' is missing on '{node_name}' in '{root_name}'."
+    )]
+    MissingRequiredArgument {
+        argument_name: StringKey,
+        type_string: String,
+        node_name: StringKey,
+        root_name: StringKey,
+    },
+
+    #[error("Missing required argument `{argument_name}` on this fragment spread.")]
+    MissingRequiredFragmentArgument { argument_name: StringKey },
+
+    #[error("Duplicate variable `{name}`")]
+    DuplicateVariable { name: StringKey },
 }

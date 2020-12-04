@@ -15,6 +15,7 @@ mod build_ir;
 mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
+mod is_operation_preloadable;
 mod persist_operations;
 mod source_control;
 mod validate;
@@ -36,12 +37,18 @@ pub use generate_artifacts::{
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
+pub use is_operation_preloadable::is_operation_preloadable;
 use log::info;
 use relay_codegen::Printer;
 use schema::Schema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::validate;
+
+pub enum BuildProjectFailure {
+    Error(BuildProjectError),
+    Cancelled,
+}
 
 fn build_programs(
     config: &Config,
@@ -51,7 +58,7 @@ fn build_programs(
     schema: Arc<Schema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(Programs, Arc<SourceHashes>), BuildProjectError> {
+) -> Result<(Programs, Arc<SourceHashes>), BuildProjectFailure> {
     let project_name = project_config.name;
     let is_incremental_build =
         compiler_state.has_processed_changes() && !compiler_state.has_breaking_schema_change();
@@ -62,8 +69,9 @@ fn build_programs(
         base_fragment_names,
         source_hashes,
     } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
-            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build).map_err(
+            |errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }),
+        )
     })?;
 
     // Turn the IR into a base Program.
@@ -71,11 +79,16 @@ fn build_programs(
         Program::from_definitions(schema, ir)
     });
 
+    if compiler_state.has_pending_file_source_changes() {
+        return Err(BuildProjectFailure::Cancelled);
+    }
+
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
         // TODO(T63482263): Pass connection interface from configuration
-        validate(&program, &config.connection_interface)
-            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        validate(&program, &config.connection_interface).map_err(|errors| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+        })
     })?;
 
     // Apply various chains of transforms to create a set of output programs.
@@ -85,42 +98,15 @@ fn build_programs(
             Arc::new(program),
             Arc::new(base_fragment_names),
             &config.connection_interface,
-            Arc::new(config.feature_flags),
+            Arc::new(project_config.feature_flags.unwrap_or(config.feature_flags)),
             perf_logger,
         )
-        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        .map_err(|errors| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+        })
     })?;
 
     Ok((programs, Arc::new(source_hashes)))
-}
-
-pub fn check_project(
-    config: &Config,
-    project_config: &ProjectConfig,
-    compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
-    schema: Arc<Schema>,
-    perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<Programs, BuildProjectError> {
-    let log_event = perf_logger.create_event("check_project");
-    let build_time = log_event.start("check_time");
-    let project_name = project_config.name.lookup();
-    log_event.string("project", project_name.to_string());
-
-    let (programs, _) = build_programs(
-        config,
-        project_config,
-        compiler_state,
-        graphql_asts,
-        schema,
-        &log_event,
-        Arc::clone(&perf_logger),
-    )?;
-
-    log_event.stop(build_time);
-    perf_logger.complete_event(log_event);
-
-    Ok(programs)
 }
 
 pub fn build_project(
@@ -129,7 +115,7 @@ pub fn build_project(
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(ProjectName, Arc<Schema>, Programs, Vec<Artifact>), BuildProjectError> {
+) -> Result<(ProjectName, Arc<Schema>, Programs, Vec<Artifact>), BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
@@ -137,9 +123,17 @@ pub fn build_project(
     info!("[{}] compiling...", project_name);
 
     // Construct a schema instance including project specific extensions.
-    let schema = log_event.time("build_schema_time", || {
-        Arc::new(build_schema(compiler_state, project_config))
-    });
+    let schema = log_event
+        .time("build_schema_time", || {
+            Ok(build_schema(compiler_state, project_config)?)
+        })
+        .map_err(|errors| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+        })?;
+
+    if compiler_state.has_pending_file_source_changes() {
+        return Err(BuildProjectFailure::Cancelled);
+    }
 
     // Apply different transform pipelines to produce the `Programs`.
     let (programs, source_hashes) = build_programs(
@@ -152,9 +146,14 @@ pub fn build_project(
         Arc::clone(&perf_logger),
     )?;
 
+    if compiler_state.has_pending_file_source_changes() {
+        return Err(BuildProjectFailure::Cancelled);
+    }
+
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))?;
+    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))
+        .map_err(BuildProjectFailure::Error)?;
     log_event.stop(artifacts_timer);
 
     log_event.number(
@@ -183,7 +182,7 @@ pub async fn commit_project(
     let log_event = perf_logger.create_event("commit_project");
     let commit_time = log_event.start("commit_project_time");
 
-    if let Some(ref artifact_persister) = config.artifact_persister {
+    if let Some(ref operation_persister) = config.operation_persister {
         if let Some(ref persist_config) = project_config.persist {
             let persist_operations_timer = log_event.start("persist_operations_time");
             persist_operations::persist_operations(
@@ -191,7 +190,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
-                &artifact_persister,
+                &operation_persister,
                 &log_event,
             )
             .await?;
@@ -219,7 +218,7 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::default();
+            let mut printer = Printer::with_dedupe();
 
             log_event.time("write_artifacts_time", || {
                 for artifact in &artifacts {
@@ -251,7 +250,7 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::default();
+            let mut printer = Printer::with_dedupe();
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
 

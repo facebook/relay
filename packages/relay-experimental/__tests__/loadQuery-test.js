@@ -64,6 +64,8 @@ let environment;
 let executeUnsubscribe;
 let executeObservable;
 
+let networkUnsubscribe;
+
 let disposeEnvironmentRetain;
 
 let resolvedModule;
@@ -73,9 +75,19 @@ let executeOnloadCallback;
 
 beforeEach(() => {
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
-    return Observable.create(_sink => {
+    const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    const originalSubscribe = observable.subscribe.bind(observable);
+    networkUnsubscribe = jest.fn();
+    jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
+      const subscription = originalSubscribe(...args);
+      jest
+        .spyOn(subscription, 'unsubscribe')
+        .mockImplementation(() => networkUnsubscribe());
+      return subscription;
+    });
+    return observable;
   });
   environment = createMockEnvironment({network: Network.create(fetch)});
 
@@ -193,6 +205,24 @@ describe('when passed a PreloadableConcreteRequest', () => {
           expect(nextCallback).toHaveBeenCalledWith(response);
         });
 
+        it('should mark failed network requests', () => {
+          const preloadedQuery = loadQuery(
+            environment,
+            preloadableConcreteRequest,
+            variables,
+            {
+              fetchPolicy: 'store-or-network',
+            },
+          );
+
+          expect(preloadedQuery.networkError).toBeNull();
+
+          const networkError = new Error('network request failed');
+          sink.error(networkError);
+
+          expect(preloadedQuery.networkError).toBe(networkError);
+        });
+
         it('calling dispose unsubscribes from executeWithSource', () => {
           // This ensures that no data is written to the store
           const preloadedQuery = loadQuery(
@@ -215,9 +245,28 @@ describe('when passed a PreloadableConcreteRequest', () => {
           expect(preloadedQuery.isDisposed).toBe(false);
           preloadedQuery.dispose();
           expect(preloadedQuery.isDisposed).toBe(true);
+          expect(executeUnsubscribe).not.toBe(null);
           if (executeUnsubscribe != null) {
             expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
             expect(disposeEnvironmentRetain).toHaveBeenCalled();
+          }
+        });
+
+        it('calling dispose unsubscribes from the network request', () => {
+          // This ensures that live queries stop issuing network requests
+          const preloadedQuery = loadQuery(
+            environment,
+            preloadableConcreteRequest,
+            variables,
+            {
+              fetchPolicy: 'store-or-network',
+            },
+          );
+          preloadedQuery.dispose();
+
+          expect(networkUnsubscribe).not.toBe(null);
+          if (networkUnsubscribe != null) {
+            expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
           }
         });
       });
@@ -256,6 +305,24 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(nextCallback).toHaveBeenCalledWith(response);
     });
 
+    it('should mark failed network requests', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
+
+      expect(preloadedQuery.networkError).toBeNull();
+
+      const networkError = new Error('network request failed');
+      sink.error(networkError);
+
+      expect(preloadedQuery.networkError).toBe(networkError);
+    });
+
     it('calling dispose after the AST loads unsubscribes from executeWithSource', () => {
       // This ensures that no data is written to the store
       const preloadedQuery = loadQuery(
@@ -282,9 +349,30 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(preloadedQuery.isDisposed).toBe(false);
       preloadedQuery.dispose();
       expect(preloadedQuery.isDisposed).toBe(true);
+
+      expect(executeUnsubscribe).not.toBe(null);
       if (executeUnsubscribe != null) {
         expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
         expect(disposeEnvironmentRetain).toHaveBeenCalled();
+      }
+    });
+
+    it('calling dispose after the AST loads unsubscribes from the network request', () => {
+      // This ensures that live queries stop issuing network requests
+      const preloadedQuery = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
+      executeOnloadCallback(query);
+      preloadedQuery.dispose();
+
+      expect(networkUnsubscribe).not.toBe(null);
+      if (networkUnsubscribe != null) {
+        expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
       }
     });
 
@@ -308,40 +396,6 @@ describe('when passed a PreloadableConcreteRequest', () => {
       if (disposeOnloadCallback != null) {
         expect(disposeOnloadCallback).toHaveBeenCalledTimes(1);
       }
-    });
-
-    it('should execute an onError callback if the query AST is not loaded in time and onQueryAstLoadTimeout is passed in', done => {
-      const onQueryAstLoadTimeout = jest.fn(() => done());
-      const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-      loadQuery(environment, preloadableConcreteRequest, variables, {
-        onQueryAstLoadTimeout,
-      });
-      jest.advanceTimersByTime(LOAD_QUERY_AST_MAX_TIMEOUT - 1);
-      expect(onQueryAstLoadTimeout).not.toHaveBeenCalled();
-      jest.advanceTimersByTime(1);
-      expect(onQueryAstLoadTimeout).toHaveBeenCalled();
-    });
-
-    it('completes the source if the AST times out', () => {
-      const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-      const loaded = loadQuery(
-        environment,
-        preloadableConcreteRequest,
-        variables,
-      );
-      const events = [];
-      const source = loaded.source;
-      if (source) {
-        source.subscribe({
-          complete: () => events.push('complete'),
-          error: error => events.push('error', error),
-          next: payload => events.push('next', payload),
-        });
-      }
-      jest.advanceTimersByTime(LOAD_QUERY_AST_MAX_TIMEOUT - 1);
-      expect(events).toEqual([]);
-      jest.advanceTimersByTime(1);
-      expect(events).toEqual(['complete']);
     });
 
     it('passes a callback to onLoad that calls executeWithSource', () => {
@@ -388,6 +442,19 @@ describe('when passed a query AST', () => {
         expect(nextCallback).toHaveBeenCalledWith(response);
       });
 
+      it('should mark failed network requests', () => {
+        const preloadedQuery = loadQuery(environment, query, variables, {
+          fetchPolicy: 'network-only',
+        });
+
+        expect(preloadedQuery.networkError).toBeNull();
+
+        const networkError = new Error('network request failed');
+        sink.error(networkError);
+
+        expect(preloadedQuery.networkError).toBe(networkError);
+      });
+
       it('calling dispose unsubscribes from environment.executeWithSource', () => {
         // This ensures that no data is written to the store
         const preloadedQuery = loadQuery(environment, query, variables, {
@@ -405,9 +472,24 @@ describe('when passed a query AST', () => {
         expect(preloadedQuery.isDisposed).toBe(false);
         preloadedQuery.dispose();
         expect(preloadedQuery.isDisposed).toBe(true);
+
+        expect(executeUnsubscribe).not.toBe(null);
         if (executeUnsubscribe != null) {
           expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
           expect(disposeEnvironmentRetain).toHaveBeenCalled();
+        }
+      });
+
+      it('calling dispose unsubscribes from the network request', () => {
+        // This ensures that live queries stop issuing network requests
+        const preloadedQuery = loadQuery(environment, query, variables, {
+          fetchPolicy: 'network-only',
+        });
+        preloadedQuery.dispose();
+
+        expect(networkUnsubscribe).not.toBe(null);
+        if (networkUnsubscribe != null) {
+          expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
         }
       });
     });
@@ -436,6 +518,17 @@ describe('when passed a query AST', () => {
       expect(nextCallback).toHaveBeenCalledWith(response);
     });
 
+    it('should mark failed network requests', () => {
+      const preloadedQuery = loadQuery(environment, query, variables);
+
+      expect(preloadedQuery.networkError).toBeNull();
+
+      const networkError = new Error('network request failed');
+      sink.error(networkError);
+
+      expect(preloadedQuery.networkError).toBe(networkError);
+    });
+
     it('calling dispose unsubscribes from environment.executeWithSource', () => {
       // This ensures that no data is written to the store
       const preloadedQuery = loadQuery(environment, query, variables);
@@ -451,9 +544,22 @@ describe('when passed a query AST', () => {
       expect(preloadedQuery.isDisposed).toBe(false);
       preloadedQuery.dispose();
       expect(preloadedQuery.isDisposed).toBe(true);
+
+      expect(executeUnsubscribe).not.toBe(null);
       if (executeUnsubscribe != null) {
         expect(executeUnsubscribe).toHaveBeenCalledTimes(1);
         expect(disposeEnvironmentRetain).toHaveBeenCalled();
+      }
+    });
+
+    it('calling dispose unsubscribes from the network request', () => {
+      // This ensures that live queries stop issuing network requests
+      const preloadedQuery = loadQuery(environment, query, variables);
+      preloadedQuery.dispose();
+
+      expect(networkUnsubscribe).not.toBe(null);
+      if (networkUnsubscribe != null) {
+        expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
       }
     });
   });

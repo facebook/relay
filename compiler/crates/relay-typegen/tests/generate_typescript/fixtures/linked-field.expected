@@ -27,44 +27,42 @@ query UnionTypeTest {
   }
 }
 ==================================== OUTPUT ===================================
-export type UnionTypeTestVariables = {||};
-export type UnionTypeTestResponse = {|
-  +neverNode: ?({|
-    +__typename: "FakeNode",
-    +id: string,
-  |} | {|
+export type UnionTypeTestVariables = {};
+export type UnionTypeTestResponse = {
+  readonly neverNode: {
+    readonly __typename: "FakeNode",
+    readonly id: string,
+  } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other"
-  |})
-|};
-export type UnionTypeTest = {|
+    readonly __typename: "%other"
+  } | null
+};
+export type UnionTypeTest = {
   variables: UnionTypeTestVariables,
   response: UnionTypeTestResponse,
-|};
+};
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type LinkedField$ref = FragmentReference & { _: "LinkedField$ref" };
-export type LinkedField$fragmentType = LinkedField$ref & { _: "LinkedField$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type LinkedField = {
-  readonly profilePicture?: {
-    readonly uri?: string,
-    readonly width?: number,
-    readonly height?: number,
-  },
-  readonly hometown?: {
+  readonly profilePicture: {
+    readonly uri: string | null,
+    readonly width: number | null,
+    readonly height: number | null,
+  } | null,
+  readonly hometown: {
     readonly id: string,
-    readonly profilePicture?: {
-      readonly uri?: string
-    },
-  },
-  readonly actor?: {
+    readonly profilePicture: {
+      readonly uri: string | null
+    } | null,
+  } | null,
+  readonly actor: {
     readonly id: string
-  },
-  readonly $refType: LinkedField$ref,
+  } | null,
+  readonly " $refType": FragmentRefs<"LinkedField">,
 };
 export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
-  readonly $data?: LinkedField$data,
-  readonly $fragmentRefs: LinkedField$ref,
+  readonly " $data"?: LinkedField$data,
+  readonly " $fragmentRefs": FragmentRefs<"LinkedField">,
 };

@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 mutation appendNodeLiteralEdgeTypeNameCommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {

@@ -726,7 +726,11 @@ function createContainerWithFragments<
         cacheConfig.metadata = options?.metadata;
       }
       const request = getRequest(connectionConfig.query);
-      const operation = createOperationDescriptor(request, fetchVariables);
+      const operation = createOperationDescriptor(
+        request,
+        fetchVariables,
+        cacheConfig,
+      );
 
       let refetchSubscription = null;
 
@@ -782,7 +786,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           preservePreviousReferences: true,
         })
         .mergeMap(payload =>
@@ -852,6 +855,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
 > {
+  // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

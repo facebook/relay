@@ -8,19 +8,8 @@
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
-use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, flatten, generate_data_driven_dependency_metadata,
-    generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
-    generate_subscription_name_metadata, generate_test_operation_metadata, generate_typename,
-    handle_field_transform, inline_data_fragment, inline_fragments, mask, react_flight,
-    relay_early_flush, remove_base_fragments, required_directive, skip_client_directives,
-    skip_client_extensions, skip_redundant_nodes, skip_split_operation, skip_unreachable_node,
-    skip_unused_variables, split_module_import, transform_connections,
-    transform_declarative_connection, transform_defer_stream, transform_match,
-    transform_refetchable_fragment, unwrap_custom_directive_selection, validate_global_variables,
-    ConnectionInterface, FeatureFlags,
-};
 use interner::StringKey;
+use relay_transforms::*;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -147,10 +136,10 @@ fn apply_common_transforms(
         transform_connections(&program, connection_interface)
     });
     let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
+    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
@@ -238,9 +227,6 @@ fn apply_operation_transforms(
     })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
-    let program = log_event.time("generate_preloadable_metadata", || {
-        generate_preloadable_metadata(&program)
-    })?;
     let program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)
     })?;
@@ -299,15 +285,15 @@ fn apply_operation_text_transforms(
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
-    // - ClientExtensionsTransform
+    // * ClientExtensionsTransform (not necessary in rust)
     // + SkipClientExtensionsTransform
     // + SkipUnreachableNodeTransform
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: false
-    // - SkipHandleFieldTransform
+    // * SkipHandleFieldTransform (not necessary in rust)
     // + FilterDirectivesTransform
     // + SkipUnusedVariablesTransform
-    // - ValidateRequiredArgumentsTransform
+    // + ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -323,7 +309,9 @@ fn apply_operation_text_transforms(
     let program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
     });
-
+    log_event.time("validate_required_arguments", || {
+        validate_required_arguments(&program)
+    })?;
     let program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });

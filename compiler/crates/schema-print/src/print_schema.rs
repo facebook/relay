@@ -5,10 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![deny(warnings)]
-#![deny(rust_2018_idioms)]
-#![deny(clippy::all)]
-
 use itertools::Itertools;
 use schema::*;
 use std::collections::BTreeMap;

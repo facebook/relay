@@ -45,6 +45,7 @@ let query;
 let FragmentResource;
 let UserFragment;
 let logger;
+let requiredFieldLogger;
 const componentDisplayName = 'TestComponent';
 
 beforeEach(() => {
@@ -54,8 +55,12 @@ beforeEach(() => {
   } = require('relay-test-utils-internal');
 
   logger = jest.fn();
+  requiredFieldLogger = jest.fn();
 
-  environment = createMockEnvironment({log: logger});
+  environment = createMockEnvironment({
+    log: logger,
+    requiredFieldLogger,
+  });
   FragmentResource = getFragmentResourceForEnvironment(environment);
 
   const sections = generateAndCompile(
@@ -125,9 +130,9 @@ test('Logs if a @required(action: LOG) field is null', () => {
     },
     componentDisplayName,
   );
-  expect(logger).toHaveBeenCalledWith({
+  expect(requiredFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'alternate_name',
-    name: 'read.missing_required_field',
+    kind: 'missing_field.log',
     owner: 'UserFragment',
   });
 });
@@ -186,6 +191,12 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
   ).toThrowError(
     "Relay: Missing @required value at path 'name' in 'UserFragment'.",
   );
+
+  expect(requiredFieldLogger).toHaveBeenCalledWith({
+    fieldPath: 'name',
+    kind: 'missing_field.throw',
+    owner: 'UserFragment',
+  });
 
   disposable.dispose();
 });

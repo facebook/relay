@@ -12,12 +12,11 @@ use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_text_printer::{
-    print_full_operation, write_fragment_with_graphqljs_formatting,
-    write_operation_with_graphqljs_formatting,
-};
-use graphql_transforms::{RefetchableDerivedFromMetadata, SplitOperationMetaData, MATCH_CONSTANTS};
+use graphql_text_printer::print_full_operation;
 use interner::StringKey;
+use relay_transforms::{
+    RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
+};
 use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -41,21 +40,14 @@ pub fn generate_artifacts(
     for normalization_operation in programs.normalization.operations() {
         if let Some(directive) = normalization_operation
             .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
         {
             // Generate normalization file for SplitOperation
-            let metadata = SplitOperationMetaData::from(directive);
+            let metadata = SplitOperationMetadata::from(directive);
             let source_fragment = programs
                 .source
                 .fragment(metadata.derived_from)
                 .expect("Expected the source document for the SplitOperation to exist.");
-            let mut source_string = String::new();
-            write_fragment_with_graphqljs_formatting(
-                &mut source_string,
-                &programs.source.schema,
-                &source_fragment,
-            )
-            .unwrap();
             let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
             let source_file = source_fragment.name.location.source_location();
 
@@ -79,13 +71,6 @@ pub fn generate_artifacts(
                 .source
                 .fragment(source_name)
                 .expect("Expected the source document for the SplitOperation to exist.");
-            let mut source_string = String::new();
-            write_fragment_with_graphqljs_formatting(
-                &mut source_string,
-                &programs.source.schema,
-                &source_fragment,
-            )
-            .unwrap();
             let source_hash = source_hashes.get(&source_name).cloned().unwrap();
 
             artifacts.push(generate_normalization_artifact(
@@ -97,21 +82,6 @@ pub fn generate_artifacts(
                 source_fragment.name.location.source_location(),
             )?);
         } else {
-            let source_operation = programs
-                .source
-                .operation(normalization_operation.name.item)
-                .unwrap();
-            // TODO: Consider using the std::io::Write trait here to directly
-            // write to the md5. Currently, this doesn't work as `write_operation`
-            // expects a `std::fmt::Write`.
-            // Same for fragment hashing below.
-            let mut source_string = String::new();
-            write_operation_with_graphqljs_formatting(
-                &mut source_string,
-                &programs.source.schema,
-                &source_operation,
-            )
-            .unwrap();
             let source_hash = source_hashes
                 .get(&normalization_operation.name.item)
                 .cloned()
@@ -128,15 +98,6 @@ pub fn generate_artifacts(
     }
 
     for reader_fragment in programs.reader.fragments() {
-        let source_fragment = programs.source.fragment(reader_fragment.name.item).unwrap();
-        // Same as for operation hashing above.
-        let mut source_string = String::new();
-        write_fragment_with_graphqljs_formatting(
-            &mut source_string,
-            &programs.source.schema,
-            &source_fragment,
-        )
-        .unwrap();
         let source_hash = source_hashes
             .get(&reader_fragment.name.item)
             .cloned()

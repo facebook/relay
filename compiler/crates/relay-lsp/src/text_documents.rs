@@ -6,6 +6,7 @@
  */
 
 //! Utilities related to LSP text document syncing
+#![allow(dead_code)]
 
 use crate::lsp::{
     DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
@@ -13,29 +14,13 @@ use crate::lsp::{
 };
 
 use graphql_syntax::GraphQLSource;
-use log::info;
-use std::sync::Arc;
-use tokio::sync::Notify;
 
 pub type GraphQLTextDocumentCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
-
-pub fn initialize_compiler_if_contains_graphql(
-    params: &DidOpenTextDocumentParams,
-    compiler_init_notify: Arc<Notify>,
-) {
-    let DidOpenTextDocumentParams { text_document } = params;
-    let TextDocumentItem { text, .. } = text_document;
-
-    if extract_graphql_sources(&text).is_some() {
-        compiler_init_notify.notify();
-    }
-}
 
 pub fn on_did_open_text_document(
     params: DidOpenTextDocumentParams,
     graphql_source_cache: &mut GraphQLTextDocumentCache,
 ) {
-    info!("Did open text document!");
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
 
@@ -62,7 +47,6 @@ pub fn on_did_change_text_document(
     params: DidChangeTextDocumentParams,
     graphql_source_cache: &mut GraphQLTextDocumentCache,
 ) {
-    info!("Did change text document!");
     let DidChangeTextDocumentParams {
         content_changes,
         text_document,
@@ -77,8 +61,11 @@ pub fn on_did_change_text_document(
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = match extract_graphql_sources(&content_change.text) {
         Some(sources) => sources,
-        // Exit early if there are no sources
-        None => return,
+        // Remove the item from the cache and exit early if there are no longer any sources
+        None => {
+            graphql_source_cache.remove(&uri);
+            return;
+        }
     };
 
     // Update the GraphQL sources for this document
@@ -87,7 +74,7 @@ pub fn on_did_change_text_document(
 
 /// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`
 /// if extracting fails or there are no GraphQL chunks in the file.
-fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
+pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
     match extract_graphql::parse_chunks(source) {
         Ok(chunks) => {
             if chunks.is_empty() {
@@ -96,6 +83,7 @@ fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
                 Some(chunks)
             }
         }
+        // TODO T80565215 handle these errors
         Err(_) => None,
     }
 }

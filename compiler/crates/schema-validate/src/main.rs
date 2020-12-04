@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use schema::{build_schema, Result, Schema};
+use common::DiagnosticsResult;
+use schema::{build_schema, Schema};
 use schema_validate_lib::validate;
 use std::fs;
 use std::path::Path;
@@ -33,13 +34,13 @@ pub fn main() {
             }
         }
         Err(error) => {
-            eprintln!("Failed to parse schema:\n{}", error);
+            eprintln!("Failed to parse schema:\n{:?}", error);
             std::process::exit(1);
         }
     }
 }
 
-fn build_schema_from_file(schema_file: &str) -> Result<Schema> {
+fn build_schema_from_file(schema_file: &str) -> DiagnosticsResult<Schema> {
     let path = Path::new(schema_file);
     let data = if path.is_file() {
         fs::read_to_string(path).unwrap()

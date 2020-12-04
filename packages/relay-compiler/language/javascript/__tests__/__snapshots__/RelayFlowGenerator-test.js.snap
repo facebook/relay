@@ -2318,6 +2318,116 @@ export type NonNullFragment$key = {
 };
 `;
 
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-item-in-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  parents {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +parents: $ReadOnlyArray<?{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-linked-field-through-inline-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    ... on User {
+      name @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  neighbors {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +neighbors: ?$ReadOnlyArray<?{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
 exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-query.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query FooQuery {
@@ -2330,7 +2440,7 @@ query FooQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // FooQuery.graphql
 export type FooQueryVariables = {||};
-export type FooQueryResponse = {|
+export type FooQueryResponse = ?{|
   +me: {|
     +firstName: ?string,
     +lastName: string,
@@ -2368,7 +2478,7 @@ export type FeedbackcommentComment = {|
 export type CommentCreateMutationVariables = {|
   input: CommentCreateInput
 |};
-export type CommentCreateMutationResponse = {|
+export type CommentCreateMutationResponse = ?{|
   +commentCreate: {|
     +comment: {|
       +id: string
@@ -2379,6 +2489,37 @@ export type CommentCreateMutation = {|
   variables: CommentCreateMutationVariables,
   response: CommentCreateMutationResponse,
 |};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    profile_picture @required(action: LOG) {
+      uri @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +profile_picture: {|
+      +uri: string
+    |}
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
 `;
 
 exports[`Snapshot tests for useHaste matches expected output: required-does-not-bubble-across-roots.graphql 1`] = `
@@ -2420,7 +2561,7 @@ query QueryC {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // QueryA.graphql
 export type QueryAVariables = {||};
-export type QueryAResponse = {|
+export type QueryAResponse = ?{|
   +me: {|
     +id: string
   |}
@@ -2504,7 +2645,7 @@ export type FragmentD$key = {
 
 // QueryC.graphql
 export type QueryCVariables = {||};
-export type QueryCResponse = {|
+export type QueryCResponse = ?{|
   +me: {|
     +id: string
   |}
@@ -2526,7 +2667,7 @@ query MyQuery @raw_response_type {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 // MyQuery.graphql
 export type MyQueryVariables = {||};
-export type MyQueryResponse = {|
+export type MyQueryResponse = ?{|
   +me: {|
     +id: string
   |}
@@ -2589,6 +2730,60 @@ export type FooQuery = {|
   variables: FooQueryVariables,
   response: FooQueryResponse,
 |};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-throws-within-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: {|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-throws-within-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  neighbors {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +neighbors: ?$ReadOnlyArray<{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
 `;
 
 exports[`Snapshot tests for useHaste matches expected output: roots.graphql 1`] = `

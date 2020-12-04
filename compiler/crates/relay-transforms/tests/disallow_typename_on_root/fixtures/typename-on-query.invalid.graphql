@@ -1,0 +1,7 @@
+# expected-to-throw
+query TestQuery {
+  __typename
+  me {
+    name
+  }
+}

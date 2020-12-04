@@ -11,12 +11,12 @@ use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
-use graphql_transforms::{ConnectionInterface, FeatureFlags, MATCH_CONSTANTS};
 use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
+use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
+use relay_transforms::{ConnectionInterface, FeatureFlags, DIRECTIVE_SPLIT_OPERATION};
 use std::sync::Arc;
-use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -35,7 +35,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         _ => panic!("Invalid fixture input {}", fixture.content),
     };
 
-    let ast = parse_executable(base, source_location).unwrap();
+    let ast = parse_executable(base, source_location)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let ir = build(&schema, &ast.definitions)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
@@ -69,7 +70,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map(|operation| {
             if operation
                 .directives
-                .named(MATCH_CONSTANTS.custom_module_directive_name)
+                .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
                 print_operation(&schema, operation)

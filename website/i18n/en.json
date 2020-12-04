@@ -383,6 +383,45 @@
       "version-v1.7.0/version-v1.7.0-videos": {
         "title": "Videos"
       },
+      "version-v10.0.0/version-v10.0.0-community-learning-resources": {
+        "title": "Community Learning Resources"
+      },
+      "version-v10.0.0/version-v10.0.0-graphql-server-specification": {
+        "title": "GraphQL Server Specification"
+      },
+      "version-v10.0.0/version-v10.0.0-prerequisites": {
+        "title": "Prerequisites"
+      },
+      "version-v10.0.0/version-v10.0.0-local-state-management": {
+        "title": "Local State Management"
+      },
+      "version-v10.0.0/version-v10.0.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-v10.0.0/version-v10.0.0-relay-store": {
+        "title": "Relay Store"
+      },
+      "version-v10.0.0/version-v10.0.0-subscriptions": {
+        "title": "Subscriptions"
+      },
+      "version-v10.0.0/version-v10.0.0-testing-relay-components": {
+        "title": "Testing Relay Components"
+      },
+      "version-v10.0.1/version-v10.0.1-mutations": {
+        "title": "Mutations"
+      },
+      "version-v10.0.1/version-v10.0.1-subscriptions": {
+        "title": "Subscriptions"
+      },
+      "version-v10.0.1/version-v10.0.1-testing-relay-components": {
+        "title": "Testing Relay Components"
+      },
+      "version-v10.1.0/version-v10.1.0-quick-start-guide": {
+        "title": "Quick Start Guide"
+      },
+      "version-v10.1.0/version-v10.1.0-mutations": {
+        "title": "Mutations"
+      },
       "version-v2.0.0/version-v2.0.0-community-learning-resources": {
         "title": "Community Learning Resources"
       },
@@ -523,6 +562,21 @@
       },
       "version-v8.0.0/version-v8.0.0-relay-store": {
         "title": "Relay Store"
+      },
+      "version-v9.0.0/version-v9.0.0-graphql-in-relay": {
+        "title": "GraphQL in Relay"
+      },
+      "version-v9.0.0/version-v9.0.0-mutations": {
+        "title": "Mutations"
+      },
+      "version-v9.0.0/version-v9.0.0-testing-relay-components": {
+        "title": "Testing Relay Components"
+      },
+      "version-v9.0.0/version-v9.0.0-thinking-in-relay": {
+        "title": "Thinking In Relay"
+      },
+      "version-v9.1.0/version-v9.1.0-local-state-management": {
+        "title": "Local State Management"
       }
     },
     "links": {

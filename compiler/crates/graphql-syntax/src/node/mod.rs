@@ -8,6 +8,7 @@
 mod constant_directive;
 mod constant_value;
 mod directive;
+mod document;
 mod executable;
 mod primitive;
 mod type_annotation;
@@ -17,6 +18,7 @@ mod value;
 pub use constant_directive::*;
 pub use constant_value::*;
 pub use directive::*;
+pub use document::*;
 pub use executable::*;
 pub use primitive::*;
 pub use type_annotation::*;

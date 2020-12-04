@@ -1,4 +1,11 @@
-// @generated SignedSource<<cf37e7ae5beffc6fae2c6a04b629b940>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<29eae14748cbbe8391c31473808805ec>>
+ */
 
 mod generate_typescript;
 
@@ -48,20 +55,6 @@ fn match_field_in_query() {
 }
 
 #[test]
-fn mutaion_with_client_extension() {
-    let input = include_str!("generate_typescript/fixtures/mutaion-with-client-extension.graphql");
-    let expected = include_str!("generate_typescript/fixtures/mutaion-with-client-extension.expected");
-    test_fixture(transform_fixture, "mutaion-with-client-extension.graphql", "generate_typescript/fixtures/mutaion-with-client-extension.expected", input, expected);
-}
-
-#[test]
-fn mutaion_with_response_on_inline_fragments() {
-    let input = include_str!("generate_typescript/fixtures/mutaion-with-response-on-inline-fragments.graphql");
-    let expected = include_str!("generate_typescript/fixtures/mutaion-with-response-on-inline-fragments.expected");
-    test_fixture(transform_fixture, "mutaion-with-response-on-inline-fragments.graphql", "generate_typescript/fixtures/mutaion-with-response-on-inline-fragments.expected", input, expected);
-}
-
-#[test]
 fn mutation() {
     let input = include_str!("generate_typescript/fixtures/mutation.graphql");
     let expected = include_str!("generate_typescript/fixtures/mutation.expected");
@@ -76,6 +69,13 @@ fn mutation_input_has_array() {
 }
 
 #[test]
+fn mutation_with_client_extension() {
+    let input = include_str!("generate_typescript/fixtures/mutation-with-client-extension.graphql");
+    let expected = include_str!("generate_typescript/fixtures/mutation-with-client-extension.expected");
+    test_fixture(transform_fixture, "mutation-with-client-extension.graphql", "generate_typescript/fixtures/mutation-with-client-extension.expected", input, expected);
+}
+
+#[test]
 fn mutation_with_enums_on_fragment() {
     let input = include_str!("generate_typescript/fixtures/mutation-with-enums-on-fragment.graphql");
     let expected = include_str!("generate_typescript/fixtures/mutation-with-enums-on-fragment.expected");
@@ -87,6 +87,13 @@ fn mutation_with_nested_fragments() {
     let input = include_str!("generate_typescript/fixtures/mutation-with-nested-fragments.graphql");
     let expected = include_str!("generate_typescript/fixtures/mutation-with-nested-fragments.expected");
     test_fixture(transform_fixture, "mutation-with-nested-fragments.graphql", "generate_typescript/fixtures/mutation-with-nested-fragments.expected", input, expected);
+}
+
+#[test]
+fn mutation_with_response_on_inline_fragments() {
+    let input = include_str!("generate_typescript/fixtures/mutation-with-response-on-inline-fragments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/mutation-with-response-on-inline-fragments.expected");
+    test_fixture(transform_fixture, "mutation-with-response-on-inline-fragments.graphql", "generate_typescript/fixtures/mutation-with-response-on-inline-fragments.expected", input, expected);
 }
 
 #[test]

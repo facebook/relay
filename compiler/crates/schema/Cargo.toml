@@ -16,8 +16,10 @@ path = "tests/build_schema_test.rs"
 
 [dependencies]
 common = { path = "../common" }
+graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
 thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
+graphql-test-helpers = { path = "../graphql-test-helpers" }

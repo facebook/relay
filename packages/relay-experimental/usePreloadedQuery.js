@@ -44,12 +44,11 @@ function usePreloadedQuery<TQuery: OperationType>(
   useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
-  const {fetchPolicy, source, variables} = preloadedQuery;
+  const {fetchKey, fetchPolicy, source, variables} = preloadedQuery;
   const operation = useMemoOperationDescriptor(gqlQuery, variables);
 
   let useLazyLoadQueryNodeParams;
   if (preloadedQuery.kind === 'PreloadedQuery_DEPRECATED') {
-    const {fetchKey} = preloadedQuery;
     invariant(
       operation.request.node.params.name === preloadedQuery.name,
       'usePreloadedQuery(): Expected data to be prefetched for query `%s`, ' +
@@ -121,6 +120,7 @@ function usePreloadedQuery<TQuery: OperationType>(
     useLazyLoadQueryNodeParams = {
       componentDisplayName: 'usePreloadedQuery()',
       fetchObservable,
+      fetchKey,
       fetchPolicy,
       query: operation,
       renderPolicy: options?.UNSTABLE_renderPolicy,
@@ -134,10 +134,7 @@ function usePreloadedQuery<TQuery: OperationType>(
       query: preloadedQuery.name,
       variables: preloadedQuery.variables,
       data,
-      fetchKey:
-        preloadedQuery.kind === 'PreloadedQuery_DEPRECATED'
-          ? preloadedQuery.fetchKey
-          : undefined,
+      fetchKey,
       fetchPolicy,
       renderPolicy: options?.UNSTABLE_renderPolicy,
     });

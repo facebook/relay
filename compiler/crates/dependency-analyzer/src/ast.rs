@@ -18,6 +18,7 @@ pub struct ReachableAst {
     pub base_fragment_names: FnvHashSet<StringKey>,
 }
 
+/// Get all definitions that reachable from project defintions
 pub fn get_reachable_ast(
     project_definitions: Vec<ExecutableDefinition>,
     base_definitions: Vec<ExecutableDefinition>,
@@ -73,6 +74,44 @@ pub fn get_reachable_ast(
         definitions: result,
         base_fragment_names: reachable_base_asts,
     }
+}
+
+/// Get fragment references of each definition
+pub fn get_definition_references<'a>(
+    definitions: impl IntoIterator<Item = &'a ExecutableDefinition>,
+) -> FnvHashMap<StringKey, FnvHashSet<StringKey>> {
+    let mut result = FnvHashMap::default();
+    for definition in definitions {
+        let name = definition.name().expect("Expect a name on an operation");
+        let mut selections: Vec<_> = match definition {
+            ExecutableDefinition::Operation(definition) => &definition.selections.items,
+            ExecutableDefinition::Fragment(definition) => &definition.selections.items,
+        }
+        .iter()
+        .collect();
+        let mut references = FnvHashSet::default();
+        loop {
+            let selection = selections.pop();
+            if let Some(selection) = selection {
+                match selection {
+                    Selection::FragmentSpread(selection) => {
+                        references.insert(selection.name.value);
+                    }
+                    Selection::LinkedField(selection) => {
+                        selections.extend(selection.selections.items.iter());
+                    }
+                    Selection::InlineFragment(selection) => {
+                        selections.extend(selection.selections.items.iter());
+                    }
+                    Selection::ScalarField(_) => {}
+                }
+            } else {
+                break;
+            }
+        }
+        result.insert(name, references);
+    }
+    result
 }
 
 fn visit_selections(

@@ -15,6 +15,7 @@
 
 const RelayFeatureFlags = require('./RelayFeatureFlags');
 
+const isEmptyObject = require('./isEmptyObject');
 const stableCopy = require('./stableCopy');
 
 const {
@@ -23,7 +24,6 @@ const {
   getSelector,
 } = require('../store/RelayModernSelector');
 
-import type {Variables} from '../util/RelayRuntimeTypes';
 import type {ReaderFragment} from './ReaderNode';
 
 function getFragmentIdentifier(
@@ -48,7 +48,7 @@ function getFragmentIdentifier(
       '/' +
       fragmentNode.name +
       '/' +
-      (fragmentVariables == null || isEmpty(fragmentVariables)
+      (fragmentVariables == null || isEmptyObject(fragmentVariables)
         ? '{}'
         : JSON.stringify(stableCopy(fragmentVariables))) +
       '/' +
@@ -71,13 +71,6 @@ function getFragmentIdentifier(
       (JSON.stringify(dataIDs) ?? 'missing')
     );
   }
-}
-
-function isEmpty(obj: Variables): boolean {
-  for (var x in obj) {
-    return false;
-  }
-  return true;
 }
 
 module.exports = getFragmentIdentifier;

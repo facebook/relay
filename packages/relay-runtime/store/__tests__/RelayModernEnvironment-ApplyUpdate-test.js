@@ -141,7 +141,7 @@ describe('applyUpdate()', () => {
     });
   });
 
-  it('notifies the subscription when an optimisitc update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
+  it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
     const selector = createReaderSelector(
       UserFragment,
       '4',
@@ -351,7 +351,7 @@ describe('applyUpdate()', () => {
       });
     });
 
-    it('notifies the subscription when an optimisitc update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
+    it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
       const selector = createReaderSelector(
         UserFragment,
         '4',

@@ -19,15 +19,18 @@ import type {
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-type ValidationContext = {
+type ValidationContext = {|
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
   missingDiff: Object,
   extraDiff: Object,
-  ...
-};
+  moduleImportPaths: Set<string>,
+|};
+
 const warning = require('warning');
+
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {
@@ -55,6 +58,7 @@ if (__DEV__) {
       variables: variables || {},
       missingDiff: {},
       extraDiff: {},
+      moduleImportPaths: new Set(),
     };
     validateSelections(
       optimisticResponse,
@@ -97,6 +101,7 @@ if (__DEV__) {
         return;
       case 'ScalarField':
       case 'LinkedField':
+      case 'FlightField':
         return validateField(optimisticResponse, selection, context);
       case 'InlineFragment':
         const type = selection.type;
@@ -114,6 +119,7 @@ if (__DEV__) {
         });
         return;
       case 'ModuleImport':
+        return validateModuleImport(context);
       case 'LinkedHandle':
       case 'ScalarHandle':
       case 'Defer':
@@ -122,12 +128,14 @@ if (__DEV__) {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
-      case 'FlightField':
-        throw new Error('Flight fields are not yet supported.');
       default:
         (selection: empty);
         return;
     }
+  };
+
+  const validateModuleImport = (context: ValidationContext) => {
+    context.moduleImportPaths.add(context.path);
   };
 
   const validateField = (
@@ -140,7 +148,7 @@ if (__DEV__) {
     context.visitedPaths.add(path);
     switch (field.kind) {
       case 'ScalarField':
-        if (optimisticResponse.hasOwnProperty(fieldName) === false) {
+        if (hasOwnProperty.call(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;
@@ -148,7 +156,7 @@ if (__DEV__) {
         const selections = field.selections;
         if (
           optimisticResponse[fieldName] === null ||
-          (Object.hasOwnProperty(fieldName) &&
+          (hasOwnProperty.call(optimisticResponse, fieldName) &&
             optimisticResponse[fieldName] === undefined)
         ) {
           return;
@@ -180,6 +188,21 @@ if (__DEV__) {
             return;
           }
         }
+      case 'FlightField':
+        if (
+          optimisticResponse[fieldName] === null ||
+          (hasOwnProperty.call(optimisticResponse, fieldName) &&
+            optimisticResponse[fieldName] === undefined)
+        ) {
+          return;
+        }
+        throw new Error(
+          'validateMutation: Flight fields are not compatible with ' +
+            'optimistic updates, as React does not have the component code ' +
+            'necessary to process new data on the client. Instead, you ' +
+            'should update your code to require a full refetch of the Flight ' +
+            'field so your UI can be updated.',
+        );
     }
   };
 
@@ -198,6 +221,10 @@ if (__DEV__) {
     Object.keys(optimisticResponse).forEach((key: string) => {
       const value = optimisticResponse[key];
       const path = `${context.path}.${key}`;
+      // if it's a module import path we don't have an ast so we cannot validate it
+      if (context.moduleImportPaths.has(path)) {
+        return;
+      }
       if (!context.visitedPaths.has(path)) {
         addFieldToDiff(path, context.extraDiff);
         return;

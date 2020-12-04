@@ -46,7 +46,7 @@
 //!
 //! *FB-internal: see `scripts/generate_fixture_tests.sh` to generate all.*
 //
-//! *FB-internal: use buck run //relay/oss/creates/fixture-tests:fixture-tests-bin -- <path to tests dir>
+//! *FB-internal: use buck run //relay/oss/crates/fixture-tests:fixture-tests-bin -- <path to tests dir>
 //! *FB-internal: if you don't want to use cargo run. This is useful for development on a dev-server or
 //! *FB-internal: or machines w/o cargo installed.
 

@@ -5,20 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, commit_project};
+use crate::build_project::{build_project, build_schema, commit_project, BuildProjectFailure};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
-use crate::errors::{BuildProjectError, Error, Result};
+use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
-use crate::{source_for_location, watchman::FileSource};
-use common::{Diagnostic, PerfLogEvent, PerfLogger};
+use crate::red_to_green::RedToGreen;
+use crate::watchman::FileSource;
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use graphql_cli::DiagnosticPrinter;
-use log::{error, info};
+use log::info;
 use rayon::prelude::*;
 use schema::Schema;
 use std::{collections::HashMap, sync::Arc};
-use tokio::task;
+use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
 where
@@ -36,7 +36,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
-    pub async fn compile(self) -> Result<CompilerState> {
+    pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
         let file_source = FileSource::connect(&self.config, &setup_event).await?;
@@ -54,15 +54,15 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> HashMap<ProjectName, Arc<Schema>> {
+    ) -> DiagnosticsResult<HashMap<ProjectName, Arc<Schema>>> {
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::new();
         for project_config in self.config.enabled_projects() {
-            let schema = build_schema(compiler_state, project_config);
-            schemas.insert(project_config.name, Arc::new(schema));
+            let schema = build_schema(compiler_state, project_config)?;
+            schemas.insert(project_config.name, schema);
         }
         setup_event.stop(timer);
-        schemas
+        Ok(schemas)
     }
 
     pub async fn watch(&self) -> Result<()> {
@@ -74,31 +74,49 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
+        let mut red_to_green = RedToGreen::new();
+
         if self
             .build_projects(&mut compiler_state, &setup_event)
             .await
             .is_err()
         {
-            // noop, build_projects should have logged already
+            // build_projects should have logged already
+            red_to_green.log_error()
         } else {
             info!("Compilation completed.");
         }
         self.perf_logger.complete_event(setup_event);
         info!("Waiting for changes...");
 
+        let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
+        let notify_sender = Arc::new(Notify::new());
+        let notify_receiver = notify_sender.clone();
+        task::spawn(async move {
+            loop {
+                if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
+                    pending_file_source_changes
+                        .write()
+                        .unwrap()
+                        .push(file_source_changes);
+                    notify_sender.notify();
+                }
+            }
+        });
+
         loop {
-            if let Some(file_source_changes) = subscription.next_change().await? {
+            notify_receiver.notified().await;
+            // Single change to file sometimes produces 2 watchman change events for the same file
+            // wait for 50ms in case there is a subsequent request
+            tokio::time::delay_for(std::time::Duration::from_millis(50)).await;
+            if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
                     incremental_build_event.start("incremental_build_time");
 
-                // TODO Single change to file in VSCode sometimes produces
-                // 2 watchman change events for the same file
-
                 let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
-                    &file_source_changes,
                     &incremental_build_event,
                     self.perf_logger.as_ref(),
                     false,
@@ -111,9 +129,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         .await
                         .is_err()
                     {
-                        // noop, build_projects should have logged already
+                        // build_projects should have logged already
+                        red_to_green.log_error()
                     } else {
                         info!("Compilation completed.");
+                        red_to_green.clear_error_and_log(self.perf_logger.as_ref());
                     }
                     incremental_build_event.stop(incremental_build_time);
                     info!("Waiting for changes...");
@@ -133,6 +153,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
+        self.config.status_reporter.build_starts();
         let result = build_projects(
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
@@ -140,57 +161,25 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
-        match result {
+        let result = match result {
             Ok(()) => {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
-                Ok(())
-            }
-            Err(error) => {
-                match &error {
-                    Error::DiagnosticsError { errors } => {
-                        for diagnostic in errors {
-                            self.print_diagnostic(diagnostic);
-                        }
+                if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
+                    if let Err(error) = post_artifacts_write(&self.config) {
+                        let error = Error::PostArtifactsError { error };
+                        Err(error)
+                    } else {
+                        Ok(())
                     }
-                    Error::BuildProjectsErrors { errors } => {
-                        for error in errors {
-                            self.print_project_error(error);
-                        }
-                    }
-                    error => {
-                        error!("{}", error);
-                    }
-                }
-                error!("Compilation failed.");
-                Err(error)
-            }
-        }
-    }
-
-    fn print_project_error(&self, error: &BuildProjectError) {
-        match error {
-            BuildProjectError::ValidationErrors { errors } => {
-                for diagnostic in errors {
-                    self.print_diagnostic(diagnostic);
+                } else {
+                    Ok(())
                 }
             }
-            BuildProjectError::PersistErrors { errors } => {
-                for error in errors {
-                    error!("{}", error);
-                }
-            }
-            _ => {
-                error!("{}", error);
-            }
-        }
-    }
-
-    fn print_diagnostic(&self, diagnostic: &Diagnostic) {
-        let printer = DiagnosticPrinter::new(|source_location| {
-            source_for_location(&self.config.root_dir, source_location).map(|source| source.text)
-        });
-        error!("{}", printer.diagnostic_to_string(diagnostic));
+            Err(error) => Err(error),
+        };
+        self.config.status_reporter.build_finishes(&result);
+        result
     }
 }
 
@@ -203,9 +192,13 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
-            &compiler_state.get_dirty_defintions(&config),
+            &compiler_state.get_dirty_definitions(&config),
         )
     })?;
+
+    if compiler_state.has_pending_file_source_changes() {
+        return Err(Error::Cancelled);
+    }
 
     let build_results: Vec<_> = config
         .par_enabled_projects()
@@ -232,7 +225,12 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     for result in build_results {
         match result {
             Ok(result) => results.push(result),
-            Err(error) => errors.push(error),
+            Err(error) => match error {
+                BuildProjectFailure::Error(error) => errors.push(error),
+                BuildProjectFailure::Cancelled => {
+                    return Err(Error::Cancelled);
+                }
+            },
         }
     }
 
@@ -241,6 +239,9 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);
             let perf_logger = Arc::clone(&perf_logger);
+            if let Some(on_build_project_success) = &config.on_build_project_success {
+                on_build_project_success(project_name, &schema, &programs.source);
+            }
             let artifact_map = compiler_state
                 .artifacts
                 .get(&project_name)
@@ -271,6 +272,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         dirty_artifact_paths,
                     )
                     .await?,
+                    schema,
                 ))
             }));
         }
@@ -280,18 +282,19 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 error: e.to_string(),
             })?;
             match inner_result {
-                Ok((project_name, next_artifact_map)) => {
+                Ok((project_name, next_artifact_map, schema)) => {
                     let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                     compiler_state
                         .artifacts
                         .insert(project_name, next_artifact_map);
+                    compiler_state.schema_cache.insert(project_name, schema);
                 }
                 Err(error) => {
                     errors.push(error);
                 }
             }
         }
-    };
+    }
 
     if errors.is_empty() {
         Ok(())

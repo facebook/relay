@@ -34,6 +34,8 @@ pub trait Visitor {
     fn default_visit_fragment(&mut self, fragment: &FragmentDefinition) {
         self.visit_selections(&fragment.selections);
         self.visit_directives(&fragment.directives);
+        self.visit_variable_definitions(&fragment.variable_definitions);
+        self.visit_variable_definitions(&fragment.used_global_variables);
     }
 
     // Operation Definition
@@ -44,6 +46,7 @@ pub trait Visitor {
     fn default_visit_operation(&mut self, operation: &OperationDefinition) {
         self.visit_directives(&operation.directives);
         self.visit_selections(&operation.selections);
+        self.visit_variable_definitions(&operation.variable_definitions);
     }
 
     // Selection
@@ -168,6 +171,19 @@ pub trait Visitor {
 
     fn visit_variable(&mut self, value: &Variable) {
         let _ = value;
+    }
+
+    // Variable Definitions
+    fn visit_variable_definitions(&mut self, variable_definitions: &[VariableDefinition]) {
+        self.visit_list(variable_definitions, Self::visit_variable_definition)
+    }
+
+    fn visit_variable_definition(&mut self, variable_definition: &VariableDefinition) {
+        self.default_visit_variable_definition(variable_definition)
+    }
+
+    fn default_visit_variable_definition(&mut self, variable_definition: &VariableDefinition) {
+        self.visit_directives(&variable_definition.directives)
     }
 
     // Helpers

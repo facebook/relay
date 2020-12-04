@@ -7,7 +7,7 @@ query FooQuery {
 }
 ==================================== OUTPUT ===================================
 export type FooQueryVariables = {||};
-export type FooQueryResponse = {|
+export type FooQueryResponse = ?{|
   +me: {|
     +firstName: ?string,
     +lastName: string,

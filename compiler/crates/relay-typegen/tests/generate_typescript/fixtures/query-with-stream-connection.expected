@@ -17,51 +17,51 @@ query TestDefer @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestDeferVariables = {||};
-export type TestDeferResponse = {|
-  +node: ?{|
-    +name?: ?string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +actor: ?{|
-            +name: ?string
-          |}
-        |}
-      |}>
-    |},
-  |}
-|};
-export type TestDeferRawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +actor: ?{|
-            +__typename: string,
-            +name: ?string,
-            +id: string,
-          |},
-          +id: string,
-          +__typename: "User",
-        |},
-        +cursor: ?string,
-      |}>,
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-      |},
-    |},
-  |} | {|
-    +__typename: string,
-    +id: string,
-  |})
-|};
-export type TestDefer = {|
+export type TestDeferVariables = {};
+export type TestDeferResponse = {
+  readonly node: {
+    readonly name?: string | null,
+    readonly friends?: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly actor: {
+            readonly name: string | null
+          } | null
+        } | null
+      } | null> | null
+    } | null,
+  } | null
+};
+export type TestDeferRawResponse = {
+  readonly node: {
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name: string | null,
+    readonly friends: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly actor: {
+            readonly __typename: string,
+            readonly name: string | null,
+            readonly id: string,
+          } | null,
+          readonly id: string,
+          readonly __typename: "User",
+        } | null,
+        readonly cursor: string | null,
+      } | null> | null,
+      readonly pageInfo: {
+        readonly endCursor: string | null,
+        readonly hasNextPage: boolean | null,
+      } | null,
+    } | null,
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  } | null
+};
+export type TestDefer = {
   variables: TestDeferVariables,
   response: TestDeferResponse,
   rawResponse: TestDeferRawResponse,
-|};
+};

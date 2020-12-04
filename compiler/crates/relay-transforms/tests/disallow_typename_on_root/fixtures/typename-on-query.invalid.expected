@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery {
+  __typename
+  me {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Relay does not allow `__typename` field on Query, Mutation or Subscription.
+
+  typename-on-query.invalid.graphql:3:3
+    2 │ query TestQuery {
+    3 │   __typename
+      │   ^^^^^^^^^^
+    4 │   me {

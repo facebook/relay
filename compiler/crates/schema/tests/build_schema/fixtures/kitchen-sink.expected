@@ -67,6 +67,7 @@ Schema {
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
     Directive {
@@ -87,6 +88,7 @@ Schema {
             FragmentSpread,
             InlineFragment,
         ],
+        repeatable: false,
         is_extension: false,
     },
 ]
@@ -118,7 +120,13 @@ Schema {
                             ArgumentValue {
                                 name: "reason",
                                 value: String(
-                                    "No longer supported",
+                                    StringNode {
+                                        token: Token {
+                                            span: 268:289,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "No longer supported",
+                                    },
                                 ),
                             },
                         ],
@@ -299,6 +307,18 @@ Schema {
         type_: NonNull(
             Named(
                 Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__token",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
             ),
         ),
         directives: [],

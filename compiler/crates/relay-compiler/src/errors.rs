@@ -100,6 +100,14 @@ pub enum Error {
 
     #[error("A thread that the Relay compiler spun up did not shut down gracefully: {error}")]
     JoinError { error: String },
+
+    #[error("Error in post artifact writer: {error}")]
+    PostArtifactsError {
+        error: Box<dyn std::error::Error + Sync + Send>,
+    },
+
+    #[error("Compilation cancelled due to new changes")]
+    Cancelled,
 }
 
 #[derive(Debug, Error)]

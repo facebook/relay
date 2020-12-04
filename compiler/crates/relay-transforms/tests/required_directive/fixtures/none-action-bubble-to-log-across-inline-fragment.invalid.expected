@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on Comment {
+  actor @required(action: LOG) {
+    ... on User {
+      name @required(action: NONE)
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: NONE`
+
+  none-action-bubble-to-log-across-inline-fragment.invalid.graphql:3:27
+    2 │ fragment EnabledFoo on Comment {
+    3 │   actor @required(action: LOG) {
+      │                           ^^^
+    4 │     ... on User {
+
+  ℹ︎ so that it can match its parent
+
+  none-action-bubble-to-log-across-inline-fragment.invalid.graphql:5:30
+    4 │     ... on User {
+    5 │       name @required(action: NONE)
+      │                              ^^^^
+    6 │     }

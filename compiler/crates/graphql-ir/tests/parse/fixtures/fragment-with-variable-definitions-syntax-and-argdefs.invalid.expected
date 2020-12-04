@@ -31,5 +31,5 @@ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"})
   fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql:16:13
    15 │ 
    16 │ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"}) {
-      │             ^^^^^^^^^^^^^^^^
+      │             ^^^^^^^^^^^^^^^
    17 │   id

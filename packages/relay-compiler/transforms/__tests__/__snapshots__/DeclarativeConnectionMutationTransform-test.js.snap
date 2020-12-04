@@ -3,7 +3,7 @@
 exports[`matches expected output: append-edge.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -18,7 +18,7 @@ mutation CommentCreateMutation(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -37,7 +37,7 @@ exports[`matches expected output: append-edge-unspported.invalid.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -63,7 +63,7 @@ Source: GraphQL request (7:12)
 exports[`matches expected output: append-node.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -77,7 +77,7 @@ mutation CommentCreateMutation(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -93,7 +93,7 @@ mutation CommentCreateMutation(
 exports[`matches expected output: append-node-edge-literal.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -106,7 +106,7 @@ mutation CommentCreateMutation(
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
@@ -122,7 +122,7 @@ exports[`matches expected output: append-node-unsupported.invalid.graphql 1`] = 
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 # expected-to-throw
 mutation CommentCreateMutation(
-  $connections: [String!]!
+  $connections: [ID!]!
   $edgeTypeName: String!
   $input: CommentCreateInput
 ) {
@@ -144,6 +144,77 @@ Source: GraphQL request (10:9)
 10:         @appendNode(connections: $connections, edgeTypeName: $edgeTypeName)
             ^
 11:     }
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    deletedCommentId @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
+  }
+}
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection-on-unspported-type.invalid.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+# expected-to-throw
+mutation CommentDeleteMutation(
+  $input: CommentDeleteInput
+  $connections: [ID!]!
+) {
+  commentDelete(input: $input) {
+    __typename @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+THROWN EXCEPTION:
+
+Invalid use of @deleteEdge on field '__typename'. Expected field to return an ID or list of ID values, got String!.
+
+Source: GraphQL request (7:16)
+6:   commentDelete(input: $input) {
+7:     __typename @deleteEdge(connections: $connections)
+                  ^
+8:   }
+
+`;
+
+exports[`matches expected output: delete-edge-from-connection-plural.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [ID!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @deleteEdge(connections: $connections)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+mutation CommentsDeleteMutation(
+  $input: CommentsDeleteInput
+  $connections: [ID!]!
+) {
+  commentsDelete(input: $input) {
+    deletedCommentIds @__clientField(handle: "deleteEdge", handleArgs: (connections: $connections))
+  }
+}
 
 `;
 

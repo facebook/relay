@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      actors @connection {
+        name
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `key`
+
+  connection-invalid-type.invalid.graphql:6:15
+    5 │     ... on Story {
+    6 │       actors @connection {
+      │               ^^^^^^^^^^
+    7 │         name

@@ -37,9 +37,8 @@ import type {
   GraphQLResponse,
 } from 'relay-runtime';
 
-const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-
 let RenderDispatcher = null;
+let fetchKey = 100001;
 
 function useTrackLoadQueryInRender() {
   if (RenderDispatcher === null) {
@@ -69,11 +68,21 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     'Relay: `loadQuery` (or `loadEntryPoint`) should not be called inside a React render function.',
   );
 
+  // Every time you call loadQuery we will generate a new fetchKey. This will ensure that every query
+  // reference that is created and passed to usePreloadedQuery is properly evaluated, even if they are
+  // for the same query/variables. Specifically, we want to avoid a case where we try to refetch a
+  // query by calling loadQuery a second time, and have the Suspense cache in usePreloadedQuery reuse
+  // the cached result instead of the new result it would get from evaluating the new query ref.
+  fetchKey++;
+
   const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
   const networkCacheConfig = {
     ...options?.networkCacheConfig,
     force: true,
   };
+
+  let unsubscribeFromNetworkRequest;
+  let networkError = null;
 
   // makeNetworkRequest will immediately start a raw network request and
   // return an Observable that when subscribing to it, will replay the
@@ -92,8 +101,9 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     );
 
     const subject = new ReplaySubject();
-    sourceObservable.subscribe({
+    ({unsubscribe: unsubscribeFromNetworkRequest} = sourceObservable.subscribe({
       error(err) {
+        networkError = err;
         subject.error(err);
       },
       next(data) {
@@ -102,7 +112,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       complete() {
         subject.complete();
       },
-    });
+    }));
     return Observable.create(sink => subject.subscribe(sink));
   };
 
@@ -193,7 +203,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 
   let params;
-  let loadQueryAstTimeoutId;
   let cancelOnLoadCallback;
   let moduleId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
@@ -222,7 +231,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         moduleId,
         preloadedModule => {
-          loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
           cancelOnLoadCallback();
           const operation = createOperationDescriptor(
             preloadedModule,
@@ -233,18 +241,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           );
         },
       ));
-      if (!environment.isServer()) {
-        loadQueryAstTimeoutId = setTimeout(() => {
-          cancelOnLoadCallback();
-          const onTimeout = options?.onQueryAstLoadTimeout;
-          if (onTimeout) {
-            onTimeout();
-          }
-          // complete() the subject so that the observer knows no (additional) payloads
-          // will be delivered
-          executionSubject.complete();
-        }, LOAD_QUERY_AST_MAX_TIMEOUT);
-      }
     }
   } else {
     const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
@@ -262,16 +258,21 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       if (isDisposed) {
         return;
       }
+      unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
       unsubscribeFromExecution && unsubscribeFromExecution();
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();
-      loadQueryAstTimeoutId != null && clearTimeout(loadQueryAstTimeoutId);
       isDisposed = true;
     },
+    fetchKey,
     id: moduleId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed;
+    },
+    // $FlowFixMe[unsafe-getters-setters] - this has no side effects
+    get networkError() {
+      return networkError;
     },
     name: params.name,
     networkCacheConfig,
@@ -281,4 +282,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 }
 
-module.exports = {loadQuery, useTrackLoadQueryInRender};
+module.exports = {
+  loadQuery,
+  useTrackLoadQueryInRender,
+};

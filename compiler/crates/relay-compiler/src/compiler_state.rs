@@ -18,8 +18,16 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
+use schema::Schema;
 use serde::{Deserialize, Serialize};
-use std::{fmt, fs::File, hash::Hash, io, path::PathBuf, sync::Arc};
+use std::{
+    fmt,
+    fs::File,
+    hash::Hash,
+    io,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -98,6 +106,14 @@ impl<K: Eq + Hash, V: Source> IncrementalSources<K, V> {
         self.pending.extend(additional_pending_sources.into_iter());
     }
 
+    /// Remove deleted sources from both pending sources and processed sources.
+    fn remove_sources(&mut self, removed_sources: &[K]) {
+        for source in removed_sources {
+            self.pending.remove(source);
+            self.processed.remove(source);
+        }
+    }
+
     fn commit_pending_sources(&mut self) {
         for (file_name, pending_graphql_sources) in self.pending.drain() {
             if pending_graphql_sources.is_empty() {
@@ -163,7 +179,12 @@ pub struct CompilerState {
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     pub clock: Clock,
     pub saved_state_version: String,
+    #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    #[serde(skip)]
+    pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
+    #[serde(skip)]
+    pub schema_cache: FnvHashMap<ProjectName, Arc<Schema>>,
 }
 
 impl CompilerState {
@@ -185,6 +206,8 @@ impl CompilerState {
             clock: file_source_changes.clock.clone(),
             saved_state_version: config.saved_state_version.clone(),
             dirty_artifact_paths: Default::default(),
+            pending_file_source_changes: Default::default(),
+            schema_cache: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -258,15 +281,18 @@ impl CompilerState {
         self.graphql_sources
             .get(&project_name)
             .map_or(false, |sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+            || self.project_has_pending_schema_changes(project_name)
+            || self.dirty_artifact_paths.contains_key(&project_name)
+    }
+
+    pub fn project_has_pending_schema_changes(&self, project_name: ProjectName) -> bool {
+        self.schemas
+            .get(&project_name)
+            .map_or(false, |sources| !sources.pending.is_empty())
             || self
                 .extensions
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
-            || self.dirty_artifact_paths.contains_key(&project_name)
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -293,91 +319,92 @@ impl CompilerState {
                 .any(|sources| !sources.pending.is_empty())
     }
 
-    /// Merges the provided pending changes from the file source into the compiler state.
+    /// Merges pending changes from the file source into the compiler state.
     /// Returns a boolean indicating if any new changes were merged.
     pub fn merge_file_source_changes(
         &mut self,
         config: &Config,
-        file_source_changes: &FileSourceResult,
         setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
         // When loading from saved state, collect dirty artifacts for recompiling their source definitions
         should_collect_changed_artifacts: bool,
     ) -> Result<bool> {
         let mut has_changed = false;
+        for file_source_changes in self.pending_file_source_changes.write().unwrap().drain(..) {
+            let categorized = setup_event.time("categorize_files_time", || {
+                categorize_files(config, &file_source_changes.files)
+            });
 
-        let categorized = setup_event.time("categorize_files_time", || {
-            categorize_files(config, &file_source_changes.files)
-        });
+            for (category, files) in categorized {
+                match category {
+                    FileGroup::Source { source_set } => {
+                        // TODO: possible optimization to only set this if the
+                        // extracted sources actually differ.
+                        has_changed = true;
 
-        for (category, files) in categorized {
-            match category {
-                FileGroup::Source { source_set } => {
-                    // TODO: possible optimization to only set this if the
-                    // extracted sources actually differ.
-                    has_changed = true;
-
-                    let log_event = perf_logger.create_event("categorize");
-                    log_event.string("source_set_name", source_set.to_string());
-                    let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
-                    let sources = files
-                        .par_iter()
-                        .map(|file| {
-                            let graphql_strings = if *file.exists {
-                                extract_graphql_strings_from_file(
-                                    &file_source_changes.resolved_root,
-                                    &file,
-                                )?
-                            } else {
-                                Vec::new()
-                            };
-                            Ok(((*file.name).to_owned(), graphql_strings))
-                        })
-                        .collect::<Result<_>>()?;
-                    log_event.stop(extract_timer);
-                    match source_set {
-                        SourceSet::SourceSetName(source_set_name) => {
-                            self.graphql_sources
-                                .entry(source_set_name)
-                                .or_default()
-                                .merge_pending_sources(sources);
-                        }
-                        SourceSet::SourceSetNames(names) => {
-                            for source_set_name in names {
+                        let log_event = perf_logger.create_event("categorize");
+                        log_event.string("source_set_name", source_set.to_string());
+                        let extract_timer =
+                            log_event.start("extract_graphql_strings_from_file_time");
+                        let sources = files
+                            .par_iter()
+                            .map(|file| {
+                                let graphql_strings = if *file.exists {
+                                    extract_graphql_strings_from_file(
+                                        &file_source_changes.resolved_root,
+                                        &file,
+                                    )?
+                                } else {
+                                    Vec::new()
+                                };
+                                Ok(((*file.name).to_owned(), graphql_strings))
+                            })
+                            .collect::<Result<_>>()?;
+                        log_event.stop(extract_timer);
+                        match source_set {
+                            SourceSet::SourceSetName(source_set_name) => {
                                 self.graphql_sources
                                     .entry(source_set_name)
                                     .or_default()
-                                    .merge_pending_sources(sources.clone());
+                                    .merge_pending_sources(sources);
+                            }
+                            SourceSet::SourceSetNames(names) => {
+                                for source_set_name in names {
+                                    self.graphql_sources
+                                        .entry(source_set_name)
+                                        .or_default()
+                                        .merge_pending_sources(sources.clone());
+                                }
                             }
                         }
                     }
-                }
-                FileGroup::Schema { project_set } => {
-                    has_changed = true;
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut self.schemas,
-                    )?;
-                }
-                FileGroup::Extension { project_set } => {
-                    has_changed = true;
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut self.extensions,
-                    )?;
-                }
-                FileGroup::Generated { project_name } => {
-                    if !should_collect_changed_artifacts {
-                        break;
+                    FileGroup::Schema { project_set } => {
+                        has_changed = true;
+                        Self::process_schema_change(
+                            &file_source_changes,
+                            files,
+                            project_set,
+                            &mut self.schemas,
+                        )?;
                     }
-                    self.dirty_artifact_paths.insert(
-                        project_name,
-                        files.iter().map(|f| (*f.name).clone()).collect(),
-                    );
+                    FileGroup::Extension { project_set } => {
+                        has_changed = true;
+                        Self::process_schema_change(
+                            &file_source_changes,
+                            files,
+                            project_set,
+                            &mut self.extensions,
+                        )?;
+                    }
+                    FileGroup::Generated { project_name } => {
+                        if !should_collect_changed_artifacts {
+                            break;
+                        }
+                        self.dirty_artifact_paths.insert(
+                            project_name,
+                            files.iter().map(|f| (*f.name).clone()).collect(),
+                        );
+                    }
                 }
             }
         }
@@ -398,42 +425,40 @@ impl CompilerState {
     }
 
     /// Calculate dirty definitions from dirty artifacts
-    pub fn get_dirty_defintions(&self, config: &Config) -> FnvHashMap<ProjectName, Vec<StringKey>> {
+    pub fn get_dirty_definitions(
+        &self,
+        config: &Config,
+    ) -> FnvHashMap<ProjectName, Vec<StringKey>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }
         let mut result = FnvHashMap::default();
-        for config in config.enabled_projects() {
-            let project_name = config.name;
-            let paths = self.dirty_artifact_paths.get(&project_name);
-            let mut dirty_definitions = vec![];
-            match paths {
-                None => break,
-                Some(paths) => {
-                    let mut paths = paths.clone();
-                    let artifacts = self
-                        .artifacts
-                        .get(&project_name)
-                        .expect("Expected the artifacts map to exist.");
-                    if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
-                        'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
-                            let mut added = false;
-                            for artifact_tuple in artifact_tuples {
-                                if paths.remove(&artifact_tuple.0) && !added {
-                                    dirty_definitions.push(*definition_name);
-                                    if paths.is_empty() {
-                                        break 'outer;
-                                    }
-                                    added = true;
+        for (project_name, paths) in self.dirty_artifact_paths.iter() {
+            if config.projects[project_name].enabled {
+                let mut paths = paths.clone();
+                let artifacts = self
+                    .artifacts
+                    .get(&project_name)
+                    .expect("Expected the artifacts map to exist.");
+                if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
+                    let mut dirty_definitions = vec![];
+                    'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
+                        let mut added = false;
+                        for artifact_tuple in artifact_tuples {
+                            if paths.remove(&artifact_tuple.0) && !added {
+                                dirty_definitions.push(*definition_name);
+                                if paths.is_empty() {
+                                    break 'outer;
                                 }
+                                added = true;
                             }
                         }
-                        if !dirty_definitions.is_empty() {
-                            result.insert(project_name, dirty_definitions);
-                        }
-                    } else {
-                        panic!("Expected the artifacts map to be populated.")
                     }
+                    if !dirty_definitions.is_empty() {
+                        result.insert(*project_name, dirty_definitions);
+                    }
+                } else {
+                    panic!("Expected the artifacts map to be populated.")
                 }
             }
         }
@@ -465,6 +490,10 @@ impl CompilerState {
         Ok(state)
     }
 
+    pub fn has_pending_file_source_changes(&self) -> bool {
+        !self.pending_file_source_changes.read().unwrap().is_empty()
+    }
+
     fn set_pending_source_set(
         &mut self,
         source_set_name: SourceSetName,
@@ -488,27 +517,30 @@ impl CompilerState {
         project_set: ProjectSet,
         source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
     ) -> Result<()> {
-        // TODO: Handle deletion of schema/extension files
-        let schema_sources = files
-            .iter()
-            .map(|file| {
-                read_to_string(&file_source_changes.resolved_root, file)
-                    .map(|text| ((*file.name).to_owned(), text))
-            })
-            .collect::<Result<_>>()?;
+        let mut removed_sources = vec![];
+        let mut added_sources = FnvHashMap::default();
+        for file in files {
+            let file_name = (*file.name).to_owned();
+            if *file.exists {
+                added_sources.insert(
+                    file_name,
+                    read_to_string(&file_source_changes.resolved_root, &file)?,
+                );
+            } else {
+                removed_sources.push(file_name);
+            }
+        }
         match project_set {
             ProjectSet::ProjectName(project_name) => {
-                source_map
-                    .entry(project_name)
-                    .or_default()
-                    .merge_pending_sources(schema_sources);
+                let entry = source_map.entry(project_name).or_default();
+                entry.remove_sources(&removed_sources);
+                entry.merge_pending_sources(added_sources);
             }
             ProjectSet::ProjectNames(project_names) => {
                 for project_name in project_names {
-                    source_map
-                        .entry(project_name)
-                        .or_default()
-                        .merge_pending_sources(schema_sources.clone());
+                    let entry = source_map.entry(project_name).or_default();
+                    entry.remove_sources(&removed_sources);
+                    entry.merge_pending_sources(added_sources.clone());
                 }
             }
         };

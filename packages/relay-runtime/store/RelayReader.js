@@ -31,7 +31,7 @@ const {
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
-const {getReactFlightClientResponse} = require('./ReactFlight');
+const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
   FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
@@ -200,7 +200,7 @@ class RelayReader {
     record: Record,
   ) {
     if (this._missingRequiredFields?.action === 'THROW') {
-      // Chained @requried directives may cause a parent `@required(action:
+      // Chained @required directives may cause a parent `@required(action:
       // THROW)` field to become null, so the first missing field we
       // encounter is likely to be the root cause of the error.
       return;
@@ -423,6 +423,9 @@ class RelayReader {
     const reactFlightClientResponseRecord = this._recordSource.get(
       reactFlightClientResponseRecordID,
     );
+    this._seenRecords[
+      reactFlightClientResponseRecordID
+    ] = reactFlightClientResponseRecord;
     if (reactFlightClientResponseRecord == null) {
       data[applicationName] = reactFlightClientResponseRecord;
       if (reactFlightClientResponseRecord === undefined) {

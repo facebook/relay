@@ -42,16 +42,6 @@ describe('execute() with Flight field', () => {
   let source;
   let store;
 
-  const readRoot = () => {
-    return {
-      $$typeof: Symbol.for('react.element'),
-      type: 'div',
-      key: null,
-      ref: null,
-      props: {foo: 1},
-    };
-  };
-
   beforeEach(() => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
@@ -87,9 +77,11 @@ describe('execute() with Flight field', () => {
       }
       `));
 
-    reactFlightPayloadDeserializer = jest.fn(() => {
+    reactFlightPayloadDeserializer = jest.fn(payload => {
       return {
-        readRoot,
+        readRoot() {
+          return payload;
+        },
       };
     });
     complete = jest.fn();
@@ -169,64 +161,137 @@ describe('execute() with Flight field', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(0);
     expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
-    store.__gc();
+
+    store.scheduleGC();
+    jest.runAllTimers();
+
     expect(environment.lookup(innerOperation.fragment).data).toEqual({
       node: {
         name: 'Lauren',
       },
     });
-    expect(environment.lookup(operation.fragment).data).toEqual({
-      node: {
-        flightComponent: {
-          readRoot,
+    expect(
+      environment
+        .lookup(operation.fragment)
+        // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
+        .data.node.flightComponent.readRoot(),
+    ).toEqual([{key: null, props: {foo: 1}, ref: null, type: 'div'}]);
+  });
+
+  it('updates the Flight field on refetch', () => {
+    environment.retain(operation);
+    environment.execute({operation}).subscribe(callbacks);
+    const initialPayload = {
+      data: {
+        node: {
+          id: '1',
+          __typename: 'Story',
+          flightComponent: {
+            tree: [
+              {
+                type: 'div',
+                key: null,
+                ref: null,
+                props: {foo: 1},
+              },
+            ],
+            queries: [
+              {
+                id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                response: {
+                  data: {
+                    node: {
+                      id: '2',
+                      name: 'Lauren',
+                      __typename: 'User',
+                    },
+                  },
+                  extensions: [],
+                },
+                variables: {
+                  id: '2',
+                },
+              },
+            ],
+          },
         },
       },
+    };
+    const nextPayload = {
+      data: {
+        node: {
+          id: '1',
+          __typename: 'Story',
+          flightComponent: {
+            tree: [
+              {
+                type: 'div',
+                key: null,
+                ref: null,
+                props: {foo: 2, bar: 'abc', baz: [1, 2, 3]}, // updated
+              },
+            ],
+            queries: [
+              {
+                id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                response: {
+                  data: {
+                    node: {
+                      id: '2',
+                      name: 'Lauren',
+                      __typename: 'User',
+                    },
+                  },
+                  extensions: [],
+                },
+                variables: {
+                  id: '2',
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+    dataSource.next(initialPayload);
+    jest.runAllTimers();
+
+    expect(next).toBeCalledTimes(1);
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
+
+    store.scheduleGC(); // Invoke gc to verify that data is retained
+    jest.runAllTimers();
+
+    expect(environment.lookup(innerOperation.fragment).data).toEqual({
+      node: {
+        name: 'Lauren',
+      },
     });
-    expect(source.toJSON()).toMatchInlineSnapshot(`
-      Object {
-        "1": Object {
-          "__id": "1",
-          "__typename": "Story",
-          "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-            "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-          },
-          "id": "1",
-        },
-        "2": Object {
-          "__id": "2",
-          "__typename": "User",
-          "id": "2",
-          "name": "Lauren",
-        },
-        "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-          "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-          "__typename": "ReactFlightComponent",
-          "queries": Array [
-            Object {
-              "module": Object {
-                "__dr": "RelayFlightExampleQuery.graphql",
-              },
-              "variables": Object {
-                "id": "2",
-              },
-            },
-          ],
-          "tree": Object {
-            "readRoot": [Function],
-          },
-        },
-        "client:root": Object {
-          "__id": "client:root",
-          "__typename": "__Root",
-          "node(id:\\"1\\")": Object {
-            "__ref": "1",
-          },
-          "node(id:\\"2\\")": Object {
-            "__ref": "2",
-          },
-        },
-      }
-    `);
+
+    dataSource.next(nextPayload);
+    jest.runAllTimers();
+
+    expect(next).toBeCalledTimes(2);
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(reactFlightPayloadDeserializer).toBeCalledTimes(2);
+    expect(
+      environment
+        .lookup(operation.fragment)
+        // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
+        .data.node.flightComponent.readRoot(),
+    ).toEqual([
+      {
+        key: null,
+        props: {foo: 2, bar: 'abc', baz: [1, 2, 3]},
+        ref: null,
+        type: 'div',
+      },
+    ]);
   });
 
   describe('when checking availability', () => {

@@ -1101,6 +1101,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentSuspendedOnRefetch(
           renderer,

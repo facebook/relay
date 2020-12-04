@@ -6,21 +6,21 @@ query MyQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type MyQueryVariables = {||};
-export type MyQueryResponse = {|
-  +me: {|
-    +id: string,
-    +name: string,
-  |}
-|};
-export type MyQueryRawResponse = {|
-  +me: ?{|
-    +id: string,
-    +name: ?string,
-  |}
-|};
-export type MyQuery = {|
+export type MyQueryVariables = {};
+export type MyQueryResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string,
+  }
+} | null;
+export type MyQueryRawResponse = {
+  readonly me: {
+    readonly id: string,
+    readonly name: string | null,
+  } | null
+};
+export type MyQuery = {
   variables: MyQueryVariables,
   response: MyQueryResponse,
   rawResponse: MyQueryRawResponse,
-|};
+};

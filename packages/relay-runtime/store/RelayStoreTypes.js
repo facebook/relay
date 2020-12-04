@@ -26,7 +26,6 @@ import type {
   NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
-  NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -85,6 +84,7 @@ export type RequestDescriptor = {|
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
   +variables: Variables,
+  +cacheConfig: ?CacheConfig,
 |};
 
 /**
@@ -109,14 +109,13 @@ export type MissingRequiredFields =
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type TypedSnapshot<TData> = {|
-  +data: TData,
+export type Snapshot = {|
+  +data: ?SelectorData,
   +isMissingData: boolean,
   +seenRecords: RecordMap,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
 |};
-export type Snapshot = TypedSnapshot<?SelectorData>;
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation
@@ -334,6 +333,40 @@ export interface Store {
   ): Disposable;
 }
 
+export interface StoreSubscriptions {
+  /**
+   * Subscribe to changes to the results of a selector. The callback is called
+   * when `updateSubscriptions()` is called *and* records have been published that affect the
+   * selector results relative to the last update.
+   */
+  subscribe(
+    snapshot: Snapshot,
+    callback: (snapshot: Snapshot) => void,
+  ): Disposable;
+
+  /**
+   * Record a backup/snapshot of the current state of the subscriptions.
+   * This state can be restored with restore().
+   */
+  snapshotSubscriptions(source: RecordSource): void;
+
+  /**
+   * Reset the state of the subscriptions to the point that snapshot() was last called.
+   */
+  restoreSubscriptions(): void;
+
+  /**
+   * Notifies each subscription if the snapshot for the subscription selector has changed.
+   * Mutates the updatedOwners array with any owners (RequestDescriptors) associated
+   * with the subscriptions that were notifed; i.e. the owners affected by the changes.
+   */
+  updateSubscriptions(
+    source: RecordSource,
+    updatedRecordIDs: UpdatedRecords,
+    updatedOwners: Array<RequestDescriptor>,
+  ): void;
+}
+
 /**
  * A type that accepts a callback and schedules it to run at some future time.
  * By convention, implementations should not execute the callback immediately.
@@ -432,11 +465,6 @@ export type LogEvent =
       +profilerContext: mixed,
     |}
   | {|
-      +name: 'execute.info',
-      +transactionID: number,
-      +info: mixed,
-    |}
-  | {|
       +name: 'execute.start',
       +transactionID: number,
       +params: RequestParameters,
@@ -461,6 +489,35 @@ export type LogEvent =
       +transactionID: number,
     |}
   | {|
+      +name: 'network.info',
+      +transactionID: number,
+      +info: mixed,
+    |}
+  | {|
+      +name: 'network.start',
+      +transactionID: number,
+      +params: RequestParameters,
+      +variables: Variables,
+    |}
+  | {|
+      +name: 'network.next',
+      +transactionID: number,
+      +response: GraphQLResponse,
+    |}
+  | {|
+      +name: 'network.error',
+      +transactionID: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'network.complete',
+      +transactionID: number,
+    |}
+  | {|
+      +name: 'network.unsubscribe',
+      +transactionID: number,
+    |}
+  | {|
       +name: 'store.publish',
       +source: RecordSource,
       +optimistic: boolean,
@@ -482,11 +539,6 @@ export type LogEvent =
       +name: 'store.notify.complete',
       +updatedRecordIDs: UpdatedRecords,
       +invalidatedRecordIDs: Set<DataID>,
-    |}
-  | {|
-      +name: 'read.missing_required_field',
-      +owner: string,
-      +fieldPath: string,
     |}
   | {|
       +name: 'entrypoint.root.consume',
@@ -606,7 +658,6 @@ export interface IEnvironment {
    */
   execute(config: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse>;
 
@@ -621,7 +672,6 @@ export interface IEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation({|
-    cacheConfig?: ?CacheConfig,
     operation: OperationDescriptor,
     optimisticUpdater?: ?SelectorStoreUpdater,
     optimisticResponse?: ?Object,
@@ -658,18 +708,13 @@ export interface IEnvironment {
    * whether we need to set up certain caches and timeout's.
    */
   isServer(): boolean;
-}
 
-/**
- * The results of reading data for a fragment. This is similar to a `Selector`,
- * but references the (fragment) node by name rather than by value.
- */
-export type FragmentPointer = {
-  __id: DataID,
-  __fragments: {[fragmentName: string]: Variables, ...},
-  __fragmentOwner: RequestDescriptor,
-  ...
-};
+  /**
+   * Called by Relay when it encounters a missing field that has been annotated
+   * with `@required(action: LOG)`.
+   */
+  requiredFieldLogger: RequiredFieldLogger;
+}
 
 /**
  * The partial shape of an object with a '...Fragment @module(name: "...")'
@@ -872,6 +917,23 @@ export type MissingFieldHandler =
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
     |};
+
+/**
+ * A handler for events related to @required fields. Currently reports missing
+ * fields with either `action: LOG` or `action: THROW`.
+ */
+export type RequiredFieldLogger = (
+  | {|
+      +kind: 'missing_field.log',
+      +owner: string,
+      +fieldPath: string,
+    |}
+  | {|
+      +kind: 'missing_field.throw',
+      +owner: string,
+      +fieldPath: string,
+    |},
+) => void;
 
 /**
  * The results of normalizing a query.

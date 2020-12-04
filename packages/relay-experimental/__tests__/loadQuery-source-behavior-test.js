@@ -77,6 +77,20 @@ let next;
 let error;
 
 beforeEach(() => {
+  // In several tests, we expect unhandled errors from network requests
+  // that emit errors after the query reference has been disposed.
+  // The default behavior when encountering unhandled errors is to fail
+  // the current test.
+  //
+  // Re-enable the default, test-failing behavior here; it is turned off
+  // in tests where unhandled errors are expected.
+  Observable.onUnhandledError(uncaughtError => {
+    declare function fail(string): void;
+    if (typeof fail === 'function') {
+      // In test environments (Jest), fail() immediately fails the current test.
+      fail(String(uncaughtError));
+    }
+  });
   PreloadableQueryRegistry.clear();
 
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
@@ -163,11 +177,15 @@ describe('when passed a PreloadableConcreteRequest', () => {
         sink.next(response);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', () => {
+      it('should not pass network errors onto source', done => {
         PreloadableQueryRegistry.set(ID, query);
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
+
+        // We expect an unhandled error here from the network emitting an
+        // error after the network.execute observable has been unsubcribed
+        Observable.onUnhandledError(() => done());
         sink.error(networkError);
         expect(error).not.toHaveBeenCalled();
       });
@@ -243,10 +261,14 @@ describe('when passed a PreloadableConcreteRequest', () => {
         PreloadableQueryRegistry.set(ID, query);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', () => {
+      it('should not pass network errors onto source', done => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
+
+        // We expect an unhandled error here from the network emitting an
+        // error after the network.execute observable has been unsubcribed
+        Observable.onUnhandledError(() => done());
         sink.error(networkError);
         expect(error).not.toHaveBeenCalled();
         PreloadableQueryRegistry.set(ID, query);
@@ -263,10 +285,14 @@ describe('when passed a PreloadableConcreteRequest', () => {
         PreloadableQueryRegistry.set(ID, query);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', () => {
+      it('should not pass network errors onto source', done => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         dispose();
+
+        // We expect an unhandled error here from the network emitting an
+        // error after the network.execute observable has been unsubcribed
+        Observable.onUnhandledError(() => done());
         sink.error(networkError);
         expect(error).not.toHaveBeenCalled();
         PreloadableQueryRegistry.set(ID, query);
@@ -305,12 +331,16 @@ describe('when passed a PreloadableConcreteRequest', () => {
         sink.next(response);
         expect(next).not.toHaveBeenCalled();
       });
-      it('should not pass network errors onto source', () => {
+      it('should not pass network errors onto source', done => {
         const {dispose} = callLoadQuery(preloadableConcreteRequest);
 
         PreloadableQueryRegistry.set(ID, query);
         expect(error).not.toHaveBeenCalled();
         dispose();
+
+        // We expect an unhandled error here from the network emitting an
+        // error after the network.execute observable has been unsubcribed
+        Observable.onUnhandledError(() => done());
         sink.error(networkError);
         expect(error).not.toHaveBeenCalled();
       });
@@ -343,10 +373,14 @@ describe('when passed a query AST', () => {
       sink.next(response);
       expect(next).not.toHaveBeenCalled();
     });
-    it('should not pass network errors onto source', () => {
+    it('should not pass network errors onto source', done => {
       const {dispose} = callLoadQuery(query);
 
       dispose();
+
+      // We expect an unhandled error here from the network emitting an
+      // error after the network.execute observable has been unsubcribed
+      Observable.onUnhandledError(() => done());
       sink.error(networkError);
       expect(error).not.toHaveBeenCalled();
     });
@@ -370,6 +404,7 @@ describe("with the query fulfillable from the store and fetchPolicy === 'network
     callLoadQuery(preloadableConcreteRequest, {fetchPolicy: 'network-only'});
 
     expect(error).not.toHaveBeenCalled();
+
     sink.error(networkError);
     expect(error).toHaveBeenCalledWith(networkError);
   });
@@ -386,7 +421,7 @@ describe("with the query fulfillable from the store and fetchPolicy === 'network
       sink.next(response);
       expect(next).not.toHaveBeenCalled();
     });
-    it('should not pass network errors onto source', () => {
+    it('should not pass network errors onto source', done => {
       writeDataToStore();
       PreloadableQueryRegistry.set(ID, query);
       const {dispose} = callLoadQuery(preloadableConcreteRequest, {
@@ -394,6 +429,10 @@ describe("with the query fulfillable from the store and fetchPolicy === 'network
       });
 
       dispose();
+
+      // We expect an unhandled error here from the network emitting an
+      // error after the network.execute observable has been unsubcribed
+      Observable.onUnhandledError(() => done());
       sink.error(networkError);
       expect(error).not.toHaveBeenCalled();
     });

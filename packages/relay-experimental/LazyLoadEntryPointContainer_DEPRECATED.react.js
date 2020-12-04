@@ -22,8 +22,6 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
 
-import type {JSResourceReference} from 'JSResourceReference';
-
 type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   entryPoints: $PropertyType<
     React.ElementConfig<TEntryPointComponent>,
@@ -35,7 +33,7 @@ type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   >,
   getComponent: () => TEntryPointComponent,
   queries: $PropertyType<React.ElementConfig<TEntryPointComponent>, 'queries'>,
-  rootModuleReference: JSResourceReference<TEntryPointComponent>,
+  rootModuleID: string,
 |}>;
 
 import type {
@@ -154,8 +152,7 @@ function prepareEntryPoint<
       return (component: TEntryPointComponent);
     },
     queries: (preloadedQueries: TPreloadedQueries),
-    // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
-    rootModuleReference: (entryPoint.root: JSResourceReference<TEntryPointComponent>),
+    rootModuleID: entryPoint.root.getModuleId(),
   };
 }
 
@@ -188,7 +185,7 @@ function LazyLoadEntryPointContainer_DEPRECATED<
     queries,
     entryPoints,
     extraProps,
-    rootModuleReference,
+    rootModuleID,
   } = useMemo(() => {
     return prepareEntryPoint(
       environmentProvider ?? {
@@ -209,9 +206,9 @@ function LazyLoadEntryPointContainer_DEPRECATED<
     environment.__log({
       name: 'entrypoint.root.consume',
       profilerContext,
-      rootModuleID: rootModuleReference.getModuleId(),
+      rootModuleID,
     });
-  }, [environment, profilerContext, rootModuleReference]);
+  }, [environment, profilerContext, rootModuleID]);
   return (
     <Component
       entryPoints={entryPoints}

@@ -8,6 +8,7 @@
 use crate::lexer::TokenKind;
 use common::{SourceLocationKey, Span, WithLocation};
 use interner::StringKey;
+use std::cmp::Ordering;
 use std::fmt;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -16,7 +17,7 @@ pub struct Token {
     pub kind: TokenKind,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Identifier {
     pub span: Span,
     pub token: Token,
@@ -26,6 +27,18 @@ pub struct Identifier {
 impl fmt::Display for Identifier {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("{}", self.value))
+    }
+}
+
+impl Ord for Identifier {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.value.cmp(&other.value)
+    }
+}
+
+impl PartialOrd for Identifier {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
@@ -41,4 +54,21 @@ pub struct List<T> {
     pub start: Token,
     pub items: Vec<T>,
     pub end: Token,
+}
+
+impl<T> List<T> {
+    pub fn generated(items: Vec<T>) -> Self {
+        Self {
+            span: Span::empty(),
+            start: Token {
+                span: Span::empty(),
+                kind: TokenKind::OpenBrace,
+            },
+            items,
+            end: Token {
+                span: Span::empty(),
+                kind: TokenKind::CloseBrace,
+            },
+        }
+    }
 }

@@ -6,14 +6,14 @@ query FooQuery {
   }
 }
 ==================================== OUTPUT ===================================
-export type FooQueryVariables = {||};
-export type FooQueryResponse = {|
-  +me: {|
-    +firstName: ?string,
-    +lastName: string,
-  |}
-|};
-export type FooQuery = {|
+export type FooQueryVariables = {};
+export type FooQueryResponse = {
+  readonly me: {
+    readonly firstName: string | null,
+    readonly lastName: string,
+  }
+} | null;
+export type FooQuery = {
   variables: FooQueryVariables,
   response: FooQueryResponse,
-|};
+};

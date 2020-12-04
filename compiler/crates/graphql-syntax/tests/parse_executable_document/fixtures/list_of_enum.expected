@@ -38,7 +38,7 @@ ExecutableDocument {
             },
             directives: [],
             selections: List {
-                span: 28:66,
+                span: 28:65,
                 start: Token {
                     span: 28:29,
                     kind: OpenBrace,
@@ -57,7 +57,7 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 38:64,
+                                span: 38:63,
                                 start: Token {
                                     span: 38:39,
                                     kind: OpenParen,

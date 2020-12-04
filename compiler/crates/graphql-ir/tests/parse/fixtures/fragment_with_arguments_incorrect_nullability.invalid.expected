@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment TestFragment on User @argumentDefinitions(
+  id: {type: "ID"}
+) {
+  ...Foo @arguments(localId: $id)
+}
+
+fragment Foo on User @argumentDefinitions(
+  localId: {type: "ID!"}
+) {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Variable was defined as type 'ID' but used where a variable of type 'ID!' is expected.
+
+  fragment_with_arguments_incorrect_nullability.invalid.graphql:6:30
+    5 │ ) {
+    6 │   ...Foo @arguments(localId: $id)
+      │                              ^^^
+    7 │ }

@@ -14,7 +14,6 @@ use crate::lsp::{
 };
 
 use graphql_syntax::GraphQLSource;
-use log::info;
 
 pub type GraphQLTextDocumentCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
@@ -22,7 +21,6 @@ pub fn on_did_open_text_document(
     params: DidOpenTextDocumentParams,
     graphql_source_cache: &mut GraphQLTextDocumentCache,
 ) {
-    info!("Did open text document!");
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
 
@@ -49,7 +47,6 @@ pub fn on_did_change_text_document(
     params: DidChangeTextDocumentParams,
     graphql_source_cache: &mut GraphQLTextDocumentCache,
 ) {
-    info!("Did change text document!");
     let DidChangeTextDocumentParams {
         content_changes,
         text_document,

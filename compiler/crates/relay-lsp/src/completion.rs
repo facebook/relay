@@ -64,7 +64,6 @@ pub fn create_completion_request(
     position_span: Span,
     project_name: StringKey,
 ) -> Option<CompletionRequest> {
-    info!("Building completion path for {:#?}", document);
     let mut completion_request = CompletionRequest::new(project_name);
 
     for definition in document.definitions {

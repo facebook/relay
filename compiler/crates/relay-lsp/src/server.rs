@@ -106,6 +106,7 @@ where
                         &self.file_categorizer,
                         &self.root_dir,
                     )?;
+                    info!("Hovering over {:?}", node_resolution_info);
                     if let Some(schema) = self
                         .schemas
                         .read()
@@ -149,7 +150,6 @@ where
                     &self.file_categorizer,
                     &self.root_dir,
                 ) {
-                    info!("completion_request {:#?}", &completion_request);
                     if let Some(schema) = self
                         .schemas
                         .read()
@@ -319,7 +319,6 @@ where
                             .await
                             .ok();
                     } else if req.method == HoverRequest::METHOD {
-                        info!("hover request....");
                         let (request_id, text_document_position) =
                             extract_request_params::<HoverRequest>(req);
                         lsp_tx

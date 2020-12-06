@@ -295,3 +295,39 @@ module.exports = createPaginationContainer(
   }
 );
 ```
+
+### Using the pagination component
+
+1. Add the pagination fragment to the query in the parent component. This will fetch the first page of results.
+2. Pass in the initial page of results as props of the pagination container.
+
+```jsx
+// App.js (parent component)
+
+const query = graphql`
+  query AppQuery {
+    user(id: $id) {
+      id
+      name
+      ...Feed_user
+    }
+  }
+`
+
+const App = (props) => {
+  return (
+    <QueryRenderer
+      query={query}
+      environment={environment}
+      variables={{ id: props.id }}
+      render={({ error, props }) => {
+        return (
+          <>
+            <Feed user={props.user} />
+          </>
+        )
+      }}
+    />
+}
+```
+

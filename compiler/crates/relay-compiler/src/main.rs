@@ -51,7 +51,8 @@ async fn main() {
             Ok(_compiler_state) => {
                 info!("Done");
             }
-            Err(_) => {
+            Err(err) => {
+                error!("{}", err);
                 std::process::exit(1);
             }
         }

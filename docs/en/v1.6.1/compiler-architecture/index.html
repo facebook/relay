@@ -108,16 +108,16 @@
 <li><code>FlattenTransform</code>: Reduces extraneous levels of indirection in a query, inlining fields from anonymous fragments wherever they match the parent type. This can be beneficial when generating code to read the results of a query or process query results, as it reduces duplicate field processing. For example:</li>
 </ul>
 <pre><code class="hljs"><span class="hljs-comment"># before: `id` is processed twice</span>
-foo { #<span class="hljs-built_in"> type </span>FooType
-   id
-   <span class="hljs-built_in">..</span>. on FooType { # matches the parent type, so this is extraneous
-     id
+foo { <span class="hljs-comment"># type FooType</span>
+   <span class="hljs-built_in">id</span>
+   ... <span class="hljs-keyword">on</span> FooType { <span class="hljs-comment"># matches the parent type, so this is extraneous</span>
+     <span class="hljs-built_in">id</span>
    }
  }
 
- # after: `id` is processed once
+ <span class="hljs-comment"># after: `id` is processed once</span>
  foo {
-   id
+   <span class="hljs-built_in">id</span>
  }
 </code></pre>
 <ul>
@@ -128,7 +128,7 @@ foo { #<span class="hljs-built_in"> type </span>FooType
   <span class="hljs-section">bar</span> {
     <span class="hljs-attribute">id</span>
   }
-  ... <span class="hljs-literal">on</span> FooType <span class="hljs-variable">@include</span>(if: <span class="hljs-variable">$cond</span>) { <span class="hljs-comment"># can't be flattened due to conditional</span>
+  ... <span class="hljs-literal">on</span> FooType @include(if: $cond) { <span class="hljs-comment"># can&#x27;t be flattened due to conditional</span>
     <span class="hljs-attribute">id</span> <span class="hljs-comment"># but this field is guaranteed to be fetched regardless</span>
   }
 }

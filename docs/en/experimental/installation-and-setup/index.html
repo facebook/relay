@@ -14,8 +14,8 @@
 </code></pre>
 <p>Add <code>&quot;relay&quot;</code> to the list of plugins your <code>.babelrc</code> file:</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"plugins"</span>: [
-    <span class="hljs-string">"relay"</span>
+  <span class="hljs-string">&quot;plugins&quot;</span>: [
+    <span class="hljs-string">&quot;relay&quot;</span>
   ]
 }
 </code></pre>
@@ -28,8 +28,8 @@ Babel's <a href="https://babeljs.io/docs/plugins/#plugin-preset-ordering">docume
 <pre><code class="hljs css language-sh">yarn add --dev relay-compiler graphql
 </code></pre>
 <p>This installs the bin script <code>relay-compiler</code> in your node_modules folder. It's recommended to run this from a <code>yarn</code>/<code>npm</code> script by adding a script to your <code>package.json</code> file:</p>
-<pre><code class="hljs css language-js"><span class="hljs-string">"scripts"</span>: {
-  <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema ./schema.graphql"</span>
+<pre><code class="hljs css language-js"><span class="hljs-string">&quot;scripts&quot;</span>: {
+  <span class="hljs-string">&quot;relay&quot;</span>: <span class="hljs-string">&quot;relay-compiler --src ./src --schema ./schema.graphql&quot;</span>
 }
 </code></pre>
 <p>Then, after making edits to your application files, just run the <code>relay</code> script to generate new compiled artifacts:</p>
@@ -49,12 +49,12 @@ polyfill in your bundled application, such as <a href="https://github.com/zloiro
 <a href="https://babeljs.io/docs/usage/polyfill/">babel-polyfill</a>.</p>
 <p>A polyfilled environment for Relay using <a href="https://github.com/zloirock/core-js">core-js</a> to support older browsers
 might look like:</p>
-<pre><code class="hljs css language-js"><span class="hljs-built_in">require</span>(<span class="hljs-string">'core-js/es6/map'</span>);
-<span class="hljs-built_in">require</span>(<span class="hljs-string">'core-js/es6/set'</span>);
-<span class="hljs-built_in">require</span>(<span class="hljs-string">'core-js/es6/promise'</span>);
-<span class="hljs-built_in">require</span>(<span class="hljs-string">'core-js/es6/object'</span>);
+<pre><code class="hljs css language-js"><span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;core-js/es6/map&#x27;</span>);
+<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;core-js/es6/set&#x27;</span>);
+<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;core-js/es6/promise&#x27;</span>);
+<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;core-js/es6/object&#x27;</span>);
 
-<span class="hljs-built_in">require</span>(<span class="hljs-string">'./myRelayApplication'</span>);
+<span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./myRelayApplication&#x27;</span>);
 </code></pre>
 </span></div></article></div><div class="docLastUpdate"><em>Last updated on 3/5/2018 by Jason Quense</em></div><div class="docs-prevnext"></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#set-up-babel-plugin-relay">Set up babel-plugin-relay</a></li><li><a href="#set-up-relay-compiler">Set up relay-compiler</a></li><li><a href="#javascript-environment-requirements">JavaScript environment requirements</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {

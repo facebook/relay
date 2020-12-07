@@ -109,7 +109,7 @@ This function takes a <code>store</code>, which is a proxy of the in-memory <a h
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="simple-example"></a><a href="#simple-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simple Example</h2>
 <p>Example of a simple mutation:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation MarkReadNotificationMutation(
@@ -137,7 +137,7 @@ This function takes a <code>store</code>, which is a proxy of the in-memory <a h
       mutation,
       variables,
       <span class="hljs-attr">onCompleted</span>: <span class="hljs-function">(<span class="hljs-params">response, errors</span>) =&gt;</span> {
-        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Response received from server.'</span>)
+        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Response received from server.&#x27;</span>)
       },
       <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(err),
     },
@@ -199,8 +199,8 @@ commitMutation(
 `</span>;
 
 <span class="hljs-keyword">const</span> configs = [{
-  <span class="hljs-attr">type</span>: <span class="hljs-string">'NODE_DELETE'</span>,
-  <span class="hljs-attr">deletedIDFieldName</span>: <span class="hljs-string">'destroyedShipId'</span>,
+  <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;NODE_DELETE&#x27;</span>,
+  <span class="hljs-attr">deletedIDFieldName</span>: <span class="hljs-string">&#x27;destroyedShipId&#x27;</span>,
 }];
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="range_add"></a><a href="#range_add" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_ADD</h3>
@@ -231,13 +231,13 @@ containing optional filters, and a range behavior depending on what behavior we 
 `</span>;
 
 <span class="hljs-keyword">const</span> configs = [{
-  <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_ADD'</span>,
-  <span class="hljs-attr">parentID</span>: <span class="hljs-string">'shipId'</span>,
+  <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;RANGE_ADD&#x27;</span>,
+  <span class="hljs-attr">parentID</span>: <span class="hljs-string">&#x27;shipId&#x27;</span>,
   <span class="hljs-attr">connectionInfo</span>: [{
-    <span class="hljs-attr">key</span>: <span class="hljs-string">'AddShip_ships'</span>,
-    <span class="hljs-attr">rangeBehavior</span>: <span class="hljs-string">'append'</span>,
+    <span class="hljs-attr">key</span>: <span class="hljs-string">&#x27;AddShip_ships&#x27;</span>,
+    <span class="hljs-attr">rangeBehavior</span>: <span class="hljs-string">&#x27;append&#x27;</span>,
   }],
-  <span class="hljs-attr">edgeName</span>: <span class="hljs-string">'newShipEdge'</span>,
+  <span class="hljs-attr">edgeName</span>: <span class="hljs-string">&#x27;newShipEdge&#x27;</span>,
 }];
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="range_delete"></a><a href="#range_delete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_DELETE</h3>
@@ -271,12 +271,12 @@ objects containing a connection key and optionally filters.
 `</span>;
 
 <span class="hljs-keyword">const</span> configs = [{
-  <span class="hljs-attr">type</span>: <span class="hljs-string">'RANGE_DELETE'</span>,
-  <span class="hljs-attr">parentID</span>: <span class="hljs-string">'todoId'</span>,
+  <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;RANGE_DELETE&#x27;</span>,
+  <span class="hljs-attr">parentID</span>: <span class="hljs-string">&#x27;todoId&#x27;</span>,
   <span class="hljs-attr">connectionKeys</span>: [{
     <span class="hljs-attr">key</span>: RemoveTags_tags,
   }],
-  <span class="hljs-attr">pathToConnection</span>: [<span class="hljs-string">'todo'</span>, <span class="hljs-string">'tags'</span>],
+  <span class="hljs-attr">pathToConnection</span>: [<span class="hljs-string">&#x27;todo&#x27;</span>, <span class="hljs-string">&#x27;tags&#x27;</span>],
   <span class="hljs-attr">deletedIDFieldName</span>: removedTagId
 }];
 </code></pre>
@@ -292,8 +292,8 @@ objects containing a connection key and optionally filters.
 </ul>
 <p>Here are a quick example of adding a todo item to a Todo list using this <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36">example schema</a>:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// AddTodoMutation.js</span>
-<span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> {ConnectionHandler} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
+<span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
+<span class="hljs-keyword">import</span> {ConnectionHandler} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime&#x27;</span>;
 
 <span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation AddTodoMutation($input: AddTodoInput!) {
@@ -318,10 +318,10 @@ objects containing a connection key and optionally filters.
   <span class="hljs-comment">// Get the current user record from the store</span>
   <span class="hljs-keyword">const</span> userProxy = store.get(user.id);
 
-  <span class="hljs-comment">// Get the user's Todo List using ConnectionHandler helper</span>
+  <span class="hljs-comment">// Get the user&#x27;s Todo List using ConnectionHandler helper</span>
   <span class="hljs-keyword">const</span> conn = ConnectionHandler.getConnection(
     userProxy,
-    <span class="hljs-string">'TodoList_todos'</span>, <span class="hljs-comment">// This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68</span>
+    <span class="hljs-string">&#x27;TodoList_todos&#x27;</span>, <span class="hljs-comment">// This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68</span>
   );
 
   <span class="hljs-comment">// Insert the new todo into the Todo List connection</span>
@@ -347,36 +347,36 @@ objects containing a connection key and optionally filters.
       },
       <span class="hljs-attr">updater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
         <span class="hljs-comment">// Get the payload returned from the server</span>
-        <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'addTodo'</span>);
+        <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">&#x27;addTodo&#x27;</span>);
 
         <span class="hljs-comment">// Get the edge of the newly created todo item</span>
-        <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">'todoEdge'</span>);
+        <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">&#x27;todoEdge&#x27;</span>);
 
-        <span class="hljs-comment">// Add it to the user's todo list</span>
+        <span class="hljs-comment">// Add it to the user&#x27;s todo list</span>
         sharedUpdater(store, user, newEdge);
       },
       <span class="hljs-attr">optimisticUpdater</span>: <span class="hljs-function">(<span class="hljs-params">store</span>) =&gt;</span> {
         <span class="hljs-comment">// Create a Todo Item record in our store with a tempory ID</span>
-        <span class="hljs-keyword">const</span> id = <span class="hljs-string">'client:newTodo:'</span> + tempID++;
-        <span class="hljs-keyword">const</span> node = store.create(id, <span class="hljs-string">'Todo'</span>);
-        node.setValue(text, <span class="hljs-string">'text'</span>);
-        node.setValue(id, <span class="hljs-string">'id'</span>);
+        <span class="hljs-keyword">const</span> id = <span class="hljs-string">&#x27;client:newTodo:&#x27;</span> + tempID++;
+        <span class="hljs-keyword">const</span> node = store.create(id, <span class="hljs-string">&#x27;Todo&#x27;</span>);
+        node.setValue(text, <span class="hljs-string">&#x27;text&#x27;</span>);
+        node.setValue(id, <span class="hljs-string">&#x27;id&#x27;</span>);
 
         <span class="hljs-comment">// Create a new edge that contains the newly created Todo Item</span>
         <span class="hljs-keyword">const</span> newEdge = store.create(
-          <span class="hljs-string">'client:newEdge:'</span> + tempID++,
-          <span class="hljs-string">'TodoEdge'</span>,
+          <span class="hljs-string">&#x27;client:newEdge:&#x27;</span> + tempID++,
+          <span class="hljs-string">&#x27;TodoEdge&#x27;</span>,
         );
-        newEdge.setLinkedRecord(node, <span class="hljs-string">'node'</span>);
+        newEdge.setLinkedRecord(node, <span class="hljs-string">&#x27;node&#x27;</span>);
 
-        <span class="hljs-comment">// Add it to the user's todo list</span>
+        <span class="hljs-comment">// Add it to the user&#x27;s todo list</span>
         sharedUpdater(store, user, newEdge);
 
-        <span class="hljs-comment">// Given that we don't have a server response here, we also need to update the todo item count on the user</span>
+        <span class="hljs-comment">// Given that we don&#x27;t have a server response here, we also need to update the todo item count on the user</span>
         <span class="hljs-keyword">const</span> userRecord = store.get(user.id);
         userRecord.setValue(
-          userRecord.getValue(<span class="hljs-string">'totalCount'</span>) + <span class="hljs-number">1</span>,
-          <span class="hljs-string">'totalCount'</span>,
+          userRecord.getValue(<span class="hljs-string">&#x27;totalCount&#x27;</span>) + <span class="hljs-number">1</span>,
+          <span class="hljs-string">&#x27;totalCount&#x27;</span>,
         );
       },
     }

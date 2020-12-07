@@ -67,14 +67,14 @@
   <span class="hljs-comment">// This method should return a GraphQL operation that represents</span>
   <span class="hljs-comment">// the mutation to be performed. This presumes that the server</span>
   <span class="hljs-comment">// implements a mutation type named ‘likeStory’.</span>
-  getMutation() {
-    <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`mutation {likeStory}`;
+  <span class="hljs-function"><span class="hljs-title">getMutation</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">return</span> Relay.QL<span class="hljs-string">`mutation {likeStory}`</span>;
   }
   <span class="hljs-comment">// Use this method to prepare the variables that will be used as</span>
   <span class="hljs-comment">// input to the mutation. Our ‘likeStory’ mutation takes exactly</span>
   <span class="hljs-comment">// one variable as input – the ID of the story to like.</span>
-  getVariables() {
-    <span class="hljs-keyword">return</span> {storyID: <span class="hljs-keyword">this</span>.props.story.id};
+  <span class="hljs-function"><span class="hljs-title">getVariables</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">return</span> {<span class="hljs-attr">storyID</span>: <span class="hljs-built_in">this</span>.props.story.id};
   }
   <span class="hljs-comment">// Use this method to design a ‘fat query’ – one that represents every</span>
   <span class="hljs-comment">// field in your data model that could change as a result of this mutation.</span>
@@ -83,9 +83,9 @@
   <span class="hljs-comment">// story or not. Relay will intersect this query with a ‘tracked query’</span>
   <span class="hljs-comment">// that represents the data that your application actually uses, and</span>
   <span class="hljs-comment">// instruct the server to include only those fields in its response.</span>
-  getFatQuery() {
-    <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
-      fragment on <span class="hljs-type">LikeStoryPayload</span> {
+  <span class="hljs-function"><span class="hljs-title">getFatQuery</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">return</span> Relay.QL<span class="hljs-string">`
+      fragment on LikeStoryPayload {
         story {
           likers {
             count,
@@ -94,31 +94,31 @@
           viewerDoesLike,
         },
       }
-    `;
+    `</span>;
   }
   <span class="hljs-comment">// These configurations advise Relay on how to handle the LikeStoryPayload</span>
   <span class="hljs-comment">// returned by the server. Here, we tell Relay to use the payload to</span>
   <span class="hljs-comment">// change the fields of a record it already has in the store. The</span>
   <span class="hljs-comment">// key-value pairs of ‘fieldIDs’ associate field names in the payload</span>
   <span class="hljs-comment">// with the ID of the record that we want updated.</span>
-  getConfigs() {
+  <span class="hljs-function"><span class="hljs-title">getConfigs</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> [{
-      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">'FIELDS_CHANG</span>E',
-      fieldIDs: {
-        story: <span class="hljs-keyword">this</span>.props.story.id,
+      <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;FIELDS_CHANGE&#x27;</span>,
+      <span class="hljs-attr">fieldIDs</span>: {
+        <span class="hljs-attr">story</span>: <span class="hljs-built_in">this</span>.props.story.id,
       },
     }];
   }
-  <span class="hljs-comment">// This mutation has a hard dependency on the story's ID. We specify this</span>
+  <span class="hljs-comment">// This mutation has a hard dependency on the story&#x27;s ID. We specify this</span>
   <span class="hljs-comment">// dependency declaratively here as a GraphQL query fragment. Relay will</span>
-  <span class="hljs-comment">// use this fragment to ensure that the story's ID is available wherever</span>
+  <span class="hljs-comment">// use this fragment to ensure that the story&#x27;s ID is available wherever</span>
   <span class="hljs-comment">// this mutation is used.</span>
-  static fragments = {
-    story: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
-      fragment on <span class="hljs-type">Story</span> {
+  <span class="hljs-keyword">static</span> fragments = {
+    <span class="hljs-attr">story</span>: <span class="hljs-function">() =&gt;</span> Relay.QL<span class="hljs-string">`
+      fragment on Story {
         id,
       }
-    `,
+    `</span>,
   };
 }
 </code></pre>
@@ -135,7 +135,7 @@
     <span class="hljs-keyword">return</span> (
       &lt;div&gt;
         {<span class="hljs-keyword">this</span>.props.story.viewerDoesLike
-          ? <span class="hljs-symbol">'You</span> like <span class="hljs-keyword">this</span>'
+          ? <span class="hljs-symbol">&#x27;You</span> like <span class="hljs-keyword">this</span>&#x27;
           : &lt;button onClick={<span class="hljs-keyword">this</span>._handleLike}&gt;<span class="hljs-type">Like</span> <span class="hljs-keyword">this</span>&lt;/button&gt;
         }
       &lt;/div&gt;
@@ -145,13 +145,13 @@
 
 module.exports = <span class="hljs-type">Relay</span>.createContainer(<span class="hljs-type">LikeButton</span>, {
   fragments: {
-    <span class="hljs-comment">// You can compose a mutation's query fragments like you would those</span>
+    <span class="hljs-comment">// You can compose a mutation&#x27;s query fragments like you would those</span>
     <span class="hljs-comment">// of any other RelayContainer. This ensures that the data depended</span>
     <span class="hljs-comment">// upon by the mutation will be fetched and ready for use.</span>
     story: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
       fragment on <span class="hljs-type">Story</span> {
         viewerDoesLike,
-        ${<span class="hljs-type">LikeStoryMutation</span>.getFragment(<span class="hljs-symbol">'stor</span>y')},
+        ${<span class="hljs-type">LikeStoryMutation</span>.getFragment(<span class="hljs-symbol">&#x27;stor</span>y&#x27;)},
       }
     `,
   },
@@ -182,30 +182,30 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <h2><a class="anchor" aria-hidden="true" id="fragment-variables"></a><a href="#fragment-variables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fragment variables</h2>
 <p>Like it can be done with <a href="guides-containers.html">Relay containers</a>, we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.</p>
 <pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RentMovieMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
-  static initialVariables = {
-    format: <span class="hljs-symbol">'h</span>d',
-    lang: <span class="hljs-symbol">'en</span>-<span class="hljs-type">CA</span>',
+  <span class="hljs-keyword">static</span> initialVariables = {
+    <span class="hljs-attr">format</span>: <span class="hljs-string">&#x27;hd&#x27;</span>,
+    <span class="hljs-attr">lang</span>: <span class="hljs-string">&#x27;en-CA&#x27;</span>,
   };
-  static prepareVariables = (prevVariables) =&gt; {
+  <span class="hljs-keyword">static</span> prepareVariables = <span class="hljs-function">(<span class="hljs-params">prevVariables</span>) =&gt;</span> {
     <span class="hljs-keyword">var</span> overrideVariables = {};
     <span class="hljs-keyword">if</span> (navigator.language) {
       overrideVariables.lang = navigator.language;
     }
-    <span class="hljs-keyword">var</span> formatPreference = localStorage.getItem(<span class="hljs-symbol">'formatPreferenc</span>e');
+    <span class="hljs-keyword">var</span> formatPreference = <span class="hljs-built_in">localStorage</span>.getItem(<span class="hljs-string">&#x27;formatPreference&#x27;</span>);
     <span class="hljs-keyword">if</span> (formatPreference) {
       overrideVariables.format = formatPreference;
     }
     <span class="hljs-keyword">return</span> {...prevVariables, ...overrideVariables};
   };
-  static fragments = {
-    <span class="hljs-comment">// Now we can use the variables we've prepared to fetch movies</span>
-    <span class="hljs-comment">// appropriate for the viewer's locale and preferences</span>
-    movie: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
-      fragment on <span class="hljs-type">Movie</span> {
+  <span class="hljs-keyword">static</span> fragments = {
+    <span class="hljs-comment">// Now we can use the variables we&#x27;ve prepared to fetch movies</span>
+    <span class="hljs-comment">// appropriate for the viewer&#x27;s locale and preferences</span>
+    <span class="hljs-attr">movie</span>: <span class="hljs-function">() =&gt;</span> Relay.QL<span class="hljs-string">`
+      fragment on Movie {
         posterImage(lang: $lang) { url },
         trailerVideo(format: $format, lang: $lang) { url },
       }
-    `,
+    `</span>,
   };
 }
 </code></pre>
@@ -254,11 +254,11 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">RenameDocumentMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
-  <span class="hljs-comment">// This mutation declares a dependency on a document's ID</span>
+  <span class="hljs-comment">// This mutation declares a dependency on a document&#x27;s ID</span>
   static fragments = {
     document: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`fragment on <span class="hljs-type">Document</span> { id }`,
   };
-  <span class="hljs-comment">// We know that only the document's name can change as a result</span>
+  <span class="hljs-comment">// We know that only the document&#x27;s name can change as a result</span>
   <span class="hljs-comment">// of this mutation, and specify it here in the fat query.</span>
   getFatQuery() {
     <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
@@ -270,7 +270,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
   }
   getConfigs() {
     <span class="hljs-keyword">return</span> [{
-      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">'FIELDS_CHANG</span>E',
+      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">&#x27;FIELDS_CHANG</span>E&#x27;,
       <span class="hljs-comment">// Correlate the `updatedDocument` field in the response</span>
       <span class="hljs-comment">// with the DataID of the record we would like updated.</span>
       fieldIDs: {updatedDocument: <span class="hljs-keyword">this</span>.props.document.id},
@@ -294,13 +294,13 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DestroyShipMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
-  <span class="hljs-comment">// This mutation declares a dependency on an enemy ship's ID</span>
+  <span class="hljs-comment">// This mutation declares a dependency on an enemy ship&#x27;s ID</span>
   <span class="hljs-comment">// and the ID of the faction that ship belongs to.</span>
   static fragments = {
     ship: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`fragment on <span class="hljs-type">Ship</span> { id, faction { id } }`,
   };
-  <span class="hljs-comment">// Destroying a ship will remove it from a faction's fleet, so we</span>
-  <span class="hljs-comment">// specify the faction's ships connection as part of the fat query.</span>
+  <span class="hljs-comment">// Destroying a ship will remove it from a faction&#x27;s fleet, so we</span>
+  <span class="hljs-comment">// specify the faction&#x27;s ships connection as part of the fat query.</span>
   getFatQuery() {
     <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
       fragment on <span class="hljs-type">DestroyShipMutationPayload</span> {
@@ -311,11 +311,11 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
   }
   getConfigs() {
     <span class="hljs-keyword">return</span> [{
-      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">'NODE_DELET</span>E',
-      parentName: <span class="hljs-symbol">'factio</span>n',
+      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">&#x27;NODE_DELET</span>E&#x27;,
+      parentName: <span class="hljs-symbol">&#x27;factio</span>n&#x27;,
       parentID: <span class="hljs-keyword">this</span>.props.ship.faction.id,
-      connectionName: <span class="hljs-symbol">'ship</span>s',
-      deletedIDFieldName: <span class="hljs-symbol">'destroyedShipI</span>D',
+      connectionName: <span class="hljs-symbol">&#x27;ship</span>s&#x27;,
+      deletedIDFieldName: <span class="hljs-symbol">&#x27;destroyedShipI</span>D&#x27;,
     }];
   }
   <span class="hljs-comment">/* ... */</span>
@@ -340,17 +340,17 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <pre><code class="hljs">const rangeBehaviors = {
   // <span class="hljs-keyword">When</span> the ships <span class="hljs-keyword">connection</span> <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> under the influence
   // <span class="hljs-keyword">of</span> <span class="hljs-keyword">any</span> <span class="hljs-keyword">call</span>, append the ship <span class="hljs-keyword">to</span> the <span class="hljs-keyword">end</span> <span class="hljs-keyword">of</span> the <span class="hljs-keyword">connection</span>
-  <span class="hljs-string">''</span>: <span class="hljs-string">'append'</span>,
+  <span class="hljs-string">&#x27;&#x27;</span>: <span class="hljs-string">&#x27;append&#x27;</span>,
   // Prepend the ship, wherever the <span class="hljs-keyword">connection</span> <span class="hljs-keyword">is</span> sorted <span class="hljs-keyword">by</span> age
-  <span class="hljs-string">'orderby(newest)'</span>: <span class="hljs-string">'prepend'</span>,
+  <span class="hljs-string">&#x27;orderby(newest)&#x27;</span>: <span class="hljs-string">&#x27;prepend&#x27;</span>,
 };
 </code></pre>
 <p>Or this way, with the same results:</p>
-<pre><code class="hljs">const rangeBehaviors = <span class="hljs-function"><span class="hljs-params">({orderby})</span> =&gt;</span> {
-  <span class="hljs-keyword">if</span> (orderby === <span class="hljs-string">'newest'</span>) {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">'prepend'</span>;
+<pre><code class="hljs"><span class="hljs-keyword">const</span> rangeBehaviors = <span class="hljs-function">(<span class="hljs-params">{orderby}</span>) =&gt;</span> {
+  <span class="hljs-keyword">if</span> (orderby === <span class="hljs-string">&#x27;newest&#x27;</span>) {
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;prepend&#x27;</span>;
   } <span class="hljs-keyword">else</span> {
-    <span class="hljs-keyword">return</span> <span class="hljs-string">'append'</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;append&#x27;</span>;
   }
 };
 
@@ -363,8 +363,8 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
   static fragments = {
     faction: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`fragment on <span class="hljs-type">Faction</span> { id }`,
   };
-  <span class="hljs-comment">// Introducing a ship will add it to a faction's fleet, so we</span>
-  <span class="hljs-comment">// specify the faction's ships connection as part of the fat query.</span>
+  <span class="hljs-comment">// Introducing a ship will add it to a faction&#x27;s fleet, so we</span>
+  <span class="hljs-comment">// specify the faction&#x27;s ships connection as part of the fat query.</span>
   getFatQuery() {
     <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
       fragment on <span class="hljs-type">IntroduceShipPayload</span> {
@@ -375,17 +375,17 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
   }
   getConfigs() {
     <span class="hljs-keyword">return</span> [{
-      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">'RANGE_AD</span>D',
-      parentName: <span class="hljs-symbol">'factio</span>n',
+      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">&#x27;RANGE_AD</span>D&#x27;,
+      parentName: <span class="hljs-symbol">&#x27;factio</span>n&#x27;,
       parentID: <span class="hljs-keyword">this</span>.props.faction.id,
-      connectionName: <span class="hljs-symbol">'ship</span>s',
-      edgeName: <span class="hljs-symbol">'newShipEdg</span>e',
+      connectionName: <span class="hljs-symbol">&#x27;ship</span>s&#x27;,
+      edgeName: <span class="hljs-symbol">&#x27;newShipEdg</span>e&#x27;,
       rangeBehaviors: {
         <span class="hljs-comment">// When the ships connection is not under the influence</span>
         <span class="hljs-comment">// of any call, append the ship to the end of the connection</span>
-        '': <span class="hljs-symbol">'appen</span>d',
+        &#x27;&#x27;: <span class="hljs-symbol">&#x27;appen</span>d&#x27;,
         <span class="hljs-comment">// Prepend the ship, wherever the connection is sorted by age</span>
-        <span class="hljs-symbol">'orderby</span>(newest)': <span class="hljs-symbol">'prepen</span>d',
+        <span class="hljs-symbol">&#x27;orderby</span>(newest)&#x27;: <span class="hljs-symbol">&#x27;prepen</span>d&#x27;,
       },
     }];
   }
@@ -420,9 +420,9 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
   }
   getConfigs() {
     <span class="hljs-keyword">return</span> [{
-      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">'RANGE_DELET</span>E',
-      deletedIDFieldName: <span class="hljs-symbol">'removedTagID</span>s',
-      pathToConnection: [<span class="hljs-symbol">'tod</span>o', <span class="hljs-symbol">'tag</span>s'],
+      <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-symbol">&#x27;RANGE_DELET</span>E&#x27;,
+      deletedIDFieldName: <span class="hljs-symbol">&#x27;removedTagID</span>s&#x27;,
+      pathToConnection: [<span class="hljs-symbol">&#x27;tod</span>o&#x27;, <span class="hljs-symbol">&#x27;tag</span>s&#x27;],
     }];
   }
   <span class="hljs-comment">/* ... */</span>
@@ -456,7 +456,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
     <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
       <span class="hljs-comment">// Note the use of `pattern: true` here to show that this</span>
       <span class="hljs-comment">// connection field is to be used for pattern-matching only</span>
-      <span class="hljs-comment">// (to determine what to fetch) and that Relay shouldn't</span>
+      <span class="hljs-comment">// (to determine what to fetch) and that Relay shouldn&#x27;t</span>
       <span class="hljs-comment">// require the usual connection arguments like (`first` etc)</span>
       <span class="hljs-comment">// to be present.</span>
       fragment on <span class="hljs-type">CouponCreatePayload</span> <span class="hljs-meta">@relay</span>(pattern: <span class="hljs-literal">true</span>) {
@@ -467,8 +467,8 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 
   getConfigs() {
     <span class="hljs-keyword">return</span> [{
-      <span class="hljs-comment">// If we haven't shown the coupons in the UI at the time the</span>
-      <span class="hljs-comment">// mutation runs, they've never been fetched and the `coupons`</span>
+      <span class="hljs-comment">// If we haven&#x27;t shown the coupons in the UI at the time the</span>
+      <span class="hljs-comment">// mutation runs, they&#x27;ve never been fetched and the `coupons`</span>
       <span class="hljs-comment">// field in the fat query would normally be ignored.</span>
       <span class="hljs-comment">// `REQUIRED_CHILDREN` forces it to be retrieved anyway.</span>
       <span class="hljs-class"><span class="hljs-keyword">type</span></span>: <span class="hljs-type">RelayMutationType</span>.<span class="hljs-type">REQUIRED_CHILDREN</span>,
@@ -488,7 +488,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <p>Let's craft an optimistic response for the <code>LikeStoryMutation</code> example above:</p>
 <pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">LikeStoryMutation</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Relay</span>.<span class="hljs-title">Mutation</span> </span>{
   <span class="hljs-comment">/* ... */</span>
-  <span class="hljs-comment">// Here's the fat query from before</span>
+  <span class="hljs-comment">// Here&#x27;s the fat query from before</span>
   getFatQuery() {
     <span class="hljs-keyword">return</span> <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
       fragment on <span class="hljs-type">LikeStoryPayload</span> {
@@ -502,7 +502,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
       }
     `;
   }
-  <span class="hljs-comment">// Let's craft an optimistic response that mimics the shape of the</span>
+  <span class="hljs-comment">// Let&#x27;s craft an optimistic response that mimics the shape of the</span>
   <span class="hljs-comment">// LikeStoryPayload, as well as the values we expect to receive.</span>
   getOptimisticResponse() {
     <span class="hljs-keyword">return</span> {

@@ -67,7 +67,7 @@
 }`;
 <span class="hljs-keyword">const</span> variables = {
   <span class="hljs-keyword">input</span>: {
-    feedbackId: 'aFeedbackId',
+    feedbackId: &#x27;aFeedbackId&#x27;,
   },
 };
 
@@ -89,15 +89,15 @@
 ): <span class="hljs-selector-tag">RelayGraphQLMutation</span>;
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-{7-11}"><span class="hljs-comment">// Given a `files` object of:</span>
-<span class="hljs-comment">//</span>
-<span class="hljs-comment">//   type FileMap = {[key: string]: File};</span>
-<span class="hljs-comment">//</span>
-<span class="hljs-comment">// and `query`, `variables` and `environment` arguments</span>
-<span class="hljs-comment">// as in the previous example:</span>
+<pre><code class="hljs css language-{7-11}"><span class="hljs-regexp">//</span> Given a `files` object of:
+<span class="hljs-regexp">//</span>
+<span class="hljs-regexp">//</span>   type FileMap = {[key: string]: File};
+<span class="hljs-regexp">//</span>
+<span class="hljs-regexp">//</span> and `query`, `variables` and `environment` arguments
+<span class="hljs-regexp">//</span> as <span class="hljs-keyword">in</span> the previous example:
 const mutation = Relay.GraphQLMutation.createWithFiles(
   query,
-  <span class="hljs-keyword">variables</span>,
+  variables,
   files,
   environment
 );
@@ -123,7 +123,7 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
 </ul>
 <p>If not supplied, a unique collision key is derived (meaning that the created mutation will be independent and not collide with any other).</p>
 <h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs"><span class="hljs-keyword">const</span> collisionKey = <span class="hljs-string">'feedback-like: '</span> + variables.input.feedbackId;
+<pre><code class="hljs"><span class="hljs-keyword">const</span> collisionKey = <span class="hljs-string">&#x27;feedback-like: &#x27;</span> + variables.input.feedbackId;
 <span class="hljs-keyword">const</span> mutation = <span class="hljs-keyword">new</span> Relay.GraphQLMutation(
   query,
   variables,
@@ -131,7 +131,7 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
   environment,
   {
     <span class="hljs-attr">onFailure</span>: <span class="hljs-function"><span class="hljs-params">err</span> =&gt;</span> <span class="hljs-built_in">console</span>.warn(err),
-    <span class="hljs-attr">onSuccess</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Success!'</span>),
+    <span class="hljs-attr">onSuccess</span>: <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Success!&#x27;</span>),
   },
   collisionKey
 );
@@ -161,8 +161,8 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
 <span class="hljs-keyword">const</span> optimisticResponse = {
   feedback: {
     doesViewerLike: <span class="hljs-literal">true</span>,
-    <span class="hljs-keyword">id</span>: <span class="hljs-string">'aFeedbackId'</span>,
-    __<span class="hljs-keyword">typename</span>: <span class="hljs-string">'Feedback'</span>,
+    <span class="hljs-keyword">id</span>: <span class="hljs-string">&#x27;aFeedbackId&#x27;</span>,
+    __<span class="hljs-keyword">typename</span>: <span class="hljs-string">&#x27;Feedback&#x27;</span>,
   },
 };
 
@@ -181,13 +181,13 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
 <p>Note: This method may only be called once per instance.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-4"></a><a href="#example-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css language-{11}">const configs = [{
-  <span class="hljs-keyword">type</span>: <span class="hljs-string">'RANGE_ADD'</span>,
-  connectionName: <span class="hljs-string">'topLevelComments'</span>,
-  edgeName: <span class="hljs-string">'feedbackCommentEdge'</span>,
-  parentID: <span class="hljs-string">'aFeedbackId'</span>,
-  parentName: <span class="hljs-string">'feedback'</span>,
+  <span class="hljs-keyword">type</span>: <span class="hljs-string">&#x27;RANGE_ADD&#x27;</span>,
+  connectionName: <span class="hljs-string">&#x27;topLevelComments&#x27;</span>,
+  edgeName: <span class="hljs-string">&#x27;feedbackCommentEdge&#x27;</span>,
+  parentID: <span class="hljs-string">&#x27;aFeedbackId&#x27;</span>,
+  parentName: <span class="hljs-string">&#x27;feedback&#x27;</span>,
   rangeBehaviors: {
-    <span class="hljs-string">''</span>: GraphQLMutatorConstants.PREPEND,
+    <span class="hljs-string">&#x27;&#x27;</span>: GraphQLMutatorConstants.PREPEND,
   },
 }];
 const <span class="hljs-keyword">transaction</span> = mutation.<span class="hljs-keyword">commit</span>(configs);

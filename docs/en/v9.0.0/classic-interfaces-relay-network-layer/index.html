@@ -31,12 +31,12 @@
 <p>Implement this method to send mutations to the server. When the server response is obtained, this method must either call <code>mutationRequest.resolve</code> with the response data, or <code>mutationRequest.reject</code> with an <code>Error</code> object.</p>
 <p>This method can optionally return a promise in order to facilitate proper error propagation.</p>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs"><span class="hljs-selector-tag">sendMutation</span>(mutationRequest) {
-  <span class="hljs-selector-tag">return</span> <span class="hljs-selector-tag">fetch</span>(...)<span class="hljs-selector-class">.then</span>(result =&gt; {
-    <span class="hljs-selector-tag">if</span> (result.errors) {
-      <span class="hljs-selector-tag">mutationRequest</span><span class="hljs-selector-class">.reject</span>(new Error(...))
-    } <span class="hljs-selector-tag">else</span> {
-      <span class="hljs-selector-tag">mutationRequest</span><span class="hljs-selector-class">.resolve</span>({<span class="hljs-attribute">response</span>: result.data});
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">sendMutation</span>(<span class="hljs-params">mutationRequest</span>)</span> {
+  <span class="hljs-keyword">return</span> fetch(...).then(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span> (result.errors) {
+      mutationRequest.reject(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(...))
+    } <span class="hljs-keyword">else</span> {
+      mutationRequest.resolve({<span class="hljs-attr">response</span>: result.data});
     }
   });
 }
@@ -49,7 +49,7 @@
 <p>This method receives an array of queries (instead of a single query) in order to facilitate batching queries to improve network efficiency.</p>
 <p>This method can optionally return a promise in order to facilitate proper error propagation.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs">sendQueries(queryRequests) {
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">sendQueries</span>(<span class="hljs-params">queryRequests</span>)</span> {
   <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.all(queryRequests.map(
     <span class="hljs-function"><span class="hljs-params">queryRequest</span> =&gt;</span> fetch(...).then(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
       <span class="hljs-keyword">if</span> (result.errors) {
@@ -68,12 +68,12 @@
 <p>Implement this method to return true when the supplied options are supported by this network layer. This is used to declare which features the network layer supports.</p>
 <p>In the future, advanced capabilities in Relay may be dependent on the network layer being able to support certain features.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs">supports(...<span class="hljs-keyword">options</span>) {
-  <span class="hljs-keyword">return</span> <span class="hljs-keyword">options</span>.<span class="hljs-keyword">every</span>(option =&gt; {
-    <span class="hljs-keyword">if</span> (option === <span class="hljs-string">'future-feature'</span>) {
-      <span class="hljs-keyword">return</span> <span class="hljs-keyword">true</span>;
+<pre><code class="hljs"><span class="hljs-function"><span class="hljs-title">supports</span>(<span class="hljs-params">...options</span>)</span> {
+  <span class="hljs-keyword">return</span> options.every(<span class="hljs-function"><span class="hljs-params">option</span> =&gt;</span> {
+    <span class="hljs-keyword">if</span> (option === <span class="hljs-string">&#x27;future-feature&#x27;</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
     }
-    <span class="hljs-keyword">return</span> <span class="hljs-keyword">false</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
   });
 }
 </code></pre>

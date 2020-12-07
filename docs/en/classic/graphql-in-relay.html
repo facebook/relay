@@ -12,7 +12,7 @@
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="graphql"></a><a href="#graphql" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>graphql</code></h2>
 <p>The <code>graphql</code> template tag provided by Relay serves as the mechanism to write queries, fragments, mutations or subscriptions in the <a href="http://graphql.org/learn/">GraphQL</a> language. For example:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 graphql<span class="hljs-string">`
   query MyQuery {
@@ -37,8 +37,8 @@ graphql<span class="hljs-string">`
 <h3><a class="anchor" aria-hidden="true" id="argumentdefinitions"></a><a href="#argumentdefinitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@argumentDefinitions</code></h3>
 <p><code>@argumentDefinitions</code> is a directive used to specify arguments taken by a fragment. For example:</p>
 <pre><code class="hljs css language-graphql"><span class="hljs-keyword">fragment</span> TodoList_list <span class="hljs-keyword">on</span> TodoList @argumentDefinitions(
-  count: {type: <span class="hljs-string">"Int"</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
-  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">"ID"</span>},                    <span class="hljs-comment"># Required argument</span>
+  count: {type: <span class="hljs-string">&quot;Int&quot;</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
+  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">&quot;ID&quot;</span>},                    <span class="hljs-comment"># Required argument</span>
 ) {
   title
   todoItems(<span class="hljs-keyword">user</span>ID: <span class="hljs-variable">$userID</span>, first: <span class="hljs-variable">$count</span>) {  <span class="hljs-comment"># Use fragment arguments here as variables</span>
@@ -109,21 +109,21 @@ and <a href="https://flow.org/">Flow types</a> to help you write type-safe code.
 <p>See our relay-compiler section in our <a href="./installation-and-setup.html#set-up-relay-compiler">Installation and Setup guide</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="graphql-schema"></a><a href="#graphql-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GraphQL Schema</h3>
 <p>To use the Relay Compiler, you need either a .graphql or .json GraphQL schema file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a <code>schema.graphql</code> like:</p>
-<pre><code class="hljs css language-graphql">schema {
-  query: Root
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">schema</span> {
+  <span class="hljs-attribute">query</span>: Root
 }
-<span class="hljs-built_in">
-type </span>Root {
-  dictionary: [Word]
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Root</span> {
+  <span class="hljs-attribute">dictionary</span>: [Word]
 }
-<span class="hljs-built_in">
-type </span>Word {
-  id: String!
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Word</span> {
+  <span class="hljs-attribute">id</span>: String!
   definition: WordDefinition
 }
-<span class="hljs-built_in">
-type </span>WordDefinition {
-  text: String
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">WordDefinition</span> {
+  <span class="hljs-attribute">text</span>: String
   image: String
 }
 </code></pre>
@@ -169,7 +169,7 @@ type </span>WordDefinition {
 <h3><a class="anchor" aria-hidden="true" id="importing-generated-definitions"></a><a href="#importing-generated-definitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Importing generated definitions</h3>
 <p>Typically you will not need to import your generated definitions. The <a href="./installation-and-setup.html#setup-babel-plugin-relay">Relay Babel plugin</a> will then convert the <code>graphql</code> literals in your code into <code>require()</code> calls for the generated files.</p>
 <p>However the Relay Compiler also automatically generates <a href="https://flow.org">Flow</a> types as <a href="https://flow.org/en/docs/types/comments/">type comments</a>. For example, you can import the generated flow types like so:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {DictionaryComponent_word} <span class="hljs-keyword">from</span> <span class="hljs-string">'./__generated__/DictionaryComponent_word.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {DictionaryComponent_word} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./__generated__/DictionaryComponent_word.graphql&#x27;</span>;
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="advanced-usage"></a><a href="#advanced-usage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced usage</h3>
 <p>In addition to the bin script, the <code>relay-compiler</code> package also <a href="https://github.com/facebook/relay/blob/master/packages/relay-compiler/RelayCompilerPublic.js">exports library code</a> which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.</p>

@@ -5,7 +5,7 @@
           )
         });
         </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>classic</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/classic/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-Subscriptions.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Subscriptions</h1></header><article><div><span><p>Relay exposes the following APIs to create subscriptions.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {requestSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {requestSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 type Variables = {[name: string]: any};
 
@@ -14,7 +14,7 @@ requestSubscription(
   <span class="hljs-attr">config</span>: {
     <span class="hljs-attr">subscription</span>: GraphQLTaggedNode,
     <span class="hljs-attr">variables</span>: Variables,
-    onCompleted?: ?<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">void</span>,
+    onCompleted?: ?<span class="hljs-function">() =&gt;</span> <span class="hljs-keyword">void</span>,
     onError?: ?<span class="hljs-function">(<span class="hljs-params">error: <span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
     onNext?: ?<span class="hljs-function">(<span class="hljs-params">response: ?<span class="hljs-built_in">Object</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
     updater?: ?<span class="hljs-function">(<span class="hljs-params">store: RecordSourceSelectorProxy, data: SelectorData</span>) =&gt;</span> <span class="hljs-keyword">void</span>,
@@ -43,7 +43,7 @@ can be identified by their <code>id</code>:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {
   requestSubscription,
   graphql,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> subscription = graphql<span class="hljs-string">`
   subscription MarkReadNotificationSubscription(
@@ -67,7 +67,7 @@ requestSubscription(
     subscription,
     variables,
     <span class="hljs-comment">// optional but recommended:</span>
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {<span class="hljs-comment">/* server closed the subscription */</span>},
+    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function">() =&gt;</span> {<span class="hljs-comment">/* server closed the subscription */</span>},
     <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> <span class="hljs-built_in">console</span>.error(error),
   }
 );
@@ -76,7 +76,7 @@ requestSubscription(
 <p>For more complex use-cases, you may wish to perform custom logic to update
 Relay's in-memory cache when each subscription response is received. To do so,
 pass an <code>updater</code> function:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-runtime&#x27;</span>);
 
 requestSubscription(
   environment,
@@ -85,17 +85,17 @@ requestSubscription(
     variables,
     <span class="hljs-attr">updater</span>: <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
       <span class="hljs-comment">// Get the notification</span>
-      <span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">'markReadNotification'</span>);
-      <span class="hljs-keyword">const</span> notification = rootField.getLinkedRecord(<span class="hljs-string">'notification'</span>);
+      <span class="hljs-keyword">const</span> rootField = store.getRootField(<span class="hljs-string">&#x27;markReadNotification&#x27;</span>);
+      <span class="hljs-keyword">const</span> notification = rootField.getLinkedRecord(<span class="hljs-string">&#x27;notification&#x27;</span>);
       <span class="hljs-comment">// Add it to a connection</span>
-      <span class="hljs-keyword">const</span> viewer = store.getRoot().getLinkedRecord(<span class="hljs-string">'viewer'</span>);
+      <span class="hljs-keyword">const</span> viewer = store.getRoot().getLinkedRecord(<span class="hljs-string">&#x27;viewer&#x27;</span>);
       <span class="hljs-keyword">const</span> notifications =
-        ConnectionHandler.getConnection(viewer, <span class="hljs-string">'notifications'</span>);
+        ConnectionHandler.getConnection(viewer, <span class="hljs-string">&#x27;notifications&#x27;</span>);
       <span class="hljs-keyword">const</span> edge = ConnectionHandler.createEdge(
         store,
         notifications,
         notification,
-        <span class="hljs-string">'&lt;TypeOfNotificationsEdge&gt;'</span>,
+        <span class="hljs-string">&#x27;&lt;TypeOfNotificationsEdge&gt;&#x27;</span>,
       );
       ConnectionHandler.insertEdgeAfter(notifications, edge);
     },

@@ -68,7 +68,7 @@
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="graphql"></a><a href="#graphql" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>graphql</code></h2>
 <p>The <code>graphql</code> template tag provided by Relay serves as the mechanism to write queries, fragments, mutations or subscriptions in the <a href="http://graphql.org/learn/">GraphQL</a> language. For example:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 graphql<span class="hljs-string">`
   query MyQuery {
@@ -93,8 +93,8 @@ graphql<span class="hljs-string">`
 <h3><a class="anchor" aria-hidden="true" id="argumentdefinitions"></a><a href="#argumentdefinitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@argumentDefinitions</code></h3>
 <p><code>@argumentDefinitions</code> is a directive used to specify arguments taken by a fragment. For example:</p>
 <pre><code class="hljs css language-graphql"><span class="hljs-keyword">fragment</span> TodoList_list <span class="hljs-keyword">on</span> TodoList @argumentDefinitions(
-  count: {type: <span class="hljs-string">"Int"</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
-  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">"ID"</span>},                    <span class="hljs-comment"># Required argument</span>
+  count: {type: <span class="hljs-string">&quot;Int&quot;</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
+  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">&quot;ID&quot;</span>},                    <span class="hljs-comment"># Required argument</span>
 ) {
   title
   todoItems(<span class="hljs-keyword">user</span>ID: <span class="hljs-variable">$userID</span>, first: <span class="hljs-variable">$count</span>) {  <span class="hljs-comment"># Use fragment arguments here as variables</span>
@@ -126,7 +126,7 @@ fragment TodoApp_app on App {
 <p>By default, Relay will only expose the data for fields explicitly requested by a <a href="./fragment-container.html#createfragmentcontainer">component's fragment</a>, which is known as <a href="./thinking-in-relay#data-masking">data masking</a>. Fragment data is unmasked for use in React components by <code>createFragmentContainer</code>. However, you may want to use fragment data in non-React functions that are called from React.</p>
 <p>Non-React functions can also take advantage of data masking. A fragment can be defined with the <code>@inline</code> directive and stored in a local variable. The non-React function can then &quot;unmask&quot; the data using the <code>readInlineData</code> function.</p>
 <p>In the example below, the function <code>processItemData</code> is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the <code>processItemData_item</code> fragment to ensure all of the correct item data is loaded for this function.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql, readInlineData} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql, readInlineData} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-comment">// non-React function called from React</span>
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">processItemData</span>(<span class="hljs-params">itemRef</span>) </span>{
@@ -217,8 +217,8 @@ and <a href="https://flow.org/">Flow types</a> to help you write type-safe code.
 <h3><a class="anchor" aria-hidden="true" id="persisting-queries"></a><a href="#persisting-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Persisting queries</h3>
 <p>Relay Compiler supports the use of <strong>persisted queries</strong>, in which each version of a query is associated to a unique ID on the server and the runtime uploads only the persisted ID instead of the full query text. This has several benefits: it can significantly reduce the time to send a query (and the upload bytes) and enables <em>whitelisting</em> of queries. For example, you may choose to disallow queries in text form and only allow queries that have been persisted (and that presumably have passed your internal code review process).</p>
 <p>Persisted queries can be enabled by instructing Relay Compiler to emit metadata about each query, mutation, and subscription into a JSON file. The generated file will contain a mapping of query identifiers to query text, which you can then save to your server. To enable persisted queries, use the <code>--persist-output</code> flag to the compiler:</p>
-<pre><code class="hljs css language-js"><span class="hljs-string">"scripts"</span>: {
-  <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema ./schema.graphql --persist-output ./path/to/persisted-queries.json"</span>
+<pre><code class="hljs css language-js"><span class="hljs-string">&quot;scripts&quot;</span>: {
+  <span class="hljs-string">&quot;relay&quot;</span>: <span class="hljs-string">&quot;relay-compiler --src ./src --schema ./schema.graphql --persist-output ./path/to/persisted-queries.json&quot;</span>
 }
 </code></pre>
 <p>Relay Compiler will then create the id =&gt; query text mapping in the path you specify. You can then use this complete
@@ -228,21 +228,21 @@ json file in your server side to map query ids to operation text.</p>
 <p>See our relay-compiler section in our <a href="./installation-and-setup.html#set-up-relay-compiler">Installation and Setup guide</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="graphql-schema"></a><a href="#graphql-schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GraphQL Schema</h3>
 <p>To use the Relay Compiler, you need either a .graphql or .json GraphQL schema file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a <code>schema.graphql</code> like:</p>
-<pre><code class="hljs css language-graphql">schema {
-  query: Root
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">schema</span> {
+  <span class="hljs-attribute">query</span>: Root
 }
-<span class="hljs-built_in">
-type </span>Root {
-  dictionary: [Word]
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Root</span> {
+  <span class="hljs-attribute">dictionary</span>: [Word]
 }
-<span class="hljs-built_in">
-type </span>Word {
-  id: String!
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Word</span> {
+  <span class="hljs-attribute">id</span>: String!
   definition: WordDefinition
 }
-<span class="hljs-built_in">
-type </span>WordDefinition {
-  text: String
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">WordDefinition</span> {
+  <span class="hljs-attribute">text</span>: String
   image: String
 }
 </code></pre>
@@ -288,17 +288,17 @@ type </span>WordDefinition {
 <h3><a class="anchor" aria-hidden="true" id="importing-generated-definitions"></a><a href="#importing-generated-definitions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Importing generated definitions</h3>
 <p>Typically you will not need to import your generated definitions. The <a href="./installation-and-setup.html#setup-babel-plugin-relay">Relay Babel plugin</a> will then convert the <code>graphql</code> literals in your code into <code>require()</code> calls for the generated files.</p>
 <p>However the Relay Compiler also automatically generates <a href="https://flow.org">Flow</a> types as <a href="https://flow.org/en/docs/types/comments/">type comments</a>. For example, you can import the generated Flow types like so:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {DictionaryComponent_word} <span class="hljs-keyword">from</span> <span class="hljs-string">'./__generated__/DictionaryComponent_word.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {DictionaryComponent_word} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./__generated__/DictionaryComponent_word.graphql&#x27;</span>;
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="client-schema-extensions"></a><a href="#client-schema-extensions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Client schema extensions</h3>
 <p>The Relay Compiler fully supports client-side schema extensions, which allows you to extend the server schema by defining additional GraphQL types and fields on the client. Relay expects the client schema to be located in your <code>--src</code> directory.</p>
 <p>For example, assuming the server schema <code>./schema.graphql</code>:</p>
-<pre><code class="hljs css language-graphql">schema {
-  query: Root
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">schema</span> {
+  <span class="hljs-attribute">query</span>: Root
 }
-<span class="hljs-built_in">
-type </span>Root {
-  title: String!
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Root</span> {
+  <span class="hljs-attribute">title</span>: String!
 }
 </code></pre>
 <p>We can create a <code>./src/clientSchema.graphql</code> and define a new type called <code>Setting</code>:</p>
@@ -308,8 +308,8 @@ type </span>Root {
 }
 </code></pre>
 <p>We can then extend existing server types in the client schema <code>./src/clientSchema.graphql</code> with our new <code>Setting</code> type, like so:</p>
-<pre><code class="hljs css language-graphql">extend<span class="hljs-built_in"> type </span>Root {
-  settings: [Setting]
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">extend</span> <span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Root</span> {
+  <span class="hljs-attribute">settings</span>: [Setting]
 }
 </code></pre>
 <p>Any fields specified in the client schema, can be fetched from the <a href="./relay-store">Relay Store</a>, by selecting it in a query or fragment.</p>

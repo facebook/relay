@@ -83,56 +83,56 @@
 <p>It is also assumed that the reader is already familiar with <a href="https://en.wikipedia.org/wiki/Star_Wars">Star Wars</a>; if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.</p>
 <h2><a class="anchor" aria-hidden="true" id="schema"></a><a href="#schema" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Schema</h2>
 <p>The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js <a href="https://github.com/graphql/graphql-js/blob/master/src/utilities/printSchema.js"><code>printSchema</code></a>.</p>
-<pre><code class="hljs">interface Node {
-  id: ID!
-}
-<span class="hljs-built_in">
-type </span>Faction implements Node {
-  id: ID!
-  name: String
-  ships: ShipConnection
-}
-<span class="hljs-built_in">
-type </span>Ship implements Node {
-  id: ID!
-  name: String
-}
-<span class="hljs-built_in">
-type </span>ShipConnection {
-  edges: [ShipEdge]
-  pageInfo: PageInfo!
-}
-<span class="hljs-built_in">
-type </span>ShipEdge {
-  cursor: String!
-  node: Ship
-}
-<span class="hljs-built_in">
-type </span>PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-<span class="hljs-built_in">
-type </span>Query {
-  rebels: Faction
-  empire: Faction
-  node(id: ID!): Node
+<pre><code class="hljs"><span class="hljs-title">interface</span> <span class="hljs-type">Node</span> {
+  id: <span class="hljs-type">ID</span>!
 }
 
-input IntroduceShipInput {
-  factionId: String!
-  shipNamed: String!
+<span class="hljs-keyword">type</span> <span class="hljs-type">Faction</span> implements <span class="hljs-type">Node</span> {
+  id: <span class="hljs-type">ID</span>!
+  name: <span class="hljs-type">String</span>
+  ships: <span class="hljs-type">ShipConnection</span>
 }
-<span class="hljs-built_in">
-type </span>IntroduceShipPayload {
-  faction: Faction
-  ship: Ship
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">Ship</span> implements <span class="hljs-type">Node</span> {
+  id: <span class="hljs-type">ID</span>!
+  name: <span class="hljs-type">String</span>
 }
-<span class="hljs-built_in">
-type </span>Mutation {
-  introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">ShipConnection</span> {
+  edges: [<span class="hljs-type">ShipEdge</span>]
+  pageInfo: <span class="hljs-type">PageInfo</span>!
+}
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">ShipEdge</span> {
+  cursor: <span class="hljs-type">String</span>!
+  node: <span class="hljs-type">Ship</span>
+}
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">PageInfo</span> {
+  hasNextPage: <span class="hljs-type">Boolean</span>!
+  hasPreviousPage: <span class="hljs-type">Boolean</span>!
+  startCursor: <span class="hljs-type">String</span>
+  endCursor: <span class="hljs-type">String</span>
+}
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">Query</span> {
+  rebels: <span class="hljs-type">Faction</span>
+  empire: <span class="hljs-type">Faction</span>
+  node(id: <span class="hljs-type">ID</span>!): <span class="hljs-type">Node</span>
+}
+
+<span class="hljs-title">input</span> <span class="hljs-type">IntroduceShipInput</span> {
+  factionId: <span class="hljs-type">String</span>!
+  shipNamed: <span class="hljs-type">String</span>!
+}
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">IntroduceShipPayload</span> {
+  faction: <span class="hljs-type">Faction</span>
+  ship: <span class="hljs-type">Ship</span>
+}
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">Mutation</span> {
+  introduceShip(input: <span class="hljs-type">IntroduceShipInput</span>!): <span class="hljs-type">IntroduceShipPayload</span>
 }
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="object-identification"></a><a href="#object-identification" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Object Identification</h2>
@@ -148,15 +148,15 @@ type </span>Mutation {
 </code></pre>
 <p>returns</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"rebels"</span>: {
-    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>,
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
+  <span class="hljs-attr">&quot;rebels&quot;</span>: {
+    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;RmFjdGlvbjox&quot;</span>,
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>
   }
 }
 </code></pre>
 <p>So now we know the ID of the Rebels in our system. We can now refetch them:</p>
 <pre><code class="hljs">query RebelsRefetchQuery {
-  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>) {
+  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">&quot;RmFjdGlvbjox&quot;</span>) {
     <span class="hljs-built_in">id</span>
     ... <span class="hljs-keyword">on</span> Faction {
       <span class="hljs-built_in">name</span>
@@ -166,9 +166,9 @@ type </span>Mutation {
 </code></pre>
 <p>returns</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"node"</span>: {
-    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjox"</span>,
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
+  <span class="hljs-attr">&quot;node&quot;</span>: {
+    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;RmFjdGlvbjox&quot;</span>,
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>
   }
 }
 </code></pre>
@@ -182,15 +182,15 @@ type </span>Mutation {
 </code></pre>
 <p>yields</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"empire"</span>: {
-    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>,
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Galactic Empire"</span>
+  <span class="hljs-attr">&quot;empire&quot;</span>: {
+    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;RmFjdGlvbjoy&quot;</span>,
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Galactic Empire&quot;</span>
   }
 }
 </code></pre>
 <p>and</p>
 <pre><code class="hljs">query EmpireRefetchQuery {
-  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>) {
+  node(<span class="hljs-built_in">id</span>: <span class="hljs-string">&quot;RmFjdGlvbjoy&quot;</span>) {
     <span class="hljs-built_in">id</span>
     ... <span class="hljs-keyword">on</span> Faction {
       <span class="hljs-built_in">name</span>
@@ -200,9 +200,9 @@ type </span>Mutation {
 </code></pre>
 <p>yields</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"node"</span>: {
-    <span class="hljs-attr">"id"</span>: <span class="hljs-string">"RmFjdGlvbjoy"</span>,
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Galactic Empire"</span>
+  <span class="hljs-attr">&quot;node&quot;</span>: {
+    <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;RmFjdGlvbjoy&quot;</span>,
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Galactic Empire&quot;</span>
   }
 }
 </code></pre>
@@ -227,13 +227,13 @@ type </span>Mutation {
 </code></pre>
 <p>yields</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"rebels"</span>: {
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
-    <span class="hljs-attr">"ships"</span>: {
-      <span class="hljs-attr">"edges"</span>: [
+  <span class="hljs-attr">&quot;rebels&quot;</span>: {
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>,
+    <span class="hljs-attr">&quot;ships&quot;</span>: {
+      <span class="hljs-attr">&quot;edges&quot;</span>: [
         {
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"X-Wing"</span>
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;X-Wing&quot;</span>
           }
         }
       ]
@@ -258,20 +258,20 @@ type </span>Mutation {
 </code></pre>
 <p>and we get back</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"rebels"</span>: {
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
-    <span class="hljs-attr">"ships"</span>: {
-      <span class="hljs-attr">"edges"</span>: [
+  <span class="hljs-attr">&quot;rebels&quot;</span>: {
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>,
+    <span class="hljs-attr">&quot;ships&quot;</span>: {
+      <span class="hljs-attr">&quot;edges&quot;</span>: [
         {
-          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjA="</span>,
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"X-Wing"</span>
+          <span class="hljs-attr">&quot;cursor&quot;</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjA=&quot;</span>,
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;X-Wing&quot;</span>
           }
         },
         {
-          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjE="</span>,
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Y-Wing"</span>
+          <span class="hljs-attr">&quot;cursor&quot;</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjE=&quot;</span>,
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Y-Wing&quot;</span>
           }
         }
       ]
@@ -283,7 +283,7 @@ type </span>Mutation {
 <pre><code class="hljs">query EndOfRebelShipsQuery {
   rebels {
     <span class="hljs-built_in">name</span>,
-    ships(<span class="hljs-keyword">first</span>: <span class="hljs-number">3</span> <span class="hljs-keyword">after</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjE="</span>) {
+    ships(<span class="hljs-keyword">first</span>: <span class="hljs-number">3</span> <span class="hljs-keyword">after</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjE=&quot;</span>) {
       edges {
         cursor,
         node {
@@ -297,26 +297,26 @@ type </span>Mutation {
 <p>gives us</p>
 <pre><code class="hljs css language-json">
 {
-  <span class="hljs-attr">"rebels"</span>: {
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
-    <span class="hljs-attr">"ships"</span>: {
-      <span class="hljs-attr">"edges"</span>: [
+  <span class="hljs-attr">&quot;rebels&quot;</span>: {
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>,
+    <span class="hljs-attr">&quot;ships&quot;</span>: {
+      <span class="hljs-attr">&quot;edges&quot;</span>: [
         {
-          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjI="</span>,
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"A-Wing"</span>
+          <span class="hljs-attr">&quot;cursor&quot;</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjI=&quot;</span>,
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;A-Wing&quot;</span>
           }
         },
         {
-          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjM="</span>,
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Millenium Falcon"</span>
+          <span class="hljs-attr">&quot;cursor&quot;</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjM=&quot;</span>,
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Millenium Falcon&quot;</span>
           }
         },
         {
-          <span class="hljs-attr">"cursor"</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjQ="</span>,
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Home One"</span>
+          <span class="hljs-attr">&quot;cursor&quot;</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjQ=&quot;</span>,
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Home One&quot;</span>
           }
         }
       ]
@@ -328,7 +328,7 @@ type </span>Mutation {
 <pre><code class="hljs">query RebelsQuery {
   rebels {
     <span class="hljs-built_in">name</span>,
-    ships(<span class="hljs-keyword">first</span>: <span class="hljs-number">4</span> <span class="hljs-keyword">after</span>: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjQ="</span>) {
+    ships(<span class="hljs-keyword">first</span>: <span class="hljs-number">4</span> <span class="hljs-keyword">after</span>: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjQ=&quot;</span>) {
       edges {
         cursor,
         node {
@@ -341,10 +341,10 @@ type </span>Mutation {
 </code></pre>
 <p>yields</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"rebels"</span>: {
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
-    <span class="hljs-attr">"ships"</span>: {
-      <span class="hljs-attr">"edges"</span>: []
+  <span class="hljs-attr">&quot;rebels&quot;</span>: {
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>,
+    <span class="hljs-attr">&quot;ships&quot;</span>: {
+      <span class="hljs-attr">&quot;edges&quot;</span>: []
     }
   }
 }
@@ -363,7 +363,7 @@ type </span>Mutation {
         hasNextPage
       }
     }
-<span class="hljs-symbol">    moreShips:</span> ships(first: <span class="hljs-number">3</span> after: <span class="hljs-string">"YXJyYXljb25uZWN0aW9uOjE="</span>) {
+<span class="hljs-symbol">    moreShips:</span> ships(first: <span class="hljs-number">3</span> after: <span class="hljs-string">&quot;YXJyYXljb25uZWN0aW9uOjE=&quot;</span>) {
       <span class="hljs-class">edges </span>{
         <span class="hljs-class">node </span>{
           name
@@ -378,45 +378,45 @@ type </span>Mutation {
 </code></pre>
 <p>and we get back</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"rebels"</span>: {
-    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>,
-    <span class="hljs-attr">"originalShips"</span>: {
-      <span class="hljs-attr">"edges"</span>: [
+  <span class="hljs-attr">&quot;rebels&quot;</span>: {
+    <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>,
+    <span class="hljs-attr">&quot;originalShips&quot;</span>: {
+      <span class="hljs-attr">&quot;edges&quot;</span>: [
         {
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"X-Wing"</span>
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;X-Wing&quot;</span>
           }
         },
         {
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Y-Wing"</span>
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Y-Wing&quot;</span>
           }
         }
       ],
-      <span class="hljs-attr">"pageInfo"</span>: {
-        <span class="hljs-attr">"hasNextPage"</span>: <span class="hljs-literal">true</span>
+      <span class="hljs-attr">&quot;pageInfo&quot;</span>: {
+        <span class="hljs-attr">&quot;hasNextPage&quot;</span>: <span class="hljs-literal">true</span>
       }
     },
-    <span class="hljs-attr">"moreShips"</span>: {
-      <span class="hljs-attr">"edges"</span>: [
+    <span class="hljs-attr">&quot;moreShips&quot;</span>: {
+      <span class="hljs-attr">&quot;edges&quot;</span>: [
         {
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"A-Wing"</span>
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;A-Wing&quot;</span>
           }
         },
         {
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Millenium Falcon"</span>
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Millenium Falcon&quot;</span>
           }
         },
         {
-          <span class="hljs-attr">"node"</span>: {
-            <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Home One"</span>
+          <span class="hljs-attr">&quot;node&quot;</span>: {
+            <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Home One&quot;</span>
           }
         }
       ],
-      <span class="hljs-attr">"pageInfo"</span>: {
-        <span class="hljs-attr">"hasNextPage"</span>: <span class="hljs-literal">false</span>
+      <span class="hljs-attr">&quot;pageInfo&quot;</span>: {
+        <span class="hljs-attr">&quot;hasNextPage&quot;</span>: <span class="hljs-literal">false</span>
       }
     }
   }
@@ -429,13 +429,13 @@ type </span>Mutation {
 <p>Relay uses a common pattern for mutations, where there are root fields on the mutation type with a single argument, <code>input</code>, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.</p>
 <p>By convention, mutations are named as verbs, their inputs are the name with &quot;Input&quot; appended at the end, and they return an object that is the name with &quot;Payload&quot; appended.</p>
 <p>So for our <code>introduceShip</code> mutation, we create two types: <code>IntroduceShipInput</code> and <code>IntroduceShipPayload</code>:</p>
-<pre><code class="hljs">input IntroduceShipInput {
-  factionId: ID!
+<pre><code class="hljs"><span class="hljs-selector-tag">input</span> <span class="hljs-selector-tag">IntroduceShipInput</span> {
+  <span class="hljs-attribute">factionId</span>: ID!
   shipName: String!
 }
-<span class="hljs-built_in">
-type </span>IntroduceShipPayload {
-  faction: Faction
+
+<span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">IntroduceShipPayload</span> {
+  <span class="hljs-attribute">faction</span>: Faction
   ship: Ship
 }
 </code></pre>
@@ -454,21 +454,21 @@ type </span>IntroduceShipPayload {
 </code></pre>
 <p>with these params:</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"input"</span>: {
-    <span class="hljs-attr">"shipName"</span>: <span class="hljs-string">"B-Wing"</span>,
-    <span class="hljs-attr">"factionId"</span>: <span class="hljs-string">"1"</span>
+  <span class="hljs-attr">&quot;input&quot;</span>: {
+    <span class="hljs-attr">&quot;shipName&quot;</span>: <span class="hljs-string">&quot;B-Wing&quot;</span>,
+    <span class="hljs-attr">&quot;factionId&quot;</span>: <span class="hljs-string">&quot;1&quot;</span>
   }
 }
 </code></pre>
 <p>and we'll get this result:</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"introduceShip"</span>: {
-    <span class="hljs-attr">"ship"</span>: {
-      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"U2hpcDo5"</span>,
-      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"B-Wing"</span>
+  <span class="hljs-attr">&quot;introduceShip&quot;</span>: {
+    <span class="hljs-attr">&quot;ship&quot;</span>: {
+      <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;U2hpcDo5&quot;</span>,
+      <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;B-Wing&quot;</span>
     },
-    <span class="hljs-attr">"faction"</span>: {
-      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Alliance to Restore the Republic"</span>
+    <span class="hljs-attr">&quot;faction&quot;</span>: {
+      <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Alliance to Restore the Republic&quot;</span>
     }
   }
 }

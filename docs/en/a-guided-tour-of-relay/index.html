@@ -20,8 +20,8 @@
 </code></pre>
 <p>Add <code>&quot;relay&quot;</code> to the list of plugins in your <code>.babelrc</code> file:</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"plugins"</span>: [
-    <span class="hljs-string">"relay"</span>
+  <span class="hljs-string">&quot;plugins&quot;</span>: [
+    <span class="hljs-string">&quot;relay&quot;</span>
   ]
 }
 </code></pre>
@@ -29,7 +29,7 @@
 presets to ensure the <code>graphql</code> template literals are correctly transformed. See
 Babel's <a href="https://babeljs.io/docs/plugins/#pluginpreset-ordering">documentation on this topic</a>.</p>
 <p>Alternatively, instead of using <code>babel-plugin-relay</code>, you can use Relay with <a href="https://github.com/kentcdodds/babel-plugin-macros">babel-plugin-macros</a>. After installing <code>babel-plugin-macros</code> and adding it to your Babel config:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> graphql = <span class="hljs-built_in">require</span>(<span class="hljs-string">'babel-plugin-relay/macro'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> graphql = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;babel-plugin-relay/macro&#x27;</span>);
 </code></pre>
 <p>If you need to configure <code>babel-plugin-relay</code> further, you can do so by <a href="https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental">specifying the options in a number of ways</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="relay-compiler"></a><a href="#relay-compiler" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Relay Compiler</h3>
@@ -38,13 +38,13 @@ Babel's <a href="https://babeljs.io/docs/plugins/#pluginpreset-ordering">documen
 <pre><code class="hljs css language-sh">yarn add --dev relay-compiler
 </code></pre>
 <p>This installs the bin script <code>relay-compiler</code> in your <code>node_modules</code> folder. It's recommended to run this from a <code>yarn</code>/<code>npm</code> script by adding a script to your <code>package.json</code> file:</p>
-<pre><code class="hljs css language-js"><span class="hljs-string">"scripts"</span>: {
-  <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema ./schema.graphql"</span>
+<pre><code class="hljs css language-js"><span class="hljs-string">&quot;scripts&quot;</span>: {
+  <span class="hljs-string">&quot;relay&quot;</span>: <span class="hljs-string">&quot;relay-compiler --src ./src --schema ./schema.graphql&quot;</span>
 }
 </code></pre>
 <p>or if you are using jsx:</p>
-<pre><code class="hljs css language-js"><span class="hljs-string">"scripts"</span>: {
-  <span class="hljs-string">"relay"</span>: <span class="hljs-string">"relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"</span>
+<pre><code class="hljs css language-js"><span class="hljs-string">&quot;scripts&quot;</span>: {
+  <span class="hljs-string">&quot;relay&quot;</span>: <span class="hljs-string">&quot;relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx&quot;</span>
 }
 </code></pre>
 <p>Then, whenever you've made edits to your application files, you can run the <code>relay</code> script to run the compiler and generate new compiled artifacts:</p>
@@ -66,24 +66,24 @@ using the <code>relay-config</code> package. Besides unifying all Relay configur
 <span class="hljs-built_in">module</span>.exports = {
   <span class="hljs-comment">// ...</span>
   <span class="hljs-comment">// Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.</span>
-  <span class="hljs-attr">src</span>: <span class="hljs-string">"./src"</span>,
-  <span class="hljs-attr">schema</span>: <span class="hljs-string">"./data/schema.graphql"</span>,
-  <span class="hljs-attr">exclude</span>: [<span class="hljs-string">"**/node_modules/**"</span>, <span class="hljs-string">"**/__mocks__/**"</span>, <span class="hljs-string">"**/__generated__/**"</span>],
+  <span class="hljs-attr">src</span>: <span class="hljs-string">&quot;./src&quot;</span>,
+  <span class="hljs-attr">schema</span>: <span class="hljs-string">&quot;./data/schema.graphql&quot;</span>,
+  <span class="hljs-attr">exclude</span>: [<span class="hljs-string">&quot;**/node_modules/**&quot;</span>, <span class="hljs-string">&quot;**/__mocks__/**&quot;</span>, <span class="hljs-string">&quot;**/__generated__/**&quot;</span>],
 }
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="rendering-data-basics"></a><a href="#rendering-data-basics" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rendering Data Basics</h2>
 <h3><a class="anchor" aria-hidden="true" id="fragments"></a><a href="#fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fragments</h3>
 <p>The main building block for declaring data dependencies for React Components in Relay are <a href="https://graphql.org/learn/queries/#fragments">GraphQL fragments</a>, which are essentially a selection of fields on a GraphQL Type:</p>
-<pre><code class="hljs css language-graphql">fragment UserFragment on<span class="hljs-built_in"> User </span>{
-  name
+<pre><code class="hljs css language-graphql"><span class="hljs-attribute">fragment</span> UserFragment <span class="hljs-literal">on</span> User {
+  <span class="hljs-attribute">name</span>
   age
-  profile_picture(scale: 2) {
-    uri
+  profile_picture(scale: <span class="hljs-number">2</span>) {
+    <span class="hljs-attribute">uri</span>
   }
 }
 </code></pre>
 <p>In order to declare a fragment inside your JavaScript code, you must use the <code>graphql</code> tag:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-keyword">const</span> userFragment = graphql<span class="hljs-string">`
   fragment UserFragment on User {
@@ -96,11 +96,11 @@ using the <code>relay-config</code> package. Besides unifying all Relay configur
 `</span>;
 </code></pre>
 <p>In order to <em>render</em> the data for a fragment, you can use the <strong><code>useFragment</code></strong> Hook:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: UserComponent_user$key,
@@ -145,11 +145,11 @@ type Props = {|
 <li>Fragment names need to be globally unique. In order to easily achieve this, we name fragments using the following convention based on the module name followed by an identifier: <code>&lt;module_name&gt;_&lt;property_name&gt;</code>. This makes it easy to identify which fragments are defined in which modules and avoids name collisions when multiple fragments are defined in the same module.</li>
 </ul>
 <p>If you need to render data from multiple fragments inside the same component, you can use  <strong><code>useFragment</code></strong> multiple times:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_user.graphql'</span>;
-<span class="hljs-keyword">import</span> type {UserComponent_viewer$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_viewer.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_user.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {UserComponent_viewer$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_viewer.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: UserComponent_user$key,
@@ -185,7 +185,7 @@ type Props = {|
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{userData.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">{userData.profile_picture?.uri}</span> /&gt;</span>
-        Acting as: {viewerData.actor?.name ?? 'Unknown'}
+        Acting as: {viewerData.actor?.name ?? &#x27;Unknown&#x27;}
       <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
     <span class="hljs-tag">&lt;/&gt;</span></span>
   );
@@ -195,18 +195,18 @@ type Props = {|
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="composing-fragments"></a><a href="#composing-fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Composing Fragments</h3>
 <p>In GraphQL, fragments are reusable units, which means they can include <em>other</em> fragments, and consequently a fragment can be included within other fragments or <a href="#queries">Queries</a>:</p>
-<pre><code class="hljs">fragment UserFragment on<span class="hljs-built_in"> User </span>{
-  name
+<pre><code class="hljs">fragment UserFragment on <span class="hljs-keyword">User</span> <span class="hljs-title">{
+  name</span>
   age
-  profile_picture(scale: 2) {
+  profile_picture(scale: <span class="hljs-number">2</span>) {
     uri
   }
-  <span class="hljs-built_in">..</span>.AnotherUserFragment
+  ...AnotherUserFragment
 }
 
-fragment AnotherUserFragment on<span class="hljs-built_in"> User </span>{
-  username
-  <span class="hljs-built_in">..</span>.FooUserFragment
+fragment AnotherUserFragment on <span class="hljs-keyword">User</span> <span class="hljs-title">{
+  username</span>
+  ...FooUserFragment
 }
 </code></pre>
 <p>With Relay, you can compose fragment components in a similar way, using both component composition and fragment composition. Each React component is responsible for fetching the data dependencies of its direct children - just as it has to know about its children's props in order to render them correctly. This pattern means that developers are able to reason locally about components - what data they need, what components they render - but Relay is able to derive a global view of the data dependencies of an entire UI tree.</p>
@@ -216,10 +216,10 @@ fragment AnotherUserFragment on<span class="hljs-built_in"> User </span>{
  * Child Fragment Component
  */</span>
 
-<span class="hljs-keyword">import</span> type {UsernameSection_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UsernameSection_user.graphql'</span>;
+<span class="hljs-keyword">import</span> type {UsernameSection_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UsernameSection_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: UsernameSection_user$key,
@@ -235,7 +235,7 @@ type Props = {|
     props.user,
   );
 
-  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>{data.username ?? 'Unknown'}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>;
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>{data.username ?? &#x27;Unknown&#x27;}<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>;
 }
 
 <span class="hljs-built_in">module</span>.exports = UsernameSection;
@@ -246,12 +246,12 @@ type Props = {|
  * Parent Fragment Component
  */</span>
 
-<span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_user.graphql'</span>;
+<span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-<span class="hljs-keyword">const</span> UsernameSection = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./UsernameSection.react'</span>);
+<span class="hljs-keyword">const</span> UsernameSection = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./UsernameSection.react&#x27;</span>);
 
 type Props = {|
   user: UserComponent_user$key,
@@ -299,34 +299,34 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="queries"></a><a href="#queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Queries</h3>
 <p>A <a href="https://graphql.github.io/learn/queries/">GraphQL query</a> is a request that can be sent to a GraphQL server in combination with a set of <a href="#variables">Variables</a>, in order to fetch some data. It consists of a selection of fields, and potentially includes other fragments:</p>
-<pre><code class="hljs css language-graphql">query UserQuery(<span class="hljs-variable">$id</span>: ID!) {
-  user(id: <span class="hljs-variable">$id</span>) {
-    id
-    name
-    <span class="hljs-built_in">..</span>.UserFragment
+<pre><code class="hljs css language-graphql">query UserQuery($<span class="hljs-built_in">id</span>: ID!) {
+  user(<span class="hljs-built_in">id</span>: $<span class="hljs-built_in">id</span>) {
+    <span class="hljs-built_in">id</span>
+    <span class="hljs-built_in">name</span>
+    ...UserFragment
   }
   viewer {
     actor {
-      name
+      <span class="hljs-built_in">name</span>
     }
   }
 }
 
-fragment UserFragment on<span class="hljs-built_in"> User </span>{
+fragment UserFragment <span class="hljs-keyword">on</span> User {
   username
 }
 </code></pre>
 <p>Sample response:</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"data"</span>: {
-    <span class="hljs-attr">"user"</span>: {
-      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"4"</span>,
-      <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Mark Zuckerberg"</span>,
-      <span class="hljs-attr">"username"</span>: <span class="hljs-string">"zuck"</span>
+  <span class="hljs-attr">&quot;data&quot;</span>: {
+    <span class="hljs-attr">&quot;user&quot;</span>: {
+      <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
+      <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Mark Zuckerberg&quot;</span>,
+      <span class="hljs-attr">&quot;username&quot;</span>: <span class="hljs-string">&quot;zuck&quot;</span>
     },
-    <span class="hljs-attr">"viewer"</span>: {
-      <span class="hljs-attr">"actor"</span>: {
-        <span class="hljs-attr">"name"</span>: <span class="hljs-string">"Your Name"</span>
+    <span class="hljs-attr">&quot;viewer&quot;</span>: {
+      <span class="hljs-attr">&quot;actor&quot;</span>: {
+        <span class="hljs-attr">&quot;name&quot;</span>: <span class="hljs-string">&quot;Your Name&quot;</span>
       }
     }
   }
@@ -335,10 +335,10 @@ fragment UserFragment on<span class="hljs-built_in"> User </span>{
 <p><strong><em>NOTE:</em></strong> Fragments in Relay allow declaring data dependencies for a component, but they can't be fetched by themselves; they need to be included by a query, either directly or transitively. This implies that <strong><em>all fragments must belong to a query when they are rendered</em></strong>, or in other words, they must be <em>rooted</em> under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific <em>instance</em> of a fragment component, it must have been included as part of a specific query request.</p>
 <hr>
 <p>To <strong><em>fetch</em></strong> <em>and</em> render a query in Relay, you can use <strong><code>useLazyLoadQuery</code></strong> Hook:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -349,7 +349,7 @@ fragment UserFragment on<span class="hljs-built_in"> User </span>{
         }
       }
     `</span>,
-    {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
+    {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
   );
 
   <span class="hljs-keyword">return</span> (
@@ -378,10 +378,10 @@ fragment UserFragment on<span class="hljs-built_in"> User </span>{
  * Fragment Component
  */</span>
 
-<span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_user.graphql'</span>;
+<span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: UserComponent_user$key,
@@ -404,12 +404,12 @@ type Props = {|
  * Query Component
  */</span>
 
-<span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-<span class="hljs-keyword">const</span> UserComponent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./UserComponent.react'</span>);
+<span class="hljs-keyword">const</span> UserComponent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./UserComponent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -423,7 +423,7 @@ type Props = {|
         }
       }
     `</span>,
-    {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
+    {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
   );
 
   <span class="hljs-keyword">return</span> (
@@ -460,14 +460,14 @@ query UserQuery($<span class="hljs-built_in">id</span>: ID!) {
 }
 
 <span class="hljs-comment"># Variables:</span>
-{<span class="hljs-string">"id"</span>: <span class="hljs-number">4</span>}
+{<span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-number">4</span>}
 </code></pre>
 <p>Fetching the above query and variables from the server would produce the following response:</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"data"</span>: {
-    <span class="hljs-string">"user"</span>: {
-      <span class="hljs-string">"id"</span>: <span class="hljs-string">"4"</span>,
-      <span class="hljs-string">"name"</span>: <span class="hljs-string">"User 4"</span>
+  <span class="hljs-string">&quot;data&quot;</span>: {
+    <span class="hljs-string">&quot;user&quot;</span>: {
+      <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;4&quot;</span>,
+      <span class="hljs-string">&quot;name&quot;</span>: <span class="hljs-string">&quot;User 4&quot;</span>
     }
   }
 }
@@ -477,17 +477,17 @@ query UserQuery($<span class="hljs-built_in">id</span>: ID!) {
 </ul>
 <hr>
 <p>Fragments can also reference variables that have been declared by a query:</p>
-<pre><code class="hljs css language-graphql">fragment UserFragment on<span class="hljs-built_in"> User </span>{
-  name
-  profile_picture(scale: <span class="hljs-variable">$scale</span>) {
+<pre><code class="hljs css language-graphql">fragment UserFragment on User {
+  <span class="hljs-keyword">name</span>
+  profile_picture(<span class="hljs-built_in">scale</span>: $<span class="hljs-built_in">scale</span>) {
     uri
   }
 }
 
-query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
+query ViewerQuery($<span class="hljs-built_in">scale</span>: <span class="hljs-built_in">Float</span><span class="hljs-comment">!) {</span>
   viewer {
     actor {
-      <span class="hljs-built_in">..</span>.UserFragment
+      ...UserFragment
     }
   }
 }
@@ -527,7 +527,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
   <span class="hljs-keyword">const</span> data = useFragment(
     graphql<span class="hljs-string">`
       fragment PictureComponent_user on User
-        @argumentDefinitions(scale: {type: "Float!"}) {
+        @argumentDefinitions(scale: {type: &quot;Float!&quot;}) {
 
         # `</span>$scale<span class="hljs-string">` is a local variable here, declared above
         # as an argument `</span>scale<span class="hljs-string">`, of type `</span>Float!<span class="hljs-string">`
@@ -594,7 +594,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
   <span class="hljs-keyword">const</span> data = useFragment(
     graphql<span class="hljs-string">`
       fragment PictureComponent_user on User
-        @argumentDefinitions(scale: {type: "Float!", defaultValue: 2.0}) {
+        @argumentDefinitions(scale: {type: &quot;Float!&quot;, defaultValue: 2.0}) {
 
         # `</span>$scale<span class="hljs-string">` is a local variable here, declared above
         # as an argument `</span>scale<span class="hljs-string">`, of type `</span>Float!<span class="hljs-string">` with a default value of `</span><span class="hljs-number">2.0</span><span class="hljs-string">`
@@ -634,8 +634,8 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 <p>For a lot more details on Suspense, check the <a href="https://reactjs.org/docs/concurrent-mode-suspense.html">React docs on Suspense</a>.</p>
 <h4><a class="anchor" aria-hidden="true" id="loading-fallbacks-with-suspense-boundaries"></a><a href="#loading-fallbacks-with-suspense-boundaries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Loading fallbacks with Suspense Boundaries</h4>
 <p>When a component is suspended, we need to render a <em>fallback</em> in place of the component while we await for it to become <em>&quot;ready&quot;</em>. In order to do so, we use the <code>Suspense</code> component provided by React:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -652,11 +652,11 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
  * App.react.js
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./LoadingSpinner.react'</span>);
-<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MainContent.react'</span>);
+<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./LoadingSpinner.react&#x27;</span>);
+<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./MainContent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -676,12 +676,12 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
  * App.react.js
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./LoadingSpinner.react'</span>);
-<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MainContent.react'</span>);
-<span class="hljs-keyword">const</span> SecondaryContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./SecondaryContent.react'</span>);
+<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./LoadingSpinner.react&#x27;</span>);
+<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./MainContent.react&#x27;</span>);
+<span class="hljs-keyword">const</span> SecondaryContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./SecondaryContent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -702,14 +702,14 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
  * App.react.js
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./LoadingSpinner.react'</span>);
-<span class="hljs-keyword">const</span> LeftColumn = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./LeftHandColumn.react'</span>);
-<span class="hljs-keyword">const</span> LeftColumnPlaceholder = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./LeftHandColumnPlaceholder.react'</span>);
-<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MainContent.react'</span>);
-<span class="hljs-keyword">const</span> SecondaryContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./SecondaryContent.react'</span>);
+<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./LoadingSpinner.react&#x27;</span>);
+<span class="hljs-keyword">const</span> LeftColumn = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./LeftHandColumn.react&#x27;</span>);
+<span class="hljs-keyword">const</span> LeftColumnPlaceholder = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./LeftHandColumnPlaceholder.react&#x27;</span>);
+<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./MainContent.react&#x27;</span>);
+<span class="hljs-keyword">const</span> SecondaryContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./SecondaryContent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -742,12 +742,12 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {
   useState,
   useTransition,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">TabSwitcher</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-comment">// We use startTransition to schedule the update</span>
   <span class="hljs-keyword">const</span> [startTransition] = useTransition();
-  <span class="hljs-keyword">const</span> [selectedTab, setSelectedTab] = useState(<span class="hljs-string">'Home'</span>);
+  <span class="hljs-keyword">const</span> [selectedTab, setSelectedTab] = useState(<span class="hljs-string">&#x27;Home&#x27;</span>);
 
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
@@ -758,7 +758,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span>
           startTransition(() =&gt; {
             // Schedule an update that might suspend
-            setSelectedTab('Photos');
+            setSelectedTab(&#x27;Photos&#x27;);
           })
         }&gt;
         Show Photos
@@ -778,21 +778,21 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {
   useState,
   useTransition,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
 <span class="hljs-keyword">const</span> SUSPENSE_CONFIG = {
-  <span class="hljs-comment">// timeoutMs allows us to delay showing the "loading" state for a while</span>
-  <span class="hljs-comment">// in favor of showing a "pending" state that we control locally</span>
+  <span class="hljs-comment">// timeoutMs allows us to delay showing the &quot;loading&quot; state for a while</span>
+  <span class="hljs-comment">// in favor of showing a &quot;pending&quot; state that we control locally</span>
   <span class="hljs-attr">timeoutMs</span>: <span class="hljs-number">10</span> * <span class="hljs-number">1000</span>, <span class="hljs-comment">// 10 seconds</span>
 };
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">TabSwitcher</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-comment">// isPending captures the "pending" state. It will become true</span>
+  <span class="hljs-comment">// isPending captures the &quot;pending&quot; state. It will become true</span>
   <span class="hljs-comment">// **immediately** when the transition starts, and will be set back to false</span>
-  <span class="hljs-comment">// when the transition reaches the fully "completed" stage (i.e. when all the</span>
+  <span class="hljs-comment">// when the transition reaches the fully &quot;completed&quot; stage (i.e. when all the</span>
   <span class="hljs-comment">// new content has fully loaded)</span>
   <span class="hljs-keyword">const</span> [startTransition, isPending] = useTransition(SUSPENSE_CONFIG);
-  <span class="hljs-keyword">const</span> [selectedTab, setSelectedTab] = useState(<span class="hljs-string">'Home'</span>);
+  <span class="hljs-keyword">const</span> [selectedTab, setSelectedTab] = useState(<span class="hljs-string">&#x27;Home&#x27;</span>);
 
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
@@ -803,7 +803,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span>
           startTransition(() =&gt; {
             // Schedule an update that might suspend
-            setSelectedTab('Photos');
+            setSelectedTab(&#x27;Photos&#x27;);
           })
         }
         disabled={isPending}&gt;
@@ -832,8 +832,8 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
  * Query Component
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MainContent</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-comment">// **Fetch** and render a query</span>
@@ -849,11 +849,11 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
  * App.react.js
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./LoadingSpinner.react'</span>);
-<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MainContent.react'</span>);
+<span class="hljs-keyword">const</span> LoadingSpinner = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./LoadingSpinner.react&#x27;</span>);
+<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./MainContent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -877,7 +877,7 @@ query ViewerQuery(<span class="hljs-variable">$scale</span>: Float!) {
 <p>As you may have noticed, we mentioned that using <code>useLazyLoadQuery</code> will <strong><em>fetch</em></strong> a query from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.</p>
 <p>We can use <a href="https://reactjs.org/docs/error-boundaries.html"><strong>Error Boundary</strong></a> components to catch errors that occur during render (due to a network error, or any kind of error), and render an alternative error UI when that occurs. The way it works is similar to how <code>Suspense</code> works, by wrapping a component tree in an error boundary, we can specify how we want to react when an error occurs, for example by rendering a fallback UI.</p>
 <p><a href="https://reactjs.org/docs/error-boundaries.html">Error boundaries</a> are simply components that implement the static <strong><code>getDerivedStateFromError</code></strong> method:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
 type State = {|error: ?<span class="hljs-built_in">Error</span>|};
 
@@ -893,11 +893,11 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
  * App.react.js
  */</span>
 
-<span class="hljs-keyword">const</span> ErrorBoundary = <span class="hljs-built_in">require</span>(<span class="hljs-string">'ErrorBoundary'</span>);
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> ErrorBoundary = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;ErrorBoundary&#x27;</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./MainContent.react'</span>);
-<span class="hljs-keyword">const</span> SecondaryContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./SecondaryContent.react'</span>);
+<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./MainContent.react&#x27;</span>);
+<span class="hljs-keyword">const</span> SecondaryContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./SecondaryContent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -920,7 +920,7 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
  * ErrorBoundaryWithRetry.react.js
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
 type State = {|error: ?<span class="hljs-built_in">Error</span>|};
 
@@ -933,16 +933,16 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
     <span class="hljs-keyword">return</span> {<span class="hljs-attr">error</span>: error};
   }
 
-  _retry = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-    <span class="hljs-keyword">this</span>.setState({<span class="hljs-attr">error</span>: <span class="hljs-literal">null</span>});
+  _retry = <span class="hljs-function">() =&gt;</span> {
+    <span class="hljs-built_in">this</span>.setState({<span class="hljs-attr">error</span>: <span class="hljs-literal">null</span>});
   }
 
-  render() {
-    <span class="hljs-keyword">const</span> {children, fallback} = <span class="hljs-keyword">this</span>.props;
-    <span class="hljs-keyword">const</span> {error} = <span class="hljs-keyword">this</span>.state;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> {children, fallback} = <span class="hljs-built_in">this</span>.props;
+    <span class="hljs-keyword">const</span> {error} = <span class="hljs-built_in">this</span>.state;
     <span class="hljs-keyword">if</span> (error) {
-      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> fallback === <span class="hljs-string">'function'</span>) {
-        <span class="hljs-keyword">return</span> fallback(error, <span class="hljs-keyword">this</span>._retry);
+      <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> fallback === <span class="hljs-string">&#x27;function&#x27;</span>) {
+        <span class="hljs-keyword">return</span> fallback(error, <span class="hljs-built_in">this</span>._retry);
       }
       <span class="hljs-keyword">return</span> fallback;
     }
@@ -950,27 +950,27 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
   }
 }
 </code></pre>
-<pre><code class="hljs css language-javascript">/**
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">/**
  * App.react.js
- */
+ */</span>
 
-const ErrorBoundary = require('ErrorBoundary');
-const React = require('React');
+<span class="hljs-keyword">const</span> ErrorBoundary = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;ErrorBoundary&#x27;</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-const MainContent = require('./MainContent.react');
+<span class="hljs-keyword">const</span> MainContent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./MainContent.react&#x27;</span>);
 
-function App() {
-  return (
-    &lt;ErrorBoundaryWithRetry
-      fallback={(error, retry) =&gt;
-        &lt;&gt;
-          &lt;ErrorUI error={error} /&gt;
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">return</span> (
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">ErrorBoundaryWithRetry</span>
+      <span class="hljs-attr">fallback</span>=<span class="hljs-string">{(error,</span> <span class="hljs-attr">retry</span>) =&gt;</span>
+        <span class="hljs-tag">&lt;&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">ErrorUI</span> <span class="hljs-attr">error</span>=<span class="hljs-string">{error}</span> /&gt;</span>
           {/* Render a button to retry; this will attempt to re-render the
             content inside the boundary, i.e. the query component */}
-          &lt;Button onClick={retry}&gt;Retry&lt;/Button&gt;
-        &lt;/&gt;
+          <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{retry}</span>&gt;</span>Retry<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+        <span class="hljs-tag">&lt;/&gt;</span></span>
       }&gt;
-      &lt;MainContent /&gt;
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span></span>
     &lt;/ErrorBoundaryWithRetry&gt;
   );
 }
@@ -986,13 +986,13 @@ function App() {
 </ul>
 <p>If you wish to access error information in your application to display user-friendly messages, the recommended approach is to model and expose the error information as part of your GraphQL schema.</p>
 <p>For example, you could expose a field in your schema that returns either the expected result, or an Error object if an error occurred while resolving that field (instead of returning null):</p>
-<pre><code class="hljs css language-graphql">type <span class="hljs-builtin-name">Error</span> {
-  #<span class="hljs-built_in"> User </span>friendly message
-  message: String!
+<pre><code class="hljs css language-graphql"><span class="hljs-keyword">type</span> <span class="hljs-type">Error</span> {
+  # <span class="hljs-type">User</span> friendly message
+  message: <span class="hljs-type">String</span>!
 }
-<span class="hljs-built_in">
-type </span>Foo {
-  bar: Result | <span class="hljs-builtin-name">Error</span>
+
+<span class="hljs-keyword">type</span> <span class="hljs-type">Foo</span> {
+  bar: <span class="hljs-type">Result</span> | <span class="hljs-type">Error</span>
 }
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="environment"></a><a href="#environment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Environment</h3>
@@ -1000,7 +1000,7 @@ type </span>Foo {
 <p>In order to render Relay components, you need to render a <code>RelayEnvironmentProvider</code> component at the root of the app:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// App root</span>
 
-<span class="hljs-keyword">const</span> {RelayEnvironmentProvider} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {RelayEnvironmentProvider} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Root</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -1015,7 +1015,7 @@ type </span>Foo {
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="accessing-the-relay-environment"></a><a href="#accessing-the-relay-environment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Accessing the Relay Environment</h4>
 <p>If you want to access the <em>current</em> Relay Environment within a descendant of a <code>RelayEnvironmentProvider</code> component, you can use the <strong><code>useRelayEnvironment</code></strong> Hook:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">UserComponent</span>(<span class="hljs-params">props: Props</span>) </span>{
   <span class="hljs-keyword">const</span> environment = useRelayEnvironment();
@@ -1035,8 +1035,8 @@ type </span>Foo {
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="fetch-policies"></a><a href="#fetch-policies" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fetch Policies</h3>
 <p>The first step to reusing locally cached data is to specify a <strong><code>fetchPolicy</code></strong> for <code>useLazyLoadQuery</code>:</p>
-<pre><code class="hljs"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<pre><code class="hljs"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -1047,8 +1047,8 @@ type </span>Foo {
         }
       }
     `</span>,
-    {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
-    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+    {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
+    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>},
   );
 
   <span class="hljs-keyword">return</span> (
@@ -1094,7 +1094,7 @@ type </span>Foo {
 
 <span class="hljs-comment">// Disposing of the disposable will release the data for this query</span>
 <span class="hljs-comment">// and variables, meaning that it can be deleted at any moment</span>
-<span class="hljs-comment">// by Relay's garbage collection if it hasn't been retained elsewhere</span>
+<span class="hljs-comment">// by Relay&#x27;s garbage collection if it hasn&#x27;t been retained elsewhere</span>
 disposable.dispose();
 </code></pre>
 <ul>
@@ -1106,7 +1106,7 @@ disposable.dispose();
 <p>The <strong><code>gcScheduler</code></strong> is a function you can provide to the Relay Store which will determine when a GC execution should be scheduled to run:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Sample scheduler function</span>
 <span class="hljs-comment">// Accepts a callback and schedules it to run at some future time.</span>
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">gcScheduler</span>(<span class="hljs-params">run: (</span>) =&gt; <span class="hljs-title">void</span>) </span>{
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">gcScheduler</span>(<span class="hljs-params">run: () =&gt; <span class="hljs-keyword">void</span></span>) </span>{
   resolveImmediate(run);
 }
 
@@ -1144,7 +1144,7 @@ disposable.dispose();
 <p>We can also be more granular about which data we invalidate and only invalidate <em>specific records</em> in the store; compared to global invalidation, only queries that reference the invalidated records will be considered stale after invalidation.</p>
 <p>To invalidate a record, we can call <strong><code>invalidateRecord()</code></strong> within an <a href="#updater-functions">updater</a> function:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store</span>) </span>{
-  <span class="hljs-keyword">const</span> user = store.get(<span class="hljs-string">'&lt;id&gt;'</span>);
+  <span class="hljs-keyword">const</span> user = store.get(<span class="hljs-string">&#x27;&lt;id&gt;&#x27;</span>);
   <span class="hljs-keyword">if</span> (user != <span class="hljs-literal">null</span>) {
     user.invalidateRecord();
   }
@@ -1172,7 +1172,7 @@ disposable.dispose();
   <span class="hljs-comment">// Here we subscribe to changes in invalidation state for the given user ID.</span>
   <span class="hljs-comment">// Whenever the user whith that ID is marked as stale, the provided callback will</span>
   <span class="hljs-comment">// be executed*</span>
-  useSubscribeToInvalidationState([props.userID], () =&gt; {
+  useSubscribeToInvalidationState([props.userID], <span class="hljs-function">() =&gt;</span> {
     <span class="hljs-comment">// Here we can do things like:</span>
     <span class="hljs-comment">// - re-evaluate the query by passing a new preloadedQuery to usePreloadedQuery.</span>
     <span class="hljs-comment">// - imperitavely refetch any data</span>
@@ -1202,10 +1202,10 @@ disposable.dispose();
  * Fragment Component
  */</span>
 
-<span class="hljs-keyword">import</span> type {UsernameComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UsernameComponent_user.graphql'</span>;
+<span class="hljs-keyword">import</span> type {UsernameComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UsernameComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: UsernameComponent_user$key,
@@ -1232,10 +1232,10 @@ type Props = {|
  * Query Component
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-<span class="hljs-keyword">const</span> UsernameComponent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./UsernameComponent.react'</span>);
+<span class="hljs-keyword">const</span> UsernameComponent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./UsernameComponent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -1247,8 +1247,8 @@ type Props = {|
         }
       }
     `</span>,
-    {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
-    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+    {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
+    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>},
   );
 
   <span class="hljs-keyword">return</span> (
@@ -1274,11 +1274,11 @@ type Props = {|
  * Query Component
  */</span>
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-<span class="hljs-keyword">const</span> UsernameComponent = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./UsernameComponent.react'</span>);
+<span class="hljs-keyword">const</span> UsernameComponent = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./UsernameComponent.react&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -1290,8 +1290,8 @@ type Props = {|
         }
       }
     `</span>,
-    {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
-    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+    {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
+    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>},
   );
 
   <span class="hljs-keyword">return</span> (
@@ -1302,7 +1302,7 @@ type Props = {|
         Wrap the UserComponent in Suspense to allow other parts of the
         App to be rendered even if the username is missing.
     */}
-      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> <span class="hljs-attr">label</span>=<span class="hljs-string">"Fetching username"</span> /&gt;</span>}&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> <span class="hljs-attr">label</span>=<span class="hljs-string">&quot;Fetching username&quot;</span> /&gt;</span>}&gt;
         <span class="hljs-tag">&lt;<span class="hljs-name">UsernameComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{data.user}</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
     <span class="hljs-tag">&lt;/&gt;</span></span>
@@ -1315,9 +1315,9 @@ type Props = {|
 <p>In the previous section we covered how to reuse data that is fully or partially cached, however there are cases in which Relay can't automatically tell that it can reuse some of its local data to fulfill a query. Specifically, Relay knows how to reuse data that is cached for the <em>same</em> query; that is, if you fetch the exact same query twice, Relay will know that it has the data cached for that query the second time.</p>
 <p>However, when using different queries, there might still be cases where different queries point to the same data, which we'd want to be able to reuse. For example, imagine the following two queries:</p>
 <pre><code class="hljs css language-graphql"><span class="hljs-comment">// Query 1</span>
-<span class="hljs-selector-tag">query</span> <span class="hljs-selector-tag">UserQuery</span> {
-  <span class="hljs-selector-tag">user</span>(<span class="hljs-attribute">id</span>: <span class="hljs-number">4</span>) {
-    <span class="hljs-selector-tag">name</span>
+query UserQuery {
+  <span class="hljs-function"><span class="hljs-title">user</span>(<span class="hljs-params">id: <span class="hljs-number">4</span></span>)</span> {
+    name
   }
 }
 </code></pre>
@@ -1332,7 +1332,7 @@ query NodeQuery {
 </code></pre>
 <p>These two queries are different, but reference the exact same data. Ideally, if one of the queries was already cached in the store, we should be able to reuse that data when rendering the other query. However, Relay doesn't have this knowledge by default, so we need to configure it to encode the knowledge that a <code>node(id: 4)</code> <strong><em>&quot;is also a&quot;</em></strong> <code>user(id: 4)</code>.</p>
 <p>To do so, we can provide <strong><code>missingFieldHandlers</code></strong> to the <code>RelayEnvironment</code>, which specify this knowledge:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ROOT_TYPE, Environment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ROOT_TYPE, Environment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> missingFieldHandlers = [
   {
@@ -1340,8 +1340,8 @@ query NodeQuery {
       <span class="hljs-keyword">if</span> (
         record != <span class="hljs-literal">null</span> &amp;&amp;
         record.__typename === ROOT_TYPE &amp;&amp;
-        field.name === <span class="hljs-string">'user'</span> &amp;&amp;
-        argValues.hasOwnProperty(<span class="hljs-string">'id'</span>)
+        field.name === <span class="hljs-string">&#x27;user&#x27;</span> &amp;&amp;
+        argValues.hasOwnProperty(<span class="hljs-string">&#x27;id&#x27;</span>)
       ) {
         <span class="hljs-comment">// If field is user(id: $id), look up the record by the value of $id</span>
         <span class="hljs-keyword">return</span> argValues.id;
@@ -1349,8 +1349,8 @@ query NodeQuery {
       <span class="hljs-keyword">if</span> (
         record != <span class="hljs-literal">null</span> &amp;&amp;
         record.__typename === ROOT_TYPE &amp;&amp;
-        field.name === <span class="hljs-string">'story'</span> &amp;&amp;
-        argValues.hasOwnProperty(<span class="hljs-string">'story_id'</span>)
+        field.name === <span class="hljs-string">&#x27;story&#x27;</span> &amp;&amp;
+        argValues.hasOwnProperty(<span class="hljs-string">&#x27;story_id&#x27;</span>)
       ) {
         <span class="hljs-comment">// If field is story(story_id: $story_id), look up the record by the</span>
         <span class="hljs-comment">// value of $story_id.</span>
@@ -1358,7 +1358,7 @@ query NodeQuery {
       }
       <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>;
     },
-    <span class="hljs-attr">kind</span>: <span class="hljs-string">'linked'</span>,
+    <span class="hljs-attr">kind</span>: <span class="hljs-string">&#x27;linked&#x27;</span>,
   },
 ];
 
@@ -1384,14 +1384,14 @@ query NodeQuery {
 <p>Assuming you're not using real-time updates to update your data (e.g. using <a href="#graphql-subscriptions">GraphQL Subscriptions</a>), often times you'll want to refetch the same data you've already rendered, in order to get the latest version available on the server. This is what we'll cover in this section.</p>
 <h4><a class="anchor" aria-hidden="true" id="refreshing-queries"></a><a href="#refreshing-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refreshing Queries</h4>
 <p>To refresh a query, you can use the <strong><code>fetchQuery</code></strong> function described in our <a href="#fetching-queries">Fetching Queries</a> section. Specifically, you can call <code>fetchQuery</code> inside the component with the exact same query and variables. Given that the query component is subscribed to any changes in its own data, when the request completes, the component will automatically update and re-render with the latest data:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery, useRelayEnvironment, fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery, useRelayEnvironment, fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> environment = useRelayEnvironment();
-  <span class="hljs-keyword">const</span> variables = {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>};
+  <span class="hljs-keyword">const</span> variables = {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>};
   <span class="hljs-keyword">const</span> appQuery = graphql<span class="hljs-string">`
     query AppQuery($id: ID!) {
       user(id: $id) {
@@ -1403,7 +1403,7 @@ query NodeQuery {
     }
   `</span>;
 
-  <span class="hljs-keyword">const</span> refresh = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> refresh = <span class="hljs-function">() =&gt;</span> {
     fetchQuery(
       environment,
       appQuery,
@@ -1424,15 +1424,15 @@ query NodeQuery {
 }
 </code></pre>
 <p>If you want to know whether the request is in flight, in order to show a busy indicator or disable a UI control, you can subscribe to the observable returned by <code>fetchQuery</code>, and keep state in your component:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useState} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery, useRelayEnvironment, fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useState} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery, useRelayEnvironment, fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> environment = useRelayEnvironment();
-  <span class="hljs-keyword">const</span> variables = {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>};
+  <span class="hljs-keyword">const</span> variables = {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>};
   <span class="hljs-keyword">const</span> appQuery = graphql<span class="hljs-string">`
     query AppQuery($id: ID!) {
       user(id: $id) {
@@ -1445,15 +1445,15 @@ query NodeQuery {
   `</span>;
   <span class="hljs-keyword">const</span> [isRefreshing, setIsRefreshing] = useState(<span class="hljs-literal">false</span>);
 
-  <span class="hljs-keyword">const</span> refresh = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> refresh = <span class="hljs-function">() =&gt;</span> {
     fetchQuery(
       environment,
       appQuery,
       variables,
     )
     .subscribe({
-      <span class="hljs-attr">start</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> setIsRefreshing(<span class="hljs-literal">true</span>),
-      <span class="hljs-attr">complete</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> setIsRefreshing(<span class="hljs-literal">false</span>),
+      <span class="hljs-attr">start</span>: <span class="hljs-function">() =&gt;</span> setIsRefreshing(<span class="hljs-literal">true</span>),
+      <span class="hljs-attr">complete</span>: <span class="hljs-function">() =&gt;</span> setIsRefreshing(<span class="hljs-literal">false</span>),
     });
   };
 
@@ -1475,13 +1475,13 @@ query NodeQuery {
 <h4><a class="anchor" aria-hidden="true" id="refreshing-fragments"></a><a href="#refreshing-fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refreshing Fragments</h4>
 <p>In order to refresh the data for a fragment, we can also use <code>fetchQuery</code>, but we need to provide a query to refetch the fragment under; remember, <strong><em>fragments can't be fetched by themselves: they need to be part of a query,</em></strong> so we can't just &quot;fetch&quot; the fragment again by itself.</p>
 <p>However, we don't need to manually write the query; instead, we can use the <strong><code>@refetchable</code></strong> directive, which will make it so Relay automatically generates a query to fetch the fragment when the compiler is run:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useFragment, useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment, useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-comment">// This query is autogenerated by Relay given @refetchable used below</span>
-<span class="hljs-keyword">const</span> UserComponentUserRefreshQuery = <span class="hljs-built_in">require</span>(<span class="hljs-string">'UserComponentUserRefreshQuery.graphql'</span>);
+<span class="hljs-keyword">const</span> UserComponentUserRefreshQuery = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;UserComponentUserRefreshQuery.graphql&#x27;</span>);
 
 type Props = {|
   user: UserComponent_user$key,
@@ -1494,7 +1494,7 @@ type Props = {|
       fragment UserComponent_user on User
         # @refetchable makes it so Relay autogenerates a query for
         # fetching this fragment
-        @refetchable(queryName: "UserComponentUserRefreshQuery") {
+        @refetchable(queryName: &quot;UserComponentUserRefreshQuery&quot;) {
         id
         name
         friends {
@@ -1505,7 +1505,7 @@ type Props = {|
     props.user,
   );
 
-  <span class="hljs-keyword">const</span> refresh = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> refresh = <span class="hljs-function">() =&gt;</span> {
     fetchQuery(
       environment,
       UserComponentUserRefreshQuery,
@@ -1541,15 +1541,15 @@ type Props = {|
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="re-rendering-queries-with-different-data"></a><a href="#re-rendering-queries-with-different-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Re-rendering queries with different data</h4>
 <p>As mentioned in the <a href="#queries">Queries</a> section, passing <strong><em>different query variables</em></strong> than the ones originally passed when using <code>useLazyLoadQuery</code> will cause the query to be fetched with the new variables, and re-render your component with the new data:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useState, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useState, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> [startTransition] = useTransition();
-  <span class="hljs-keyword">const</span> [variables, setVariables] = useState({<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>});
+  <span class="hljs-keyword">const</span> [variables, setVariables] = useState({<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>});
 
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
     graphql<span class="hljs-string">`
@@ -1569,7 +1569,7 @@ type Props = {|
         <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
           <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
             startTransition(() =&gt; {
-              setVariables({id: 'different-id'});
+              setVariables({id: &#x27;different-id&#x27;});
             });
           }}&gt;
           Fetch different User
@@ -1588,17 +1588,17 @@ type Props = {|
 </ul></li>
 </ul>
 <p>You can also provide a different <strong><code>fetchPolicy</code></strong> when refetching the query in order to specify whether to use locally cached data (as we covered in <a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a>):</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useState, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useState, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> [startTransition] = useTransition();
   <span class="hljs-keyword">const</span> [state, setState] = useState({
-    <span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>,
-    <span class="hljs-attr">variables</span>: {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
+    <span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>,
+    <span class="hljs-attr">variables</span>: {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
   });
 
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -1621,8 +1621,8 @@ type Props = {|
           <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
             startTransition(() =&gt; {
               setState({
-                fetchPolicy: 'network-only',
-                variables: {id: 'different-id'},
+                fetchPolicy: &#x27;network-only&#x27;,
+                variables: {id: &#x27;different-id&#x27;},
               });
             });
           }}&gt;
@@ -1639,12 +1639,12 @@ type Props = {|
 <h4><a class="anchor" aria-hidden="true" id="re-rendering-fragments-with-different-data"></a><a href="#re-rendering-fragments-with-different-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Re-rendering Fragments with Different Data</h4>
 <p>Sometimes, upon an event or user interaction, we'd like to render the <em>same</em> exact fragment that was originally rendered under the initial query, but with a different data. Conceptually, this means fetching and rendering the currently rendered fragment again, but under a new query with different variables; or in other words, <em>making the rendered fragment a new query root</em>. Remember that <strong><em>fragments can't be fetched by themselves: they need to be part of a query,</em></strong> so we can't just &quot;fetch&quot; the fragment again by itself.</p>
 <p>To do so, you can use the <strong><code>useRefetchableFragment</code></strong> hook, in order to refetch a fragment under new query and variables, using the <strong><code>refetch</code></strong> function:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentBodyRefetchQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'CommentBodyRefetchQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {CommentBody_comment$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'CommentBody_comment.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentBodyRefetchQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CommentBodyRefetchQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {CommentBody_comment$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CommentBody_comment.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>)
-<span class="hljs-keyword">const</span> {graphql, useRefetchableFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>)
+<span class="hljs-keyword">const</span> {graphql, useRefetchableFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   comment: CommentBody_comment$key,
@@ -1655,7 +1655,7 @@ type Props = {|
   <span class="hljs-keyword">const</span> [data, refetch] = useRefetchableFragment&lt;CommentBodyRefetchQuery, _&gt;(
     graphql<span class="hljs-string">`
       fragment CommentBody_comment on Comment
-      @refetchable(queryName: "CommentBodyRefetchQuery") {
+      @refetchable(queryName: &quot;CommentBodyRefetchQuery&quot;) {
         body(lang: $lang) {
           text
         }
@@ -1670,7 +1670,7 @@ type Props = {|
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
           startTransition(() =&gt; {
-            refetch({lang: 'SPANISH'}, {fetchPolicy: 'store-or-network'});
+            refetch({lang: &#x27;SPANISH&#x27;}, {fetchPolicy: &#x27;store-or-network&#x27;});
           });
         }}&gt;
         Translate Comment
@@ -1705,13 +1705,13 @@ type Props = {|
 <p>More specifically, we perform <em>cursor-based pagination,</em> in which the input used to query for &quot;slices&quot; of the list is a <code>cursor</code> and a <code>count</code>. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out <a href="https://relay.dev/graphql/connections.htm">this spec</a>.</p>
 <h3><a class="anchor" aria-hidden="true" id="rendering-connections"></a><a href="#rendering-connections" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rendering Connections</h3>
 <p>In Relay, in order to perform pagination, first you need to declare a fragment that queries for a connection:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> userFragment = graphql<span class="hljs-string">`
   fragment UserFragment on User {
     name
     friends(after: $cursor, first: $count)
-      @connection(key: "UserFragment_friends") {
+      @connection(key: &quot;UserFragment_friends&quot;) {
       edges {
         node {
           ...FriendComponent
@@ -1727,13 +1727,13 @@ type Props = {|
 <li>We will go into more detail later as to why it is necessary to mark the field as a <code>@connection</code> and give it a unique <code>key</code> in our <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a> section.</li>
 </ul>
 <p>In order to render this fragment which queries for a connection, we can use the <strong><code>usePaginationFragment</code></strong> Hook:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListPaginationQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsList_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListPaginationQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsList_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense, SuspenseList} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense, SuspenseList} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: FriendsListComponent_user$key,
@@ -1743,10 +1743,10 @@ type Props = {|
   <span class="hljs-keyword">const</span> {data} = usePaginationFragment&lt;FriendsListPaginationQuery, _&gt;(
     graphql<span class="hljs-string">`
       fragment FriendsListComponent_user on User
-      @refetchable(queryName: "FriendsListPaginationQuery") {
+      @refetchable(queryName: &quot;FriendsListPaginationQuery&quot;) {
         name
         friends(first: $count, after: $cursor)
-        @connection(key: "FriendsList_user_friends") {
+        @connection(key: &quot;FriendsList_user_friends&quot;) {
           edges {
             node {
               ...FriendComponent
@@ -1761,7 +1761,7 @@ type Props = {|
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">&quot;forwards&quot;</span>&gt;</span>
         {/* Extract each friend from the resulting data */}
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
@@ -1789,13 +1789,13 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="pagination"></a><a href="#pagination" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination</h3>
 <p>To actually perform pagination over the connection, we need use the <strong><code>loadNext</code></strong> function to fetch the next page of items, which is available from <code>usePaginationFragment</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListPaginationQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsList_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListPaginationQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsList_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense, SuspenseList, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense, SuspenseList, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: FriendsListComponent_user$key,
@@ -1806,10 +1806,10 @@ type Props = {|
   <span class="hljs-keyword">const</span> {data, loadNext} = usePaginationFragment&lt;FriendsListPaginationQuery, _&gt;(
     graphql<span class="hljs-string">`
       fragment FriendsListComponent_user on User
-      @refetchable(queryName: "FriendsListPaginationQuery") {
+      @refetchable(queryName: &quot;FriendsListPaginationQuery&quot;) {
         name
         friends(first: $count, after: $cursor)
-        @connection(key: "FriendsList_user_friends") {
+        @connection(key: &quot;FriendsList_user_friends&quot;) {
           edges {
             node {
               name
@@ -1825,7 +1825,7 @@ type Props = {|
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">&quot;forwards&quot;</span>&gt;</span>
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
@@ -1860,13 +1860,13 @@ type Props = {|
 </ul></li>
 </ul>
 <p>Often, you will also want to access information about whether there are more items available to load. To do this, you can use the <code>hasNext</code> value, also available from <code>usePaginationFragment</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListPaginationQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsList_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListPaginationQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsList_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense, SuspenseList, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense, SuspenseList, useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: FriendsListComponent_user$key,
@@ -1881,10 +1881,10 @@ type Props = {|
   } = <span class="hljs-string">`usePaginationFragment`</span><span class="hljs-string">`&lt;`</span><span class="hljs-string">`FriendsListPaginationQuery`</span><span class="hljs-string">`,`</span><span class="hljs-string">` _`</span><span class="hljs-string">`&gt;`</span>(
     graphql<span class="hljs-string">`
       fragment FriendsListComponent_user on User
-      @refetchable(queryName: "FriendsListPaginationQuery") {
+      @refetchable(queryName: &quot;FriendsListPaginationQuery&quot;) {
         name
         friends(first: $count, after: $cursor)
-        @connection(key: "FriendsList_user_friends") {
+        @connection(key: &quot;FriendsList_user_friends&quot;) {
           edges {
             node {
               name
@@ -1900,7 +1900,7 @@ type Props = {|
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">&quot;forwards&quot;</span>&gt;</span>
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
@@ -1940,28 +1940,28 @@ type Props = {|
 </ul>
 <p>So far in the previous pagination sections, we've implicitly been referring to the <strong><em>&quot;one by one&quot;</em></strong> pagination case when describe using <code>usePaginationFragment</code> + <code>SuspenseList</code> to render lists and show loading placeholders.</p>
 <p>However, if we want to implement <strong><em>&quot;all at once&quot;</em></strong> pagination, we need to use a different API, <strong><code>useBlockingPaginationFragment</code></strong>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListPaginationQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsList_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListPaginationQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsList_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useTransition, Suspense, SuspenseList} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useTransition, Suspense, SuspenseList} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, useBlockingPaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useBlockingPaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: FriendsListComponent_user$key,
 |};
 
 <span class="hljs-keyword">const</span> SUSPENSE_CONFIG = {
-  <span class="hljs-comment">// timeoutMs allows us to delay showing the "loading" state for a while</span>
-  <span class="hljs-comment">// in favor of showing a "pending" state that we control locally</span>
+  <span class="hljs-comment">// timeoutMs allows us to delay showing the &quot;loading&quot; state for a while</span>
+  <span class="hljs-comment">// in favor of showing a &quot;pending&quot; state that we control locally</span>
   <span class="hljs-attr">timeoutMs</span>: <span class="hljs-number">30</span> * <span class="hljs-number">1000</span>,
 };
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">FriendsListComponent</span>(<span class="hljs-params">props: Props</span>) </span>{
-  <span class="hljs-comment">// isPending captures the "pending" state. It will become true</span>
+  <span class="hljs-comment">// isPending captures the &quot;pending&quot; state. It will become true</span>
   <span class="hljs-comment">// **immediately** when the pagination transition starts, and will be set back</span>
-  <span class="hljs-comment">// to false when the transition reaches the fully "completed" stage</span>
+  <span class="hljs-comment">// to false when the transition reaches the fully &quot;completed&quot; stage</span>
   <span class="hljs-comment">// (i.e. when all the new items in the list have fully loaded and rendered)</span>
   <span class="hljs-keyword">const</span> [startTransition, isPending] = useTransition(SUSPENSE_CONFIG);
   <span class="hljs-keyword">const</span> {
@@ -1971,10 +1971,10 @@ type Props = {|
   } = useBlockingPaginationFragment&lt;FriendsListPaginationQuery, _&gt;(
     graphql<span class="hljs-string">`
       fragment FriendsListComponent_user on User
-      @refetchable(queryName: "FriendsListPaginationQuery") {
+      @refetchable(queryName: &quot;FriendsListPaginationQuery&quot;) {
         name
         friends(first: $count, after: $cursor)
-        @connection(key: "FriendsList_user_friends") {
+        @connection(key: &quot;FriendsList_user_friends&quot;) {
           edges {
             node {
               name
@@ -1990,7 +1990,7 @@ type Props = {|
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">"forwards"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">&quot;forwards&quot;</span>&gt;</span>
         {(data.friends?.edges ?? []).map(edge =&gt; {
           const node = edge.node;
           return (
@@ -2037,12 +2037,12 @@ type Props = {|
 <li>Changing the way News Feed is ranked and sorted.</li>
 </ul>
 <p>Specifically, in GraphQL, connection fields can accept arguments to sort or filter the set of queried results:</p>
-<pre><code class="hljs css language-graphql">fragment UserFragment on<span class="hljs-built_in"> User </span>{
-  name
-  friends(order_by: DATE_ADDED, search_term: <span class="hljs-string">"Alice"</span>, first: 10) {
+<pre><code class="hljs css language-graphql">fragment UserFragment on <span class="hljs-keyword">User</span> <span class="hljs-title">{
+  name</span>
+  friends(order_by: DATE_ADDED, search_term: <span class="hljs-string">&quot;Alice&quot;</span>, first: <span class="hljs-number">10</span>) {
     edges {
-      node {
-        name
+      <span class="hljs-keyword">node</span> <span class="hljs-title">{
+        name</span>
         age
       }
     }
@@ -2066,7 +2066,7 @@ type Props = {|
           search_term: $searchTerm,
           after: $cursor,
           first: $count,
-        ) @connection(key: "FriendsListComponent_user_friends_connection") {
+        ) @connection(key: &quot;FriendsListComponent_user_friends_connection&quot;) {
           edges {
             node {
               name
@@ -2095,7 +2095,7 @@ type Props = {|
       fragment FriendsListComponent_user on User {
         name
         friends(order_by: $orderBy, search_term: $searchTerm)
-          @connection(key: "FriendsListComponent_user_friends_connection") {
+          @connection(key: &quot;FriendsListComponent_user_friends_connection&quot;) {
           edges {
             node {
               name
@@ -2129,12 +2129,12 @@ type Props = {|
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">/**
  * FriendsListComponent.react.js
  */</span>
-<span class="hljs-keyword">import</span> type {FriendsListComponent_user$ref} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListComponent_user.graphql'</span>;
+<span class="hljs-keyword">import</span> type {FriendsListComponent_user$ref} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useState, useEffect, useTransition, SuspenseList} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useState, useEffect, useTransition, SuspenseList} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   searchTerm?: string,
@@ -2153,7 +2153,7 @@ type Props = {|
           search_term: $searchTerm,
           after: $cursor,
           first: $count,
-        ) @connection(key: "FriendsListComponent_user_friends_connection") {
+        ) @connection(key: &quot;FriendsListComponent_user_friends_connection&quot;) {
           edges {
             node {
               name
@@ -2166,11 +2166,11 @@ type Props = {|
     props.user,
   );
 
-  useEffect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  useEffect(<span class="hljs-function">() =&gt;</span> {
     <span class="hljs-comment">// When the searchTerm provided via props changes, refetch the connection</span>
     <span class="hljs-comment">// with the new searchTerm</span>
-    startTransition(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-      refetch({<span class="hljs-attr">first</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">search_term</span>: searchTerm}, {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>});
+    startTransition(<span class="hljs-function">() =&gt;</span> {
+      refetch({<span class="hljs-attr">first</span>: <span class="hljs-number">10</span>, <span class="hljs-attr">search_term</span>: searchTerm}, {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>});
     });
   }, [searchTerm]);
 
@@ -2182,7 +2182,7 @@ type Props = {|
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span>
           startTransition(() =&gt; {
-            refetch({first: 10, orderBy: 'DATE_ADDED'});
+            refetch({first: 10, orderBy: &#x27;DATE_ADDED&#x27;});
           })
         }&gt;
         Sort by date added
@@ -2212,11 +2212,11 @@ type Props = {|
 <h3><a class="anchor" aria-hidden="true" id="connection-records"></a><a href="#connection-records" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Connection Records</h3>
 <p>In Relay, connection fields that are marked with the <code>@connection</code> directive are stored as special records in the store, and they hold and accumulate <em>all</em> of the items that have been fetched for the connection so far. In order to add or remove items from a connection, we need to access the connection record using the connection <strong><em><code>key</code></em></strong>, which was provided when declaring a <code>@connection</code>; specifically, this allows us to access a connection inside an <code>updater</code> function using the <code>ConnectionHandler</code> APIs.</p>
 <p>For example, given the following fragment that declares a <code>@connection</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> storyFragment = graphql<span class="hljs-string">`
   fragment StoryComponent_story on Story {
-    comments @connection(key: "StoryComponent_story_comments_connection") {
+    comments @connection(key: &quot;StoryComponent_story_comments_connection&quot;) {
       nodes {
         body {
           text
@@ -2227,13 +2227,13 @@ type Props = {|
 `</span>;
 </code></pre>
 <p>We can access the connection record inside an <code>updater</code> function using <strong><code>ConnectionHandler.getConnection</code></strong>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
   <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
   );
 
   <span class="hljs-comment">// ...</span>
@@ -2242,7 +2242,7 @@ type Props = {|
 <h3><a class="anchor" aria-hidden="true" id="adding-edges"></a><a href="#adding-edges" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Adding Edges</h3>
 <p>Once we have a connection record, we also need a record for the new edge that we want to add to the connection. Usually, mutation or subscription payloads will contain the new edge that was added; if not, you can also construct a new edge from scratch.</p>
 <p>For example, in the following mutation we can query for the newly created edge in the mutation response:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> createCommentMutation = graphql<span class="hljs-string">`
   mutation CreateCommentMutation($input: CommentCreateData!) {
@@ -2263,20 +2263,20 @@ type Props = {|
 <li>Note that we also query for the <strong><code>cursor</code></strong> for the new edge; this isn't strictly necessary, but it is information that will be required if we need to perform pagination based on that <code>cursor</code>.</li>
 </ul>
 <p>Inside an <code>updater</code>, we can access the edge inside the mutation response using Relay store APIs:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
   <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
   );
 
   <span class="hljs-comment">// Get the payload returned from the server</span>
-  <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'comment_create'</span>);
+  <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">&#x27;comment_create&#x27;</span>);
 
   <span class="hljs-comment">// Get the edge inside the payload</span>
-  <span class="hljs-keyword">const</span> serverEdge = payload.getLinkedRecord(<span class="hljs-string">'comment_edge'</span>);
+  <span class="hljs-keyword">const</span> serverEdge = payload.getLinkedRecord(<span class="hljs-string">&#x27;comment_edge&#x27;</span>);
 
   <span class="hljs-comment">// Build edge for adding to the connection</span>
   <span class="hljs-keyword">const</span> newEdge = ConnectionHandler.buildConnectionEdge(
@@ -2293,38 +2293,38 @@ type Props = {|
 <li>Note that we need to construct the new edge from the edge received from the server using <strong><code>ConnectionHandler.buildConnectionEdge</code></strong> before we can add it to the connection.</li>
 </ul>
 <p>If you need to create a new edge from scratch, you can use <strong><code>ConnectionHandler.createEdge</code></strong>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
   <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
   );
 
   <span class="hljs-comment">// Create a new local Comment record</span>
   <span class="hljs-keyword">const</span> id = <span class="hljs-string">`client:new_comment:<span class="hljs-subst">${randomID()}</span>`</span>;
-  <span class="hljs-keyword">const</span> newCommentRecord = store.create(id, <span class="hljs-string">'Comment'</span>);
+  <span class="hljs-keyword">const</span> newCommentRecord = store.create(id, <span class="hljs-string">&#x27;Comment&#x27;</span>);
 
   <span class="hljs-comment">// Create new edge</span>
   <span class="hljs-keyword">const</span> newEdge = ConnectionHandler.createEdge(
     store,
     connectionRecord,
     newCommentRecord,
-    <span class="hljs-string">'CommentEdge'</span>, <span class="hljs-comment">/* GraphQl Type for edge */</span>
+    <span class="hljs-string">&#x27;CommentEdge&#x27;</span>, <span class="hljs-comment">/* GraphQl Type for edge */</span>
   );
 
   <span class="hljs-comment">// ...</span>
 }
 </code></pre>
 <p>Once we have a new edge record, we can add it to the the connection using <strong><code>ConnectionHandler.insertEdgeAfter</code></strong> or <strong><code>ConnectionHandler.insertEdgeBefore</code></strong>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
   <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
   );
 
   <span class="hljs-keyword">const</span> newEdge = (...);
@@ -2347,13 +2347,13 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="removing-edges"></a><a href="#removing-edges" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Removing Edges</h3>
 <p><code>ConnectionHandler</code> provides a similar API to remove an edge from a connection, via <strong><code>ConnectionHandler.deleteNode</code></strong>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
   <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
   );
 
   <span class="hljs-comment">// Remove edge from the connection, given the ID of the node</span>
@@ -2374,7 +2374,7 @@ type Props = {|
 <h3><a class="anchor" aria-hidden="true" id="connection-identity-with-filters"></a><a href="#connection-identity-with-filters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Connection Identity With Filters</h3>
 <p>In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, <strong><em>each of the values passed in as connection filters will be used to identify the connection in the Relay store</em></strong>, however, <strong><em>excluding</em></strong> pagination arguments; i.e. excluding:  <code>first:</code>, <code>last:</code>, <code>before:</code>, and <code>after:</code>.</p>
 <p>For example, let's say the <code>comments</code> field took the following arguments, which we pass in as GraphQL <a href="#variables">Variables</a>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> storyFragment = graphql<span class="hljs-string">`
   fragment StoryComponent_story on Story {
@@ -2382,7 +2382,7 @@ type Props = {|
       order_by: $orderBy,
       filter_mode: $filterMode,
       language: $language,
-    ) @connection(key: "StoryComponent_story_comments_connection") {
+    ) @connection(key: &quot;StoryComponent_story_comments_connection&quot;) {
       edges {
         nodes {
           body {
@@ -2396,7 +2396,7 @@ type Props = {|
 </code></pre>
 <p>In the example above, this means that whatever values we used for <code>$orderBy</code>, <code>$filterMode</code> and <code>$language</code> when we queried for the <code>comments</code> field will be part of the connection identifier, and we'll need to use those values when accessing the connection record from the Relay store.</p>
 <p>In order to do so, we need to pass a third argument to <strong><code>ConnectionHandler.getConnection</code></strong>, with concrete filter values to identify the connection:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
@@ -2405,22 +2405,22 @@ type Props = {|
   <span class="hljs-comment">// by the date they were added</span>
   <span class="hljs-keyword">const</span> connectionRecordSortedByDate = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
-    {<span class="hljs-attr">order_by</span>: <span class="hljs-string">'DATE_ADDED'</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">language</span>: <span class="hljs-literal">null</span>}
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
+    {<span class="hljs-attr">order_by</span>: <span class="hljs-string">&#x27;DATE_ADDED&#x27;</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">language</span>: <span class="hljs-literal">null</span>}
   );
 
   <span class="hljs-comment">// Get the connection instance for the connection that only contains</span>
   <span class="hljs-comment">// comments made by friends</span>
   <span class="hljs-keyword">const</span> connectionRecordFriendsOnly = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
-    {<span class="hljs-attr">order_by</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-string">'FRIENDS_ONLY'</span>, <span class="hljs-attr">langugage</span>: <span class="hljs-literal">null</span>}
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
+    {<span class="hljs-attr">order_by</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-string">&#x27;FRIENDS_ONLY&#x27;</span>, <span class="hljs-attr">langugage</span>: <span class="hljs-literal">null</span>}
   );
 }
 </code></pre>
 <p>This implies that by default, <strong><em>each combination of values used for filters will produce a different record for the connection.</em></strong></p>
 <p>When making updates to a connection, you will need to make sure to update all of the relevant records affected by a change. For example, if we were to add a new comment to our example connection, we'd need to make sure <strong><em>not</em></strong> to add the comment to the <code>FRIENDS_ONLY</code> connection, if the new comment wasn't made by a friend of the user:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {ConnectionHandler} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updater</span>(<span class="hljs-params">store: RecordSourceSelectorProxy</span>) </span>{
   <span class="hljs-keyword">const</span> storyRecord = store.get(storyID);
@@ -2429,16 +2429,16 @@ type Props = {|
   <span class="hljs-comment">// by the date they were added</span>
   <span class="hljs-keyword">const</span> connectionRecordSortedByDate = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
-    {<span class="hljs-attr">order_by</span>: <span class="hljs-string">'*DATE_ADDED*'</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">language</span>: <span class="hljs-literal">null</span>}
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
+    {<span class="hljs-attr">order_by</span>: <span class="hljs-string">&#x27;*DATE_ADDED*&#x27;</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">language</span>: <span class="hljs-literal">null</span>}
   );
 
   <span class="hljs-comment">// Get the connection instance for the connection that only contains</span>
   <span class="hljs-comment">// comments made by friends</span>
   <span class="hljs-keyword">const</span> connectionRecordFriendsOnly = ConnectionHandler.getConnection(
     storyRecord,
-    <span class="hljs-string">'StoryComponent_story_comments_connection'</span>,
-    {<span class="hljs-attr">order_by</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-string">'*FRIENDS_ONLY*'</span>, <span class="hljs-attr">language</span>: <span class="hljs-literal">null</span>}
+    <span class="hljs-string">&#x27;StoryComponent_story_comments_connection&#x27;</span>,
+    {<span class="hljs-attr">order_by</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">filter_mode</span>: <span class="hljs-string">&#x27;*FRIENDS_ONLY*&#x27;</span>, <span class="hljs-attr">language</span>: <span class="hljs-literal">null</span>}
   );
 
   <span class="hljs-keyword">const</span> newComment = (...);
@@ -2449,7 +2449,7 @@ type Props = {|
     newEdge,
   );
 
-  <span class="hljs-keyword">if</span> (isMadeByFriend(storyRecord, newComment) {
+  <span class="hljs-keyword">if</span> (<span class="hljs-function"><span class="hljs-title">isMadeByFriend</span>(<span class="hljs-params">storyRecord, newComment</span>)</span> {
     <span class="hljs-comment">// Only add new comment to friends-only connection if the comment</span>
     <span class="hljs-comment">// was made by a friend</span>
     ConnectionHandler.insertEdgeAfter(
@@ -2465,7 +2465,7 @@ type Props = {|
 <li>Specify exactly <em>which</em> filters should be used as connection identifiers.</li>
 </ol>
 <p>By default, <strong><em>all</em></strong> <strong>non-pagination</strong> filters will be used as part of the connection identifier. However, when declaring a <code>@connection</code>, you can specify the exact set of filters to use for connection identity:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> storyFragment = graphql<span class="hljs-string">`
   fragment StoryComponent_story on Story {
@@ -2475,8 +2475,8 @@ type Props = {|
       language: $language
     )
       @connection(
-        key: "StoryComponent_story_comments_connection"
-        filters: ["order_by", "filter_mode"]
+        key: &quot;StoryComponent_story_comments_connection&quot;
+        filters: [&quot;order_by&quot;, &quot;filter_mode&quot;]
       ) {
       edges {
         nodes {
@@ -2504,12 +2504,12 @@ type Props = {|
 <p>In this section we're going to cover how to implement more advanced pagination use cases than the default cases covered by <code>usePaginationFragment</code>.</p>
 <h4><a class="anchor" aria-hidden="true" id="pagination-over-multiple-connections"></a><a href="#pagination-over-multiple-connections" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination Over Multiple Connections</h4>
 <p>If you need to paginate over multiple connections within the same component, you can use <code>usePaginationFragment</code> multiple times:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CombinedFriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'CombinedFriendsListComponent_user.graphql'</span>;
-<span class="hljs-keyword">import</span> type {CombinedFriendsListComponent_viewer$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'CombinedFriendsListComponent_viewer.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CombinedFriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CombinedFriendsListComponent_user.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {CombinedFriendsListComponent_viewer$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CombinedFriendsListComponent_viewer.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: CombinedFriendsListComponent_user$key,
@@ -2524,7 +2524,7 @@ type Props = {|
         name
         friends
           @connection(
-            key: "CombinedFriendsListComponent_user_friends_connection"
+            key: &quot;CombinedFriendsListComponent_user_friends_connection&quot;
           ) {
           edges {
             node {
@@ -2546,7 +2546,7 @@ type Props = {|
             name
             friends
               @connection(
-                key: "CombinedFriendsListComponent_viewer_friends_connection"
+                key: &quot;CombinedFriendsListComponent_viewer_friends_connection&quot;
               ) {
               edges {
                 node {
@@ -2569,12 +2569,12 @@ type Props = {|
 <h4><a class="anchor" aria-hidden="true" id="bi-directional-pagination"></a><a href="#bi-directional-pagination" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Bi-directional Pagination</h4>
 <p>In the <a href="#pagination">Pagination</a> section we covered how to use <code>usePaginationFragment</code> to paginate in a single <em>&quot;forward&quot;</em> direction. However, connections also allow paginating in the opposite <em>&quot;backward&quot;</em> direction. The meaning of <em>&quot;forward&quot;</em> and <em>&quot;backward&quot;</em> directions will depend on how the items in the connection are sorted, for example  <em>&quot;forward&quot;</em> could mean more recent, and <em>&quot;backward&quot;</em> could mean less recent.</p>
 <p>Regardless of the semantic meaning of the direction, Relay also provides the same APIs to paginate in the opposite direction using <strong><code>usePaginationFragment</code></strong>, as long  as the <strong><code>before</code></strong> and <strong><code>last</code></strong> connection arguments are also used along with <code>after</code> and <code>first</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListComponent_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {Suspense} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   userRef: FriendsListComponent_user$key,
@@ -2591,7 +2591,7 @@ type Props = {|
       fragment FriendsListComponent_user on User {
         name
         friends(after: $after, before: $before, first: $first, last: $last)
-          @connection(key: "FriendsListComponent_user_friends_connection") {
+          @connection(key: &quot;FriendsListComponent_user_friends_connection&quot;) {
           edges {
             node {
               name
@@ -2710,17 +2710,17 @@ type Props = {|
 </ul>
 <p>An example of a successful response for the above mutation could look like this:</p>
 <pre><code class="hljs css language-json">{
-  <span class="hljs-attr">"like_post"</span>: {
-    <span class="hljs-attr">"post"</span>: {
-      <span class="hljs-attr">"id"</span>: <span class="hljs-string">"post-id"</span>,
-      <span class="hljs-attr">"viewer_does_like"</span>: <span class="hljs-literal">true</span>,
-      <span class="hljs-attr">"like_count"</span>: <span class="hljs-number">1</span>,
+  <span class="hljs-attr">&quot;like_post&quot;</span>: {
+    <span class="hljs-attr">&quot;post&quot;</span>: {
+      <span class="hljs-attr">&quot;id&quot;</span>: <span class="hljs-string">&quot;post-id&quot;</span>,
+      <span class="hljs-attr">&quot;viewer_does_like&quot;</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-attr">&quot;like_count&quot;</span>: <span class="hljs-number">1</span>,
     }
   }
 }
 </code></pre>
 <p>In Relay, we can declare GraphQL mutations using the <code>graphql</code> tag too:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> likeMutation = graphql<span class="hljs-string">`
   mutation LikePostMutation($input: LikePostData!) {
@@ -2738,9 +2738,9 @@ type Props = {|
 <li>Note that mutations can also reference GraphQL <a href="#variables">Variables</a> in the same way queries or fragments do.</li>
 </ul>
 <p>In order to <em>execute</em> a mutation against the server in Relay, we can use the <strong><code>useMutation</code></strong> hook.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;LikePostMutation.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   likePostData: LikePostData,
@@ -2783,23 +2783,23 @@ type Props = {|
 <pre><code class="hljs css language-javascript">type UseMutationConfig&lt;TMutation: MutationParameters&gt; = {|
   configs?: <span class="hljs-built_in">Array</span>&lt;DeclarativeMutationConfig&gt;,
   onError?: ?<span class="hljs-function">(<span class="hljs-params">error: <span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
-  onCompleted?: ?(
-    response: $ElementType&lt;TMutation, <span class="hljs-string">'response'</span>&gt;,
-    <span class="hljs-attr">errors</span>: ?<span class="hljs-built_in">Array</span>&lt;PayloadError&gt;,
-  ) =&gt; <span class="hljs-keyword">void</span>,
-  onUnsubscribe?: ?<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">void</span>,
+  onCompleted?: ?<span class="hljs-function">(<span class="hljs-params">
+    response: $ElementType&lt;TMutation, <span class="hljs-string">&#x27;response&#x27;</span>&gt;,
+    errors: ?<span class="hljs-built_in">Array</span>&lt;PayloadError&gt;,
+  </span>) =&gt;</span> <span class="hljs-keyword">void</span>,
+  onUnsubscribe?: ?<span class="hljs-function">() =&gt;</span> <span class="hljs-keyword">void</span>,
   optimisticResponse?: $ElementType&lt;
     {
       +rawResponse?: {...},
       ...TMutation,
       ...
     },
-    <span class="hljs-string">'rawResponse'</span>,
+    <span class="hljs-string">&#x27;rawResponse&#x27;</span>,
   &gt;,
   optimisticUpdater?: ?SelectorStoreUpdater,
   updater?: ?SelectorStoreUpdater,
   uploadables?: UploadableMap,
-  <span class="hljs-attr">variables</span>: $ElementType&lt;TMutation, <span class="hljs-string">'variables'</span>&gt;,
+  <span class="hljs-attr">variables</span>: $ElementType&lt;TMutation, <span class="hljs-string">&#x27;variables&#x27;</span>&gt;,
 |};
 </code></pre>
 <ul>
@@ -2813,9 +2813,9 @@ type Props = {|
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="updater-functions"></a><a href="#updater-functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Updater functions</h4>
 <p>However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>, you can provide an <strong><code>updater</code></strong> function to <code>commit</code> for full control over how to update the store:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;LikePostMutation.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   likePostData: LikePostData,
@@ -2843,14 +2843,14 @@ type Props = {|
       <span class="hljs-comment">// Get connection record</span>
       <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
         postRecord,
-        <span class="hljs-string">'CommentsComponent_comments_connection'</span>,
+        <span class="hljs-string">&#x27;CommentsComponent_comments_connection&#x27;</span>,
       );
 
       <span class="hljs-comment">// Get the payload returned from the server</span>
-      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'comment_create'</span>);
+      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">&#x27;comment_create&#x27;</span>);
 
       <span class="hljs-comment">// Get the edge inside the payload</span>
-      <span class="hljs-keyword">const</span> serverEdge = payload.getLinkedRecord(<span class="hljs-string">'comment_edge'</span>);
+      <span class="hljs-keyword">const</span> serverEdge = payload.getLinkedRecord(<span class="hljs-string">&#x27;comment_edge&#x27;</span>);
 
       <span class="hljs-comment">// Build edge for adding to the connection</span>
       <span class="hljs-keyword">const</span> newEdge = ConnectionHandler.buildConnectionEdge(
@@ -2889,9 +2889,9 @@ type Props = {|
 <p>In order to do this, Relay provides 2 APIs to specify an optimistic update when executing a mutation:</p>
 <p><em><strong>Optimistic Response</strong></em></p>
 <p>When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an <strong><code>optimisticResponse</code></strong> to <code>commitMutation</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;LikePostMutation.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   likePostData: LikePostData,
@@ -2947,9 +2947,9 @@ type Props = {|
 </ul>
 <p><em><strong>Optimistic Updater</strong></em></p>
 <p>However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>. In these cases we can provide an <strong><code>optimisticUpdater</code></strong> function to <code>commitMutation</code>. For example, we can rewrite the above example using an <code>optimisticUpdater</code> instead of an <code>optimisticResponse</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostData, LikePostMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;LikePostMutation.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   likePostData: LikePostData,
@@ -2976,13 +2976,13 @@ type Props = {|
       <span class="hljs-keyword">const</span> postRecord = store.get(postID);
 
       <span class="hljs-comment">// Read the current value for the like_count</span>
-      <span class="hljs-keyword">const</span> currentLikeCount = postRecord.getValue(<span class="hljs-string">'like_count'</span>);
+      <span class="hljs-keyword">const</span> currentLikeCount = postRecord.getValue(<span class="hljs-string">&#x27;like_count&#x27;</span>);
 
       <span class="hljs-comment">// Optimistically increment the like_count by 1</span>
-      postRecord.setValue((currentLikeCount ?? <span class="hljs-number">0</span>) + <span class="hljs-number">1</span>, <span class="hljs-string">'like_count'</span>);
+      postRecord.setValue((currentLikeCount ?? <span class="hljs-number">0</span>) + <span class="hljs-number">1</span>, <span class="hljs-string">&#x27;like_count&#x27;</span>);
 
       <span class="hljs-comment">// Optimistically set viewer_does_like to true</span>
-      postRecord.setValue(<span class="hljs-literal">true</span>, <span class="hljs-string">'viewer_does_like'</span>);
+      postRecord.setValue(<span class="hljs-literal">true</span>, <span class="hljs-string">&#x27;viewer_does_like&#x27;</span>);
     },
   };
 
@@ -3028,9 +3028,9 @@ type Props = {|
 </ul>
 <p><em><strong>Full Example</strong></em></p>
 <p>This means that in more complicated scenarios you can still provide all 3 options: <code>optimisticResponse</code>, <code>optimisticUpdater</code> and <code>updater</code>. For example, the mutation to add a new comment could be like something like the following (for full details on updating connections, check out our <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a> guide):</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentCreateData, CreateCommentMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'CreateCommentMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentCreateData, CreateCommentMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CreateCommentMutation.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   commentCreateData: CommentCreateData,
@@ -3072,12 +3072,12 @@ type Props = {|
       <span class="hljs-keyword">const</span> postRecord = store.get(postID);
       <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
         postRecord,
-        <span class="hljs-string">'CommentsComponent_comments_connection'</span>,
+        <span class="hljs-string">&#x27;CommentsComponent_comments_connection&#x27;</span>,
       );
 
       <span class="hljs-comment">// Create a new local Comment from scratch</span>
       <span class="hljs-keyword">const</span> id = <span class="hljs-string">`client:new_comment:<span class="hljs-subst">${randomID()}</span>`</span>;
-      <span class="hljs-keyword">const</span> newCommentRecord = store.create(id, <span class="hljs-string">'Comment'</span>);
+      <span class="hljs-keyword">const</span> newCommentRecord = store.create(id, <span class="hljs-string">&#x27;Comment&#x27;</span>);
 
       <span class="hljs-comment">// ... update new comment with content</span>
 
@@ -3086,7 +3086,7 @@ type Props = {|
         store,
         connectionRecord,
         newCommentRecord,
-        <span class="hljs-string">'CommentEdge'</span> <span class="hljs-comment">/* GraphQl Type for edge */</span>,
+        <span class="hljs-string">&#x27;CommentEdge&#x27;</span> <span class="hljs-comment">/* GraphQl Type for edge */</span>,
       );
 
       <span class="hljs-comment">// Add edge to the end of the connection</span>
@@ -3096,14 +3096,14 @@ type Props = {|
       <span class="hljs-keyword">const</span> postRecord = store.get(postID);
       <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
         postRecord,
-        <span class="hljs-string">'CommentsComponent_comments_connection'</span>,
+        <span class="hljs-string">&#x27;CommentsComponent_comments_connection&#x27;</span>,
       );
 
       <span class="hljs-comment">// Get the payload returned from the server</span>
-      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'comment_create'</span>);
+      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">&#x27;comment_create&#x27;</span>);
 
       <span class="hljs-comment">// Get the edge from server payload</span>
-      <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">'comment_edge'</span>);
+      <span class="hljs-keyword">const</span> newEdge = payload.getLinkedRecord(<span class="hljs-string">&#x27;comment_edge&#x27;</span>);
 
       <span class="hljs-comment">// Add edge to the end of the connection</span>
       ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
@@ -3150,16 +3150,16 @@ type Props = {|
 </ul>
 <p>An example of a subscription payload received by the client could look like this:</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"like_post_subscribe"</span>: {
-    <span class="hljs-string">"post"</span>: {
-      <span class="hljs-string">"id"</span>: <span class="hljs-string">"post-id"</span>,
-      <span class="hljs-string">"like_count"</span>: <span class="hljs-number">321</span>,
+  <span class="hljs-string">&quot;like_post_subscribe&quot;</span>: {
+    <span class="hljs-string">&quot;post&quot;</span>: {
+      <span class="hljs-string">&quot;id&quot;</span>: <span class="hljs-string">&quot;post-id&quot;</span>,
+      <span class="hljs-string">&quot;like_count&quot;</span>: <span class="hljs-number">321</span>,
     }
   }
 }
 </code></pre>
 <p>In Relay, we can declare GraphQL subcriptions using the <code>graphql</code> tag too:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-keyword">const</span> postLikeSubscription = graphql<span class="hljs-string">`
   subscription LikePostSubscription($input: LikePostSubscribeData!) {
@@ -3176,11 +3176,11 @@ type Props = {|
 <li>Note that subscriptions can also reference GraphQL <a href="#variables">Variables</a> in the same way queries or fragments do.</li>
 </ul>
 <p>In order to <em>execute</em> a subscription against the server in Relay, we can use the <strong><code>useSubscription</code></strong> hook:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">'LikePostSubscription.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {LikePostSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;LikePostSubscription.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, useSubscription, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useSubscription, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 type Props = {|
   likePostSubscribeData: LikePostSubscribeData,
@@ -3198,7 +3198,7 @@ type Props = {|
     `</span>,
     {<span class="hljs-attr">id</span>: props.postId},
   );
-  <span class="hljs-keyword">const</span> subscriptionConfig = useMemo(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ({
+  <span class="hljs-keyword">const</span> subscriptionConfig = useMemo(<span class="hljs-function">() =&gt;</span> ({
     <span class="hljs-attr">subscription</span>: graphql<span class="hljs-string">`
       subscription LikePostSubscription(
         $input: LikePostSubscribeData!
@@ -3212,7 +3212,7 @@ type Props = {|
       }
     `</span>,
     <span class="hljs-attr">variables</span>: {<span class="hljs-attr">input</span>: props.likePostSubscribeData},
-    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription established */</span>,
+    <span class="hljs-attr">onCompleted</span>: <span class="hljs-function">() =&gt;</span> {} <span class="hljs-comment">/* Subscription established */</span>,
     <span class="hljs-attr">onError</span>: <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription errored */</span>,
     <span class="hljs-attr">onNext</span>: <span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {} <span class="hljs-comment">/* Subscription payload received */</span>,
   }));
@@ -3221,7 +3221,7 @@ type Props = {|
 
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
-      This post has been liked {data?.post?.like_count ?? "an unknown number of"} times.
+      This post has been liked {data?.post?.like_count ?? &quot;an unknown number of&quot;} times.
     <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
   );
 }
@@ -3238,15 +3238,15 @@ type Props = {|
 <li>Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.</li>
 </ul>
 <p>However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or <a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a>, you can provide an <code>**updater**</code> function to <strong><code>useSubscription</code></strong> for full control over how to update the store:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> type {CommentCreateSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">'CommentCreateSubscription.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
+<span class="hljs-keyword">import</span> type {CommentCreateSubscribeData} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CommentCreateSubscription.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {graphql, useSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {graphql, useSubscription} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">useCommentCreateSubscription</span>(<span class="hljs-params">
   input: CommentCreateSubscribeData,
 </span>) </span>{
-  <span class="hljs-keyword">const</span> subscriptionConfig = useMemo(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> ({
+  <span class="hljs-keyword">const</span> subscriptionConfig = useMemo(<span class="hljs-function">() =&gt;</span> ({
     <span class="hljs-attr">subscription</span>: graphql<span class="hljs-string">`
       subscription CommentCreateSubscription(
         $input: CommentCreateSubscribeData!
@@ -3270,14 +3270,14 @@ type Props = {|
       <span class="hljs-comment">// Get connection record</span>
       <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
         postRecord,
-        <span class="hljs-string">'CommentsComponent_comments_connection'</span>,
+        <span class="hljs-string">&#x27;CommentsComponent_comments_connection&#x27;</span>,
       );
 
       <span class="hljs-comment">// Get the payload returned from the server</span>
-      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">'comment_create_subscribe'</span>);
+      <span class="hljs-keyword">const</span> payload = store.getRootField(<span class="hljs-string">&#x27;comment_create_subscribe&#x27;</span>);
 
       <span class="hljs-comment">// Get the edge inside the payload</span>
-      <span class="hljs-keyword">const</span> serverEdge = payload.getLinkedRecord(<span class="hljs-string">'post_comment_edge'</span>);
+      <span class="hljs-keyword">const</span> serverEdge = payload.getLinkedRecord(<span class="hljs-string">&#x27;post_comment_edge&#x27;</span>);
 
       <span class="hljs-comment">// Build edge for adding to the connection</span>
       <span class="hljs-keyword">const</span> newEdge = ConnectionHandler.buildConnectionEdge(
@@ -3307,24 +3307,24 @@ type Props = {|
 <p>Note that local data updates can be made both on <a href="#client-only-data-client-schema-extensions">client-only data</a>, or on regular data that was fetched from the server via an operation.</p>
 <h4><a class="anchor" aria-hidden="true" id="commitlocalupdate"></a><a href="#commitlocalupdate" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>commitLocalUpdate</h4>
 <p>To make updates using an <code>updater</code> function, you can use the <strong><code>commitLocalUpdate</code></strong> API:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {Environment} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {commitLocalUpdate, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<span class="hljs-keyword">const</span> {commitLocalUpdate, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">commitCommentCreateLocally</span>(<span class="hljs-params">
   environment: Environment,
   postID: string,
 </span>) </span>{
-  <span class="hljs-keyword">return</span> commitLocalUpdate(environment, store =&gt; {
+  <span class="hljs-keyword">return</span> commitLocalUpdate(environment, <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
     <span class="hljs-keyword">const</span> postRecord = store.get(postID);
     <span class="hljs-keyword">const</span> connectionRecord = ConnectionHandler.getConnection(
       postRecord,
-      <span class="hljs-string">'CommentsComponent_comments_connection'</span>,
+      <span class="hljs-string">&#x27;CommentsComponent_comments_connection&#x27;</span>,
     );
 
     <span class="hljs-comment">// Create a new local Comment from scratch</span>
     <span class="hljs-keyword">const</span> id = <span class="hljs-string">`client:new_comment:<span class="hljs-subst">${randomID()}</span>`</span>;
-    <span class="hljs-keyword">const</span> newCommentRecord = store.create(id, <span class="hljs-string">'Comment'</span>);
+    <span class="hljs-keyword">const</span> newCommentRecord = store.create(id, <span class="hljs-string">&#x27;Comment&#x27;</span>);
 
     <span class="hljs-comment">// ... update new comment with content</span>
 
@@ -3333,7 +3333,7 @@ type Props = {|
       store,
       connectionRecord,
       newCommentRecord,
-      <span class="hljs-string">'CommentEdge'</span> <span class="hljs-comment">/* GraphQl Type for edge */</span>,
+      <span class="hljs-string">&#x27;CommentEdge&#x27;</span> <span class="hljs-comment">/* GraphQl Type for edge */</span>,
     );
 
     <span class="hljs-comment">// Add edge to the end of the connection</span>
@@ -3353,13 +3353,13 @@ type Props = {|
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="commitpayload"></a><a href="#commitpayload" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>commitPayload</h4>
 <p><strong><code>commitPayload</code></strong> takes an <code>OperationDescriptor</code> and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FooQueryRawResponse} <span class="hljs-keyword">from</span> <span class="hljs-string">'FooQuery.graphql'</span>
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FooQueryRawResponse} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FooQuery.graphql&#x27;</span>
 
-<span class="hljs-keyword">const</span> {createOperationDescriptor} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>);
+<span class="hljs-keyword">const</span> {createOperationDescriptor} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-runtime&#x27;</span>);
 
 <span class="hljs-keyword">const</span> operationDescriptor = createOperationDescriptor(FooQuery, {
-  <span class="hljs-attr">id</span>: <span class="hljs-string">'an-id'</span>,
-  <span class="hljs-attr">otherVariable</span>: <span class="hljs-string">'value'</span>,
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;an-id&#x27;</span>,
+  <span class="hljs-attr">otherVariable</span>: <span class="hljs-string">&#x27;value&#x27;</span>,
 });
 
 <span class="hljs-keyword">const</span> payload: FooQueryRawResponse = {...};
@@ -3378,8 +3378,8 @@ environment.commitPayload(operation, payload);
 <p>To add a client schema, create a new <code>.graphql</code> file inside your src directory. The file can be named anything.</p>
 <h4><a class="anchor" aria-hidden="true" id="extending-existing-types"></a><a href="#extending-existing-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Extending Existing Types</h4>
 <p>In order to extend an existing type, add a <code>.graphql</code> file to the appropriate schema extension file:</p>
-<pre><code class="hljs css language-graphql">extend<span class="hljs-built_in"> type </span>Comment {
-  is_new_comment: Boolean
+<pre><code class="hljs css language-graphql"><span class="hljs-selector-tag">extend</span> <span class="hljs-selector-tag">type</span> <span class="hljs-selector-tag">Comment</span> {
+  <span class="hljs-attribute">is_new_comment</span>: Boolean
 }
 </code></pre>
 <ul>
@@ -3388,23 +3388,23 @@ environment.commitPayload(operation, payload);
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="adding-new-types"></a><a href="#adding-new-types" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Adding New Types</h4>
 <p>You can define types using the same regular GraphQL syntax, by defining it inside your client schema file:</p>
-<pre><code class="hljs css language-graphql">enum FetchStatus {
+<pre><code class="hljs css language-graphql"><span class="hljs-class"><span class="hljs-keyword">enum</span> <span class="hljs-title">FetchStatus</span> {</span>
   FETCHED
   PENDING
   ERRORED
 }
-<span class="hljs-built_in">
-type </span>FetchState {
-  # You can reuse client-only types <span class="hljs-keyword">to</span> define other types
-  status: FetchStatus
 
-  # You can also reference regular<span class="hljs-built_in"> server </span>types
-  started_by: User!
+<span class="hljs-keyword">type</span> FetchState {
+  <span class="hljs-comment"># You can reuse client-only types to define other types</span>
+  <span class="hljs-symbol">status:</span> FetchStatus
+
+  <span class="hljs-comment"># You can also reference regular server types</span>
+  <span class="hljs-symbol">started_by:</span> User!
 }
 
-extend<span class="hljs-built_in"> type </span>Item {
-  # You can extend<span class="hljs-built_in"> server </span>types with client-only types
-  fetch_state: FetchState
+<span class="hljs-keyword">extend</span> <span class="hljs-keyword">type</span> Item {
+  <span class="hljs-comment"># You can extend server types with client-only types</span>
+  <span class="hljs-symbol">fetch_state:</span> FetchState
 }
 </code></pre>
 <ul>
@@ -3444,9 +3444,9 @@ extend<span class="hljs-built_in"> type </span>Item {
 <p>This section covers less common use cases, which involve fetching and accessing data outside of our React APIs. Most of the time you will be directly using our React APIs, so you don't need to know this to start building with Relay. However, these APIs can be useful for more advanced use cases when you need more control over how data is fetched and managed, for example when writing pieces of infrastructure on top of Relay.</p>
 <h3><a class="anchor" aria-hidden="true" id="fetching-queries"></a><a href="#fetching-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fetching Queries</h3>
 <p>If you want to fetch a query outside of React, you can use the <strong><code>fetchQuery</code></strong> function, which returns an observable:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 fetchQuery&lt;AppQuery&gt;(
   environment,
@@ -3460,8 +3460,8 @@ fetchQuery&lt;AppQuery&gt;(
   {<span class="hljs-attr">id</span>: <span class="hljs-number">4</span>},
 )
 .subscribe({
-  <span class="hljs-attr">start</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {...},
-  <span class="hljs-attr">complete</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {...},
+  <span class="hljs-attr">start</span>: <span class="hljs-function">() =&gt;</span> {...},
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">() =&gt;</span> {...},
   <span class="hljs-attr">error</span>: <span class="hljs-function">(<span class="hljs-params">error</span>) =&gt;</span> {...},
   <span class="hljs-attr">next</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {...}
 });
@@ -3473,9 +3473,9 @@ fetchQuery&lt;AppQuery&gt;(
 <li>Note that we specify the <code>AppQuery</code> Flow type; this ensures that the type of the data provided by the observable matches the shape of the query, and enforces that the <code>variables</code> passed as input to <code>fetchQuery</code> match the type of the variables expected by the query.</li>
 </ul>
 <p>If desired, you can convert the request into a Promise using <strong><code>.toPromise()</code></strong>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 fetchQuery&lt;AppQuery&gt;(
   environment,
@@ -3522,12 +3522,12 @@ fetchQuery&lt;AppQuery&gt;(
   createOperationDescriptor,
   getRequest,
   graphql,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>)
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-runtime&#x27;</span>)
 
 <span class="hljs-comment">// Query graphql object</span>
 <span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`...`</span>;
 
-<span class="hljs-comment">// Construct Relay's internal representation of the query</span>
+<span class="hljs-comment">// Construct Relay&#x27;s internal representation of the query</span>
 <span class="hljs-keyword">const</span> queryRequest = getRequest(query)
 <span class="hljs-keyword">const</span> queryDescriptor = createOperationDescriptor(
   queryRequest,
@@ -3540,7 +3540,7 @@ fetchQuery&lt;AppQuery&gt;(
 
 <span class="hljs-comment">// Disposing of the disposable will release the data for this query</span>
 <span class="hljs-comment">// and variables, meaning that it can be deleted at any moment</span>
-<span class="hljs-comment">// by Relay's garbage collection if it hasn't been retained elsewhere</span>
+<span class="hljs-comment">// by Relay&#x27;s garbage collection if it hasn&#x27;t been retained elsewhere</span>
 disposable.dispose();
 </code></pre>
 <ul>

@@ -67,7 +67,7 @@
   Network,
   RecordSource,
   Store,
-} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime&#x27;</span>;
 
 <span class="hljs-comment">// Define a function that fetches the results of an operation (query/mutation/etc)</span>
 <span class="hljs-comment">// and returns its results as a Promise:</span>
@@ -77,11 +77,11 @@
   cacheConfig,
   uploadables,
 </span>) </span>{
-  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">'/graphql'</span>, {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">&#x27;/graphql&#x27;</span>, {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
     <span class="hljs-attr">headers</span>: {
       <span class="hljs-comment">// Add authentication and other headers here</span>
-      <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'application/json'</span>
+      <span class="hljs-string">&#x27;content-type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>
     },
     <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify({
       <span class="hljs-attr">query</span>: operation.text, <span class="hljs-comment">// GraphQL text from input</span>
@@ -113,8 +113,8 @@
   Network,
   RecordSource,
   Store,
-} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
-<span class="hljs-keyword">import</span> RelayQueryResponseCache <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime/lib/RelayQueryResponseCache'</span>;
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime&#x27;</span>;
+<span class="hljs-keyword">import</span> RelayQueryResponseCache <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime/lib/RelayQueryResponseCache&#x27;</span>;
 
 <span class="hljs-keyword">const</span> oneMinute = <span class="hljs-number">60</span> * <span class="hljs-number">1000</span>;
 <span class="hljs-keyword">const</span> cache = <span class="hljs-keyword">new</span> RelayQueryResponseCache({ <span class="hljs-attr">size</span>: <span class="hljs-number">250</span>, <span class="hljs-attr">ttl</span>: oneMinute });
@@ -125,8 +125,8 @@
   cacheConfig,
 </span>) </span>{
   <span class="hljs-keyword">const</span> queryID = operation.text;
-  <span class="hljs-keyword">const</span> isMutation = operation.operationKind === <span class="hljs-string">'mutation'</span>;
-  <span class="hljs-keyword">const</span> isQuery = operation.operationKind === <span class="hljs-string">'query'</span>;
+  <span class="hljs-keyword">const</span> isMutation = operation.operationKind === <span class="hljs-string">&#x27;mutation&#x27;</span>;
+  <span class="hljs-keyword">const</span> isQuery = operation.operationKind === <span class="hljs-string">&#x27;query&#x27;</span>;
   <span class="hljs-keyword">const</span> forceFetch = cacheConfig &amp;&amp; cacheConfig.force;
 
   <span class="hljs-comment">// Try to get data from cache on queries</span>
@@ -140,10 +140,10 @@
   }
 
   <span class="hljs-comment">// Otherwise, fetch data from server</span>
-  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">'/graphql'</span>, {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">&#x27;/graphql&#x27;</span>, {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
     <span class="hljs-attr">headers</span>: {
-      <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+      <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,
     },
     <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify({
       <span class="hljs-attr">query</span>: operation.text,

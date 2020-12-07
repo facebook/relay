@@ -51,7 +51,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 <p>Here's a basic implementation of <code>&lt;TodoItem /&gt;</code> that ignores styling in order to highlight the functionality:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// TodoItem.js</span>
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoItem</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// Expects the `item` prop to have the following shape:</span>
     <span class="hljs-comment">// {</span>
     <span class="hljs-comment">//   item: {</span>
@@ -59,7 +59,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
     <span class="hljs-comment">//     isComplete</span>
     <span class="hljs-comment">//   }</span>
     <span class="hljs-comment">// }</span>
-    <span class="hljs-keyword">const</span> item = <span class="hljs-keyword">this</span>.props.item;
+    <span class="hljs-keyword">const</span> item = <span class="hljs-built_in">this</span>.props.item;
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">Checkbox</span> <span class="hljs-attr">checked</span>=<span class="hljs-string">{item.isComplete}</span> /&gt;</span>
@@ -72,7 +72,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 <h3><a class="anchor" aria-hidden="true" id="data-dependencies-with-graphql"></a><a href="#data-dependencies-with-graphql" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data Dependencies With GraphQL</h3>
 <p>In Relay, data dependencies are described using <a href="https://github.com/facebook/graphql">GraphQL</a>. For <code>&lt;TodoItem /&gt;</code>, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the <code>item</code> prop.</p>
 <pre><code class="hljs css language-javascript">graphql<span class="hljs-string">`
-  # This fragment only applies to objects of type 'Todo'.
+  # This fragment only applies to objects of type &#x27;Todo&#x27;.
   fragment TodoItem_item on Todo {
     text
     isComplete
@@ -82,7 +82,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 <h3><a class="anchor" aria-hidden="true" id="defining-containers"></a><a href="#defining-containers" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Defining Containers</h3>
 <p>Given the plain React component and a GraphQL fragment, we can now define a Fragment Container to specify this component's data requirements. Let's look at the code first and then see what's happening:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// TodoItem.js</span>
-<span class="hljs-keyword">import</span> {createFragmentContainer, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> {createFragmentContainer, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoItem</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{<span class="hljs-comment">/* as above */</span>}
 
@@ -90,7 +90,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(TodoItem, {
   <span class="hljs-comment">// For each of the props that depend on server data, we define a corresponding</span>
   <span class="hljs-comment">// key in this object. Here, the component expects server data to populate the</span>
-  <span class="hljs-comment">// `item` prop, so we'll specify the fragment from above at the `item` key.</span>
+  <span class="hljs-comment">// `item` prop, so we&#x27;ll specify the fragment from above at the `item` key.</span>
   <span class="hljs-attr">item</span>: graphql<span class="hljs-string">`
     fragment TodoItem_item on Todo {
       text
@@ -112,8 +112,8 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 </code></pre>
 <p>If there is no <code>_&lt;propName&gt;</code> suffix, the <code>data</code> prop name will be used:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoItem</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
-    <span class="hljs-keyword">const</span> item = <span class="hljs-keyword">this</span>.props.data;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> item = <span class="hljs-built_in">this</span>.props.data;
     <span class="hljs-comment">// ...</span>
   }
 }
@@ -134,10 +134,10 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 <h3><a class="anchor" aria-hidden="true" id="composing-views"></a><a href="#composing-views" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Composing Views</h3>
 <p>View composition is <em>exactly</em> what you're used to — Relay containers are just standard React components. Here's the <code>&lt;TodoList /&gt;</code> component:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// Expects a `list` with a string `title`, as well as the information</span>
-    <span class="hljs-comment">// for the `&lt;TodoItem&gt;`s (we'll get that next).</span>
-    <span class="hljs-keyword">const</span> list = <span class="hljs-keyword">this</span>.props.list;
+    <span class="hljs-comment">// for the `&lt;TodoItem&gt;`s (we&#x27;ll get that next).</span>
+    <span class="hljs-keyword">const</span> list = <span class="hljs-built_in">this</span>.props.list;
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>&gt;</span>
         {/* It works just like a React component, because it is one! */}
@@ -158,7 +158,7 @@ If the fragment name doesn't specify a prop name, the data will be available as 
   <span class="hljs-comment">// is expected to be populated with server data by the `&lt;TodoList&gt;` component.</span>
   graphql<span class="hljs-string">`
     fragment TodoList_list on TodoList {
-      # Specify any fields required by '&lt;TodoList&gt;' itself.
+      # Specify any fields required by &#x27;&lt;TodoList&gt;&#x27; itself.
       title
       # Include a reference to the fragment from the child component.
       todoItems {
@@ -174,8 +174,8 @@ If the fragment name doesn't specify a prop name, the data will be available as 
 <p>When defining a fragment, you can use the <a href="./graphql-in-relay.html#argumentdefinitions"><code>@argumentDefinitions</code></a> directive to specify any arguments, with potentially default values, that the fragment expects.</p>
 <p>For example, let's redefine our <code>TodoList_list</code> fragment to take some arguments using <code>@argumentDefinitions</code>:</p>
 <pre><code class="hljs css language-graphql"><span class="hljs-keyword">fragment</span> TodoList_list <span class="hljs-keyword">on</span> TodoList @argumentDefinitions(
-  count: {type: <span class="hljs-string">"Int"</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
-  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">"ID"</span>},                    <span class="hljs-comment"># Required argument</span>
+  count: {type: <span class="hljs-string">&quot;Int&quot;</span>, <span class="hljs-keyword">default</span>Value: <span class="hljs-number">10</span>},  <span class="hljs-comment"># Optional argument</span>
+  <span class="hljs-keyword">user</span>ID: {type: <span class="hljs-string">&quot;ID&quot;</span>},                    <span class="hljs-comment"># Required argument</span>
 ) {
   title
   todoItems(<span class="hljs-keyword">user</span>ID: <span class="hljs-variable">$userID</span>, first: <span class="hljs-variable">$count</span>) {  <span class="hljs-comment"># Use fragment arguments here as variables</span>
@@ -197,11 +197,11 @@ Since Relay composes these component instances in a container, you need to use t
 <p>Consider an input with a server-defined placeholder text and an imperative method to focus the input node:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoInput</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-    focus() {
-      <span class="hljs-keyword">this</span>.input.focus();
+    <span class="hljs-function"><span class="hljs-title">focus</span>(<span class="hljs-params"></span>)</span> {
+      <span class="hljs-built_in">this</span>.input.focus();
     }
 
-    render() {
+    <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
       <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">input</span>
         <span class="hljs-attr">ref</span>=<span class="hljs-string">{node</span> =&gt;</span> { this.input = node; }}
         placeholder={this.props.data.suggestedNextTitle}
@@ -218,7 +218,7 @@ Since Relay composes these component instances in a container, you need to use t
 <p>To call this method on the underlying component, first provide a <code>componentRef</code> function to the Relay container. This differs from providing a <a href="https://facebook.github.io/react/docs/refs-and-the-dom.html"><code>ref</code></a> function which would provide a reference to the Relay container itself, not the underlying React Component.</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
   <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoListView</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-    render() {
+    <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
       <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> this.input.focus()}&gt;
         <span class="hljs-tag">&lt;<span class="hljs-name">TodoInput</span>
           <span class="hljs-attr">data</span>=<span class="hljs-string">{this.props.data}</span>

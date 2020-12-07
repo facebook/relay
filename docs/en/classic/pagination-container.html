@@ -29,12 +29,12 @@
 <p>Specifying just the <code>key</code>:</p>
 <pre><code class="hljs css language-javascript">fragment Feed_user on User {
   # This connection, under a specific User, will be uniquely identified by
-  # the key "Feed_feed" and the value of `$orderBy` (given that no `filters` were provided)
+  # the key &quot;Feed_feed&quot; and the value of `$orderBy` (given that no `filters` were provided)
   feed(
     first: $count
     after: $cursor
     orderby: $orderBy
-  ) @connection(key: "Feed_feed") {
+  ) @connection(key: &quot;Feed_feed&quot;) {
     edges {
       node {
         id,
@@ -46,14 +46,14 @@
 <p>Specifying <code>key</code> and <code>filters</code>:</p>
 <pre><code class="hljs css language-javascript">fragment Feed_user on User {
   # This connection, under a specific User, will be uniquely identified by
-  # the key "Feed_feed" and /only/ the value of `$searchTerm`, i.e.
+  # the key &quot;Feed_feed&quot; and /only/ the value of `$searchTerm`, i.e.
   # different values of `orderBy` will not distinguish connections.
   feed(
     first: $count
     after: $cursor
     orderby: $orderBy
     search_term: $searchTerm
-  ) @connection(key: "Feed_feed", filters: ['searchTerm']) {
+  ) @connection(key: &quot;Feed_feed&quot;, filters: [&#x27;searchTerm&#x27;]) {
     edges {
       node {
         id,
@@ -71,14 +71,14 @@
 ): ReactComponentClass;
 
 type ConnectionConfig = {
-  direction?: <span class="hljs-string">'backward'</span> | <span class="hljs-string">'forward'</span>,
+  direction?: <span class="hljs-string">&#x27;backward&#x27;</span> | <span class="hljs-string">&#x27;forward&#x27;</span>,
   getConnectionFromProps?: <span class="hljs-function">(<span class="hljs-params">props: <span class="hljs-built_in">Object</span></span>) =&gt;</span> ?ConnectionData,
   getFragmentVariables?: <span class="hljs-function">(<span class="hljs-params">previousVariables: <span class="hljs-built_in">Object</span>, totalCount: number</span>) =&gt;</span> <span class="hljs-built_in">Object</span>,
-  <span class="hljs-attr">getVariables</span>: (
+  <span class="hljs-attr">getVariables</span>: <span class="hljs-function">(<span class="hljs-params">
     props: <span class="hljs-built_in">Object</span>,
-    <span class="hljs-attr">paginationInfo</span>: {<span class="hljs-attr">count</span>: number, <span class="hljs-attr">cursor</span>: ?string},
-    <span class="hljs-attr">fragmentVariables</span>: <span class="hljs-built_in">Object</span>,
-  ) =&gt; <span class="hljs-built_in">Object</span>,
+    paginationInfo: {count: number, cursor: ?string},
+    fragmentVariables: <span class="hljs-built_in">Object</span>,
+  </span>) =&gt;</span> <span class="hljs-built_in">Object</span>,
   <span class="hljs-attr">query</span>: GraphQLTaggedNode,
 };
 
@@ -137,11 +137,11 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="hasmore"></a><a href="#hasmore" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>hasMore()</code></h2>
 <p><code>hasMore</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. This function indicates wether there are more pages to fetch from the server or not.</p>
-<pre><code class="hljs css language-javascript">hasMore: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> boolean,
+<pre><code class="hljs css language-javascript">hasMore: <span class="hljs-function">() =&gt;</span> boolean,
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="isloading"></a><a href="#isloading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>isLoading</code></h2>
 <p><code>isLoading</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. This function indicates if a previous call to <a href="#loadmore"><code>loadMore()</code></a> is still pending. This is convenient for avoiding duplicate load calls.</p>
-<pre><code class="hljs css language-javascript">isLoading: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> boolean,
+<pre><code class="hljs css language-javascript">isLoading: <span class="hljs-function">() =&gt;</span> boolean,
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="loadmore"></a><a href="#loadmore" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>loadMore</code></h2>
 <p><code>loadMore</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. You can call <code>loadMore()</code> to fetch more items from the server based on the <code>connectionConfig</code> provided to the container. This will return null if there are no more items to fetch, otherwise it will fetch more items and return a Disposable that can be used to cancel the fetch.</p>
@@ -154,11 +154,11 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="refetchconnection"></a><a href="#refetchconnection" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>refetchConnection</code></h2>
 <p><code>refetchConnection</code> is a function available on the <code>relay</code> <a href="#available-props">prop</a>. You can call <code>refetchConnection</code> to restart pagination on a connection from scratch, with optionally a completely new set of variables to pass to the pagination <code>query</code>. This is useful for example if you are paginating over a collection based on a userID and the userID changes, you'd want to start paginating over the new collection for the new user.</p>
-<pre><code class="hljs css language-javascript">refetchConnection:(
+<pre><code class="hljs css language-javascript">refetchConnection:<span class="hljs-function">(<span class="hljs-params">
   count: number,
-  <span class="hljs-attr">callback</span>: <span class="hljs-function">(<span class="hljs-params">error: ?<span class="hljs-built_in">Error</span></span>) =&gt;</span> <span class="hljs-keyword">void</span>,
-  <span class="hljs-attr">refetchVariables</span>: ?Variables,
-) =&gt; ?Disposable,
+  callback: (error: ?<span class="hljs-built_in">Error</span>) =&gt; <span class="hljs-keyword">void</span>,
+  refetchVariables: ?Variables,
+</span>) =&gt;</span> ?Disposable,
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="arguments-2"></a><a href="#arguments-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments:</h3>
 <ul>
@@ -168,10 +168,10 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="pagination-example"></a><a href="#pagination-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination Example</h2>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Feed.js</span>
-<span class="hljs-keyword">import</span> {createPaginationContainer, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> {createPaginationContainer, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Feed</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
         {this.props.user.feed.edges.map(
@@ -179,20 +179,20 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
         )}
         <span class="hljs-tag">&lt;<span class="hljs-name">button</span>
           <span class="hljs-attr">onPress</span>=<span class="hljs-string">{()</span> =&gt;</span> this._loadMore()}
-          title="Load More"
+          title=&quot;Load More&quot;
         /&gt;
       <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
     );
   }
 
-  _loadMore() {
-    <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.props.relay.hasMore() || <span class="hljs-keyword">this</span>.props.relay.isLoading()) {
+  <span class="hljs-function"><span class="hljs-title">_loadMore</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">this</span>.props.relay.hasMore() || <span class="hljs-built_in">this</span>.props.relay.isLoading()) {
       <span class="hljs-keyword">return</span>;
     }
 
-    <span class="hljs-keyword">this</span>.props.relay.loadMore(
+    <span class="hljs-built_in">this</span>.props.relay.loadMore(
       <span class="hljs-number">10</span>,  <span class="hljs-comment">// Fetch the next 10 feed items</span>
-      error =&gt; {
+      <span class="hljs-function"><span class="hljs-params">error</span> =&gt;</span> {
         <span class="hljs-built_in">console</span>.log(error);
       },
     );
@@ -205,15 +205,15 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
     <span class="hljs-attr">user</span>: graphql<span class="hljs-string">`
       fragment Feed_user on User
       @argumentDefinitions(
-        count: {type: "Int", defaultValue: 10}
-        cursor: {type: "ID"}
-        orderby: {type: "[FriendsOrdering]", defaultValue: [DATE_ADDED]}
+        count: {type: &quot;Int&quot;, defaultValue: 10}
+        cursor: {type: &quot;ID&quot;}
+        orderby: {type: &quot;[FriendsOrdering]&quot;, defaultValue: [DATE_ADDED]}
       ) {
         feed(
           first: $count
           after: $cursor
           orderby: $orderBy # Non-pagination variables
-        ) @connection(key: "Feed_feed") {
+        ) @connection(key: &quot;Feed_feed&quot;) {
           edges {
             node {
               id
@@ -225,23 +225,23 @@ local data store <em>after</em> the new pagination <code>query</code> has been f
     `</span>,
   },
   {
-    <span class="hljs-attr">direction</span>: <span class="hljs-string">'forward'</span>,
-    getConnectionFromProps(props) {
+    <span class="hljs-attr">direction</span>: <span class="hljs-string">&#x27;forward&#x27;</span>,
+    <span class="hljs-function"><span class="hljs-title">getConnectionFromProps</span>(<span class="hljs-params">props</span>)</span> {
       <span class="hljs-keyword">return</span> props.user &amp;&amp; props.user.feed;
     },
-    <span class="hljs-comment">// This is also the default implementation of `getFragmentVariables` if it isn't provided.</span>
-    getFragmentVariables(prevVars, totalCount) {
+    <span class="hljs-comment">// This is also the default implementation of `getFragmentVariables` if it isn&#x27;t provided.</span>
+    <span class="hljs-function"><span class="hljs-title">getFragmentVariables</span>(<span class="hljs-params">prevVars, totalCount</span>)</span> {
       <span class="hljs-keyword">return</span> {
         ...prevVars,
         <span class="hljs-attr">count</span>: totalCount,
       };
     },
-    getVariables(props, {count, cursor}, fragmentVariables) {
+    <span class="hljs-function"><span class="hljs-title">getVariables</span>(<span class="hljs-params">props, {count, cursor}, fragmentVariables</span>)</span> {
       <span class="hljs-keyword">return</span> {
         count,
         cursor,
         <span class="hljs-attr">orderBy</span>: fragmentVariables.orderBy,
-        <span class="hljs-comment">// userID isn't specified as an @argument for the fragment, but it should be a variable available for the fragment under the query root.</span>
+        <span class="hljs-comment">// userID isn&#x27;t specified as an @argument for the fragment, but it should be a variable available for the fragment under the query root.</span>
         <span class="hljs-attr">userID</span>: fragmentVariables.userID,
       };
     },

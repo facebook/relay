@@ -88,12 +88,12 @@
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="container-specification"></a><a href="#container-specification" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Container Specification</h2>
 <h3><a class="anchor" aria-hidden="true" id="fragments"></a><a href="#fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>fragments</h3>
-<pre><code class="hljs">fragments: RelayQueryFragments<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Tk</span>&gt;</span> = </span><span class="xquery">{
-  [propName:<span class="hljs-built_in"> string</span>]: (
-    variables: {<span class="hljs-built_in">[name</span>:<span class="hljs-built_in"> string</span>]: mixed}</span><span class="xml">
-  ) =&gt; Relay.QL`fragment on ...`
+<pre><code class="hljs">fragments: RelayQueryFragments&lt;Tk&gt; = {
+  [propName: <span class="hljs-built_in">string</span>]: <span class="hljs-function">(<span class="hljs-params">
+    variables: {[name: <span class="hljs-built_in">string</span>]: mixed}
+  </span>) =&gt;</span> Relay.QL<span class="hljs-string">`fragment on ...`</span>
 };
-</span></code></pre>
+</code></pre>
 <p>Containers declare data requirements on <code>fragments</code> using GraphQL fragments.</p>
 <p>Only fields specified by these fragments will be populated in <code>this.props</code> when the component is rendered. This ensures that there are no implicit dependencies from a component on its parent component or any child components.</p>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
@@ -121,26 +121,26 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 </code></pre>
 <p>The initial set of variable values available to this component's fragments.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-{4}">class ProfilePicture extends React.Component {<span class="hljs-built_in">..</span>.}
+<pre><code class="hljs css language-{4}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProfilePicture</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> {...}</span>
 
-module.exports = Relay.createContainer(ProfilePicture, {
-  initialVariables: {size: 50},
+<span class="hljs-built_in">module</span>.<span class="hljs-built_in">exports</span> = Relay.createContainer(ProfilePicture, {
+  initialVariables: {size: <span class="hljs-number">50</span>},
   fragments: {
-    user: () =&gt; Relay.QL`
-      # The variable defined above is available here as <span class="hljs-string">'$size'</span>.
-      # Any variable referenced here is required <span class="hljs-keyword">to</span> have been defined <span class="hljs-keyword">in</span> initialVariables above.
-      # An <span class="hljs-string">'undefined'</span> variable value will throw an <span class="hljs-string">'Invariant Violation'</span> exception.
-      # Use <span class="hljs-string">'null'</span> <span class="hljs-keyword">to</span> initialize unknown values.
-      fragment on<span class="hljs-built_in"> User </span>{ profilePicture(size: <span class="hljs-variable">$size</span>) { <span class="hljs-built_in">..</span>. } }
-    `,
+    user: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL`<span class="javascript">
+      # The variable defined above is available here <span class="hljs-keyword">as</span> <span class="hljs-string">&#x27;$size&#x27;</span>.
+      # Any variable referenced here is required to have been defined <span class="hljs-keyword">in</span> initialVariables above.
+      # An <span class="hljs-string">&#x27;undefined&#x27;</span> variable value will <span class="hljs-keyword">throw</span> an <span class="hljs-string">&#x27;Invariant Violation&#x27;</span> exception.
+      # Use <span class="hljs-string">&#x27;null&#x27;</span> to initialize unknown values.
+      fragment on User { <span class="hljs-function"><span class="hljs-title">profilePicture</span>(<span class="hljs-params">size: $size</span>)</span> { ... } }
+    </span>`,
   },
 });
 </code></pre>
 <p>In this example, <code>profilePicture(size: 50)</code> will be fetched for the intial render.</p>
 <h3><a class="anchor" aria-hidden="true" id="preparevariables"></a><a href="#preparevariables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>prepareVariables</h3>
-<pre><code class="hljs"><span class="hljs-string">prepareVariables:</span> ?(
-  prevVariables: {[<span class="hljs-string">name:</span> string]: mixed}
-) =&gt; {[<span class="hljs-string">name:</span> string]: mixed}
+<pre><code class="hljs">prepareVariables: ?<span class="hljs-function">(<span class="hljs-params">
+  prevVariables: {[name: <span class="hljs-built_in">string</span>]: mixed}
+</span>) =&gt;</span> {[name: <span class="hljs-built_in">string</span>]: mixed}
 </code></pre>
 <p>Containers can define a <code>prepareVariables</code> method which provides the opportunity to modify the variables that are available to fragments. The new variables can be generated based on the previous variables (or the <code>initialVariables</code> if no previous ones exist) in addition to the runtime environment.</p>
 <p>This method is also called after the partial set of variables from <code>setVariables</code> has been applied. The variables returned are used to populate the fragments.</p>
@@ -162,7 +162,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
 </code></pre>
 <p>RelayContainer implements a conservative default <code>shouldComponentUpdate</code> that returns <code>false</code> if no fragment props have changed and all other props are equal scalar values. This may block updates to components that receive data via context. To ensure an update in this case override the default behavior by specifying a <code>shouldComponentUpdate</code> function.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-3"></a><a href="#example-3" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-{2}"><span class="hljs-built_in">module</span>.exports = Relay.createContainer(ProfilePicture, {
+<pre><code class="hljs css language-{2}"><span class="hljs-built_in">module</span>.<span class="hljs-built_in">exports</span> = Relay.createContainer(ProfilePicture, {
   shouldComponentUpdate: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-literal">true</span>,
   <span class="hljs-regexp">//</span> ...
 });
@@ -175,7 +175,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
 <p>Route is useful in providing the context which a component is being rendered in. It includes information about the <code>name</code>, <code>params</code>, and <code>queries</code> of the current route.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-4"></a><a href="#example-4" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs"><span class="hljs-keyword">var</span> <span class="hljs-keyword">name</span> = this.props.relay.route.<span class="hljs-keyword">name</span>;
-<span class="hljs-keyword">if</span> (<span class="hljs-keyword">name</span> === <span class="hljs-string">'SuperAwesomeRoute'</span>) <span class="hljs-comment">{
+<span class="hljs-keyword">if</span> (<span class="hljs-keyword">name</span> === <span class="hljs-string">&#x27;SuperAwesomeRoute&#x27;</span>) <span class="hljs-comment">{
   // Do something super cool.
 }</span>
 </code></pre>
@@ -186,24 +186,24 @@ module.exports = Relay.createContainer(ProfilePicture, {
 <p><code>variables</code> contains the set of variables that was used to fetch the current set of props.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-5"></a><a href="#example-5" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css language-{8}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProfilePicture</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
-    <span class="hljs-keyword">var</span> user = <span class="hljs-keyword">this</span>.props.user;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">var</span> user = <span class="hljs-built_in">this</span>.props.user;
     <span class="hljs-keyword">return</span> (
-      &lt;<span class="hljs-type">View</span>&gt;
-        &lt;<span class="hljs-type">Image</span>
-          uri={user.profilePicture.uri}
-          width={<span class="hljs-keyword">this</span>.props.relay.variables.size}
-        /&gt;
-      &lt;/<span class="hljs-type">View</span>&gt;
+      <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Image</span>
+          <span class="hljs-attr">uri</span>=<span class="hljs-string">{user.profilePicture.uri}</span>
+          <span class="hljs-attr">width</span>=<span class="hljs-string">{this.props.relay.variables.size}</span>
+        /&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-name">View</span>&gt;</span></span>
     );
   }
 }
-module.exports = <span class="hljs-type">Relay</span>.createContainer(<span class="hljs-type">ProfilePicture</span>, {
-  initialVariables: {size: <span class="hljs-number">50</span>},
-  fragments: {
-    user: () =&gt; <span class="hljs-type">Relay</span>.<span class="hljs-type">QL</span>`
-      fragment on <span class="hljs-type">User</span> { profilePicture(size: $size) { ... } }
-    `,
+<span class="hljs-built_in">module</span>.exports = Relay.createContainer(ProfilePicture, {
+  <span class="hljs-attr">initialVariables</span>: {<span class="hljs-attr">size</span>: <span class="hljs-number">50</span>},
+  <span class="hljs-attr">fragments</span>: {
+    <span class="hljs-attr">user</span>: <span class="hljs-function">() =&gt;</span> Relay.QL<span class="hljs-string">`
+      fragment on User { profilePicture(size: $size) { ... } }
+    `</span>,
   },
 });
 </code></pre>
@@ -219,17 +219,17 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <p>If no request is in flight pendingVariables is <code>null</code>.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-6"></a><a href="#example-6" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css language-{12}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ProfilePicture</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  requestRandomPictureSize = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  requestRandomPictureSize = <span class="hljs-function">() =&gt;</span> {
     <span class="hljs-keyword">const</span> randIntMin = <span class="hljs-number">10</span>;
     <span class="hljs-keyword">const</span> randIntMax = <span class="hljs-number">200</span>;
     <span class="hljs-keyword">const</span> size = (<span class="hljs-built_in">Math</span>.floor(<span class="hljs-built_in">Math</span>.random() * (randIntMax - randIntMin + <span class="hljs-number">1</span>)) + randIntMin);
-    <span class="hljs-keyword">this</span>.props.relay.setVariables({size});
+    <span class="hljs-built_in">this</span>.props.relay.setVariables({size});
   }
 
-  render() {
-    <span class="hljs-keyword">const</span> {relay, user} = <span class="hljs-keyword">this</span>.props;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> {relay, user} = <span class="hljs-built_in">this</span>.props;
     <span class="hljs-keyword">const</span> {pendingVariables} = relay;
-    <span class="hljs-keyword">if</span> (pendingVariables &amp;&amp; <span class="hljs-string">'size'</span> <span class="hljs-keyword">in</span> pendingVariables) {
+    <span class="hljs-keyword">if</span> (pendingVariables &amp;&amp; <span class="hljs-string">&#x27;size&#x27;</span> <span class="hljs-keyword">in</span> pendingVariables) {
       <span class="hljs-comment">// Profile picture with new size is loading</span>
       <span class="hljs-keyword">return</span> (
         <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">View</span>&gt;</span>
@@ -254,7 +254,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <span class="hljs-built_in">module</span>.exports = Relay.createContainer(ProfilePicture, {
   <span class="hljs-attr">initialVariables</span>: {<span class="hljs-attr">size</span>: <span class="hljs-number">50</span>},
   <span class="hljs-attr">fragments</span>: {
-    <span class="hljs-attr">user</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+    <span class="hljs-attr">user</span>: <span class="hljs-function">() =&gt;</span> Relay.QL<span class="hljs-string">`
       fragment on User { profilePicture(size: $size) { ... } }
     `</span>,
   },
@@ -269,7 +269,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <p>An optional <code>onReadyStateChange</code> callback can be supplied to respond to the events involved with the data fulfillment.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-7"></a><a href="#example-7" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs css language-{12-15}"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Feed</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
         {this.props.viewer.feed.edges.map(
@@ -278,23 +278,23 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
       <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
     );
   }
-  _handleScrollLoad() {
+  <span class="hljs-function"><span class="hljs-title">_handleScrollLoad</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// Increments the number of stories being rendered by 10.</span>
-    <span class="hljs-keyword">this</span>.props.relay.setVariables({
-      <span class="hljs-attr">count</span>: <span class="hljs-keyword">this</span>.props.relay.variables.count + <span class="hljs-number">10</span>
+    <span class="hljs-built_in">this</span>.props.relay.setVariables({
+      <span class="hljs-attr">count</span>: <span class="hljs-built_in">this</span>.props.relay.variables.count + <span class="hljs-number">10</span>
     });
   }
 }
 <span class="hljs-built_in">module</span>.exports = Relay.createContainer(Feed, {
   <span class="hljs-attr">initialVariables</span>: {<span class="hljs-attr">count</span>: <span class="hljs-number">10</span>},
   <span class="hljs-attr">fragments</span>: {
-    <span class="hljs-attr">viewer</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+    <span class="hljs-attr">viewer</span>: <span class="hljs-function">() =&gt;</span> Relay.QL<span class="hljs-string">`
       fragment on Viewer {
         feed(first: $count) {
           edges {
             node {
               id,
-              <span class="hljs-subst">${Story.getFragment(<span class="hljs-string">'story'</span>)}</span>,
+              <span class="hljs-subst">${Story.getFragment(<span class="hljs-string">&#x27;story&#x27;</span>)}</span>,
             },
           },
         },
@@ -363,8 +363,8 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
           edges {
             node {
               id,
-              ${<span class="hljs-type">Story</span>.getFragment(<span class="hljs-symbol">'stor</span>y')},
-              ${<span class="hljs-type">PendingStory</span>.getFragment(<span class="hljs-symbol">'stor</span>y')}
+              ${<span class="hljs-type">Story</span>.getFragment(<span class="hljs-symbol">&#x27;stor</span>y&#x27;)},
+              ${<span class="hljs-type">PendingStory</span>.getFragment(<span class="hljs-symbol">&#x27;stor</span>y&#x27;)}
             }
           }
         }
@@ -382,14 +382,14 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <p>Each <code>RelayMutationTransaction</code> has methods to check the status of the mutation and provide ways to rollback or resend the mutation as needed.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-9"></a><a href="#example-9" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <pre><code class="hljs"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Story</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
-    <span class="hljs-keyword">var</span> story = <span class="hljs-keyword">this</span>.props.story;
-    <span class="hljs-keyword">var</span> transactions = <span class="hljs-keyword">this</span>.props.relay.getPendingTransactions(story);
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">var</span> story = <span class="hljs-built_in">this</span>.props.story;
+    <span class="hljs-keyword">var</span> transactions = <span class="hljs-built_in">this</span>.props.relay.getPendingTransactions(story);
     <span class="hljs-comment">// For this example, assume there is only one transaction.</span>
     <span class="hljs-keyword">var</span> transaction = transactions ? transactions[<span class="hljs-number">0</span>] : <span class="hljs-literal">null</span>;
     <span class="hljs-keyword">if</span> (transaction) {
       <span class="hljs-comment">// Display an error message with a retry link if a mutation failed.</span>
-      <span class="hljs-keyword">if</span> (transaction.getStatus() === <span class="hljs-string">'COMMIT_FAILED'</span>) {
+      <span class="hljs-keyword">if</span> (transaction.getStatus() === <span class="hljs-string">&#x27;COMMIT_FAILED&#x27;</span>) {
         <span class="hljs-keyword">return</span> (
           <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">span</span>&gt;</span>
             This story failed to post.
@@ -404,7 +404,7 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 
 <span class="hljs-built_in">module</span>.exports = Relay.createContainer(ProfilePicture, {
   <span class="hljs-attr">fragments</span>: {
-    <span class="hljs-attr">story</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+    <span class="hljs-attr">story</span>: <span class="hljs-function">() =&gt;</span> Relay.QL<span class="hljs-string">`
       fragment on story {
         # ...
       }
@@ -430,43 +430,43 @@ module.exports = <span class="hljs-type">Relay</span>.createContainer(<span clas
 <p>Gets a reference to a child container's fragment for inclusion in a parent fragment.</p>
 <h4><a class="anchor" aria-hidden="true" id="example-10"></a><a href="#example-10" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
 <p>Fragment composition is achieved via ES6 template string interpolation and <code>getFragment</code>:</p>
-<pre><code class="hljs css language-{6}"><span class="hljs-comment">// Parent.js</span>
-Relay.createContainer(Parent, {
-  <span class="hljs-attr">fragments</span>: {
-    <span class="hljs-attr">parentFragment</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+<pre><code class="hljs css language-{6}">// <span class="hljs-selector-tag">Parent</span><span class="hljs-selector-class">.js</span>
+<span class="hljs-selector-tag">Relay</span><span class="hljs-selector-class">.createContainer</span>(<span class="hljs-selector-tag">Parent</span>, {
+  <span class="hljs-attribute">fragments</span>: {
+    parentFragment: () =&gt; Relay.QL`
       fragment on Foo {
         id
-        <span class="hljs-subst">${Child.getFragment(<span class="hljs-string">'childFragment'</span>)}</span>
+        ${Child.<span class="hljs-built_in">getFragment</span>(<span class="hljs-string">&#x27;childFragment&#x27;</span>)}
       }
-    `</span>,
+    `,
   }
 });
-<span class="hljs-comment">// Child.js</span>
-Relay.createContainer(Child, {
-  <span class="hljs-attr">initialVariables</span>: {
-    <span class="hljs-attr">size</span>: <span class="hljs-number">64</span>,
+// <span class="hljs-selector-tag">Child</span><span class="hljs-selector-class">.js</span>
+<span class="hljs-selector-tag">Relay</span><span class="hljs-selector-class">.createContainer</span>(<span class="hljs-selector-tag">Child</span>, {
+  <span class="hljs-attribute">initialVariables</span>: {
+    size: <span class="hljs-number">64</span>,
   },
-  <span class="hljs-attr">fragments</span>: {
-    <span class="hljs-attr">childFragment</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+  <span class="hljs-selector-tag">fragments</span>: {
+    <span class="hljs-attribute">childFragment</span>: () =&gt; Relay.QL`
       fragment on Foo {
-        photo(size: $size) { uri }
+        <span class="hljs-built_in">photo</span>(size: $size) { uri }
       }
-    `</span>,
+    `,
   }
 });
 </code></pre>
 <p>In this example, whenever <code>Parent</code> is fetched, <code>Child</code>'s fragment will also be fetched. When rendering, <code>&lt;Parent&gt;</code> will only have access to the <code>props.foo.id</code> field;  data from the child fragment will be <a href="http://facebook.github.io/relay/docs/thinking-in-relay.html#data-masking"><em>masked</em></a>. By default, <code>childFragment</code> will use its corresponding initial variables. Relay will fetch <code>photo(size: 64)</code>. When <code>&lt;Child&gt;</code> is rendered it will also make the initial variables available as <code>props.relay.variables = {size: 64}</code>.</p>
 <h4><a class="anchor" aria-hidden="true" id="overriding-fragment-variables"></a><a href="#overriding-fragment-variables" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overriding Fragment Variables</h4>
 <p>Sometimes a parent needs to override the default variables of a child component. Imagine that we want to render <code>Child</code> above with a photo size of 128 instead of the default 64. To do this, we have to ensure that both the fragment <em>and</em> the container know about the custom variable. To set a custom variable in the <em>query</em>, use the second argument to <code>getFragment</code>:</p>
-<pre><code class="hljs css language-{6}"><span class="hljs-comment">// Parent.js</span>
-Relay.createContainer(Parent, {
-  <span class="hljs-attr">fragments</span>: {
-    <span class="hljs-attr">parentFragment</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> Relay.QL<span class="hljs-string">`
+<pre><code class="hljs css language-{6}">// <span class="hljs-selector-tag">Parent</span><span class="hljs-selector-class">.js</span>
+<span class="hljs-selector-tag">Relay</span><span class="hljs-selector-class">.createContainer</span>(<span class="hljs-selector-tag">Parent</span>, {
+  <span class="hljs-attribute">fragments</span>: {
+    parentFragment: () =&gt; Relay.QL`
       fragment on Foo {
         id
-        <span class="hljs-subst">${Child.getFragment(<span class="hljs-string">'childFragment'</span>, {size: <span class="hljs-number">128</span>}</span>)}
+        ${Child.<span class="hljs-built_in">getFragment</span>(<span class="hljs-string">&#x27;childFragment&#x27;</span>, {size: <span class="hljs-number">128</span>})}
       }
-    `</span>,
+    `,
   }
 });
 </code></pre>

@@ -27,7 +27,7 @@ provided on the <code>this.props.relay</code> prop that is passed to components 
 active <code>Relay.Environment</code>.</p>
 <h2><a class="anchor" aria-hidden="true" id="methods"></a><a href="#methods" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Methods</h2>
 <h3><a class="anchor" aria-hidden="true" id="commitupdate-static-method"></a><a href="#commitupdate-static-method" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>commitUpdate (static method)</h3>
-<pre><code class="hljs"><span class="hljs-keyword">static</span> commitUpdate(mutation: RelayMutation, callbacks: {
+<pre><code class="hljs"><span class="hljs-keyword">static</span> commitUpdate(mutation: RelayMutation, <span class="hljs-attr">callbacks</span>: {
   onFailure?: <span class="hljs-function">(<span class="hljs-params">transaction: RelayMutationTransaction</span>) =&gt;</span> <span class="hljs-built_in">void</span>;
   onSuccess?: <span class="hljs-function">(<span class="hljs-params">response: <span class="hljs-built_in">Object</span></span>) =&gt;</span> <span class="hljs-built_in">void</span>;
 }): RelayMutationTransaction
@@ -49,21 +49,21 @@ the mutation as follows:</p>
 </ul></li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs"><span class="hljs-keyword">var</span> onSuccess = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Mutation successful!'</span>);
+<pre><code class="hljs">var onSuccess =<span class="hljs-function"> <span class="hljs-params">()</span> =&gt;</span> {
+  console.log(&#x27;Mutation successful!&#x27;);
 };
-<span class="hljs-keyword">var</span> onFailure = <span class="hljs-function">(<span class="hljs-params">transaction</span>) =&gt;</span> {
-  <span class="hljs-keyword">var</span> error = transaction.getError() || <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Mutation failed.'</span>);
-  <span class="hljs-built_in">console</span>.error(error);
+var onFailure =<span class="hljs-function"> (<span class="hljs-params">transaction</span>) =&gt;</span> {
+  var error = transaction.get<span class="hljs-constructor">Error()</span><span class="hljs-operator"> || </span><span class="hljs-keyword">new</span> <span class="hljs-constructor">Error(&#x27;Mutation <span class="hljs-params">failed</span>.&#x27;)</span>;
+  console.error(error);
 };
-<span class="hljs-keyword">var</span> mutation = <span class="hljs-keyword">new</span> MyMutation({...});
+var mutation = <span class="hljs-keyword">new</span> <span class="hljs-constructor">MyMutation({<span class="hljs-operator">...</span>})</span>;
 
-Relay.Store.commitUpdate(mutation, {onFailure, onSuccess});
+<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Relay</span>.</span><span class="hljs-module"><span class="hljs-identifier">Store</span>.</span></span>commit<span class="hljs-constructor">Update(<span class="hljs-params">mutation</span>, {<span class="hljs-params">onFailure</span>, <span class="hljs-params">onSuccess</span>})</span>;
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="applyupdate-static-method"></a><a href="#applyupdate-static-method" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>applyUpdate (static method)</h3>
-<pre><code class="hljs"><span class="hljs-keyword">static</span> applyUpdate(<span class="hljs-string">mutation:</span> RelayMutation, <span class="hljs-string">callbacks:</span> {
-  onFailure?: (<span class="hljs-string">transaction:</span> RelayMutationTransaction) =&gt; <span class="hljs-keyword">void</span>;
-  onSuccess?: (<span class="hljs-string">response:</span> Object) =&gt; <span class="hljs-keyword">void</span>;
+<pre><code class="hljs">static applyUpdate(mutation: RelayMutation, callbacks: {
+  onFailure?: <span class="hljs-function"><span class="hljs-params">(transaction: RelayMutationTransaction)</span> =&gt;</span> <span class="hljs-keyword">void</span>;
+  onSuccess?: <span class="hljs-function"><span class="hljs-params">(response: <span class="hljs-built_in">Object</span>)</span> =&gt;</span> <span class="hljs-keyword">void</span>;
 }): RelayMutationTransaction
 </code></pre>
 <p>The <code>applyUpdate</code> adds a mutation just like <code>update</code>, but does not commit it. It returns a <code>RelayMutationTransaction</code> that can be committed or rollbacked.</p>
@@ -73,11 +73,11 @@ Relay.Store.commitUpdate(mutation, {onFailure, onSuccess});
 <li><code>onFailure</code> is called if the mutation failed.</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs"><span class="hljs-keyword">var</span> onSuccess = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
-  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Mutation successful!'</span>);
+<pre><code class="hljs"><span class="hljs-keyword">var</span> onSuccess = <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&#x27;Mutation successful!&#x27;</span>);
 };
 <span class="hljs-keyword">var</span> onFailure = <span class="hljs-function">(<span class="hljs-params">transaction</span>) =&gt;</span> {
-  <span class="hljs-keyword">var</span> error = transaction.getError() || <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Mutation failed.'</span>);
+  <span class="hljs-keyword">var</span> error = transaction.getError() || <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">&#x27;Mutation failed.&#x27;</span>);
   <span class="hljs-built_in">console</span>.error(error);
 };
 <span class="hljs-keyword">var</span> mutation = <span class="hljs-keyword">new</span> MyMutation({...});

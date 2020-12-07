@@ -13,7 +13,7 @@
   Network,
   RecordSource,
   Store,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-runtime&#x27;</span>);
 
 <span class="hljs-keyword">const</span> source = <span class="hljs-keyword">new</span> RecordSource();
 <span class="hljs-keyword">const</span> store = <span class="hljs-keyword">new</span> Store(source);
@@ -34,13 +34,13 @@
 <pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {
   ConnectionHandler,
   ViewerHandler,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-runtime&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">handlerProvider</span>(<span class="hljs-params">handle</span>) </span>{
   <span class="hljs-keyword">switch</span> (handle) {
     <span class="hljs-comment">// Augment (or remove from) this list:</span>
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'connection'</span>: <span class="hljs-keyword">return</span> ConnectionHandler;
-    <span class="hljs-keyword">case</span> <span class="hljs-string">'viewer'</span>: <span class="hljs-keyword">return</span> ViewerHandler;
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;connection&#x27;</span>: <span class="hljs-keyword">return</span> ConnectionHandler;
+    <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;viewer&#x27;</span>: <span class="hljs-keyword">return</span> ViewerHandler;
   }
   <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(
     <span class="hljs-string">`handlerProvider: No handler provided for <span class="hljs-subst">${handle}</span>`</span>

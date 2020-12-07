@@ -9,15 +9,15 @@
 <h2><a class="anchor" aria-hidden="true" id="fetching-data"></a><a href="#fetching-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fetching Data</h2>
 <p>Imagine we have a simple application that fetches a list of stories, and some details about each one. Here's how that might look in resource-oriented REST:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Fetch the list of story IDs but not their details:</span>
-rest.get(<span class="hljs-string">'/stories'</span>).then(<span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span>
+rest.get(<span class="hljs-string">&#x27;/stories&#x27;</span>).then(<span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span>
   <span class="hljs-comment">// This resolves to a list of items with linked resources:</span>
-  <span class="hljs-comment">// `[ { href: "http://.../story/1" }, ... ]`</span>
+  <span class="hljs-comment">// `[ { href: &quot;http://.../story/1&quot; }, ... ]`</span>
   <span class="hljs-built_in">Promise</span>.all(stories.map(<span class="hljs-function"><span class="hljs-params">story</span> =&gt;</span>
     rest.get(story.href) <span class="hljs-comment">// Follow the links</span>
   ))
 ).then(<span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span> {
   <span class="hljs-comment">// This resolves to a list of story items:</span>
-  <span class="hljs-comment">// `[ { id: "...", text: "..." } ]`</span>
+  <span class="hljs-comment">// `[ { id: &quot;...&quot;, text: &quot;...&quot; } ]`</span>
   <span class="hljs-built_in">console</span>.log(stories);
 });
 </code></pre>
@@ -25,7 +25,7 @@ rest.get(<span class="hljs-string">'/stories'</span>).then(<span class="hljs-fun
 <pre><code class="hljs css language-javascript">graphql.get(<span class="hljs-string">`query { stories { id, text } }`</span>).then(
   <span class="hljs-function"><span class="hljs-params">stories</span> =&gt;</span> {
     <span class="hljs-comment">// A list of story items:</span>
-    <span class="hljs-comment">// `[ { id: "...", text: "..." } ]`</span>
+    <span class="hljs-comment">// `[ { id: &quot;...&quot;, text: &quot;...&quot; } ]`</span>
     <span class="hljs-built_in">console</span>.log(stories);
   }
 );
@@ -62,14 +62,14 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 <pre><code class="hljs">query { stories { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
 </code></pre>
 <p>and then later refetch one of the stories whose <code>likeCount</code> has since been incremented:</p>
-<pre><code class="hljs">query { story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"123"</span>) { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
+<pre><code class="hljs">query { story(<span class="hljs-built_in">id</span>: <span class="hljs-string">&quot;123&quot;</span>) { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
 </code></pre>
 <p>We'll now see different <code>likeCount</code>s depending on how the story is accessed. A view that uses the first query will see an outdated count, while a view using the second query will see the updated count.</p>
 <h3><a class="anchor" aria-hidden="true" id="caching-a-graph"></a><a href="#caching-a-graph" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Caching A Graph</h3>
 <p>The solution to caching GraphQL is to normalize the hierarchical response into a flat collection of <strong>records</strong>. Relay implements this cache as a map from IDs to records. Each record is a map from field names to field values. Records may also link to other records (allowing it to describe a cyclic graph), and these links are stored as a special value type that references back into the top-level map. With this approach each server record is stored <em>once</em> regardless of how it is fetched.</p>
 <p>Here's an example query that fetches a story's text and its author's name:</p>
 <pre><code class="hljs">query {
-  story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"1"</span>) {
+  story(<span class="hljs-built_in">id</span>: <span class="hljs-string">&quot;1&quot;</span>) {
     <span class="hljs-built_in">text</span>,
     author {
       <span class="hljs-built_in">name</span>
@@ -80,23 +80,23 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 <p>And here's a possible response:</p>
 <pre><code class="hljs"><span class="hljs-symbol">query:</span> {
 <span class="hljs-symbol">  story:</span> {
-<span class="hljs-symbol">     text:</span> <span class="hljs-string">"Relay is open-source!"</span>,
+<span class="hljs-symbol">     text:</span> <span class="hljs-string">&quot;Relay is open-source!&quot;</span>,
 <span class="hljs-symbol">     author:</span> {
-<span class="hljs-symbol">       name:</span> <span class="hljs-string">"Jan"</span>
+<span class="hljs-symbol">       name:</span> <span class="hljs-string">&quot;Jan&quot;</span>
      }
   }
 }
 </code></pre>
 <p>Although the response is hierarchical, we'll cache it by flattening all the records. Here is an example of how Relay would cache this query response:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-built_in">Map</span> {
-  <span class="hljs-comment">// `story(id: "1")`</span>
+  <span class="hljs-comment">// `story(id: &quot;1&quot;)`</span>
   <span class="hljs-number">1</span>: <span class="hljs-built_in">Map</span> {
-    <span class="hljs-attr">text</span>: <span class="hljs-string">'Relay is open-source!'</span>,
+    <span class="hljs-attr">text</span>: <span class="hljs-string">&#x27;Relay is open-source!&#x27;</span>,
     <span class="hljs-attr">author</span>: Link(<span class="hljs-number">2</span>),
   },
   <span class="hljs-comment">// `story.author`</span>
   <span class="hljs-number">2</span>: <span class="hljs-built_in">Map</span> {
-    <span class="hljs-attr">name</span>: <span class="hljs-string">'Jan'</span>,
+    <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;Jan&#x27;</span>,
   },
 };
 </code></pre>
@@ -116,14 +116,14 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 </code></pre>
 <p>With a normalized response cache, a record would be created for each story in the list. The <code>stories</code> field would store links to each of these records.</p>
 <p>The second query refetched the information for one of those stories:</p>
-<pre><code class="hljs">query { story(<span class="hljs-built_in">id</span>: <span class="hljs-string">"123"</span>) { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
+<pre><code class="hljs">query { story(<span class="hljs-built_in">id</span>: <span class="hljs-string">&quot;123&quot;</span>) { <span class="hljs-built_in">id</span>, <span class="hljs-built_in">text</span>, likeCount } }
 </code></pre>
 <p>When this response is normalized, Relay can detect that this result overlaps with existing data based on its <code>id</code>. Rather than create a new record, Relay will update the existing <code>123</code> record. The new <code>likeCount</code> is therefore available to <em>both</em> queries, as well as any other query that might reference this story.</p>
 <h2><a class="anchor" aria-hidden="true" id="dataview-consistency"></a><a href="#dataview-consistency" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data/View Consistency</h2>
 <p>A normalized cache ensures that the <em>cache</em> is consistent. But what about our views? Ideally, our React views would always reflect the current information from the cache.</p>
 <p>Consider rendering the text and comments of a story along with the corresponding author names and photos. Here's the GraphQL query:</p>
 <pre><code class="hljs">query {
-  <span class="hljs-type">node</span><span class="hljs-built_in">(id</span>: <span class="hljs-string">"1"</span>) {
+  <span class="hljs-type">node</span><span class="hljs-built_in">(id</span>: <span class="hljs-string">&quot;1&quot;</span>) {
     <span class="hljs-type">text</span>,
     author {<span class="hljs-built_in"> name</span>, photo },
     comments {
@@ -137,20 +137,20 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 <pre><code class="hljs"><span class="hljs-comment">// <span class="hljs-doctag">Note:</span> This is pseudo-code for `Map` initialization to make the structure</span>
 <span class="hljs-comment">// more obvious.</span>
 <span class="hljs-selector-tag">Map</span> {
-  <span class="hljs-comment">// `story(id: "1")`</span>
+  <span class="hljs-comment">// `story(id: &quot;1&quot;)`</span>
   <span class="hljs-attribute">1</span>: Map {
-    <span class="hljs-attribute">text</span>: <span class="hljs-string">'got GraphQL?'</span>,
+    <span class="hljs-attribute">text</span>: <span class="hljs-string">&#x27;got GraphQL?&#x27;</span>,
     <span class="hljs-attribute">author</span>: Link(<span class="hljs-number">2</span>),
     <span class="hljs-attribute">comments</span>: [Link(<span class="hljs-number">3</span>)],
   },
   <span class="hljs-comment">// `story.author`</span>
   <span class="hljs-attribute">2</span>: Map {
-    <span class="hljs-attribute">name</span>: <span class="hljs-string">'Yuzhi'</span>,
-    <span class="hljs-attribute">photo</span>: <span class="hljs-string">'http://.../photo1.jpg'</span>,
+    <span class="hljs-attribute">name</span>: <span class="hljs-string">&#x27;Yuzhi&#x27;</span>,
+    <span class="hljs-attribute">photo</span>: <span class="hljs-string">&#x27;http://.../photo1.jpg&#x27;</span>,
   },
   <span class="hljs-comment">// `story.comments[0]`</span>
   <span class="hljs-attribute">3</span>: Map {
-    <span class="hljs-attribute">text</span>: <span class="hljs-string">'Here\'</span>s how to get one!',
+    <span class="hljs-attribute">text</span>: <span class="hljs-string">&#x27;Here\&#x27;</span>s how to get one!&#x27;,
     <span class="hljs-attribute">author</span>: Link(<span class="hljs-number">2</span>),
   },
 }
@@ -160,7 +160,7 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
   <span class="hljs-params">...</span>
   <span class="hljs-number">2</span>: <span class="hljs-built_in">Map</span> {
     <span class="hljs-params">...</span>
-    photo: <span class="hljs-string">'http://.../photo2.jpg'</span>,
+    photo: <span class="hljs-string">&#x27;http://.../photo2.jpg&#x27;</span>,
   },
 }
 </code></pre>
@@ -170,7 +170,7 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
   <span class="hljs-attribute">1</span>: ImmutableMap {<span class="hljs-comment">/* same as before */</span>}
   <span class="hljs-attribute">2</span>: ImmutableMap {
     ... <span class="hljs-comment">// other fields unchanged</span>
-    <span class="hljs-attribute">photo</span>: <span class="hljs-string">'http://.../photo2.jpg'</span>,
+    <span class="hljs-attribute">photo</span>: <span class="hljs-string">&#x27;http://.../photo2.jpg&#x27;</span>,
   },
   <span class="hljs-attribute">3</span>: ImmutableMap {<span class="hljs-comment">/* same as before */</span>}
 }
@@ -183,9 +183,9 @@ graphql.get = <span class="hljs-function"><span class="hljs-params">queryText</s
 <p>So far we've looked at the process of querying data and keeping views up to date, but we haven't looked at writes. In GraphQL, writes are called <strong>mutations</strong>. We can think of them as queries with side effects. Here's an example of calling a mutation that might mark a given story as being liked by the current user:</p>
 <pre><code class="hljs"><span class="hljs-comment">// Give a human-readable name and define the types of the inputs,</span>
 <span class="hljs-comment">// in this case the id of the story to mark as liked.</span>
-mutation <span class="hljs-constructor">StoryLike($<span class="hljs-params">storyID</span>: String)</span> {
+mutation <span class="hljs-function"><span class="hljs-title">StoryLike</span>(<span class="hljs-params">$storyID: <span class="hljs-built_in">String</span></span>)</span> {
    <span class="hljs-comment">// Call the mutation field and trigger its side effects</span>
-   story<span class="hljs-constructor">Like(<span class="hljs-params">storyID</span>: $<span class="hljs-params">storyID</span>)</span> {
+   <span class="hljs-function"><span class="hljs-title">storyLike</span>(<span class="hljs-params">storyID: $storyID</span>)</span> {
      <span class="hljs-comment">// Define fields to re-fetch after the mutation completes</span>
      likeCount
    }

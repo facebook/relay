@@ -22,7 +22,7 @@
 }
 </code></pre>
 <p>And this fragment can then be used to define the Story container:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {createFragmentContainer, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {createFragmentContainer, graphql} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay&#x27;</span>);
 
 <span class="hljs-comment">// Plain React component.</span>
 <span class="hljs-comment">// Usage: `&lt;Story story={ ... } /&gt;`</span>
@@ -54,7 +54,7 @@
       }
     `}
     <span class="hljs-attr">variables</span>=<span class="hljs-string">{{</span>
-      <span class="hljs-attr">storyID:</span> '<span class="hljs-attr">123</span>',
+      <span class="hljs-attr">storyID:</span> &#x27;<span class="hljs-attr">123</span>&#x27;,
     }}
     <span class="hljs-attr">render</span>=<span class="hljs-string">{(props,</span> <span class="hljs-attr">error</span>) {
       <span class="hljs-attr">if</span> (<span class="hljs-attr">error</span>) {

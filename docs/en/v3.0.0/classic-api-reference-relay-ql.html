@@ -6,8 +6,8 @@
         });
         </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>v3.0.0</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/v3.0.0/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Classic-APIReference-QL.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Relay.QL</h1></header><article><div><span><p>Relay fragments, mutations, and queries must be specified using ES6 template literals tagged with <code>Relay.QL</code>. For example:</p>
 <pre><code class="hljs">var fragment = Relay.QL`
-  fragment on<span class="hljs-built_in"> User </span>{
-    name
+  fragment <span class="hljs-keyword">on</span> User {
+    <span class="hljs-built_in">name</span>
   }
 `;
 </code></pre>
@@ -44,7 +44,7 @@
   <span class="hljs-attribute">fragments</span>: {
     bar: () =&gt; Relay.QL`
       fragment on Bar {
-        ${ChildComponent.<span class="hljs-built_in">getFragment</span>(<span class="hljs-string">'childFragmentName'</span>)},
+        ${ChildComponent.<span class="hljs-built_in">getFragment</span>(<span class="hljs-string">&#x27;childFragmentName&#x27;</span>)},
       }
     `,
   }
@@ -52,35 +52,35 @@
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="inline-fragments"></a><a href="#inline-fragments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Inline Fragments</h3>
 <p>Fragments may also compose other fragments that are assigned to local variables:</p>
-<pre><code class="hljs css language-{3-7,14,21}"><span class="hljs-meta">//</span> <span class="hljs-string">An inline fragment - useful in small quantities, but best not to share</span>
-<span class="hljs-meta">//</span> <span class="hljs-string">between modules.</span>
-<span class="hljs-attr">var</span> <span class="hljs-string">userFragment = Relay.QL`</span>
-  <span class="hljs-attr">fragment</span> <span class="hljs-string">on User {</span>
-    <span class="hljs-attr">name,</span>
-  <span class="hljs-attr">}</span>
-<span class="hljs-attr">`;</span>
-<span class="hljs-meta">Relay.createContainer(Story,</span> <span class="hljs-string">{</span>
-  <span class="hljs-attr">fragments</span>: <span class="hljs-string">{</span>
-    <span class="hljs-attr">bar</span>: <span class="hljs-string">() =&gt; Relay.QL`</span>
-      <span class="hljs-attr">fragment</span> <span class="hljs-string">on Story {</span>
-        <span class="hljs-attr">author</span> <span class="hljs-string">{</span>
-<span class="hljs-comment">          # Fetch the same information about the story's author ...</span>
-          <span class="hljs-attr">${userFragment},</span>
-        <span class="hljs-attr">},</span>
-        <span class="hljs-attr">comments</span> <span class="hljs-string">{</span>
-          <span class="hljs-attr">edges</span> <span class="hljs-string">{</span>
-            <span class="hljs-attr">node</span> <span class="hljs-string">{</span>
-              <span class="hljs-attr">author</span> <span class="hljs-string">{</span>
-<span class="hljs-comment">                # ... and the authors of the comments.</span>
-                <span class="hljs-attr">${userFragment},</span>
-              <span class="hljs-attr">},</span>
-            <span class="hljs-attr">},</span>
-          <span class="hljs-attr">},</span>
-        <span class="hljs-attr">},</span>
-      <span class="hljs-attr">}</span>
-    <span class="hljs-attr">`,</span>
-  <span class="hljs-attr">}</span>
-<span class="hljs-attr">});</span>
+<pre><code class="hljs css language-{3-7,14,21}">// An inline <span class="hljs-keyword">fragment</span> - useful <span class="hljs-keyword">in</span> small quantities, but best not <span class="hljs-keyword">to</span> share
+// between modules.
+var <span class="hljs-keyword">user</span>Fragment = Relay.QL`
+  <span class="hljs-keyword">fragment</span> <span class="hljs-keyword">on</span> User {
+    name,
+  }
+`;
+Relay.createContainer(Story, {
+  fragments: {
+    bar: () =&gt; Relay.QL`
+      <span class="hljs-keyword">fragment</span> <span class="hljs-keyword">on</span> Story {
+        author {
+          <span class="hljs-comment"># Fetch the same information about the story&#x27;s author ...</span>
+          ${<span class="hljs-keyword">user</span>Fragment},
+        },
+        comments {
+          edges {
+            node {
+              author {
+                <span class="hljs-comment"># ... and the authors of the comments.</span>
+                ${<span class="hljs-keyword">user</span>Fragment},
+              },
+            },
+          },
+        },
+      }
+    `,
+  }
+});
 </code></pre>
 <p>Note that it is <em>highly</em> recommended that <code>Relay.Container</code>s define their own fragments and avoid sharing inline <code>var fragment = Relay.QL...</code> values between containers or files. If you find yourself wanting to share inline fragments, it's likely a sign that it's time to refactor and introduce a new container.</p>
 <h3><a class="anchor" aria-hidden="true" id="conditional-fields"></a><a href="#conditional-fields" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Conditional fields</h3>

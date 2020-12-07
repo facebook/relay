@@ -6,7 +6,7 @@
         });
         </script><script src="/js/scrollSpy.js"></script><link rel="stylesheet" href="/css/main.css"/><script src="/js/codetabs.js"></script></head><body class="sideNavVisible separateOnPageNav"><div class="fixedHeaderContainer"><div class="headerWrapper wrapper"><header><a href="/en"><h2 class="headerTitle">Relay</h2></a><a href="/en/versions"><h3>classic</h3></a><div class="navigationWrapper navigationSlider"><nav class="slidingNav"><ul class="nav-site nav-site-internal"><li class=""><a href="/docs/en/classic/introduction-to-relay" target="_self">Docs</a></li><li class=""><a href="/en/help" target="_self">Help</a></li><li class="navSearchWrapper reactNavSearchWrapper"><input type="text" id="search_input_react" placeholder="Search" title="Search"/></li><li class=""><a href="https://github.com/facebook/relay" target="_self">GitHub</a></li><li class=""><a target="_self"></a></li></ul></nav></div></header></div></div><div class="navPusher"><div class="docMainWrapper wrapper"><div class="container mainContainer docsContainer"><div class="wrapper"><div class="post"><header class="postHeader"><a class="edit-page-link button" href="https://github.com/facebook/relay/edit/master/docs/Modern-NetworkLayer.md" target="_blank" rel="noreferrer noopener">Edit</a><h1 id="__docusaurus" class="postHeaderTitle">Network Layer</h1></header><article><div><span><p>In order to know how to access your GraphQL server, Relay Modern requires developers to provide an object implementing the <code>NetworkLayer</code> interface when creating an instance of a <a href="relay-environment.html">Relay Environment</a>. The environment uses this network layer to execute queries, mutations, and (if your server supports them) subscriptions. This allows developers to use whatever transport (HTTP, WebSockets, etc) and authentication is most appropriate for their application, decoupling the environment from the particulars of each application's network configuration.</p>
 <p>Currently the easiest way to create a network layer is via a helper from the <code>relay-runtime</code> package:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {Environment, Network} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-runtime'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {Environment, Network} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-runtime&#x27;</span>);
 
 <span class="hljs-comment">// Define a function that fetches the results of an operation (query/mutation/etc)</span>
 <span class="hljs-comment">// and returns its results as a Promise:</span>
@@ -16,11 +16,11 @@
   cacheConfig,
   uploadables,
 </span>) </span>{
-  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">'/graphql'</span>, {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">&#x27;/graphql&#x27;</span>, {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
     <span class="hljs-attr">headers</span>: {
       <span class="hljs-comment">// Add authentication and other headers here</span>
-      <span class="hljs-string">'content-type'</span>: <span class="hljs-string">'application/json'</span>
+      <span class="hljs-string">&#x27;content-type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>
     },
     <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify({
       <span class="hljs-attr">query</span>: operation.text, <span class="hljs-comment">// GraphQL text from input</span>

@@ -10,8 +10,8 @@
 <p>With some additional configuration, the <code>&quot;relay&quot;</code> babel plugin can also translate
 Relay Classic <code>Relay.QL</code> literals. Most importantly, include a reference to your GraphQL Schema as either a json file or graphql schema file.</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"plugins"</span>: [
-    [<span class="hljs-string">"relay"</span>, {<span class="hljs-string">"schema"</span>: <span class="hljs-string">"path/schema.graphql"</span>}]
+  <span class="hljs-string">&quot;plugins&quot;</span>: [
+    [<span class="hljs-string">&quot;relay&quot;</span>, {<span class="hljs-string">&quot;schema&quot;</span>: <span class="hljs-string">&quot;path/schema.graphql&quot;</span>}]
   ]
 }
 </code></pre>
@@ -20,8 +20,8 @@ Relay Classic <code>Relay.QL</code> literals. Most importantly, include a refere
 literals can be translated to be usable by <em>both</em> runtimes if configured to use
 compatibility mode:</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"plugins"</span>: [
-    [<span class="hljs-string">"relay"</span>, {<span class="hljs-string">"compat"</span>: <span class="hljs-literal">true</span>, <span class="hljs-string">"schema"</span>: <span class="hljs-string">"path/schema.graphql"</span>}]
+  <span class="hljs-string">&quot;plugins&quot;</span>: [
+    [<span class="hljs-string">&quot;relay&quot;</span>, {<span class="hljs-string">&quot;compat&quot;</span>: <span class="hljs-literal">true</span>, <span class="hljs-string">&quot;schema&quot;</span>: <span class="hljs-string">&quot;path/schema.graphql&quot;</span>}]
   ]
 }
 </code></pre>
@@ -31,10 +31,10 @@ catch and log any detected GraphQL validation errors, leaving those errors to be
 thrown at runtime.</p>
 <p>When compiling code for production deployment, the plugin can be configured to immediately throw upon encountering a validation problem. The plugin can be further customized for different environments with the following options:</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-string">"plugins"</span>: [
-    [<span class="hljs-string">"relay"</span>, {
-      <span class="hljs-string">"compat"</span>: <span class="hljs-literal">true</span>,
-      <span class="hljs-string">"schema"</span>: <span class="hljs-string">"path/schema.graphql"</span>,
+  <span class="hljs-string">&quot;plugins&quot;</span>: [
+    [<span class="hljs-string">&quot;relay&quot;</span>, {
+      <span class="hljs-string">&quot;compat&quot;</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-string">&quot;schema&quot;</span>: <span class="hljs-string">&quot;path/schema.graphql&quot;</span>,
     }]
   ]
 }

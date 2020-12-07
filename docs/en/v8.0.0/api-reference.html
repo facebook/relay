@@ -24,9 +24,9 @@
 <hr>
 <h3><a class="anchor" aria-hidden="true" id="relayenvironmentprovider"></a><a href="#relayenvironmentprovider" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>RelayEnvironmentProvider</code></h3>
 <p>This component is used set a Relay environment in React Context. Usually, a <em>single</em> instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {RelayEnvironmentProvider} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {RelayEnvironmentProvider} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Root</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
@@ -48,14 +48,14 @@
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="userelayenvironment"></a><a href="#userelayenvironment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useRelayEnvironment</code></h3>
 <p>Hook used to access a Relay environment that was set by a <a href="#relayenvironmentprovider"><code>RelayEnvironmentProvider</code></a>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MyComponent</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> environment = useRelayEnvironment();
 
-  <span class="hljs-keyword">const</span> handler = useCallback(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> handler = useCallback(<span class="hljs-function">() =&gt;</span> {
     <span class="hljs-comment">// For example, can be used to pass the environment to functions</span>
     <span class="hljs-comment">// that require a Relay environment.</span>
     commitMutation(environment, ...);
@@ -69,49 +69,49 @@
 <h3><a class="anchor" aria-hidden="true" id="usequeryloader"></a><a href="#usequeryloader" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useQueryLoader</code></h3>
 <p>Hook used to make it easy to safely load queries, while avoiding data leaking into the Relay store. It will keep a query reference stored in state, and dispose of it when it is no longer accessible via state.</p>
 <p>This hook is designed to be used with <a href="#usepreloadedquery"><code>usePreloadedQuery</code></a> to implement the <a href="https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense">“render-as-you-fetch”</a> pattern.</p>
-<pre><code class="hljs css language-javascript">const React = require('React');
-const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useQueryLoader, usePreloadedQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-const query = graphql`
+<span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`
   query AppQuery($id: ID!) {
     user(id: $id) {
       name
     }
   }
-`;
+`</span>;
 
-function QueryFetcherExample(): React.MixedElement {
-  const [
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">QueryFetcherExample</span>(<span class="hljs-params"></span>): <span class="hljs-title">React</span>.<span class="hljs-title">MixedElement</span> </span>{
+  <span class="hljs-keyword">const</span> [
     queryReference,
     loadQuery,
     disposeQuery,
   ] = useQueryLoader(query);
 
-  return (&lt;&gt;
+  <span class="hljs-keyword">return</span> (<span class="xml"><span class="hljs-tag">&lt;&gt;</span>
     {
-      queryReference == null &amp;&amp; (&lt;Button
-        onClick={() =&gt; loadQuery({})}
+      queryReference == null &amp;&amp; (<span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+        <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> loadQuery({})}
       &gt;
         Click to reveal the name
-      &lt;/Button&gt;)
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>)
     }
     {
-      queryReference != null &amp;&amp; (&lt;&gt;
-        &lt;Button onClick={disposeQuery}&gt;
+      queryReference != null &amp;&amp; (<span class="hljs-tag">&lt;&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{disposeQuery}</span>&gt;</span>
           Click to hide the name and dispose the query.
-        &lt;/Button&gt;
-        &lt;React.Suspense fallback="Loading"&gt;
-          &lt;NameDisplay queryReference={queryReference} /&gt;
-        &lt;/React.Suspense&gt;
-      &lt;/&gt;)
+        <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">React.Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">&quot;Loading&quot;</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">NameDisplay</span> <span class="hljs-attr">queryReference</span>=<span class="hljs-string">{queryReference}</span> /&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">React.Suspense</span>&gt;</span>
+      <span class="hljs-tag">&lt;/&gt;</span></span>)
     }
   &lt;/&gt;);
 }
 
-function NameDisplay({ queryReference }) {
-  const data = usePreloadedQuery&lt;AppQuery&gt;(query, queryReference);
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">NameDisplay</span>(<span class="hljs-params">{ queryReference }</span>) </span>{
+  <span class="hljs-keyword">const</span> data = usePreloadedQuery&lt;AppQuery&gt;(query, queryReference);
 
-  return &lt;h1&gt;{data.user?.name}&lt;/h1&gt;;
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>;
 }
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="arguments"></a><a href="#arguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
@@ -162,49 +162,49 @@ function NameDisplay({ queryReference }) {
 <li>Then, in your render method, consume the query reference with <code>usePreloadedQuery()</code>. This call will suspend if the query is still pending, throw an error if it failed, and otherwise return the query results.</li>
 <li>This pattern is encouraged over <code>useLazyLoadQuery()</code> as it can allow fetching data earlier while not blocking rendering.</li>
 </ul>
-<pre><code class="hljs css language-javascript">const React = require('React');
-const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useQueryLoader, usePreloadedQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-const query = graphql`
+<span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`
   query AppQuery($id: ID!) {
     user(id: $id) {
       name
     }
   }
-`;
+`</span>;
 
-function QueryFetcherExample(): React.MixedElement {
-  const [
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">QueryFetcherExample</span>(<span class="hljs-params"></span>): <span class="hljs-title">React</span>.<span class="hljs-title">MixedElement</span> </span>{
+  <span class="hljs-keyword">const</span> [
     queryReference,
     loadQuery,
     disposeQuery,
   ] = useQueryLoader(query);
 
-  return (&lt;&gt;
+  <span class="hljs-keyword">return</span> (<span class="xml"><span class="hljs-tag">&lt;&gt;</span>
     {
-      queryReference == null &amp;&amp; (&lt;Button
-        onClick={() =&gt; loadQuery({})}
+      queryReference == null &amp;&amp; (<span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+        <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> loadQuery({})}
       &gt;
         Click to reveal the name
-      &lt;/Button&gt;)
+      <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>)
     }
     {
-      queryReference != null &amp;&amp; (&lt;&gt;
-        &lt;Button onClick={disposeQuery}&gt;
+      queryReference != null &amp;&amp; (<span class="hljs-tag">&lt;&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{disposeQuery}</span>&gt;</span>
           Click to hide the name and dispose the query.
-        &lt;/Button&gt;
-        &lt;React.Suspense fallback="Loading"&gt;
-          &lt;NameDisplay queryReference={queryReference} /&gt;
-        &lt;/React.Suspense&gt;
-      &lt;/&gt;)
+        <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-name">React.Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">&quot;Loading&quot;</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">NameDisplay</span> <span class="hljs-attr">queryReference</span>=<span class="hljs-string">{queryReference}</span> /&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-name">React.Suspense</span>&gt;</span>
+      <span class="hljs-tag">&lt;/&gt;</span></span>)
     }
   &lt;/&gt;);
 }
 
-function NameDisplay({ queryReference }) {
-  const data = usePreloadedQuery&lt;AppQuery&gt;(query, queryReference);
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">NameDisplay</span>(<span class="hljs-params">{ queryReference }</span>) </span>{
+  <span class="hljs-keyword">const</span> data = usePreloadedQuery&lt;AppQuery&gt;(query, queryReference);
 
-  return &lt;h1&gt;{data.user?.name}&lt;/h1&gt;;
+  <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>;
 }
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="arguments-1"></a><a href="#arguments-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h4>
@@ -234,11 +234,11 @@ function NameDisplay({ queryReference }) {
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="uselazyloadquery"></a><a href="#uselazyloadquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useLazyLoadQuery</code></h3>
 <p>Hook used to fetch a GraphQL query <em>during</em> render. This hook can trigger multiple round trips, thereby degrading performance. Instead, prefer <a href="#usequeryloader"><code>useQueryLoader()</code></a> and <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> instead.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useLazyLoadQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> data = useLazyLoadQuery&lt;AppQuery&gt;(
@@ -250,7 +250,7 @@ function NameDisplay({ queryReference }) {
       }
     `</span>,
     {<span class="hljs-attr">id</span>: <span class="hljs-number">4</span>},
-    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+    {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>},
   );
 
   <span class="hljs-keyword">return</span> <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span></span>;
@@ -306,11 +306,11 @@ function NameDisplay({ queryReference }) {
 <li><code>useLazyLoadQuery</code> has better type safety guarantees for the data it returns, which was not possible with QueryRenderer since we couldn't parametrize the type of the data with a renderer api.</li>
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="usefragment"></a><a href="#usefragment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useFragment</code></h3>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'UserComponent_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {UserComponent_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;UserComponent_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: UserComponent_user$key,
@@ -364,14 +364,14 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="userefetchablefragment"></a><a href="#userefetchablefragment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useRefetchableFragment</code></h3>
 <p>You can use <code>useRefetchableFragment</code> when you want to fetch and re-render a fragment with different data:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentBodyRefetchQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'CommentBodyRefetchQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {CommentBody_comment$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'CommentBody_comment.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {CommentBodyRefetchQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CommentBodyRefetchQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {CommentBody_comment$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;CommentBody_comment.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {useTransition} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
 <span class="hljs-comment">// RN or WWW:</span>
-<span class="hljs-keyword">const</span> {graphql, useRefetchableFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, useRefetchableFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 
 type Props = {|
@@ -383,7 +383,7 @@ type Props = {|
   <span class="hljs-keyword">const</span> [data, refetch] = useRefetchableFragment&lt;CommentBodyRefetchQuery, _&gt;(
     graphql<span class="hljs-string">`
       fragment CommentBody_comment on Comment
-      @refetchable(queryName: "CommentBodyRefetchQuery") {
+      @refetchable(queryName: &quot;CommentBodyRefetchQuery&quot;) {
         body(lang: $lang) {
           text
         }
@@ -398,7 +398,7 @@ type Props = {|
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
           startTransition(() =&gt; {
-            refetch({lang: 'SPANISH'}, {fetchPolicy: 'store-or-network'})}
+            refetch({lang: &#x27;SPANISH&#x27;}, {fetchPolicy: &#x27;store-or-network&#x27;})}
           });
         }&gt;
         Translate Comment
@@ -479,12 +479,12 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="usepaginationfragment"></a><a href="#usepaginationfragment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>usePaginationFragment</code></h3>
 <p>You can use <code>usePaginationFragment</code> to render a fragment that uses a <code>@connection</code> and paginate over it:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsListPaginationQuery.graphql'</span>;
-<span class="hljs-keyword">import</span> type {FriendsList_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">'FriendsList_user.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FriendsListPaginationQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsListPaginationQuery.graphql&#x27;</span>;
+<span class="hljs-keyword">import</span> type {FriendsList_user$key} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FriendsList_user.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
 
-<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {graphql, usePaginationFragment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 type Props = {|
   user: FriendsList_user$key,
@@ -503,10 +503,10 @@ type Props = {|
   } = usePaginationFragment&lt;FriendsListPaginationQuery, _&gt;(
     graphql<span class="hljs-string">`
       fragment FriendsListComponent_user on User
-      @refetchable(queryName: "FriendsListPaginationQuery") {
+      @refetchable(queryName: &quot;FriendsListPaginationQuery&quot;) {
         name
         friends(first: $count, after: $cursor)
-        @connection(key: "FriendsList_user_friends") {
+        @connection(key: &quot;FriendsList_user_friends&quot;) {
           edges {
             node {
               name
@@ -671,10 +671,10 @@ type Props = {|
 <p>In the meantime, see our <strong><a href="a-guided-tour-of-relay#blocking-all-at-once-pagination">Blocking (&quot;all-at-once&quot;) Pagination Guide</a></strong>.</p>
 <h3><a class="anchor" aria-hidden="true" id="usemutation"></a><a href="#usemutation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useMutation</code></h3>
 <p>You can use <code>useMutation</code> to execute a mutation in a React component.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FeedbackLikeMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'FeedbackLikeMutation.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {FeedbackLikeMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;FeedbackLikeMutation.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {graphql, useMutation} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">LikeButton</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">const</span> [commit, isInFlight] = useMutation&lt;FeedbackLikeMutation&gt;(graphql<span class="hljs-string">`
@@ -697,8 +697,8 @@ type Props = {|
         commit({
           variables: {
             input: {
-              id: '123',
-              text: 'text',
+              id: &#x27;123&#x27;,
+              text: &#x27;text&#x27;,
             },
           },
           onCompleted(data) {
@@ -747,14 +747,14 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="usesubscription"></a><a href="#usesubscription" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>useSubscription</code></h3>
 <p>Hook used to subscribe and unsubscribe to a subscription.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql, useSubscription} <span class="hljs-keyword">from</span> <span class="hljs-string">'RelayHooks'</span>;
-<span class="hljs-keyword">import</span> {useMemo} <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {graphql, useSubscription} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;RelayHooks&#x27;</span>;
+<span class="hljs-keyword">import</span> {useMemo} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
 
 <span class="hljs-keyword">const</span> subscription = graphql<span class="hljs-string">`subscription ...`</span>;
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MyFunctionalComponent</span>(<span class="hljs-params">{ id }</span>) </span>{
   <span class="hljs-comment">// IMPORTANT: your config should be memoized, or at least not re-computed</span>
   <span class="hljs-comment">// every render. Otherwise, useSubscription will re-render too frequently.</span>
-  <span class="hljs-keyword">const</span> config = useMemo(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> { <span class="hljs-attr">variables</span>: { id }, subscription }, [id]);
+  <span class="hljs-keyword">const</span> config = useMemo(<span class="hljs-function">() =&gt;</span> { <span class="hljs-attr">variables</span>: { id }, subscription }, [id]);
   useSubscription(config);
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>Move Fast<span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
@@ -775,8 +775,8 @@ type Props = {|
 <h3><a class="anchor" aria-hidden="true" id="loadquery"></a><a href="#loadquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>loadQuery</code></h3>
 <p>This function is designed to be used with the <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> hook to implement the &quot;render-as-you-fetch&quot;.</p>
 <p>Query references returned from <code>loadQuery</code> will leak data into the Relay store if <code>.dispose()</code> is not called on them once they are no longer referenced. <em>As such, prefer calling <a href="#usequeryloader"><code>useQueryLoader</code></a> when possible</em>, which ensures that query references are disposed for you.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">'React'</span>);
-<span class="hljs-keyword">const</span> {loadQuery, useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> React = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;React&#x27;</span>);
+<span class="hljs-keyword">const</span> {loadQuery, useRelayEnvironment} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 <span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`
   query AppQuery($id: ID!) {
@@ -788,12 +788,12 @@ type Props = {|
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MyComponent</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-comment">// Do not call this during render</span>
-  <span class="hljs-keyword">const</span> onClick = React.useCallback(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> onClick = React.useCallback(<span class="hljs-function">() =&gt;</span> {
     <span class="hljs-keyword">const</span> queryReference = loadQuery(
       RelayFBEnvironment,
       query,
-      {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
-      {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+      {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
+      {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>},
     );
 
     processQuery(queryQeference);
@@ -839,9 +839,9 @@ type Props = {|
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="preloadquery_deprecated"></a><a href="#preloadquery_deprecated" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>preloadQuery_DEPRECATED</code></h3>
 <p>This function is designed to be used with the <code>usePreloadedQuery()</code> hook to implement the &quot;render-as-you-fetch&quot; pattern in conjunction with <code>usePreloadedQuery</code>. See the <a href="#usepreloadedquery"><code>usePreloadedQuery()</code></a> docs for a more complete example.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql, preloadQuery_DEPRECATED} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> {graphql, preloadQuery_DEPRECATED} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
-<span class="hljs-keyword">const</span> AppEnvironment = <span class="hljs-built_in">require</span>(<span class="hljs-string">'./AppEnvironment'</span>); <span class="hljs-comment">// user-defined</span>
+<span class="hljs-keyword">const</span> AppEnvironment = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;./AppEnvironment&#x27;</span>); <span class="hljs-comment">// user-defined</span>
 
 <span class="hljs-keyword">const</span> query = graphql<span class="hljs-string">`
   query AppQuery($id: ID!) {
@@ -854,8 +854,8 @@ type Props = {|
 <span class="hljs-keyword">const</span> result = preloadQuery_DEPRECATED(
   AppEnvironment,
   query,
-  {<span class="hljs-attr">id</span>: <span class="hljs-string">'4'</span>},
-  {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">'store-or-network'</span>},
+  {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
+  {<span class="hljs-attr">fetchPolicy</span>: <span class="hljs-string">&#x27;store-or-network&#x27;</span>},
 );
 
 <span class="hljs-comment">// later: pass result to usePreloadedQuery()</span>
@@ -885,9 +885,9 @@ type Props = {|
 <p>The exact format of the return value is <em>unstable and highly likely to change</em>. We strongly recommend not inspecting the contents in your code, as such code would be highly likely to break when upgrading to future versions of Relay. Instead, pass the result of <code>preloadQuery_DEPRECATED()</code> to <code>usePreloadedQuery()</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="fetchquery"></a><a href="#fetchquery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>fetchQuery</code></h3>
 <p>If you want to fetch a query outside of React, you can use the <strong><code>fetchQuery</code></strong> function from <code>react-relay/hooks</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">'AppQuery.graphql'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> type {AppQuery} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;AppQuery.graphql&#x27;</span>;
 
-<span class="hljs-keyword">const</span> {fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'react-relay/hooks'</span>);
+<span class="hljs-keyword">const</span> {fetchQuery} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>);
 
 fetchQuery&lt;AppQuery&gt;(
   environment,
@@ -901,8 +901,8 @@ fetchQuery&lt;AppQuery&gt;(
   {<span class="hljs-attr">id</span>: <span class="hljs-number">4</span>},
 )
 .subscribe({
-  <span class="hljs-attr">start</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {...},
-  <span class="hljs-attr">complete</span>: <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {...},
+  <span class="hljs-attr">start</span>: <span class="hljs-function">() =&gt;</span> {...},
+  <span class="hljs-attr">complete</span>: <span class="hljs-function">() =&gt;</span> {...},
   <span class="hljs-attr">error</span>: <span class="hljs-function">(<span class="hljs-params">error</span>) =&gt;</span> {...},
   <span class="hljs-attr">next</span>: <span class="hljs-function">(<span class="hljs-params">data</span>) =&gt;</span> {...}
 });

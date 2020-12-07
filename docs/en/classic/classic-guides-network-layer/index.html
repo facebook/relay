@@ -65,20 +65,20 @@
 <p>Relay is pre-configured to use a default network layer that works with <a href="https://github.com/graphql/express-graphql">express-graphql</a>. This default network layer is exposed via <code>Relay.DefaultNetworkLayer</code>.</p>
 <p>By default, Relay assumes that GraphQL is served at <code>/graphql</code> relative to the origin where our application is served. This can be re-configured by injecting a custom instantiation of the default network layer.</p>
 <pre><code class="hljs">Relay.injectNetworkLayer(
-  <span class="hljs-keyword">new</span> <span class="hljs-type">Relay</span>.DefaultNetworkLayer(<span class="hljs-string">'http://example.com/graphql'</span>)
+  <span class="hljs-keyword">new</span> <span class="hljs-type">Relay</span>.DefaultNetworkLayer(<span class="hljs-string">&#x27;http://example.com/graphql&#x27;</span>)
 );
 </code></pre>
 <p>Underneath the hood, the default network layer uses <code>fetch</code> (<a href="https://fetch.spec.whatwg.org">Living Standard</a>). The constructor for <code>Relay.DefaultNetworkLayer</code> takes an optional second argument that accepts any valid initialization property that <code>fetch</code> accepts.</p>
 <pre><code class="hljs css language-{3}"><span class="hljs-selector-tag">Relay</span><span class="hljs-selector-class">.injectNetworkLayer</span>(
-  new Relay.DefaultNetworkLayer(<span class="hljs-string">'http://example.com/graphql'</span>, {
-    <span class="hljs-attribute">credentials</span>: <span class="hljs-string">'same-origin'</span>,
+  new Relay.DefaultNetworkLayer(<span class="hljs-string">&#x27;http://example.com/graphql&#x27;</span>, {
+    <span class="hljs-attribute">credentials</span>: <span class="hljs-string">&#x27;same-origin&#x27;</span>,
   })
 );
 </code></pre>
 <p>When it sends queries, it will automatically fail requests after a 15 second timeout. Also, failed requests are automatically retried twice, with a 1 second delay and a 3 second delay, respectively.</p>
 <p>Like the GraphQL URI, the timeout and retry behavior can be configured:</p>
 <pre><code class="hljs css language-{3-4}"><span class="hljs-selector-tag">Relay</span><span class="hljs-selector-class">.injectNetworkLayer</span>(
-  new Relay.DefaultNetworkLayer(<span class="hljs-string">'http://example.com/graphql'</span>, {
+  new Relay.DefaultNetworkLayer(<span class="hljs-string">&#x27;http://example.com/graphql&#x27;</span>, {
     <span class="hljs-attribute">fetchTimeout</span>: <span class="hljs-number">30000</span>,   <span class="hljs-comment">// Timeout after 30s.</span>
     <span class="hljs-attribute">retryDelays</span>: [<span class="hljs-number">5000</span>],   <span class="hljs-comment">// Only retry once after a 5s delay.</span>
   })
@@ -87,9 +87,9 @@
 <p>Unlike queries, failed requests for mutations are not automatically retried.</p>
 <p>Custom HTTP headers can be configured by providing a <code>headers</code> object:</p>
 <pre><code class="hljs css language-{3-5}"><span class="hljs-selector-tag">Relay</span><span class="hljs-selector-class">.injectNetworkLayer</span>(
-  new Relay.DefaultNetworkLayer(<span class="hljs-string">'http://example.com/graphql'</span>, {
+  new Relay.DefaultNetworkLayer(<span class="hljs-string">&#x27;http://example.com/graphql&#x27;</span>, {
     <span class="hljs-attribute">headers</span>: {
-      <span class="hljs-attribute">Authorization</span>: <span class="hljs-string">'Basic SSdsbCBmaW5kIHNvbWV0aGluZyB0byBwdXQgaGVyZQ=='</span>,
+      <span class="hljs-attribute">Authorization</span>: <span class="hljs-string">&#x27;Basic SSdsbCBmaW5kIHNvbWV0aGluZyB0byBwdXQgaGVyZQ==&#x27;</span>,
     },
   })
 );

@@ -152,7 +152,7 @@
 <pre><code class="hljs"><span class="hljs-keyword">var</span> Container = Relay.createContainer(Component, {
   initialVariables?: <span class="hljs-built_in">Object</span>,
   prepareVariables?: <span class="hljs-function">(<span class="hljs-params">variables: <span class="hljs-built_in">Object</span>, route: <span class="hljs-built_in">string</span></span>) =&gt;</span> <span class="hljs-built_in">Object</span>,
-  fragments: {[key: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">Function</span>}
+  <span class="hljs-attr">fragments</span>: {[key: <span class="hljs-built_in">string</span>]: <span class="hljs-built_in">Function</span>}
 });
 </code></pre>
 <p>Creates a new Relay Container - see the <a href="guides-containers.html">Container Guide</a> for more details and examples.</p>
@@ -185,7 +185,7 @@
 <h3><a class="anchor" aria-hidden="true" id="injecttaskscheduler-static-method"></a><a href="#injecttaskscheduler-static-method" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>injectTaskScheduler (static method)</h3>
 <pre><code class="hljs"><span class="hljs-attribute">Relay.injectTaskScheduler(scheduler</span>: Scheduler): void;
 
-<span class="routeros">type<span class="hljs-built_in"> Scheduler </span>= (task: Function) =&gt; void;
+<span class="coffeescript">type Scheduler = <span class="hljs-function"><span class="hljs-params">(task: <span class="hljs-built_in">Function</span>)</span> =&gt;</span> <span class="hljs-keyword">void</span>;
 </span></code></pre>
 <p>Relay wraps its core processing functions inside lightweight tasks, which by default are executed immediately (i.e. synchronously). In order to customize <em>when</em> these tasks are run - for example to avoid interrupting an animation during a touch gesture - applications can provide a custom scheduling function.</p>
 <h4><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h4>
@@ -194,7 +194,7 @@
 </code></pre>
 <p>Notice that it immediately executes the next task. Relay manages the order of tasks to ensure a proper order of operations - the scheduler can't skip or reorder tasks, only decide when to execute the next one.</p>
 <p>In React Native, we can schedule Relay processing so as to avoid interrupting touch gestures as follows:</p>
-<pre><code class="hljs">var {InteractionManager} = require('react-native');
+<pre><code class="hljs">var {InteractionManager} = require(&#x27;react-native&#x27;);
 
 <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Relay</span>.</span></span>inject<span class="hljs-constructor">TaskScheduler(InteractionManager.<span class="hljs-params">runAfterInteractions</span>)</span>;
 </code></pre>
@@ -203,10 +203,10 @@
 <pre><code class="hljs"><span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Relay</span>.</span></span>is<span class="hljs-constructor">Container(Component: Object)</span>: boolean;
 </code></pre>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs">var Component = require('...');
+<pre><code class="hljs">var Component = require(&#x27;...&#x27;);
 
 <span class="hljs-keyword">if</span> (<span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Relay</span>.</span></span>is<span class="hljs-constructor">Container(Component)</span>) {
-  <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Component</span>.</span></span>get<span class="hljs-constructor">Fragment('<span class="hljs-operator">...</span>')</span>;
+  <span class="hljs-module-access"><span class="hljs-module"><span class="hljs-identifier">Component</span>.</span></span>get<span class="hljs-constructor">Fragment(&#x27;<span class="hljs-operator">...</span>&#x27;)</span>;
 }
 </code></pre>
 </span></div></article></div><div class="docLastUpdate"><em>Last updated on 4/13/2020 by Vishal Jagtap</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/classic/classic-guides-network-layer"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/en/classic/classic-api-reference-relay-container"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#overview">Overview</a></li><li><a href="#properties">Properties</a><ul class="toc-headings"><li><a href="#defaultnetworklayer-static-property">DefaultNetworkLayer (static property)</a></li><li><a href="#mutation">Mutation</a></li><li><a href="#ql">QL</a></li><li><a href="#proptypes">PropTypes</a></li><li><a href="#rootcontainer">RootContainer</a></li><li><a href="#route">Route</a></li><li><a href="#store">Store</a></li></ul></li><li><a href="#methods">Methods</a><ul class="toc-headings"><li><a href="#createcontainer-static-method">createContainer (static method)</a></li><li><a href="#injectnetworklayer-static-method">injectNetworkLayer (static method)</a></li><li><a href="#injecttaskscheduler-static-method">injectTaskScheduler (static method)</a></li><li><a href="#iscontainer-static-method">isContainer (static method)</a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>

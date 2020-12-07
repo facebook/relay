@@ -78,17 +78,17 @@
 <p>Fortunately, we are going to be using this <a href="https://github.com/relayjs/relay-examples/tree/master/todo">example todo list app</a>, which already has a <a href="https://github.com/relayjs/relay-examples/blob/master/todo/server.js">server</a> and <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql">schema</a> available for us to use:</p>
 <pre><code class="hljs css language-graphql"><span class="hljs-comment"># From schema.graphql</span>
 <span class="hljs-comment"># https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql</span>
-<span class="hljs-built_in">
-type </span>Query {
-  viewer:<span class="hljs-built_in"> User
-</span>
-  # Fetches an object given its ID
-  node(
-    # The ID of an object
+
+<span class="hljs-keyword">type</span> Query {
+  viewer: <span class="hljs-keyword">User</span>
+
+  <span class="hljs-title"># Fetches</span> an object given its ID
+  <span class="hljs-keyword">node</span><span class="hljs-title">(
+    # The</span> ID of an object
     id: ID!
-  ): Node
-}
-</code></pre>
+  ): <span class="hljs-keyword">Node</span>
+<span class="hljs-title">}
+</span></code></pre>
 <p>Additionally, we will be using <a href="https://flow.org/">Flow</a> inside our JavaScript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.</p>
 <h2><a class="anchor" aria-hidden="true" id="relay-environment"></a><a href="#relay-environment" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Relay Environment</h2>
 <p>Before we can start rendering pixels on the screen, we need to configure Relay via a <a href="./relay-environment.html">Relay Environment</a>. The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.</p>
@@ -98,16 +98,16 @@ type </span>Query {
   Network,
   RecordSource,
   Store,
-} <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fetchQuery</span>(<span class="hljs-params">
   operation,
   variables,
 </span>) </span>{
-  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">'/graphql'</span>, {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-keyword">return</span> fetch(<span class="hljs-string">&#x27;/graphql&#x27;</span>, {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
     <span class="hljs-attr">headers</span>: {
-      <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+      <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,
     },
     <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify({
       <span class="hljs-attr">query</span>: operation.text,
@@ -138,13 +138,13 @@ type </span>Query {
 </code></pre>
 <p>Now, let's see what it would take to create a component that fetches and renders the above query:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// App.js</span>
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-comment">/* defined or imported above... */</span>;
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">App</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
         <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span>
@@ -190,8 +190,8 @@ type </span>Query {
 <p>Now, let's see how we would fetch the above query using a <code>QueryRenderer</code>:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// UserTodoList.js</span>
 <span class="hljs-comment">// @flow</span>
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-comment">/* defined or imported above... */</span>;
 
@@ -200,8 +200,8 @@ type Props = {
 };
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UserTodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span>&lt;<span class="hljs-title">Props</span>&gt; </span>{
-  render() {
-    <span class="hljs-keyword">const</span> {userID} = <span class="hljs-keyword">this</span>.props;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> {userID} = <span class="hljs-built_in">this</span>.props;
 
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
@@ -238,7 +238,7 @@ type Props = {
 <p>Now that we know how to define and fetch queries, let's actually start building a todo list.</p>
 <p>First, let's start at the bottom. Suppose that we want to render a component that simply displays a given todo item's text and completed state:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Todo.js</span>
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
 
 type Props = {
   <span class="hljs-attr">todo</span>: {
@@ -248,15 +248,15 @@ type Props = {
 };
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Todo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span>&lt;<span class="hljs-title">Props</span>&gt; </span>{
-  render() {
-    <span class="hljs-keyword">const</span> {complete, text} = <span class="hljs-keyword">this</span>.props.todo;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> {complete, text} = <span class="hljs-built_in">this</span>.props.todo;
 
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">input</span>
             <span class="hljs-attr">checked</span>=<span class="hljs-string">{complete}</span>
-            <span class="hljs-attr">type</span>=<span class="hljs-string">"checkbox"</span>
+            <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;checkbox&quot;</span>
           /&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>
             {text}
@@ -278,25 +278,25 @@ type Props = {
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Todo.js</span>
 
 <span class="hljs-comment">// OPTIONAL: Flow type generated after running `yarn relay`, defining an Object type with shape of the fragment:</span>
-<span class="hljs-keyword">import</span> type {Todo_todo} <span class="hljs-keyword">from</span> <span class="hljs-string">'./__generated__/Todo_todo.graphql'</span>;
+<span class="hljs-keyword">import</span> type {Todo_todo} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./__generated__/Todo_todo.graphql&#x27;</span>;
 
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> {graphql, createFragmentContainer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> {graphql, createFragmentContainer} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>
 
 type Props = {
   <span class="hljs-attr">todo</span>: Todo_todo
 }
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Todo</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span>&lt;<span class="hljs-title">Props</span>&gt; </span>{
-  render() {
-    <span class="hljs-keyword">const</span> {complete, text} = <span class="hljs-keyword">this</span>.props.todo;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> {complete, text} = <span class="hljs-built_in">this</span>.props.todo;
 
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">div</span>&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">input</span>
             <span class="hljs-attr">checked</span>=<span class="hljs-string">{complete}</span>
-            <span class="hljs-attr">type</span>=<span class="hljs-string">"checkbox"</span>
+            <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;checkbox&quot;</span>
           /&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>
             {text}
@@ -310,7 +310,7 @@ type Props = {
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
   Todo,
   graphql<span class="hljs-string">`
-    # As a convention, we name the fragment as '&lt;ComponentFileName&gt;_&lt;propName&gt;'
+    # As a convention, we name the fragment as &#x27;&lt;ComponentFileName&gt;_&lt;propName&gt;&#x27;
     fragment Todo_todo on Todo {
       complete
       text
@@ -330,24 +330,24 @@ type Props = {
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// TodoList.js</span>
 
 <span class="hljs-comment">// OPTIONAL: Flow type generated after running `yarn relay`, defining an Object type with shape of the fragment:</span>
-<span class="hljs-keyword">import</span> type {TodoList_userTodoData} <span class="hljs-keyword">from</span> <span class="hljs-string">'./__generated__/TodoList_userTodoData.graphql'</span>;
+<span class="hljs-keyword">import</span> type {TodoList_userTodoData} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./__generated__/TodoList_userTodoData.graphql&#x27;</span>;
 
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> {graphql, createFragmentContainer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> {graphql, createFragmentContainer} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 type Props = {
   <span class="hljs-attr">userTodoData</span>: TodoList_userTodoData,
 }
 
 <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">TodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span>&lt;<span class="hljs-title">Props</span>&gt; </span>{
-  render() {
-    <span class="hljs-keyword">const</span> {<span class="hljs-attr">userTodoData</span>: {totalCount, completedCount, todos}} = <span class="hljs-keyword">this</span>.props;
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> {<span class="hljs-attr">userTodoData</span>: {totalCount, completedCount, todos}} = <span class="hljs-built_in">this</span>.props;
 
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">section</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">input</span>
           <span class="hljs-attr">checked</span>=<span class="hljs-string">{totalCount</span> === <span class="hljs-string">completedCount}</span>
-          <span class="hljs-attr">type</span>=<span class="hljs-string">"checkbox"</span>
+          <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;checkbox&quot;</span>
         /&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
           {todos.edges.map(edge =&gt;
@@ -366,7 +366,7 @@ type Props = {
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> createFragmentContainer(
   TodoList,
   graphql<span class="hljs-string">`
-    # As a convention, we name the fragment as '&lt;ComponentFileName&gt;_&lt;PropName&gt;'
+    # As a convention, we name the fragment as &#x27;&lt;ComponentFileName&gt;_&lt;PropName&gt;&#x27;
     fragment TodoList_userTodoData on User {
       todos(
         first: 2147483647  # max GraphQLInt, to fetch all todos
@@ -393,14 +393,14 @@ type Props = {
 fragment containers do not directly fetch data. Instead, containers declare a specification of the data needed to render, and Relay guarantees that this data is available before rendering.</p>
 <p>A <code>QueryRenderer</code> rendering these fragment containers could look like the following:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// ViewerTodoList.js</span>
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
-<span class="hljs-keyword">import</span> TodoList <span class="hljs-keyword">from</span> <span class="hljs-string">'./TodoList'</span>
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> {graphql, QueryRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
+<span class="hljs-keyword">import</span> TodoList <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./TodoList&#x27;</span>
 
 <span class="hljs-keyword">const</span> environment = <span class="hljs-comment">/* defined or imported above... */</span>;
 
 <span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ViewerTodoList</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">React</span>.<span class="hljs-title">Component</span> </span>{
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> (
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
         <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span>
@@ -449,7 +449,7 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 <p>This mutation allows us to query back some data as a <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L18">result of the mutation</a>, so we're going to query for the updated <code>complete</code> status on the todo item.</p>
 <p>In order to execute this mutation in Relay, we're going to write a new mutation using Relay's <code>commitMutation</code> api:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// ChangeTodoStatusMutation.js</span>
-<span class="hljs-keyword">import</span> {graphql, commitMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> {graphql, commitMutation} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-comment">// We start by defining our mutation from above using `graphql`</span>
 <span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
@@ -493,13 +493,13 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
   _handleOnCheckboxChange = <span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
     <span class="hljs-keyword">const</span> complete = e.target.checked;
     ChangeTodoStatusMutation.commit(
-      <span class="hljs-keyword">this</span>.props.relay.environment,
+      <span class="hljs-built_in">this</span>.props.relay.environment,
       complete,
-      <span class="hljs-keyword">this</span>.props.todo,
+      <span class="hljs-built_in">this</span>.props.todo,
     );
   };
 
-  render() {
+  <span class="hljs-function"><span class="hljs-title">render</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// ...</span>
   }
 }

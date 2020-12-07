@@ -113,25 +113,25 @@
 <p>MockPayloadGenerator may drastically simplify the process of creating and maintaining mock data for your tests. MockPayloadGenerator is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions which will return the default data for the type.</p>
 <p>Example of a simple Mock Resolver:</p>
 <pre><code class="hljs css language-javascript">{
-  ID() {
+  <span class="hljs-function"><span class="hljs-title">ID</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// Return mock value for a scalar filed with type ID</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-string">'my-id'</span>;
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;my-id&#x27;</span>;
   },
-  <span class="hljs-built_in">String</span>() {
+  <span class="hljs-function"><span class="hljs-title">String</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// Every scalar field with type String will have this default value</span>
-    <span class="hljs-keyword">return</span> <span class="hljs-string">"Lorem Ipsum"</span>
+    <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Lorem Ipsum&quot;</span>
   }
 }
 </code></pre>
 <p>It is possible to define more resolvers for Object types</p>
 <pre><code class="hljs css language-javascript">{
   <span class="hljs-comment">// This will be the default values for User object in the query response</span>
-  User() {
+  <span class="hljs-function"><span class="hljs-title">User</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> {
       <span class="hljs-attr">id</span>: <span class="hljs-number">1000</span>,
-      <span class="hljs-attr">name</span>: <span class="hljs-string">"Alice"</span>,
+      <span class="hljs-attr">name</span>: <span class="hljs-string">&quot;Alice&quot;</span>,
       <span class="hljs-attr">profile_picture</span>: {
-        <span class="hljs-attr">uri</span>: <span class="hljs-string">"http://my-image..."</span>,
+        <span class="hljs-attr">uri</span>: <span class="hljs-string">&quot;http://my-image...&quot;</span>,
       },
     };
   },
@@ -140,15 +140,15 @@
 <h3><a class="anchor" aria-hidden="true" id="mock-resolver-context"></a><a href="#mock-resolver-context" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mock Resolver Context</h3>
 <p>The first argument of the MockResolver is the object that contains Mock Resolver Context. It is possible to return dynamic values from mock resolvers based on the context - for instance, name or alias of the field, a path in the selection, arguments, or parent type.</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-built_in">String</span>(context) {
-    <span class="hljs-keyword">if</span> (context.name === <span class="hljs-string">'zip'</span>) {
-      <span class="hljs-keyword">return</span> <span class="hljs-string">'94025'</span>;
+  <span class="hljs-function"><span class="hljs-title">String</span>(<span class="hljs-params">context</span>)</span> {
+    <span class="hljs-keyword">if</span> (context.name === <span class="hljs-string">&#x27;zip&#x27;</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;94025&#x27;</span>;
     }
-    <span class="hljs-keyword">if</span> (context.path != <span class="hljs-literal">null</span> &amp;&amp; context.path.join(<span class="hljs-string">'.'</span>) === <span class="hljs-string">'node.actor.name'</span>) {
-      <span class="hljs-keyword">return</span> <span class="hljs-string">'Current Actor Name'</span>;
+    <span class="hljs-keyword">if</span> (context.path != <span class="hljs-literal">null</span> &amp;&amp; context.path.join(<span class="hljs-string">&#x27;.&#x27;</span>) === <span class="hljs-string">&#x27;node.actor.name&#x27;</span>) {
+      <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;Current Actor Name&#x27;</span>;
     }
-    <span class="hljs-keyword">if</span> (context.parentType === <span class="hljs-string">'Image'</span> &amp;&amp; context.name === <span class="hljs-string">'uri'</span>) {
-       <span class="hljs-keyword">return</span> <span class="hljs-string">'http://my-image.url'</span>;
+    <span class="hljs-keyword">if</span> (context.parentType === <span class="hljs-string">&#x27;Image&#x27;</span> &amp;&amp; context.name === <span class="hljs-string">&#x27;uri&#x27;</span>) {
+       <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;http://my-image.url&#x27;</span>;
     }
   }
 }
@@ -156,8 +156,8 @@
 <h3><a class="anchor" aria-hidden="true" id="id-generation"></a><a href="#id-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ID Generation</h3>
 <p>The second argument of the Mock Resolver its a function that will generate a sequence of integers, usefull to generate unique ids in the tests</p>
 <pre><code class="hljs css language-javascript">{
-  <span class="hljs-comment">// will generate strings "my-id-1", "my-id-2", etc.</span>
-  ID(_, generateId) {
+  <span class="hljs-comment">// will generate strings &quot;my-id-1&quot;, &quot;my-id-2&quot;, etc.</span>
+  <span class="hljs-function"><span class="hljs-title">ID</span>(<span class="hljs-params">_, generateId</span>)</span> {
      <span class="hljs-keyword">return</span> <span class="hljs-string">`my-id-<span class="hljs-subst">${generateId()}</span>`</span>;
   },
 }
@@ -166,19 +166,19 @@
 <p>Most of GraphQL type information for a specific field in the selection is not available during Relay runtime. By default, Relay, cannot get type information for a scalar field in the selection, or an interface type of the object.</p>
 <p>Operation with the @relay_test_operation directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:</p>
 <pre><code class="hljs css language-javascript">{
-  Float() {
+  <span class="hljs-function"><span class="hljs-title">Float</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> <span class="hljs-number">123.456</span>;
   },
-  <span class="hljs-built_in">Boolean</span>(context) {
-    <span class="hljs-keyword">if</span> (contex.name === <span class="hljs-string">'can_edit'</span>) {
+  <span class="hljs-function"><span class="hljs-title">Boolean</span>(<span class="hljs-params">context</span>)</span> {
+    <span class="hljs-keyword">if</span> (contex.name === <span class="hljs-string">&#x27;can_edit&#x27;</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;
     }
     <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;
   },
-  Node() {
+  <span class="hljs-function"><span class="hljs-title">Node</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> {
-      <span class="hljs-attr">__typename</span>: <span class="hljs-string">'User'</span>,
-      <span class="hljs-attr">id</span>: <span class="hljs-string">'my-user-id'</span>,
+      <span class="hljs-attr">__typename</span>: <span class="hljs-string">&#x27;User&#x27;</span>,
+      <span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;my-user-id&#x27;</span>,
     };
   }
 }
@@ -187,16 +187,16 @@
 <h3><a class="anchor" aria-hidden="true" id="relay-component-test"></a><a href="#relay-component-test" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Relay Component Test</h3>
 <p>Using <code>createMockEnvironment</code> and <code>MockPayloadGenerator</code> allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from <code>relay-test-utils</code></p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
-<span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">'MyAwesomeViewRoot'</span>);
+<span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;MyAwesomeViewRoot&#x27;</span>);
 <span class="hljs-keyword">const</span> {
   createMockEnvironment,
   MockPayloadGenerator,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-test-utils'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-test-utils&#x27;</span>);
 
 <span class="hljs-comment">// Relay may trigger 3 different states</span>
 <span class="hljs-comment">// for this component: Loading, Error, Data Loaded</span>
 <span class="hljs-comment">// Here is examples of tests for those states.</span>
-test(<span class="hljs-string">'Loading State'</span>, () =&gt; {
+test(<span class="hljs-string">&#x27;Loading State&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">MyAwesomeViewRoot</span> <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span> /&gt;</span></span>,
@@ -204,11 +204,11 @@ test(<span class="hljs-string">'Loading State'</span>, () =&gt; {
 
   <span class="hljs-comment">// Here we just verify that the spinner is rendered</span>
   expect(
-    renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">'data-testid'</span>] === <span class="hljs-string">'spinner'</span>),
+    renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">&#x27;data-testid&#x27;</span>] === <span class="hljs-string">&#x27;spinner&#x27;</span>),
   ).toBeDefined();
 });
 
-test(<span class="hljs-string">'Data Render'</span>, () =&gt; {
+test(<span class="hljs-string">&#x27;Data Render&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">MyAwesomeViewRoot</span> <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span> /&gt;</span></span>,
@@ -221,34 +221,34 @@ test(<span class="hljs-string">'Data Render'</span>, () =&gt; {
   <span class="hljs-comment">// At this point operation will be resolved</span>
   <span class="hljs-comment">// and the data for a query will be available in the store</span>
   expect(
-    renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">'data-testid'</span>] === <span class="hljs-string">'myButton'</span>),
+    renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">&#x27;data-testid&#x27;</span>] === <span class="hljs-string">&#x27;myButton&#x27;</span>),
   ).toBeDefined();
 });
 
-test(<span class="hljs-string">'Error State'</span>, () =&gt; {
+test(<span class="hljs-string">&#x27;Error State&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">MyAwesomeViewRoot</span> <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span> /&gt;</span></span>,
   );
 
   <span class="hljs-comment">// Error can be simulated with `rejectMostRecentOperation`</span>
-  environment.mock.rejectMostRecentOperation(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Uh-oh'</span>));
+  environment.mock.rejectMostRecentOperation(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">&#x27;Uh-oh&#x27;</span>));
 
   expect(
-    renderer.root.find(<span class="hljs-function"><span class="hljs-params">item</span> =&gt;</span> (item.props.testID = <span class="hljs-string">'errorMessage'</span>)),
+    renderer.root.find(<span class="hljs-function"><span class="hljs-params">item</span> =&gt;</span> (item.props.testID = <span class="hljs-string">&#x27;errorMessage&#x27;</span>)),
   ).toBeDefined();
 });
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="fragment-container-tests"></a><a href="#fragment-container-tests" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fragment Container Tests</h3>
 <p>Essentially, in the example above will <code>resolveMostRecentOperation</code> will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap you fragment container with the QueryRenderer that renders a Query that's spreads fragments from you fragment container.</p>
-<pre><code class="hljs css language-javascript">test(<span class="hljs-string">'Fragment Container'</span>, () =&gt; {
+<pre><code class="hljs css language-javascript">test(<span class="hljs-string">&#x27;Fragment Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
-  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function">() =&gt;</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
       <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span>
       <span class="hljs-attr">query</span>=<span class="hljs-string">{graphql</span>`
         <span class="hljs-attr">query</span> <span class="hljs-attr">TestQuery</span> @<span class="hljs-attr">relay_test_operation</span> {
-          <span class="hljs-attr">myData:</span> <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> "<span class="hljs-attr">test-id</span>") {
+          <span class="hljs-attr">myData:</span> <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> &quot;<span class="hljs-attr">test-id</span>&quot;) {
             <span class="hljs-attr">...MyFragment</span>
           }
         }
@@ -260,7 +260,7 @@ test(<span class="hljs-string">'Error State'</span>, () =&gt; {
         } else if (error) {
           return error.message;
         }
-        return 'Loading...';
+        return &#x27;Loading...&#x27;;
       }}
     /&gt;</span>
   );
@@ -275,14 +275,14 @@ test(<span class="hljs-string">'Error State'</span>, () =&gt; {
 <h3><a class="anchor" aria-hidden="true" id="pagination-container-test"></a><a href="#pagination-container-test" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination Container Test</h3>
 <p>Essentially, tests for Pagination container are not different from Fragment Container tests. But we can do more here, we can actually see how the pagination works - we can assert the behavior of our components when performing pagination (load more, refetch).</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Pagination Example</span>
-test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
+test(<span class="hljs-string">&#x27;Pagionation Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
-  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function">() =&gt;</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
       <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span>
       <span class="hljs-attr">query</span>=<span class="hljs-string">{graphql</span>`
         <span class="hljs-attr">query</span> <span class="hljs-attr">TestQuery</span> @<span class="hljs-attr">relay_test_operation</span> {
-          <span class="hljs-attr">myConnection:</span> <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> "<span class="hljs-attr">test-id</span>") {
+          <span class="hljs-attr">myConnection:</span> <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> &quot;<span class="hljs-attr">test-id</span>&quot;) {
             <span class="hljs-attr">connection</span> {
               <span class="hljs-attr">...MyConnectionFragment</span>
             }
@@ -296,20 +296,20 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
         } else if (error) {
           return error.message;
         }
-        return 'Loading...';
+        return &#x27;Loading...&#x27;;
       }}
     /&gt;</span>
   );
   <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">TestRenderer</span> /&gt;</span></span>);
   environment.mock.resolveMostRecentOperation(<span class="hljs-function"><span class="hljs-params">operation</span> =&gt;</span>
     MockPayloadGenerator.generate(operation, {
-      ID(_, generateId) {
-        <span class="hljs-comment">// Why we're doing this?</span>
+      <span class="hljs-function"><span class="hljs-title">ID</span>(<span class="hljs-params">_, generateId</span>)</span> {
+        <span class="hljs-comment">// Why we&#x27;re doing this?</span>
         <span class="hljs-comment">// To make sure that we will generate a different set of ID</span>
         <span class="hljs-comment">// for elements on first page and the second page.</span>
         <span class="hljs-keyword">return</span> <span class="hljs-string">`first-page-id-<span class="hljs-subst">${generateId()}</span>`</span>;
       },
-      PageInfo() {
+      <span class="hljs-function"><span class="hljs-title">PageInfo</span>(<span class="hljs-params"></span>)</span> {
         <span class="hljs-keyword">return</span> {
           <span class="hljs-attr">has_next_page</span>: <span class="hljs-literal">true</span>,
         };
@@ -317,18 +317,18 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
     }),
   );
 
-  <span class="hljs-comment">// Let's find a `loadMore` button and click on it to initiate pagination request, for example</span>
-  <span class="hljs-keyword">const</span> loadMore = renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">'data-testid'</span>] === <span class="hljs-string">'loadMore'</span>)
+  <span class="hljs-comment">// Let&#x27;s find a `loadMore` button and click on it to initiate pagination request, for example</span>
+  <span class="hljs-keyword">const</span> loadMore = renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">&#x27;data-testid&#x27;</span>] === <span class="hljs-string">&#x27;loadMore&#x27;</span>)
   expect(loadMore.props.disabled).toBe(<span class="hljs-literal">false</span>);
   loadMore.props.onClick();
 
   environment.mock.resolveMostRecentOperation(<span class="hljs-function"><span class="hljs-params">operation</span> =&gt;</span>
     MockPayloadGenerator.generte(operation, {
-      ID(_, generateId) {
+      <span class="hljs-function"><span class="hljs-title">ID</span>(<span class="hljs-params">_, generateId</span>)</span> {
         <span class="hljs-comment">// See, the second page IDs will be different</span>
         <span class="hljs-keyword">return</span> <span class="hljs-string">`second-page-id-<span class="hljs-subst">${generateId()}</span>`</span>;
       },
-      PageInfo() {
+      <span class="hljs-function"><span class="hljs-title">PageInfo</span>(<span class="hljs-params"></span>)</span> {
         <span class="hljs-keyword">return</span> {
           <span class="hljs-comment">// And the button should be disabled, now. Probably.</span>
           <span class="hljs-attr">has_next_page</span>: <span class="hljs-literal">false</span>,
@@ -342,14 +342,14 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="refetch-container"></a><a href="#refetch-container" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refetch Container</h3>
 <p>We can use similar approach here with wrapping container with Query Renderer. And for the sake of completeness, we will add example here:</p>
-<pre><code class="hljs css language-javascript">test(<span class="hljs-string">'Refetch Container'</span>, () =&gt; {
+<pre><code class="hljs css language-javascript">test(<span class="hljs-string">&#x27;Refetch Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
-  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> (
+  <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function">() =&gt;</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
       <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span>
       <span class="hljs-attr">query</span>=<span class="hljs-string">{graphql</span>`
         <span class="hljs-attr">query</span> <span class="hljs-attr">TestQuery</span> @<span class="hljs-attr">relay_test_operation</span> {
-          <span class="hljs-attr">myData:</span> <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> "<span class="hljs-attr">test-id</span>") {
+          <span class="hljs-attr">myData:</span> <span class="hljs-attr">node</span>(<span class="hljs-attr">id:</span> &quot;<span class="hljs-attr">test-id</span>&quot;) {
             <span class="hljs-attr">...MyRefetchableFragment</span>
           }
         }
@@ -361,7 +361,7 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
         } else if (error) {
           return error.message;
         }
-        return 'Loading...';
+        return &#x27;Loading...&#x27;;
       }}
     /&gt;</span>
   );
@@ -371,7 +371,7 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
     MockPayloadGenerator.generate(operation),
   );
   <span class="hljs-comment">// Assuming we have refetch button in the Container</span>
-  <span class="hljs-keyword">const</span> refetchButton = renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">'data-testid'</span>] === <span class="hljs-string">'refetch'</span>);
+  <span class="hljs-keyword">const</span> refetchButton = renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">&#x27;data-testid&#x27;</span>] === <span class="hljs-string">&#x27;refetch&#x27;</span>);
 
   <span class="hljs-comment">// This should trigger the `refetch`</span>
   refetchButton.props.onClick();
@@ -393,11 +393,11 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
     onCompleted,
     onError,
     variables,
-  }</span>);
+  }</span>)</span>;
 }
 
-// <span class="hljs-title">Example</span> <span class="hljs-title">test</span> <span class="hljs-title">may</span> <span class="hljs-title">be</span> <span class="hljs-title">written</span> <span class="hljs-title">like</span> <span class="hljs-title">so</span>
-<span class="hljs-title">test</span>(<span class="hljs-params"><span class="hljs-string">'it should send mutation'</span>, (</span>) =&gt; </span>{
+<span class="hljs-comment">// Example test may be written like so</span>
+test(<span class="hljs-string">&#x27;it should send mutation&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> onCompleted = jest.fn();
   sendMutation(environment, onCompleted, jest.fn(), {});
@@ -418,11 +418,11 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
     onNext,
     onError,
     variables,
-  }</span>);
+  }</span>)</span>;
 }
 
-// <span class="hljs-title">Example</span> <span class="hljs-title">test</span> <span class="hljs-title">may</span> <span class="hljs-title">be</span> <span class="hljs-title">written</span> <span class="hljs-title">like</span> <span class="hljs-title">so</span>
-<span class="hljs-title">test</span>(<span class="hljs-params"><span class="hljs-string">'it should subscribe'</span>, (</span>) =&gt; </span>{
+<span class="hljs-comment">// Example test may be written like so</span>
+test(<span class="hljs-string">&#x27;it should subscribe&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> onNext = jest.fn();
   subscribe(environment, onNext, jest.fn(), {});
@@ -437,13 +437,13 @@ test(<span class="hljs-string">'Pagionation Container'</span>, () =&gt; {
 <h3><a class="anchor" aria-hidden="true" id="example-with-queueoperationresolver"></a><a href="#example-with-queueoperationresolver" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example with <code>queueOperationResolver</code></h3>
 <p>With <code>queueOpeararionResolver</code> it possible to define responses for operations that will be executed on the environment</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
-<span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">'MyAwesomeViewRoot'</span>);
+<span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;MyAwesomeViewRoot&#x27;</span>);
 <span class="hljs-keyword">const</span> {
   createMockEnvironment,
   MockPayloadGenerator,
-} = <span class="hljs-built_in">require</span>(<span class="hljs-string">'relay-test-utils'</span>);
+} = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;relay-test-utils&#x27;</span>);
 
-test(<span class="hljs-string">'Data Render'</span>, () =&gt; {
+test(<span class="hljs-string">&#x27;Data Render&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   environment.mock.queueOperationResolver(<span class="hljs-function"><span class="hljs-params">operation</span> =&gt;</span>
     MockPayloadGenerator.generate(operation),
@@ -456,21 +456,21 @@ test(<span class="hljs-string">'Data Render'</span>, () =&gt; {
   <span class="hljs-comment">// At this point operation will be resolved</span>
   <span class="hljs-comment">// and the data for a query will be available in the store</span>
   expect(
-    renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">'data-testid'</span>] === <span class="hljs-string">'myButton'</span>),
+    renderer.root.find(<span class="hljs-function"><span class="hljs-params">node</span> =&gt;</span> node.props[<span class="hljs-string">&#x27;data-testid&#x27;</span>] === <span class="hljs-string">&#x27;myButton&#x27;</span>),
   ).toBeDefined();
 });
 
-test(<span class="hljs-string">'Error State'</span>, () =&gt; {
+test(<span class="hljs-string">&#x27;Error State&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
-  environment.mock.queueOpeararionResolver(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span>
-    <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Uh-oh'</span>),
+  environment.mock.queueOpeararionResolver(<span class="hljs-function">() =&gt;</span>
+    <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">&#x27;Uh-oh&#x27;</span>),
   );
   <span class="hljs-keyword">const</span> renderer = ReactTestRenderer.create(
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">MyAwesomeViewRoot</span> <span class="hljs-attr">environment</span>=<span class="hljs-string">{environment}</span> /&gt;</span></span>,
   );
 
   expect(
-    renderer.root.find(<span class="hljs-function"><span class="hljs-params">item</span> =&gt;</span> (item.props.testID = <span class="hljs-string">'errorMessage'</span>)),
+    renderer.root.find(<span class="hljs-function"><span class="hljs-params">item</span> =&gt;</span> (item.props.testID = <span class="hljs-string">&#x27;errorMessage&#x27;</span>)),
   ).toBeDefined();
 });
 

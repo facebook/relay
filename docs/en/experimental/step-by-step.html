@@ -98,12 +98,12 @@ yarn start
 <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fetchGraphQL</span>(<span class="hljs-params">text, variables</span>) </span>{
   <span class="hljs-keyword">const</span> REACT_APP_GITHUB_AUTH_TOKEN = process.env.REACT_APP_GITHUB_AUTH_TOKEN;
 
-  <span class="hljs-comment">// Fetch data from GitHub's GraphQL API:</span>
-  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">'https://api.github.com/graphql'</span>, {
-    <span class="hljs-attr">method</span>: <span class="hljs-string">'POST'</span>,
+  <span class="hljs-comment">// Fetch data from GitHub&#x27;s GraphQL API:</span>
+  <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">&#x27;https://api.github.com/graphql&#x27;</span>, {
+    <span class="hljs-attr">method</span>: <span class="hljs-string">&#x27;POST&#x27;</span>,
     <span class="hljs-attr">headers</span>: {
       <span class="hljs-attr">Authorization</span>: <span class="hljs-string">`bearer <span class="hljs-subst">${REACT_APP_GITHUB_AUTH_TOKEN}</span>`</span>,
-      <span class="hljs-string">'Content-Type'</span>: <span class="hljs-string">'application/json'</span>,
+      <span class="hljs-string">&#x27;Content-Type&#x27;</span>: <span class="hljs-string">&#x27;application/json&#x27;</span>,
     },
     <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify({
       <span class="hljs-attr">query</span>: text,
@@ -120,23 +120,23 @@ yarn start
 <h3><a class="anchor" aria-hidden="true" id="23-fetching-graphql-from-react"></a><a href="#23-fetching-graphql-from-react" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>2.3: Fetching GraphQL From React</h3>
 <p>Now we can use our <code>fetchGraphQL</code> function to fetch some data in our app. Open <code>src/App.js</code> and edit it as follows:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// your-app-name/src/App.js</span>
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> <span class="hljs-string">'./App.css'</span>;
-<span class="hljs-keyword">import</span> fetchGraphQL <span class="hljs-keyword">from</span> <span class="hljs-string">'./fetchGraphQL'</span>;
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">&#x27;./App.css&#x27;</span>;
+<span class="hljs-keyword">import</span> fetchGraphQL <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./fetchGraphQL&#x27;</span>;
 
 <span class="hljs-keyword">const</span> { useState, useEffect } = React;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
-  <span class="hljs-comment">// We'll load the name of a repository, initially setting it to null</span>
+  <span class="hljs-comment">// We&#x27;ll load the name of a repository, initially setting it to null</span>
   <span class="hljs-keyword">const</span> [name, setName] = useState(<span class="hljs-literal">null</span>);
 
-  <span class="hljs-comment">// When the component mounts we'll fetch a repository name</span>
-  useEffect(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+  <span class="hljs-comment">// When the component mounts we&#x27;ll fetch a repository name</span>
+  useEffect(<span class="hljs-function">() =&gt;</span> {
     <span class="hljs-keyword">let</span> isMounted = <span class="hljs-literal">true</span>;
     fetchGraphQL(<span class="hljs-string">`
       query RepositoryNameQuery {
         # feel free to change owner/name here
-        repository(owner: "facebook" name: "relay") {
+        repository(owner: &quot;facebook&quot; name: &quot;relay&quot;) {
           name
         }
       }
@@ -151,17 +151,17 @@ yarn start
       <span class="hljs-built_in">console</span>.error(error);
     });
 
-    <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> {
+    <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> {
       isMounted = <span class="hljs-literal">false</span>;
     };
   }, [fetchGraphQL]);
 
-  <span class="hljs-comment">// Render "Loading" until the query completes</span>
+  <span class="hljs-comment">// Render &quot;Loading&quot; until the query completes</span>
   <span class="hljs-keyword">return</span> (
-    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"App"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">header</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"App-header"</span>&gt;</span>
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;App&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">header</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;App-header&quot;</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>
-          {name != null ? `Repository: ${name}` : "Loading"}
+          {name != null ? `Repository: ${name}` : &quot;Loading&quot;}
         <span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
@@ -195,11 +195,11 @@ curl https://raw.githubusercontent.com/relayjs/relay-examples/master/issue-track
 <pre><code class="hljs css language-json">// your-app-name/package.json
 {
   ...
-  "scripts": {
+  &quot;scripts&quot;: {
     ...
-    "start": "yarn run relay &amp;&amp; react-scripts start",
-    "build": "yarn run relay &amp;&amp; react-scripts build",
-    "relay": "yarn run relay-compiler --schema schema.graphql --src ./src/ --watchman false $@"
+    &quot;start&quot;: &quot;yarn run relay &amp;&amp; react-scripts start&quot;,
+    &quot;build&quot;: &quot;yarn run relay &amp;&amp; react-scripts build&quot;,
+    &quot;relay&quot;: &quot;yarn run relay-compiler --schema schema.graphql --src ./src/ --watchman false $@&quot;
     ...
   },
   ...
@@ -213,10 +213,10 @@ yarn start
 <h3><a class="anchor" aria-hidden="true" id="42-configure-relay-runtime"></a><a href="#42-configure-relay-runtime" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>4.2 Configure Relay Runtime</h3>
 <p>Now that the compiler is configured we can set up the runtime - we have to tell Relay how to connect to our GraphQL server. We'll reuse the <code>fetchGraphQL</code> utility we built above. Assuming you haven't modified it (or at least that it still takes <code>text</code> and <code>variables</code> as arguments), we can now define a Relay <code>Environment</code>. An <code>Environment</code> encapsulates how to talk to our server (a Relay <code>Network</code>) with a cache of data retrieved from that server. We'll create a new file, <code>src/RelayEnvironment.js</code> and add the following:</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// your-app-name/src/RelayEnvironment.js</span>
-<span class="hljs-keyword">import</span> { Environment, Network, RecordSource, Store } <span class="hljs-keyword">from</span> <span class="hljs-string">'relay-runtime'</span>;
-<span class="hljs-keyword">import</span> fetchGraphQL <span class="hljs-keyword">from</span> <span class="hljs-string">'./fetchGraphQL'</span>;
+<span class="hljs-keyword">import</span> { Environment, Network, RecordSource, Store } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime&#x27;</span>;
+<span class="hljs-keyword">import</span> fetchGraphQL <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./fetchGraphQL&#x27;</span>;
 
-<span class="hljs-comment">// Relay passes a "params" object with the query name and text. So we define a helper function</span>
+<span class="hljs-comment">// Relay passes a &quot;params&quot; object with the query name and text. So we define a helper function</span>
 <span class="hljs-comment">// to call our fetchGraphQL utility with params.text.</span>
 <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">fetchRelay</span>(<span class="hljs-params">params, variables</span>) </span>{
   <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`fetching query <span class="hljs-subst">${params.name}</span> with <span class="hljs-subst">${<span class="hljs-built_in">JSON</span>.stringify(variables)}</span>`</span>);
@@ -231,29 +231,29 @@ yarn start
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="step-5-fetching-a-query-with-relay"></a><a href="#step-5-fetching-a-query-with-relay" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Step 5: Fetching a Query With Relay</h2>
 <p>Now that Relay is installed and configured we can change <code>App.js</code> to use it instead. We'll prepare our data as the app starts, and wait for it to be ready in <code>&lt;App&gt;</code>. Replace the contents of <code>src/App.js</code> with the following:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> <span class="hljs-string">'./App.css'</span>;
-<span class="hljs-keyword">import</span> fetchGraphQL <span class="hljs-keyword">from</span> <span class="hljs-string">'./fetchGraphQL'</span>;
-<span class="hljs-keyword">import</span> graphql <span class="hljs-keyword">from</span> <span class="hljs-string">'babel-plugin-relay/macro'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> <span class="hljs-string">&#x27;./App.css&#x27;</span>;
+<span class="hljs-keyword">import</span> fetchGraphQL <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./fetchGraphQL&#x27;</span>;
+<span class="hljs-keyword">import</span> graphql <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;babel-plugin-relay/macro&#x27;</span>;
 <span class="hljs-keyword">import</span> {
   RelayEnvironmentProvider,
   preloadQuery,
   usePreloadedQuery,
-} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay/hooks'</span>;
-<span class="hljs-keyword">import</span> RelayEnvironment <span class="hljs-keyword">from</span> <span class="hljs-string">'./RelayEnvironment'</span>;
+} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay/hooks&#x27;</span>;
+<span class="hljs-keyword">import</span> RelayEnvironment <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./RelayEnvironment&#x27;</span>;
 
 <span class="hljs-keyword">const</span> { Suspense } = React;
 
 <span class="hljs-comment">// Define a query</span>
 <span class="hljs-keyword">const</span> RepositoryNameQuery = graphql<span class="hljs-string">`
   query AppRepositoryNameQuery {
-    repository(owner: "facebook", name: "relay") {
+    repository(owner: &quot;facebook&quot;, name: &quot;relay&quot;) {
       name
     }
   }
 `</span>;
 
-<span class="hljs-comment">// Immediately load the query as our app starts. For a real app, we'd move this</span>
+<span class="hljs-comment">// Immediately load the query as our app starts. For a real app, we&#x27;d move this</span>
 <span class="hljs-comment">// into our routing configuration, preloading data as we transition to new routes.</span>
 <span class="hljs-keyword">const</span> preloadedQuery = preloadQuery(RelayEnvironment, RepositoryNameQuery, {
   <span class="hljs-comment">/* query variables */</span>
@@ -262,16 +262,16 @@ yarn start
 <span class="hljs-comment">// Inner component that reads the preloaded query results via `usePreloadedQuery()`.</span>
 <span class="hljs-comment">// This works as follows:</span>
 <span class="hljs-comment">// - If the query has completed, it returns the results of the query.</span>
-<span class="hljs-comment">// - If the query is still pending, it "suspends" (indicates to React is isn't </span>
+<span class="hljs-comment">// - If the query is still pending, it &quot;suspends&quot; (indicates to React is isn&#x27;t </span>
 <span class="hljs-comment">//   ready to render yet). This will show the nearest &lt;Suspense&gt; fallback.</span>
-<span class="hljs-comment">// - If the query failed, it throws the failure error. For simplicity we aren't</span>
+<span class="hljs-comment">// - If the query failed, it throws the failure error. For simplicity we aren&#x27;t</span>
 <span class="hljs-comment">//   handling the failure case here.</span>
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params">props</span>) </span>{
   <span class="hljs-keyword">const</span> data = usePreloadedQuery(RepositoryNameQuery, props.preloadedQuery);
 
   <span class="hljs-keyword">return</span> (
-    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"App"</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">header</span> <span class="hljs-attr">className</span>=<span class="hljs-string">"App-header"</span>&gt;</span>
+    <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;App&quot;</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">header</span> <span class="hljs-attr">className</span>=<span class="hljs-string">&quot;App-header&quot;</span>&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{data.repository.name}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">header</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span></span>
@@ -286,7 +286,7 @@ yarn start
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">AppRoot</span>(<span class="hljs-params">props</span>) </span>{
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">RelayEnvironmentProvider</span> <span class="hljs-attr">environment</span>=<span class="hljs-string">{RelayEnvironment}</span>&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>'<span class="hljs-attr">Loading...</span>'}&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&#x27;<span class="hljs-attr">Loading...</span>&#x27;}&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">App</span> <span class="hljs-attr">preloadedQuery</span>=<span class="hljs-string">{preloadedQuery}</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">RelayEnvironmentProvider</span>&gt;</span></span>

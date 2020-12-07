@@ -75,15 +75,15 @@ Let's call it <code>./src/clientSchema.graphql</code>.</p>
 <p>This schema describes what local data can be queried on the client.<br>
 It can even be used to extend an existing server schema.</p>
 <p>For example, we can create a new type called <code>Note</code>:</p>
-<pre><code class="hljs css language-graphql">type<span class="hljs-built_in"> Note </span>{
-  ID: ID!
-  title: String
-  body: String
+<pre><code class="hljs css language-graphql"><span class="hljs-keyword">type</span> <span class="hljs-type">Note</span> {
+  <span class="hljs-type">ID</span>: <span class="hljs-type">ID</span>!
+  title: <span class="hljs-type">String</span>
+  body: <span class="hljs-type">String</span>
 }
 </code></pre>
 <p>And then extend the server schema type <code>User</code>, with a list of <code>Note</code>, called <code>notes</code>.</p>
-<pre><code class="hljs css language-graphql">extend<span class="hljs-built_in"> type User </span>{
-  notes: [Note]
+<pre><code class="hljs css language-graphql">extend <span class="hljs-keyword">type</span> <span class="hljs-keyword">User</span> <span class="hljs-title">{
+  notes</span>: [Note]
 }
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="querying-local-state"></a><a href="#querying-local-state" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Querying local state</h2>
@@ -91,8 +91,8 @@ It can even be used to extend an existing server schema.</p>
 The field can be from the server schema, or it can be schema agnostic, like an introspection field (i.e. <code>__typename</code>).</p>
 <p>Here, we use a <a href="./query-renderer">QueryRenderer</a> to get the current <code>User</code> via the <code>viewer</code> field, along with their id, name and the local list of notes.</p>
 <pre><code class="hljs css language-javascript"><span class="hljs-comment">// Example.js</span>
-<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">'react'</span>;
-<span class="hljs-keyword">import</span> { QueryRenderer, graphql } <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<span class="hljs-keyword">import</span> React <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react&#x27;</span>;
+<span class="hljs-keyword">import</span> { QueryRenderer, graphql } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-keyword">const</span> renderQuery = <span class="hljs-function">(<span class="hljs-params">{error, props}</span>) =&gt;</span> {
   <span class="hljs-keyword">if</span> (error) {
@@ -142,29 +142,29 @@ Updating local state can be done with any <code>updater</code> function.
 The <code>commitLocalUpdate</code> function is especially ideal for this, because writes to local state are usually executed outside of a mutation.</p>
 <p>To build upon the previous example, let's try creating, updating and deleting a <code>Note</code> from the list of <code>notes</code> on <code>User</code>.</p>
 <h3><a class="anchor" aria-hidden="true" id="create"></a><a href="#create" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Create</h3>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-keyword">let</span> tempID = <span class="hljs-number">0</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createUserNote</span>(<span class="hljs-params"></span>) </span>{
-  commitLocalUpdate(environment, store =&gt; {
-    <span class="hljs-keyword">const</span> user = store.getRoot().getLinkedRecord(<span class="hljs-string">'viewer'</span>);
-    <span class="hljs-keyword">const</span> userNoteRecords = user.getLinkedRecords(<span class="hljs-string">'notes'</span>) || [];
+  commitLocalUpdate(environment, <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> user = store.getRoot().getLinkedRecord(<span class="hljs-string">&#x27;viewer&#x27;</span>);
+    <span class="hljs-keyword">const</span> userNoteRecords = user.getLinkedRecords(<span class="hljs-string">&#x27;notes&#x27;</span>) || [];
 
     <span class="hljs-comment">// Create a unique ID.</span>
     <span class="hljs-keyword">const</span> dataID = <span class="hljs-string">`client:Note:<span class="hljs-subst">${tempID++}</span>`</span>;
 
     <span class="hljs-comment">//Create a new note record.</span>
-    <span class="hljs-keyword">const</span> newNoteRecord = store.create(dataID, <span class="hljs-string">'Note'</span>);
+    <span class="hljs-keyword">const</span> newNoteRecord = store.create(dataID, <span class="hljs-string">&#x27;Note&#x27;</span>);
 
-    <span class="hljs-comment">// Add the record to the user's list of notes.</span>
-    user.setLinkedRecords([...userNoteRecords, newNoteRecord], <span class="hljs-string">'notes'</span>);
+    <span class="hljs-comment">// Add the record to the user&#x27;s list of notes.</span>
+    user.setLinkedRecords([...userNoteRecords, newNoteRecord], <span class="hljs-string">&#x27;notes&#x27;</span>);
   });
 }
 </code></pre>
 <p>Note that since this record will be rendered by the <code>ExampleQuery</code> in our <code>QueryRenderer</code>, the QueryRenderer will automatically retain this data so it isn't garbage collected.</p>
 <p>If no component is rendering the local data and you want to manually retain it, you can do so by calling <code>environment.retain()</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Tell Relay to retain the record so it isn't garbage collected</span>
+<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Tell Relay to retain the record so it isn&#x27;t garbage collected</span>
 environment.retain({
   dataID,
   <span class="hljs-attr">variables</span>: {},
@@ -172,24 +172,24 @@ environment.retain({
 });
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="update"></a><a href="#update" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Update</h3>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateUserNote</span>(<span class="hljs-params">dataID, body, title</span>) </span>{
-  commitLocalUpdate(environment, store =&gt; {
+  commitLocalUpdate(environment, <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
     <span class="hljs-keyword">const</span> note = store.get(dataID);
 
-    note.setValue(body, <span class="hljs-string">'body'</span>);
-    note.setValue(title, <span class="hljs-string">'title'</span>)
+    note.setValue(body, <span class="hljs-string">&#x27;body&#x27;</span>);
+    note.setValue(title, <span class="hljs-string">&#x27;title&#x27;</span>)
   });
 }
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="delete"></a><a href="#delete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Delete</h3>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">deleteUserNote</span>(<span class="hljs-params">dataID</span>) </span>{
-  commitLocalUpdate(environment, store =&gt; {
-    <span class="hljs-keyword">const</span> user = store.getRoot().getLinkedRecord(<span class="hljs-string">'viewer'</span>);
-    <span class="hljs-keyword">const</span> userNoteRecords = user.getLinkedRecords(<span class="hljs-string">'notes'</span>);
+  commitLocalUpdate(environment, <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
+    <span class="hljs-keyword">const</span> user = store.getRoot().getLinkedRecord(<span class="hljs-string">&#x27;viewer&#x27;</span>);
+    <span class="hljs-keyword">const</span> userNoteRecords = user.getLinkedRecords(<span class="hljs-string">&#x27;notes&#x27;</span>);
 
     <span class="hljs-comment">// Remove the note from the list of user notes.</span>
     <span class="hljs-keyword">const</span> newUserNoteRecords = userNoteRecords.filter(<span class="hljs-function"><span class="hljs-params">x</span> =&gt;</span> x.getDataID() !== dataID);
@@ -198,20 +198,20 @@ environment.retain({
     store.delete(dataID);
 
     <span class="hljs-comment">// Set the new list of notes.</span>
-    user.setLinkedRecords(newUserNoteRecords, <span class="hljs-string">'notes'</span>);
+    user.setLinkedRecords(newUserNoteRecords, <span class="hljs-string">&#x27;notes&#x27;</span>);
   });
 }
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="initial-local-state"></a><a href="#initial-local-state" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Initial local state</h2>
 <p>All new client-side schema fields default to <code>undefined</code> value. Often however, you will want to set the initial state before querying local data.
 You can use an updater function via <code>commitLocalUpdate</code> to prime local state.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">'react-relay'</span>;
+<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitLocalUpdate} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
-commitLocalUpdate(environment, store =&gt; {
-  <span class="hljs-keyword">const</span> user = store.getRoot().getLinkedRecord(<span class="hljs-string">'viewer'</span>);
+commitLocalUpdate(environment, <span class="hljs-function"><span class="hljs-params">store</span> =&gt;</span> {
+  <span class="hljs-keyword">const</span> user = store.getRoot().getLinkedRecord(<span class="hljs-string">&#x27;viewer&#x27;</span>);
 
   <span class="hljs-comment">// initialize user notes to an empty array.</span>
-  user.setLinkedRecords([], <span class="hljs-string">'notes'</span>);
+  user.setLinkedRecords([], <span class="hljs-string">&#x27;notes&#x27;</span>);
 });
 </code></pre>
 </span></div></article></div><div class="docLastUpdate"><em>Last updated on 9/4/2019 by babangsund</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/v7.0.0/testing-relay-components"><span class="arrow-prev">← </span><span>Testing Relay Components</span></a><a class="docs-next button" href="/docs/en/v7.0.0/thinking-in-graphql"><span class="function-name-prevnext">Thinking in GraphQL</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#extending-the-client-schema">Extending the client schema</a></li><li><a href="#querying-local-state">Querying local state</a></li><li><a href="#mutating-local-state">Mutating local state</a><ul class="toc-headings"><li><a href="#create">Create</a></li><li><a href="#update">Update</a></li><li><a href="#delete">Delete</a></li></ul></li><li><a href="#initial-local-state">Initial local state</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2020 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>

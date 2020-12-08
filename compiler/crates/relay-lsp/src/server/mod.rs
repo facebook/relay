@@ -14,7 +14,7 @@ use crate::{
         InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
         TextDocumentSyncKind, WorkDoneProgressOptions,
     },
-    lsp_process_error::LSPProcessResult,
+    lsp_process_error::{LSPProcessError, LSPProcessResult},
     references::on_references,
     shutdown::{on_exit, on_shutdown},
     text_documents::{
@@ -22,7 +22,7 @@ use crate::{
     },
 };
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::Sender;
+use crossbeam::{SendError, Sender};
 use log::info;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
@@ -66,7 +66,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 }
 
 /// Run the main server loop
-pub async fn run<TPerfLogger: PerfLogger + 'static>(
+pub fn run<TPerfLogger: PerfLogger + 'static>(
     connection: Connection,
     config: Config,
     _params: InitializeParams,
@@ -88,7 +88,8 @@ where
         info!("LSP message received {:?}", msg);
         match msg {
             Message::Request(req) => {
-                handle_request(&mut lsp_state, req, &connection.sender, &perf_logger);
+                handle_request(&mut lsp_state, req, &connection.sender, &perf_logger)
+                    .map_err(LSPProcessError::from)?;
             }
             Message::Notification(notification) => {
                 handle_notification(&mut lsp_state, notification, &perf_logger);
@@ -107,12 +108,11 @@ fn handle_request<TPerfLogger: PerfLogger + 'static>(
     request: lsp_server::Request,
     sender: &Sender<Message>,
     perf_logger: &Arc<TPerfLogger>,
-) {
+) -> Result<(), SendError<Message>> {
     let get_server_response_bound = |req| dispatch_request(req, lsp_state);
     let get_response = with_request_logging(perf_logger, get_server_response_bound);
 
-    // TODO handle these errors
-    let _ = sender.send(Message::Response(get_response(request)));
+    sender.send(Message::Response(get_response(request)))
 }
 
 fn dispatch_request<TPerfLogger: PerfLogger + 'static>(

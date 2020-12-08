@@ -40,7 +40,7 @@ where
     info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     info!("JSON-RPC handshake completed");
-    server::run(connection, config, params, perf_logger).await?;
+    server::run(connection, config, params, perf_logger)?;
     io_handles.join()?;
     Ok(())
 }

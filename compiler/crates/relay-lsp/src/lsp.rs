@@ -9,7 +9,6 @@
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
 use crate::lsp_process_error::LSPProcessResult;
-use common::Location;
 use crossbeam::{crossbeam_channel::Sender, SendError};
 pub use lsp_server::{Connection, Message};
 pub use lsp_server::{
@@ -18,16 +17,6 @@ pub use lsp_server::{
 };
 pub use lsp_types::{notification::*, request::*, *};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
-
-/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
-/// Returns None if we are unable to do the conversion
-pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
-    let file_path = location.source_location().path();
-    let canonical_path = fs::canonicalize(root_dir.join(file_path)).ok()?;
-    Url::from_file_path(canonical_path).ok()
-}
 
 #[derive(Debug)]
 pub enum ShowStatus {}

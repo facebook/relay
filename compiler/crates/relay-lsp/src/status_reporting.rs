@@ -7,10 +7,10 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp::{
-    publish_diagnostic, set_ready_status, set_running_status, url_from_location, Diagnostic,
-    DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url,
+    publish_diagnostic, set_ready_status, set_running_status, Diagnostic, DiagnosticSeverity,
+    Position, PublishDiagnosticsParams, Range, Url,
 };
-use common::Diagnostic as CompilerDiagnostic;
+use common::{Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::crossbeam_channel::Sender;
 use lsp_server::Message;
 use relay_compiler::{
@@ -19,9 +19,11 @@ use relay_compiler::{
     status_reporter::StatusReporter,
     FsSourceReader, SourceReader,
 };
-use std::collections::HashMap;
-use std::path::PathBuf;
-use std::sync::{Arc, RwLock};
+use std::{
+    collections::HashMap,
+    path::PathBuf,
+    sync::{Arc, RwLock},
+};
 
 pub struct LSPStatusReporter {
     active_diagnostics: Arc<RwLock<HashMap<Url, Vec<Diagnostic>>>>,
@@ -180,6 +182,14 @@ impl StatusReporter for LSPStatusReporter {
         }
         self.commit_diagnostics();
     }
+}
+
+/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
+/// Returns None if we are unable to do the conversion
+fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
+    let file_path = location.source_location().path();
+    let canonical_path = std::fs::canonicalize(root_dir.join(file_path)).ok()?;
+    Url::from_file_path(canonical_path).ok()
 }
 
 #[cfg(test)]

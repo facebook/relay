@@ -1839,6 +1839,8 @@ class TypeMap {
         this._parseObjectTypeNode(definition, true);
       } else if (definition.kind === 'InterfaceTypeDefinition') {
         this._parseInterfaceNode(definition, true);
+      } else if (definition.kind === 'InputObjectTypeDefinition') {
+        this._parseInputObjectTypeNode(definition, true);
       } else if (definition.kind === 'ScalarTypeDefinition') {
         this._parseScalarNode(definition, true);
       } else if (definition.kind === 'EnumTypeDefinition') {

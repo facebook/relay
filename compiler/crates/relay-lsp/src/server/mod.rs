@@ -21,7 +21,7 @@ use crate::{
         on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
     },
 };
-use common::PerfLogger;
+use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use log::info;
 use lsp_server::{ErrorCode, Notification, ResponseError};
@@ -80,7 +80,7 @@ where
         config.root_dir
     );
 
-    let mut lsp_state = LSPState::new(config, &connection.sender, perf_logger);
+    let mut lsp_state = LSPState::new(config, &connection.sender, Arc::clone(&perf_logger));
 
     set_initializing_status(&connection.sender);
 
@@ -88,10 +88,10 @@ where
         info!("LSP message received {:?}", msg);
         match msg {
             Message::Request(req) => {
-                handle_request(&mut lsp_state, req, &connection.sender);
+                handle_request(&mut lsp_state, req, &connection.sender, &perf_logger);
             }
             Message::Notification(notification) => {
-                handle_notification(&mut lsp_state, notification);
+                handle_notification(&mut lsp_state, notification, &perf_logger);
             }
             _ => {
                 // Ignore responses for now
@@ -104,11 +104,23 @@ where
 
 fn handle_request<TPerfLogger: PerfLogger + 'static>(
     lsp_state: &mut LSPState<TPerfLogger>,
-    req: lsp_server::Request,
+    request: lsp_server::Request,
     sender: &Sender<Message>,
+    perf_logger: &Arc<TPerfLogger>,
 ) {
-    let get_server_response = || -> Result<_, ServerResponse> {
-        let request = LSPRequestDispatch::new(req, lsp_state)
+    let get_server_response_bound = |req| dispatch_request(req, lsp_state);
+    let get_response = with_request_logging(perf_logger, get_server_response_bound);
+
+    // TODO handle these errors
+    let _ = sender.send(Message::Response(get_response(request)));
+}
+
+fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
+    request: lsp_server::Request,
+    lsp_state: &mut LSPState<TPerfLogger>,
+) -> ServerResponse {
+    let get_response = || -> Result<_, ServerResponse> {
+        let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<HoverRequest>(on_hover)?
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?
@@ -127,35 +139,80 @@ fn handle_request<TPerfLogger: PerfLogger + 'static>(
             }),
         })
     };
+    get_response().unwrap_or_else(|response| response)
+}
 
-    let response = get_server_response().unwrap_or_else(|response| response);
+fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
+    perf_logger: &'a Arc<TPerfLogger>,
+    get_response: impl FnOnce(lsp_server::Request) -> ServerResponse + 'a,
+) -> impl FnOnce(lsp_server::Request) -> ServerResponse + 'a {
+    move |request| {
+        let lsp_request_event = perf_logger.create_event("lsp_message");
+        lsp_request_event.string("lsp_method", request.method.clone());
+        lsp_request_event.string("lsp_type", "request".to_string());
+        let lsp_request_processing_time = lsp_request_event.start("lsp_message_processing_time");
 
-    // TODO handle these errors
-    let _ = sender.send(Message::Response(response));
+        let response = get_response(request);
+
+        if response.result.is_some() {
+            lsp_request_event.string("lsp_outcome", "success".to_string());
+        } else if let Some(error) = &response.error {
+            lsp_request_event.string("lsp_outcome", "error".to_string());
+            lsp_request_event.number("lsp_error_code", error.code as usize);
+            if let Some(data) = &error.data {
+                lsp_request_event.string("lsp_error_data", data.to_string());
+            }
+        }
+        // N.B. we don't handle the case where the ServerResponse has neither a result nor
+        // an error, which is an invalid state.
+
+        lsp_request_event.stop(lsp_request_processing_time);
+        perf_logger.complete_event(lsp_request_event);
+
+        response
+    }
 }
 
 fn handle_notification<TPerfLogger: PerfLogger + 'static>(
     lsp_state: &mut LSPState<TPerfLogger>,
     notification: Notification,
+    perf_logger: &Arc<TPerfLogger>,
 ) {
-    let get_notification_handling_response = || -> Result<(), ()> {
-        let notification = LSPNotificationDispatch::new(notification, lsp_state)
-            .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?
-            .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?
-            .on_notification_sync::<DidChangeTextDocument>(on_did_change_text_document)?
-            .on_notification_sync::<Exit>(on_exit)?
-            .notification();
+    let lsp_notification_event = perf_logger.create_event("lsp_message");
+    lsp_notification_event.string("lsp_method", notification.method.clone());
+    lsp_notification_event.string("lsp_type", "notification".to_string());
+    let lsp_notification_processing_time =
+        lsp_notification_event.start("lsp_message_processing_time");
 
-        // If we have gotten here, we have not handled the notification
-        // TODO report this back to the LSP somehow
-        // TODO add a DidSaveTextDocument handler or change the server capabilities
-        info!(
-            "Error: no handler registered for notification '{}'",
-            notification.method
-        );
-        Ok(())
-    };
+    let notification_result = dispatch_notification(notification, lsp_state);
 
-    // TODO handle these errors
-    let _ = get_notification_handling_response();
+    // The only possible error (for now) is not handling the notification.
+    // N.B. is_ok is correct here.
+    if notification_result.is_ok() {
+        lsp_notification_event.string("lsp_outcome", "error".to_string());
+        lsp_notification_event.number("lsp_error_code", ErrorCode::MethodNotFound as usize);
+    }
+
+    lsp_notification_event.stop(lsp_notification_processing_time);
+    perf_logger.complete_event(lsp_notification_event);
+}
+
+fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
+    notification: lsp_server::Notification,
+    lsp_state: &mut LSPState<TPerfLogger>,
+) -> Result<(), ()> {
+    let notification = LSPNotificationDispatch::new(notification, lsp_state)
+        .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?
+        .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?
+        .on_notification_sync::<DidChangeTextDocument>(on_did_change_text_document)?
+        .on_notification_sync::<Exit>(on_exit)?
+        .notification();
+
+    // If we have gotten here, we have not handled the notification
+    // TODO add a DidSaveTextDocument handler or change the server capabilities
+    info!(
+        "Error: no handler registered for notification '{}'",
+        notification.method
+    );
+    Ok(())
 }

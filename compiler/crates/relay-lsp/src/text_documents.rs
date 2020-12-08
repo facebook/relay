@@ -6,10 +6,9 @@
  */
 
 //! Utilities related to LSP text document syncing
-#![allow(dead_code)]
 
 use crate::{
-    lsp::{DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem, Url},
+    lsp::{DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem},
     lsp_runtime_error::LSPRuntimeResult,
     server::LSPState,
 };
@@ -19,8 +18,6 @@ use graphql_syntax::GraphQLSource;
 use lsp_types::notification::{
     DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Notification,
 };
-
-pub type GraphQLTextDocumentCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
 
 pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
     lsp_state: &mut LSPState<TPerfLogger>,

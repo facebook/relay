@@ -70,11 +70,14 @@ pub fn set_ready_status(sender: &Sender<Message>) {
     );
 }
 
-pub fn set_initializing_status(sender: &Sender<Message>) {
+pub fn set_not_started_status(sender: &Sender<Message>) {
     update_status(
-        Some("Relay: initializing".into()),
-        Some("Relay: initializing".into()),
-        MessageType::Warning,
+        Some("Relay: not started".into()),
+        Some(
+            "The Relay compiler will start when you open a Javascript file containing a graphql literal"
+                .into(),
+        ),
+        MessageType::Info,
         sender,
     );
 }

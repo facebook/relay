@@ -10,7 +10,7 @@ use crate::{
     goto_definition::on_goto_definition,
     hover::on_hover,
     lsp::{
-        set_initializing_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
+        set_not_started_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
         InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
         TextDocumentSyncKind, WorkDoneProgressOptions,
     },
@@ -82,7 +82,7 @@ where
 
     let mut lsp_state = LSPState::new(config, &connection.sender, Arc::clone(&perf_logger));
 
-    set_initializing_status(&connection.sender);
+    set_not_started_status(&connection.sender);
 
     for msg in connection.receiver {
         info!("LSP message received {:?}", msg);

@@ -6,6 +6,7 @@
  */
 
 //! Utilities for providing the hover feature
+use crate::server::ExtraDataProvider;
 use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
@@ -74,6 +75,7 @@ fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    extra_data_provider: ExtraDataProvider,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
 
@@ -214,7 +216,25 @@ For example:
                 None
             }
         }
-        NodeKind::OperationDefinition => None,
+        NodeKind::OperationDefinition(query_name) => {
+            let search_token = if let Some(query_name) = query_name {
+                query_name.lookup().to_string()
+            } else {
+                return None;
+            };
+
+            let extra_data = extra_data_provider(search_token);
+            if !extra_data.is_empty() {
+                Some(HoverContents::Array(
+                    extra_data
+                        .iter()
+                        .map(|str| MarkedString::String(str.to_string()))
+                        .collect::<_>(),
+                ))
+            } else {
+                None
+            }
+        }
         NodeKind::FragmentDefinition(name) => {
             let type_ = node_resolution_info
                 .type_path
@@ -259,6 +279,7 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
             node_resolution_info,
             schemas,
             state.get_source_programs_ref(),
+            state.extra_data_provider(),
         )
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Unable to get hover contents".to_string())

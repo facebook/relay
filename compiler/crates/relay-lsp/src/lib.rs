@@ -22,6 +22,7 @@ mod shutdown;
 mod status_reporting;
 mod text_documents;
 mod utils;
+use crate::server::ExtraDataProvider;
 use common::PerfLogger;
 use log::info;
 use lsp_process_error::LSPProcessResult;
@@ -29,9 +30,10 @@ use lsp_server::Connection;
 use relay_compiler::config::Config;
 use std::sync::Arc;
 
-pub async fn start_language_server<TPerfLogger>(
+pub fn start_language_server<TPerfLogger>(
     config: Config,
     perf_logger: Arc<TPerfLogger>,
+    extra_data_provider: ExtraDataProvider,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -40,7 +42,7 @@ where
     info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     info!("JSON-RPC handshake completed");
-    server::run(connection, config, params, perf_logger)?;
+    server::run(connection, config, params, perf_logger, extra_data_provider)?;
     io_handles.join()?;
     Ok(())
 }

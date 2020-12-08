@@ -40,7 +40,7 @@ use lsp_request_dispatch::LSPRequestDispatch;
 mod lsp_notification_dispatch;
 use lsp_notification_dispatch::LSPNotificationDispatch;
 mod lsp_state;
-pub(crate) use lsp_state::LSPState;
+pub(crate) use lsp_state::{ExtraDataProvider, LSPState};
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -74,6 +74,7 @@ pub fn run<TPerfLogger: PerfLogger + 'static>(
     config: Config,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
+    extra_data_provider: ExtraDataProvider,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -83,7 +84,12 @@ where
         config.root_dir
     );
 
-    let mut lsp_state = LSPState::new(config, &connection.sender, Arc::clone(&perf_logger));
+    let mut lsp_state = LSPState::new(
+        config,
+        &connection.sender,
+        Arc::clone(&perf_logger),
+        extra_data_provider,
+    );
 
     set_not_started_status(&connection.sender);
 

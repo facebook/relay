@@ -25,7 +25,7 @@ pub use type_path::{TypePath, TypePathItem};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
-    OperationDefinition,
+    OperationDefinition(Option<StringKey>),
     FragmentDefinition(StringKey),
     FieldName,
     FieldArgument(StringKey, StringKey),
@@ -94,8 +94,13 @@ fn create_node_resolution_info(
     match definition {
         ExecutableDefinition::Operation(operation) => {
             if operation.location.contains(position_span) {
-                let mut node_resolution_info =
-                    NodeResolutionInfo::new(project_name, NodeKind::OperationDefinition);
+                let mut node_resolution_info = NodeResolutionInfo::new(
+                    project_name,
+                    NodeKind::OperationDefinition(match &operation.name {
+                        Some(name) => Some(name.value),
+                        None => None,
+                    }),
+                );
                 let OperationDefinition {
                     selections,
                     variable_definitions,

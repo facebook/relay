@@ -8,11 +8,15 @@
 //! Utilities for providing the hover feature
 use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{NodeKind, NodeResolutionInfo},
+    server::LSPState,
 };
+use common::PerfLogger;
 use graphql_ir::{Program, Value};
 use graphql_text_printer::print_value;
 use interner::StringKey;
+use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::Schema;
 use schema_print::print_directive;
 use std::{
@@ -66,7 +70,7 @@ DEPRECATED version of `@arguments` directive.
     content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
 }
 
-pub fn get_hover_response_contents(
+fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
@@ -236,5 +240,34 @@ and then include them in queries where you need to.
 
             Some(HoverContents::Array(hover_contents))
         }
+    }
+}
+
+pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <HoverRequest as Request>::Params,
+) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
+    let node_resolution_info = state.resolve_node(params)?;
+    log::info!("Hovering over {:?}", node_resolution_info);
+    if let Some(schemas) = state
+        .get_schemas()
+        .read()
+        .unwrap()
+        .get(&node_resolution_info.project_name)
+    {
+        let contents = get_hover_response_contents(
+            node_resolution_info,
+            schemas,
+            state.get_source_programs_ref(),
+        )
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError("Unable to get hover contents".to_string())
+        })?;
+        Ok(Some(Hover {
+            contents,
+            range: None,
+        }))
+    } else {
+        Err(LSPRuntimeError::ExpectedError)
     }
 }

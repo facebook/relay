@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![warn(clippy::all)]
+#![deny(clippy::all)]
 
 mod client;
 mod completion;
@@ -18,6 +18,7 @@ mod lsp_runtime_error;
 mod node_resolution_info;
 mod references;
 mod server;
+mod shutdown;
 mod status_reporting;
 mod text_documents;
 mod utils;

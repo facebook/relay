@@ -47,7 +47,7 @@ fn get_graphql_source<'a>(
 }
 
 /// Return a parsed executable document for this LSP request, only if the request occurs
-/// within a GraphQL document. Otherwise return `None`
+/// within a GraphQL document.
 pub fn extract_executable_document_from_text(
     text_document_position: TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,

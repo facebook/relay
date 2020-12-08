@@ -21,43 +21,6 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
-#[derive(Debug, Clone)]
-pub enum LSPBridgeMessage {
-    CompletionRequest {
-        request_id: ServerRequestId,
-        params: CompletionParams,
-    },
-    HoverRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
-    GotoDefinitionRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
-    ReferencesRequest {
-        request_id: ServerRequestId,
-        reference_params: ReferenceParams,
-    },
-    DidOpenTextDocument(DidOpenTextDocumentParams),
-    DidChangeTextDocument(DidChangeTextDocumentParams),
-    DidCloseTextDocument(DidCloseTextDocumentParams),
-}
-
-impl LSPBridgeMessage {
-    pub(crate) fn get_message_type_for_logging(&self) -> &str {
-        match self {
-            LSPBridgeMessage::GotoDefinitionRequest { .. } => "GotoDefinitionRequest",
-            LSPBridgeMessage::CompletionRequest { .. } => "CompletionRequest",
-            LSPBridgeMessage::HoverRequest { .. } => "HoverRequest",
-            LSPBridgeMessage::ReferencesRequest { .. } => "ReferencesRequest",
-            LSPBridgeMessage::DidOpenTextDocument(_) => "DidOpenTextDocument",
-            LSPBridgeMessage::DidChangeTextDocument(_) => "DidChangeTextDocument",
-            LSPBridgeMessage::DidCloseTextDocument(_) => "DidCloseTextDocument",
-        }
-    }
-}
-
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
 pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {

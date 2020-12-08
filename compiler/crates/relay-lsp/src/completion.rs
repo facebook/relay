@@ -6,29 +6,27 @@
  */
 
 //! Utilities for providing the completion language feature
-use crate::lsp::{
-    CompletionItem, CompletionParams, CompletionResponse, Message, ServerRequestId, ServerResponse,
-    Url,
+use crate::{
+    lsp::{CompletionItem, CompletionResponse},
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    node_resolution_info::{TypePath, TypePathItem},
+    server::LSPState,
 };
-use crate::node_resolution_info::{TypePath, TypePathItem};
-use crate::utils::extract_executable_document_from_text;
-use common::Span;
-use crossbeam::Sender;
+use common::{PerfLogger, Span};
+
 use graphql_ir::Program;
 use graphql_syntax::{
-    Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
-    LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
+    Directive, DirectiveLocation, ExecutableDefinition, ExecutableDocument, FragmentSpread,
+    InlineFragment, LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
 };
-use graphql_syntax::{ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
-use relay_compiler::FileCategorizer;
+use lsp_types::request::{Completion, Request};
 use schema::{
     ArgumentDefinitions, Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields,
 };
 use std::{
     collections::HashMap,
-    path::PathBuf,
     sync::{Arc, RwLock},
 };
 
@@ -59,7 +57,7 @@ impl CompletionRequest {
     }
 }
 
-pub fn create_completion_request(
+fn create_completion_request(
     document: ExecutableDocument,
     position_span: Span,
     project_name: StringKey,
@@ -224,7 +222,7 @@ fn resolve_completion_items_for_fragment_spread(
     valid_fragments
 }
 
-pub fn completion_items_for_request(
+fn completion_items_for_request(
     request: CompletionRequest,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
@@ -445,47 +443,25 @@ fn create_arguments_snippets(arguments: &ArgumentDefinitions, schema: &Schema) -
     args
 }
 
-pub fn send_completion_response(
-    items: Vec<CompletionItem>,
-    request_id: ServerRequestId,
-    sender: &Sender<Message>,
-) {
-    // If there are no items, don't send any response
-    if items.is_empty() {
-        return;
+pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <Completion as Request>::Params,
+) -> LSPRuntimeResult<<Completion as Request>::Result> {
+    let (document, position_span, project_name) =
+        state.extract_executable_document_from_text(params.text_document_position)?;
+
+    let completion_request = create_completion_request(document, position_span, project_name)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    if let Some(schema) = state.get_schemas().read().unwrap().get(&project_name) {
+        let items = completion_items_for_request(
+            completion_request,
+            schema,
+            state.get_source_programs_ref(),
+        )
+        .unwrap_or_else(Vec::new);
+        Ok(Some(CompletionResponse::Array(items)))
+    } else {
+        Err(LSPRuntimeError::ExpectedError)
     }
-    let completion_response = CompletionResponse::Array(items);
-    let result = serde_json::to_value(&completion_response).ok();
-    let response = ServerResponse {
-        id: request_id,
-        error: None,
-        result,
-    };
-    sender.send(Message::Response(response)).ok();
-}
-
-/// Return a `CompletionPath` for this request, only if the completion request occurs
-/// within a GraphQL document. Otherwise return `None`
-pub fn get_completion_request(
-    params: CompletionParams,
-    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
-    file_categorizer: &FileCategorizer,
-    root_dir: &PathBuf,
-) -> Option<CompletionRequest> {
-    let CompletionParams {
-        text_document_position,
-        ..
-    } = params;
-
-    let (document, position_span, project_name) = extract_executable_document_from_text(
-        text_document_position,
-        graphql_source_cache,
-        file_categorizer,
-        root_dir,
-    )
-    .ok()?;
-
-    let completion_request = create_completion_request(document, position_span, project_name);
-    info!("Completion request: {:#?}", completion_request);
-    completion_request
 }

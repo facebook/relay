@@ -8,25 +8,31 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::to_contents_and_lsp_location_of_graphql_literal, lsp_runtime_error::LSPRuntimeError,
-    node_resolution_info::NodeKind, utils::span_to_range_offset,
+    location::to_contents_and_lsp_location_of_graphql_literal,
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    node_resolution_info::NodeKind,
+    node_resolution_info::NodeResolutionInfo,
+    server::LSPState,
+    utils::span_to_range_offset,
 };
-use crate::{lsp_runtime_error::LSPRuntimeResult, node_resolution_info::NodeResolutionInfo};
-use common::Location;
+use common::{Location, PerfLogger};
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use interner::StringKey;
-use lsp_types::{request::GotoDefinitionResponse, Range};
+use lsp_types::{
+    request::{References, Request},
+    Range,
+};
 use std::{
     collections::HashMap,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
 
-pub fn get_references_response(
+fn get_references_response(
     node_resolution_info: NodeResolutionInfo,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
-) -> LSPRuntimeResult<GotoDefinitionResponse> {
+) -> LSPRuntimeResult<Vec<lsp_types::Location>> {
     match node_resolution_info.kind {
         NodeKind::FragmentDefinition(fragment_name) => {
             let project_name = node_resolution_info.project_name;
@@ -39,7 +45,7 @@ pub fn get_references_response(
                         })
                         .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
-                Ok(GotoDefinitionResponse::Array(references))
+                Ok(references)
             } else {
                 Err(LSPRuntimeError::UnexpectedError(format!(
                     "Project name {} not found",
@@ -96,4 +102,17 @@ impl Visitor for ReferenceFinder {
             self.references.push(spread.fragment.location);
         }
     }
+}
+
+pub(crate) fn on_references<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <References as Request>::Params,
+) -> LSPRuntimeResult<<References as Request>::Result> {
+    let node_resolution_info = state.resolve_node(params.text_document_position)?;
+    let references_response = get_references_response(
+        node_resolution_info,
+        state.get_source_programs_ref(),
+        state.root_dir(),
+    )?;
+    Ok(Some(references_response))
 }

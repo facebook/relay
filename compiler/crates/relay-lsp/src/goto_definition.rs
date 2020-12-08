@@ -8,19 +8,24 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
-    location::to_lsp_location_of_graphql_literal, lsp::GotoDefinitionResponse,
-    lsp_runtime_error::LSPRuntimeResult, node_resolution_info::NodeKind,
+    location::to_lsp_location_of_graphql_literal,
+    lsp::GotoDefinitionResponse,
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    node_resolution_info::NodeKind,
+    node_resolution_info::NodeResolutionInfo,
+    server::LSPState,
 };
-use crate::{lsp_runtime_error::LSPRuntimeError, node_resolution_info::NodeResolutionInfo};
+use common::PerfLogger;
 use graphql_ir::Program;
 use interner::StringKey;
+use lsp_types::request::{GotoDefinition, Request};
 use std::{
     collections::HashMap,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
 
-pub fn get_goto_definition_response(
+fn get_goto_definition_response(
     node_resolution_info: NodeResolutionInfo,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
@@ -48,4 +53,19 @@ pub fn get_goto_definition_response(
         }
         _ => Err(LSPRuntimeError::ExpectedError),
     }
+}
+
+pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <GotoDefinition as Request>::Params,
+) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
+    let node_resolution_info = state.resolve_node(params)?;
+
+    let goto_definition_response = get_goto_definition_response(
+        node_resolution_info,
+        state.get_source_programs_ref(),
+        state.root_dir(),
+    )?;
+
+    Ok(Some(goto_definition_response))
 }

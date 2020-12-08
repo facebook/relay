@@ -16,7 +16,8 @@ use crate::{
 use common::PerfLogger;
 use graphql_syntax::GraphQLSource;
 use lsp_types::notification::{
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, Notification,
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
+    Notification,
 };
 
 pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
@@ -92,4 +93,11 @@ fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
         // TODO T80565215 handle these errors
         Err(_) => None,
     }
+}
+
+pub(crate) fn on_did_save_text_document<TPerfLogger: PerfLogger + 'static>(
+    _lsp_state: &mut LSPState<TPerfLogger>,
+    _params: <DidSaveTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
+    Ok(())
 }

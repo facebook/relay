@@ -1,0 +1,90 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  photo)
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:35,
+    definitions: [
+        FragmentDefinition {
+            location: argument-closing-paren-only.graphql:0:35,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:22,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:34,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 26:33,
+                        alias: None,
+                        name: Identifier {
+                            span: 26:31,
+                            token: Token {
+                                span: 26:31,
+                                kind: Identifier,
+                            },
+                            value: "photo",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 31:32,
+                                start: Token {
+                                    span: 32:32,
+                                    kind: Empty,
+                                },
+                                items: [],
+                                end: Token {
+                                    span: 31:32,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 33:34,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a open parenthesis ('(')
+
+  argument-closing-paren-only.graphql:2:8
+    1 │ fragment Test on User {
+    2 │   photo)
+      │        ^
+    3 │ }

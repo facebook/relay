@@ -8,7 +8,7 @@
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span};
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
 use interner::Intern;
 use logos::Logos;
 
@@ -73,13 +73,18 @@ impl<'a> Parser<'a> {
 
     /// Parses a document consisting only of executable nodes: operations and
     /// fragments.
-    pub fn parse_executable_document(mut self) -> DiagnosticsResult<ExecutableDocument> {
+    pub fn parse_executable_document(mut self) -> WithDiagnostics<ExecutableDocument> {
         let document = self.parse_executable_document_impl();
         if self.errors.is_empty() {
-            self.parse_eof()?;
-            Ok(document.unwrap())
-        } else {
-            Err(self.errors)
+            let _ = self.parse_kind(TokenKind::EndOfFile);
+        }
+        let document = document.unwrap_or_else(|_| ExecutableDocument {
+            span: Span::new(0, 0),
+            definitions: Default::default(),
+        });
+        WithDiagnostics {
+            item: document,
+            errors: self.errors,
         }
     }
 
@@ -1214,12 +1219,178 @@ impl<'a> Parser<'a> {
     /// Arguments?
     /// Arguments[Const] : ( Argument[?Const]+ )
     fn parse_optional_arguments(&mut self) -> ParseResult<Option<List<Argument>>> {
-        self.parse_optional_delimited_nonempty_list(
-            TokenKind::OpenParen,
-            TokenKind::CloseParen,
-            Self::parse_argument,
-        )
+        if self.peek_token_kind() != TokenKind::OpenParen {
+            return if self.peek_token_kind() == TokenKind::CloseParen {
+                // field )
+                let end = self.parse_token();
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::OpenParen),
+                    Location::new(self.source_location, end.span),
+                ));
+                Ok(Some(List {
+                    span: end.span,
+                    start: self.empty_token(),
+                    items: vec![],
+                    end,
+                }))
+            } else {
+                Ok(None)
+            };
+        }
+        let start = self.parse_token();
+        let mut items: Vec<Argument> = vec![];
+        loop {
+            let peek_kind = self.peek_token_kind();
+            if peek_kind == TokenKind::CloseParen {
+                break;
+            } else if peek_kind == TokenKind::OpenBrace || peek_kind == TokenKind::CloseBrace {
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::CloseParen),
+                    Location::new(self.source_location, self.peek().span),
+                ));
+                let span = Span::new(start.span.start, self.index());
+                if items.is_empty() {
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::ExpectedArgument,
+                        Location::new(self.source_location, span),
+                    ))
+                }
+                return Ok(Some(List {
+                    span,
+                    start,
+                    items,
+                    end: self.empty_token(),
+                }));
+            }
+            // MaybeArgument Name ?: ?Value[?Const]
+            let start = self.index();
+            let name = if peek_kind == TokenKind::Identifier {
+                self.parse_identifier()?
+            } else {
+                (|| {
+                    if peek_kind == TokenKind::Colon && !items.is_empty() {
+                        /*
+                            (
+                                arg:
+                                arg2: $var
+                                #   ^ We are at the second colon, and need to recover the identifier
+                            )
+                        */
+                        let last_arg = items.last_mut().unwrap();
+                        if let Value::Constant(ConstantValue::Enum(node)) = &last_arg.value {
+                            self.record_error(Diagnostic::error(
+                                SyntaxError::ExpectedValue,
+                                Location::new(
+                                    self.source_location,
+                                    Span::new(last_arg.colon.span.end, last_arg.colon.span.end),
+                                ),
+                            ));
+                            let name = Identifier {
+                                span: node.token.span,
+                                token: node.token.clone(),
+                                value: node.value,
+                            };
+                            last_arg.span.end = last_arg.colon.span.end;
+                            last_arg.value =
+                                Value::Constant(ConstantValue::Null(last_arg.name.token.clone()));
+                            return name;
+                        }
+                    }
+                    /*
+                        ($var)
+                        (:$var)
+                    */
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::Expected(TokenKind::Identifier),
+                        Location::new(
+                            self.source_location,
+                            Span::new(start, self.peek().span.start),
+                        ),
+                    ));
+                    let empty_token = self.empty_token();
+                    Identifier {
+                        span: empty_token.span,
+                        token: empty_token,
+                        value: "".intern(),
+                    }
+                })()
+            };
+            let colon = self.parse_optional_kind(TokenKind::Colon);
+            if let Some(colon) = colon {
+                if self.peek_kind(TokenKind::CloseParen) {
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::ExpectedValue,
+                        Location::new(self.source_location, Span::new(name.span.end, self.index())),
+                    ));
+                    let span = Span::new(start, self.index());
+                    let value = Value::Constant(ConstantValue::Null(self.empty_token()));
+                    items.push(Argument {
+                        span,
+                        name,
+                        colon,
+                        value,
+                    });
+                } else {
+                    let value = self.parse_value()?;
+                    let span = Span::new(start, self.index());
+                    items.push(Argument {
+                        span,
+                        name,
+                        colon,
+                        value,
+                    });
+                }
+            } else {
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::Colon),
+                    Location::new(
+                        self.source_location,
+                        Span::new(name.span.end, self.peek().span.start),
+                    ),
+                ));
+                let span = Span::new(start, self.index());
+                // Continue parsing value if the next token looks like a value (except for Enum)
+                let value = match self.peek_token_kind() {
+                    TokenKind::Dollar
+                    | TokenKind::OpenBrace
+                    | TokenKind::OpenBracket
+                    | TokenKind::StringLiteral
+                    | TokenKind::IntegerLiteral
+                    | TokenKind::FloatLiteral => self.parse_value()?,
+                    TokenKind::Identifier => {
+                        let source = self.source(self.peek());
+                        if source == "true" || source == "false" || source == "null" {
+                            self.parse_value()?
+                        } else {
+                            Value::Constant(ConstantValue::Null(self.empty_token()))
+                        }
+                    }
+                    _ => Value::Constant(ConstantValue::Null(self.empty_token())),
+                };
+                items.push(Argument {
+                    span,
+                    name,
+                    colon: self.empty_token(),
+                    value,
+                });
+            }
+        }
+        let end = self.parse_token();
+        let span = Span::new(start.span.start, end.span.end);
+        if items.is_empty() {
+            self.record_error(Diagnostic::error(
+                SyntaxError::ExpectedArgument,
+                Location::new(self.source_location, span),
+            ))
+        }
+        Ok(Some(List {
+            span,
+            start,
+            items,
+            end,
+        }))
     }
+
     fn parse_optional_constant_arguments(&mut self) -> ParseResult<Option<List<ConstantArgument>>> {
         self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenParen,
@@ -1731,5 +1902,14 @@ impl<'a> Parser<'a> {
         // NOTE: Useful for debugging parse errors:
         // panic!("{:?}", error);
         self.errors.push(error);
+    }
+
+    /// Returns an empty token with a span at the end of last token
+    fn empty_token(&self) -> Token {
+        let index = self.index() - 1;
+        Token {
+            span: Span::new(index, index),
+            kind: TokenKind::Empty,
+        }
     }
 }

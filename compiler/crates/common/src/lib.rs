@@ -17,7 +17,9 @@ mod perf_logger;
 mod span;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
-pub use diagnostic::{combined_result, diagnostics_result, Diagnostic, DiagnosticsResult};
+pub use diagnostic::{
+    combined_result, diagnostics_result, Diagnostic, DiagnosticsResult, WithDiagnostics,
+};
 pub use location::{Location, SourceLocationKey, WithLocation};
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};

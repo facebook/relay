@@ -30,10 +30,16 @@ pub enum SyntaxError {
     ExpectedConstantValue,
     #[error("Expected a type annotation (e.g. '<Type>', '[Type]', 'Type!', etc)")]
     ExpectedTypeAnnotation,
+    #[error(
+        "Expected a value ('$example', boolean, integer, float, string, null, list, or object)"
+    )]
+    ExpectedValue,
     #[error("Expected a variable ('$example')")]
     ExpectedVariable,
     #[error("Expected a spread ('...')")]
     ExpectedSpread,
+    #[error("Expected an argument")]
+    ExpectedArgument,
     #[error("Invalid floating point value")]
     InvalidFloat,
     #[error("Invalid integer value")]

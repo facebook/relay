@@ -703,4 +703,10 @@ pub enum ValidationMessage {
 
     #[error("Duplicate variable `{name}`")]
     DuplicateVariable { name: StringKey },
+
+    #[error("{definition} `{name}` must start with an uppercase letter.")]
+    RequiredUppercaseNaming {
+        definition: StringKey,
+        name: StringKey,
+    },
 }

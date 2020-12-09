@@ -30,7 +30,6 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   GraphQLResponse,
   INetwork,
-  LogRequestInfoFunction,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
@@ -367,10 +366,6 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
-    const logObserver = this.__createExecuteLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       const source = this._network.execute(
         operation.request.node.params,
@@ -395,7 +390,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -421,10 +416,6 @@ class RelayModernEnvironment implements IEnvironment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
-    const logObserver = this.__createExecuteLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {
@@ -460,7 +451,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -479,10 +470,6 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse> {
-    const logObserver = this.__createExecuteLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -500,55 +487,11 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
-  }
-
-  __createExecuteLogObserver(
-    params: RequestParameters,
-    variables: Variables,
-  ): Observer<GraphQLResponse> {
-    const transactionID = generateID();
-    const log = this.__log;
-    return {
-      start: subscription => {
-        log({
-          name: 'execute.start',
-          transactionID,
-          params,
-          variables,
-        });
-      },
-      next: response => {
-        log({
-          name: 'execute.next',
-          transactionID,
-          response,
-        });
-      },
-      error: error => {
-        log({
-          name: 'execute.error',
-          transactionID,
-          error,
-        });
-      },
-      complete: () => {
-        log({
-          name: 'execute.complete',
-          transactionID,
-        });
-      },
-      unsubscribe: () => {
-        log({
-          name: 'execute.unsubscribe',
-          transactionID,
-        });
-      },
-    };
   }
 
   /**

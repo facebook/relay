@@ -16,8 +16,9 @@ use common::{PerfLogger, Span};
 
 use graphql_ir::Program;
 use graphql_syntax::{
-    Directive, DirectiveLocation, ExecutableDefinition, ExecutableDocument, FragmentSpread,
-    InlineFragment, LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
+    Argument, Directive, DirectiveLocation, ExecutableDefinition, ExecutableDocument,
+    FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, OperationKind,
+    ScalarField, Selection,
 };
 use interner::StringKey;
 use log::info;
@@ -35,6 +36,7 @@ pub enum CompletionKind {
     FieldName,
     FragmentSpread,
     DirectiveName { location: DirectiveLocation },
+    FieldArgumentName,
 }
 #[derive(Debug)]
 pub struct CompletionRequest {
@@ -229,10 +231,10 @@ fn completion_items_for_request(
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let project_name = request.project_name;
-    let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-    info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
+    info!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
+            let leaf_type = request.type_path.resolve_leaf_type(schema)?;
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
                 info!("has source program");
                 let items =
@@ -242,7 +244,7 @@ fn completion_items_for_request(
                 None
             }
         }
-        CompletionKind::FieldName => match leaf_type {
+        CompletionKind::FieldName => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
                 let items = resolve_completion_items_from_fields(interface, schema);
@@ -263,6 +265,21 @@ fn completion_items_for_request(
                 .collect();
             Some(items)
         }
+        CompletionKind::FieldArgumentName => {
+            let field = request.type_path.resolve_current_field(schema)?;
+            Some(
+                field
+                    .arguments
+                    .iter()
+                    .map(|arg| {
+                        CompletionItem::new_simple(
+                            arg.name.lookup().into(),
+                            schema.get_type_string(&arg.type_),
+                        )
+                    })
+                    .collect(),
+            )
+        }
     }
 }
 
@@ -280,11 +297,21 @@ fn build_request_from_selections(
                         name,
                         selections,
                         directives,
+                        arguments,
                         ..
                     } = node;
                     completion_request
                         .type_path
                         .add_type(TypePathItem::LinkedField { name: name.value });
+                    if let Some(arguments) = arguments {
+                        if build_request_from_arguments(
+                            arguments,
+                            position_span,
+                            completion_request,
+                        ) {
+                            return;
+                        }
+                    }
                     build_request_from_selection_or_directives(
                         selections,
                         directives,
@@ -331,11 +358,23 @@ fn build_request_from_selections(
                 }
                 Selection::ScalarField(node) => {
                     let ScalarField {
-                        directives, name, ..
+                        directives,
+                        name,
+                        arguments,
+                        ..
                     } = node;
                     completion_request
                         .type_path
                         .add_type(TypePathItem::ScalarField { name: name.value });
+                    if let Some(arguments) = arguments {
+                        if build_request_from_arguments(
+                            arguments,
+                            position_span,
+                            completion_request,
+                        ) {
+                            return;
+                        }
+                    }
                     build_request_from_directives(
                         directives,
                         DirectiveLocation::Scalar,
@@ -346,6 +385,27 @@ fn build_request_from_selections(
             }
         }
     }
+}
+
+fn build_request_from_arguments(
+    arguments: &List<Argument>,
+    position_span: Span,
+    completion_request: &mut CompletionRequest,
+) -> bool {
+    if arguments.span.contains(position_span) {
+        if arguments.items.is_empty() {
+            completion_request.kind = CompletionKind::FieldArgumentName;
+            return true;
+        } else {
+            for Argument { name, .. } in &arguments.items {
+                if name.span.contains(position_span) {
+                    completion_request.kind = CompletionKind::FieldArgumentName;
+                    return true;
+                }
+            }
+        }
+    }
+    false
 }
 
 fn build_request_from_directives(

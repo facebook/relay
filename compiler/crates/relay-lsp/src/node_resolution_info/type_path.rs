@@ -119,19 +119,27 @@ impl TypePath {
         Some(type_)
     }
 
-    pub fn resolve_current_field(self, schema: &Schema) -> Option<Field> {
+    /// Returns the leaf is it is a field
+    pub fn resolve_current_field(self, schema: &Schema) -> Option<&Field> {
         let mut type_path = self.0;
         type_path.reverse();
-        let mut type_ = TypeReference::Named(resolve_root_type(
-            type_path.pop().expect("path must be non-empty"),
-            schema,
-        )?);
-        let mut field: Option<Field> = None;
+        let mut type_ =
+            resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
         while let Some(path_item) = type_path.pop() {
-            let result = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
-            type_ = result.0;
-            field = result.1;
+            if type_path.is_empty() {
+                return match path_item {
+                    TypePathItem::LinkedField { name } => schema
+                        .named_field(type_, name)
+                        .map(|field_id| schema.field(field_id)),
+                    TypePathItem::ScalarField { name } => schema
+                        .named_field(type_, name)
+                        .map(|field_id| schema.field(field_id)),
+                    _ => None,
+                };
+            } else {
+                type_ = resolve_relative_type(type_, path_item, schema)?;
+            }
         }
-        field
+        None
     }
 }

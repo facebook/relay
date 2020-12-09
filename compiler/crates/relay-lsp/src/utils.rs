@@ -9,7 +9,7 @@ use std::{collections::HashMap, path::PathBuf};
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::{SourceLocationKey, Span};
-use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
+use graphql_syntax::{parse_executable_with_error_recovery, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::info;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
@@ -78,16 +78,11 @@ pub fn extract_executable_document_from_text(
             )));
         };
 
-    let document = parse_executable(
+    let document = parse_executable_with_error_recovery(
         &graphql_source.text,
         SourceLocationKey::standalone(&url.to_string()),
     )
-    .map_err(|e| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "Failed to parse document {:?}. Errors {:?}",
-            file_path, e
-        ))
-    })?;
+    .item;
 
     // Now we need to take the `Position` and map that to an offset relative
     // to this GraphQL document, as the `Span`s in the document are relative.

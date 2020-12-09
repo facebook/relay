@@ -102,9 +102,9 @@ pub fn extract_executable_document_from_text(
 }
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
-/// this completion request came from
+/// this request came from
 pub(crate) fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> {
-    let mut index_of_last_line = 0;
+    let mut index_of_first_character_of_current_line = 0;
     let mut line_index = source.line_index as u64;
 
     let mut chars = source.text.chars().enumerate().peekable();
@@ -120,11 +120,15 @@ pub(crate) fn position_to_span(position: Position, source: &GraphQLSource) -> Op
 
         if is_newline {
             line_index += 1;
-            index_of_last_line = index as u64;
+            // Add 1 here to point to the start of the line, rather than to the line break
+            // (which is the current character).
+            // We must point to the start of the line because position.character is zero-indexed.
+            index_of_first_character_of_current_line = (index + 1) as u64;
         }
 
         if line_index == position.line {
-            let start_offset = (index_of_last_line + position.character) as u32;
+            let start_offset =
+                (index_of_first_character_of_current_line + position.character) as u32;
             return Some(Span::new(start_offset, start_offset));
         }
     }

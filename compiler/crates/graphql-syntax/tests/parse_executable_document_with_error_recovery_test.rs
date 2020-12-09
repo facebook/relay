@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2530cd1cb6d5c677896a5cfd3e547f37>>
+ * @generated SignedSource<<3b1ae3797b7fd9cca695df272f1f6c6f>>
  */
 
 mod parse_executable_document_with_error_recovery;
@@ -94,4 +94,11 @@ fn empty_argument_list() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-argument-list.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-argument-list.expected");
     test_fixture(transform_fixture, "empty-argument-list.graphql", "parse_executable_document_with_error_recovery/fixtures/empty-argument-list.expected", input, expected);
+}
+
+#[test]
+fn empty_linked_field() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-linked-field.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-linked-field.expected");
+    test_fixture(transform_fixture, "empty-linked-field.graphql", "parse_executable_document_with_error_recovery/fixtures/empty-linked-field.expected", input, expected);
 }

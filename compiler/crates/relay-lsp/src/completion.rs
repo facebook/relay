@@ -143,10 +143,17 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                     args.len() + 1
                 )),
             };
-            let insert_text_format = if insert_text.is_some() {
-                Some(lsp_types::InsertTextFormat::Snippet)
+            let (insert_text_format, command) = if insert_text.is_some() {
+                (
+                    Some(lsp_types::InsertTextFormat::Snippet),
+                    Some(lsp_types::Command::new(
+                        "Suggest".into(),
+                        "editor.action.triggerSuggest".into(),
+                        None,
+                    )),
+                )
             } else {
-                None
+                (None, None)
             };
             CompletionItem {
                 label: name,
@@ -161,7 +168,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 insert_text_format,
                 text_edit: None,
                 additional_text_edits: None,
-                command: None,
+                command,
                 data: None,
                 tags: None,
             }
@@ -288,6 +295,10 @@ fn build_request_from_selections(
     position_span: Span,
     completion_request: &mut CompletionRequest,
 ) {
+    if selections.items.is_empty() {
+        completion_request.kind = CompletionKind::FieldName;
+        return;
+    }
     for item in &selections.items {
         if item.span().contains(position_span) {
             match item {

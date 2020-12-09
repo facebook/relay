@@ -40,6 +40,8 @@ pub enum SyntaxError {
     ExpectedSpread,
     #[error("Expected an argument")]
     ExpectedArgument,
+    #[error("Expected the list to be non-empty")]
+    ExpectedNonEmptyList,
     #[error("Invalid floating point value")]
     InvalidFloat,
     #[error("Invalid integer value")]

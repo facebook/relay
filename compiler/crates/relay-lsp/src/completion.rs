@@ -16,9 +16,9 @@ use common::{PerfLogger, Span};
 
 use graphql_ir::Program;
 use graphql_syntax::{
-    Argument, Directive, DirectiveLocation, ExecutableDefinition, ExecutableDocument,
-    FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, OperationKind,
-    ScalarField, Selection,
+    Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
+    ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
+    OperationKind, ScalarField, Selection, TokenKind, Value,
 };
 use interner::StringKey;
 use log::info;
@@ -33,10 +33,20 @@ use std::{
 
 #[derive(Debug, Copy, Clone)]
 pub enum CompletionKind {
-    FieldName { existing_linked_field: bool },
+    FieldName {
+        existing_linked_field: bool,
+    },
     FragmentSpread,
-    DirectiveName { location: DirectiveLocation },
-    FieldArgumentName,
+    DirectiveName {
+        location: DirectiveLocation,
+    },
+    FieldArgumentName {
+        has_colon: bool,
+    },
+    FieldArgumentValue {
+        executable_name: ExecutableName,
+        argument_name: StringKey,
+    },
 }
 #[derive(Debug)]
 pub struct CompletionRequest {
@@ -59,13 +69,23 @@ impl CompletionRequest {
     }
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum ExecutableName {
+    Operation(StringKey),
+    Fragment(StringKey),
+}
+
 struct CompletionRequestBuilder {
     project_name: StringKey,
+    current_executable_name: Option<ExecutableName>,
 }
 
 impl CompletionRequestBuilder {
     fn new(project_name: StringKey) -> Self {
-        Self { project_name }
+        Self {
+            project_name,
+            current_executable_name: None,
+        }
     }
 
     fn new_request(&self, kind: CompletionKind, type_path: Vec<TypePathItem>) -> CompletionRequest {
@@ -73,7 +93,7 @@ impl CompletionRequestBuilder {
     }
 
     fn create_completion_request(
-        &self,
+        &mut self,
         document: ExecutableDocument,
         position_span: Span,
     ) -> Option<CompletionRequest> {
@@ -81,6 +101,11 @@ impl CompletionRequestBuilder {
             match &definition {
                 ExecutableDefinition::Operation(operation) => {
                     if operation.location.contains(position_span) {
+                        self.current_executable_name = if let Some(name) = &operation.name {
+                            Some(ExecutableName::Operation(name.value))
+                        } else {
+                            None
+                        };
                         let (_, kind) = operation.operation.clone()?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 
@@ -114,6 +139,8 @@ impl CompletionRequestBuilder {
                 }
                 ExecutableDefinition::Fragment(fragment) => {
                     if fragment.location.contains(position_span) {
+                        self.current_executable_name =
+                            Some(ExecutableName::Fragment(fragment.name.value));
                         let type_name = fragment.type_condition.type_.value;
                         let type_path = vec![TypePathItem::FragmentDefinition { type_name }];
                         if let Some(req) = self.build_request_from_selection_or_directives(
@@ -259,16 +286,58 @@ impl CompletionRequestBuilder {
         position_span: Span,
         type_path: Vec<TypePathItem>,
     ) -> Option<CompletionRequest> {
-        if arguments.items.is_empty() {
-            return Some(self.new_request(CompletionKind::FieldArgumentName, type_path));
-        } else {
-            for Argument { name, .. } in &arguments.items {
-                if name.span.contains(position_span) {
-                    return Some(self.new_request(CompletionKind::FieldArgumentName, type_path));
-                }
+        for Argument {
+            name,
+            value,
+            colon,
+            span,
+            ..
+        } in &arguments.items
+        {
+            if span.contains(position_span) {
+                return if name.span.contains(position_span) {
+                    Some(self.new_request(
+                        CompletionKind::FieldArgumentName {
+                            has_colon: colon.kind != TokenKind::Empty,
+                        },
+                        type_path,
+                    ))
+                } else if value.span().contains(position_span) {
+                    if let Some(executable_name) = self.current_executable_name {
+                        match value {
+                            Value::Constant(ConstantValue::Null(token))
+                                if token.kind == TokenKind::Empty =>
+                            {
+                                Some(self.new_request(
+                                    CompletionKind::FieldArgumentValue {
+                                        argument_name: name.value,
+                                        executable_name,
+                                    },
+                                    type_path,
+                                ))
+                            }
+                            Value::Variable(_) => Some(self.new_request(
+                                CompletionKind::FieldArgumentValue {
+                                    argument_name: name.value,
+                                    executable_name,
+                                },
+                                type_path,
+                            )),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
             }
         }
-        None
+        // The argument list is empty or the cursor is not on any of the argument
+        Some(self.new_request(
+            CompletionKind::FieldArgumentName { has_colon: false },
+            type_path,
+        ))
     }
 
     fn build_request_from_directives(
@@ -355,20 +424,97 @@ fn completion_items_for_request(
                 .collect();
             Some(items)
         }
-        CompletionKind::FieldArgumentName => {
+        CompletionKind::FieldArgumentName { has_colon } => {
             let field = request.type_path.resolve_current_field(schema)?;
             Some(
                 field
                     .arguments
                     .iter()
                     .map(|arg| {
-                        CompletionItem::new_simple(
-                            arg.name.lookup().into(),
-                            schema.get_type_string(&arg.type_),
-                        )
+                        let label = arg.name.lookup().into();
+                        let detail = schema.get_type_string(&arg.type_);
+                        if has_colon {
+                            CompletionItem::new_simple(label, detail)
+                        } else {
+                            CompletionItem {
+                                label: label.clone(),
+                                kind: None,
+                                detail: Some(detail),
+                                documentation: None,
+                                deprecated: None,
+                                preselect: None,
+                                sort_text: None,
+                                filter_text: None,
+                                insert_text: Some(format!("{}: $1", label)),
+                                insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                                text_edit: None,
+                                additional_text_edits: None,
+                                command: Some(lsp_types::Command::new(
+                                    "Suggest".into(),
+                                    "editor.action.triggerSuggest".into(),
+                                    None,
+                                )),
+                                data: None,
+                                tags: None,
+                            }
+                        }
                     })
                     .collect(),
             )
+        }
+        CompletionKind::FieldArgumentValue {
+            executable_name,
+            argument_name,
+        } => {
+            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+                let field = request.type_path.resolve_current_field(schema)?;
+                let argument = field.arguments.named(argument_name)?;
+                Some(resolve_completion_items_for_argument_value(
+                    &argument.type_,
+                    source_program,
+                    executable_name,
+                ))
+            } else {
+                None
+            }
+        }
+    }
+}
+
+fn resolve_completion_items_for_argument_value(
+    type_: &TypeReference,
+    source_program: &Program,
+    executable_name: ExecutableName,
+) -> Vec<CompletionItem> {
+    match executable_name {
+        ExecutableName::Fragment(name) => {
+            if let Some(fragment) = source_program.fragment(name) {
+                fragment
+                    .used_global_variables
+                    .iter()
+                    .chain(fragment.variable_definitions.iter())
+                    .filter(|variable| variable.type_.eq(type_))
+                    .map(|variable| {
+                        CompletionItem::new_simple(format!("${}", variable.name.item,), "".into())
+                    })
+                    .collect()
+            } else {
+                vec![]
+            }
+        }
+        ExecutableName::Operation(name) => {
+            if let Some(operation) = source_program.operation(name) {
+                operation
+                    .variable_definitions
+                    .iter()
+                    .filter(|variable| variable.type_.eq(type_))
+                    .map(|variable| {
+                        CompletionItem::new_simple(format!("${}", variable.name.item,), "".into())
+                    })
+                    .collect()
+            } else {
+                vec![]
+            }
         }
     }
 }

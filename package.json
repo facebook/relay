@@ -52,7 +52,7 @@
     "eslint-plugin-relay": "1.7.1",
     "fb-watchman": "^2.0.0",
     "fbjs": "^3.0.0",
-    "flow-bin": "^0.138.0",
+    "flow-bin": "^0.140.0",
     "glob": "^7.1.1",
     "graphql": "^15.0.0",
     "gulp": "4.0.2",

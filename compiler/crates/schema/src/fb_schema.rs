@@ -21,51 +21,65 @@ pub struct FlatBufferSchema<'fb> {
     fb_schema: FBSchema<'fb>,
     types: Vector<'fb, ForwardsUOffset<FBTypeMap<'fb>>>,
     directives: Vector<'fb, ForwardsUOffset<FBDirectiveMap<'fb>>>,
-    schema: Schema,
 }
 
 impl<'fb> FlatBufferSchema<'fb> {
-    pub fn build(bytes: &'fb [u8], schema: Schema) -> Self {
+    pub fn build(bytes: &'fb [u8]) -> Self {
         let fb_schema: FBSchema<'fb> = get_root_as_fbschema(bytes);
         Self {
             fb_schema,
             types: fb_schema.types().unwrap(),
-            schema,
             directives: fb_schema.directives().unwrap(),
         }
     }
 
-    pub fn get_type(&mut self, type_name: StringKey) -> Option<Type> {
-        if !self.schema.has_type(type_name) {
-            return self.read_type(type_name);
-        }
-        self.schema.get_type(type_name)
+    pub fn get_type(&self, type_name: StringKey) -> Option<Type> {
+        self.read_type(type_name)
     }
 
-    pub fn has_type(&mut self, type_name: StringKey) -> bool {
+    pub fn has_type(&self, type_name: StringKey) -> bool {
         self.get_type(type_name).is_some()
     }
 
-    pub fn get_directive(&mut self, directive_name: StringKey) -> Option<&Directive> {
-        if self.schema.get_directive(directive_name).is_none() {
-            return self.read_directive(directive_name);
-        };
-        self.schema.get_directive(directive_name)
+    pub fn get_directive(&self, directive_name: StringKey) -> Option<Directive> {
+        self.read_directive(directive_name)
     }
 
-    pub fn snapshot_print(self) -> String {
-        self.schema.snapshot_print()
+    pub fn input_object(&self, id: InputObjectID) -> InputObject {
+        self.parse_input_object(id).unwrap()
     }
 
-    fn read_directive(&mut self, name: StringKey) -> Option<&Directive> {
+    pub fn enum_(&self, id: EnumID) -> Enum {
+        self.parse_enum(id).unwrap()
+    }
+
+    pub fn scalar(&self, id: ScalarID) -> Scalar {
+        self.parse_scalar(id).unwrap()
+    }
+
+    pub fn field(&self, id: FieldID) -> Field {
+        self.parse_field(id).unwrap()
+    }
+
+    pub fn object(&self, id: ObjectID) -> Object {
+        self.parse_object(id).unwrap()
+    }
+
+    pub fn union(&self, id: UnionID) -> Union {
+        self.parse_union(id).unwrap()
+    }
+
+    pub fn interface(&self, id: InterfaceID) -> Interface {
+        self.parse_interface(id).unwrap()
+    }
+
+    fn read_directive(&self, name: StringKey) -> Option<Directive> {
         let mut start = 0;
         let mut end = self.directives.len();
+        let name = name.lookup();
         while start <= end {
             let mid = (start + end) / 2;
-            let cmp = self
-                .directives
-                .get(mid)
-                .key_compare_with_value(name.lookup());
+            let cmp = self.directives.get(mid).key_compare_with_value(name);
             if cmp == ::std::cmp::Ordering::Equal {
                 let directive = self.directives.get(mid).value()?;
                 return Some(self.parse_directive(directive)?);
@@ -78,7 +92,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         None
     }
 
-    fn parse_directive(&mut self, directive: FBDirective<'fb>) -> Option<&Directive> {
+    fn parse_directive(&self, directive: FBDirective<'fb>) -> Option<Directive> {
         let locations = directive
             .locations()?
             .iter()
@@ -91,19 +105,16 @@ impl<'fb> FlatBufferSchema<'fb> {
             locations,
             repeatable: directive.repeatable(),
         };
-        self.schema.add_directive(parsed_directive).unwrap();
-        self.schema.get_directive(directive.name()?.intern())
+        Some(parsed_directive)
     }
 
-    fn read_type(&mut self, type_name: StringKey) -> Option<Type> {
+    fn read_type(&self, type_name: StringKey) -> Option<Type> {
         let mut start = 0;
         let mut end = self.types.len();
+        let type_name = type_name.lookup();
         while start <= end {
             let mid = (start + end) / 2;
-            let cmp = self
-                .types
-                .get(mid)
-                .key_compare_with_value(type_name.lookup());
+            let cmp = self.types.get(mid).key_compare_with_value(type_name);
             if cmp == ::std::cmp::Ordering::Equal {
                 let type_ = self.types.get(mid).value()?;
                 return Some(self.parse_type(type_)?);
@@ -116,147 +127,91 @@ impl<'fb> FlatBufferSchema<'fb> {
         None
     }
 
-    fn parse_type(&mut self, type_: FBType<'_>) -> Option<Type> {
+    fn parse_type(&self, type_: FBType<'_>) -> Option<Type> {
         Some(match type_.kind() {
-            FBTypeKind::Scalar => self.parse_scalar(type_.scalar_id())?,
-            FBTypeKind::InputObject => self.parse_input_object(type_.input_object_id())?,
-            FBTypeKind::Enum => self.parse_enum(type_.enum_id())?,
-            FBTypeKind::Object => self.parse_object(type_.object_id())?,
-            FBTypeKind::Interface => self.parse_interface(type_.interface_id())?,
-            FBTypeKind::Union => self.parse_union(type_.union_id())?,
+            FBTypeKind::Scalar => Type::Scalar(ScalarID(type_.scalar_id())),
+            FBTypeKind::InputObject => Type::InputObject(InputObjectID(type_.scalar_id())),
+            FBTypeKind::Enum => Type::Enum(EnumID(type_.scalar_id())),
+            FBTypeKind::Object => Type::Object(ObjectID(type_.scalar_id())),
+            FBTypeKind::Interface => Type::Interface(InterfaceID(type_.scalar_id())),
+            FBTypeKind::Union => Type::Union(UnionID(type_.scalar_id())),
         })
     }
 
-    fn parse_scalar(&mut self, id: u32) -> Option<Type> {
-        let scalar = self.fb_schema.scalars()?.get(id.try_into().unwrap());
+    fn parse_scalar(&self, id: ScalarID) -> Option<Scalar> {
+        let scalar = self.fb_schema.scalars()?.get(id.0.try_into().unwrap());
         let parsed_scalar = Scalar {
             name: scalar.name()?.to_string().intern(),
             is_extension: scalar.is_extension(),
             directives: self.parse_directive_values(scalar.directives()?)?,
         };
-        Some(Type::Scalar(self.schema.add_scalar(parsed_scalar).unwrap()))
+        Some(parsed_scalar)
     }
 
-    fn parse_input_object(&mut self, id: u32) -> Option<Type> {
-        let input_object = self.fb_schema.input_objects()?.get(id.try_into().unwrap());
+    fn parse_input_object(&self, id: InputObjectID) -> Option<InputObject> {
+        let input_object = self
+            .fb_schema
+            .input_objects()?
+            .get(id.0.try_into().unwrap());
         let parsed_input_object = InputObject {
             name: input_object.name()?.to_string().intern(),
             fields: self.parse_arguments(input_object.fields()?)?,
             directives: self.parse_directive_values(input_object.directives()?)?,
         };
-        Some(Type::InputObject(
-            self.schema.add_input_object(parsed_input_object).unwrap(),
-        ))
+        Some(parsed_input_object)
     }
 
-    fn parse_enum(&mut self, id: u32) -> Option<Type> {
-        let enum_ = self.fb_schema.enums()?.get(id.try_into().unwrap());
+    fn parse_enum(&self, id: EnumID) -> Option<Enum> {
+        let enum_ = self.fb_schema.enums()?.get(id.0.try_into().unwrap());
         let parsed_enum = Enum {
             name: enum_.name()?.to_string().intern(),
             is_extension: enum_.is_extension(),
             values: self.parse_enum_values(enum_.values()?)?,
             directives: self.parse_directive_values(enum_.directives()?)?,
         };
-        Some(Type::Enum(self.schema.add_enum(parsed_enum).unwrap()))
+        Some(parsed_enum)
     }
 
-    fn parse_object(&mut self, id: u32) -> Option<Type> {
-        let object = self.fb_schema.objects()?.get(id.try_into().unwrap());
+    fn parse_object(&self, id: ObjectID) -> Option<Object> {
+        let object = self.fb_schema.objects()?.get(id.0.try_into().unwrap());
+        let name = object.name()?.intern();
         let parsed_object = Object {
-            name: object.name()?.intern(),
+            name,
             is_extension: object.is_extension(),
-            fields: vec![],
-            interfaces: vec![],
+            fields: object.fields()?.iter().map(FieldID).collect(),
+            interfaces: object.fields()?.iter().map(InterfaceID).collect(),
             directives: self.parse_directive_values(object.directives()?)?,
         };
-        let new_id = self.schema.add_object(parsed_object).unwrap();
-        for field_id in object.fields()? {
-            let field = self.parse_field(field_id)?;
-            self.schema.add_field_to_object(new_id, field).unwrap();
-        }
-        for interface_id in object.interfaces()? {
-            let interface = self.get_type(
-                self.fb_schema
-                    .interfaces()?
-                    .get(interface_id.try_into().unwrap())
-                    .name()?
-                    .intern(),
-            )?;
-            self.schema
-                .add_interface_to_object(new_id, interface.get_interface_id()?)
-                .unwrap();
-        }
-        Some(Type::Object(new_id))
+        Some(parsed_object)
     }
 
-    fn parse_interface(&mut self, id: u32) -> Option<Type> {
-        let interface = self.fb_schema.interfaces()?.get(id.try_into().unwrap());
+    fn parse_interface(&self, id: InterfaceID) -> Option<Interface> {
+        let interface = self.fb_schema.interfaces()?.get(id.0.try_into().unwrap());
+        let name = interface.name()?.intern();
         let parsed_interface = Interface {
-            name: interface.name()?.intern(),
+            name,
             is_extension: interface.is_extension(),
             implementing_objects: vec![],
             fields: vec![],
             directives: self.parse_directive_values(interface.directives()?)?,
             interfaces: vec![],
         };
-        let new_id = self.schema.add_interface(parsed_interface).unwrap();
-        for field_id in interface.fields()? {
-            let field = self.parse_field(field_id)?;
-            self.schema.add_field_to_interface(new_id, field).unwrap();
-        }
-        for interface_id in interface.interfaces()? {
-            let interface = self.get_type(
-                self.fb_schema
-                    .interfaces()?
-                    .get(interface_id.try_into().unwrap())
-                    .name()?
-                    .intern(),
-            )?;
-            self.schema
-                .add_parent_interface_to_interface(new_id, interface.get_interface_id()?)
-                .unwrap();
-        }
-        for object_id in interface.implementing_objects()? {
-            let object = self.get_type(
-                self.fb_schema
-                    .objects()?
-                    .get(object_id.try_into().unwrap())
-                    .name()?
-                    .intern(),
-            )?;
-            self.schema
-                .add_implementing_object_to_interface(new_id, object.get_object_id()?)
-                .unwrap();
-        }
-        Some(Type::Interface(new_id))
+        Some(parsed_interface)
     }
 
-    fn parse_union(&mut self, id: u32) -> Option<Type> {
-        let union = self.fb_schema.unions()?.get(id.try_into().unwrap());
+    fn parse_union(&self, id: UnionID) -> Option<Union> {
+        let union = self.fb_schema.unions()?.get(id.0.try_into().unwrap());
         let parsed_union = Union {
             name: union.name()?.intern(),
             is_extension: union.is_extension(),
             members: vec![],
             directives: self.parse_directive_values(union.directives()?)?,
         };
-        let new_id = self.schema.add_union(parsed_union).unwrap();
-        for object_id in union.members()? {
-            let object = self.get_type(
-                self.fb_schema
-                    .objects()?
-                    .get(object_id.try_into().unwrap())
-                    .name()?
-                    .intern(),
-            )?;
-            self.schema
-                .add_member_to_union(new_id, object.get_object_id()?)
-                .unwrap();
-        }
-        Some(Type::Union(new_id))
+        Some(parsed_union)
     }
 
-    fn parse_field(&mut self, id: u32) -> Option<FieldID> {
-        let field = self.fb_schema.fields()?.get(id.try_into().unwrap());
+    fn parse_field(&self, id: FieldID) -> Option<Field> {
+        let field = self.fb_schema.fields()?.get(id.0.try_into().unwrap());
         let parsed_field = Field {
             name: field.name()?.intern(),
             is_extension: field.is_extension(),
@@ -265,7 +220,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             directives: self.parse_directive_values(field.directives()?)?,
             parent_type: self.get_type(self.get_fbtype_name(&field.parent_type()?)),
         };
-        Some(self.schema.add_field(parsed_field).unwrap())
+        Some(parsed_field)
     }
 
     fn parse_enum_values(
@@ -287,7 +242,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_arguments(
-        &mut self,
+        &self,
         arguments: Vector<'fb, ForwardsUOffset<FBArgument<'_>>>,
     ) -> Option<ArgumentDefinitions> {
         let items = arguments
@@ -297,7 +252,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         Some(ArgumentDefinitions::new(items?))
     }
 
-    fn parse_argument(&mut self, argument: FBArgument<'fb>) -> Option<Argument> {
+    fn parse_argument(&self, argument: FBArgument<'fb>) -> Option<Argument> {
         Some(Argument {
             name: argument.name().unwrap().intern(),
             default_value: match argument.value() {
@@ -308,10 +263,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         })
     }
 
-    fn parse_type_reference(
-        &mut self,
-        type_reference: FBTypeReference<'fb>,
-    ) -> Option<TypeReference> {
+    fn parse_type_reference(&self, type_reference: FBTypeReference<'fb>) -> Option<TypeReference> {
         Some(match type_reference.kind() {
             FBTypeReferenceKind::Named => {
                 let type_name = self.get_fbtype_name(&type_reference.named()?);

@@ -332,11 +332,8 @@ Text Schema:Schema {
  unions: []
  }
 
-FlatBuffer Schema:Schema {
- query_type: None
- mutation_type: None
- subscription_type: None
- directives: [
+FlatBuffer Schema:FB Schema {
+directives: [
     Directive {
         name: "include",
         arguments: [
@@ -344,7 +341,7 @@ FlatBuffer Schema:Schema {
                 name: "if",
                 type_: NonNull(
                     Named(
-                        Scalar(3),
+                        Scalar(1),
                     ),
                 ),
                 default_value: None,
@@ -365,7 +362,7 @@ FlatBuffer Schema:Schema {
                 name: "if",
                 type_: NonNull(
                     Named(
-                        Scalar(3),
+                        Scalar(1),
                     ),
                 ),
                 default_value: None,
@@ -380,244 +377,47 @@ FlatBuffer Schema:Schema {
         is_extension: false,
     },
 ]
- type_map: {
-    "BaseNode": Interface(0),
-    "Boolean": Scalar(3),
-    "Float": Scalar(1),
-    "ID": Scalar(4),
-    "Image": Interface(1),
-    "Int": Scalar(0),
-    "Node": Interface(3),
-    "Resource": Interface(2),
-    "String": Scalar(2),
-}
- enums: []
- fields: [
-    Field {
-        name: "__typename",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(2),
-            ),
-        ),
-        directives: [],
-        parent_type: None,
-    },
-    Field {
-        name: "__token",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: None,
-    },
-    Field {
-        name: "__id",
-        is_extension: true,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: None,
-    },
-    Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(0),
-        ),
-    },
-    Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(1),
-        ),
-    },
-    Field {
-        name: "url",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(1),
-        ),
-    },
-    Field {
-        name: "thumbnail",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(1),
-        ),
-    },
-    Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(2),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(2),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(2),
-        ),
-    },
-    Field {
-        name: "url",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(2),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(2),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Interface(3),
-        ),
-    },
-]
- input_objects: []
- interfaces: [
+enums: []
+fields: []
+input_objects: []
+interfaces: [
     Interface {
         name: "BaseNode",
         is_extension: false,
         implementing_objects: [],
-        fields: [
-            FieldID(
-                3,
-            ),
-        ],
+        fields: [],
         directives: [],
         interfaces: [],
     },
     Interface {
-        name: "Image",
+        name: "BaseNode",
         is_extension: false,
         implementing_objects: [],
-        fields: [
-            FieldID(
-                4,
-            ),
-            FieldID(
-                5,
-            ),
-            FieldID(
-                6,
-            ),
-        ],
+        fields: [],
         directives: [],
-        interfaces: [
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                3,
-            ),
-        ],
+        interfaces: [],
     },
     Interface {
-        name: "Resource",
+        name: "BaseNode",
         is_extension: false,
         implementing_objects: [],
-        fields: [
-            FieldID(
-                7,
-            ),
-            FieldID(
-                8,
-            ),
-            FieldID(
-                9,
-            ),
-        ],
+        fields: [],
         directives: [],
-        interfaces: [
-            InterfaceID(
-                3,
-            ),
-        ],
+        interfaces: [],
     },
     Interface {
-        name: "Node",
+        name: "BaseNode",
         is_extension: false,
         implementing_objects: [],
-        fields: [
-            FieldID(
-                10,
-            ),
-        ],
+        fields: [],
         directives: [],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-        ],
+        interfaces: [],
     },
 ]
- objects: []
- scalars: [
+objects: []
+scalars: [
     Scalar {
-        name: "Int",
+        name: "Boolean",
         is_extension: false,
         directives: [],
     },
@@ -627,20 +427,20 @@ FlatBuffer Schema:Schema {
         directives: [],
     },
     Scalar {
-        name: "String",
-        is_extension: false,
-        directives: [],
-    },
-    Scalar {
-        name: "Boolean",
-        is_extension: false,
-        directives: [],
-    },
-    Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
     },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+    },
 ]
- unions: []
- }
+unions: []
+}

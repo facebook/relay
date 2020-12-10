@@ -762,11 +762,8 @@ Text Schema:Schema {
 ]
  }
 
-FlatBuffer Schema:Schema {
- query_type: None
- mutation_type: None
- subscription_type: None
- directives: [
+FlatBuffer Schema:FB Schema {
+directives: [
     Directive {
         name: "extern_type",
         arguments: [
@@ -815,7 +812,7 @@ FlatBuffer Schema:Schema {
                 name: "if",
                 type_: NonNull(
                     Named(
-                        Scalar(3),
+                        Scalar(1),
                     ),
                 ),
                 default_value: None,
@@ -860,7 +857,7 @@ FlatBuffer Schema:Schema {
                 name: "if",
                 type_: NonNull(
                     Named(
-                        Scalar(3),
+                        Scalar(1),
                     ),
                 ),
                 default_value: None,
@@ -899,64 +896,14 @@ FlatBuffer Schema:Schema {
         is_extension: false,
     },
 ]
- type_map: {
-    "Address": Union(0),
-    "Boolean": Scalar(3),
-    "Country": InputObject(0),
-    "Float": Scalar(1),
-    "ID": Scalar(4),
-    "Int": Scalar(0),
-    "MailingAddress": Object(0),
-    "Query": Object(1),
-    "String": Scalar(2),
-    "User": Object(2),
-    "XIGHuman": Interface(0),
-    "XIGStory": Object(3),
-}
- enums: []
- fields: [
-    Field {
-        name: "__typename",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(2),
-            ),
-        ),
-        directives: [],
-        parent_type: None,
-    },
-    Field {
-        name: "__token",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: None,
-    },
-    Field {
-        name: "__id",
-        is_extension: true,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: None,
-    },
+enums: []
+fields: [
     Field {
         name: "id",
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(4),
+            Scalar(0),
         ),
         directives: [],
         parent_type: Some(
@@ -968,7 +915,7 @@ FlatBuffer Schema:Schema {
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(3),
+            Scalar(1),
         ),
         directives: [],
         parent_type: Some(
@@ -992,11 +939,35 @@ FlatBuffer Schema:Schema {
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(4),
+            Scalar(0),
         ),
         directives: [],
         parent_type: Some(
-            Object(2),
+            Object(0),
+        ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
         ),
     },
     Field {
@@ -1004,89 +975,27 @@ FlatBuffer Schema:Schema {
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(4),
+            Scalar(0),
         ),
         directives: [],
         parent_type: Some(
-            Object(3),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(3),
-        ),
-    },
-    Field {
-        name: "story",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Object(3),
-        ),
-        directives: [
-            DirectiveValue {
-                name: "ref_type",
-                arguments: [
-                    ArgumentValue {
-                        name: "schema",
-                        value: String(
-                            StringNode {
-                                token: Token {
-                                    span: 0:0,
-                                    kind: EndOfFile,
-                                },
-                                value: "instagram",
-                            },
-                        ),
-                    },
-                    ArgumentValue {
-                        name: "name",
-                        value: String(
-                            StringNode {
-                                token: Token {
-                                    span: 0:0,
-                                    kind: EndOfFile,
-                                },
-                                value: "Story",
-                            },
-                        ),
-                    },
-                ],
-            },
-        ],
-        parent_type: Some(
-            Object(2),
-        ),
-    },
-    Field {
-        name: "default_mailing_address",
-        is_extension: false,
-        arguments: [
-            Argument {
-                name: "country",
-                type_: Named(
-                    InputObject(0),
-                ),
-                default_value: None,
-            },
-        ],
-        type_: Named(
             Object(0),
         ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
         directives: [],
         parent_type: Some(
-            Object(2),
+            Object(0),
         ),
     },
     Field {
-        name: "name",
+        name: "label",
         is_extension: false,
         arguments: [],
         type_: Named(
@@ -1094,51 +1003,47 @@ FlatBuffer Schema:Schema {
         ),
         directives: [],
         parent_type: Some(
-            Interface(0),
+            Object(0),
         ),
     },
     Field {
-        name: "fetch__User",
+        name: "id",
         is_extension: false,
-        arguments: [
-            Argument {
-                name: "id",
-                type_: Named(
-                    Scalar(4),
-                ),
-                default_value: None,
-            },
-        ],
+        arguments: [],
         type_: Named(
-            Object(2),
+            Scalar(0),
         ),
         directives: [],
         parent_type: Some(
-            Object(1),
+            Object(0),
         ),
     },
     Field {
-        name: "fetch__XIGStory",
+        name: "is_default",
         is_extension: false,
-        arguments: [
-            Argument {
-                name: "id",
-                type_: Named(
-                    Scalar(4),
-                ),
-                default_value: None,
-            },
-        ],
+        arguments: [],
         type_: Named(
-            Object(3),
+            Scalar(1),
         ),
         directives: [],
         parent_type: Some(
-            Object(1),
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
         ),
     },
 ]
- input_objects: [
+input_objects: [
     InputObject {
         name: "Country",
         fields: [
@@ -1185,20 +1090,12 @@ FlatBuffer Schema:Schema {
         ],
     },
 ]
- interfaces: [
+interfaces: [
     Interface {
         name: "XIGHuman",
         is_extension: false,
-        implementing_objects: [
-            ObjectID(
-                2,
-            ),
-        ],
-        fields: [
-            FieldID(
-                11,
-            ),
-        ],
+        implementing_objects: [],
+        fields: [],
         directives: [
             DirectiveValue {
                 name: "source",
@@ -1233,107 +1130,131 @@ FlatBuffer Schema:Schema {
         interfaces: [],
     },
 ]
- objects: [
+objects: [
     Object {
         name: "MailingAddress",
         is_extension: false,
         fields: [
             FieldID(
-                3,
+                0,
             ),
             FieldID(
-                4,
+                1,
             ),
             FieldID(
-                5,
-            ),
-        ],
-        interfaces: [],
-        directives: [],
-    },
-    Object {
-        name: "Query",
-        is_extension: false,
-        fields: [
-            FieldID(
-                12,
-            ),
-            FieldID(
-                13,
-            ),
-        ],
-        interfaces: [],
-        directives: [],
-    },
-    Object {
-        name: "User",
-        is_extension: false,
-        fields: [
-            FieldID(
-                6,
-            ),
-            FieldID(
-                9,
-            ),
-            FieldID(
-                10,
+                2,
             ),
         ],
         interfaces: [
             InterfaceID(
                 0,
             ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
         ],
-        directives: [
-            DirectiveValue {
-                name: "fetchable",
-                arguments: [
-                    ArgumentValue {
-                        name: "field_name",
-                        value: String(
-                            StringNode {
-                                token: Token {
-                                    span: 0:0,
-                                    kind: EndOfFile,
-                                },
-                                value: "id",
-                            },
-                        ),
-                    },
-                ],
-            },
-        ],
+        directives: [],
     },
     Object {
-        name: "XIGStory",
+        name: "MailingAddress",
         is_extension: false,
         fields: [
             FieldID(
-                7,
+                0,
             ),
             FieldID(
-                8,
+                1,
+            ),
+            FieldID(
+                2,
             ),
         ],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+            FieldID(
+                2,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+            FieldID(
+                2,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+]
+scalars: [
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
         directives: [
-            DirectiveValue {
-                name: "fetchable",
-                arguments: [
-                    ArgumentValue {
-                        name: "field_name",
-                        value: String(
-                            StringNode {
-                                token: Token {
-                                    span: 0:0,
-                                    kind: EndOfFile,
-                                },
-                                value: "id",
-                            },
-                        ),
-                    },
-                ],
-            },
             DirectiveValue {
                 name: "source",
                 arguments: [
@@ -1345,7 +1266,7 @@ FlatBuffer Schema:Schema {
                                     span: 0:0,
                                     kind: EndOfFile,
                                 },
-                                value: "instagram",
+                                value: "facebook",
                             },
                         ),
                     },
@@ -1357,7 +1278,7 @@ FlatBuffer Schema:Schema {
                                     span: 0:0,
                                     kind: EndOfFile,
                                 },
-                                value: "Story",
+                                value: "ID",
                             },
                         ),
                     },
@@ -1365,15 +1286,8 @@ FlatBuffer Schema:Schema {
             },
         ],
     },
-]
- scalars: [
     Scalar {
         name: "Int",
-        is_extension: false,
-        directives: [],
-    },
-    Scalar {
-        name: "Float",
         is_extension: false,
         directives: [],
     },
@@ -1382,29 +1296,12 @@ FlatBuffer Schema:Schema {
         is_extension: false,
         directives: [],
     },
-    Scalar {
-        name: "Boolean",
-        is_extension: false,
-        directives: [],
-    },
-    Scalar {
-        name: "ID",
-        is_extension: false,
-        directives: [],
-    },
 ]
- unions: [
+unions: [
     Union {
         name: "Address",
         is_extension: false,
-        members: [
-            ObjectID(
-                0,
-            ),
-            ObjectID(
-                0,
-            ),
-        ],
+        members: [],
         directives: [
             DirectiveValue {
                 name: "source",
@@ -1438,4 +1335,4 @@ FlatBuffer Schema:Schema {
         ],
     },
 ]
- }
+}

@@ -68,11 +68,5 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 }
 
 pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {
-    let builtin_definitions = {
-        let schema_doc =
-            graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())?;
-        schema_doc.definitions
-    };
-    let schema = Schema::build(&builtin_definitions, &[])?;
-    Ok(FlatBufferSchema::build(bytes, schema))
+    Ok(FlatBufferSchema::build(bytes))
 }

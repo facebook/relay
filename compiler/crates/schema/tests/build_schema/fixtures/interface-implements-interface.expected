@@ -381,10 +381,14 @@ FlatBuffer Schema:Schema {
     },
 ]
  type_map: {
+    "BaseNode": Interface(0),
     "Boolean": Scalar(3),
     "Float": Scalar(1),
     "ID": Scalar(4),
+    "Image": Interface(1),
     "Int": Scalar(0),
+    "Node": Interface(3),
+    "Resource": Interface(2),
     "String": Scalar(2),
 }
  enums: []
@@ -425,9 +429,191 @@ FlatBuffer Schema:Schema {
         directives: [],
         parent_type: None,
     },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "thumbnail",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+    },
 ]
  input_objects: []
- interfaces: []
+ interfaces: [
+    Interface {
+        name: "BaseNode",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(
+                3,
+            ),
+        ],
+        directives: [],
+        interfaces: [],
+    },
+    Interface {
+        name: "Image",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(
+                4,
+            ),
+            FieldID(
+                5,
+            ),
+            FieldID(
+                6,
+            ),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(
+                2,
+            ),
+            InterfaceID(
+                3,
+            ),
+        ],
+    },
+    Interface {
+        name: "Resource",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(
+                7,
+            ),
+            FieldID(
+                8,
+            ),
+            FieldID(
+                9,
+            ),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(
+                3,
+            ),
+        ],
+    },
+    Interface {
+        name: "Node",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [
+            FieldID(
+                10,
+            ),
+        ],
+        directives: [],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+        ],
+    },
+]
  objects: []
  scalars: [
     Scalar {

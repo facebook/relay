@@ -75,6 +75,8 @@ impl<'fb> FlatBufferSchema<'fb> {
             FBTypeKind::Scalar => self.parse_scalar(type_.scalar_id())?,
             FBTypeKind::InputObject => self.parse_input_object(type_.input_object_id())?,
             FBTypeKind::Enum => self.parse_enum(type_.enum_id())?,
+            FBTypeKind::Object => self.parse_object(type_.object_id())?,
+            FBTypeKind::Interface => self.parse_interface(type_.interface_id())?,
         })
     }
 
@@ -109,6 +111,90 @@ impl<'fb> FlatBufferSchema<'fb> {
             directives: self.parse_directive_values(enum_.directives()?)?,
         };
         Some(Type::Enum(self.schema.add_enum(parsed_enum).unwrap()))
+    }
+
+    fn parse_object(&mut self, id: u32) -> Option<Type> {
+        let object = self.fb_schema.objects()?.get(id.try_into().unwrap());
+        let parsed_object = Object {
+            name: object.name()?.intern(),
+            is_extension: object.is_extension(),
+            fields: vec![],
+            interfaces: vec![],
+            directives: self.parse_directive_values(object.directives()?)?,
+        };
+        let new_id = self.schema.add_object(parsed_object).unwrap();
+        for field_id in object.fields()? {
+            let field = self.parse_field(field_id)?;
+            self.schema.add_field_to_object(new_id, field).unwrap();
+        }
+        for interface_id in object.interfaces()? {
+            let interface = self.get_type(
+                self.fb_schema
+                    .interfaces()?
+                    .get(interface_id.try_into().unwrap())
+                    .name()?
+                    .intern(),
+            )?;
+            self.schema
+                .add_interface_to_object(new_id, interface.get_interface_id()?)
+                .unwrap();
+        }
+        Some(Type::Object(new_id))
+    }
+
+    fn parse_interface(&mut self, id: u32) -> Option<Type> {
+        let interface = self.fb_schema.interfaces()?.get(id.try_into().unwrap());
+        let parsed_interface = Interface {
+            name: interface.name()?.intern(),
+            is_extension: interface.is_extension(),
+            implementing_objects: vec![],
+            fields: vec![],
+            directives: self.parse_directive_values(interface.directives()?)?,
+            interfaces: vec![],
+        };
+        let new_id = self.schema.add_interface(parsed_interface).unwrap();
+        for field_id in interface.fields()? {
+            let field = self.parse_field(field_id)?;
+            self.schema.add_field_to_interface(new_id, field).unwrap();
+        }
+        for interface_id in interface.interfaces()? {
+            let interface = self.get_type(
+                self.fb_schema
+                    .interfaces()?
+                    .get(interface_id.try_into().unwrap())
+                    .name()?
+                    .intern(),
+            )?;
+            self.schema
+                .add_parent_interface_to_interface(new_id, interface.get_interface_id()?)
+                .unwrap();
+        }
+        for object_id in interface.implementing_objects()? {
+            let object = self.get_type(
+                self.fb_schema
+                    .objects()?
+                    .get(object_id.try_into().unwrap())
+                    .name()?
+                    .intern(),
+            )?;
+            self.schema
+                .add_implementing_object_to_interface(new_id, object.get_object_id()?)
+                .unwrap();
+        }
+        Some(Type::Interface(new_id))
+    }
+
+    fn parse_field(&mut self, id: u32) -> Option<FieldID> {
+        let field = self.fb_schema.fields()?.get(id.try_into().unwrap());
+        let parsed_field = Field {
+            name: field.name()?.intern(),
+            is_extension: field.is_extension(),
+            arguments: self.parse_arguments(field.arguments()?)?,
+            type_: self.parse_type_reference(field.type_()?)?,
+            directives: self.parse_directive_values(field.directives()?)?,
+            parent_type: self.get_type(self.get_fbtype_name(&field.parent_type()?)),
+        };
+        Some(self.schema.add_field(parsed_field).unwrap())
     }
 
     fn parse_enum_values(
@@ -279,13 +365,25 @@ impl<'fb> FlatBufferSchema<'fb> {
                 .fb_schema
                 .input_objects()
                 .unwrap()
-                .get(type_.scalar_id().try_into().unwrap())
+                .get(type_.input_object_id().try_into().unwrap())
                 .name(),
             FBTypeKind::Enum => self
                 .fb_schema
                 .enums()
                 .unwrap()
-                .get(type_.scalar_id().try_into().unwrap())
+                .get(type_.enum_id().try_into().unwrap())
+                .name(),
+            FBTypeKind::Object => self
+                .fb_schema
+                .objects()
+                .unwrap()
+                .get(type_.object_id().try_into().unwrap())
+                .name(),
+            FBTypeKind::Interface => self
+                .fb_schema
+                .interfaces()
+                .unwrap()
+                .get(type_.interface_id().try_into().unwrap())
                 .name(),
         }
         .unwrap()

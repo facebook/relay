@@ -816,7 +816,12 @@ FlatBuffer Schema:Schema {
     "Float": Scalar(1),
     "ID": Scalar(4),
     "Int": Scalar(0),
+    "MailingAddress": Object(0),
+    "Query": Object(1),
     "String": Scalar(2),
+    "User": Object(2),
+    "XIGHuman": Interface(0),
+    "XIGStory": Object(3),
 }
  enums: []
  fields: [
@@ -855,6 +860,192 @@ FlatBuffer Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+    },
+    Field {
+        name: "story",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Object(3),
+        ),
+        directives: [
+            DirectiveValue {
+                name: "ref_type",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Story",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        parent_type: Some(
+            Object(2),
+        ),
+    },
+    Field {
+        name: "default_mailing_address",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "country",
+                type_: Named(
+                    InputObject(0),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+    },
+    Field {
+        name: "fetch__User",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(4),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+    },
+    Field {
+        name: "fetch__XIGStory",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: Named(
+                    Scalar(4),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Object(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
     },
 ]
  input_objects: [
@@ -904,8 +1095,187 @@ FlatBuffer Schema:Schema {
         ],
     },
 ]
- interfaces: []
- objects: []
+ interfaces: [
+    Interface {
+        name: "XIGHuman",
+        is_extension: false,
+        implementing_objects: [
+            ObjectID(
+                2,
+            ),
+        ],
+        fields: [
+            FieldID(
+                11,
+            ),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Human",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        interfaces: [],
+    },
+]
+ objects: [
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                3,
+            ),
+            FieldID(
+                4,
+            ),
+            FieldID(
+                5,
+            ),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(
+                12,
+            ),
+            FieldID(
+                13,
+            ),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+    Object {
+        name: "User",
+        is_extension: false,
+        fields: [
+            FieldID(
+                6,
+            ),
+            FieldID(
+                9,
+            ),
+            FieldID(
+                10,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "id",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+    Object {
+        name: "XIGStory",
+        is_extension: false,
+        fields: [
+            FieldID(
+                7,
+            ),
+            FieldID(
+                8,
+            ),
+        ],
+        interfaces: [],
+        directives: [
+            DirectiveValue {
+                name: "fetchable",
+                arguments: [
+                    ArgumentValue {
+                        name: "field_name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "id",
+                            },
+                        ),
+                    },
+                ],
+            },
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Story",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
  scalars: [
     Scalar {
         name: "Int",

@@ -496,6 +496,16 @@ impl Schema {
         Ok(interface_id)
     }
 
+    pub fn add_implementing_object_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        object_id: ObjectID,
+    ) -> DiagnosticsResult<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.implementing_objects.push(object_id);
+        Ok(interface_id)
+    }
+
     pub fn add_member_to_union(
         &mut self,
         union_id: UnionID,

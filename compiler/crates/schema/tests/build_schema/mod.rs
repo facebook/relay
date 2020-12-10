@@ -11,6 +11,7 @@ use schema::{
     build_schema, build_schema_from_flat_buffer, build_schema_with_extensions, Schema, Type,
 };
 use schema_print::serialize_as_fb;
+use std::collections::BTreeMap;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
@@ -30,11 +31,13 @@ fn print_schema_and_flat_buffer_schema(schema: Schema) -> String {
     let mut fb_schema = build_schema_from_flat_buffer(&bytes).unwrap();
 
     // Hydrate types
-    for (key, value) in schema.get_type_map() {
+    for (key, value) in schema.get_type_map().collect::<BTreeMap<_, _>>() {
         match value {
             Type::Scalar(_id) => fb_schema.get_type(*key),
             Type::InputObject(_id) => fb_schema.get_type(*key),
             Type::Enum(_id) => fb_schema.get_type(*key),
+            Type::Object(_id) => fb_schema.get_type(*key),
+            Type::Interface(_id) => fb_schema.get_type(*key),
             _ => None,
         };
     }

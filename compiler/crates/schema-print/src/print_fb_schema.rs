@@ -26,6 +26,9 @@ struct Serializer<'fb, 'schema> {
     scalars: Vec<WIPOffset<FBScalar<'fb>>>,
     input_objects: Vec<WIPOffset<FBInputObject<'fb>>>,
     enums: Vec<WIPOffset<FBEnum<'fb>>>,
+    objects: Vec<WIPOffset<FBObject<'fb>>>,
+    interfaces: Vec<WIPOffset<FBInterface<'fb>>>,
+    fields: Vec<WIPOffset<FBField<'fb>>>,
     types: FnvHashMap<String, WIPOffset<FBTypeMap<'fb>>>,
     type_map: FnvHashMap<String, FBTypeArgs>,
 }
@@ -38,6 +41,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             scalars: Vec::new(),
             input_objects: Vec::new(),
             enums: Vec::new(),
+            objects: Vec::new(),
+            interfaces: Vec::new(),
+            fields: Vec::new(),
             types: FnvHashMap::default(),
             type_map: FnvHashMap::default(),
         }
@@ -54,6 +60,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             scalars: Some(self.bldr.create_vector(&self.scalars)),
             input_objects: Some(self.bldr.create_vector(&self.input_objects)),
             enums: Some(self.bldr.create_vector(&self.enums)),
+            objects: Some(self.bldr.create_vector(&self.objects)),
+            interfaces: Some(self.bldr.create_vector(&self.interfaces)),
+            fields: Some(self.bldr.create_vector(&self.fields)),
         };
         let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
         finish_fbschema_buffer(&mut self.bldr, schema_offset);
@@ -76,8 +85,18 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             Type::Scalar(id) => self.serialize_scalar(id),
             Type::InputObject(id) => self.serialize_input_object(id),
             Type::Enum(id) => self.serialize_enum(id),
+            Type::Object(id) => self.serialize_object(id),
+            Type::Interface(id) => self.serialize_interface(id),
             _ => {} // Coming up in next diffs
         }
+    }
+
+    fn get_type_args(&mut self, type_: Type) -> FBTypeArgs {
+        let name = self.schema.get_type_name(type_).lookup();
+        if !self.type_map.contains_key(name) {
+            self.serialize_type(type_);
+        }
+        *self.type_map.get(name).unwrap()
     }
 
     fn serialize_scalar(&mut self, id: ScalarID) {
@@ -128,6 +147,101 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.enums.push(FBEnum::create(&mut self.bldr, &args));
     }
 
+    fn serialize_object(&mut self, id: ObjectID) {
+        let object = self.schema.object(id);
+        let name = object.name.lookup();
+        let idx = self.objects.len();
+        self.add_to_type_map(idx, FBTypeKind::Object, name);
+        self.objects
+            .push(FBObject::create(&mut self.bldr, &FBObjectArgs::default()));
+
+        let directives = &self.serialize_directive_values(&object.directives);
+        let fields = &object
+            .fields
+            .iter()
+            .map(|field_id| self.serialize_field(*field_id).try_into().unwrap())
+            .collect::<Vec<u32>>();
+        let interfaces = &object
+            .interfaces
+            .iter()
+            .map(|interface_id| {
+                self.get_type_args(Type::Interface(*interface_id))
+                    .interface_id
+            })
+            .collect::<Vec<_>>();
+        let args = FBObjectArgs {
+            name: Some(self.bldr.create_string(name)),
+            is_extension: object.is_extension,
+            directives: Some(self.bldr.create_vector(directives)),
+            fields: Some(self.bldr.create_vector(fields)),
+            interfaces: Some(self.bldr.create_vector(interfaces)),
+        };
+        self.objects[idx] = FBObject::create(&mut self.bldr, &args);
+    }
+
+    fn serialize_interface(&mut self, id: InterfaceID) {
+        let interface = self.schema.interface(id);
+        let name = interface.name.lookup();
+        let idx = self.interfaces.len();
+        self.add_to_type_map(idx, FBTypeKind::Interface, name);
+        self.interfaces.push(FBInterface::create(
+            &mut self.bldr,
+            &FBInterfaceArgs::default(),
+        ));
+
+        let directives = &self.serialize_directive_values(&interface.directives);
+        let fields = &interface
+            .fields
+            .iter()
+            .map(|field_id| self.serialize_field(*field_id).try_into().unwrap())
+            .collect::<Vec<u32>>();
+        let interfaces = &interface
+            .interfaces
+            .iter()
+            .map(|interface_id| {
+                self.get_type_args(Type::Interface(*interface_id))
+                    .interface_id
+            })
+            .collect::<Vec<_>>();
+        let implementing_objects = &interface
+            .implementing_objects
+            .iter()
+            .map(|object_id| self.get_type_args(Type::Object(*object_id)).object_id)
+            .collect::<Vec<_>>();
+        let args = FBInterfaceArgs {
+            name: Some(self.bldr.create_string(name)),
+            is_extension: interface.is_extension,
+            directives: Some(self.bldr.create_vector(directives)),
+            fields: Some(self.bldr.create_vector(fields)),
+            interfaces: Some(self.bldr.create_vector(interfaces)),
+            implementing_objects: Some(self.bldr.create_vector(implementing_objects)),
+        };
+        self.interfaces[idx] = FBInterface::create(&mut self.bldr, &args);
+    }
+
+    fn serialize_field(&mut self, id: FieldID) -> usize {
+        let field = self.schema.field(id);
+        let name = field.name.lookup();
+        let directives = &self.serialize_directive_values(&field.directives);
+        let arguments = &self.serialize_arguments(&field.arguments);
+        let args = FBFieldArgs {
+            name: Some(self.bldr.create_string(name)),
+            is_extension: field.is_extension,
+            arguments: Some(self.bldr.create_vector(arguments)),
+            type_: Some(self.serialize_type_reference(&field.type_)),
+            directives: Some(self.bldr.create_vector(directives)),
+            parent_type: match &field.parent_type {
+                Some(type_) => {
+                    let args = self.get_type_args(*type_);
+                    Some(FBType::create(&mut self.bldr, &args))
+                }
+                _ => None,
+            },
+        };
+        self.fields.push(FBField::create(&mut self.bldr, &args));
+        self.fields.len() - 1
+    }
+
     fn serialize_enum_values(&mut self, values: &[EnumValue]) -> Vec<WIPOffset<FBEnumValue<'fb>>> {
         values
             .iter()
@@ -173,15 +287,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let mut args = FBTypeReferenceArgs::default();
         match type_ {
             TypeReference::Named(type_) => {
-                let type_name = self.schema.get_type_name(*type_).lookup();
-                if !self.types.contains_key(type_name) {
-                    self.serialize_type(*type_);
-                }
+                let type_args = self.get_type_args(*type_);
                 args.kind = FBTypeReferenceKind::Named;
-                args.named = Some(FBType::create(
-                    &mut self.bldr,
-                    &self.type_map.get(type_name).unwrap(),
-                ));
+                args.named = Some(FBType::create(&mut self.bldr, &type_args));
             }
             TypeReference::List(of) => {
                 args.kind = FBTypeReferenceKind::List;
@@ -315,9 +423,20 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     }
 
     fn add_to_type_map(&mut self, id: usize, kind: FBTypeKind, name: &str) {
+        let id = id.try_into().unwrap();
+        let type_args = self.build_type_args(id, kind);
+        let args = FBTypeMapArgs {
+            name: Some(self.bldr.create_string(name)),
+            value: Some(FBType::create(&mut self.bldr, &type_args)),
+        };
+        self.types
+            .insert(name.to_string(), FBTypeMap::create(&mut self.bldr, &args));
+        self.type_map.insert(name.to_string(), type_args);
+    }
+
+    fn build_type_args(&mut self, id: u32, kind: FBTypeKind) -> FBTypeArgs {
         let mut type_args = FBTypeArgs::default();
         type_args.kind = kind;
-        let id = id.try_into().unwrap();
         match kind {
             FBTypeKind::Scalar => {
                 type_args.scalar_id = id;
@@ -328,13 +447,13 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             FBTypeKind::Enum => {
                 type_args.enum_id = id;
             }
+            FBTypeKind::Object => {
+                type_args.object_id = id;
+            }
+            FBTypeKind::Interface => {
+                type_args.interface_id = id;
+            }
         }
-        let args = FBTypeMapArgs {
-            name: Some(self.bldr.create_string(name)),
-            value: Some(FBType::create(&mut self.bldr, &type_args)),
-        };
-        self.types
-            .insert(name.to_string(), FBTypeMap::create(&mut self.bldr, &args));
-        self.type_map.insert(name.to_string(), type_args);
+        type_args
     }
 }

@@ -697,8 +697,9 @@ FlatBuffer Schema:Schema {
     },
 ]
  type_map: {
+    "Actor": Union(0),
     "Boolean": Scalar(3),
-    "ClientType": Object(0),
+    "ClientType": Object(1),
     "Float": Scalar(1),
     "ID": Scalar(4),
     "Int": Scalar(0),
@@ -709,7 +710,7 @@ FlatBuffer Schema:Schema {
     "Query": Object(3),
     "String": Scalar(2),
     "URL": Scalar(5),
-    "User": Object(1),
+    "User": Object(0),
 }
  enums: [
     Enum {
@@ -788,11 +789,61 @@ FlatBuffer Schema:Schema {
         parent_type: None,
     },
     Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "nickname",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
         name: "clientName",
         is_extension: true,
         arguments: [],
         type_: Named(
             Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(1),
+        ),
+    },
+    Field {
+        name: "client",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Object(1),
         ),
         directives: [],
         parent_type: Some(
@@ -811,56 +862,6 @@ FlatBuffer Schema:Schema {
         directives: [],
         parent_type: Some(
             Interface(0),
-        ),
-    },
-    Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-    },
-    Field {
-        name: "nickname",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-    },
-    Field {
-        name: "client",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Object(0),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
         ),
     },
     Field {
@@ -1029,12 +1030,12 @@ FlatBuffer Schema:Schema {
         is_extension: false,
         implementing_objects: [
             ObjectID(
-                1,
+                0,
             ),
         ],
         fields: [
             FieldID(
-                4,
+                8,
             ),
         ],
         directives: [],
@@ -1043,31 +1044,20 @@ FlatBuffer Schema:Schema {
 ]
  objects: [
     Object {
-        name: "ClientType",
-        is_extension: true,
-        fields: [
-            FieldID(
-                3,
-            ),
-        ],
-        interfaces: [],
-        directives: [],
-    },
-    Object {
         name: "User",
         is_extension: false,
         fields: [
             FieldID(
+                3,
+            ),
+            FieldID(
+                4,
+            ),
+            FieldID(
                 5,
             ),
             FieldID(
-                6,
-            ),
-            FieldID(
                 7,
-            ),
-            FieldID(
-                8,
             ),
         ],
         interfaces: [
@@ -1075,6 +1065,17 @@ FlatBuffer Schema:Schema {
                 0,
             ),
         ],
+        directives: [],
+    },
+    Object {
+        name: "ClientType",
+        is_extension: true,
+        fields: [
+            FieldID(
+                6,
+            ),
+        ],
+        interfaces: [],
         directives: [],
     },
     Object {
@@ -1168,5 +1169,19 @@ FlatBuffer Schema:Schema {
         ],
     },
 ]
- unions: []
+ unions: [
+    Union {
+        name: "Actor",
+        is_extension: false,
+        members: [
+            ObjectID(
+                0,
+            ),
+            ObjectID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+]
  }

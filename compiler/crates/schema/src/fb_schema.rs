@@ -77,6 +77,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             FBTypeKind::Enum => self.parse_enum(type_.enum_id())?,
             FBTypeKind::Object => self.parse_object(type_.object_id())?,
             FBTypeKind::Interface => self.parse_interface(type_.interface_id())?,
+            FBTypeKind::Union => self.parse_union(type_.union_id())?,
         })
     }
 
@@ -182,6 +183,30 @@ impl<'fb> FlatBufferSchema<'fb> {
                 .unwrap();
         }
         Some(Type::Interface(new_id))
+    }
+
+    fn parse_union(&mut self, id: u32) -> Option<Type> {
+        let union = self.fb_schema.unions()?.get(id.try_into().unwrap());
+        let parsed_union = Union {
+            name: union.name()?.intern(),
+            is_extension: union.is_extension(),
+            members: vec![],
+            directives: self.parse_directive_values(union.directives()?)?,
+        };
+        let new_id = self.schema.add_union(parsed_union).unwrap();
+        for object_id in union.members()? {
+            let object = self.get_type(
+                self.fb_schema
+                    .objects()?
+                    .get(object_id.try_into().unwrap())
+                    .name()?
+                    .intern(),
+            )?;
+            self.schema
+                .add_member_to_union(new_id, object.get_object_id()?)
+                .unwrap();
+        }
+        Some(Type::Union(new_id))
     }
 
     fn parse_field(&mut self, id: u32) -> Option<FieldID> {
@@ -384,6 +409,12 @@ impl<'fb> FlatBufferSchema<'fb> {
                 .interfaces()
                 .unwrap()
                 .get(type_.interface_id().try_into().unwrap())
+                .name(),
+            FBTypeKind::Union => self
+                .fb_schema
+                .unions()
+                .unwrap()
+                .get(type_.union_id().try_into().unwrap())
                 .name(),
         }
         .unwrap()

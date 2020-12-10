@@ -28,6 +28,7 @@ struct Serializer<'fb, 'schema> {
     enums: Vec<WIPOffset<FBEnum<'fb>>>,
     objects: Vec<WIPOffset<FBObject<'fb>>>,
     interfaces: Vec<WIPOffset<FBInterface<'fb>>>,
+    unions: Vec<WIPOffset<FBUnion<'fb>>>,
     fields: Vec<WIPOffset<FBField<'fb>>>,
     types: FnvHashMap<String, WIPOffset<FBTypeMap<'fb>>>,
     type_map: FnvHashMap<String, FBTypeArgs>,
@@ -43,6 +44,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             enums: Vec::new(),
             objects: Vec::new(),
             interfaces: Vec::new(),
+            unions: Vec::new(),
             fields: Vec::new(),
             types: FnvHashMap::default(),
             type_map: FnvHashMap::default(),
@@ -62,6 +64,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             enums: Some(self.bldr.create_vector(&self.enums)),
             objects: Some(self.bldr.create_vector(&self.objects)),
             interfaces: Some(self.bldr.create_vector(&self.interfaces)),
+            unions: Some(self.bldr.create_vector(&self.unions)),
             fields: Some(self.bldr.create_vector(&self.fields)),
         };
         let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
@@ -87,7 +90,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             Type::Enum(id) => self.serialize_enum(id),
             Type::Object(id) => self.serialize_object(id),
             Type::Interface(id) => self.serialize_interface(id),
-            _ => {} // Coming up in next diffs
+            Type::Union(id) => self.serialize_union(id),
         }
     }
 
@@ -217,6 +220,29 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             implementing_objects: Some(self.bldr.create_vector(implementing_objects)),
         };
         self.interfaces[idx] = FBInterface::create(&mut self.bldr, &args);
+    }
+
+    fn serialize_union(&mut self, id: UnionID) {
+        let union = self.schema.union(id);
+        let name = union.name.lookup();
+        let idx = self.unions.len();
+        self.add_to_type_map(idx, FBTypeKind::Union, name);
+        self.unions
+            .push(FBUnion::create(&mut self.bldr, &FBUnionArgs::default()));
+
+        let directives = &self.serialize_directive_values(&union.directives);
+        let members = &union
+            .members
+            .iter()
+            .map(|object_id| self.get_type_args(Type::Object(*object_id)).object_id)
+            .collect::<Vec<_>>();
+        let args = FBUnionArgs {
+            name: Some(self.bldr.create_string(name)),
+            is_extension: union.is_extension,
+            members: Some(self.bldr.create_vector(members)),
+            directives: Some(self.bldr.create_vector(directives)),
+        };
+        self.unions[idx] = FBUnion::create(&mut self.bldr, &args);
     }
 
     fn serialize_field(&mut self, id: FieldID) -> usize {
@@ -452,6 +478,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             }
             FBTypeKind::Interface => {
                 type_args.interface_id = id;
+            }
+            FBTypeKind::Union => {
+                type_args.union_id = id;
             }
         }
         type_args

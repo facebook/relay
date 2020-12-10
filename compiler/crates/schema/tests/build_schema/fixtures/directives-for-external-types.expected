@@ -811,6 +811,7 @@ FlatBuffer Schema:Schema {
     },
 ]
  type_map: {
+    "Address": Union(0),
     "Boolean": Scalar(3),
     "Country": InputObject(0),
     "Float": Scalar(1),
@@ -1303,5 +1304,49 @@ FlatBuffer Schema:Schema {
         directives: [],
     },
 ]
- unions: []
+ unions: [
+    Union {
+        name: "Address",
+        is_extension: false,
+        members: [
+            ObjectID(
+                0,
+            ),
+            ObjectID(
+                0,
+            ),
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Address",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
  }

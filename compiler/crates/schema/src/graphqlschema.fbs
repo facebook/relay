@@ -48,6 +48,7 @@ enum FBTypeKind : byte {
     Enum = 2,
     Object = 3,
     Interface = 4,
+    Union = 5,
 }
 
 table FBType {
@@ -57,6 +58,7 @@ table FBType {
     enum_id:uint32;
     object_id:uint32;
     interface_id:uint32;
+    union_id:uint32;
 }
 
 enum FBTypeReferenceKind : byte {
@@ -129,6 +131,13 @@ table FBInterface {
     directives:[FBDirectiveValue];
 }
 
+table FBUnion {
+    name:string;
+    is_extension:bool;
+    members:[uint32];
+    directives:[FBDirectiveValue];
+}
+
 table FBField {
     name:string;
     is_extension:bool;
@@ -150,6 +159,7 @@ table FBSchema {
     enums:[FBEnum];
     objects:[FBObject];
     interfaces:[FBInterface];
+    unions:[FBUnion];
     fields:[FBField];
 }
 

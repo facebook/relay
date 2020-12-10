@@ -33,7 +33,7 @@ use std::{
 
 #[derive(Debug, Copy, Clone)]
 pub enum CompletionKind {
-    FieldName,
+    FieldName { existing_linked_field: bool },
     FragmentSpread,
     DirectiveName { location: DirectiveLocation },
     FieldArgumentName,
@@ -52,7 +52,9 @@ pub struct CompletionRequest {
 impl CompletionRequest {
     fn new(project_name: StringKey) -> Self {
         Self {
-            kind: CompletionKind::FieldName,
+            kind: CompletionKind::FieldName {
+                existing_linked_field: false,
+            },
             type_path: Default::default(),
             project_name,
         }
@@ -124,6 +126,7 @@ fn create_completion_request(
 fn resolve_completion_items_from_fields<T: TypeWithFields>(
     type_: &T,
     schema: &Schema,
+    existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
         .fields()
@@ -132,7 +135,10 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             let field = schema.field(*field_id);
             let name = field.name.to_string();
             let args = create_arguments_snippets(&field.arguments, schema);
-            let insert_text = match (field.type_.inner().is_scalar(), args.is_empty()) {
+            let insert_text = match (
+                existing_linked_field || field.type_.inner().is_scalar(),
+                args.is_empty(),
+            ) {
                 (true, true) => None,
                 (true, false) => Some(format!("{}({})", name, args.join(", "))),
                 (false, true) => Some(format!("{} {{\n\t$1\n}}", name)),
@@ -251,15 +257,19 @@ fn completion_items_for_request(
                 None
             }
         }
-        CompletionKind::FieldName => match request.type_path.resolve_leaf_type(schema)? {
+        CompletionKind::FieldName {
+            existing_linked_field,
+        } => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
-                let items = resolve_completion_items_from_fields(interface, schema);
+                let items =
+                    resolve_completion_items_from_fields(interface, schema, existing_linked_field);
                 Some(items)
             }
             Type::Object(object_id) => {
                 let object = schema.object(object_id);
-                let items = resolve_completion_items_from_fields(object, schema);
+                let items =
+                    resolve_completion_items_from_fields(object, schema, existing_linked_field);
                 Some(items)
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
@@ -296,14 +306,21 @@ fn build_request_from_selections(
     completion_request: &mut CompletionRequest,
 ) {
     if selections.items.is_empty() {
-        completion_request.kind = CompletionKind::FieldName;
+        completion_request.kind = CompletionKind::FieldName {
+            existing_linked_field: false,
+        };
         return;
     }
     for item in &selections.items {
         if item.span().contains(position_span) {
             match item {
                 Selection::LinkedField(node) => {
-                    completion_request.kind = CompletionKind::FieldName;
+                    if node.name.span.contains(position_span) {
+                        completion_request.kind = CompletionKind::FieldName {
+                            existing_linked_field: true,
+                        };
+                        return;
+                    }
                     let LinkedField {
                         name,
                         selections,

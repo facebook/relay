@@ -439,50 +439,58 @@ fn resolve_completion_items_for_fragment_spread(
 ) -> Vec<CompletionItem> {
     let mut valid_fragments = vec![];
     for fragment in source_program.fragments() {
-        if fragment.type_condition == type_ && !fragment.variable_definitions.is_empty() {
-            // Create a snippet if the fragment has required arugmentDefinition with no default values
-            let mut cursor_location = 1;
-            let mut args = vec![];
-            for arg in fragment.variable_definitions.iter() {
-                if arg.default_value.is_none() {
-                    if let TypeReference::NonNull(type_) = &arg.type_ {
-                        let value_snippet = match type_ {
-                            t if t.is_list() => format!("[${}]", cursor_location),
-                            t if schema.is_string(t.inner()) => {
-                                format!("\"${}\"", cursor_location)
-                            }
-                            _ => format!("${}", cursor_location),
-                        };
-                        let str = format!("{}: {}", arg.name.item, value_snippet);
-                        args.push(str);
-                        cursor_location += 1;
+        if schema.are_overlapping_types(fragment.type_condition, type_) {
+            let label = fragment.name.item.to_string();
+            let detail = schema
+                .get_type_name(fragment.type_condition)
+                .lookup()
+                .to_string();
+            if fragment.variable_definitions.is_empty() {
+                valid_fragments.push(CompletionItem::new_simple(label, detail))
+            } else {
+                // Create a snippet if the fragment has required argumentDefinition with no default values
+                let mut cursor_location = 1;
+                let mut args = vec![];
+                for arg in fragment.variable_definitions.iter() {
+                    if arg.default_value.is_none() {
+                        if let TypeReference::NonNull(type_) = &arg.type_ {
+                            let value_snippet = match type_ {
+                                t if t.is_list() => format!("[${}]", cursor_location),
+                                t if schema.is_string(t.inner()) => {
+                                    format!("\"${}\"", cursor_location)
+                                }
+                                _ => format!("${}", cursor_location),
+                            };
+                            let str = format!("{}: {}", arg.name.item, value_snippet);
+                            args.push(str);
+                            cursor_location += 1;
+                        }
                     }
                 }
-            }
 
-            valid_fragments.push(if args.is_empty() {
-                CompletionItem::new_simple(fragment.name.item.to_string(), "".into())
-            } else {
-                let label = fragment.name.item.to_string();
-                let insert_text = format!("{} @arguments({})", label, args.join(", "));
-                CompletionItem {
-                    label,
-                    kind: None,
-                    detail: None,
-                    documentation: None,
-                    deprecated: None,
-                    preselect: None,
-                    sort_text: None,
-                    filter_text: None,
-                    insert_text: Some(insert_text),
-                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
-                    text_edit: None,
-                    additional_text_edits: None,
-                    command: None,
-                    data: None,
-                    tags: None,
-                }
-            });
+                valid_fragments.push(if args.is_empty() {
+                    CompletionItem::new_simple(label, detail)
+                } else {
+                    let insert_text = format!("{} @arguments({})", label, args.join(", "));
+                    CompletionItem {
+                        label,
+                        kind: None,
+                        detail: Some(detail),
+                        documentation: None,
+                        deprecated: None,
+                        preselect: None,
+                        sort_text: None,
+                        filter_text: None,
+                        insert_text: Some(insert_text),
+                        insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                        text_edit: None,
+                        additional_text_edits: None,
+                        command: None,
+                        data: None,
+                        tags: None,
+                    }
+                });
+            }
         }
     }
     info!("get_valid_fragments_for_type {:#?}", valid_fragments);

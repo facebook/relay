@@ -9,7 +9,7 @@ use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Field, Schema, Type, TypeReference};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf
 /// type the request (completion/hover) is being made against
 pub enum TypePathItem {
@@ -86,6 +86,12 @@ fn resolve_relative_type_for_current_item(
 
 #[derive(Debug, Default)]
 pub struct TypePath(Vec<TypePathItem>);
+
+impl From<Vec<TypePathItem>> for TypePath {
+    fn from(type_path: Vec<TypePathItem>) -> TypePath {
+        TypePath(type_path)
+    }
+}
 
 impl TypePath {
     pub fn add_type(&mut self, type_path_item: TypePathItem) {

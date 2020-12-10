@@ -74,6 +74,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         Some(match type_.kind() {
             FBTypeKind::Scalar => self.parse_scalar(type_.scalar_id())?,
             FBTypeKind::InputObject => self.parse_input_object(type_.input_object_id())?,
+            FBTypeKind::Enum => self.parse_enum(type_.enum_id())?,
         })
     }
 
@@ -97,6 +98,35 @@ impl<'fb> FlatBufferSchema<'fb> {
         Some(Type::InputObject(
             self.schema.add_input_object(parsed_input_object).unwrap(),
         ))
+    }
+
+    fn parse_enum(&mut self, id: u32) -> Option<Type> {
+        let enum_ = self.fb_schema.enums()?.get(id.try_into().unwrap());
+        let parsed_enum = Enum {
+            name: enum_.name()?.to_string().intern(),
+            is_extension: enum_.is_extension(),
+            values: self.parse_enum_values(enum_.values()?)?,
+            directives: self.parse_directive_values(enum_.directives()?)?,
+        };
+        Some(Type::Enum(self.schema.add_enum(parsed_enum).unwrap()))
+    }
+
+    fn parse_enum_values(
+        &self,
+        values: Vector<'_, ForwardsUOffset<FBEnumValue<'_>>>,
+    ) -> Option<Vec<EnumValue>> {
+        values
+            .iter()
+            .map(|value| self.parse_enum_value(value))
+            .collect::<Option<Vec<_>>>()
+    }
+
+    fn parse_enum_value(&self, value: FBEnumValue<'fb>) -> Option<EnumValue> {
+        let directives = self.parse_directive_values(value.directives()?)?;
+        Some(EnumValue {
+            value: value.value()?.intern(),
+            directives,
+        })
     }
 
     fn parse_arguments(
@@ -248,6 +278,12 @@ impl<'fb> FlatBufferSchema<'fb> {
             FBTypeKind::InputObject => self
                 .fb_schema
                 .input_objects()
+                .unwrap()
+                .get(type_.scalar_id().try_into().unwrap())
+                .name(),
+            FBTypeKind::Enum => self
+                .fb_schema
+                .enums()
                 .unwrap()
                 .get(type_.scalar_id().try_into().unwrap())
                 .name(),

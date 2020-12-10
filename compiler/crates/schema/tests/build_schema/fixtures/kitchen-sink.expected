@@ -702,10 +702,49 @@ FlatBuffer Schema:Schema {
     "ID": Scalar(4),
     "Int": Scalar(0),
     "Location": InputObject(0),
+    "PageType": Enum(0),
     "String": Scalar(2),
     "URL": Scalar(5),
 }
- enums: []
+ enums: [
+    Enum {
+        name: "PageType",
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "DEAULT",
+                directives: [
+                    DirectiveValue {
+                        name: "deprecated",
+                        arguments: [
+                            ArgumentValue {
+                                name: "reason",
+                                value: String(
+                                    StringNode {
+                                        token: Token {
+                                            span: 0:0,
+                                            kind: EndOfFile,
+                                        },
+                                        value: "No longer supported",
+                                    },
+                                ),
+                            },
+                        ],
+                    },
+                ],
+            },
+            EnumValue {
+                value: "PUBLIC",
+                directives: [],
+            },
+            EnumValue {
+                value: "PRIVATE",
+                directives: [],
+            },
+        ],
+        directives: [],
+    },
+]
  fields: [
     Field {
         name: "__typename",

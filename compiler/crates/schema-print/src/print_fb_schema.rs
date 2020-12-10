@@ -25,6 +25,7 @@ struct Serializer<'fb, 'schema> {
     bldr: FlatBufferBuilder<'fb>,
     scalars: Vec<WIPOffset<FBScalar<'fb>>>,
     input_objects: Vec<WIPOffset<FBInputObject<'fb>>>,
+    enums: Vec<WIPOffset<FBEnum<'fb>>>,
     types: FnvHashMap<String, WIPOffset<FBTypeMap<'fb>>>,
     type_map: FnvHashMap<String, FBTypeArgs>,
 }
@@ -36,6 +37,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             bldr: FlatBufferBuilder::new(),
             scalars: Vec::new(),
             input_objects: Vec::new(),
+            enums: Vec::new(),
             types: FnvHashMap::default(),
             type_map: FnvHashMap::default(),
         }
@@ -51,6 +53,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             types: Some(self.bldr.create_vector(&ordered_types)),
             scalars: Some(self.bldr.create_vector(&self.scalars)),
             input_objects: Some(self.bldr.create_vector(&self.input_objects)),
+            enums: Some(self.bldr.create_vector(&self.enums)),
         };
         let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
         finish_fbschema_buffer(&mut self.bldr, schema_offset);
@@ -72,6 +75,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         match type_ {
             Type::Scalar(id) => self.serialize_scalar(id),
             Type::InputObject(id) => self.serialize_input_object(id),
+            Type::Enum(id) => self.serialize_enum(id),
             _ => {} // Coming up in next diffs
         }
     }
@@ -107,6 +111,37 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             fields: Some(self.bldr.create_vector(fields)),
         };
         self.input_objects[idx] = FBInputObject::create(&mut self.bldr, &args);
+    }
+
+    fn serialize_enum(&mut self, id: EnumID) {
+        let enum_ = self.schema.enum_(id);
+        let name = enum_.name.lookup();
+        let directives = &self.serialize_directive_values(&enum_.directives);
+        let values = &self.serialize_enum_values(&enum_.values);
+        let args = FBEnumArgs {
+            name: Some(self.bldr.create_string(name)),
+            is_extension: enum_.is_extension,
+            directives: Some(self.bldr.create_vector(directives)),
+            values: Some(self.bldr.create_vector(values)),
+        };
+        self.add_to_type_map(self.enums.len(), FBTypeKind::Enum, name);
+        self.enums.push(FBEnum::create(&mut self.bldr, &args));
+    }
+
+    fn serialize_enum_values(&mut self, values: &[EnumValue]) -> Vec<WIPOffset<FBEnumValue<'fb>>> {
+        values
+            .iter()
+            .map(|value| self.serialize_enum_value(value))
+            .collect::<Vec<_>>()
+    }
+
+    fn serialize_enum_value(&mut self, value: &EnumValue) -> WIPOffset<FBEnumValue<'fb>> {
+        let directives = &self.serialize_directive_values(&value.directives);
+        let args = FBEnumValueArgs {
+            value: Some(self.bldr.create_string(value.value.lookup())),
+            directives: Some(self.bldr.create_vector(directives)),
+        };
+        FBEnumValue::create(&mut self.bldr, &args)
     }
 
     fn serialize_arguments(
@@ -289,6 +324,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             }
             FBTypeKind::InputObject => {
                 type_args.input_object_id = id;
+            }
+            FBTypeKind::Enum => {
+                type_args.enum_id = id;
             }
         }
         let args = FBTypeMapArgs {

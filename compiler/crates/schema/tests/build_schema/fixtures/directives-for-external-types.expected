@@ -768,6 +768,47 @@ FlatBuffer Schema:Schema {
  subscription_type: None
  directives: [
     Directive {
+        name: "extern_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Interface,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "fetchable",
+        arguments: [
+            Argument {
+                name: "field_name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Object,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
         name: "include",
         arguments: [
             Argument {
@@ -789,6 +830,30 @@ FlatBuffer Schema:Schema {
         is_extension: false,
     },
     Directive {
+        name: "ref_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            FieldDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
         name: "skip",
         arguments: [
             Argument {
@@ -805,6 +870,30 @@ FlatBuffer Schema:Schema {
             Field,
             FragmentSpread,
             InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
         ],
         repeatable: false,
         is_extension: false,

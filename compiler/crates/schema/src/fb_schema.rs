@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{Argument, *};
+use crate::definitions::{Argument, Directive, *};
 use crate::graphqlschema_generated::graphqlschema::*;
 use common::Span;
 use flatbuffers::*;
 use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantValue, EnumNode, FloatNode, FloatValue, Identifier,
-    IntNode, List, StringNode, Token, TokenKind,
+    BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
+    FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
 };
 use interner::{Intern, StringKey};
 use std::convert::TryInto;
@@ -20,17 +20,18 @@ use std::convert::TryInto;
 pub struct FlatBufferSchema<'fb> {
     fb_schema: FBSchema<'fb>,
     types: Vector<'fb, ForwardsUOffset<FBTypeMap<'fb>>>,
+    directives: Vector<'fb, ForwardsUOffset<FBDirectiveMap<'fb>>>,
     schema: Schema,
 }
 
 impl<'fb> FlatBufferSchema<'fb> {
     pub fn build(bytes: &'fb [u8], schema: Schema) -> Self {
         let fb_schema: FBSchema<'fb> = get_root_as_fbschema(bytes);
-        let types = fb_schema.types().unwrap();
         Self {
             fb_schema,
-            types,
+            types: fb_schema.types().unwrap(),
             schema,
+            directives: fb_schema.directives().unwrap(),
         }
     }
 
@@ -45,8 +46,53 @@ impl<'fb> FlatBufferSchema<'fb> {
         self.get_type(type_name).is_some()
     }
 
+    pub fn get_directive(&mut self, directive_name: StringKey) -> Option<&Directive> {
+        if self.schema.get_directive(directive_name).is_none() {
+            return self.read_directive(directive_name);
+        };
+        self.schema.get_directive(directive_name)
+    }
+
     pub fn snapshot_print(self) -> String {
         self.schema.snapshot_print()
+    }
+
+    fn read_directive(&mut self, name: StringKey) -> Option<&Directive> {
+        let mut start = 0;
+        let mut end = self.directives.len();
+        while start <= end {
+            let mid = (start + end) / 2;
+            let cmp = self
+                .directives
+                .get(mid)
+                .key_compare_with_value(name.lookup());
+            if cmp == ::std::cmp::Ordering::Equal {
+                let directive = self.directives.get(mid).value()?;
+                return Some(self.parse_directive(directive)?);
+            } else if cmp == ::std::cmp::Ordering::Less {
+                start = mid + 1;
+            } else {
+                end = mid - 1;
+            }
+        }
+        None
+    }
+
+    fn parse_directive(&mut self, directive: FBDirective<'fb>) -> Option<&Directive> {
+        let locations = directive
+            .locations()?
+            .iter()
+            .map(get_mapped_location)
+            .collect::<Vec<_>>();
+        let parsed_directive = Directive {
+            name: directive.name()?.intern(),
+            is_extension: directive.is_extension(),
+            arguments: self.parse_arguments(directive.arguments()?)?,
+            locations,
+            repeatable: directive.repeatable(),
+        };
+        self.schema.add_directive(parsed_directive).unwrap();
+        self.schema.get_directive(directive.name()?.intern())
     }
 
     fn read_type(&mut self, type_name: StringKey) -> Option<Type> {
@@ -475,4 +521,28 @@ fn get_empty_token() -> Token {
 
 fn get_empty_span() -> Span {
     Span { start: 0, end: 0 }
+}
+
+fn get_mapped_location(location: FBDirectiveLocation) -> DirectiveLocation {
+    match location {
+        FBDirectiveLocation::Query => DirectiveLocation::Query,
+        FBDirectiveLocation::Mutation => DirectiveLocation::Mutation,
+        FBDirectiveLocation::Subscription => DirectiveLocation::Subscription,
+        FBDirectiveLocation::Field => DirectiveLocation::Field,
+        FBDirectiveLocation::FragmentDefinition => DirectiveLocation::FragmentDefinition,
+        FBDirectiveLocation::FragmentSpread => DirectiveLocation::FragmentSpread,
+        FBDirectiveLocation::InlineFragment => DirectiveLocation::InlineFragment,
+        FBDirectiveLocation::Schema => DirectiveLocation::Schema,
+        FBDirectiveLocation::Scalar => DirectiveLocation::Scalar,
+        FBDirectiveLocation::Object => DirectiveLocation::Object,
+        FBDirectiveLocation::FieldDefinition => DirectiveLocation::FieldDefinition,
+        FBDirectiveLocation::ArgumentDefinition => DirectiveLocation::ArgumentDefinition,
+        FBDirectiveLocation::Interface => DirectiveLocation::Interface,
+        FBDirectiveLocation::Union => DirectiveLocation::Union,
+        FBDirectiveLocation::Enum => DirectiveLocation::Enum,
+        FBDirectiveLocation::EnumValue => DirectiveLocation::EnumValue,
+        FBDirectiveLocation::InputObject => DirectiveLocation::InputObject,
+        FBDirectiveLocation::InputFieldDefinition => DirectiveLocation::InputFieldDefinition,
+        FBDirectiveLocation::VariableDefinition => DirectiveLocation::VariableDefinition,
+    }
 }

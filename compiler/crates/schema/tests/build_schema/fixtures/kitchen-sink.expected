@@ -695,6 +695,39 @@ FlatBuffer Schema:Schema {
         repeatable: false,
         is_extension: false,
     },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
 ]
  type_map: {
     "Actor": Union(0),

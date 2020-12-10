@@ -32,6 +32,7 @@ struct Serializer<'fb, 'schema> {
     fields: Vec<WIPOffset<FBField<'fb>>>,
     types: FnvHashMap<String, WIPOffset<FBTypeMap<'fb>>>,
     type_map: FnvHashMap<String, FBTypeArgs>,
+    directives: FnvHashMap<String, WIPOffset<FBDirectiveMap<'fb>>>,
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
@@ -48,14 +49,20 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             fields: Vec::new(),
             types: FnvHashMap::default(),
             type_map: FnvHashMap::default(),
+            directives: FnvHashMap::default(),
         }
     }
 
     fn serialize_schema(&mut self) -> Vec<u8> {
         self.serialize_types();
+        self.serialize_directives();
         let mut ordered_types = Vec::new();
         for (_key, value) in self.types.iter().collect::<BTreeMap<_, _>>() {
             ordered_types.push(*value);
+        }
+        let mut ordered_directives = Vec::new();
+        for (_key, value) in self.directives.iter().collect::<BTreeMap<_, _>>() {
+            ordered_directives.push(*value);
         }
         let schema_args = FBSchemaArgs {
             types: Some(self.bldr.create_vector(&ordered_types)),
@@ -66,6 +73,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             interfaces: Some(self.bldr.create_vector(&self.interfaces)),
             unions: Some(self.bldr.create_vector(&self.unions)),
             fields: Some(self.bldr.create_vector(&self.fields)),
+            directives: Some(self.bldr.create_vector(&ordered_directives)),
         };
         let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
         finish_fbschema_buffer(&mut self.bldr, schema_offset);
@@ -77,6 +85,42 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         for (_key, value) in ordered_type_map.iter() {
             self.serialize_type(**value);
         }
+    }
+
+    fn serialize_directives(&mut self) {
+        for directive in self.schema.get_directives() {
+            self.serialize_directive(directive)
+        }
+    }
+
+    fn serialize_directive(&mut self, directive: &Directive) {
+        let name = directive.name.lookup();
+        if self.directives.contains_key(name) {
+            return;
+        }
+        let arguments = &self.serialize_arguments(&directive.arguments);
+        let locations = &directive
+            .locations
+            .iter()
+            .map(|location| get_mapped_location(*location))
+            .collect::<Vec<_>>();
+        let args = FBDirectiveArgs {
+            name: Some(self.bldr.create_string(name)),
+            is_extension: directive.is_extension,
+            arguments: Some(self.bldr.create_vector(arguments)),
+            locations: Some(self.bldr.create_vector(locations)),
+            repeatable: directive.repeatable,
+        };
+        let fb_directive = FBDirective::create(&mut self.bldr, &args);
+
+        let directive_map_args = FBDirectiveMapArgs {
+            name: Some(self.bldr.create_string(name)),
+            value: Some(fb_directive),
+        };
+        self.directives.insert(
+            name.to_string(),
+            FBDirectiveMap::create(&mut self.bldr, &directive_map_args),
+        );
     }
 
     fn serialize_type(&mut self, type_: Type) {
@@ -484,5 +528,29 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             }
         }
         type_args
+    }
+}
+
+fn get_mapped_location(location: DirectiveLocation) -> FBDirectiveLocation {
+    match location {
+        DirectiveLocation::Query => FBDirectiveLocation::Query,
+        DirectiveLocation::Mutation => FBDirectiveLocation::Mutation,
+        DirectiveLocation::Subscription => FBDirectiveLocation::Subscription,
+        DirectiveLocation::Field => FBDirectiveLocation::Field,
+        DirectiveLocation::FragmentDefinition => FBDirectiveLocation::FragmentDefinition,
+        DirectiveLocation::FragmentSpread => FBDirectiveLocation::FragmentSpread,
+        DirectiveLocation::InlineFragment => FBDirectiveLocation::InlineFragment,
+        DirectiveLocation::Schema => FBDirectiveLocation::Schema,
+        DirectiveLocation::Scalar => FBDirectiveLocation::Scalar,
+        DirectiveLocation::Object => FBDirectiveLocation::Object,
+        DirectiveLocation::FieldDefinition => FBDirectiveLocation::FieldDefinition,
+        DirectiveLocation::ArgumentDefinition => FBDirectiveLocation::ArgumentDefinition,
+        DirectiveLocation::Interface => FBDirectiveLocation::Interface,
+        DirectiveLocation::Union => FBDirectiveLocation::Union,
+        DirectiveLocation::Enum => FBDirectiveLocation::Enum,
+        DirectiveLocation::EnumValue => FBDirectiveLocation::EnumValue,
+        DirectiveLocation::InputObject => FBDirectiveLocation::InputObject,
+        DirectiveLocation::InputFieldDefinition => FBDirectiveLocation::InputFieldDefinition,
+        DirectiveLocation::VariableDefinition => FBDirectiveLocation::VariableDefinition,
     }
 }

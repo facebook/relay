@@ -90,6 +90,36 @@ table FBArgument {
     value:FBConstValue;
 }
 
+enum FBDirectiveLocation : byte {
+    Query = 0,
+    Mutation,
+    Subscription,
+    Field,
+    FragmentDefinition,
+    FragmentSpread,
+    InlineFragment,
+    Schema,
+    Scalar,
+    Object,
+    FieldDefinition,
+    ArgumentDefinition,
+    Interface,
+    Union,
+    Enum,
+    EnumValue,
+    InputObject,
+    InputFieldDefinition,
+    VariableDefinition,
+}
+
+table FBDirective {
+    name:string;
+    is_extension:bool;
+    arguments:[FBArgument];
+    locations:[FBDirectiveLocation];
+    repeatable:bool;
+}
+
 table FBEnumValue {
     value:string;
     directives:[FBDirectiveValue];
@@ -152,8 +182,14 @@ table FBTypeMap {
     value:FBType;
 }
 
+table FBDirectiveMap {
+    name:string (key);
+    value:FBDirective;
+}
+
 table FBSchema {
     types:[FBTypeMap];
+    directives: [FBDirectiveMap];
     scalars:[FBScalar];
     input_objects:[FBInputObject];
     enums:[FBEnum];

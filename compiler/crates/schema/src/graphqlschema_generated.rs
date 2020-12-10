@@ -215,6 +215,116 @@ pub mod graphqlschema {
         ENUM_NAMES_FBTYPE_REFERENCE_KIND[index as usize]
     }
 
+    #[allow(non_camel_case_types)]
+    #[repr(i8)]
+    #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+    pub enum FBDirectiveLocation {
+        Query = 0,
+        Mutation = 1,
+        Subscription = 2,
+        Field = 3,
+        FragmentDefinition = 4,
+        FragmentSpread = 5,
+        InlineFragment = 6,
+        Schema = 7,
+        Scalar = 8,
+        Object = 9,
+        FieldDefinition = 10,
+        ArgumentDefinition = 11,
+        Interface = 12,
+        Union = 13,
+        Enum = 14,
+        EnumValue = 15,
+        InputObject = 16,
+        InputFieldDefinition = 17,
+        VariableDefinition = 18,
+    }
+
+    pub const ENUM_MIN_FBDIRECTIVE_LOCATION: i8 = 0;
+    pub const ENUM_MAX_FBDIRECTIVE_LOCATION: i8 = 18;
+
+    impl<'a> flatbuffers::Follow<'a> for FBDirectiveLocation {
+        type Inner = Self;
+        #[inline]
+        fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+            flatbuffers::read_scalar_at::<Self>(buf, loc)
+        }
+    }
+
+    impl flatbuffers::EndianScalar for FBDirectiveLocation {
+        #[inline]
+        fn to_little_endian(self) -> Self {
+            let n = i8::to_le(self as i8);
+            let p = &n as *const i8 as *const FBDirectiveLocation;
+            unsafe { *p }
+        }
+        #[inline]
+        fn from_little_endian(self) -> Self {
+            let n = i8::from_le(self as i8);
+            let p = &n as *const i8 as *const FBDirectiveLocation;
+            unsafe { *p }
+        }
+    }
+
+    impl flatbuffers::Push for FBDirectiveLocation {
+        type Output = FBDirectiveLocation;
+        #[inline]
+        fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+            flatbuffers::emplace_scalar::<FBDirectiveLocation>(dst, *self);
+        }
+    }
+
+    #[allow(non_camel_case_types)]
+    pub const ENUM_VALUES_FBDIRECTIVE_LOCATION: [FBDirectiveLocation; 19] = [
+        FBDirectiveLocation::Query,
+        FBDirectiveLocation::Mutation,
+        FBDirectiveLocation::Subscription,
+        FBDirectiveLocation::Field,
+        FBDirectiveLocation::FragmentDefinition,
+        FBDirectiveLocation::FragmentSpread,
+        FBDirectiveLocation::InlineFragment,
+        FBDirectiveLocation::Schema,
+        FBDirectiveLocation::Scalar,
+        FBDirectiveLocation::Object,
+        FBDirectiveLocation::FieldDefinition,
+        FBDirectiveLocation::ArgumentDefinition,
+        FBDirectiveLocation::Interface,
+        FBDirectiveLocation::Union,
+        FBDirectiveLocation::Enum,
+        FBDirectiveLocation::EnumValue,
+        FBDirectiveLocation::InputObject,
+        FBDirectiveLocation::InputFieldDefinition,
+        FBDirectiveLocation::VariableDefinition,
+    ];
+
+    #[allow(non_camel_case_types)]
+    pub const ENUM_NAMES_FBDIRECTIVE_LOCATION: [&str; 19] = [
+        "Query",
+        "Mutation",
+        "Subscription",
+        "Field",
+        "FragmentDefinition",
+        "FragmentSpread",
+        "InlineFragment",
+        "Schema",
+        "Scalar",
+        "Object",
+        "FieldDefinition",
+        "ArgumentDefinition",
+        "Interface",
+        "Union",
+        "Enum",
+        "EnumValue",
+        "InputObject",
+        "InputFieldDefinition",
+        "VariableDefinition",
+    ];
+
+    pub fn enum_name_fbdirective_location(e: FBDirectiveLocation) -> &'static str {
+        let index = e as i8;
+        ENUM_NAMES_FBDIRECTIVE_LOCATION[index as usize]
+    }
+
     pub enum FBConstValueOffset {}
     #[derive(Copy, Clone, Debug, PartialEq)]
 
@@ -1355,6 +1465,169 @@ pub mod graphqlschema {
         }
         #[inline]
         pub fn finish(self) -> flatbuffers::WIPOffset<FBArgument<'a>> {
+            let o = self.fbb_.end_table(self.start_);
+            flatbuffers::WIPOffset::new(o.value())
+        }
+    }
+
+    pub enum FBDirectiveOffset {}
+    #[derive(Copy, Clone, Debug, PartialEq)]
+
+    pub struct FBDirective<'a> {
+        pub _tab: flatbuffers::Table<'a>,
+    }
+
+    impl<'a> flatbuffers::Follow<'a> for FBDirective<'a> {
+        type Inner = FBDirective<'a>;
+        #[inline]
+        fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+            Self {
+                _tab: flatbuffers::Table { buf, loc },
+            }
+        }
+    }
+
+    impl<'a> FBDirective<'a> {
+        #[inline]
+        pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+            FBDirective { _tab: table }
+        }
+        #[allow(unused_mut)]
+        pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+            _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+            args: &'args FBDirectiveArgs<'args>,
+        ) -> flatbuffers::WIPOffset<FBDirective<'bldr>> {
+            let mut builder = FBDirectiveBuilder::new(_fbb);
+            if let Some(x) = args.locations {
+                builder.add_locations(x);
+            }
+            if let Some(x) = args.arguments {
+                builder.add_arguments(x);
+            }
+            if let Some(x) = args.name {
+                builder.add_name(x);
+            }
+            builder.add_repeatable(args.repeatable);
+            builder.add_is_extension(args.is_extension);
+            builder.finish()
+        }
+
+        pub const VT_NAME: flatbuffers::VOffsetT = 4;
+        pub const VT_IS_EXTENSION: flatbuffers::VOffsetT = 6;
+        pub const VT_ARGUMENTS: flatbuffers::VOffsetT = 8;
+        pub const VT_LOCATIONS: flatbuffers::VOffsetT = 10;
+        pub const VT_REPEATABLE: flatbuffers::VOffsetT = 12;
+
+        #[inline]
+        pub fn name(&self) -> Option<&'a str> {
+            self._tab
+                .get::<flatbuffers::ForwardsUOffset<&str>>(FBDirective::VT_NAME, None)
+        }
+        #[inline]
+        pub fn is_extension(&self) -> bool {
+            self._tab
+                .get::<bool>(FBDirective::VT_IS_EXTENSION, Some(false))
+                .unwrap()
+        }
+        #[inline]
+        pub fn arguments(
+            &self,
+        ) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBArgument<'a>>>> {
+            self._tab.get::<flatbuffers::ForwardsUOffset<
+                flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBArgument<'a>>>,
+            >>(FBDirective::VT_ARGUMENTS, None)
+        }
+        #[inline]
+        pub fn locations(&self) -> Option<flatbuffers::Vector<'a, FBDirectiveLocation>> {
+            self._tab
+                .get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, FBDirectiveLocation>>>(
+                    FBDirective::VT_LOCATIONS,
+                    None,
+                )
+        }
+        #[inline]
+        pub fn repeatable(&self) -> bool {
+            self._tab
+                .get::<bool>(FBDirective::VT_REPEATABLE, Some(false))
+                .unwrap()
+        }
+    }
+
+    pub struct FBDirectiveArgs<'a> {
+        pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+        pub is_extension: bool,
+        pub arguments: Option<
+            flatbuffers::WIPOffset<
+                flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBArgument<'a>>>,
+            >,
+        >,
+        pub locations: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, FBDirectiveLocation>>>,
+        pub repeatable: bool,
+    }
+    impl<'a> Default for FBDirectiveArgs<'a> {
+        #[inline]
+        fn default() -> Self {
+            FBDirectiveArgs {
+                name: None,
+                is_extension: false,
+                arguments: None,
+                locations: None,
+                repeatable: false,
+            }
+        }
+    }
+    pub struct FBDirectiveBuilder<'a, 'b> {
+        fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+        start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+    }
+    impl<'a: 'b, 'b> FBDirectiveBuilder<'a, 'b> {
+        #[inline]
+        pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b str>) {
+            self.fbb_
+                .push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirective::VT_NAME, name);
+        }
+        #[inline]
+        pub fn add_is_extension(&mut self, is_extension: bool) {
+            self.fbb_
+                .push_slot::<bool>(FBDirective::VT_IS_EXTENSION, is_extension, false);
+        }
+        #[inline]
+        pub fn add_arguments(
+            &mut self,
+            arguments: flatbuffers::WIPOffset<
+                flatbuffers::Vector<'b, flatbuffers::ForwardsUOffset<FBArgument<'b>>>,
+            >,
+        ) {
+            self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(
+                FBDirective::VT_ARGUMENTS,
+                arguments,
+            );
+        }
+        #[inline]
+        pub fn add_locations(
+            &mut self,
+            locations: flatbuffers::WIPOffset<flatbuffers::Vector<'b, FBDirectiveLocation>>,
+        ) {
+            self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(
+                FBDirective::VT_LOCATIONS,
+                locations,
+            );
+        }
+        #[inline]
+        pub fn add_repeatable(&mut self, repeatable: bool) {
+            self.fbb_
+                .push_slot::<bool>(FBDirective::VT_REPEATABLE, repeatable, false);
+        }
+        #[inline]
+        pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBDirectiveBuilder<'a, 'b> {
+            let start = _fbb.start_table();
+            FBDirectiveBuilder {
+                fbb_: _fbb,
+                start_: start,
+            }
+        }
+        #[inline]
+        pub fn finish(self) -> flatbuffers::WIPOffset<FBDirective<'a>> {
             let o = self.fbb_.end_table(self.start_);
             flatbuffers::WIPOffset::new(o.value())
         }
@@ -2682,6 +2955,121 @@ pub mod graphqlschema {
         }
     }
 
+    pub enum FBDirectiveMapOffset {}
+    #[derive(Copy, Clone, Debug, PartialEq)]
+
+    pub struct FBDirectiveMap<'a> {
+        pub _tab: flatbuffers::Table<'a>,
+    }
+
+    impl<'a> flatbuffers::Follow<'a> for FBDirectiveMap<'a> {
+        type Inner = FBDirectiveMap<'a>;
+        #[inline]
+        fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+            Self {
+                _tab: flatbuffers::Table { buf, loc },
+            }
+        }
+    }
+
+    impl<'a> FBDirectiveMap<'a> {
+        #[inline]
+        pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
+            FBDirectiveMap { _tab: table }
+        }
+        #[allow(unused_mut)]
+        pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
+            _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
+            args: &'args FBDirectiveMapArgs<'args>,
+        ) -> flatbuffers::WIPOffset<FBDirectiveMap<'bldr>> {
+            let mut builder = FBDirectiveMapBuilder::new(_fbb);
+            if let Some(x) = args.value {
+                builder.add_value(x);
+            }
+            if let Some(x) = args.name {
+                builder.add_name(x);
+            }
+            builder.finish()
+        }
+
+        pub const VT_NAME: flatbuffers::VOffsetT = 4;
+        pub const VT_VALUE: flatbuffers::VOffsetT = 6;
+
+        #[inline]
+        pub fn name(&self) -> &'a str {
+            self._tab
+                .get::<flatbuffers::ForwardsUOffset<&str>>(FBDirectiveMap::VT_NAME, None)
+                .unwrap()
+        }
+        #[inline]
+        pub fn key_compare_less_than(&self, o: &FBDirectiveMap<'_>) -> bool {
+            self.name() < o.name()
+        }
+
+        #[inline]
+        pub fn key_compare_with_value(&self, val: &str) -> ::std::cmp::Ordering {
+            let key = self.name();
+            key.cmp(&val)
+        }
+        #[inline]
+        pub fn value(&self) -> Option<FBDirective<'a>> {
+            self._tab
+                .get::<flatbuffers::ForwardsUOffset<FBDirective<'a>>>(
+                    FBDirectiveMap::VT_VALUE,
+                    None,
+                )
+        }
+    }
+
+    pub struct FBDirectiveMapArgs<'a> {
+        pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+        pub value: Option<flatbuffers::WIPOffset<FBDirective<'a>>>,
+    }
+    impl<'a> Default for FBDirectiveMapArgs<'a> {
+        #[inline]
+        fn default() -> Self {
+            FBDirectiveMapArgs {
+                name: None, // required field
+                value: None,
+            }
+        }
+    }
+    pub struct FBDirectiveMapBuilder<'a, 'b> {
+        fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+        start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
+    }
+    impl<'a: 'b, 'b> FBDirectiveMapBuilder<'a, 'b> {
+        #[inline]
+        pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b str>) {
+            self.fbb_
+                .push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirectiveMap::VT_NAME, name);
+        }
+        #[inline]
+        pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBDirective<'b>>) {
+            self.fbb_
+                .push_slot_always::<flatbuffers::WIPOffset<FBDirective<'_>>>(
+                    FBDirectiveMap::VT_VALUE,
+                    value,
+                );
+        }
+        #[inline]
+        pub fn new(
+            _fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>,
+        ) -> FBDirectiveMapBuilder<'a, 'b> {
+            let start = _fbb.start_table();
+            FBDirectiveMapBuilder {
+                fbb_: _fbb,
+                start_: start,
+            }
+        }
+        #[inline]
+        pub fn finish(self) -> flatbuffers::WIPOffset<FBDirectiveMap<'a>> {
+            let o = self.fbb_.end_table(self.start_);
+            self.fbb_.required(o, FBDirectiveMap::VT_NAME, "name");
+            flatbuffers::WIPOffset::new(o.value())
+        }
+    }
+
     pub enum FBSchemaOffset {}
     #[derive(Copy, Clone, Debug, PartialEq)]
 
@@ -2731,6 +3119,9 @@ pub mod graphqlschema {
             if let Some(x) = args.scalars {
                 builder.add_scalars(x);
             }
+            if let Some(x) = args.directives {
+                builder.add_directives(x);
+            }
             if let Some(x) = args.types {
                 builder.add_types(x);
             }
@@ -2738,13 +3129,14 @@ pub mod graphqlschema {
         }
 
         pub const VT_TYPES: flatbuffers::VOffsetT = 4;
-        pub const VT_SCALARS: flatbuffers::VOffsetT = 6;
-        pub const VT_INPUT_OBJECTS: flatbuffers::VOffsetT = 8;
-        pub const VT_ENUMS: flatbuffers::VOffsetT = 10;
-        pub const VT_OBJECTS: flatbuffers::VOffsetT = 12;
-        pub const VT_INTERFACES: flatbuffers::VOffsetT = 14;
-        pub const VT_UNIONS: flatbuffers::VOffsetT = 16;
-        pub const VT_FIELDS: flatbuffers::VOffsetT = 18;
+        pub const VT_DIRECTIVES: flatbuffers::VOffsetT = 6;
+        pub const VT_SCALARS: flatbuffers::VOffsetT = 8;
+        pub const VT_INPUT_OBJECTS: flatbuffers::VOffsetT = 10;
+        pub const VT_ENUMS: flatbuffers::VOffsetT = 12;
+        pub const VT_OBJECTS: flatbuffers::VOffsetT = 14;
+        pub const VT_INTERFACES: flatbuffers::VOffsetT = 16;
+        pub const VT_UNIONS: flatbuffers::VOffsetT = 18;
+        pub const VT_FIELDS: flatbuffers::VOffsetT = 20;
 
         #[inline]
         pub fn types(
@@ -2753,6 +3145,15 @@ pub mod graphqlschema {
             self._tab.get::<flatbuffers::ForwardsUOffset<
                 flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>>,
             >>(FBSchema::VT_TYPES, None)
+        }
+        #[inline]
+        pub fn directives(
+            &self,
+        ) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>>
+        {
+            self._tab.get::<flatbuffers::ForwardsUOffset<
+                flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>,
+            >>(FBSchema::VT_DIRECTIVES, None)
         }
         #[inline]
         pub fn scalars(
@@ -2820,6 +3221,11 @@ pub mod graphqlschema {
                 flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>>,
             >,
         >,
+        pub directives: Option<
+            flatbuffers::WIPOffset<
+                flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>,
+            >,
+        >,
         pub scalars: Option<
             flatbuffers::WIPOffset<
                 flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBScalar<'a>>>,
@@ -2861,6 +3267,7 @@ pub mod graphqlschema {
         fn default() -> Self {
             FBSchemaArgs {
                 types: None,
+                directives: None,
                 scalars: None,
                 input_objects: None,
                 enums: None,
@@ -2885,6 +3292,16 @@ pub mod graphqlschema {
         ) {
             self.fbb_
                 .push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_TYPES, types);
+        }
+        #[inline]
+        pub fn add_directives(
+            &mut self,
+            directives: flatbuffers::WIPOffset<
+                flatbuffers::Vector<'b, flatbuffers::ForwardsUOffset<FBDirectiveMap<'b>>>,
+            >,
+        ) {
+            self.fbb_
+                .push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_DIRECTIVES, directives);
         }
         #[inline]
         pub fn add_scalars(

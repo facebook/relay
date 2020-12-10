@@ -32,6 +32,10 @@ fn print_schema_and_flat_buffer_schema(schema: Schema) -> String {
     for (key, _value) in schema.get_type_map().collect::<BTreeMap<_, _>>() {
         fb_schema.get_type(*key);
     }
+    // Hydrate directives
+    for directive in schema.get_directives() {
+        fb_schema.get_directive(directive.name);
+    }
     format!(
         "Text Schema:{}\n\nFlatBuffer Schema:{}",
         schema.snapshot_print(),

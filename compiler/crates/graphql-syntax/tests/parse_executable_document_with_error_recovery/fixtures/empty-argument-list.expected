@@ -7,7 +7,7 @@ ExecutableDocument {
     span: 0:36,
     definitions: [
         FragmentDefinition {
-            location: empty-argument-list.graphql:0:36,
+            location: empty-argument-list.graphql:0:35,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -22,7 +22,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -45,7 +45,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 26:34,
+                        span: 26:33,
                         alias: None,
                         name: Identifier {
                             span: 26:31,

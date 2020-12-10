@@ -9,7 +9,7 @@ ExecutableDocument {
     span: 0:61,
     definitions: [
         FragmentDefinition {
-            location: arugment-without-closing-paren.graphql:0:61,
+            location: arugment-without-closing-paren.graphql:0:60,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -24,7 +24,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -47,7 +47,7 @@ ExecutableDocument {
                 },
                 items: [
                     LinkedField {
-                        span: 26:59,
+                        span: 26:58,
                         alias: None,
                         name: Identifier {
                             span: 26:31,
@@ -59,14 +59,14 @@ ExecutableDocument {
                         },
                         arguments: Some(
                             List {
-                                span: 32:45,
+                                span: 32:44,
                                 start: Token {
                                     span: 32:33,
                                     kind: OpenParen,
                                 },
                                 items: [
                                     Argument {
-                                        span: 33:45,
+                                        span: 33:44,
                                         name: Identifier {
                                             span: 33:37,
                                             token: Token {
@@ -106,7 +106,7 @@ ExecutableDocument {
                             },
                             items: [
                                 ScalarField {
-                                    span: 51:57,
+                                    span: 51:54,
                                     alias: None,
                                     name: Identifier {
                                         span: 51:54,

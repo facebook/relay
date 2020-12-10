@@ -10,7 +10,7 @@ ExecutableDocument {
     span: 0:61,
     definitions: [
         FragmentDefinition {
-            location: argument-name-only-2.graphql:0:61,
+            location: argument-name-only-2.graphql:0:60,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -25,7 +25,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -48,7 +48,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 26:59,
+                        span: 26:58,
                         alias: None,
                         name: Identifier {
                             span: 26:31,
@@ -67,7 +67,7 @@ ExecutableDocument {
                                 },
                                 items: [
                                     Argument {
-                                        span: 37:43,
+                                        span: 37:38,
                                         name: Identifier {
                                             span: 37:38,
                                             token: Token {
@@ -77,20 +77,20 @@ ExecutableDocument {
                                             value: "s",
                                         },
                                         colon: Token {
-                                            span: 42:42,
+                                            span: 38:38,
                                             kind: Empty,
                                         },
                                         value: Constant(
                                             Null(
                                                 Token {
-                                                    span: 42:42,
+                                                    span: 38:38,
                                                     kind: Empty,
                                                 },
                                             ),
                                         ),
                                     },
                                     Argument {
-                                        span: 43:57,
+                                        span: 43:54,
                                         name: Identifier {
                                             span: 43:47,
                                             token: Token {

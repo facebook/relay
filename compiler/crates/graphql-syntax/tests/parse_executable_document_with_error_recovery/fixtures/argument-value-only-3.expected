@@ -7,7 +7,7 @@ ExecutableDocument {
     span: 0:57,
     definitions: [
         FragmentDefinition {
-            location: argument-value-only-3.grahql:0:57,
+            location: argument-value-only-3.grahql:0:56,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -22,7 +22,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -45,7 +45,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 26:55,
+                        span: 26:54,
                         alias: None,
                         name: Identifier {
                             span: 26:31,
@@ -64,7 +64,7 @@ ExecutableDocument {
                                 },
                                 items: [
                                     Argument {
-                                        span: 32:39,
+                                        span: 32:37,
                                         name: Identifier {
                                             span: 32:33,
                                             token: Token {
@@ -90,17 +90,17 @@ ExecutableDocument {
                                         ),
                                     },
                                     Argument {
-                                        span: 39:39,
+                                        span: 39:41,
                                         name: Identifier {
-                                            span: 38:38,
+                                            span: 37:37,
                                             token: Token {
-                                                span: 38:38,
+                                                span: 37:37,
                                                 kind: Empty,
                                             },
                                             value: "",
                                         },
                                         colon: Token {
-                                            span: 42:42,
+                                            span: 41:41,
                                             kind: Empty,
                                         },
                                         value: Constant(
@@ -163,10 +163,10 @@ ExecutableDocument {
 Errors:
 ✖︎ Expected a colon (':')
 
-  argument-value-only-3.grahql:2:15
+  argument-value-only-3.grahql:2:14
     1 │ fragment Test on User {
     2 │   photo(h: 42, 12, scale: 2.0)
-      │               ^
+      │              ^^
     3 │ }
 
 

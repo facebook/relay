@@ -8,7 +8,7 @@ ExecutableDocument {
     span: 0:43,
     definitions: [
         FragmentDefinition {
-            location: empty-linked-field.graphql:0:43,
+            location: empty-linked-field.graphql:0:42,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -23,7 +23,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -46,7 +46,7 @@ ExecutableDocument {
                 },
                 items: [
                     LinkedField {
-                        span: 28:41,
+                        span: 28:40,
                         alias: None,
                         name: Identifier {
                             span: 28:32,

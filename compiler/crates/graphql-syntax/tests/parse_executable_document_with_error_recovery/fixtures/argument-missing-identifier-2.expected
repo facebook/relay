@@ -7,7 +7,7 @@ ExecutableDocument {
     span: 0:50,
     definitions: [
         FragmentDefinition {
-            location: argument-missing-identifier-2.grahql:0:50,
+            location: argument-missing-identifier-2.grahql:0:49,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -22,7 +22,7 @@ ExecutableDocument {
             },
             variable_definitions: None,
             type_condition: TypeCondition {
-                span: 14:22,
+                span: 14:21,
                 on: Token {
                     span: 14:16,
                     kind: Identifier,
@@ -45,7 +45,7 @@ ExecutableDocument {
                 },
                 items: [
                     ScalarField {
-                        span: 26:48,
+                        span: 26:47,
                         alias: None,
                         name: Identifier {
                             span: 26:31,
@@ -64,7 +64,7 @@ ExecutableDocument {
                                 },
                                 items: [
                                     Argument {
-                                        span: 32:39,
+                                        span: 32:37,
                                         name: Identifier {
                                             span: 32:33,
                                             token: Token {
@@ -92,9 +92,9 @@ ExecutableDocument {
                                     Argument {
                                         span: 39:46,
                                         name: Identifier {
-                                            span: 38:38,
+                                            span: 37:37,
                                             token: Token {
-                                                span: 38:38,
+                                                span: 37:37,
                                                 kind: Empty,
                                             },
                                             value: "",

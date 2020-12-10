@@ -19,5 +19,5 @@ query Test($id: ID!, $id: ID) {
   duplicate_variables_invalid.graphql:2:12
     1 │ # expected-to-throw
     2 │ query Test($id: ID!, $id: ID) {
-      │            ^^^^^^^^^^
+      │            ^^^^^^^^
     3 │   user(id: $id) {

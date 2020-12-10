@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::*;
+use crate::definitions::{Argument, *};
 use crate::graphqlschema_generated::graphqlschema::*;
 use common::Span;
 use flatbuffers::*;
@@ -73,6 +73,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_type(&mut self, type_: FBType<'_>) -> Option<Type> {
         Some(match type_.kind() {
             FBTypeKind::Scalar => self.parse_scalar(type_.scalar_id())?,
+            FBTypeKind::InputObject => self.parse_input_object(type_.input_object_id())?,
         })
     }
 
@@ -84,6 +85,58 @@ impl<'fb> FlatBufferSchema<'fb> {
             directives: self.parse_directive_values(scalar.directives()?)?,
         };
         Some(Type::Scalar(self.schema.add_scalar(parsed_scalar).unwrap()))
+    }
+
+    fn parse_input_object(&mut self, id: u32) -> Option<Type> {
+        let input_object = self.fb_schema.input_objects()?.get(id.try_into().unwrap());
+        let parsed_input_object = InputObject {
+            name: input_object.name()?.to_string().intern(),
+            fields: self.parse_arguments(input_object.fields()?)?,
+            directives: self.parse_directive_values(input_object.directives()?)?,
+        };
+        Some(Type::InputObject(
+            self.schema.add_input_object(parsed_input_object).unwrap(),
+        ))
+    }
+
+    fn parse_arguments(
+        &mut self,
+        arguments: Vector<'fb, ForwardsUOffset<FBArgument<'_>>>,
+    ) -> Option<ArgumentDefinitions> {
+        let items = arguments
+            .iter()
+            .map(|argument| self.parse_argument(argument))
+            .collect::<Option<Vec<_>>>();
+        Some(ArgumentDefinitions::new(items?))
+    }
+
+    fn parse_argument(&mut self, argument: FBArgument<'fb>) -> Option<Argument> {
+        Some(Argument {
+            name: argument.name().unwrap().intern(),
+            default_value: match argument.value() {
+                Some(value) => Some(self.parse_const_value(value)?),
+                _ => None,
+            },
+            type_: self.parse_type_reference(argument.type_()?)?,
+        })
+    }
+
+    fn parse_type_reference(
+        &mut self,
+        type_reference: FBTypeReference<'fb>,
+    ) -> Option<TypeReference> {
+        Some(match type_reference.kind() {
+            FBTypeReferenceKind::Named => {
+                let type_name = self.get_fbtype_name(&type_reference.named()?);
+                TypeReference::Named(self.get_type(type_name).unwrap())
+            }
+            FBTypeReferenceKind::NonNull => {
+                TypeReference::NonNull(Box::new(self.parse_type_reference(type_reference.null()?)?))
+            }
+            FBTypeReferenceKind::List => {
+                TypeReference::List(Box::new(self.parse_type_reference(type_reference.list()?)?))
+            }
+        })
     }
 
     fn parse_directive_values(
@@ -182,6 +235,25 @@ impl<'fb> FlatBufferSchema<'fb> {
             items: items?,
             end: get_empty_token(),
         })
+    }
+
+    fn get_fbtype_name(&self, type_: &FBType<'_>) -> StringKey {
+        match type_.kind() {
+            FBTypeKind::Scalar => self
+                .fb_schema
+                .scalars()
+                .unwrap()
+                .get(type_.scalar_id().try_into().unwrap())
+                .name(),
+            FBTypeKind::InputObject => self
+                .fb_schema
+                .input_objects()
+                .unwrap()
+                .get(type_.scalar_id().try_into().unwrap())
+                .name(),
+        }
+        .unwrap()
+        .intern()
     }
 }
 

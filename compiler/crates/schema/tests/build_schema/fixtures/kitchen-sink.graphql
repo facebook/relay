@@ -33,6 +33,20 @@ union Actor = User | Page
 
 scalar URL @source(schema: "facebook", name: "ID")
 
+input Location @source(schema: "facebook", name: "Location") {
+  lat: Float!
+  lon: Float!
+  city: String
+  zip: Int
+  previous_cities: [String!]
+}
+
+scalar Float
+
+scalar Int
+
+scalar String
+
 # %extensions%
 
 type ClientType {

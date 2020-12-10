@@ -11,7 +11,7 @@
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
 use graphql_syntax::{ConstantArgument, ConstantValue, List};
-use schema::*;
+use schema::{Argument, *};
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 
@@ -24,8 +24,9 @@ struct Serializer<'fb, 'schema> {
     schema: &'schema Schema,
     bldr: FlatBufferBuilder<'fb>,
     scalars: Vec<WIPOffset<FBScalar<'fb>>>,
+    input_objects: Vec<WIPOffset<FBInputObject<'fb>>>,
     types: FnvHashMap<String, WIPOffset<FBTypeMap<'fb>>>,
-    type_map: FnvHashMap<String, u32>,
+    type_map: FnvHashMap<String, FBTypeArgs>,
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
@@ -34,6 +35,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             schema,
             bldr: FlatBufferBuilder::new(),
             scalars: Vec::new(),
+            input_objects: Vec::new(),
             types: FnvHashMap::default(),
             type_map: FnvHashMap::default(),
         }
@@ -48,6 +50,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let schema_args = FBSchemaArgs {
             types: Some(self.bldr.create_vector(&ordered_types)),
             scalars: Some(self.bldr.create_vector(&self.scalars)),
+            input_objects: Some(self.bldr.create_vector(&self.input_objects)),
         };
         let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
         finish_fbschema_buffer(&mut self.bldr, schema_offset);
@@ -68,6 +71,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         }
         match type_ {
             Type::Scalar(id) => self.serialize_scalar(id),
+            Type::InputObject(id) => self.serialize_input_object(id),
             _ => {} // Coming up in next diffs
         }
     }
@@ -83,6 +87,77 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         };
         self.add_to_type_map(self.scalars.len(), FBTypeKind::Scalar, name);
         self.scalars.push(FBScalar::create(&mut self.bldr, &args));
+    }
+
+    fn serialize_input_object(&mut self, id: InputObjectID) {
+        let input_object = self.schema.input_object(id);
+        let name = input_object.name.lookup();
+        // Reserve idx and add to typemap. Else we could endup in a cycle
+        let idx = self.input_objects.len();
+        self.add_to_type_map(idx, FBTypeKind::InputObject, name);
+        self.input_objects.push(FBInputObject::create(
+            &mut self.bldr,
+            &FBInputObjectArgs::default(),
+        ));
+        let items = &self.serialize_directive_values(&input_object.directives);
+        let fields = &self.serialize_arguments(&input_object.fields);
+        let args = FBInputObjectArgs {
+            name: Some(self.bldr.create_string(name)),
+            directives: Some(self.bldr.create_vector(items)),
+            fields: Some(self.bldr.create_vector(fields)),
+        };
+        self.input_objects[idx] = FBInputObject::create(&mut self.bldr, &args);
+    }
+
+    fn serialize_arguments(
+        &mut self,
+        arguments: &ArgumentDefinitions,
+    ) -> Vec<WIPOffset<FBArgument<'fb>>> {
+        arguments
+            .iter()
+            .map(|argument| self.serialize_argument(argument))
+            .collect::<Vec<_>>()
+    }
+
+    fn serialize_argument(&mut self, value: &Argument) -> WIPOffset<FBArgument<'fb>> {
+        let args = FBArgumentArgs {
+            name: Some(self.bldr.create_string(&value.name.lookup())),
+            value: match &value.default_value {
+                Some(default_value) => Some(self.serialize_const_value(default_value)),
+                _ => None,
+            },
+            type_: Some(self.serialize_type_reference(&value.type_)),
+        };
+        FBArgument::create(&mut self.bldr, &args)
+    }
+
+    fn serialize_type_reference(
+        &mut self,
+        type_: &TypeReference,
+    ) -> WIPOffset<FBTypeReference<'fb>> {
+        let mut args = FBTypeReferenceArgs::default();
+        match type_ {
+            TypeReference::Named(type_) => {
+                let type_name = self.schema.get_type_name(*type_).lookup();
+                if !self.types.contains_key(type_name) {
+                    self.serialize_type(*type_);
+                }
+                args.kind = FBTypeReferenceKind::Named;
+                args.named = Some(FBType::create(
+                    &mut self.bldr,
+                    &self.type_map.get(type_name).unwrap(),
+                ));
+            }
+            TypeReference::List(of) => {
+                args.kind = FBTypeReferenceKind::List;
+                args.list = Some(self.serialize_type_reference(of));
+            }
+            TypeReference::NonNull(of) => {
+                args.kind = FBTypeReferenceKind::NonNull;
+                args.null = Some(self.serialize_type_reference(of));
+            }
+        }
+        FBTypeReference::create(&mut self.bldr, &args)
     }
 
     fn serialize_directive_values(
@@ -212,6 +287,9 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             FBTypeKind::Scalar => {
                 type_args.scalar_id = id;
             }
+            FBTypeKind::InputObject => {
+                type_args.input_object_id = id;
+            }
         }
         let args = FBTypeMapArgs {
             name: Some(self.bldr.create_string(name)),
@@ -219,6 +297,6 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         };
         self.types
             .insert(name.to_string(), FBTypeMap::create(&mut self.bldr, &args));
-        self.type_map.insert(name.to_string(), id);
+        self.type_map.insert(name.to_string(), type_args);
     }
 }

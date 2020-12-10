@@ -43,12 +43,27 @@ table FBObjectValue {
 }
 
 enum FBTypeKind : byte {
-    Scalar = 0
+    Scalar = 0,
+    InputObject = 1
 }
 
 table FBType {
     kind:FBTypeKind;
     scalar_id:uint32;
+    input_object_id:uint32;
+}
+
+enum FBTypeReferenceKind : byte {
+    Named = 0,
+    NonNull,
+    List
+}
+
+table FBTypeReference {
+    kind:FBTypeReferenceKind;
+    named:FBType;
+    null:FBTypeReference;
+    list:FBTypeReference;
 }
 
 table FBArgumentValue {
@@ -61,9 +76,21 @@ table FBDirectiveValue {
     arguments:[FBArgumentValue];
 }
 
+table FBArgument {
+    name:string;
+    type_:FBTypeReference;
+    value:FBConstValue;
+}
+
 table FBScalar {
     name:string;
     is_extension:bool;
+    directives:[FBDirectiveValue];
+}
+
+table FBInputObject {
+    name:string;
+    fields: [FBArgument];
     directives:[FBDirectiveValue];
 }
 
@@ -75,6 +102,7 @@ table FBTypeMap {
 table FBSchema {
     types:[FBTypeMap];
     scalars:[FBScalar];
+    input_objects:[FBInputObject];
 }
 
 root_type FBSchema;

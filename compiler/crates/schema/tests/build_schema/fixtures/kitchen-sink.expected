@@ -34,6 +34,20 @@ union Actor = User | Page
 
 scalar URL @source(schema: "facebook", name: "ID")
 
+input Location @source(schema: "facebook", name: "Location") {
+  lat: Float!
+  lon: Float!
+  city: String
+  zip: Int
+  previous_cities: [String!]
+}
+
+scalar Float
+
+scalar Int
+
+scalar String
+
 # %extensions%
 
 type ClientType {
@@ -102,7 +116,7 @@ Text Schema:Schema {
                 name: "schema",
                 type_: NonNull(
                     Named(
-                        Scalar(2),
+                        Scalar(8),
                     ),
                 ),
                 default_value: None,
@@ -111,7 +125,7 @@ Text Schema:Schema {
                 name: "name",
                 type_: NonNull(
                     Named(
-                        Scalar(2),
+                        Scalar(8),
                     ),
                 ),
                 default_value: None,
@@ -133,14 +147,15 @@ Text Schema:Schema {
     "Actor": Union(0),
     "Boolean": Scalar(3),
     "ClientType": Object(3),
-    "Float": Scalar(1),
+    "Float": Scalar(6),
     "ID": Scalar(4),
-    "Int": Scalar(0),
+    "Int": Scalar(7),
+    "Location": InputObject(0),
     "Node": Interface(0),
     "Page": Object(2),
     "PageType": Enum(0),
     "Query": Object(0),
-    "String": Scalar(2),
+    "String": Scalar(8),
     "URL": Scalar(5),
     "User": Object(1),
 }
@@ -271,7 +286,7 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(2),
+            Scalar(8),
         ),
         directives: [],
         parent_type: Some(
@@ -307,7 +322,7 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [],
         type_: Named(
-            Scalar(2),
+            Scalar(8),
         ),
         directives: [],
         parent_type: Some(
@@ -319,7 +334,7 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [],
         type_: Named(
-            Scalar(2),
+            Scalar(8),
         ),
         directives: [],
         parent_type: Some(
@@ -344,7 +359,7 @@ Text Schema:Schema {
         arguments: [],
         type_: NonNull(
             Named(
-                Scalar(2),
+                Scalar(8),
             ),
         ),
         directives: [],
@@ -375,7 +390,87 @@ Text Schema:Schema {
         parent_type: None,
     },
 ]
- input_objects: []
+ input_objects: [
+    InputObject {
+        name: "Location",
+        fields: [
+            Argument {
+                name: "lat",
+                type_: NonNull(
+                    Named(
+                        Scalar(6),
+                    ),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "lon",
+                type_: NonNull(
+                    Named(
+                        Scalar(6),
+                    ),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "city",
+                type_: Named(
+                    Scalar(8),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "zip",
+                type_: Named(
+                    Scalar(7),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "previous_cities",
+                type_: List(
+                    NonNull(
+                        Named(
+                            Scalar(8),
+                        ),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 535:545,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 553:563,
+                                    kind: StringLiteral,
+                                },
+                                value: "Location",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
  interfaces: [
     Interface {
         name: "Node",
@@ -520,6 +615,21 @@ Text Schema:Schema {
             },
         ],
     },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+    },
 ]
  unions: [
     Union {
@@ -591,6 +701,7 @@ FlatBuffer Schema:Schema {
     "Float": Scalar(1),
     "ID": Scalar(4),
     "Int": Scalar(0),
+    "Location": InputObject(0),
     "String": Scalar(2),
     "URL": Scalar(5),
 }
@@ -633,7 +744,87 @@ FlatBuffer Schema:Schema {
         parent_type: None,
     },
 ]
- input_objects: []
+ input_objects: [
+    InputObject {
+        name: "Location",
+        fields: [
+            Argument {
+                name: "lat",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "lon",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "city",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "zip",
+                type_: Named(
+                    Scalar(0),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "previous_cities",
+                type_: List(
+                    NonNull(
+                        Named(
+                            Scalar(2),
+                        ),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Location",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
  interfaces: []
  objects: []
  scalars: [

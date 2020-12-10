@@ -33,6 +33,7 @@ fn print_schema_and_flat_buffer_schema(schema: Schema) -> String {
     for (key, value) in schema.get_type_map() {
         match value {
             Type::Scalar(_id) => fb_schema.get_type(*key),
+            Type::InputObject(_id) => fb_schema.get_type(*key),
             _ => None,
         };
     }

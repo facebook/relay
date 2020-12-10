@@ -812,6 +812,7 @@ FlatBuffer Schema:Schema {
 ]
  type_map: {
     "Boolean": Scalar(3),
+    "Country": InputObject(0),
     "Float": Scalar(1),
     "ID": Scalar(4),
     "Int": Scalar(0),
@@ -856,7 +857,53 @@ FlatBuffer Schema:Schema {
         parent_type: None,
     },
 ]
- input_objects: []
+ input_objects: [
+    InputObject {
+        name: "Country",
+        fields: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Country",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
  interfaces: []
  objects: []
  scalars: [

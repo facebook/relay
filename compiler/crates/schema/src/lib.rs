@@ -13,6 +13,8 @@
 
 pub mod definitions;
 mod errors;
+mod fb_schema;
+mod graphqlschema_generated;
 
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
@@ -21,7 +23,9 @@ pub use definitions::{
     ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
+use fb_schema::FlatBufferSchema;
 pub use graphql_syntax::DirectiveLocation;
+pub use graphqlschema_generated::graphqlschema::*;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 
@@ -61,4 +65,14 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     }
 
     Schema::build(&server_definitions, &extension_definitions)
+}
+
+pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {
+    let builtin_definitions = {
+        let schema_doc =
+            graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())?;
+        schema_doc.definitions
+    };
+    let schema = Schema::build(&builtin_definitions, &[])?;
+    Ok(FlatBufferSchema::build(bytes, schema))
 }

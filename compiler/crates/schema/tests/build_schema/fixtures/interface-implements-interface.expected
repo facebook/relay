@@ -19,7 +19,7 @@ interface Image implements Resource & Node {
   thumbnail: String
 }
 ==================================== OUTPUT ===================================
-Schema {
+Text Schema:Schema {
  query_type: None
  mutation_type: None
  subscription_type: None
@@ -301,6 +301,133 @@ Schema {
         ],
     },
 ]
+ objects: []
+ scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+    },
+]
+ unions: []
+ }
+
+FlatBuffer Schema:Schema {
+ query_type: None
+ mutation_type: None
+ subscription_type: None
+ directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+]
+ type_map: {
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "String": Scalar(2),
+}
+ enums: []
+ fields: [
+    Field {
+        name: "__typename",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__token",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__id",
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+]
+ input_objects: []
+ interfaces: []
  objects: []
  scalars: [
     Scalar {

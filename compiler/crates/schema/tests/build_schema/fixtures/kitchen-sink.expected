@@ -1,4 +1,6 @@
 ==================================== INPUT ====================================
+directive @source(schema: String!, name: String!) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+
 schema {
   query: Query
 }
@@ -30,6 +32,8 @@ enum PageType {
 
 union Actor = User | Page
 
+scalar URL @source(schema: "facebook", name: "ID")
+
 # %extensions%
 
 type ClientType {
@@ -40,7 +44,7 @@ extend type User {
   client: ClientType
 }
 ==================================== OUTPUT ===================================
-Schema {
+Text Schema:Schema {
  query_type: Some(
     ObjectID(
         0,
@@ -91,6 +95,39 @@ Schema {
         repeatable: false,
         is_extension: false,
     },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
 ]
  type_map: {
     "Actor": Union(0),
@@ -104,6 +141,7 @@ Schema {
     "PageType": Enum(0),
     "Query": Object(0),
     "String": Scalar(2),
+    "URL": Scalar(5),
     "User": Object(1),
 }
  enums: [
@@ -122,7 +160,7 @@ Schema {
                                 value: String(
                                     StringNode {
                                         token: Token {
-                                            span: 268:289,
+                                            span: 380:401,
                                             kind: StringLiteral,
                                         },
                                         value: "No longer supported",
@@ -447,6 +485,41 @@ Schema {
         is_extension: false,
         directives: [],
     },
+    Scalar {
+        name: "URL",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 479:489,
+                                    kind: StringLiteral,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 497:501,
+                                    kind: StringLiteral,
+                                },
+                                value: "ID",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
 ]
  unions: [
     Union {
@@ -463,4 +536,167 @@ Schema {
         directives: [],
     },
 ]
+ }
+
+FlatBuffer Schema:Schema {
+ query_type: None
+ mutation_type: None
+ subscription_type: None
+ directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+]
+ type_map: {
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "String": Scalar(2),
+    "URL": Scalar(5),
+}
+ enums: []
+ fields: [
+    Field {
+        name: "__typename",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__token",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+    Field {
+        name: "__id",
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+    },
+]
+ input_objects: []
+ interfaces: []
+ objects: []
+ scalars: [
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "URL",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "ID",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
+ unions: []
  }

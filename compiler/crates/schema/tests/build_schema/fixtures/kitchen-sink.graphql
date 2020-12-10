@@ -1,3 +1,5 @@
+directive @source(schema: String!, name: String!) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+
 schema {
   query: Query
 }
@@ -28,6 +30,8 @@ enum PageType {
 }
 
 union Actor = User | Page
+
+scalar URL @source(schema: "facebook", name: "ID")
 
 # %extensions%
 

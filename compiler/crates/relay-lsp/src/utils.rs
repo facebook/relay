@@ -53,6 +53,7 @@ pub fn extract_executable_document_from_text(
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
+    index_offset: usize,
 ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
     let graphql_source = get_graphql_source(&text_document_position, graphql_source_cache)?;
     let url = &text_document_position.text_document.uri;
@@ -88,9 +89,10 @@ pub fn extract_executable_document_from_text(
     // to this GraphQL document, as the `Span`s in the document are relative.
     info!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
-    let position_span = position_to_span(position, &graphql_source).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
-    })?;
+    let position_span =
+        position_to_span(position, &graphql_source, index_offset).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
+        })?;
 
     // Now we need to walk the Document, tracking our path along the way, until
     // we find the position within the document. Note that the GraphQLSource will
@@ -103,7 +105,11 @@ pub fn extract_executable_document_from_text(
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this request came from
-pub(crate) fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> {
+pub(crate) fn position_to_span(
+    position: Position,
+    source: &GraphQLSource,
+    index_offset: usize,
+) -> Option<Span> {
     let mut index_of_first_character_of_current_line = 0;
     let mut line_index = source.line_index as u64;
 
@@ -120,10 +126,8 @@ pub(crate) fn position_to_span(position: Position, source: &GraphQLSource) -> Op
 
         if is_newline {
             line_index += 1;
-            // Add 1 here to point to the start of the line, rather than to the line break
-            // (which is the current character).
-            // We must point to the start of the line because position.character is zero-indexed.
-            index_of_first_character_of_current_line = (index + 1) as u64;
+            // Add index_offset to account for different position index between hover and autocomplete
+            index_of_first_character_of_current_line = (index + index_offset) as u64;
         }
 
         if line_index == position.line {

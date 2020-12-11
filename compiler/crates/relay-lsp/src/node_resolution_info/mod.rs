@@ -297,6 +297,14 @@ pub fn get_node_resolution_info(
         graphql_source_cache,
         file_categorizer,
         root_dir,
+        // For hovering, offset the index by 1
+        // ```
+        //  field
+        //  ^ hover on f
+        // ^ position returned by the client
+        // ```
+        // so the returned cursor is on the char `f`
+        1,
     )?;
 
     create_node_resolution_info(document, position_span, project_name)

@@ -132,6 +132,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             &self.synced_graphql_documents,
             &self.file_categorizer,
             &self.root_dir,
+            0,
         )
     }
 

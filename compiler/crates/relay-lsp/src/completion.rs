@@ -302,31 +302,27 @@ impl CompletionRequestBuilder {
                         },
                         type_path,
                     ))
-                } else if value.span().contains(position_span) {
-                    if let Some(executable_name) = self.current_executable_name {
-                        match value {
-                            Value::Constant(ConstantValue::Null(token))
-                                if token.kind == TokenKind::Empty =>
-                            {
-                                Some(self.new_request(
-                                    CompletionKind::FieldArgumentValue {
-                                        argument_name: name.value,
-                                        executable_name,
-                                    },
-                                    type_path,
-                                ))
-                            }
-                            Value::Variable(_) => Some(self.new_request(
+                } else if let Some(executable_name) = self.current_executable_name {
+                    match value {
+                        Value::Constant(ConstantValue::Null(token))
+                            if token.kind == TokenKind::Empty =>
+                        {
+                            Some(self.new_request(
                                 CompletionKind::FieldArgumentValue {
                                     argument_name: name.value,
                                     executable_name,
                                 },
                                 type_path,
-                            )),
-                            _ => None,
+                            ))
                         }
-                    } else {
-                        None
+                        Value::Variable(_) => Some(self.new_request(
+                            CompletionKind::FieldArgumentValue {
+                                argument_name: name.value,
+                                executable_name,
+                            },
+                            type_path,
+                        )),
+                        _ => None,
                     }
                 } else {
                     None
@@ -445,7 +441,7 @@ fn completion_items_for_request(
                                 preselect: None,
                                 sort_text: None,
                                 filter_text: None,
-                                insert_text: Some(format!("{}: $1", label)),
+                                insert_text: Some(format!("{}:$1", label)),
                                 insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
                                 text_edit: None,
                                 additional_text_edits: None,

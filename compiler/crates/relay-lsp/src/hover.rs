@@ -6,7 +6,7 @@
  */
 
 //! Utilities for providing the hover feature
-use crate::server::ExtraDataProvider;
+use crate::server::LSPExtraDataProvider;
 use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
@@ -75,7 +75,7 @@ fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
-    extra_data_provider: ExtraDataProvider,
+    extra_data_provider: &Box<dyn LSPExtraDataProvider>,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
 
@@ -223,7 +223,7 @@ For example:
                 return None;
             };
 
-            let extra_data = extra_data_provider(search_token);
+            let extra_data = extra_data_provider.fetch_query_stats(search_token);
             if !extra_data.is_empty() {
                 Some(HoverContents::Array(
                     extra_data
@@ -279,7 +279,7 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
             node_resolution_info,
             schemas,
             state.get_source_programs_ref(),
-            state.extra_data_provider(),
+            &state.extra_data_provider,
         )
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Unable to get hover contents".to_string())

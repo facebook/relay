@@ -22,7 +22,7 @@ mod shutdown;
 mod status_reporting;
 mod text_documents;
 mod utils;
-use crate::server::ExtraDataProvider;
+pub use crate::server::LSPExtraDataProvider;
 use common::PerfLogger;
 use log::info;
 use lsp_process_error::LSPProcessResult;
@@ -33,7 +33,7 @@ use std::sync::Arc;
 pub fn start_language_server<TPerfLogger>(
     config: Config,
     perf_logger: Arc<TPerfLogger>,
-    extra_data_provider: ExtraDataProvider,
+    extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,

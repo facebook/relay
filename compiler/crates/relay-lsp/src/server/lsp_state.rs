@@ -21,10 +21,9 @@ use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::Schema;
 
-/// A simple interface to provide extra information to LSP server from external sources
-/// It should accept a `search_token` - for now just a simple string, but we may expand it later.
-/// and it should return a Vec<String> with formatter results (we can adjust this later).
-pub(crate) type ExtraDataProvider = fn(search_token: String) -> Vec<String>;
+pub trait LSPExtraDataProvider {
+    fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
+}
 
 use crate::{
     lsp_runtime_error::LSPRuntimeResult,
@@ -41,7 +40,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     config: Option<Config>,
     root_dir: PathBuf,
     perf_logger: Arc<TPerfLogger>,
-    extra_data_provider: ExtraDataProvider,
+    pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
@@ -49,7 +48,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         mut config: Config,
         sender: &Sender<Message>,
         perf_logger: Arc<TPerfLogger>,
-        extra_data_provider: ExtraDataProvider,
+        extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     ) -> Self {
         // Force the compiler to compile everything initially,
         // so that schemas and programs will be populated.
@@ -134,10 +133,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             &self.root_dir,
             0,
         )
-    }
-
-    pub(crate) fn extra_data_provider(&self) -> ExtraDataProvider {
-        self.extra_data_provider
     }
 
     fn start_compiler_once(&mut self) {

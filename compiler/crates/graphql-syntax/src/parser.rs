@@ -1223,22 +1223,7 @@ impl<'a> Parser<'a> {
     /// Arguments[Const] : ( Argument[?Const]+ )
     fn parse_optional_arguments(&mut self) -> ParseResult<Option<List<Argument>>> {
         if self.peek_token_kind() != TokenKind::OpenParen {
-            return if self.peek_token_kind() == TokenKind::CloseParen {
-                // field )
-                let end = self.parse_token();
-                self.record_error(Diagnostic::error(
-                    SyntaxError::Expected(TokenKind::OpenParen),
-                    Location::new(self.source_location, end.span),
-                ));
-                Ok(Some(List {
-                    span: end.span,
-                    start: self.empty_token(),
-                    items: vec![],
-                    end,
-                }))
-            } else {
-                Ok(None)
-            };
+            return Ok(None);
         }
         let start = self.parse_token();
         let mut items: Vec<Argument> = vec![];

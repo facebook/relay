@@ -4,20 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3b1ae3797b7fd9cca695df272f1f6c6f>>
+ * @generated SignedSource<<c2e94b71b53c3640e446dd162f93e4dc>>
  */
 
 mod parse_executable_document_with_error_recovery;
 
 use parse_executable_document_with_error_recovery::transform_fixture;
 use fixture_tests::test_fixture;
-
-#[test]
-fn argument_closing_paren_only() {
-    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/argument-closing-paren-only.graphql");
-    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/argument-closing-paren-only.expected");
-    test_fixture(transform_fixture, "argument-closing-paren-only.graphql", "parse_executable_document_with_error_recovery/fixtures/argument-closing-paren-only.expected", input, expected);
-}
 
 #[test]
 fn argument_missing_identifier() {
@@ -101,4 +94,11 @@ fn empty_linked_field() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-linked-field.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-linked-field.expected");
     test_fixture(transform_fixture, "empty-linked-field.graphql", "parse_executable_document_with_error_recovery/fixtures/empty-linked-field.expected", input, expected);
+}
+
+#[test]
+fn variable_definition_with_directive() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/variable-definition-with-directive.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/variable-definition-with-directive.expected");
+    test_fixture(transform_fixture, "variable-definition-with-directive.graphql", "parse_executable_document_with_error_recovery/fixtures/variable-definition-with-directive.expected", input, expected);
 }

@@ -528,8 +528,9 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             let name = field.name.to_string();
             let args = create_arguments_snippets(&field.arguments, schema);
             let insert_text = match (
-                existing_linked_field || field.type_.inner().is_scalar(),
-                args.is_empty(),
+                existing_linked_field
+                    || matches!(field.type_.inner(), Type::Scalar(_) | Type::Enum(_)), // don't insert { }
+                args.is_empty(), // don't insert arguments
             ) {
                 (true, true) => None,
                 (true, false) => Some(format!("{}({})", name, args.join(", "))),

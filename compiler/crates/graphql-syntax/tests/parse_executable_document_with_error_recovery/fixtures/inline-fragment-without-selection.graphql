@@ -1,0 +1,4 @@
+fragment Test on User {
+  ... on User
+  username
+}

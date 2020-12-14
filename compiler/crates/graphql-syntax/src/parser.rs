@@ -1737,7 +1737,24 @@ impl<'a> Parser<'a> {
     where
         F: Fn(&mut Self) -> ParseResult<T>,
     {
-        let start = self.parse_kind(start_kind)?;
+        if !self.peek_kind(start_kind) {
+            let error = Diagnostic::error(
+                SyntaxError::Expected(start_kind),
+                Location::new(
+                    self.source_location,
+                    Span::new(self.end_index, self.index()),
+                ),
+            );
+            self.record_error(error);
+            let token = self.empty_token();
+            return Ok(List {
+                span: token.span,
+                start: token.clone(),
+                items: vec![],
+                end: token,
+            });
+        }
+        let start = self.parse_token();
         let mut items = vec![];
         while !self.peek_kind(end_kind) {
             items.push(parse(self)?);

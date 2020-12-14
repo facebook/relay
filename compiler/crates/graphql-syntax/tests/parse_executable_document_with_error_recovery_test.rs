@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c2e94b71b53c3640e446dd162f93e4dc>>
+ * @generated SignedSource<<8f8c96f2f57f7a98f0ad6fc3b6c1ed4c>>
  */
 
 mod parse_executable_document_with_error_recovery;
@@ -94,6 +94,13 @@ fn empty_linked_field() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-linked-field.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/empty-linked-field.expected");
     test_fixture(transform_fixture, "empty-linked-field.graphql", "parse_executable_document_with_error_recovery/fixtures/empty-linked-field.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_without_selection() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.expected");
+    test_fixture(transform_fixture, "inline-fragment-without-selection.graphql", "parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.expected", input, expected);
 }
 
 #[test]

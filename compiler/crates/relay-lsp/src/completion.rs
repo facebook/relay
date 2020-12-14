@@ -28,6 +28,7 @@ use schema::{
 };
 use std::{
     collections::HashMap,
+    iter::once,
     sync::{Arc, RwLock},
 };
 
@@ -46,6 +47,9 @@ pub enum CompletionKind {
     FieldArgumentValue {
         executable_name: ExecutableName,
         argument_name: StringKey,
+    },
+    InlineFragmentType {
+        existing_inline_fragment: bool,
     },
 }
 #[derive(Debug)]
@@ -226,6 +230,15 @@ impl CompletionRequestBuilder {
                         } = node;
                         if let Some(type_condition) = type_condition {
                             let type_name = type_condition.type_.value;
+                            if type_condition.span.contains(position_span) {
+                                return Some(self.new_request(
+                                    CompletionKind::InlineFragmentType {
+                                        existing_inline_fragment: selections.start.kind
+                                            != TokenKind::Empty,
+                                    },
+                                    type_path,
+                                ));
+                            }
                             type_path.push(TypePathItem::InlineFragment { type_name });
                         }
                         self.build_request_from_selection_or_directives(
@@ -486,7 +499,81 @@ fn completion_items_for_request(
                 None
             }
         }
+        CompletionKind::InlineFragmentType {
+            existing_inline_fragment,
+        } => {
+            let type_ = request.type_path.resolve_leaf_type(schema)?;
+            Some(resolve_completion_items_for_inline_fragment_type(
+                type_,
+                schema,
+                existing_inline_fragment,
+            ))
+        }
     }
+}
+
+fn resolve_completion_items_for_inline_fragment_type(
+    type_: Type,
+    schema: &Schema,
+    existing_inline_fragment: bool,
+) -> Vec<CompletionItem> {
+    match type_ {
+        Type::Interface(id) => {
+            let interface = schema.interface(id);
+            once(type_)
+                .chain(
+                    interface
+                        .implementing_objects
+                        .iter()
+                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                )
+                .collect()
+        }
+        Type::Union(id) => {
+            let union = schema.union(id);
+            once(type_)
+                .chain(
+                    union
+                        .members
+                        .iter()
+                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                )
+                .collect()
+        }
+        Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => {
+            vec![type_]
+        }
+    }
+    .into_iter()
+    .map(|type_| {
+        let label = schema.get_type_name(type_).lookup().into();
+        if existing_inline_fragment {
+            CompletionItem::new_simple(label, "".into())
+        } else {
+            CompletionItem {
+                label: label.clone(),
+                kind: None,
+                detail: None,
+                documentation: None,
+                deprecated: None,
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text: Some(format!("{} {{\n\t$1\n}}", label)),
+                insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                text_edit: None,
+                additional_text_edits: None,
+                command: Some(lsp_types::Command::new(
+                    "Suggest".into(),
+                    "editor.action.triggerSuggest".into(),
+                    None,
+                )),
+                data: None,
+                tags: None,
+            }
+        }
+    })
+    .collect()
 }
 
 fn resolve_completion_items_for_argument_value(

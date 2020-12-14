@@ -27,12 +27,12 @@ use schema::{
     ArgumentDefinitions, Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields,
 };
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     iter::once,
     sync::{Arc, RwLock},
 };
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Clone)]
 pub enum CompletionKind {
     FieldName {
         existing_linked_field: bool,
@@ -43,6 +43,7 @@ pub enum CompletionKind {
     },
     FieldArgumentName {
         has_colon: bool,
+        existing_names: HashSet<StringKey>,
     },
     FieldArgumentValue {
         executable_name: ExecutableName,
@@ -312,6 +313,8 @@ impl CompletionRequestBuilder {
                     Some(self.new_request(
                         CompletionKind::FieldArgumentName {
                             has_colon: colon.kind != TokenKind::Empty,
+                            existing_names:
+                                arguments.items.iter().map(|arg| arg.name.value).collect(),
                         },
                         type_path,
                     ))
@@ -344,7 +347,10 @@ impl CompletionRequestBuilder {
         }
         // The argument list is empty or the cursor is not on any of the argument
         Some(self.new_request(
-            CompletionKind::FieldArgumentName { has_colon: false },
+            CompletionKind::FieldArgumentName {
+                has_colon: false,
+                existing_names: arguments.items.iter().map(|arg| arg.name.value).collect(),
+            },
             type_path,
         ))
     }
@@ -439,12 +445,16 @@ fn completion_items_for_request(
                 .collect();
             Some(items)
         }
-        CompletionKind::FieldArgumentName { has_colon } => {
+        CompletionKind::FieldArgumentName {
+            has_colon,
+            existing_names,
+        } => {
             let field = request.type_path.resolve_current_field(schema)?;
             Some(
                 field
                     .arguments
                     .iter()
+                    .filter(|arg| !existing_names.contains(&arg.name))
                     .map(|arg| {
                         let label = arg.name.lookup().into();
                         let detail = schema.get_type_string(&arg.type_);

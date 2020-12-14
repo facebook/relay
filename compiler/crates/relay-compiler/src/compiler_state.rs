@@ -442,10 +442,10 @@ impl CompilerState {
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
                     let mut dirty_definitions = vec![];
-                    'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
+                    'outer: for (definition_name, artifact_records) in artifacts.0.iter() {
                         let mut added = false;
-                        for artifact_tuple in artifact_tuples {
-                            if paths.remove(&artifact_tuple.0) && !added {
+                        for artifact_record in artifact_records {
+                            if paths.remove(&artifact_record.path) && !added {
                                 dirty_definitions.push(*definition_name);
                                 if paths.is_empty() {
                                     break 'outer;

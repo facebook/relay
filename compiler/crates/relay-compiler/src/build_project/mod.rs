@@ -176,7 +176,7 @@ pub async fn commit_project(
     artifact_map: Arc<ArtifactMapKind>,
     // Definitions that are removed from the previous artifact map
     removed_definition_names: Vec<StringKey>,
-    // Dirty artrifacts that should be removed if no longer in the artiracts map
+    // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
@@ -271,33 +271,33 @@ pub async fn commit_project(
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
                 for name in &removed_definition_names {
-                    if let Some(artifact) = artifact_map.0.remove(&name) {
-                        for (path, _) in artifact {
-                            artifacts_to_remove.insert(path);
+                    if let Some(artifacts) = artifact_map.0.remove(&name) {
+                        for artifact in artifacts {
+                            artifacts_to_remove.insert(artifact.path);
                         }
                     }
                 }
                 // Update the artifact map, and delete any removed artifacts
-                for (definition_name, artifact_tuples) in current_paths_map.0 {
+                for (definition_name, artifact_records) in current_paths_map.0 {
                     match artifact_map.0.entry(definition_name) {
                         Entry::Occupied(mut entry) => {
-                            let prev_tuples = entry.get_mut();
-                            for (prev_path, _) in prev_tuples.drain(..) {
-                                if !artifact_tuples.iter().any(|t| t.0 == prev_path) {
-                                    artifacts_to_remove.insert(prev_path);
+                            let prev_records = entry.get_mut();
+                            for prev_record in prev_records.drain(..) {
+                                if !artifact_records.iter().any(|t| t.path == prev_record.path) {
+                                    artifacts_to_remove.insert(prev_record.path);
                                 }
                             }
-                            prev_tuples.extend(artifact_tuples.into_iter());
+                            prev_records.extend(artifact_records.into_iter());
                         }
                         Entry::Vacant(entry) => {
-                            entry.insert(artifact_tuples);
+                            entry.insert(artifact_records);
                         }
                     }
                 }
                 // Filter out any artifact that is in the artifact map
-                for paths in artifact_map.0.values() {
-                    for (path, _) in paths {
-                        artifacts_to_remove.remove(path);
+                for artifacts in artifact_map.0.values() {
+                    for artifact in artifacts {
+                        artifacts_to_remove.remove(&artifact.path);
                     }
                 }
             });

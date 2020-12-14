@@ -108,6 +108,9 @@ pub enum Error {
 
     #[error("Compilation cancelled due to new changes")]
     Cancelled,
+
+    #[error("IO error {0}")]
+    IOError(std::io::Error),
 }
 
 #[derive(Debug, Error)]

@@ -84,7 +84,8 @@ fn extract_request_params<R>(req: ServerRequest) -> (ServerRequestId, R::Params)
 where
     R: Request,
 {
-    req.extract(R::METHOD).unwrap()
+    req.extract(R::METHOD)
+        .expect("extract_request_params: could not extract request params")
 }
 
 #[cfg(test)]

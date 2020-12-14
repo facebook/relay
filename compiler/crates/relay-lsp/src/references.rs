@@ -36,7 +36,11 @@ fn get_references_response(
     match node_resolution_info.kind {
         NodeKind::FragmentDefinition(fragment_name) => {
             let project_name = node_resolution_info.project_name;
-            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+            if let Some(source_program) = source_programs
+                .read()
+                .expect("get_references_response: Could not acquire read lock for source_programs")
+                .get(&project_name)
+            {
                 let references =
                     ReferenceFinder::get_references_to_fragment(source_program, fragment_name)
                         .into_iter()

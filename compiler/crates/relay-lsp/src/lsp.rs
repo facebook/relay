@@ -98,7 +98,9 @@ fn update_status(
             actions: None,
         },
     );
-    sender.send(Message::Request(request)).unwrap();
+    sender
+        .send(Message::Request(request))
+        .expect("update_status: failed to send");
 }
 
 /// Show a notification in the client

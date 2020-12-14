@@ -51,7 +51,9 @@ fn extract_notification_params<N>(notification: lsp_server::Notification) -> N::
 where
     N: Notification,
 {
-    notification.extract(N::METHOD).unwrap()
+    notification
+        .extract(N::METHOD)
+        .expect("extract_notification_params: could not extract notification param")
 }
 
 #[cfg(test)]

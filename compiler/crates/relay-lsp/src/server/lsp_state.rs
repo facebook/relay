@@ -64,18 +64,21 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         let schemas_clone = Arc::clone(&schemas);
         let source_programs_clone = Arc::clone(&source_programs);
-        config.on_build_project_success =
-            Some(Box::new(move |project_name, schema, source_program| {
+        config.on_build_project_success = Some(Box::new(
+            move |project_name, schema, source_program| {
                 schemas_clone
                     .write()
-                    .unwrap()
+                    .expect(
+                        "on_build_project_success: could not acquire write lock for schemas_clone",
+                    )
                     .insert(project_name, schema.clone());
                 source_programs_clone
                     .write()
-                    .unwrap()
+                    .expect("on_build_project_success: could not acquire write lock for source_programs_clone")
                     .insert(project_name, source_program.clone());
                 log::info!("Build succeeded for project {}", project_name);
-            }));
+            },
+        ));
 
         LSPState {
             synced_graphql_documents: Default::default(),

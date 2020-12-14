@@ -50,14 +50,19 @@ impl LSPStatusReporter {
     fn add_diagnostic(&self, url: Url, diagnostic: Diagnostic) {
         self.active_diagnostics
             .write()
-            .unwrap()
+            .expect("add_diagnostic: could not acquire write lock for self.active_diagnostics")
             .entry(url)
             .or_default()
             .push(diagnostic);
     }
 
     fn commit_diagnostics(&self) {
-        for (url, diagnostics) in self.active_diagnostics.read().unwrap().iter() {
+        for (url, diagnostics) in self
+            .active_diagnostics
+            .read()
+            .expect("commit_diagnostic: could not acquire read lock for self.active_diagnostics")
+            .iter()
+        {
             let params = PublishDiagnosticsParams {
                 diagnostics: diagnostics.clone(),
                 uri: url.clone(),
@@ -159,7 +164,8 @@ impl LSPStatusReporter {
             source: None,
             tags: None,
         };
-        let url = Url::from_directory_path(&self.root_dir).unwrap();
+        let url = Url::from_directory_path(&self.root_dir)
+            .expect("print_generic_error: Could not convert self.root_dir to Url");
         self.add_diagnostic(url, diagnostic);
     }
 }
@@ -172,7 +178,10 @@ impl StatusReporter for LSPStatusReporter {
     fn build_finishes(&self, result: &Result<()>) {
         set_ready_status(&self.sender);
         {
-            let mut active_diagnostics = self.active_diagnostics.write().unwrap();
+            let mut active_diagnostics = self
+                .active_diagnostics
+                .write()
+                .expect("build_finishes: could not acquire write lock for self.active_diagnostics");
             for diagnostics in active_diagnostics.values_mut() {
                 diagnostics.clear();
             }

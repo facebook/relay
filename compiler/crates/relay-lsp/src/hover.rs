@@ -272,7 +272,7 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
     if let Some(schemas) = state
         .get_schemas()
         .read()
-        .unwrap()
+        .expect("on_hover: could not acquire read lock for state.get_schemas")
         .get(&node_resolution_info.project_name)
     {
         let contents = get_hover_response_contents(

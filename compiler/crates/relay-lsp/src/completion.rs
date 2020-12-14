@@ -386,7 +386,13 @@ fn completion_items_for_request(
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+            if let Some(source_program) = source_programs
+                .read()
+                .expect(
+                    "completion_items_for_request: could not acquire read lock for source_programs",
+                )
+                .get(&project_name)
+            {
                 info!("has source program");
                 let items =
                     resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
@@ -462,7 +468,13 @@ fn completion_items_for_request(
             executable_name,
             argument_name,
         } => {
-            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+            if let Some(source_program) = source_programs
+                .read()
+                .expect(
+                    "completion_items_for_request: could not acquire read lock for source_programs",
+                )
+                .get(&project_name)
+            {
                 let field = request.type_path.resolve_current_field(schema)?;
                 let argument = field.arguments.named(argument_name)?;
                 Some(resolve_completion_items_for_argument_value(
@@ -712,7 +724,12 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
         .create_completion_request(document, position_span)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    if let Some(schema) = state.get_schemas().read().unwrap().get(&project_name) {
+    if let Some(schema) = state
+        .get_schemas()
+        .read()
+        .expect("on_completion: could not acquire read lock for state.get_schemas")
+        .get(&project_name)
+    {
         let items = completion_items_for_request(
             completion_request,
             schema,

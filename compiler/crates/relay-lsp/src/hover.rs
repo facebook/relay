@@ -260,6 +260,7 @@ and then include them in queries where you need to.
 
             Some(HoverContents::Array(hover_contents))
         }
+        NodeKind::InlineFragment => None,
     }
 }
 

@@ -30,6 +30,7 @@ pub enum NodeKind {
     FieldName,
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
+    InlineFragment,
     Variable(String),
     Directive(StringKey, Option<StringKey>),
 }
@@ -251,6 +252,7 @@ fn build_node_resolution_info_from_selections(
                     type_condition,
                     ..
                 } = node;
+                node_resolution_info.kind = NodeKind::InlineFragment;
                 if let Some(type_condition) = type_condition {
                     let type_name = type_condition.type_.value;
                     node_resolution_info

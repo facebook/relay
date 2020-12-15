@@ -5,22 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{
-    build_project, build_raw_program_from_ast, build_schema, commit_project, BuildProjectFailure,
-};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
-use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
+use crate::{
+    build_project::{
+        build_project, build_raw_program, build_schema, commit_project, BuildProjectFailure,
+    },
+    errors::BuildProjectError,
+};
+use common::{Diagnostic, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
 use graphql_ir::Program;
 use log::info;
 use rayon::prelude::*;
 use schema::Schema;
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, collections::HashSet, sync::Arc};
 use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
@@ -39,23 +42,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
-    pub async fn create_compiler_state(
-        &self,
-        perf_logger: Arc<TPerfLogger>,
-        setup_event: &impl PerfLogEvent,
-    ) -> Result<CompilerState> {
-        let file_source = FileSource::connect(&self.config, setup_event).await?;
-        let compiler_state = file_source.query(setup_event, perf_logger.as_ref()).await?;
-
-        Ok(compiler_state)
-    }
-
     pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
-
-        let mut compiler_state = self
-            .create_compiler_state(Arc::clone(&self.perf_logger), &setup_event)
+        let file_source = FileSource::connect(&self.config, &setup_event).await?;
+        let mut compiler_state = file_source
+            .query(&setup_event, self.perf_logger.as_ref())
             .await?;
+
         self.build_projects(&mut compiler_state, &setup_event)
             .await?;
 
@@ -67,23 +60,34 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> DiagnosticsResult<HashMap<ProjectName, Arc<Schema>>> {
+    ) -> (HashMap<ProjectName, Arc<Schema>>, Vec<Diagnostic>) {
+        let mut errors: Vec<Diagnostic> = vec![];
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::default();
         for project_config in self.config.enabled_projects() {
-            let schema = build_schema(compiler_state, project_config)?;
-            schemas.insert(project_config.name, schema);
+            match build_schema(compiler_state, project_config) {
+                Ok(schema) => {
+                    schemas.insert(project_config.name, schema);
+                }
+                Err(diagnostics) => {
+                    for err in diagnostics {
+                        errors.push(err);
+                    }
+                }
+            };
         }
         setup_event.stop(timer);
-        Ok(schemas)
+
+        (schemas, errors)
     }
 
-    pub fn build_raw_programs_form_asts(
+    pub fn build_raw_programs(
         &self,
         compiler_state: &CompilerState,
         schemas: &HashMap<ProjectName, Arc<Schema>>,
+        affected_projects: Option<HashSet<&ProjectName>>, // for watch-mode to filter-out unchanged projects
         setup_event: &impl PerfLogEvent,
-    ) -> Result<HashMap<ProjectName, Program>> {
+    ) -> Result<(HashMap<ProjectName, Program>, Vec<BuildProjectError>)> {
         let graphql_asts = setup_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
@@ -94,12 +98,19 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         let programs: Vec<(ProjectName, _)> = self
             .config
             .par_enabled_projects()
+            .filter(|project_config| {
+                if let Some(affected_projects) = &affected_projects {
+                    affected_projects.contains(&project_config.name)
+                } else {
+                    true
+                }
+            })
             .map(|project_config| {
                 let project_name = project_config.name;
                 if let Some(schema) = schemas.get(&project_name) {
                     (
                         project_config.name,
-                        build_raw_program_from_ast(
+                        build_raw_program(
                             project_config,
                             &graphql_asts,
                             Arc::clone(schema),
@@ -109,17 +120,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 } else {
                     (
                         project_name,
-                        Err(BuildProjectFailure::Error(
-                            crate::errors::BuildProjectError::SchemaNotFoundForProject {
-                                project_name,
-                            },
-                        )),
+                        Err(BuildProjectError::SchemaNotFoundForProject { project_name }),
                     )
                 }
             })
             .collect();
 
-        let mut errors: Vec<_> = vec![];
+        let mut errors: Vec<BuildProjectError> = vec![];
         let mut program_map: HashMap<ProjectName, Program> = Default::default();
 
         for (program_name, program_result) in programs {
@@ -127,18 +134,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 Ok(program) => {
                     program_map.insert(program_name, program);
                 }
-                Err(BuildProjectFailure::Error(error)) => {
+                Err(error) => {
                     errors.push(error);
                 }
-                _ => {}
             };
         }
 
-        if errors.is_empty() {
-            Ok(program_map)
-        } else {
-            Err(Error::BuildProjectsErrors { errors })
-        }
+        Ok((program_map, errors))
     }
 
     pub async fn watch(&self) -> Result<()> {

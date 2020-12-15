@@ -34,7 +34,6 @@ use lsp_types::{
 };
 use relay_compiler::config::Config;
 use std::sync::Arc;
-
 mod lsp_request_dispatch;
 use lsp_request_dispatch::LSPRequestDispatch;
 mod lsp_notification_dispatch;
@@ -84,18 +83,19 @@ where
         "Running language server with config root {:?}",
         config.root_dir
     );
+    set_starting_status(&connection.sender);
 
     let mut lsp_state = LSPState::new(&mut config, &connection.sender, extra_data_provider);
 
-    set_starting_status(&connection.sender);
-
-    // This should create setup schemas/source_programs
+    // This should create setup schemas/source_programs and return start watching for file changes
     lsp_state
-        .initialize_resources(config, Arc::clone(&perf_logger))
+        .initialize_resources(Arc::new(config), Arc::clone(&perf_logger))
         .await?;
 
+    // At this point we're ready to provide hover/complete/go_to_definition capabilities
     set_ready_status(&connection.sender);
 
+    // And now we can listen for messages and notification
     for msg in connection.receiver {
         info!("LSP message received {:?}", msg);
         match msg {

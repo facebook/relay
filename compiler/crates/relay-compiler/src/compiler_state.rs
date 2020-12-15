@@ -309,6 +309,12 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
+    /// This is for future use. Where `has_breaking_schema_change` may return `false` for some of non-breaking changes
+    pub fn has_schema_changes(&self) -> bool {
+        // but for now it will return the same thing
+        self.has_breaking_schema_change()
+    }
+
     pub fn has_breaking_schema_change(&self) -> bool {
         self.extensions
             .values()

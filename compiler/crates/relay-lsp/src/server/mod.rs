@@ -10,9 +10,9 @@ use crate::{
     goto_definition::on_goto_definition,
     hover::on_hover,
     lsp::{
-        set_not_started_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
-        InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
-        TextDocumentSyncKind, WorkDoneProgressOptions,
+        set_ready_status, set_starting_status, CompletionOptions, Connection, GotoDefinition,
+        HoverRequest, InitializeParams, Message, ServerCapabilities, ServerResponse,
+        TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     references::on_references,
@@ -87,12 +87,14 @@ where
 
     let mut lsp_state = LSPState::new(&mut config, &connection.sender, extra_data_provider);
 
-    set_not_started_status(&connection.sender);
+    set_starting_status(&connection.sender);
 
     // This should create setup schemas/source_programs
     lsp_state
         .initialize_resources(config, Arc::clone(&perf_logger))
         .await?;
+
+    set_ready_status(&connection.sender);
 
     for msg in connection.receiver {
         info!("LSP message received {:?}", msg);

@@ -153,10 +153,12 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
     it('should dedupe network request if called multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
-      callLoadQuery(preloadableConcreteRequest);
-      callLoadQuery(preloadableConcreteRequest);
+      const res1 = callLoadQuery(preloadableConcreteRequest);
+      const res2 = callLoadQuery(preloadableConcreteRequest);
 
       expect(fetch).toHaveBeenCalledTimes(1);
+      expect(res1.source).toBeDefined();
+      expect(res2.source).toBeDefined();
     });
 
     it('should pass network errors onto source', () => {
@@ -193,20 +195,24 @@ describe('when passed a PreloadableConcreteRequest', () => {
   });
 
   describe('when the query is unavailable synchronously', () => {
-    it('should dedupe operation execution if called multiple times', () => {
-      callLoadQuery(preloadableConcreteRequest);
-      callLoadQuery(preloadableConcreteRequest);
+    it('should dedupe network request if called multiple times', () => {
+      const res1 = callLoadQuery(preloadableConcreteRequest);
+      const res2 = callLoadQuery(preloadableConcreteRequest);
+      expect(fetch).toHaveBeenCalledTimes(1);
 
-      // Note: before we have the operation module is available
-      // we can't reliably dedupe network requests, since the
-      // request identifier is based on the variables the
-      // operation expects, and not just the variables passed as
-      // input.
-      expect(fetch).toHaveBeenCalledTimes(2);
+      expect(res1.source).toBeDefined();
+      expect(res2.source).toBeDefined();
+    });
+    it('should dedupe operation execution if called multiple times', () => {
+      const res1 = callLoadQuery(preloadableConcreteRequest);
+      const res2 = callLoadQuery(preloadableConcreteRequest);
+      expect(fetch).toHaveBeenCalledTimes(1);
 
       PreloadableQueryRegistry.set(ID, query);
       // We only process the network request once.
       expect(environment.executeWithSource).toBeCalledTimes(1);
+      expect(res1.source).toBeDefined();
+      expect(res2.source).toBeDefined();
     });
 
     describe('when the query AST is available before the network response', () => {

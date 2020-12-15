@@ -50,6 +50,26 @@ pub enum BuildProjectFailure {
     Cancelled,
 }
 
+/// This program doesn't have IR transforms applied to it, so it's not optimized.
+/// It's perfect for the LSP server: we have all the documents with
+/// their locations to provide information to go_to_definition, hover, etc.
+pub fn build_raw_program_from_ast(
+    project_config: &ProjectConfig,
+    graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+    schema: Arc<Schema>,
+    log_event: &impl PerfLogEvent,
+) -> Result<Program, BuildProjectFailure> {
+    let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
+        build_ir::build_ir(project_config, &schema, graphql_asts, false).map_err(|errors| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+        })
+    })?;
+
+    Ok(log_event.time("build_program_time", || {
+        Program::from_definitions(schema, ir)
+    }))
+}
+
 fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,

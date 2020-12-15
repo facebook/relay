@@ -202,4 +202,7 @@ pub enum BuildProjectError {
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },
+
+    #[error("Unable to get schema for project {project_name}")]
+    SchemaNotFoundForProject { project_name: ProjectName },
 }

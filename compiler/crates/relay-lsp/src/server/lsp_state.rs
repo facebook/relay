@@ -33,13 +33,13 @@ pub trait LSPExtraDataProvider {
 }
 
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
-    schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
-    synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
-    file_categorizer: FileCategorizer,
-    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
+    file_categorizer: FileCategorizer,
+    schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
+    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+    synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
@@ -47,25 +47,12 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         mut config: Config,
         sender: &Sender<Message>,
         perf_logger: Arc<TPerfLogger>,
-        extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+        extra_data_provider: Box<dyn LSPExtraDataProvider>,
     ) -> LSPProcessResult<Self> {
-        // Force the compiler to compile everything initially,
-        // so that schemas and programs will be populated.
-        config.compile_everything = true;
-
         config.status_reporter = Box::new(LSPStatusReporter::new(
             config.root_dir.clone(),
             sender.clone(),
         ));
-        let source_programs: Arc<RwLock<HashMap<StringKey, Program>>> = Default::default();
-        let source_programs_clone = Arc::clone(&source_programs);
-        config.on_build_project_success = Some(Box::new(move |project_name, _, source_program| {
-            source_programs_clone
-                .write()
-                .unwrap()
-                .insert(project_name, source_program.clone());
-            log::info!("Build succeeded for project {}", project_name);
-        }));
         let root_dir = &config.root_dir.clone();
         let file_categorizer = FileCategorizer::from_config(&config);
 
@@ -77,25 +64,27 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             .await
             .map_err(LSPProcessError::CompilerError)?;
 
+        let schemas = compiler
+            .build_schemas(&compiler_state, &lsp_setup_event)
+            .map_err(LSPProcessError::Diagnostics)?;
 
-        let schemas = Arc::new(RwLock::new(
-            compiler
-                .build_schemas(&compiler_state, &lsp_setup_event)
-                .map_err(LSPProcessError::Diagnostics)?,
-        ));
+        // This will build programs, but won't apply any transformations to them
+        // that should be enough for LSP to start showing fragments information
+        let source_programs =
+            compiler.build_raw_programs_form_asts(&compiler_state, &schemas, &lsp_setup_event)?;
 
         perf_logger.complete_event(lsp_setup_event);
         perf_logger.flush();
 
 
         Ok(LSPState {
-            synced_graphql_documents: Default::default(),
-            schemas,
-            file_categorizer,
-            source_programs,
-            root_dir: root_dir.clone(),
             compiler: Some(compiler),
             extra_data_provider,
+            file_categorizer,
+            root_dir: root_dir.clone(),
+            schemas: Arc::new(RwLock::new(schemas)),
+            source_programs: Arc::new(RwLock::new(source_programs)),
+            synced_graphql_documents: Default::default(),
         })
     }
 

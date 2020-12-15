@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, build_schema, commit_project, BuildProjectFailure};
+use crate::build_project::{
+    build_project, build_raw_program_from_ast, build_schema, commit_project, BuildProjectFailure,
+};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
@@ -14,6 +16,7 @@ use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
+use graphql_ir::Program;
 use log::info;
 use rayon::prelude::*;
 use schema::Schema;
@@ -66,13 +69,76 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         setup_event: &impl PerfLogEvent,
     ) -> DiagnosticsResult<HashMap<ProjectName, Arc<Schema>>> {
         let timer = setup_event.start("build_schemas");
-        let mut schemas = HashMap::new();
+        let mut schemas = HashMap::default();
         for project_config in self.config.enabled_projects() {
             let schema = build_schema(compiler_state, project_config)?;
             schemas.insert(project_config.name, schema);
         }
         setup_event.stop(timer);
         Ok(schemas)
+    }
+
+    pub fn build_raw_programs_form_asts(
+        &self,
+        compiler_state: &CompilerState,
+        schemas: &HashMap<ProjectName, Arc<Schema>>,
+        setup_event: &impl PerfLogEvent,
+    ) -> Result<HashMap<ProjectName, Program>> {
+        let graphql_asts = setup_event.time("parse_sources_time", || {
+            GraphQLAsts::from_graphql_sources_map(
+                &compiler_state.graphql_sources,
+                &compiler_state.get_dirty_definitions(&self.config),
+            )
+        })?;
+
+        let programs: Vec<(ProjectName, _)> = self
+            .config
+            .par_enabled_projects()
+            .map(|project_config| {
+                let project_name = project_config.name;
+                if let Some(schema) = schemas.get(&project_name) {
+                    (
+                        project_config.name,
+                        build_raw_program_from_ast(
+                            project_config,
+                            &graphql_asts,
+                            Arc::clone(schema),
+                            setup_event,
+                        ),
+                    )
+                } else {
+                    (
+                        project_name,
+                        Err(BuildProjectFailure::Error(
+                            crate::errors::BuildProjectError::SchemaNotFoundForProject {
+                                project_name,
+                            },
+                        )),
+                    )
+                }
+            })
+            .collect();
+
+        let mut errors: Vec<_> = vec![];
+        let mut program_map: HashMap<ProjectName, Program> = Default::default();
+
+        for (program_name, program_result) in programs {
+            match program_result {
+                Ok(program) => {
+                    program_map.insert(program_name, program);
+                }
+                Err(BuildProjectFailure::Error(error)) => {
+                    errors.push(error);
+                }
+                _ => {}
+            };
+        }
+
+        if errors.is_empty() {
+            Ok(program_map)
+        } else {
+            Err(Error::BuildProjectsErrors { errors })
+        }
     }
 
     pub async fn watch(&self) -> Result<()> {

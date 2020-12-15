@@ -317,9 +317,6 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);
             let perf_logger = Arc::clone(&perf_logger);
-            if let Some(on_build_project_success) = &config.on_build_project_success {
-                on_build_project_success(project_name, &schema, &programs.source);
-            }
             let artifact_map = compiler_state
                 .artifacts
                 .get(&project_name)

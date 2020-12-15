@@ -113,7 +113,6 @@ fn create_configs() -> (Config, ProjectConfig) {
         repersist_operations: false,
         post_artifacts_write: None,
         status_reporter: Box::new(ConsoleStatusReporter::new(Default::default())),
-        on_build_project_success: None,
     };
 
     (config, project_config)

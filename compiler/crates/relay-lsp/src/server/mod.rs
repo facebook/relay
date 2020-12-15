@@ -70,7 +70,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 }
 
 /// Run the main server loop
-pub fn run<TPerfLogger: PerfLogger + 'static>(
+pub async fn run<TPerfLogger: PerfLogger + 'static>(
     connection: Connection,
     config: Config,
     _params: InitializeParams,
@@ -85,12 +85,13 @@ where
         config.root_dir
     );
 
-    let mut lsp_state = LSPState::new(
+    let mut lsp_state = LSPState::create_state(
         config,
         &connection.sender,
         Arc::clone(&perf_logger),
         extra_data_provider,
-    );
+    )
+    .await?;
 
     set_not_started_status(&connection.sender);
 

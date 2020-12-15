@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::Diagnostic;
 use crossbeam::SendError;
 use lsp_server::{Message, ProtocolError};
 use relay_compiler::errors::Error as CompilerError;
@@ -28,6 +29,7 @@ macro_rules! extend_error {
 pub enum LSPProcessError {
     ProtocolError(ProtocolError),
     CompilerError(CompilerError),
+    Diagnostics(Vec<Diagnostic>),
     IOError(IOError),
     SerdeError(SerdeError),
     JoinError(JoinError),

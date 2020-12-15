@@ -30,7 +30,7 @@ use lsp_server::Connection;
 use relay_compiler::config::Config;
 use std::sync::Arc;
 
-pub fn start_language_server<TPerfLogger>(
+pub async fn start_language_server<TPerfLogger>(
     config: Config,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
@@ -42,7 +42,7 @@ where
     info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     info!("JSON-RPC handshake completed");
-    server::run(connection, config, params, perf_logger, extra_data_provider)?;
+    server::run(connection, config, params, perf_logger, extra_data_provider).await?;
     io_handles.join()?;
     Ok(())
 }

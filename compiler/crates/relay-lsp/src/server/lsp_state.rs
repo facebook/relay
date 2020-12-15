@@ -11,6 +11,13 @@ use std::{
     sync::{Arc, RwLock},
 };
 
+use crate::{
+    lsp_process_error::{LSPProcessError, LSPProcessResult},
+    lsp_runtime_error::LSPRuntimeResult,
+    node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
+    status_reporting::LSPStatusReporter,
+    utils::extract_executable_document_from_text,
+};
 use common::{PerfLogger, Span};
 use crossbeam::Sender;
 use graphql_ir::Program;
@@ -25,31 +32,23 @@ pub trait LSPExtraDataProvider {
     fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
 }
 
-use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
-    status_reporting::LSPStatusReporter,
-    utils::extract_executable_document_from_text,
-};
-
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: FileCategorizer,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
-    config: Option<Config>,
+    compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
-    perf_logger: Arc<TPerfLogger>,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
-    pub(crate) fn new(
+    pub(crate) async fn create_state(
         mut config: Config,
         sender: &Sender<Message>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
-    ) -> Self {
+    ) -> LSPProcessResult<Self> {
         // Force the compiler to compile everything initially,
         // so that schemas and programs will be populated.
         config.compile_everything = true;
@@ -58,38 +57,46 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             config.root_dir.clone(),
             sender.clone(),
         ));
-
-        let schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> = Default::default();
         let source_programs: Arc<RwLock<HashMap<StringKey, Program>>> = Default::default();
-
-        let schemas_clone = Arc::clone(&schemas);
         let source_programs_clone = Arc::clone(&source_programs);
-        config.on_build_project_success = Some(Box::new(
-            move |project_name, schema, source_program| {
-                schemas_clone
-                    .write()
-                    .expect(
-                        "on_build_project_success: could not acquire write lock for schemas_clone",
-                    )
-                    .insert(project_name, schema.clone());
-                source_programs_clone
-                    .write()
-                    .expect("on_build_project_success: could not acquire write lock for source_programs_clone")
-                    .insert(project_name, source_program.clone());
-                log::info!("Build succeeded for project {}", project_name);
-            },
+        config.on_build_project_success = Some(Box::new(move |project_name, _, source_program| {
+            source_programs_clone
+                .write()
+                .unwrap()
+                .insert(project_name, source_program.clone());
+            log::info!("Build succeeded for project {}", project_name);
+        }));
+        let root_dir = &config.root_dir.clone();
+        let file_categorizer = FileCategorizer::from_config(&config);
+
+        let lsp_setup_event = perf_logger.create_event("lsp_state_setup");
+        let compiler = Compiler::new(config, Arc::clone(&perf_logger));
+
+        let compiler_state = compiler
+            .create_compiler_state(Arc::clone(&perf_logger), &lsp_setup_event)
+            .await
+            .map_err(LSPProcessError::CompilerError)?;
+
+
+        let schemas = Arc::new(RwLock::new(
+            compiler
+                .build_schemas(&compiler_state, &lsp_setup_event)
+                .map_err(LSPProcessError::Diagnostics)?,
         ));
 
-        LSPState {
+        perf_logger.complete_event(lsp_setup_event);
+        perf_logger.flush();
+
+
+        Ok(LSPState {
             synced_graphql_documents: Default::default(),
             schemas,
-            file_categorizer: FileCategorizer::from_config(&config),
+            file_categorizer,
             source_programs,
-            root_dir: config.root_dir.clone(),
-            config: Some(config),
-            perf_logger,
+            root_dir: root_dir.clone(),
+            compiler: Some(compiler),
             extra_data_provider,
-        }
+        })
     }
 
     pub(crate) fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> {
@@ -139,12 +146,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     }
 
     fn start_compiler_once(&mut self) {
-        if let Some(config) = self.config.take() {
-            let perf_logger = Arc::clone(&self.perf_logger);
-            tokio::spawn(async move {
-                let compiler = Compiler::new(config, perf_logger);
-                compiler.watch().await
-            });
+        if let Some(compiler) = self.compiler.take() {
+            tokio::spawn(async move { compiler.watch().await });
         }
     }
 }

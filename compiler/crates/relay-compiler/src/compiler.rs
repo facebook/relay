@@ -36,12 +36,22 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         }
     }
 
+    pub async fn create_compiler_state(
+        &self,
+        perf_logger: Arc<TPerfLogger>,
+        setup_event: &impl PerfLogEvent,
+    ) -> Result<CompilerState> {
+        let file_source = FileSource::connect(&self.config, setup_event).await?;
+        let compiler_state = file_source.query(setup_event, perf_logger.as_ref()).await?;
+
+        Ok(compiler_state)
+    }
+
     pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
 
-        let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let mut compiler_state = file_source
-            .query(&setup_event, self.perf_logger.as_ref())
+        let mut compiler_state = self
+            .create_compiler_state(Arc::clone(&self.perf_logger), &setup_event)
             .await?;
         self.build_projects(&mut compiler_state, &setup_event)
             .await?;

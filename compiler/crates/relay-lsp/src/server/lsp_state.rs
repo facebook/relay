@@ -118,7 +118,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                     compiler_state
                         .pending_file_source_changes
                         .write()
-                        .unwrap()
+                        .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on pending_file_source_changes")
                         .push(file_source_changes);
 
                     let has_new_changes = compiler_state
@@ -140,7 +140,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                             Self::log_errors(&perf_logger, build_schema_errors);
                         }
 
-                        schemas.write().unwrap().clone_from(&next_schemas);
+                        schemas.write().expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas").clone_from(&next_schemas);
                     } else {
                         log_event.number("has_schema_change", 0);
                     }
@@ -280,7 +280,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         // that should be enough for LSP to start showing fragments information
         let (programs, build_raw_programs_errors) = compiler.build_raw_programs(
             &compiler_state,
-            &schemas.read().unwrap(),
+            &schemas
+                .read()
+                .expect("LSPState::build_in_watch_mode: expect to acquire read lock on schemas"),
             Some(affected_projects),
             log_event,
         )?;
@@ -289,7 +291,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             Self::log_errors(&perf_logger, build_raw_programs_errors)
         }
 
-        let mut source_programs_write_lock = source_programs.write().unwrap();
+        let mut source_programs_write_lock = source_programs.write().expect(
+            "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
+        );
         for (program_name, program) in programs {
             // NOTE: Currently, we rely on the fact that `build_raw_programs`
             // will always return a full program, so we can safely replace it in the current

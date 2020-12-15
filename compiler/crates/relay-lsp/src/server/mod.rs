@@ -176,7 +176,6 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
             lsp_request_event.string("lsp_outcome", "success".to_string());
         } else if let Some(error) = &response.error {
             lsp_request_event.string("lsp_outcome", "error".to_string());
-            lsp_request_event.number("lsp_error_code", error.code as usize);
             if let Some(data) = &error.data {
                 lsp_request_event.string("lsp_error_data", data.to_string());
             }
@@ -208,7 +207,6 @@ fn handle_notification<TPerfLogger: PerfLogger + 'static>(
     // N.B. is_ok is correct here.
     if notification_result.is_ok() {
         lsp_notification_event.string("lsp_outcome", "error".to_string());
-        lsp_notification_event.number("lsp_error_code", ErrorCode::MethodNotFound as usize);
     }
 
     lsp_notification_event.stop(lsp_notification_processing_time);

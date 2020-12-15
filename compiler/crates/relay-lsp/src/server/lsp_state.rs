@@ -136,7 +136,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                     let has_new_changes = compiler_state
                         .merge_file_source_changes(&config, &log_event, perf_logger.as_ref(), false)
                         .unwrap_or_else(|err| {
-                            log_error(
+                            Self::log_error(
                                 &perf_logger,
                                 format!("Unable to merge_file_source_changes: {:?}", err),
                             );
@@ -146,7 +146,12 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                     // If changes contains schema files we need to rebuild schemas
                     if has_new_changes && compiler_state.has_schema_changes() {
                         log_event.number("has_schema_change", 1);
-                        let (next_schemas, _) = compiler.build_schemas(&compiler_state, &log_event);
+                        let (next_schemas, build_schema_errors) =
+                            compiler.build_schemas(&compiler_state, &log_event);
+                        if !build_schema_errors.is_empty() {
+                            Self::log_errors(&perf_logger, build_schema_errors);
+                        }
+
                         schemas.write().unwrap().clone_from(&next_schemas);
                     } else {
                         log_event.number("has_schema_change", 0);
@@ -160,10 +165,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                             &config,
                             &schemas,
                             &source_programs,
+                            Arc::clone(&perf_logger),
                             &log_event,
                         )
                         .unwrap_or_else(|err| {
-                            log_error(
+                            Self::log_error(
                                 &perf_logger,
                                 format!("Error in build_in_watch_mode: {:?}", err),
                             );
@@ -239,12 +245,20 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     ) -> LSPProcessResult<()> {
         let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
 
-        let (schemas, _) = compiler.build_schemas(&compiler_state, setup_event);
+        let (schemas, build_schema_errors) = compiler.build_schemas(&compiler_state, setup_event);
+
+        if !build_schema_errors.is_empty() {
+            Self::log_errors(&perf_logger, build_schema_errors);
+        }
 
         // This will build programs, but won't apply any transformations to them
         // that should be enough for LSP to start showing fragments information
-        let (source_programs, _) =
+        let (source_programs, build_raw_program_errors) =
             compiler.build_raw_programs(&compiler_state, &schemas, None, setup_event)?;
+
+        if !build_raw_program_errors.is_empty() {
+            Self::log_errors(&perf_logger, build_raw_program_errors);
+        }
 
         compiler_state.complete_compilation();
 
@@ -263,6 +277,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: &Arc<Config>,
         schemas: &Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
         source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+        perf_logger: Arc<TPerfLogger>,
         log_event: &impl PerfLogEvent,
     ) -> LSPProcessResult<()> {
         let timer = log_event.start("lsp_build_in_watch_mode");
@@ -276,12 +291,16 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         // This will build programs, but won't apply any transformations to them
         // that should be enough for LSP to start showing fragments information
-        let (programs, _) = compiler.build_raw_programs(
+        let (programs, build_raw_programs_errors) = compiler.build_raw_programs(
             &compiler_state,
             &schemas.read().unwrap(),
             Some(affected_projects),
             log_event,
         )?;
+
+        if !build_raw_programs_errors.is_empty() {
+            Self::log_errors(&perf_logger, build_raw_programs_errors)
+        }
 
         let mut source_programs_write_lock = source_programs.write().unwrap();
         for (program_name, program) in programs {
@@ -296,12 +315,23 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         log_event.stop(timer);
         Ok(())
     }
-}
 
-/// A quick helper so we can unwrap things and log, if somethings isn't right
-fn log_error<TPerfLogger: PerfLogger + 'static>(logger: &Arc<TPerfLogger>, error_message: String) {
-    let error_event = logger.create_event("lsp_state_error");
-    error_event.string("message", error_message);
-    logger.complete_event(error_event);
-    logger.flush();
+    fn log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, build_errors: Vec<T>) {
+        Self::log_error(
+            logger,
+            build_errors
+                .iter()
+                .map(|err| format!("{:?}", err))
+                .collect::<Vec<String>>()
+                .join("\n"),
+        );
+    }
+
+    /// A quick helper so we can unwrap things and log, if somethings isn't right
+    fn log_error(logger: &Arc<TPerfLogger>, error_message: String) {
+        let error_event = logger.create_event("lsp_state_error");
+        error_event.string("message", error_message);
+        logger.complete_event(error_event);
+        logger.flush();
+    }
 }

@@ -43,19 +43,32 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
-    pub(crate) async fn create_state(
-        mut config: Config,
+    pub(crate) fn new(
+        config: &mut Config,
         sender: &Sender<Message>,
-        perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
-    ) -> LSPProcessResult<Self> {
+    ) -> Self {
         config.status_reporter = Box::new(LSPStatusReporter::new(
             config.root_dir.clone(),
             sender.clone(),
         ));
-        let root_dir = &config.root_dir.clone();
-        let file_categorizer = FileCategorizer::from_config(&config);
+        let file_categorizer = FileCategorizer::from_config(config);
+        Self {
+            compiler: None,
+            extra_data_provider,
+            file_categorizer,
+            root_dir: config.root_dir.clone(),
+            schemas: Default::default(),
+            source_programs: Default::default(),
+            synced_graphql_documents: Default::default(),
+        }
+    }
 
+    pub(crate) async fn initialize_resources(
+        &mut self,
+        config: Config,
+        perf_logger: Arc<TPerfLogger>,
+    ) -> LSPProcessResult<()> {
         let lsp_setup_event = perf_logger.create_event("lsp_state_setup");
         let compiler = Compiler::new(config, Arc::clone(&perf_logger));
 
@@ -76,16 +89,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         perf_logger.complete_event(lsp_setup_event);
         perf_logger.flush();
 
+        self.compiler = Some(compiler);
+        self.schemas = Arc::new(RwLock::new(schemas));
+        self.source_programs = Arc::new(RwLock::new(source_programs));
 
-        Ok(LSPState {
-            compiler: Some(compiler),
-            extra_data_provider,
-            file_categorizer,
-            root_dir: root_dir.clone(),
-            schemas: Arc::new(RwLock::new(schemas)),
-            source_programs: Arc::new(RwLock::new(source_programs)),
-            synced_graphql_documents: Default::default(),
-        })
+        Ok(())
     }
 
     pub(crate) fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> {

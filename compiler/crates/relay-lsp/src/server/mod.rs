@@ -72,7 +72,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 /// Run the main server loop
 pub async fn run<TPerfLogger: PerfLogger + 'static>(
     connection: Connection,
-    config: Config,
+    mut config: Config,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
@@ -85,15 +85,14 @@ where
         config.root_dir
     );
 
-    let mut lsp_state = LSPState::create_state(
-        config,
-        &connection.sender,
-        Arc::clone(&perf_logger),
-        extra_data_provider,
-    )
-    .await?;
+    let mut lsp_state = LSPState::new(&mut config, &connection.sender, extra_data_provider);
 
     set_not_started_status(&connection.sender);
+
+    // This should create setup schemas/source_programs
+    lsp_state
+        .initialize_resources(config, Arc::clone(&perf_logger))
+        .await?;
 
     for msg in connection.receiver {
         info!("LSP message received {:?}", msg);

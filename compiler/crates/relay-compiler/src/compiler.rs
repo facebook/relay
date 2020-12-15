@@ -32,9 +32,9 @@ where
 }
 
 impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
-    pub fn new(config: Config, perf_logger: Arc<TPerfLogger>) -> Self {
+    pub fn new(config: Arc<Config>, perf_logger: Arc<TPerfLogger>) -> Self {
         Self {
-            config: Arc::new(config),
+            config,
             perf_logger,
         }
     }

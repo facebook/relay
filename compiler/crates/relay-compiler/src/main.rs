@@ -39,7 +39,7 @@ async fn main() {
         }
     };
 
-    let compiler = Compiler::new(config, Arc::new(common::NoopPerfLogger));
+    let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
 
     if opt.watch {
         if let Err(err) = compiler.watch().await {

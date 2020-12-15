@@ -70,7 +70,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         perf_logger: Arc<TPerfLogger>,
     ) -> LSPProcessResult<()> {
         let lsp_setup_event = perf_logger.create_event("lsp_state_setup");
-        let compiler = Compiler::new(config, Arc::clone(&perf_logger));
+        let compiler = Compiler::new(Arc::new(config), Arc::clone(&perf_logger));
 
         let compiler_state = compiler
             .create_compiler_state(Arc::clone(&perf_logger), &lsp_setup_event)

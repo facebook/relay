@@ -9,15 +9,12 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
-    status_reporting::LSPStatusReporter,
     utils::extract_executable_document_from_text,
 };
 use common::{PerfLogEvent, PerfLogger, Span};
-use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_syntax::{ExecutableDocument, GraphQLSource};
 use interner::StringKey;
-use lsp_server::Message;
 use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{
     compiler::Compiler, compiler_state::CompilerState, config::Config, FileCategorizer, FileSource,
@@ -35,6 +32,7 @@ pub trait LSPExtraDataProvider {
 }
 
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
+    config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
@@ -45,21 +43,16 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
-    pub(crate) fn new(
-        config: &mut Config,
-        sender: &Sender<Message>,
-        extra_data_provider: Box<dyn LSPExtraDataProvider>,
-    ) -> Self {
-        config.status_reporter = Box::new(LSPStatusReporter::new(
-            config.root_dir.clone(),
-            sender.clone(),
-        ));
-        let file_categorizer = FileCategorizer::from_config(config);
+    /// Private constructor
+    fn new(config: Arc<Config>, extra_data_provider: Box<dyn LSPExtraDataProvider>) -> Self {
+        let file_categorizer = FileCategorizer::from_config(&config);
+        let root_dir = &config.root_dir.clone();
         Self {
+            config,
             compiler: None,
             extra_data_provider,
             file_categorizer,
-            root_dir: config.root_dir.clone(),
+            root_dir: root_dir.clone(),
             schemas: Default::default(),
             source_programs: Default::default(),
             synced_graphql_documents: Default::default(),
@@ -69,13 +62,14 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     /// This method is responsible for creating schema/source_programs for LSP internal state
     /// - so the LSP can provide these to Hover/Completion/GoToDefinition requests.
     /// It also creates a watchman subscription that is responsible for keeping these resources up-to-date.
-    pub(crate) async fn initialize_resources(
-        &mut self,
+    pub(crate) async fn create_state(
         config: Arc<Config>,
+        extra_data_provider: Box<dyn LSPExtraDataProvider>,
         perf_logger: Arc<TPerfLogger>,
-    ) -> LSPProcessResult<()> {
+    ) -> LSPProcessResult<Self> {
+        let mut lsp_state = Self::new(config, extra_data_provider);
         let setup_event = perf_logger.create_event("lsp_state_initialize_resources");
-        let file_source = FileSource::connect(&config, &setup_event)
+        let file_source = FileSource::connect(&lsp_state.config, &setup_event)
             .await
             .map_err(LSPProcessError::CompilerError)?;
         let (mut compiler_state, file_source_subscription) = file_source
@@ -83,16 +77,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             .await
             .map_err(LSPProcessError::CompilerError)?;
 
-        self.initial_build(
-            &mut compiler_state,
-            Arc::clone(&config),
-            &setup_event,
-            Arc::clone(&perf_logger),
-        )?;
+        lsp_state.initial_build(&mut compiler_state, &setup_event, Arc::clone(&perf_logger))?;
 
         // Finally, start a dedicated watchman subscription, just for LSP to update schemas/programs in lsp_state
-        self.watch_and_update_schemas(
-            Arc::clone(&config),
+        lsp_state.watch_and_update_schemas(
             compiler_state,
             file_source_subscription,
             Arc::clone(&perf_logger),
@@ -104,18 +92,18 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         perf_logger.complete_event(setup_event);
         perf_logger.flush();
 
-        self.compiler = Some(Compiler::new(config, perf_logger));
+        lsp_state.compiler = Some(Compiler::new(Arc::clone(&lsp_state.config), perf_logger));
 
-        Ok(())
+        Ok(lsp_state)
     }
 
     fn watch_and_update_schemas(
         &mut self,
-        config: Arc<Config>,
         mut compiler_state: CompilerState,
         mut subscription: FileSourceSubscription,
         perf_logger: Arc<TPerfLogger>,
     ) {
+        let config = Arc::clone(&self.config);
         let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
         let source_programs = Arc::clone(&self.source_programs);
         let schemas = self.get_schemas();
@@ -160,9 +148,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                     // Rebuilding programs
                     if has_new_changes {
                         Self::build_in_watch_mode(
+                            &config,
                             &compiler,
                             &mut compiler_state,
-                            &config,
                             &schemas,
                             &source_programs,
                             Arc::clone(&perf_logger),
@@ -239,11 +227,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     fn initial_build(
         &mut self,
         compiler_state: &mut CompilerState,
-        config: Arc<Config>,
         setup_event: &impl PerfLogEvent,
         perf_logger: Arc<TPerfLogger>,
     ) -> LSPProcessResult<()> {
-        let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
+        let compiler = Compiler::new(Arc::clone(&self.config), Arc::clone(&perf_logger));
 
         let (schemas, build_schema_errors) = compiler.build_schemas(&compiler_state, setup_event);
 
@@ -272,9 +259,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     /// This function should handle internal watchman builds that will
     /// update schemas/source_programs every time those are created/updated
     fn build_in_watch_mode(
+        config: &Arc<Config>,
         compiler: &Compiler<TPerfLogger>,
         compiler_state: &mut CompilerState,
-        config: &Arc<Config>,
         schemas: &Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
         source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
         perf_logger: Arc<TPerfLogger>,

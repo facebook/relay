@@ -17,6 +17,7 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     references::on_references,
     shutdown::{on_exit, on_shutdown},
+    status_reporting::LSPStatusReporter,
     text_documents::on_did_save_text_document,
     text_documents::{
         on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
@@ -85,12 +86,17 @@ where
     );
     set_starting_status(&connection.sender);
 
-    let mut lsp_state = LSPState::new(&mut config, &connection.sender, extra_data_provider);
+    config.status_reporter = Box::new(LSPStatusReporter::new(
+        config.root_dir.clone(),
+        connection.sender.clone(),
+    ));
 
-    // This should create setup schemas/source_programs and return start watching for file changes
-    lsp_state
-        .initialize_resources(Arc::new(config), Arc::clone(&perf_logger))
-        .await?;
+    let mut lsp_state = LSPState::create_state(
+        Arc::new(config),
+        extra_data_provider,
+        Arc::clone(&perf_logger),
+    )
+    .await?;
 
     // At this point we're ready to provide hover/complete/go_to_definition capabilities
     set_ready_status(&connection.sender);

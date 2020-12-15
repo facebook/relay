@@ -19,6 +19,8 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const warning = require('warning');
+
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -1742,5 +1744,32 @@ describe('connection node mutations', () => {
         },
       },
     ]);
+  });
+
+  it('warns when the server returns an null for the node', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendWithLiteralEdgeOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: null,
+        },
+      },
+    });
+    subject.complete();
+    expect(callback.mock.calls.length).toBe(0);
+    expect(warning).toBeCalledWith(
+      false,
+      'MutationHandlers: Expected target node to exist.',
+    );
   });
 });

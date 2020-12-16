@@ -29,6 +29,13 @@ use std::{
 
 pub trait LSPExtraDataProvider {
     fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
+    fn resolve_field_definition(
+        &self,
+        project_name: String,
+        root_dir: &PathBuf,
+        parent_type: String,
+        field_name: String,
+    ) -> Option<Result<(String, u64), String>>;
 }
 
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {

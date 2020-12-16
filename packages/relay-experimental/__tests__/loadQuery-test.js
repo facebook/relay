@@ -304,7 +304,6 @@ describe('when passed a PreloadableConcreteRequest', () => {
       sink.next(response);
       expect(nextCallback).toHaveBeenCalledWith(response);
     });
-
     it('should mark failed network requests', () => {
       const preloadedQuery = loadQuery(
         environment,

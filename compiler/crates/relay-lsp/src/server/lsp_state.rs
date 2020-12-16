@@ -34,7 +34,7 @@ pub trait LSPExtraDataProvider {
         project_name: String,
         root_dir: &PathBuf,
         parent_type: String,
-        field_name: String,
+        field_name: Option<String>,
     ) -> Option<Result<(String, u64), String>>;
 }
 

@@ -79,7 +79,25 @@ fn get_goto_definition_response(
                     project_name.to_string(),
                     root_dir,
                     parent_name.to_string(),
-                    field.name.to_string(),
+                    Some(field.name.to_string()),
+                )
+                .ok_or(LSPRuntimeError::ExpectedError)?;
+            let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Error resolving field definition location: {}",
+                    e
+                ))
+            })?;
+            Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
+        }
+        NodeKind::TypeCondition(type_name) => {
+            let project_name = node_resolution_info.project_name;
+            let provider_response = extra_data_provider
+                .resolve_field_definition(
+                    project_name.to_string(),
+                    root_dir,
+                    type_name.to_string(),
+                    None,
                 )
                 .ok_or(LSPRuntimeError::ExpectedError)?;
             let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {

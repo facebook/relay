@@ -14,7 +14,7 @@ use crate::{
 use common::Span;
 use graphql_syntax::{
     Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentSpread, GraphQLSource,
-    InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
+    InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection, TypeCondition,
 };
 use interner::StringKey;
 use lsp_types::{TextDocumentPositionParams, Url};
@@ -33,6 +33,7 @@ pub enum NodeKind {
     InlineFragment,
     Variable(String),
     Directive(StringKey, Option<StringKey>),
+    TypeCondition(StringKey),
 }
 
 #[derive(Debug)]
@@ -79,6 +80,17 @@ fn build_node_resolution_for_directive(
         type_path: Default::default(),
         project_name,
     })
+}
+
+fn type_condition_at_position(
+    type_condition: &TypeCondition,
+    position_span: Span,
+) -> Option<NodeKind> {
+    if !type_condition.span.contains(position_span) {
+        return None;
+    }
+
+    Some(NodeKind::TypeCondition(type_condition.type_.value))
 }
 
 fn create_node_resolution_info(
@@ -152,6 +164,13 @@ fn create_node_resolution_info(
                     position_span,
                     project_name,
                 ) {
+                    return Ok(node_resolution_info);
+                }
+
+                if let Some(node_kind) =
+                    type_condition_at_position(&fragment.type_condition, position_span)
+                {
+                    node_resolution_info.kind = node_kind;
                     return Ok(node_resolution_info);
                 }
 
@@ -252,17 +271,26 @@ fn build_node_resolution_info_from_selections(
                     type_condition,
                     ..
                 } = node;
+
+
                 node_resolution_info.kind = NodeKind::InlineFragment;
                 if let Some(type_condition) = type_condition {
                     let type_name = type_condition.type_.value;
                     node_resolution_info
                         .type_path
                         .add_type(TypePathItem::InlineFragment { type_name });
-                    build_node_resolution_info_from_selections(
-                        selections,
-                        position_span,
-                        node_resolution_info,
-                    )
+
+                    if let Some(node_kind) =
+                        type_condition_at_position(&type_condition, position_span)
+                    {
+                        node_resolution_info.kind = node_kind;
+                    } else {
+                        build_node_resolution_info_from_selections(
+                            selections,
+                            position_span,
+                            node_resolution_info,
+                        )
+                    }
                 }
             }
             Selection::ScalarField(node) => {
@@ -315,15 +343,33 @@ pub fn get_node_resolution_info(
 #[cfg(test)]
 mod test {
     use super::create_node_resolution_info;
-    use super::NodeKind;
+    use super::{NodeKind, NodeResolutionInfo};
     use common::{SourceLocationKey, Span};
     use graphql_syntax::parse_executable;
     use interner::Intern;
     use relay_test_schema::get_test_schema;
 
+    fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
+        let document = parse_executable(
+            source,
+            SourceLocationKey::Standalone {
+                path: "/test/file".intern(),
+            },
+        )
+        .unwrap();
+
+        // Select the `uri` field
+        let position_span = Span {
+            start: pos,
+            end: pos,
+        };
+
+        create_node_resolution_info(document, position_span, "test_project".intern()).unwrap()
+    }
+
     #[test]
     fn create_node_resolution_info_test() {
-        let document = parse_executable(
+        let node_resolution_info = parse_and_get_node_info(
             r#"
             fragment User_data on User {
                 name
@@ -332,20 +378,10 @@ mod test {
                 }
             }
         "#,
-            SourceLocationKey::Standalone {
-                path: "/test/file".intern(),
-            },
-        )
-        .unwrap();
+            // Select the `uri` field
+            117,
+        );
 
-        // Select the `id` field
-        let position_span = Span {
-            start: 117,
-            end: 117,
-        };
-
-        let result = create_node_resolution_info(document, position_span, "test_project".intern());
-        let node_resolution_info = result.unwrap();
         // assert_eq!(format!("{:?}", node_resolution_info), "".to_string());
         assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
         assert_eq!(node_resolution_info.project_name.lookup(), "test_project");
@@ -374,5 +410,62 @@ mod test {
         let position_span = Span { start: 86, end: 87 };
         let result = create_node_resolution_info(document, position_span, "test_project".intern());
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn create_node_resolution_info_fragment_def_name() {
+        let node_resolution_info = parse_and_get_node_info(
+            r#"
+            fragment User_data on User {
+                name
+            }
+        "#,
+            // Select the `User_data` fragment name
+            26,
+        );
+
+        assert_eq!(
+            node_resolution_info.kind,
+            NodeKind::FragmentDefinition("User_data".intern())
+        );
+    }
+
+    #[test]
+    fn create_node_resolution_info_fragment_def_type_condition() {
+        let node_resolution_info = parse_and_get_node_info(
+            r#"
+            fragment User_data on User {
+                name
+            }
+        "#,
+            // Select the `User` type in fragment declaration
+            35,
+        );
+
+        assert_eq!(
+            node_resolution_info.kind,
+            NodeKind::TypeCondition("User".intern())
+        );
+    }
+
+    #[test]
+    fn create_node_resolution_info_inline_fragment_type_condition() {
+        let node_resolution_info = parse_and_get_node_info(
+            r#"
+            fragment User_data on User {
+                name
+                ... on User {
+                    id
+                }
+            }
+        "#,
+            // Select the `User` type in fragment declaration
+            84,
+        );
+
+        assert_eq!(
+            node_resolution_info.kind,
+            NodeKind::TypeCondition("User".intern())
+        );
     }
 }

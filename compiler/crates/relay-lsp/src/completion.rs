@@ -41,18 +41,27 @@ pub enum CompletionKind {
     DirectiveName {
         location: DirectiveLocation,
     },
-    FieldArgumentName {
+    ArgumentName {
         has_colon: bool,
         existing_names: HashSet<StringKey>,
+        kind: ArgumentKind,
     },
-    FieldArgumentValue {
+    ArgumentValue {
         executable_name: ExecutableName,
         argument_name: StringKey,
+        kind: ArgumentKind,
     },
     InlineFragmentType {
         existing_inline_fragment: bool,
     },
 }
+
+#[derive(Debug, Clone)]
+pub enum ArgumentKind {
+    Field,
+    Directive(StringKey),
+}
+
 #[derive(Debug)]
 pub struct CompletionRequest {
     /// The type of the completion request we're responding to
@@ -196,6 +205,7 @@ impl CompletionRequestBuilder {
                                     arguments,
                                     position_span,
                                     type_path,
+                                    ArgumentKind::Field,
                                 );
                             }
                         }
@@ -272,6 +282,7 @@ impl CompletionRequestBuilder {
                                     arguments,
                                     position_span,
                                     type_path,
+                                    ArgumentKind::Field,
                                 );
                             }
                         }
@@ -299,6 +310,7 @@ impl CompletionRequestBuilder {
         arguments: &List<Argument>,
         position_span: Span,
         type_path: Vec<TypePathItem>,
+        kind: ArgumentKind,
     ) -> Option<CompletionRequest> {
         for Argument {
             name,
@@ -311,10 +323,11 @@ impl CompletionRequestBuilder {
             if span.contains(position_span) {
                 return if name.span.contains(position_span) {
                     Some(self.new_request(
-                        CompletionKind::FieldArgumentName {
+                        CompletionKind::ArgumentName {
                             has_colon: colon.kind != TokenKind::Empty,
                             existing_names:
                                 arguments.items.iter().map(|arg| arg.name.value).collect(),
+                            kind,
                         },
                         type_path,
                     ))
@@ -324,17 +337,19 @@ impl CompletionRequestBuilder {
                             if token.kind == TokenKind::Empty =>
                         {
                             Some(self.new_request(
-                                CompletionKind::FieldArgumentValue {
+                                CompletionKind::ArgumentValue {
                                     argument_name: name.value,
                                     executable_name,
+                                    kind,
                                 },
                                 type_path,
                             ))
                         }
                         Value::Variable(_) => Some(self.new_request(
-                            CompletionKind::FieldArgumentValue {
+                            CompletionKind::ArgumentValue {
                                 argument_name: name.value,
                                 executable_name,
+                                kind,
                             },
                             type_path,
                         )),
@@ -347,9 +362,10 @@ impl CompletionRequestBuilder {
         }
         // The argument list is empty or the cursor is not on any of the argument
         Some(self.new_request(
-            CompletionKind::FieldArgumentName {
+            CompletionKind::ArgumentName {
                 has_colon: false,
                 existing_names: arguments.items.iter().map(|arg| arg.name.value).collect(),
+                kind,
             },
             type_path,
         ))
@@ -362,14 +378,28 @@ impl CompletionRequestBuilder {
         position_span: Span,
         type_path: Vec<TypePathItem>,
     ) -> Option<CompletionRequest> {
-        if directives
-            .iter()
-            .any(|directive| directive.span.contains(position_span))
-        {
-            Some(self.new_request(CompletionKind::DirectiveName { location }, type_path))
-        } else {
-            None
+        for directive in directives {
+            if !directive.span.contains(position_span) {
+                continue;
+            };
+            return if directive.name.span.contains(position_span) {
+                Some(self.new_request(CompletionKind::DirectiveName { location }, type_path))
+            } else if let Some(arguments) = &directive.arguments {
+                if arguments.span.contains(position_span) {
+                    self.build_request_from_arguments(
+                        arguments,
+                        position_span,
+                        type_path,
+                        ArgumentKind::Directive(directive.name.value),
+                    )
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
         }
+        None
     }
 
     fn build_request_from_selection_or_directives(
@@ -445,51 +475,57 @@ fn completion_items_for_request(
                 .collect();
             Some(items)
         }
-        CompletionKind::FieldArgumentName {
+        CompletionKind::ArgumentName {
             has_colon,
             existing_names,
-        } => {
-            let field = request.type_path.resolve_current_field(schema)?;
-            Some(
-                field
-                    .arguments
-                    .iter()
-                    .filter(|arg| !existing_names.contains(&arg.name))
-                    .map(|arg| {
-                        let label = arg.name.lookup().into();
-                        let detail = schema.get_type_string(&arg.type_);
-                        if has_colon {
-                            CompletionItem::new_simple(label, detail)
-                        } else {
-                            CompletionItem {
-                                label: label.clone(),
-                                kind: None,
-                                detail: Some(detail),
-                                documentation: None,
-                                deprecated: None,
-                                preselect: None,
-                                sort_text: None,
-                                filter_text: None,
-                                insert_text: Some(format!("{}:$1", label)),
-                                insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
-                                text_edit: None,
-                                additional_text_edits: None,
-                                command: Some(lsp_types::Command::new(
-                                    "Suggest".into(),
-                                    "editor.action.triggerSuggest".into(),
-                                    None,
-                                )),
-                                data: None,
-                                tags: None,
-                            }
-                        }
-                    })
-                    .collect(),
-            )
-        }
-        CompletionKind::FieldArgumentValue {
+            kind,
+        } => Some(
+            match kind {
+                ArgumentKind::Field => {
+                    let field = request.type_path.resolve_current_field(schema)?;
+                    &field.arguments
+                }
+                ArgumentKind::Directive(directive_name) => {
+                    &schema.get_directive(directive_name)?.arguments
+                }
+            }
+            .iter()
+            .filter(|arg| !existing_names.contains(&arg.name))
+            .map(|arg| {
+                let label = arg.name.lookup().into();
+                let detail = schema.get_type_string(&arg.type_);
+                if has_colon {
+                    CompletionItem::new_simple(label, detail)
+                } else {
+                    CompletionItem {
+                        label: label.clone(),
+                        kind: None,
+                        detail: Some(detail),
+                        documentation: None,
+                        deprecated: None,
+                        preselect: None,
+                        sort_text: None,
+                        filter_text: None,
+                        insert_text: Some(format!("{}:$1", label)),
+                        insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                        text_edit: None,
+                        additional_text_edits: None,
+                        command: Some(lsp_types::Command::new(
+                            "Suggest".into(),
+                            "editor.action.triggerSuggest".into(),
+                            None,
+                        )),
+                        data: None,
+                        tags: None,
+                    }
+                }
+            })
+            .collect(),
+        ),
+        CompletionKind::ArgumentValue {
             executable_name,
             argument_name,
+            kind,
         } => {
             if let Some(source_program) = source_programs
                 .read()
@@ -498,8 +534,16 @@ fn completion_items_for_request(
                 )
                 .get(&project_name)
             {
-                let field = request.type_path.resolve_current_field(schema)?;
-                let argument = field.arguments.named(argument_name)?;
+                let argument = match kind {
+                    ArgumentKind::Field => {
+                        let field = request.type_path.resolve_current_field(schema)?;
+                        field.arguments.named(argument_name)
+                    }
+                    ArgumentKind::Directive(directive_name) => schema
+                        .get_directive(directive_name)?
+                        .arguments
+                        .named(argument_name),
+                }?;
                 Some(resolve_completion_items_for_argument_value(
                     &argument.type_,
                     source_program,
@@ -785,7 +829,11 @@ fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) 
         insert_text_format: Some(insert_text_format),
         text_edit: None,
         additional_text_edits: None,
-        command: None,
+        command: Some(lsp_types::Command::new(
+            "Suggest".into(),
+            "editor.action.triggerSuggest".into(),
+            None,
+        )),
         data: None,
         tags: None,
     }

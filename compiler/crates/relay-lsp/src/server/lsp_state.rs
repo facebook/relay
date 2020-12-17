@@ -76,6 +76,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     ) -> LSPProcessResult<Self> {
         let mut lsp_state = Self::new(config, extra_data_provider);
         let setup_event = perf_logger.create_event("lsp_state_initialize_resources");
+        let log_time = setup_event.start("lsp_state_initialize_resources_time");
+
         let file_source = FileSource::connect(&lsp_state.config, &setup_event)
             .await
             .map_err(LSPProcessError::CompilerError)?;
@@ -95,7 +97,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         // This is an instance of a regular Relay compiler that we will run in
         // watch mode in a separate future (it will report errors)
-
+        setup_event.stop(log_time);
         perf_logger.complete_event(setup_event);
         perf_logger.flush();
 
@@ -274,7 +276,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         perf_logger: Arc<TPerfLogger>,
         log_event: &impl PerfLogEvent,
     ) -> LSPProcessResult<()> {
-        let timer = log_event.start("lsp_build_in_watch_mode");
         // we should trigger build only for changed projects
         // this set will be used in the `build_raw_programs` to ignore unchanged projects
         let affected_projects = config
@@ -297,6 +298,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         if !build_raw_programs_errors.is_empty() {
             Self::log_errors(&perf_logger, build_raw_programs_errors)
         }
+        let timer = log_event.start("lsp_build_in_watch_writing_programs_time");
 
         let mut source_programs_write_lock = source_programs.write().expect(
             "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",

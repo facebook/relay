@@ -8,7 +8,10 @@
 //! Utilities for reading, writing, and transforming data for the LSP service
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
+use std::sync::{Arc, RwLock};
+
 use crate::lsp_process_error::LSPProcessResult;
+use crate::server::LSPStateError;
 use crossbeam::{crossbeam_channel::Sender, SendError};
 pub use lsp_server::{Connection, Message};
 pub use lsp_server::{
@@ -50,11 +53,45 @@ impl Request for ShowStatus {
     const METHOD: &'static str = "window/showStatus";
 }
 
-pub fn set_ready_status(sender: &Sender<Message>) {
+pub fn set_actual_server_status(
+    sender: &Sender<Message>,
+    errors: &Arc<RwLock<Vec<LSPStateError>>>,
+) {
+    if let Ok(errors) = errors.read() {
+        if errors.is_empty() {
+            set_ready_status(sender);
+        } else {
+            set_error_status(sender, &errors)
+        }
+    } else {
+        // Ok, this is not entirely correct to return a ready status here.
+        // But the other option would be to surface the "acquire read lock error" to the user,
+        // which is too many details for the things we're doing here.
+        set_ready_status(sender);
+    }
+}
+
+fn set_ready_status(sender: &Sender<Message>) {
     update_status(
         Some("Relay: ready".into()),
         Some("Relay: ready".into()),
         MessageType::Info,
+        sender,
+    );
+}
+
+fn set_error_status(sender: &Sender<Message>, errors: &[LSPStateError]) {
+    update_status(
+        Some("Relay: invalid state".into()),
+        Some(format!(
+            "Unable to create correct server state:\n{}",
+            errors
+                .iter()
+                .map(|err| err.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
+        )),
+        MessageType::Error,
         sender,
     );
 }

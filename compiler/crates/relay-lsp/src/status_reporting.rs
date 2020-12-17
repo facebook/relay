@@ -7,9 +7,10 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp::{
-    publish_diagnostic, set_ready_status, set_running_status, Diagnostic, DiagnosticSeverity,
-    Position, PublishDiagnosticsParams, Range, Url,
+    publish_diagnostic, set_actual_server_status, set_running_status, Diagnostic,
+    DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url,
 };
+use crate::server::LSPStateError;
 use common::{Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::crossbeam_channel::Sender;
 use lsp_server::Message;
@@ -27,15 +28,21 @@ use std::{
 
 pub struct LSPStatusReporter {
     active_diagnostics: Arc<RwLock<HashMap<Url, Vec<Diagnostic>>>>,
+    lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
     sender: Sender<Message>,
     root_dir: PathBuf,
     source_reader: Box<dyn SourceReader + Send + Sync>,
 }
 
 impl LSPStatusReporter {
-    pub fn new(root_dir: PathBuf, sender: Sender<Message>) -> Self {
+    pub fn new(
+        root_dir: PathBuf,
+        sender: Sender<Message>,
+        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
+    ) -> Self {
         Self {
             active_diagnostics: Default::default(),
+            lsp_state_errors,
             sender,
             root_dir,
             source_reader: Box::new(FsSourceReader),
@@ -176,7 +183,8 @@ impl StatusReporter for LSPStatusReporter {
     }
 
     fn build_finishes(&self, result: &Result<()>) {
-        set_ready_status(&self.sender);
+        set_actual_server_status(&self.sender, &self.lsp_state_errors);
+
         {
             let mut active_diagnostics = self
                 .active_diagnostics
@@ -222,7 +230,7 @@ mod tests {
     fn report_diagnostic_test() {
         let root_dir = PathBuf::from("/tmp");
         let (sender, _) = crossbeam_channel::unbounded();
-        let mut reporter = LSPStatusReporter::new(root_dir, sender);
+        let mut reporter = LSPStatusReporter::new(root_dir, sender, Default::default());
         reporter.set_source_reader(Box::new(MockSourceReader("Content".to_string())));
         let source_location = SourceLocationKey::Standalone {
             path: "foo.txt".intern(),
@@ -242,7 +250,7 @@ mod tests {
         let root_dir = PathBuf::from("/tmp");
         let (sender, _) = crossbeam_channel::unbounded();
 
-        let mut reporter = LSPStatusReporter::new(root_dir, sender);
+        let mut reporter = LSPStatusReporter::new(root_dir, sender, Default::default());
         reporter.set_source_reader(Box::new(MockSourceReader("".to_string())));
 
         reporter.report_diagnostic(&Diagnostic::error("-", Location::generated()));

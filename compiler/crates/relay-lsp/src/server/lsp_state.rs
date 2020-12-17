@@ -21,11 +21,39 @@ use relay_compiler::{
     FileSourceSubscription,
 };
 use schema::Schema;
+use std::fmt;
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
     sync::{Arc, RwLock},
 };
+#[derive(Debug)]
+pub enum LSPStateError {
+    BuildSchemaError,
+    /// For the initial build, if we have validation errors in the program -
+    /// we won't be able to create a correct state
+    InitialBuildError,
+    /// But for the `watch` mode - it may break, only there were infra errors (IO, De/Serialization).
+    /// IR, GraphQL validation errors won't be reported here.
+    WatchBuildError,
+}
+
+impl fmt::Display for LSPStateError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                LSPStateError::BuildSchemaError =>
+                    "Unable to parse/create an instance of the GraphQL Schema for Relay LSP Server State.",
+                LSPStateError::InitialBuildError =>
+                    "Validation errors in documents. Please, fix the errors reported in the diagnostics panel.",
+                LSPStateError::WatchBuildError =>
+                    "Incremental changes broke the internal Relay LSP Server State. This is probably a transient issue; try restarting the Relay VSCode extension.",
+            }
+        )
+    }
+}
 
 pub trait LSPExtraDataProvider {
     fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
@@ -47,11 +75,16 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
+    errors: Arc<RwLock<Vec<LSPStateError>>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     /// Private constructor
-    fn new(config: Arc<Config>, extra_data_provider: Box<dyn LSPExtraDataProvider>) -> Self {
+    fn new(
+        config: Arc<Config>,
+        extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
+    ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
         Self {
@@ -63,6 +96,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             schemas: Default::default(),
             source_programs: Default::default(),
             synced_graphql_documents: Default::default(),
+            errors: lsp_state_errors,
         }
     }
 
@@ -71,10 +105,12 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     /// It also creates a watchman subscription that is responsible for keeping these resources up-to-date.
     pub(crate) async fn create_state(
         config: Arc<Config>,
+        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         perf_logger: Arc<TPerfLogger>,
     ) -> LSPProcessResult<Self> {
-        let mut lsp_state = Self::new(config, extra_data_provider);
+        let mut lsp_state = Self::new(config, extra_data_provider, lsp_state_errors);
+
         let setup_event = perf_logger.create_event("lsp_state_initialize_resources");
         let log_time = setup_event.start("lsp_state_initialize_resources_time");
 
@@ -116,9 +152,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
         let source_programs = Arc::clone(&self.source_programs);
         let schemas = self.get_schemas();
+        let errors = Arc::clone(&self.errors);
 
-
-        tokio::task::spawn(async move {
+        tokio::spawn(async move {
             loop {
                 if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
                     let log_event = perf_logger.create_event("lsp_state_watchman_event");
@@ -140,14 +176,22 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                             false
                         });
 
+
+                    let mut errors_write_lock = errors.write().unwrap();
+
+                    if has_new_changes {
+                        errors_write_lock.clear();
+                    }
+
                     // If changes contains schema files we need to rebuild schemas
                     if has_new_changes && compiler_state.has_schema_changes() {
                         log_event.number("has_schema_change", 1);
                         let (next_schemas, build_schema_errors) =
                             compiler.build_schemas(&compiler_state, &log_event);
                         if !build_schema_errors.is_empty() {
-                            Self::log_errors(&perf_logger, build_schema_errors);
-                        }
+                            Self::log_errors(&perf_logger, &build_schema_errors);
+                            errors_write_lock.push(LSPStateError::BuildSchemaError);
+                        };
 
                         schemas.write().expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas").clone_from(&next_schemas);
                     } else {
@@ -170,6 +214,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                                 &perf_logger,
                                 format!("Error in build_in_watch_mode: {:?}", err),
                             );
+                            errors_write_lock.push(LSPStateError::WatchBuildError);
                         });
                     }
 
@@ -227,6 +272,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         )
     }
 
+    pub(crate) fn get_errors(&self) -> &Arc<RwLock<Vec<LSPStateError>>> {
+        &self.errors
+    }
+
     fn start_compiler_once(&mut self) {
         if let Some(compiler) = self.compiler.take() {
             tokio::spawn(async move { compiler.watch().await });
@@ -244,7 +293,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         let (schemas, build_schema_errors) = compiler.build_schemas(&compiler_state, setup_event);
 
         if !build_schema_errors.is_empty() {
-            Self::log_errors(&perf_logger, build_schema_errors);
+            Self::log_errors(&perf_logger, &build_schema_errors);
+            self.errors
+                .write()
+                .unwrap()
+                .push(LSPStateError::BuildSchemaError);
         }
 
         // This will build programs, but won't apply any transformations to them
@@ -253,14 +306,17 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             compiler.build_raw_programs(&compiler_state, &schemas, None, setup_event)?;
 
         if !build_raw_program_errors.is_empty() {
-            Self::log_errors(&perf_logger, build_raw_program_errors);
+            Self::log_errors(&perf_logger, &build_raw_program_errors);
+            self.errors
+                .write()
+                .unwrap()
+                .push(LSPStateError::InitialBuildError);
         }
 
         compiler_state.complete_compilation();
 
         self.schemas = Arc::new(RwLock::new(schemas));
         self.source_programs = Arc::new(RwLock::new(source_programs));
-
 
         Ok(())
     }
@@ -296,7 +352,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         )?;
 
         if !build_raw_programs_errors.is_empty() {
-            Self::log_errors(&perf_logger, build_raw_programs_errors)
+            Self::log_errors(&perf_logger, &build_raw_programs_errors)
         }
         let timer = log_event.start("lsp_build_in_watch_writing_programs_time");
 
@@ -316,10 +372,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         Ok(())
     }
 
-    fn log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, build_errors: Vec<T>) {
+    fn log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, errors: &[T]) {
         Self::log_error(
             logger,
-            build_errors
+            errors
                 .iter()
                 .map(|err| format!("{:?}", err))
                 .collect::<Vec<String>>()

@@ -20,7 +20,8 @@ use graphql_syntax::{
     ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     OperationKind, ScalarField, Selection, TokenKind, Value,
 };
-use interner::StringKey;
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use log::info;
 use lsp_types::request::{Completion, Request};
 use schema::{
@@ -33,6 +34,9 @@ use std::{
     sync::{Arc, RwLock},
 };
 
+lazy_static! {
+    static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
+}
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
     FieldName {
@@ -751,6 +755,18 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .map(|field_id| {
             let field = schema.field(*field_id);
             let name = field.name.to_string();
+            let deprecated_directive = field.directives.named(*DEPRECATED_DIRECTIVE);
+            let deprecated_reason = if let Some(deprecated_directive) = deprecated_directive {
+                if let Some(ConstantValue::String(reason)) =
+                    deprecated_directive.arguments.get(0).map(|arg| &arg.value)
+                {
+                    Some(reason.value.lookup().to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -782,9 +798,9 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             CompletionItem {
                 label: name,
                 kind: None,
-                detail: None,
+                detail: deprecated_reason,
                 documentation: None,
-                deprecated: None,
+                deprecated: Some(deprecated_directive.is_some()),
                 preselect: None,
                 sort_text: None,
                 filter_text: None,

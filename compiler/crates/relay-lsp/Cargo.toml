@@ -18,6 +18,7 @@ relay-compiler = { path = "../relay-compiler" }
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
 crossbeam = "0.7"
+lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
 lsp-server = "0.3.2"
 lsp-types = "0.73.0"

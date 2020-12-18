@@ -1279,8 +1279,10 @@ impl<'a> Parser<'a> {
                                 value: node.value,
                             };
                             last_arg.span.end = last_arg.colon.span.end;
-                            last_arg.value =
-                                Value::Constant(ConstantValue::Null(last_arg.name.token.clone()));
+                            last_arg.value = Value::Constant(ConstantValue::Null(Token {
+                                span: Span::new(last_arg.span.end, last_arg.span.end),
+                                kind: TokenKind::Empty,
+                            }));
                             return name;
                         }
                     }

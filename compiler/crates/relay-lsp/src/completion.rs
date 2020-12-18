@@ -343,13 +343,16 @@ impl CompletionRequestBuilder {
         type_path: Vec<TypePathItem>,
         kind: ArgumentKind,
     ) -> Option<CompletionRequest> {
-        for Argument {
-            name,
-            value,
-            colon,
-            span,
-            ..
-        } in &arguments.items
+        for (
+            i,
+            Argument {
+                name,
+                value,
+                colon,
+                span,
+                ..
+            },
+        ) in arguments.items.iter().enumerate()
         {
             if span.contains(position_span) {
                 return if name.span.contains(position_span) {
@@ -389,6 +392,48 @@ impl CompletionRequestBuilder {
                 } else {
                     None
                 };
+            } else if span.end <= position_span.start {
+                let is_cursor_in_next_white_space = {
+                    if let Some(next_argument) = arguments.items.get(i + 1) {
+                        position_span.start < next_argument.span.start
+                    } else {
+                        position_span.start < arguments.span.end
+                    }
+                };
+                if is_cursor_in_next_white_space {
+                    // Handles the following speicial case
+                    // (args1:  | args2:$var)
+                    //          ^ cursor here
+                    // The cursor is on the white space between args1 and args2.
+                    // We want to autocomplete the value if it's empty.
+                    return if let Some(executable_name) = self.current_executable_name {
+                        match value {
+                            Value::Constant(ConstantValue::Null(token))
+                                if token.kind == TokenKind::Empty =>
+                            {
+                                Some(self.new_request(
+                                    CompletionKind::ArgumentValue {
+                                        argument_name: name.value,
+                                        executable_name,
+                                        kind,
+                                    },
+                                    type_path,
+                                ))
+                            }
+                            _ => Some(self.new_request(
+                                CompletionKind::ArgumentName {
+                                    has_colon: false,
+                                    existing_names:
+                                        arguments.items.iter().map(|arg| arg.name.value).collect(),
+                                    kind,
+                                },
+                                type_path,
+                            )),
+                        }
+                    } else {
+                        None
+                    };
+                }
             }
         }
         // The argument list is empty or the cursor is not on any of the argument
@@ -627,7 +672,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     preselect: None,
                     sort_text: None,
                     filter_text: None,
-                    insert_text: Some(format!("{}:$1", label)),
+                    insert_text: Some(format!("{}: $1", label)),
                     insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
                     text_edit: None,
                     additional_text_edits: None,

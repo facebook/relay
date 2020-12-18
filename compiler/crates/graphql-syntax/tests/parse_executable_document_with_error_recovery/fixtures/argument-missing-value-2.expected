@@ -84,8 +84,8 @@ ExecutableDocument {
                                         value: Constant(
                                             Null(
                                                 Token {
-                                                    span: 37:38,
-                                                    kind: Identifier,
+                                                    span: 39:39,
+                                                    kind: Empty,
                                                 },
                                             ),
                                         ),

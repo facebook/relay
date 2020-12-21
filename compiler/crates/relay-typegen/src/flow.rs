@@ -25,7 +25,6 @@ impl Writer for FlowPrinter {
             AST::Identifier(identifier) => write!(writer, "{}", identifier),
             AST::RawType(raw) => write!(writer, "{}", raw),
             AST::Union(members) => self.write_union(writer, members),
-            AST::Intersection(members) => self.write_intersection(writer, members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type),
             AST::Nullable(of_type) => self.write_nullable(writer, of_type),
             AST::ExactObject(props) => self.write_object(writer, props, true),

@@ -1411,7 +1411,6 @@ macro_rules! type_id {
         #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
         pub struct $name(pub $type);
         impl $name {
-            #[allow(dead_code)]
             fn as_usize(&self) -> usize {
                 self.0 as usize
             }

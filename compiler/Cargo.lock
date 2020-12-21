@@ -1801,6 +1801,7 @@ dependencies = [
  "graphql-syntax",
  "graphql-text-printer",
  "interner",
+ "lazy_static",
  "log",
  "lsp-server",
  "lsp-types",

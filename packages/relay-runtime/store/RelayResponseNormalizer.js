@@ -200,13 +200,14 @@ class RelayResponseNormalizer {
           break;
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
-          if (conditionValue === selection.passingValue) {
+          const passingValue = selection.passingValue === true;
+          if (conditionValue === passingValue) {
             this._traverseSelections(selection, record, data);
           }
           break;
         case INLINE_FRAGMENT: {
           const {abstractKey} = selection;
-          if (abstractKey == null) {
+          if (!abstractKey) {
             const typeName = RelayModernRecord.getType(record);
             if (typeName === selection.type) {
               this._traverseSelections(selection, record, data);
@@ -316,7 +317,7 @@ class RelayResponseNormalizer {
     record: Record,
     data: PayloadData,
   ) {
-    const isDeferred = defer.if === null || this._getVariableValue(defer.if);
+    const isDeferred = !defer.if || this._getVariableValue(defer.if);
     if (__DEV__) {
       warning(
         typeof isDeferred === 'boolean',
@@ -356,7 +357,7 @@ class RelayResponseNormalizer {
     // this populates the initial array value (including any items when
     // initial_count > 0).
     this._traverseSelections(stream, record, data);
-    const isStreamed = stream.if === null || this._getVariableValue(stream.if);
+    const isStreamed = !stream.if || this._getVariableValue(stream.if);
     if (__DEV__) {
       warning(
         typeof isStreamed === 'boolean',

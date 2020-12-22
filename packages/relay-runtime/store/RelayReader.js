@@ -254,7 +254,7 @@ class RelayReader {
           this._readScalar(selection, record, data);
           break;
         case LINKED_FIELD:
-          if (selection.plural) {
+          if (selection.plural === true) {
             this._readPluralLink(selection, record, data);
           } else {
             this._readLink(selection, record, data);
@@ -262,7 +262,8 @@ class RelayReader {
           break;
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
-          if (conditionValue === selection.passingValue) {
+          const passingValue = selection.passingValue === true;
+          if (conditionValue === passingValue) {
             const hasExpectedData = this._traverseSelections(
               selection.selections,
               record,
@@ -387,7 +388,7 @@ class RelayReader {
       case SCALAR_FIELD:
         return this._readScalar(selection.field, record, data);
       case LINKED_FIELD:
-        if (selection.field.plural) {
+        if (selection.field.plural === true) {
           return this._readPluralLink(selection.field, record, data);
         } else {
           return this._readLink(selection.field, record, data);

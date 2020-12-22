@@ -17,6 +17,7 @@ const {
   CompilerContext,
   IRTransforms,
   compileRelayArtifacts,
+  __internal: {removeNulls},
 } = require('relay-compiler');
 
 import type {
@@ -81,6 +82,7 @@ function generate(
     ([_definition, node]) => {
       const transformedNode =
         moduleMap != null ? CodeMarker.transform(node, moduleMap) : node;
+      removeNulls(transformedNode);
       documentMap[
         node.kind === 'Request' ? node.params.name : node.name
       ] = transformedNode;

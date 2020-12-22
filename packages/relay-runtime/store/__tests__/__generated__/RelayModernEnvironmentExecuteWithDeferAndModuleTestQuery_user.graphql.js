@@ -39,22 +39,15 @@ var node/*: ReaderFragment*/ = {
   "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
   "selections": [
     {
-      "alias": null,
-      "args": null,
       "kind": "ScalarField",
       "name": "id",
-      "storageKey": null
     },
     {
-      "alias": null,
-      "args": null,
       "kind": "ScalarField",
       "name": "name",
-      "storageKey": null
     }
   ],
   "type": "User",
-  "abstractKey": null
 };
 
 if (__DEV__) {

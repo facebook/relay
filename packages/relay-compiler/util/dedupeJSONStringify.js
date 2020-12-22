@@ -12,6 +12,8 @@
 
 'use strict';
 
+const removeNulls = require('./removeNulls');
+
 /**
  * This function works similar to JSON.stringify except that for the case there
  * are multiple common subtrees, it generates a string for a IIFE that re-uses
@@ -64,20 +66,6 @@ function dedupeJSONStringify(jsonValue: mixed): string {
     }
     metadataForVal.set(value, metadata);
     return hash;
-  }
-
-  function removeNulls(value) {
-    if (value == null || typeof value !== 'object') {
-      return;
-    }
-    for (const k in value) {
-      if (value[k] === null || value[k] === false) {
-        // $FlowFixMe[cannot-write]
-        Array.isArray(value) ? value.slice(k, 1) : delete value[k];
-      } else if (typeof value[k] == 'object') {
-        removeNulls(value[k]);
-      }
-    }
   }
 
   // Using top-down recursion, linearly scan the JSON tree to determine which

@@ -25,18 +25,12 @@ var node/*: NormalizationSplitOperation*/ = {
   "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization",
   "selections": [
     {
-      "alias": null,
-      "args": null,
       "kind": "ScalarField",
       "name": "id",
-      "storageKey": null
     },
     {
-      "alias": null,
-      "args": null,
       "kind": "ScalarField",
       "name": "name",
-      "storageKey": null
     }
   ]
 };

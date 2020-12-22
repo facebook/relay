@@ -254,7 +254,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 
     ({id: moduleId} = params);
     invariant(
-      moduleId !== null,
+      moduleId != null,
       'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id',
       params.name,
     );

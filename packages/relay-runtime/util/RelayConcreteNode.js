@@ -44,7 +44,7 @@ export type NormalizationRootNode =
 export type RequestParameters =
   | {|
       +id: string,
-      +text: null,
+      +text?: null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
@@ -52,7 +52,7 @@ export type RequestParameters =
     |}
   | {|
       +cacheID: string,
-      +id: null,
+      +id?: null,
       +text: string,
       // common fields
       +name: string,

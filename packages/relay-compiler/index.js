@@ -59,6 +59,7 @@ const getLiteralArgumentValues = require('./core/getLiteralArgumentValues');
 const getNormalizationOperationName = require('./core/getNormalizationOperationName');
 const getSchemaInstance = require('./runner/getSchemaInstance');
 const md5 = require('./util/md5');
+const removeNulls = require('./util/removeNulls');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
 const {main} = require('./bin/RelayCompilerMain');
@@ -195,6 +196,7 @@ module.exports = {
     getSchemaInstance,
     md5,
     parseExecutableNode: extractAST.parseExecutableNode,
+    removeNulls,
     toASTRecord: extractAST.toASTRecord,
   },
 };

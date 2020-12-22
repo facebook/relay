@@ -38,7 +38,6 @@ export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {|
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
   {
-    "defaultValue": null,
     "kind": "LocalArgument",
     "name": "id"
   }
@@ -62,34 +61,27 @@ v2 = [
       }
     ],
     "type": "User",
-    "abstractKey": null
   }
 ];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
-    "metadata": null,
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
     "selections": [
       {
-        "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
-        "plural": false,
         "selections": [
           {
             "kind": "Defer",
             "selections": (v2/*: any*/)
           }
         ],
-        "storageKey": null
       }
     ],
     "type": "Query",
-    "abstractKey": null
   },
   "kind": "Request",
   "operation": {
@@ -98,41 +90,29 @@ return {
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
     "selections": [
       {
-        "alias": null,
         "args": (v1/*: any*/),
-        "concreteType": null,
         "kind": "LinkedField",
         "name": "node",
-        "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": null,
             "kind": "ScalarField",
             "name": "__typename",
-            "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
             "kind": "ScalarField",
             "name": "id",
-            "storageKey": null
           },
           {
-            "if": null,
             "kind": "Defer",
             "label": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
             "selections": (v2/*: any*/)
           }
         ],
-        "storageKey": null
       }
     ]
   },
   "params": {
     "cacheID": "aed3e45e980901713d2d1d0c6fe07c46",
-    "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
     "operationKind": "query",

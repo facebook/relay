@@ -105,7 +105,7 @@ if (__DEV__) {
         return validateField(optimisticResponse, selection, context);
       case 'InlineFragment':
         const type = selection.type;
-        const isConcreteType = selection.abstractKey == null;
+        const isConcreteType = !selection.abstractKey;
         selection.selections.forEach(subselection => {
           if (isConcreteType && optimisticResponse.__typename !== type) {
             return;

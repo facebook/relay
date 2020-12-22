@@ -38,7 +38,8 @@ function getFragmentVariables(
     variables = variables || {...argumentVariables};
     switch (definition.kind) {
       case 'LocalArgument':
-        variables[definition.name] = definition.defaultValue;
+        variables[definition.name] =
+          definition.defaultValue != null ? definition.defaultValue : null;
         break;
       case 'RootArgument':
         if (!rootVariables.hasOwnProperty(definition.name)) {
@@ -81,7 +82,7 @@ function getOperationVariables(
 ): Variables {
   const operationVariables = {};
   operation.argumentDefinitions.forEach(def => {
-    let value = def.defaultValue;
+    let value = def.defaultValue != null ? def.defaultValue : null;
     if (variables[def.name] != null) {
       value = variables[def.name];
     }

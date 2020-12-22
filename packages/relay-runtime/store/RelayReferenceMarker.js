@@ -129,7 +129,7 @@ class RelayReferenceMarker {
       /* eslint-disable no-fallthrough */
       switch (selection.kind) {
         case LINKED_FIELD:
-          if (selection.plural) {
+          if (selection.plural === true) {
             this._traversePluralLink(selection, record);
           } else {
             this._traverseLink(selection, record);
@@ -137,7 +137,8 @@ class RelayReferenceMarker {
           break;
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
-          if (conditionValue === selection.passingValue) {
+          const passingValue = selection.passingValue === true;
+          if (conditionValue === passingValue) {
             this._traverseSelections(selection.selections, record);
           }
           break;
@@ -179,7 +180,7 @@ class RelayReferenceMarker {
             selections,
             this._variables,
           );
-          if (handleField.plural) {
+          if (handleField.plural === true) {
             this._traversePluralLink(handleField, record);
           } else {
             this._traverseLink(handleField, record);

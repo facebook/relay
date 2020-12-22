@@ -18,7 +18,7 @@ import type {ConcreteRequest} from './RelayConcreteNode';
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
 export type ReaderInlineDataFragmentSpread = {|
@@ -31,8 +31,8 @@ export type ReaderFragment = {|
   +kind: 'Fragment',
   +name: string,
   +type: string,
-  +abstractKey: ?string,
-  +metadata: ?{|
+  +abstractKey?: ?string,
+  +metadata?: ?{|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
     +mask?: boolean,
     +plural?: boolean,
@@ -124,12 +124,12 @@ export type ReaderInlineFragment = {|
 
 export type ReaderLinkedField = {|
   +kind: 'LinkedField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +storageKey: ?string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +concreteType: ?string,
-  +plural: boolean,
+  +storageKey?: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +concreteType?: ?string,
+  +plural?: boolean,
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
@@ -173,18 +173,18 @@ export type ReaderNode =
 
 export type ReaderScalarField = {|
   +kind: 'ScalarField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +storageKey: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +storageKey?: ?string,
 |};
 
 export type ReaderFlightField = {|
   +kind: 'FlightField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +storageKey: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +storageKey?: ?string,
 |};
 
 export type ReaderDefer = {|

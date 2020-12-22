@@ -715,7 +715,7 @@ class RelayMockPayloadGenerator {
       );
     };
     data[applicationName] =
-      field.kind === 'LinkedField' && field.plural
+      field.kind === 'LinkedField' && field.plural === true
         ? generateMockList(
             Array.isArray(defaults) ? defaults : Array(1).fill(),
             generateDataForField,

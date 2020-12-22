@@ -296,7 +296,7 @@ class DataChecker {
           this._checkScalar(selection, dataID);
           break;
         case LINKED_FIELD:
-          if (selection.plural) {
+          if (selection.plural === true) {
             this._checkPluralLink(selection, dataID);
           } else {
             this._checkLink(selection, dataID);
@@ -304,7 +304,8 @@ class DataChecker {
           break;
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
-          if (conditionValue === selection.passingValue) {
+          const passingValue = selection.passingValue === true;
+          if (conditionValue === passingValue) {
             this._traverseSelections(selection.selections, dataID);
           }
           break;
@@ -357,7 +358,7 @@ class DataChecker {
             selections,
             this._variables,
           );
-          if (handleField.plural) {
+          if (handleField.plural === true) {
             this._checkPluralLink(handleField, dataID);
           } else {
             this._checkLink(handleField, dataID);

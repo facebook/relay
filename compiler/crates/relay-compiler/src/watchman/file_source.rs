@@ -234,7 +234,13 @@ impl<'config> FileSource<'config> {
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)
             })
-            .map_err(|_| "failed to deserialize")?;
+            .map_err(|err| {
+                let error_event = perf_logger.create_event("saved_state_loader_error");
+                error_event.string("error", format!("Failed to deserialize: {}", err));
+                perf_logger.complete_event(error_event);
+                perf_logger.flush();
+                "failed to deserialize"
+            })?;
         if compiler_state.saved_state_version != saved_state_version {
             return Err("Saved state version doesn't match.");
         }

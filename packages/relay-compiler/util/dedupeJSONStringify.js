@@ -71,10 +71,12 @@ function dedupeJSONStringify(jsonValue: mixed): string {
       return;
     }
     for (const k in value) {
-      if (value[k] === null || value[k] === false)
+      if (value[k] === null || value[k] === false) {
         // $FlowFixMe[cannot-write]
         Array.isArray(value) ? value.slice(k, 1) : delete value[k];
-      else if (typeof value[k] == 'object') removeNulls(value[k]);
+      } else if (typeof value[k] == 'object') {
+        removeNulls(value[k]);
+      }
     }
   }
 

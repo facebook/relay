@@ -131,8 +131,7 @@ test('extract recursive duplicates', () => {
     ],
     `(function(){
     var v0 = {
-      "name": "id",
-      "alias": null
+      "name": "id"
     },
     v1 = {
       "name": "id",

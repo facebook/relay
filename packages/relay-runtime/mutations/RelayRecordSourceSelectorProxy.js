@@ -76,7 +76,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   _getRootField(
     selector: SingularReaderSelector,
     fieldName: string,
-    plural: boolean,
+    plural?: boolean,
   ): ReaderLinkedField {
     const field = selector.node.selections.find(
       selection =>
@@ -94,13 +94,13 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
       'RelayRecordSourceSelectorProxy#getRootField(): Expected root field ' +
         '`%s` to be %s.',
       fieldName,
-      plural ? 'plural' : 'singular',
+      plural === true ? 'plural' : 'singular',
     );
     return field;
   }
 
   getRootField(fieldName: string): ?RecordProxy {
-    const field = this._getRootField(this._readSelector, fieldName, false);
+    const field = this._getRootField(this._readSelector, fieldName);
     const storageKey = getStorageKey(field, this._readSelector.variables);
     return this.getOperationRoot().getLinkedRecord(storageKey);
   }

@@ -23,6 +23,7 @@ function dedupeJSONStringify(jsonValue: mixed): string {
   const varDefs = [];
   collectMetadata(jsonValue);
   collectDuplicates(jsonValue);
+  removeNulls(jsonValue);
   const code = printJSCode(false, '', jsonValue);
   return varDefs.length === 0
     ? code
@@ -63,6 +64,18 @@ function dedupeJSONStringify(jsonValue: mixed): string {
     }
     metadataForVal.set(value, metadata);
     return hash;
+  }
+
+  function removeNulls(value) {
+    if (value == null || typeof value !== 'object') {
+      return;
+    }
+    for (const k in value) {
+      if (value[k] === null || value[k] === false)
+        // $FlowFixMe[cannot-write]
+        Array.isArray(value) ? value.slice(k, 1) : delete value[k];
+      else if (typeof value[k] == 'object') removeNulls(value[k]);
+    }
   }
 
   // Using top-down recursion, linearly scan the JSON tree to determine which

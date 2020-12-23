@@ -210,10 +210,6 @@ class RelayMockPayloadGenerator {
       {
         selections,
         typeName: operationType,
-        isAbstractType: false,
-        name: null,
-        alias: null,
-        args: null,
       },
       [], // path
       null, // prevData
@@ -282,7 +278,8 @@ class RelayMockPayloadGenerator {
         }
         case CONDITION:
           const conditionValue = this._getVariableValue(selection.condition);
-          if (conditionValue === selection.passingValue) {
+          const passingValue = selection.passingValue === true;
+          if (conditionValue === passingValue) {
             mockData = this._traverseSelections(
               selection.selections,
               typeName,
@@ -680,7 +677,7 @@ class RelayMockPayloadGenerator {
     // information came from mock resolver __typename value and it was
     // an intentional selection of the specific type
     const isAbstractType =
-      field.concreteType === null && typeName === typeFromSelection.type;
+      field.concreteType == null && typeName === typeFromSelection.type;
 
     const generateDataForField = possibleDefaultValue => {
       const fieldDefaultValue =
@@ -871,21 +868,14 @@ function getSelectionMetadataFromOperation(
     Object.keys(selectionTypeInfo).forEach(path => {
       const item = selectionTypeInfo[path];
       if (item != null && !Array.isArray(item) && typeof item === 'object') {
-        if (
-          typeof item.type === 'string' &&
-          typeof item.plural === 'boolean' &&
-          typeof item.nullable === 'boolean' &&
-          (item.enumValues === null || Array.isArray(item.enumValues))
-        ) {
-          selectionMetadata[path] = {
-            type: item.type,
-            plural: item.plural,
-            nullable: item.nullable,
-            enumValues: Array.isArray(item.enumValues)
-              ? item.enumValues.map(String)
-              : null,
-          };
-        }
+        selectionMetadata[path] = {
+          type: item.type,
+          plural: item.plural,
+          nullable: item.nullable,
+          enumValues: Array.isArray(item.enumValues)
+            ? item.enumValues.map(String)
+            : null,
+        };
       }
     });
     return selectionMetadata;

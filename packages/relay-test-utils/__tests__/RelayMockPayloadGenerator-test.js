@@ -402,7 +402,7 @@ test('check context in the mock resolver', () => {
   );
   expect(checkContext).toMatchInlineSnapshot(`
     Object {
-      "alias": null,
+      "alias": undefined,
       "args": Object {},
       "name": "profile_picture",
       "parentType": null,

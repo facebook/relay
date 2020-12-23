@@ -60,10 +60,10 @@ type ValueResolver = (
 type Traversable = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +typeName: ?string,
-  +isAbstractType: ?boolean,
-  +name: ?string,
-  +alias: ?string,
-  +args: ?{[string]: mixed, ...},
+  +isAbstractType?: ?boolean,
+  +name?: ?string,
+  +alias?: ?string,
+  +args?: ?{[string]: mixed, ...},
 |};
 type MockData = {[string]: mixed, ...};
 type MockResolverContext = {|
@@ -868,13 +868,18 @@ function getSelectionMetadataFromOperation(
     Object.keys(selectionTypeInfo).forEach(path => {
       const item = selectionTypeInfo[path];
       if (item != null && !Array.isArray(item) && typeof item === 'object') {
+        const type = typeof item.type === 'string' ? item.type : 'String';
+        const plural = typeof item.plural === 'boolean' ? item.plural : false;
+        const nullable =
+          typeof item.nullable === 'boolean' ? item.nullable : false;
+        const enumValues = Array.isArray(item.enumValues)
+          ? item.enumValues.map(String)
+          : null;
         selectionMetadata[path] = {
-          type: item.type,
-          plural: item.plural,
-          nullable: item.nullable,
-          enumValues: Array.isArray(item.enumValues)
-            ? item.enumValues.map(String)
-            : null,
+          type,
+          plural,
+          nullable,
+          enumValues,
         };
       }
     });

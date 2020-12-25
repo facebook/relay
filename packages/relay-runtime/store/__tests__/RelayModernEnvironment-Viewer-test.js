@@ -26,6 +26,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {graphql} = require('relay-runtime');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('Mutations on viewer', () => {
@@ -39,20 +40,22 @@ describe('Mutations on viewer', () => {
   let store;
 
   beforeEach(() => {
-    ({SetLocation: mutation} = generateAndCompile(`
-        mutation SetLocation($input: LocationInput!) {
-          setLocation(input: $input) {
-            viewer {
-              marketplace_settings {
-                location {
-                  latitude
-                  longitude
-                }
+    mutation = graphql`
+      mutation RelayModernEnvironmentViewerTest_SetLocationMutation(
+        $input: LocationInput!
+      ) {
+        setLocation(input: $input) {
+          viewer {
+            marketplace_settings {
+              location {
+                latitude
+                longitude
               }
             }
           }
         }
-      `));
+      }
+    `;
     variables = {
       input: {
         longitude: 30.0,

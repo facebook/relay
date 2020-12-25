@@ -28,19 +28,14 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-import type {HandlerProvider} from 'relay-runtime/handlers/RelayDefaultHandlerProvider';
 import type {Sink} from 'relay-runtime/network/RelayObservable';
-import type {MissingFieldHandler} from 'relay-runtime/store/RelayStoreTypes';
 import type {
   CacheConfig,
   ConcreteRequest,
   GraphQLSingularResponse,
   GraphQLTaggedNode,
   IEnvironment,
-  LogFunction,
   OperationDescriptor,
-  OperationLoader,
-  OperationTracker,
   RequestParameters,
   Variables,
   EnvironmentConfig,
@@ -480,6 +475,7 @@ function createMockEnvironment(
     mockDisposableMethod(environment, 'subscribe');
     mockDisposableMethod(environment, 'retain');
     mockObservableMethod(environment, 'execute');
+    mockObservableMethod(environment, 'executeWithSource');
     mockObservableMethod(environment, 'executeMutation');
 
     mockInstanceMethod(store, 'getSource');

@@ -14,7 +14,7 @@ fragment ScalarHandleField on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
@@ -22,7 +22,7 @@ fragment ScalarHandleField on User {
                     definition: WithLocation {
                         location: scalar-handle-field.graphql:39:43,
                         item: FieldID(
-                            456,
+                            466,
                         ),
                     },
                     arguments: [],

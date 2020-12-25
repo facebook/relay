@@ -1,0 +1,113 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    ... on FeedUnit {
+      actor {
+        ...ActorFragment
+      }
+    }
+  }
+}
+
+query ViewerQuery {
+  viewer {
+    actor {
+      ...ActorFragment
+    }
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ... on User {
+    birthdate {
+      day
+      month
+    }
+  }
+}
+
+query UnaliasedIDQuery {
+  viewer {
+    actor {
+      id
+    }
+  }
+}
+
+query AliasedIDQuery {
+  viewer {
+    actor {
+      _id: id
+    }
+  }
+}
+
+query ConditionalIDQuery($cond: Boolean!) {
+  viewer {
+    actor {
+      id @include(if: $cond)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query AliasedIDQuery {
+  viewer {
+    actor {
+      _id: id
+      id
+    }
+  }
+}
+
+query ConditionalIDQuery(
+  $cond: Boolean!
+) {
+  viewer {
+    actor {
+      id @include(if: $cond)
+      id
+    }
+  }
+}
+
+query NodeQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    ... on FeedUnit {
+      actor {
+        ...ActorFragment
+        id
+      }
+    }
+    id
+  }
+}
+
+query UnaliasedIDQuery {
+  viewer {
+    actor {
+      id
+    }
+  }
+}
+
+query ViewerQuery {
+  viewer {
+    actor {
+      ...ActorFragment
+      id
+    }
+  }
+}
+
+fragment ActorFragment on Actor {
+  name
+  ... on User {
+    birthdate {
+      day
+      month
+    }
+  }
+}

@@ -1,0 +1,101 @@
+==================================== INPUT ====================================
+query KeywordAsName {
+  search_results(query: "test")
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:56,
+    definitions: [
+        OperationDefinition {
+            location: keyword_as_name.graphql:0:55,
+            operation: Some(
+                (
+                    Token {
+                        span: 0:5,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 6:19,
+                    token: Token {
+                        span: 6:19,
+                        kind: Identifier,
+                    },
+                    value: "KeywordAsName",
+                },
+            ),
+            variable_definitions: None,
+            directives: [],
+            selections: List {
+                span: 20:55,
+                start: Token {
+                    span: 20:21,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 24:53,
+                        alias: None,
+                        name: Identifier {
+                            span: 24:38,
+                            token: Token {
+                                span: 24:38,
+                                kind: Identifier,
+                            },
+                            value: "search_results",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 38:53,
+                                start: Token {
+                                    span: 38:39,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 39:52,
+                                        name: Identifier {
+                                            span: 39:44,
+                                            token: Token {
+                                                span: 39:44,
+                                                kind: Identifier,
+                                            },
+                                            value: "query",
+                                        },
+                                        colon: Token {
+                                            span: 44:45,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            String(
+                                                StringNode {
+                                                    token: Token {
+                                                        span: 46:52,
+                                                        kind: StringLiteral,
+                                                    },
+                                                    value: "test",
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 52:53,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 54:55,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}

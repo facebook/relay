@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+subscription TestSubscriptionWithMultipleSelections(
+  $input: FeedbackLikeInput
+  $cond: Boolean!
+) {
+  feedbackLikeSubscribe(input: $input) @include(if: $cond) {
+    clientSubscriptionId
+  }
+}
+==================================== ERROR ====================================
+✖︎ The root of subscription 'TestSubscriptionWithMultipleSelections' must be a simple selection.
+
+  conditional-root.invalid.graphql:2:14
+    1 │ # expected-to-throw
+    2 │ subscription TestSubscriptionWithMultipleSelections(
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   $input: FeedbackLikeInput

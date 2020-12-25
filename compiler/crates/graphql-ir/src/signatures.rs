@@ -5,15 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build::{build_constant_value, build_type_annotation, ValidationLevel};
+use crate::build::{
+    build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
+};
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationError, ValidationMessage, ValidationResult};
+use crate::errors::ValidationMessage;
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use errors::{par_try_map, try2};
 use fnv::{FnvHashMap, FnvHashSet};
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type, TypeReference};
 
@@ -47,7 +48,7 @@ pub struct FragmentSignature {
 pub fn build_signatures(
     schema: &Schema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-) -> ValidationResult<FragmentSignatures> {
+) -> DiagnosticsResult<FragmentSignatures> {
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
         FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
@@ -61,10 +62,13 @@ pub fn build_signatures(
         if let Some(signature) = signature {
             let previous_signature = seen_signatures.get(&signature.name.item);
             if let Some(previous_signature) = previous_signature {
-                errors.push(ValidationError::new(
-                    ValidationMessage::DuplicateDefinition(signature.name.item),
-                    vec![signature.name.location, previous_signature.name.location],
-                ));
+                errors.push(
+                    Diagnostic::error(
+                        ValidationMessage::DuplicateDefinition(signature.name.item),
+                        previous_signature.name.location,
+                    )
+                    .annotate("also defined here", signature.name.location),
+                );
                 continue;
             }
             seen_signatures.insert(signature.name.item, signature);
@@ -80,24 +84,24 @@ pub fn build_signatures(
 fn build_fragment_signature(
     schema: &Schema,
     fragment: &graphql_syntax::FragmentDefinition,
-) -> ValidationResult<FragmentSignature> {
+) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
         Some(type_condition) => match type_condition {
             Type::Interface(..) | Type::Object(..) | Type::Union(..) => Ok(type_condition),
-            _ => Err(ValidationError::new(
+            _ => Err(Diagnostic::error(
                 ValidationMessage::ExpectedCompositeType(type_condition),
-                vec![fragment
+                fragment
                     .location
-                    .with_span(fragment.type_condition.type_.span)],
+                    .with_span(fragment.type_condition.type_.span),
             )
             .into()),
         },
-        None => Err(ValidationError::new(
+        None => Err(Diagnostic::error(
             ValidationMessage::UnknownType(type_name),
-            vec![fragment
+            fragment
                 .location
-                .with_span(fragment.type_condition.type_.span)],
+                .with_span(fragment.type_condition.type_.span),
         )
         .into()),
     };
@@ -106,18 +110,44 @@ fn build_fragment_signature(
         .iter()
         .filter(|x| x.name.value == *ARGUMENT_DEFINITION)
         .collect::<Vec<_>>();
-    if argument_definition_directives.len() > 1 {
-        return Err(ValidationError::new(
-            ValidationMessage::ExpectedOneArgumentDefinitionsDirective(),
-            vec![fragment
+    if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
+        return Err(Diagnostic::error(
+            ValidationMessage::VariableDefinitionsAndArgumentDirective(),
+            fragment
                 .location
-                .with_span(argument_definition_directives[1].span)],
+                .with_span(argument_definition_directives[0].span),
+        )
+        .annotate(
+            "variables are previously defined here",
+            fragment.location.with_span(
+                fragment
+                    .variable_definitions
+                    .as_ref()
+                    .map(|list| list.span)
+                    .unwrap(),
+            ),
+        )
+        .into());
+    } else if argument_definition_directives.len() > 1 {
+        return Err(Diagnostic::error(
+            ValidationMessage::ExpectedOneArgumentDefinitionsDirective(),
+            fragment
+                .location
+                .with_span(argument_definition_directives[1].span),
         )
         .into());
     }
-    let variable_definitions = argument_definition_directives
-        .get(0)
-        .map(|x| build_fragment_variable_definitions(schema, fragment, x))
+    let variable_definitions = fragment
+        .variable_definitions
+        .as_ref()
+        .map(|variable_definitions| {
+            build_variable_definitions(schema, &variable_definitions.items, fragment.location)
+        })
+        .or_else(|| {
+            argument_definition_directives
+                .get(0)
+                .map(|x| build_fragment_variable_definitions(schema, fragment, x))
+        })
         .unwrap_or_else(|| Ok(Default::default()));
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
@@ -134,7 +164,7 @@ fn build_fragment_variable_definitions(
     schema: &Schema,
     fragment: &graphql_syntax::FragmentDefinition,
     directive: &graphql_syntax::Directive,
-) -> ValidationResult<Vec<VariableDefinition>> {
+) -> DiagnosticsResult<Vec<VariableDefinition>> {
     if let Some(arguments) = &directive.arguments {
         Ok(arguments
             .items
@@ -156,9 +186,9 @@ fn build_fragment_variable_definitions(
                             .map(|x| x.lookup().to_owned())
                             .collect::<Vec<_>>();
                         keys.sort();
-                        return Err(ValidationError::new(
+                        return Err(Diagnostic::error(
                             ValidationMessage::InvalidArgumentsKeys(keys.join(", ")),
-                            vec![fragment.location.with_span(object.span)],
+                            fragment.location.with_span(object.span),
                         )
                         .into());
                     }
@@ -166,11 +196,11 @@ fn build_fragment_variable_definitions(
                     // Convert variable type, validate that it's an input type
                     let type_ = get_argument_type(schema, fragment.location, &object)?;
                     if !type_.inner().is_input_type() {
-                        return Err(ValidationError::new(
+                        return Err(Diagnostic::error(
                             ValidationMessage::ExpectedFragmentArgumentToHaveInputType(
                                 schema.get_type_name(type_.inner()),
                             ),
-                            vec![],
+                            fragment.location.with_span(variable_arg.value.span()),
                         )
                         .into());
                     }
@@ -186,14 +216,14 @@ fn build_fragment_variable_definitions(
                         default_value,
                     })
                 } else {
-                    Err(ValidationError::new(
+                    Err(Diagnostic::error(
                         ValidationMessage::ExpectedArgumentDefinitionToBeObject(),
-                        vec![fragment.location.with_span(variable_arg.value.span())],
+                        fragment.location.with_span(variable_arg.value.span()),
                     )
                     .into())
                 }
             })
-            .collect::<ValidationResult<Vec<VariableDefinition>>>()?)
+            .collect::<DiagnosticsResult<Vec<VariableDefinition>>>()?)
     } else {
         Ok(Default::default())
     }
@@ -203,39 +233,43 @@ fn get_argument_type(
     schema: &Schema,
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
-) -> ValidationResult<TypeReference> {
+) -> DiagnosticsResult<TypeReference> {
     let type_arg = object.items.named(*TYPE);
-    let type_name = match type_arg {
+    let type_name_and_span = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
+            span,
             ..
-        }) => Some(type_name_node.value.lookup()),
+        }) => Some((type_name_node.value, span)),
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::Enum(type_name_node),
+            span,
             ..
-        }) => Some(type_name_node.value.lookup()),
+        }) => Some((type_name_node.value, span)),
         _ => None,
     };
-    if let Some(type_name) = type_name {
-        let type_ast = graphql_syntax::parse_type(type_name, location.source_location()).map_err(
-            |errors| {
-                errors
-                    .into_iter()
-                    .map(|x| {
-                        ValidationError::new(
-                            ValidationMessage::SyntaxError(x),
-                            vec![/* TODO: preserve location of error */],
-                        )
-                    })
-                    .collect::<Vec<_>>()
-            },
-        )?;
+    if let Some((type_name, &span)) = type_name_and_span {
+        let type_ast = graphql_syntax::parse_type(type_name.lookup(), location.source_location())
+            .map_err(|diagnostics| {
+            diagnostics
+                .into_iter()
+                .map(|diagnostic| {
+                    let message = diagnostic.message().to_string();
+                    Diagnostic::error(
+                        message,
+                        // TODO: ideally, `parse_type()` would take in the offset
+                        // location and report the error at the right location.
+                        location.with_span(span),
+                    )
+                })
+                .collect::<Vec<_>>()
+        })?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {
-        Err(ValidationError::new(
+        Err(Diagnostic::error(
             ValidationMessage::ExpectedArgumentDefinitionLiteralType(),
-            vec![location.with_span(type_arg.map(|x| x.span).unwrap_or(object.span))],
+            location.with_span(type_arg.map_or(object.span, |x| x.span)),
         )
         .into())
     }
@@ -246,11 +280,11 @@ fn get_default_value(
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
-) -> ValidationResult<Option<ConstantValue>> {
+) -> DiagnosticsResult<Option<ConstantValue>> {
     Ok(object
         .items
         .named(*DEFAULT_VALUE)
-        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Loose))
+        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
         .transpose()?)
 }
 

@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment DuplicateArguments on User {
+  url(relative: true, relative: true)
+    @customDirective(level: 1, level: 2)
+}
+==================================== ERROR ====================================
+✖︎ Duplicate argument `relative`
+
+  duplicate_arguments.invalid.graphql:3:7
+    2 │ fragment DuplicateArguments on User {
+    3 │   url(relative: true, relative: true)
+      │       ^^^^^^^^^^^^^^
+    4 │     @customDirective(level: 1, level: 2)
+
+  ℹ︎ conflicts with
+
+  duplicate_arguments.invalid.graphql:3:23
+    2 │ fragment DuplicateArguments on User {
+    3 │   url(relative: true, relative: true)
+      │                       ^^^^^^^^^^^^^^
+    4 │     @customDirective(level: 1, level: 2)
+
+
+✖︎ Duplicate argument `level`
+
+  duplicate_arguments.invalid.graphql:4:22
+    3 │   url(relative: true, relative: true)
+    4 │     @customDirective(level: 1, level: 2)
+      │                      ^^^^^^^^
+    5 │ }
+
+  ℹ︎ conflicts with
+
+  duplicate_arguments.invalid.graphql:4:32
+    3 │   url(relative: true, relative: true)
+    4 │     @customDirective(level: 1, level: 2)
+      │                                ^^^^^^^^
+    5 │ }

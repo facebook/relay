@@ -9,9 +9,26 @@ use fnv::FnvHashMap;
 use interner::StringKey;
 use serde::Deserialize;
 
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "lowercase")]
+pub enum TypegenLanguage {
+    Flow,
+    TypeScript,
+}
+
+impl Default for TypegenLanguage {
+    fn default() -> Self {
+        Self::Flow
+    }
+}
+
 #[derive(Debug, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
+    /// The desired output language, "flow" or "typescript".
+    #[serde(default)]
+    pub language: TypegenLanguage,
+
     /// # For Flow type generation
     /// When set, enum values are imported from a module with this suffix.
     /// For example, an enum Foo and this property set to ".test" would be
@@ -26,8 +43,19 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub optional_input_fields: Vec<StringKey>,
 
+    /// # For Typescript type generation
+    /// Whether to use the `import type` syntax introduced in Typescript
+    /// version 3.8. This will prevent warnings from `importsNotUsedAsValues`.
+    #[serde(default)]
+    pub use_import_type_syntax: bool,
+
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]
     pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
+
+    /// Use haste style (global name) imports instead of common-js path based
+    /// style.
+    #[serde(default)]
+    pub haste: bool,
 }

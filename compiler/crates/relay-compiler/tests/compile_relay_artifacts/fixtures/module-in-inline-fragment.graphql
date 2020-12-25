@@ -1,10 +1,10 @@
-query MultipleNameRendererQuery($id: ID!) {
+query moduleInInlineFragment_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...FooNameRendererFragment
+    ...moduleInInlineFragment_FooNameRendererFragment
   }
 }
 
-fragment FooNameRendererFragment on User {
+fragment moduleInInlineFragment_FooNameRendererFragment on User {
   id
   nameRenderer {
     ... on MarkdownUserNameRenderer {
@@ -13,13 +13,13 @@ fragment FooNameRendererFragment on User {
         username
         lastName
       }
-      ...MarkdownUserNameRenderer_name
+      ...moduleInInlineFragment_MarkdownUserNameRenderer_name
         @module(name: "FooMarkdownUserNameRenderer.react")
     }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup

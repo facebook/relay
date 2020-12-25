@@ -1,4 +1,4 @@
-query Test($id: ID = null) {
+query explicitNullDefaultValue_TestQuery($id: ID = null) {
   node(id: $id) {
     __typename
   }

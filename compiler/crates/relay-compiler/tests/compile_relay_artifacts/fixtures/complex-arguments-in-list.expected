@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query CheckinSearchQuery(
+query complexArgumentsInList_CheckinSearchQuery(
   $queryText: String!
   $searchInputText: String
   $searchInput: CheckinSearchInput
@@ -41,7 +41,7 @@ query CheckinSearchQuery(
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "CheckinSearchQuery",
+    "name": "complexArgumentsInList_CheckinSearchQuery",
     "selections": [
       {
         "alias": null,
@@ -130,7 +130,7 @@ query CheckinSearchQuery(
       }
     ],
     "kind": "Operation",
-    "name": "CheckinSearchQuery",
+    "name": "complexArgumentsInList_CheckinSearchQuery",
     "selections": [
       {
         "alias": null,
@@ -195,7 +195,7 @@ query CheckinSearchQuery(
   "params": {
     "id": null,
     "metadata": {},
-    "name": "CheckinSearchQuery",
+    "name": "complexArgumentsInList_CheckinSearchQuery",
     "operationKind": "query",
     "text": null
   }
@@ -203,7 +203,7 @@ query CheckinSearchQuery(
 
 QUERY:
 
-query CheckinSearchQuery(
+query complexArgumentsInList_CheckinSearchQuery(
   $queryText: String!
   $searchInputText: String
   $searchInput: CheckinSearchInput

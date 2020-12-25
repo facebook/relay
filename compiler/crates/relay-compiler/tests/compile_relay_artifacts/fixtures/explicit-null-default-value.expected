@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query Test($id: ID = null) {
+query explicitNullDefaultValue_TestQuery($id: ID = null) {
   node(id: $id) {
     __typename
   }
@@ -16,7 +16,7 @@ query Test($id: ID = null) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "Test",
+    "name": "explicitNullDefaultValue_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -56,7 +56,7 @@ query Test($id: ID = null) {
       }
     ],
     "kind": "Operation",
-    "name": "Test",
+    "name": "explicitNullDefaultValue_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -94,7 +94,7 @@ query Test($id: ID = null) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "Test",
+    "name": "explicitNullDefaultValue_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -102,7 +102,7 @@ query Test($id: ID = null) {
 
 QUERY:
 
-query Test(
+query explicitNullDefaultValue_TestQuery(
   $id: ID
 ) {
   node(id: $id) {

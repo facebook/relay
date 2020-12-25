@@ -5,20 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{PerfLogEvent, PerfLogger};
+use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
-use graphql_ir::{Program, ValidationResult};
-use graphql_transforms::{
-    apply_fragment_arguments, client_extensions, flatten, generate_data_driven_dependency_metadata,
-    generate_id_field, generate_live_query_metadata, generate_preloadable_metadata,
-    generate_subscription_name_metadata, generate_test_operation_metadata, generate_typename,
-    handle_field_transform, inline_data_fragment, inline_fragments, mask, relay_early_flush,
-    remove_base_fragments, skip_client_directives, skip_client_extensions, skip_redundant_nodes,
-    skip_split_operation, skip_unreachable_node, skip_unused_variables, split_module_import,
-    transform_connections, transform_defer_stream, transform_match, transform_refetchable_fragment,
-    unwrap_custom_directive_selection, ConnectionInterface,
-};
+use graphql_ir::Program;
 use interner::StringKey;
+use relay_transforms::*;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -34,9 +25,10 @@ pub fn apply_transforms<TPerfLogger>(
     project_name: StringKey,
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
-    connection_interface: Arc<ConnectionInterface>,
+    connection_interface: &ConnectionInterface,
+    feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<TPerfLogger>,
-) -> ValidationResult<Programs>
+) -> DiagnosticsResult<Programs>
 where
     TPerfLogger: PerfLogger + 'static,
 {
@@ -57,7 +49,8 @@ where
             let common_program = apply_common_transforms(
                 project_name,
                 Arc::clone(&program),
-                Arc::clone(&connection_interface),
+                connection_interface,
+                Arc::clone(&feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )?;
@@ -67,6 +60,7 @@ where
                     let operation_program = apply_operation_transforms(
                         project_name,
                         Arc::clone(&common_program),
+                        connection_interface,
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )?;
@@ -92,6 +86,7 @@ where
                     apply_reader_transforms(
                         project_name,
                         Arc::clone(&common_program),
+                        Arc::clone(&feature_flags),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
                     )
@@ -102,6 +97,7 @@ where
             apply_typegen_transforms(
                 project_name,
                 Arc::clone(&program),
+                Arc::clone(&feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
             )
@@ -121,10 +117,11 @@ where
 fn apply_common_transforms(
     project_name: StringKey,
     program: Arc<Program>,
-    connection_interface: Arc<ConnectionInterface>,
+    connection_interface: &ConnectionInterface,
+    feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // * DisallowIdAsAlias (in validate)
     // + ConnectionTransform
@@ -139,13 +136,18 @@ fn apply_common_transforms(
         transform_connections(&program, connection_interface)
     });
     let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
+    let program = log_event.time("transform_match", || transform_match(&program))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
+    let program = if feature_flags.enable_flight_transform {
+        log_event.time("react_flight", || react_flight(&program))?
+    } else {
+        program
+    };
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))
@@ -156,9 +158,10 @@ fn apply_common_transforms(
 fn apply_reader_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + ClientExtensionsTransform
     // + FieldHandleTransform
@@ -167,6 +170,9 @@ fn apply_reader_transforms(
     // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
+    let program = log_event.time("required_directive", || {
+        required_directive(&program, &feature_flags)
+    })?;
 
     let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("handle_field_transform", || {
@@ -192,14 +198,15 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    connection_interface: &ConnectionInterface,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SplitModuleImportTransform
     // * ValidateUnusedVariablesTransform (Moved to common_transforms)
     // + ApplyFragmentArgumentTransform
-    // - ValidateGlobalVariablesTransform
+    // + ValidateGlobalVariablesTransform
     // + GenerateIDFieldTransform
     // * TestOperationTransform - part of relay_codegen
     let log_event = perf_logger.create_event("apply_operation_transforms");
@@ -211,12 +218,15 @@ fn apply_operation_transforms(
     let program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(&program)
     })?;
+    log_event.time("validate_global_variables", || {
+        validate_global_variables(&program)
+    })?;
     let program = log_event.time("generate_id_field", || generate_id_field(&program));
+    let program = log_event.time("declarative_connection", || {
+        transform_declarative_connection(&program, connection_interface)
+    })?;
 
     // TODO(T67052528): execute FB-specific transforms only if config options is provided
-    let program = log_event.time("generate_preloadable_metadata", || {
-        generate_preloadable_metadata(&program)
-    })?;
     let program = log_event.time("generate_subscription_name_metadata", || {
         generate_subscription_name_metadata(&program)
     })?;
@@ -237,7 +247,7 @@ fn apply_normalization_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
     // + InlineFragmentsTransform
@@ -272,18 +282,18 @@ fn apply_operation_text_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
-    // - ClientExtensionsTransform
+    // * ClientExtensionsTransform (not necessary in rust)
     // + SkipClientExtensionsTransform
     // + SkipUnreachableNodeTransform
     // + GenerateTypeNameTransform
     // + FlattenTransform, flattenAbstractTypes: false
-    // - SkipHandleFieldTransform
+    // * SkipHandleFieldTransform (not necessary in rust)
     // + FilterDirectivesTransform
     // + SkipUnusedVariablesTransform
-    // - ValidateRequiredArgumentsTransform
+    // + ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -299,7 +309,9 @@ fn apply_operation_text_transforms(
     let program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
     });
-
+    log_event.time("validate_required_arguments", || {
+        validate_required_arguments(&program)
+    })?;
     let program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });
@@ -311,9 +323,10 @@ fn apply_operation_text_transforms(
 fn apply_typegen_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
-) -> ValidationResult<Arc<Program>> {
+) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // * RelayDirectiveTransform
     // + MaskTransform
@@ -325,6 +338,9 @@ fn apply_typegen_transforms(
 
     let program = log_event.time("mask", || mask(&program));
     let program = log_event.time("transform_match", || transform_match(&program))?;
+    let program = log_event.time("required_directive", || {
+        required_directive(&program, &feature_flags)
+    })?;
     let program = log_event.time("flatten", || flatten(&program, false))?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)

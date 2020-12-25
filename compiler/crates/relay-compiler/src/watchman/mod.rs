@@ -5,10 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![deny(warnings)]
-#![deny(rust_2018_idioms)]
-#![deny(clippy::all)]
-
 mod extract_graphql;
 mod file_categorizer;
 mod file_group;
@@ -16,8 +12,10 @@ mod file_source;
 mod query_builder;
 mod watchman_file;
 
-pub use self::extract_graphql::{extract_graphql_strings_from_file, source_for_location};
-pub use file_categorizer::categorize_files;
+pub use self::extract_graphql::{
+    extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
+};
+pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
 pub use file_source::{FileSource, FileSourceResult, FileSourceSubscription};
 pub use watchman_client::prelude::Clock;

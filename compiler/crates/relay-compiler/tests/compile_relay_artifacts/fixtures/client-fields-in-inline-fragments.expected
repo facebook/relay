@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientFieldsInInlineFragments_Foo_user on User {
   id
 
   ... on Actor {
@@ -38,7 +38,7 @@ extend type Page {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientFieldsInInlineFragments_Foo_user",
   "selections": [
     {
       "alias": null,

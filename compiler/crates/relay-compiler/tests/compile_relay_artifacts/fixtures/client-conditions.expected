@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientConditions_Foo_user on User {
   id
   name @include(if: $shouldInclude)
 
@@ -59,7 +59,7 @@ interface ClientNamed {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientConditions_Foo_user",
   "selections": [
     {
       "alias": null,

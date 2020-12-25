@@ -1,28 +1,28 @@
 ==================================== INPUT ====================================
-query TestQuery(
+query unmaskedFragmentSpreadsRecursive_TestQuery(
   $ProfilePicture_SIZE: [Int]
   $isRelative: Boolean
   $showFirstName: Boolean
 ) {
   me {
-    ...UserProfile_user
+    ...unmaskedFragmentSpreadsRecursive_UserProfile_user
   }
 }
 
-fragment UserProfile_user on User {
+fragment unmaskedFragmentSpreadsRecursive_UserProfile_user on User {
   firstName(if: $showFirstName)
-  ...UserUtil_user @relay(mask: false)
+  ...unmaskedFragmentSpreadsRecursive_UserUtil_user @relay(mask: false)
 }
 
-fragment UserUtil_user on User {
+fragment unmaskedFragmentSpreadsRecursive_UserUtil_user on User {
   profilePicture(size: $ProfilePicture_SIZE) {
     width
     height
   }
-  ...UserUtil2_user @relay(mask: false)
+  ...unmaskedFragmentSpreadsRecursive_UserUtil2_user @relay(mask: false)
 }
 
-fragment UserUtil2_user on User {
+fragment unmaskedFragmentSpreadsRecursive_UserUtil2_user on User {
   url(relative: $isRelative)
 }
 ==================================== OUTPUT ===================================
@@ -47,7 +47,7 @@ fragment UserUtil2_user on User {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsRecursive_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -60,7 +60,7 @@ fragment UserUtil2_user on User {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "UserProfile_user"
+            "name": "unmaskedFragmentSpreadsRecursive_UserProfile_user"
           }
         ],
         "storageKey": null
@@ -89,7 +89,7 @@ fragment UserUtil2_user on User {
       }
     ],
     "kind": "Operation",
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsRecursive_TestQuery",
     "selections": [
       {
         "alias": null,
@@ -171,7 +171,7 @@ fragment UserUtil2_user on User {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "TestQuery",
+    "name": "unmaskedFragmentSpreadsRecursive_TestQuery",
     "operationKind": "query",
     "text": null
   }
@@ -179,18 +179,18 @@ fragment UserUtil2_user on User {
 
 QUERY:
 
-query TestQuery(
+query unmaskedFragmentSpreadsRecursive_TestQuery(
   $ProfilePicture_SIZE: [Int]
   $isRelative: Boolean
   $showFirstName: Boolean
 ) {
   me {
-    ...UserProfile_user
+    ...unmaskedFragmentSpreadsRecursive_UserProfile_user
     id
   }
 }
 
-fragment UserProfile_user on User {
+fragment unmaskedFragmentSpreadsRecursive_UserProfile_user on User {
   firstName(if: $showFirstName)
   profilePicture(size: $ProfilePicture_SIZE) {
     width
@@ -217,7 +217,7 @@ fragment UserProfile_user on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserProfile_user",
+  "name": "unmaskedFragmentSpreadsRecursive_UserProfile_user",
   "selections": [
     {
       "alias": null,
@@ -290,7 +290,7 @@ fragment UserProfile_user on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserUtil2_user",
+  "name": "unmaskedFragmentSpreadsRecursive_UserUtil2_user",
   "selections": [
     {
       "alias": null,
@@ -323,7 +323,7 @@ fragment UserProfile_user on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "UserUtil_user",
+  "name": "unmaskedFragmentSpreadsRecursive_UserUtil_user",
   "selections": [
     {
       "alias": null,

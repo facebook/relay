@@ -11,6 +11,6 @@ include = ["src/**/*.rs"]
 hyper = "0.13"
 hyper-tls = "0.4"
 serde = { version = "1.0", features = ["derive", "rc"] }
-serde_json = "1.0"
+serde_json = { version = "1.0", features = ["float_roundtrip"] }
 thiserror = "1.0"
 url = "2.1.0"

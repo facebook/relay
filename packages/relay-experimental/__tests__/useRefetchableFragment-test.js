@@ -43,6 +43,7 @@ describe('useRefetchableFragment', () => {
   function useRefetchableFragment(fragmentNode, fragmentRef) {
     const [data, refetch] = useRefetchableFragmentOriginal(
       fragmentNode,
+      // $FlowFixMe[prop-missing]
       fragmentRef,
     );
     renderSpy(data, refetch);

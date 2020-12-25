@@ -34,7 +34,7 @@ query Test {
                             definition: WithLocation {
                                 location: fixme_fat_interface_on_union.graphql:51:53,
                                 item: FieldID(
-                                    370,
+                                    380,
                                 ),
                             },
                             arguments: [],

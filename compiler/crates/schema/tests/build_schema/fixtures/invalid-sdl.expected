@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+directive @source(name: String!) on OBJECT
+
+type User {
+  id: ID
+}
+
+type Page implements User @source("") {
+  id: ID
+}
+==================================== ERROR ====================================
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  <generated>:9:35
+    8 │ 
+    9 │ type Page implements User @source("") {
+      │                                   ^^
+   10 │   id: ID

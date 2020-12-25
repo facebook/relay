@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+query argumentOnFieldTestQuery {
+  node {
+    hometown {
+      nameWithArgs(capitalize: true)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

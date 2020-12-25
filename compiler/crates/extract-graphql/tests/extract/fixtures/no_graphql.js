@@ -16,4 +16,6 @@ const oops = [
     ' \' graphql`in string` ',
     // graphql`in comment`
     /* graphql`in comment` */
+    const graphURI = `${url}/intern/api/graphql`;
+    const graphBatchURI = `${url}/intern/api/graphqlbatch`;
 ];

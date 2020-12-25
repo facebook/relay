@@ -46,7 +46,6 @@ import type {
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
   NormalizationOperation,
-  NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
@@ -290,7 +289,6 @@ function generateLinkedField(
           kind: 'LinkedHandle',
           name: node.name,
         };
-        // T45504512: new connection model
         // NOTE: this intentionally adds a dynamic key in order to avoid
         // triggering updates to existing queries that do not use dynamic
         // keys.
@@ -392,7 +390,7 @@ function generateScalarField(node): Array<NormalizationSelection> {
             [handle.dynamicKey.loc],
           );
         }
-        return {
+        const nodeHandle = {
           alias: node.alias === node.name ? null : node.alias,
           args: generateArgs(node.args),
           filters: handle.filters,
@@ -401,9 +399,16 @@ function generateScalarField(node): Array<NormalizationSelection> {
           kind: 'ScalarHandle',
           name: node.name,
         };
+
+        if (handle.handleArgs != null) {
+          // $FlowFixMe handleArgs exists in Handle
+          nodeHandle.handleArgs = generateArgs(handle.handleArgs);
+        }
+
+        return nodeHandle;
       })) ||
     [];
-  let field: NormalizationScalarField = {
+  let field = {
     alias: node.alias === node.name ? null : node.alias,
     args: generateArgs(node.args),
     kind: 'ScalarField',
@@ -414,6 +419,9 @@ function generateScalarField(node): Array<NormalizationSelection> {
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey != null) {
     field = {...field, storageKey};
+  }
+  if (node.metadata?.flight === true) {
+    field = {...field, kind: 'FlightField'};
   }
   return [field].concat(handles);
 }

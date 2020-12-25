@@ -1,18 +1,18 @@
-query QueryWithFragmentWithDefer {
+query fragmentWithDeferArgumentsWithoutLabel_QueryWithFragmentWithDeferQuery {
   me {
     id
-    ...UserFragment
+    ...fragmentWithDeferArgumentsWithoutLabel_UserFragment
   }
 }
 
-fragment UserFragment on User {
+fragment fragmentWithDeferArgumentsWithoutLabel_UserFragment on User {
   id
   emailAddresses
-  ...DeferredFragment @defer @arguments(scale: 1.5)
-  ...DeferredFragment @defer @arguments(scale: 2)
+  ...fragmentWithDeferArgumentsWithoutLabel_DeferredFragment @defer @arguments(scale: 1.5)
+  ...fragmentWithDeferArgumentsWithoutLabel_DeferredFragment @defer @arguments(scale: 2)
 }
 
-fragment DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
+fragment fragmentWithDeferArgumentsWithoutLabel_DeferredFragment on User @argumentDefinitions(scale: {type: "Float"}) {
   id
   name
   profile_picture(scale: $scale) {

@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-extern crate console_error_panic_hook;
 use common::SourceLocationKey;
-use graphql_syntax::{parse, ExecutableDefinition};
+use graphql_syntax::{parse_executable, ExecutableDefinition};
 use schema::build_schema;
 use std::panic;
 use wasm_bindgen::prelude::*;
@@ -19,7 +18,7 @@ pub fn compile(raw_schema: &str, documents: Box<[JsValue]>) -> Result<JsValue, J
     let mut definitions: Vec<ExecutableDefinition> = vec![];
     for document in documents.into_iter() {
         if let Some(document) = document.as_string() {
-            let doc = parse(&document, SourceLocationKey::Generated).unwrap();
+            let doc = parse_executable(&document, SourceLocationKey::Generated).unwrap();
             for definition in doc.definitions {
                 definitions.push(definition);
             }
@@ -29,7 +28,10 @@ pub fn compile(raw_schema: &str, documents: Box<[JsValue]>) -> Result<JsValue, J
     match build_schema(raw_schema) {
         Err(_) => Err(JsValue::from("Unable to parse schema")),
         Ok(schema) => {
-            log(&format!("schema {:?}", schema));
+            #[allow(unused_unsafe)]
+            unsafe {
+                log(&format!("schema {:?}", schema));
+            }
             // TODO: Figure out how to make it work with `rayon`.
             // let ir = build(&schema, &definitions);
             Ok(JsValue::from(

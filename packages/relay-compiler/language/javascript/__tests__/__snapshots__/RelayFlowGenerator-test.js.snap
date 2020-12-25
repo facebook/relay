@@ -2204,6 +2204,588 @@ export type RelayClientIDFieldQuery = {|
 |};
 `;
 
+exports[`Snapshot tests for useHaste matches expected output: required.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery {
+  me {
+    firstName
+    lastName @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// FooQuery.graphql
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName: string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-through-inline-fragments-to-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment Foo on Node {
+  __typename
+  ... on User {
+    ... on User {
+      name @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// Foo.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type Foo$ref: FragmentReference;
+declare export opaque type Foo$fragmentType: Foo$ref;
+export type Foo = ?({|
+  +__typename: "User",
+  +name: string,
+  +$refType: Foo$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: Foo$ref,
+|});
+export type Foo$data = Foo;
+export type Foo$key = {
+  +$data?: Foo$data,
+  +$fragmentRefs: Foo$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NonNullFragment on User {
+  firstName
+  lastName @required(action: NONE)
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// NonNullFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type NonNullFragment$ref: FragmentReference;
+declare export opaque type NonNullFragment$fragmentType: NonNullFragment$ref;
+export type NonNullFragment = ?{|
+  +firstName: ?string,
+  +lastName: string,
+  +$refType: NonNullFragment$ref,
+|};
+export type NonNullFragment$data = NonNullFragment;
+export type NonNullFragment$key = {
+  +$data?: NonNullFragment$data,
+  +$fragmentRefs: NonNullFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-item-in-plural-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment NonNullFragment on User {
+  firstName
+  screennames {
+    name
+    service @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// NonNullFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type NonNullFragment$ref: FragmentReference;
+declare export opaque type NonNullFragment$fragmentType: NonNullFragment$ref;
+export type NonNullFragment = {|
+  +firstName: ?string,
+  +screennames: ?$ReadOnlyArray<?{|
+    +name: ?string,
+    +service: string,
+  |}>,
+  +$refType: NonNullFragment$ref,
+|};
+export type NonNullFragment$data = NonNullFragment;
+export type NonNullFragment$key = {
+  +$data?: NonNullFragment$data,
+  +$fragmentRefs: NonNullFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-item-in-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  parents {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +parents: $ReadOnlyArray<?{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-linked-field-through-inline-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    ... on User {
+      name @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  neighbors {
+    name @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +neighbors: ?$ReadOnlyArray<?{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-to-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery {
+  me @required(action: LOG) {
+    firstName
+    lastName @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// FooQuery.graphql
+export type FooQueryVariables = {||};
+export type FooQueryResponse = ?{|
+  +me: {|
+    +firstName: ?string,
+    +lastName: string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-bubbles-up-to-mutation-response.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+mutation CommentCreateMutation($input: CommentCreateInput!) {
+  commentCreate(input: $input) @required(action: LOG) {
+    comment @required(action: LOG) {
+      id @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// CommentCreateMutation.graphql
+export type CommentCreateInput = {|
+  clientMutationId?: ?string,
+  feedbackId?: ?string,
+  feedback?: ?CommentfeedbackFeedback,
+|};
+export type CommentfeedbackFeedback = {|
+  comment?: ?FeedbackcommentComment
+|};
+export type FeedbackcommentComment = {|
+  feedback?: ?CommentfeedbackFeedback
+|};
+export type CommentCreateMutationVariables = {|
+  input: CommentCreateInput
+|};
+export type CommentCreateMutationResponse = ?{|
+  +commentCreate: {|
+    +comment: {|
+      +id: string
+    |}
+  |}
+|};
+export type CommentCreateMutation = {|
+  variables: CommentCreateMutationVariables,
+  response: CommentCreateMutationResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-chain-bubbles-to-non-null-linked-field-through-inline-fragment.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    profile_picture @required(action: LOG) {
+      uri @required(action: LOG)
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: ?{|
+    +profile_picture: {|
+      +uri: string
+    |}
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-does-not-bubble-across-roots.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query QueryA {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+  }
+}
+
+fragment FragmentA on User {
+  id @required(action: LOG)
+}
+
+fragment FragmentB on Node {
+  id
+}
+
+query QueryB {
+  me {
+    id
+  }
+}
+
+fragment FragmentC on User {
+  id @required(action: LOG)
+}
+
+fragment FragmentD on Node {
+  id
+}
+
+query QueryC {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// QueryA.graphql
+export type QueryAVariables = {||};
+export type QueryAResponse = ?{|
+  +me: {|
+    +id: string
+  |}
+|};
+export type QueryA = {|
+  variables: QueryAVariables,
+  response: QueryAResponse,
+|};
+
+// FragmentA.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FragmentA$ref: FragmentReference;
+declare export opaque type FragmentA$fragmentType: FragmentA$ref;
+export type FragmentA = ?{|
+  +id: string,
+  +$refType: FragmentA$ref,
+|};
+export type FragmentA$data = FragmentA;
+export type FragmentA$key = {
+  +$data?: FragmentA$data,
+  +$fragmentRefs: FragmentA$ref,
+  ...
+};
+
+// FragmentB.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FragmentB$ref: FragmentReference;
+declare export opaque type FragmentB$fragmentType: FragmentB$ref;
+export type FragmentB = {|
+  +id: string,
+  +$refType: FragmentB$ref,
+|};
+export type FragmentB$data = FragmentB;
+export type FragmentB$key = {
+  +$data?: FragmentB$data,
+  +$fragmentRefs: FragmentB$ref,
+  ...
+};
+
+// QueryB.graphql
+export type QueryBVariables = {||};
+export type QueryBResponse = {|
+  +me: ?{|
+    +id: string
+  |}
+|};
+export type QueryB = {|
+  variables: QueryBVariables,
+  response: QueryBResponse,
+|};
+
+// FragmentC.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FragmentC$ref: FragmentReference;
+declare export opaque type FragmentC$fragmentType: FragmentC$ref;
+export type FragmentC = ?{|
+  +id: string,
+  +$refType: FragmentC$ref,
+|};
+export type FragmentC$data = FragmentC;
+export type FragmentC$key = {
+  +$data?: FragmentC$data,
+  +$fragmentRefs: FragmentC$ref,
+  ...
+};
+
+// FragmentD.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FragmentD$ref: FragmentReference;
+declare export opaque type FragmentD$fragmentType: FragmentD$ref;
+export type FragmentD = {|
+  +id: string,
+  +$refType: FragmentD$ref,
+|};
+export type FragmentD$data = FragmentD;
+export type FragmentD$key = {
+  +$data?: FragmentD$data,
+  +$fragmentRefs: FragmentD$ref,
+  ...
+};
+
+// QueryC.graphql
+export type QueryCVariables = {||};
+export type QueryCResponse = ?{|
+  +me: {|
+    +id: string
+  |}
+|};
+export type QueryC = {|
+  variables: QueryCVariables,
+  response: QueryCResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-raw-response-type.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query MyQuery @raw_response_type {
+  me @required(action: LOG) {
+    id @required(action: LOG)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// MyQuery.graphql
+export type MyQueryVariables = {||};
+export type MyQueryResponse = ?{|
+  +me: {|
+    +id: string
+  |}
+|};
+export type MyQueryRawResponse = {|
+  +me: ?{|
+    +id: string
+  |}
+|};
+export type MyQuery = {|
+  variables: MyQueryVariables,
+  response: MyQueryResponse,
+  rawResponse: MyQueryRawResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-throw-doesnt-bubbles-to-query.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery {
+  me @required(action: THROW) {
+    firstName
+    lastName
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// FooQuery.graphql
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: {|
+    +firstName: ?string,
+    +lastName: ?string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-throws-nested.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query FooQuery {
+  me {
+    firstName
+    lastName @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// FooQuery.graphql
+export type FooQueryVariables = {||};
+export type FooQueryResponse = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName: string,
+  |}
+|};
+export type FooQuery = {|
+  variables: FooQueryVariables,
+  response: FooQueryResponse,
+|};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-throws-within-non-null-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  nearest_neighbor {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +nearest_neighbor: {|
+    +name: string
+  |},
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
+exports[`Snapshot tests for useHaste matches expected output: required-throws-within-non-null-plural-linked-field.graphql 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+fragment SomeFragment on User {
+  neighbors {
+    name @required(action: THROW)
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+// SomeFragment.graphql
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +neighbors: ?$ReadOnlyArray<{|
+    +name: string
+  |}>,
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};
+`;
+
 exports[`Snapshot tests for useHaste matches expected output: roots.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query ExampleQuery($id: ID!) {

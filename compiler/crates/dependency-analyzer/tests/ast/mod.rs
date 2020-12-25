@@ -10,20 +10,20 @@ use dependency_analyzer::{get_reachable_ast, ReachableAst};
 use fixture_tests::Fixture;
 use graphql_syntax::*;
 
-pub fn transform_fixture(fixture: &Fixture) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<&str> = fixture.content.split("%definitions%").collect();
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let definitions = parse(parts[0], source_location).unwrap();
+    let definitions = parse_executable(parts[0], source_location).unwrap();
     let base_definitions = parts
         .iter()
         .skip(1)
-        .flat_map(|part| parse(part, source_location).unwrap().definitions)
+        .flat_map(|part| parse_executable(part, source_location).unwrap().definitions)
         .collect();
     let ReachableAst {
         definitions: result,
         base_fragment_names,
-    } = get_reachable_ast(definitions.definitions, base_definitions)?;
+    } = get_reachable_ast(definitions.definitions, base_definitions);
 
     let mut texts = result
         .into_iter()

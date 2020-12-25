@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment Foo on EnabledUserNameRenderer {
+  ... on UserNameRenderer {
+    __typename @required(action: LOG)
+  }
+}

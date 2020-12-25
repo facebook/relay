@@ -1,0 +1,5 @@
+# expected-to-throw
+fragment DuplicateArguments on User {
+  url(relative: true, relative: true)
+    @customDirective(level: 1, level: 2)
+}

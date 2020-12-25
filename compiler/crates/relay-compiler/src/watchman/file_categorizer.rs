@@ -181,8 +181,7 @@ impl FileCategorizer {
                     panic!(
                         "Overlapping input sources are incompatible with relative generated \
                         directories. Got `{:?}` in a relative generated directory with source set {:?}",
-                        path,
-                        source_set
+                        path, source_set
                     );
                 }
             } else {
@@ -232,7 +231,11 @@ impl<T: Clone> PathMapping<T> {
 
     fn get(&self, path: &PathBuf) -> T {
         self.find(path).unwrap_or_else(|| {
-            panic!("Path `{:?}` not in of the the expected directories.", path);
+            panic!(
+                "Path '{:?}' not in any of the expected directories. Available directories: {:?}",
+                path,
+                self.0.iter().map(|(prefix, _)| prefix).collect::<Vec<_>>()
+            );
         })
     }
     fn find(&self, path: &PathBuf) -> Option<T> {

@@ -1,4 +1,4 @@
-query ViewerQuery {
+query viewerQueryQuery {
   viewer {
     actor {
       id

@@ -8,6 +8,10 @@ query Test {
   }
 }
 ==================================== ERROR ====================================
-Unknown field 'MaybeNode.doesNotExist':
-fixme_fat_interface_on_union.invalid.graphql:5:5:
-    doesNotExist @fixme_fat_interface
+✖︎ The type `MaybeNode` has no field `doesNotExist`
+
+  fixme_fat_interface_on_union.invalid.graphql:6:5
+    5 │   maybeNode {
+    6 │     doesNotExist @fixme_fat_interface
+      │     ^^^^^^^^^^^^
+    7 │   }

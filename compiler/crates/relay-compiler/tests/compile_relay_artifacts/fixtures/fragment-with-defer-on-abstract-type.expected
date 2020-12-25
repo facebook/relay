@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-query QueryWithFragmentWithDefer {
+query fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery {
   node(id: "my-id") {
-    ...NodeFragment @defer(label: "node")
+    ...fragmentWithDeferOnAbstractType_NodeFragment @defer(label: "node")
   }
 }
 
-fragment NodeFragment on Node {
+fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
   id
   ... on User {
     name
@@ -20,7 +20,7 @@ fragment NodeFragment on Node {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "QueryWithFragmentWithDefer",
+    "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",
     "selections": [
       {
         "alias": null,
@@ -42,7 +42,7 @@ fragment NodeFragment on Node {
               {
                 "args": null,
                 "kind": "FragmentSpread",
-                "name": "NodeFragment"
+                "name": "fragmentWithDeferOnAbstractType_NodeFragment"
               }
             ]
           }
@@ -57,7 +57,7 @@ fragment NodeFragment on Node {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "QueryWithFragmentWithDefer",
+    "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",
     "selections": [
       {
         "alias": null,
@@ -90,7 +90,7 @@ fragment NodeFragment on Node {
           {
             "if": null,
             "kind": "Defer",
-            "label": "QueryWithFragmentWithDefer$defer$node",
+            "label": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery$defer$node",
             "selections": [
               {
                 "kind": "TypeDiscriminator",
@@ -141,7 +141,7 @@ fragment NodeFragment on Node {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "QueryWithFragmentWithDefer",
+    "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",
     "operationKind": "query",
     "text": null
   }
@@ -149,15 +149,15 @@ fragment NodeFragment on Node {
 
 QUERY:
 
-query QueryWithFragmentWithDefer {
+query fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery {
   node(id: "my-id") {
     __typename
-    ...NodeFragment @defer(label: "QueryWithFragmentWithDefer$defer$node")
+    ...fragmentWithDeferOnAbstractType_NodeFragment @defer(label: "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery$defer$node")
     id
   }
 }
 
-fragment NodeFragment on Node {
+fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
   __isNode: __typename
   id
   ... on User {
@@ -173,7 +173,7 @@ fragment NodeFragment on Node {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "NodeFragment",
+  "name": "fragmentWithDeferOnAbstractType_NodeFragment",
   "selections": [
     {
       "alias": null,

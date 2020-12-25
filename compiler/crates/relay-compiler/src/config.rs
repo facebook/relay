@@ -5,20 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::{
-    ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter,
-};
+use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
+use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
+use async_trait::async_trait;
+use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
+use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
 use serde::Deserialize;
-use std::collections::{HashMap, HashSet};
-use std::fmt;
-use std::path::PathBuf;
+use sha1::{Digest, Sha1};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    path::PathBuf,
+};
 use watchman_client::pdu::ScmAwareClockData;
 
 /// The full compiler config. This is a combination of:
@@ -27,6 +33,9 @@ use watchman_client::pdu::ScmAwareClockData;
 /// - command line options
 /// - TODO: injected code to produce additional files
 pub struct Config {
+    /// Optional name for this config. This might be used by compiler extension
+    /// code like logging or extra artifact generation.
+    pub name: Option<String>,
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
@@ -40,11 +49,34 @@ pub struct Config {
     /// Function to generate extra
     pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
-    pub codegen_filepath: Option<PathBuf>,
-    pub full_build: bool,
+    pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
+
+    /// Compile all files. Persist ids are still re-used unless
+    /// `Config::repersist_operations` is also set.
+    pub compile_everything: bool,
+
+    /// Do not reuse persist ids from artifacts even if the text hash matches.
+    pub repersist_operations: bool,
+
+    pub connection_interface: ConnectionInterface,
+    pub feature_flags: FeatureFlags,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
+    pub saved_state_version: String,
+
+    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
+    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+
+    pub post_artifacts_write: Option<
+        Box<
+            dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
+                + Send
+                + Sync,
+        >,
+    >,
+
+    pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
 }
 
 impl Config {
@@ -135,6 +167,10 @@ impl Config {
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
+                    variable_names_comment: config_file_project.variable_names_comment,
+                    extra: config_file_project.extra,
+                    feature_flags: config_file_project.feature_flags,
+                    rollout: config_file_project.rollout,
                 };
                 Ok((project_name, project_config))
             })
@@ -147,19 +183,30 @@ impl Config {
             config_file_dir.to_owned()
         };
 
+        let mut hash = Sha1::new();
+        hash.input(&config_string);
+
         let config = Self {
+            name: config_file.name,
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
-            full_build: false,
             projects,
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
             generate_extra_operation_artifacts: None,
-            codegen_filepath: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
+            saved_state_version: hex::encode(hash.result()),
+            connection_interface: config_file.connection_interface,
+            feature_flags: config_file.feature_flags,
+            operation_persister: None,
+            compile_everything: false,
+            repersist_operations: false,
+            post_artifacts_write: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -268,58 +315,67 @@ impl Config {
             }
         }
     }
-
-    pub fn create_artifact_writer(&self) -> Box<dyn ArtifactWriter> {
-        if let Some(ref codegen_filepath) = self.codegen_filepath {
-            Box::new(ArtifactDifferenceWriter::new(codegen_filepath.clone()))
-        } else {
-            Box::new(ArtifactFileWriter {})
-        }
-    }
 }
 
 impl fmt::Debug for Config {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Config {
+            name,
+            artifact_writer: _,
             root_dir,
             sources,
             excludes,
-            full_build,
+            compile_everything,
+            repersist_operations,
             projects,
             header,
             codegen_command,
             load_saved_state_file,
             generate_extra_operation_artifacts,
-            codegen_filepath,
             saved_state_config,
             saved_state_loader,
+            connection_interface,
+            feature_flags,
+            saved_state_version,
+            operation_persister,
+            post_artifacts_write,
+            ..
         } = self;
+
+        fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
+            if option.is_some() { "Some(Fn)" } else { "None" }
+        }
+
         f.debug_struct("Config")
+            .field("name", name)
             .field("root_dir", root_dir)
             .field("sources", sources)
             .field("excludes", excludes)
-            .field("full_build", full_build)
+            .field("compile_everything", compile_everything)
+            .field("repersist_operations", repersist_operations)
             .field("projects", projects)
             .field("header", header)
             .field("codegen_command", codegen_command)
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
             .field(
-                "generate_extra_operation_artifacts",
-                if generate_extra_operation_artifacts.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                "operation_persister",
+                &option_fn_to_string(operation_persister),
             )
-            .field("codegen_filepath", codegen_filepath)
+            .field(
+                "generate_extra_operation_artifacts",
+                &option_fn_to_string(generate_extra_operation_artifacts),
+            )
             .field(
                 "saved_state_loader",
-                if saved_state_loader.is_some() {
-                    &"Some(Fn)"
-                } else {
-                    &"None"
-                },
+                &option_fn_to_string(saved_state_loader),
+            )
+            .field("connection_interface", connection_interface)
+            .field("feature_flags", feature_flags)
+            .field("saved_state_version", saved_state_version)
+            .field(
+                "post_artifacts_write",
+                &option_fn_to_string(post_artifacts_write),
             )
             .finish()
     }
@@ -338,6 +394,10 @@ pub struct ProjectConfig {
     pub schema_location: SchemaLocation,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
+    pub variable_names_comment: bool,
+    pub extra: Option<HashMap<String, String>>,
+    pub feature_flags: Option<FeatureFlags>,
+    pub rollout: Rollout,
 }
 
 #[derive(Clone, Debug)]
@@ -350,6 +410,11 @@ pub enum SchemaLocation {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
+    /// Optional name for this config, might be used for logging or custom extra
+    /// artifact generator code.
+    #[serde(default)]
+    name: Option<String>,
+
     /// Root directory relative to the config file. Defaults to the directory
     /// where the config is located.
     #[serde(default)]
@@ -372,6 +437,12 @@ struct ConfigFile {
 
     /// Configuration of projects to compile.
     projects: HashMap<ProjectName, ConfigFileProject>,
+
+    #[serde(default)]
+    connection_interface: ConnectionInterface,
+
+    #[serde(default)]
+    feature_flags: FeatureFlags,
 
     /// Watchman saved state config.
     saved_state_config: Option<ScmAwareClockData>,
@@ -398,10 +469,6 @@ struct ConfigFileProject {
     /// need to provide an additional directory to put them.
     /// By default the will use `output` *if available
     extra_artifacts_output: Option<PathBuf>,
-
-    /// Enable extra file generation for project
-    #[serde(default)]
-    extra_artifacts_generation_enabled: bool,
 
     /// If `output` is provided and `shard_output` is `true`, shard the files
     /// by putting them under `{output_dir}/{source_relative_path}`
@@ -432,6 +499,20 @@ struct ConfigFileProject {
     /// Generate Query ($Parameters files)
     #[serde(default)]
     should_generate_parameters_file: bool,
+
+    /// Generates a `// @relayVariables name1 name2` header in generated operation files
+    #[serde(default)]
+    variable_names_comment: bool,
+
+    extra: Option<HashMap<String, String>>,
+
+    #[serde(default)]
+    feature_flags: Option<FeatureFlags>,
+
+    /// A generic rollout state for larger codegen changes. The default is to
+    /// pass, otherwise it should be a number between 0 and 100 as a percentage.
+    #[serde(default)]
+    pub rollout: Rollout,
 }
 
 #[derive(Debug, Deserialize)]
@@ -442,4 +523,17 @@ pub struct PersistConfig {
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
     pub params: HashMap<String, String>,
+}
+
+type PersistId = String;
+
+#[async_trait]
+pub trait OperationPersister {
+    async fn persist_artifact(
+        &self,
+        artifact_text: String,
+        project_config: &PersistConfig,
+    ) -> std::result::Result<PersistId, PersistError>;
+
+    fn worker_count(&self) -> usize;
 }

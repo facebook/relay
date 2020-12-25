@@ -1,4 +1,4 @@
-fragment RefetchableConnection_feedback on Feedback
+fragment refetchableConnectionCustomHandler_RefetchableConnection_feedback on Feedback
   @refetchable(queryName: "RefetchableConnectionQuery") {
   id
   comments(first: $count, after: $cursor)

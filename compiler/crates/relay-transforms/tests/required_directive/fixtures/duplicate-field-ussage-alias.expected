@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+fragment EnabledFoo on User {
+  name @required(action: THROW)
+  my_name: name @required(action: LOG)
+}
+==================================== OUTPUT ===================================
+fragment EnabledFoo on User @__childrenCanBubbleNull {
+  name @required(action: THROW) @__required(action: "THROW", path: "name")
+  my_name: name @required(action: LOG) @__required(action: "LOG", path: "my_name")
+}

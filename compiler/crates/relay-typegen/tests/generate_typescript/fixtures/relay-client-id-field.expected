@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+query RelayClientIDFieldQuery($id: ID!) {
+  __id # ok on query type
+  me {
+    __id # ok on object type with 'id'
+    __typename
+    id
+  }
+  node(id: $id) {
+    __id # ok on interface type
+    __typename
+    id
+    ... on Comment {
+      commentBody(supported: ["PlainCommentBody"]) {
+        __id # ok on union type
+        __typename
+        ... on PlainCommentBody {
+          __id # ok on object type w/o 'id'
+          text {
+            __id # ok on object type w/o 'id'
+            __typename
+            text
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type RelayClientIDFieldQueryVariables = {
+  id: string
+};
+export type RelayClientIDFieldQueryResponse = {
+  readonly __id: string,
+  readonly me: {
+    readonly __id: string,
+    readonly __typename: string,
+    readonly id: string,
+  } | null,
+  readonly node: {
+    readonly __id: string,
+    readonly __typename: string,
+    readonly id: string,
+    readonly commentBody?: {
+      readonly __id: string,
+      readonly __typename: string,
+      readonly text?: {
+        readonly __id: string,
+        readonly __typename: string,
+        readonly text: string | null,
+      } | null,
+    } | null,
+  } | null,
+};
+export type RelayClientIDFieldQuery = {
+  variables: RelayClientIDFieldQueryVariables,
+  response: RelayClientIDFieldQueryResponse,
+};

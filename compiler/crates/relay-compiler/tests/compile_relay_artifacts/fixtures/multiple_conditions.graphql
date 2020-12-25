@@ -1,4 +1,4 @@
-query TestQuery($foo: Boolean!, $bar: Boolean!) {
+query multipleConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
   viewer {
     account_user {
       name

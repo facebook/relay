@@ -1,4 +1,4 @@
-query LinkedHandleField($id: ID!) {
+query linkedHandleField_LinkedHandleFieldQuery($id: ID!) {
   node(id: $id) {
     ... on User {
       friends(first: 10) @__clientField(handle: "clientFriends") {

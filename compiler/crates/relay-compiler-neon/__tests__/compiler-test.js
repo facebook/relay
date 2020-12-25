@@ -56,6 +56,6 @@ describe('compiler extensions', () => {
   it('should throw for invalid documents', () => {
     expect(() =>
       compiler.compile('type User { name: String }', ['fragment User ....']),
-    ).toThrow("Expected a non-variable identifier (e.g. 'x' or 'Foo')");
+    ).toThrow('Expected a non-variable identifier');
   });
 });

@@ -131,7 +131,8 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   function commitPayload(operation, payload) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
-    (environment.getStore(): $FlowFixMe).__gc();
+    (environment.getStore(): $FlowFixMe).scheduleGC();
+    jest.runAllTimers();
   }
 
   it('concrete spread on matching concrete type reads data and counts missing user fields as missing', () => {

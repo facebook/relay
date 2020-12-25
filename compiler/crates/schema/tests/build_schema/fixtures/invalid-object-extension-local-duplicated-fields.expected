@@ -12,4 +12,9 @@ extend type User {
   nickname: ID
 }
 ==================================== ERROR ====================================
-Duplicate field definition 'nickname' found.
+✖︎ Duplicate field definition 'nickname' found.
+
+  <generated>:1:1
+    1 │ # expected-to-throw
+      │ ^
+    2 │

@@ -5,44 +5,48 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, Location, SourceLocationKey};
+use common::{ConsoleLogger, Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_ir::{build, Program};
-use graphql_syntax::{
-    parse, Document, ExecutableDefinition, SyntaxError, SyntaxErrorKind, SyntaxResult,
-};
-use graphql_transforms::OSS_CONNECTION_INTERFACE;
+use graphql_syntax::{parse_executable, ExecutableDefinition, ExecutableDocument, SyntaxError};
 use interner::Intern;
 use neon::prelude::*;
 use relay_codegen::Printer;
 use relay_compiler::{
     apply_transforms,
     config::{Config, ProjectConfig, SchemaLocation},
-    generate_artifacts, SourceHashes,
+    generate_artifacts,
+    status_reporter::ConsoleStatusReporter,
+    ArtifactFileWriter, SourceHashes,
 };
+use relay_transforms::{ConnectionInterface, FeatureFlags};
 use schema::build_schema;
 use std::str;
 use std::sync::Arc;
 
 /// Parse JS input to get list of executable definitions (ASTs)
 fn build_definitions_from_js_input(
-    input: Vec<Handle<JsValue>>,
-) -> Result<Vec<ExecutableDefinition>, Vec<SyntaxError>> {
-    let mut documents: Vec<SyntaxResult<Document>> = Vec::with_capacity(input.len());
-    let mut errors: Vec<SyntaxError> = vec![];
+    input: Vec<Handle<'_, JsValue>>,
+) -> Result<Vec<ExecutableDefinition>, String> {
+    let mut documents: Vec<DiagnosticsResult<ExecutableDocument>> = Vec::with_capacity(input.len());
+    let mut errors: Vec<Diagnostic> = vec![];
     for js_value in input {
         if let Ok(value) = js_value.downcast::<JsString>() {
-            documents.push(parse(&value.value(), SourceLocationKey::Generated));
+            documents.push(parse_executable(
+                &value.value(),
+                SourceLocationKey::Generated,
+            ));
         } else {
             // This is not technically correct - it should be JS syntax/parse error, not graphql
             // TODO: Replace with correct error
-            errors.push(SyntaxError::new(
-                SyntaxErrorKind::UnsupportedCharacter,
+            errors.push(Diagnostic::error(
+                SyntaxError::UnsupportedCharacter,
                 Location::generated(),
             ));
         }
     }
-    if !errors.is_empty() {
-        return Err(errors);
+
+    if let Some(err) = errors.iter().next() {
+        return Err(err.to_string());
     }
 
     let mut definitions: Vec<ExecutableDefinition> = vec![];
@@ -54,17 +58,15 @@ fn build_definitions_from_js_input(
                 }
             }
             Err(syntax_errors) => {
-                for error in syntax_errors {
-                    errors.push(error);
-                }
+                errors.extend(syntax_errors);
             }
         }
     }
 
-    if errors.is_empty() {
-        Ok(definitions)
+    if let Some(err) = errors.iter().next() {
+        Err(err.to_string())
     } else {
-        Err(errors)
+        Ok(definitions)
     }
 }
 
@@ -84,13 +86,17 @@ fn create_configs() -> (Config, ProjectConfig) {
         schema_location: SchemaLocation::File(Default::default()),
         typegen_config: Default::default(),
         persist: None,
+        variable_names_comment: false,
+        extra: None,
+        feature_flags: Default::default(),
+        rollout: Default::default(),
     };
 
     let config = Config {
+        name: None,
+        artifact_writer: Box::new(ArtifactFileWriter::default()),
         codegen_command: None,
-        codegen_filepath: None,
         excludes: vec![],
-        full_build: false,
         generate_extra_operation_artifacts: None,
         header: vec![],
         load_saved_state_file: None,
@@ -99,12 +105,20 @@ fn create_configs() -> (Config, ProjectConfig) {
         sources: Default::default(),
         saved_state_config: None,
         saved_state_loader: None,
+        saved_state_version: "0".to_owned(),
+        connection_interface: Default::default(),
+        feature_flags: FeatureFlags::default(),
+        operation_persister: None,
+        compile_everything: false,
+        repersist_operations: false,
+        post_artifacts_write: None,
+        status_reporter: Box::new(ConsoleStatusReporter::new(Default::default())),
     };
 
     (config, project_config)
 }
 
-fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
+fn compile(mut cx: FunctionContext<'_>) -> JsResult<'_, JsObject> {
     let schema_text = cx.argument::<JsString>(0)?.value();
     let documents = cx.argument::<JsArray>(1)?.to_vec(&mut cx)?;
 
@@ -112,7 +126,7 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
     let definitions = build_definitions_from_js_input(documents).expect("Invalid documents");
 
     let (config, project_config) = create_configs();
-    let mut printer = Printer::default();
+    let mut printer = Printer::with_dedupe();
 
     let source_hashes = SourceHashes::from_definitions(&definitions);
     let ir = build(&schema, &definitions).expect("Unable to build Relay IR");
@@ -123,7 +137,8 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
         project_config.name,
         Arc::new(program),
         Arc::new(Default::default()),
-        Arc::clone(&OSS_CONNECTION_INTERFACE),
+        &ConnectionInterface::default(),
+        Arc::new(FeatureFlags::default()),
         Arc::new(ConsoleLogger),
     )
     .expect("Unable to apply transforms");
@@ -141,7 +156,14 @@ fn compile(mut cx: FunctionContext) -> JsResult<JsObject> {
             &mut printer,
             &programs.normalization.schema,
         );
-        let name = cx.string(artifact.source_definition_name.lookup().to_string());
+        let name = cx.string(
+            artifact
+                .source_definition_names
+                .iter()
+                .map(|name| name.lookup())
+                .collect::<Vec<_>>()
+                .join(","),
+        );
         let path = cx.string(artifact.path.to_string_lossy());
         let content = cx.string(str::from_utf8(&content).unwrap().to_string());
         artifact_object.set(&mut cx, "name", name).unwrap();

@@ -1,4 +1,4 @@
-query RelayClientIDFieldQuery($id: ID!) {
+query relayClientIdField_RelayClientIDFieldQuery($id: ID!) {
   __id # ok on query type
   me {
     __id # ok on object type with 'id'

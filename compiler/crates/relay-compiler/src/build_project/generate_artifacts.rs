@@ -12,18 +12,18 @@ use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_text_printer::{
-    print_full_operation, write_fragment_with_graphqljs_formatting,
-    write_operation_with_graphqljs_formatting,
-};
-use graphql_transforms::{RefetchableDerivedFromMetadata, MATCH_CONSTANTS};
+use graphql_text_printer::print_full_operation;
 use interner::StringKey;
+use relay_transforms::{
+    RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
+};
+use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
-    pub source_definition_name: StringKey,
+    pub source_definition_names: Vec<StringKey>,
     pub path: PathBuf,
     pub content: ArtifactContent,
     /// The source file responsible for generating this file.
@@ -40,30 +40,20 @@ pub fn generate_artifacts(
     for normalization_operation in programs.normalization.operations() {
         if let Some(directive) = normalization_operation
             .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
         {
             // Generate normalization file for SplitOperation
-            let name_arg = directive
-                .arguments
-                .named(MATCH_CONSTANTS.derived_from_arg)
-                .unwrap();
-            let source_definition_name = name_arg.value.item.expect_string_literal();
+            let metadata = SplitOperationMetadata::from(directive);
             let source_fragment = programs
                 .source
-                .fragment(source_definition_name)
+                .fragment(metadata.derived_from)
                 .expect("Expected the source document for the SplitOperation to exist.");
-            let mut source_string = String::new();
-            write_fragment_with_graphqljs_formatting(
-                &mut source_string,
-                &programs.source.schema,
-                &source_fragment,
-            )
-            .unwrap();
-            let source_hash = source_hashes.get(&source_definition_name).cloned().unwrap();
+            let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
             let source_file = source_fragment.name.location.source_location();
+
             artifacts.push(Artifact {
-                source_definition_name,
-                path: path_for_js_artifact(
+                source_definition_names: metadata.parent_sources.into_iter().collect(),
+                path: path_for_artifact(
                     project_config,
                     source_file,
                     normalization_operation.name.item,
@@ -81,13 +71,6 @@ pub fn generate_artifacts(
                 .source
                 .fragment(source_name)
                 .expect("Expected the source document for the SplitOperation to exist.");
-            let mut source_string = String::new();
-            write_fragment_with_graphqljs_formatting(
-                &mut source_string,
-                &programs.source.schema,
-                &source_fragment,
-            )
-            .unwrap();
             let source_hash = source_hashes.get(&source_name).cloned().unwrap();
 
             artifacts.push(generate_normalization_artifact(
@@ -99,21 +82,6 @@ pub fn generate_artifacts(
                 source_fragment.name.location.source_location(),
             )?);
         } else {
-            let source_operation = programs
-                .source
-                .operation(normalization_operation.name.item)
-                .unwrap();
-            // TODO: Consider using the std::io::Write trait here to directly
-            // write to the md5. Currently, this doesn't work as `write_operation`
-            // expects a `std::fmt::Write`.
-            // Same for fragment hashing below.
-            let mut source_string = String::new();
-            write_operation_with_graphqljs_formatting(
-                &mut source_string,
-                &programs.source.schema,
-                &source_operation,
-            )
-            .unwrap();
             let source_hash = source_hashes
                 .get(&normalization_operation.name.item)
                 .cloned()
@@ -130,15 +98,6 @@ pub fn generate_artifacts(
     }
 
     for reader_fragment in programs.reader.fragments() {
-        let source_fragment = programs.source.fragment(reader_fragment.name.item).unwrap();
-        // Same as for operation hashing above.
-        let mut source_string = String::new();
-        write_fragment_with_graphqljs_formatting(
-            &mut source_string,
-            &programs.source.schema,
-            &source_fragment,
-        )
-        .unwrap();
         let source_hash = source_hashes
             .get(&reader_fragment.name.item)
             .cloned()
@@ -177,8 +136,8 @@ fn generate_normalization_artifact<'a>(
         .operation(name)
         .expect("a type fragment should be generated for this operation");
     Ok(Artifact {
-        source_definition_name,
-        path: path_for_js_artifact(project_config, source_file, name),
+        source_definition_names: vec![source_definition_name],
+        path: path_for_artifact(project_config, source_file, name),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization_operation),
             reader_operation: Arc::clone(reader_operation),
@@ -203,8 +162,8 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        source_definition_name: name,
-        path: path_for_js_artifact(
+        source_definition_names: vec![name],
+        path: path_for_artifact(
             project_config,
             reader_fragment.name.location.source_location(),
             name,
@@ -257,7 +216,7 @@ pub fn create_path_for_artifact(
     }
 }
 
-fn path_for_js_artifact(
+fn path_for_artifact(
     project_config: &ProjectConfig,
     source_file: SourceLocationKey,
     definition_name: StringKey,
@@ -265,7 +224,10 @@ fn path_for_js_artifact(
     create_path_for_artifact(
         project_config,
         source_file,
-        format!("{}.graphql.js", definition_name),
+        match &project_config.typegen_config.language {
+            TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
+            TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+        },
         false,
     )
 }

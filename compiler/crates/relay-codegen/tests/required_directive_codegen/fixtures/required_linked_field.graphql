@@ -1,0 +1,5 @@
+fragment MyFragment on User {
+  address @required(action: LOG) {
+    city
+  }
+}

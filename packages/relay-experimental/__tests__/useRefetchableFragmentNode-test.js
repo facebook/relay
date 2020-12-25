@@ -215,7 +215,9 @@ describe('useRefetchableFragmentNode', () => {
       gqlQueryNestedFragment,
       variablesNestedFragment,
     );
-    refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);
+    refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables, {
+      force: true,
+    });
     queryWithArgs = createOperationDescriptor(gqlQueryWithArgs, variables);
     queryWithLiteralArgs = createOperationDescriptor(gqlQueryWithLiteralArgs, {
       id: variables.id,
@@ -223,6 +225,7 @@ describe('useRefetchableFragmentNode', () => {
     refetchQueryWithArgs = createOperationDescriptor(
       gqlRefetchQueryWithArgs,
       variables,
+      {force: true},
     );
     environment.commitPayload(query, {
       node: {
@@ -611,6 +614,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       expectFragmentIsRefetching(renderer, {
         refetchVariables,
@@ -661,6 +665,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       expectFragmentIsRefetching(renderer, {
         refetchVariables,
@@ -724,6 +729,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       expectFragmentIsRefetching(renderer, {
         refetchVariables,
@@ -810,6 +816,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       expectFragmentIsRefetching(renderer, {
         refetchVariables,
@@ -877,6 +884,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQueryWithArgs = createOperationDescriptor(
         gqlRefetchQueryWithArgs,
         refetchVariables,
+        {force: true},
       );
       expectFragmentIsRefetching(renderer, {
         refetchVariables,
@@ -946,6 +954,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQueryWithArgs = createOperationDescriptor(
         gqlRefetchQueryWithArgs,
         refetchVariables,
+        {force: true},
       );
       expectFragmentIsRefetching(renderer, {
         refetchVariables,
@@ -1019,6 +1028,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       const refetchedUser = {
         id: '4',
@@ -1092,6 +1102,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       const refetchedUser = {
         id: '4',
@@ -1196,6 +1207,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
       const refetchedUser = {
         id: '4',
@@ -1293,6 +1305,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
 
       renderSpy.mockClear();
@@ -1360,6 +1373,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
 
       renderSpy.mockClear();
@@ -1425,6 +1439,7 @@ describe('useRefetchableFragmentNode', () => {
       refetchQuery = createOperationDescriptor(
         gqlRefetchQuery,
         refetchVariables,
+        {force: true},
       );
 
       renderSpy.mockClear();
@@ -1505,6 +1520,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         const refetchedUser = {
           id: '1',
@@ -1581,6 +1597,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery1 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables1,
+          {force: true},
         );
 
         // Assert we suspend on intial refetch request
@@ -1596,6 +1613,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery2 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables2,
+          {force: true},
         );
         TestRenderer.act(() => {
           refetch(
@@ -1679,6 +1697,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery1 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables1,
+          {force: true},
         );
 
         // Assert we suspend on intial refetch request
@@ -1694,6 +1713,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery2 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables2,
+          {force: true},
         );
         TestRenderer.act(() => {
           refetch(
@@ -1796,6 +1816,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery1 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables1,
+          {force: true},
         );
 
         // Assert we suspend on intial refetch request
@@ -1811,6 +1832,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery2 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables2,
+          {force: true},
         );
         TestRenderer.act(() => {
           refetch(
@@ -1906,6 +1928,7 @@ describe('useRefetchableFragmentNode', () => {
         const refetchQuery1 = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables1,
+          {force: true},
         );
         expectRequestIsInFlight({
           inFlight: true,
@@ -1982,6 +2005,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectRequestIsInFlight({
               inFlight: false,
@@ -2029,6 +2053,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectFragmentIsRefetching(renderer, {
               refetchVariables,
@@ -2073,6 +2098,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             environment.commitPayload(refetchQuery, {
               node: {
@@ -2133,6 +2159,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectRequestIsInFlight({
               inFlight: false,
@@ -2180,6 +2207,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectFragmentIsRefetching(renderer, {
               refetchVariables,
@@ -2224,6 +2252,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             environment.commitPayload(refetchQuery, {
               node: {
@@ -2314,6 +2343,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectRequestIsInFlight({
               inFlight: true,
@@ -2361,6 +2391,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectFragmentIsRefetching(renderer, {
               refetchVariables,
@@ -2405,6 +2436,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             environment.commitPayload(refetchQuery, {
               node: {
@@ -2466,6 +2498,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectRequestIsInFlight({
               inFlight: true,
@@ -2513,6 +2546,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             expectFragmentIsRefetching(renderer, {
               refetchVariables,
@@ -2557,6 +2591,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchQuery = createOperationDescriptor(
               gqlRefetchQuery,
               refetchVariables,
+              {force: true},
             );
             environment.commitPayload(refetchQuery, {
               node: {
@@ -2646,6 +2681,7 @@ describe('useRefetchableFragmentNode', () => {
           refetchQuery = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables,
+            {force: true},
           );
           expectFragmentIsRefetching(renderer, {
             refetchVariables,
@@ -2701,6 +2737,7 @@ describe('useRefetchableFragmentNode', () => {
           refetchQuery = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables,
+            {force: true},
           );
           expectFragmentIsRefetching(renderer, {
             refetchVariables,
@@ -2757,6 +2794,7 @@ describe('useRefetchableFragmentNode', () => {
           refetchQuery = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables,
+            {force: true},
           );
           expectRequestIsInFlight({
             inFlight: false,
@@ -2793,6 +2831,7 @@ describe('useRefetchableFragmentNode', () => {
           refetchQuery = createOperationDescriptor(
             gqlRefetchQuery,
             refetchVariables,
+            {force: true},
           );
           expectRequestIsInFlight({
             inFlight: false,
@@ -2864,6 +2903,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectRequestIsInFlight({
           inFlight: true,
@@ -2935,6 +2975,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectRequestIsInFlight({
           inFlight: true,
@@ -2955,7 +2996,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Pass new parent fragment ref with different variables
         const newVariables = {...variables, scale: 32};
-        const newQuery = createOperationDescriptor(gqlQuery, newVariables);
+        const newQuery = createOperationDescriptor(gqlQuery, newVariables, {
+          force: true,
+        });
         environment.commitPayload(newQuery, {
           node: {
             __typename: 'User',
@@ -3011,6 +3054,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
 
         expectFragmentIsRefetching(renderer, {
@@ -3023,7 +3067,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Assert request was canceled
-        expect(unsubscribe).toBeCalledTimes(1);
+        expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
           requestCount: 1,
@@ -3047,6 +3091,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectRequestIsInFlight({
           inFlight: true,
@@ -3095,6 +3140,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectRequestIsInFlight({
           inFlight: true,
@@ -3154,8 +3200,10 @@ describe('useRefetchableFragmentNode', () => {
         // Manually set the refetchable operation for the test.
         gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
 
-        refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);
-        query = createOperationDescriptor(gqlQuery, variables);
+        refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables, {
+          force: true,
+        });
+        query = createOperationDescriptor(gqlQuery, variables, {force: true});
 
         environment.commitPayload(query, {
           nonNodeStory: {
@@ -3191,6 +3239,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           refetchVariables,
@@ -3255,6 +3304,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           refetchVariables,
@@ -3297,9 +3347,13 @@ describe('useRefetchableFragmentNode', () => {
 
       it('refetches new variables correctly when refetching after the id from the parent has changed', () => {
         // add data for second query
-        const query2 = createOperationDescriptor(gqlQuery, {
-          id: 'b',
-        });
+        const query2 = createOperationDescriptor(
+          gqlQuery,
+          {
+            id: 'b',
+          },
+          {force: true},
+        );
         environment.commitPayload(query2, {
           nonNodeStory: {
             __typename: 'NonNodeStory',
@@ -3348,6 +3402,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           refetchVariables,
@@ -3426,8 +3481,10 @@ describe('useRefetchableFragmentNode', () => {
         // Manually set the refetchable operation for the test.
         gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
 
-        query = createOperationDescriptor(gqlQuery, variables);
-        refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);
+        query = createOperationDescriptor(gqlQuery, variables, {force: true});
+        refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables, {
+          force: true,
+        });
 
         environment.commitPayload(query, {
           node: {
@@ -3467,6 +3524,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           refetchVariables,
@@ -3541,6 +3599,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           refetchVariables,
@@ -3630,6 +3689,7 @@ describe('useRefetchableFragmentNode', () => {
         refetchQuery = createOperationDescriptor(
           gqlRefetchQuery,
           refetchVariables,
+          {force: true},
         );
 
         // Fetch on newEnvironment

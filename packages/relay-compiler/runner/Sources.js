@@ -137,6 +137,20 @@ class Sources<T: ASTNode> {
         const newTexts = new Set();
         for (const {ast, text} of newDefs) {
           const hashedText = md5(text);
+          if (newTexts.has(hashedText)) {
+            let name = 'unknown';
+            switch (ast.kind) {
+              case 'FragmentDefinition':
+                name = ast.name.value;
+                break;
+              case 'OperationDefinition':
+                name = ast.name?.value ?? 'unnamed operation';
+                break;
+            }
+            throw new Error(
+              `Duplicate definition of \`${name}\` in \`${file.name}\``,
+            );
+          }
           newTexts.add(hashedText);
           if (hasEntry && oldEntry[hashedText] != null) {
             // Entity text did not change, so we

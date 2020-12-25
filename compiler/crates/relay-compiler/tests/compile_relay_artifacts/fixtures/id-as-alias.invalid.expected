@@ -1,20 +1,28 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-fragment User_fragment on User {
+fragment idAsAlias_User_fragment on User {
   id: name
 }
 
-fragment ProfilePicture on User {
+fragment idAsAlias_ProfilePicture on User {
   profilePicture(size: $size) {
     id: uri
   }
 }
 ==================================== ERROR ====================================
-Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-as-alias.invalid.graphql:2:3:
-  id: name
+✖︎ Relay does not allow aliasing fields to `id`.
+
+  id-as-alias.invalid.graphql:3:3
+    2 │ fragment idAsAlias_User_fragment on User {
+    3 │   id: name
+      │   ^^
+    4 │ }
 
 
-Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.:
-id-as-alias.invalid.graphql:7:5:
-    id: uri
+✖︎ Relay does not allow aliasing fields to `id`.
+
+  id-as-alias.invalid.graphql:8:5
+    7 │   profilePicture(size: $size) {
+    8 │     id: uri
+      │     ^^
+    9 │   }

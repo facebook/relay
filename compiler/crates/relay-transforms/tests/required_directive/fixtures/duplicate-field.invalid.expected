@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  name
+  ... on User {
+    name @required(action: LOG)
+  }
+}
+==================================== ERROR ====================================
+✖︎ All references to a field must have matching @required declarations. The field 'name` is @required here
+
+  duplicate-field.invalid.graphql:5:5
+    4 │   ... on User {
+    5 │     name @required(action: LOG)
+      │     ^^^^
+    6 │   }
+
+  ℹ︎ but not @required here
+
+  duplicate-field.invalid.graphql:3:3
+    2 │ fragment EnabledFoo on User {
+    3 │   name
+      │   ^^^^
+    4 │   ... on User {

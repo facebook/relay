@@ -1,0 +1,20 @@
+query streamConnectionConditionalQuery($id: ID!, $cond: Boolean!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+      @stream_connection(
+        use_customized_batch: $cond
+        if: $cond
+        initial_count: 0
+        key: "NodeQuery_comments"
+      ) {
+        edges {
+          node {
+            __typename
+          }
+        }
+      }
+    }
+  }
+}

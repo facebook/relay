@@ -34,7 +34,7 @@ fragment Foo on User {
                     directives: [],
                 },
             ],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 Condition {
@@ -44,7 +44,7 @@ fragment Foo on User {
                             definition: WithLocation {
                                 location: directive-include.graphql:34:36,
                                 item: FieldID(
-                                    450,
+                                    460,
                                 ),
                             },
                             arguments: [],
@@ -70,7 +70,7 @@ fragment Foo on User {
                     selections: [
                         InlineFragment {
                             type_condition: Some(
-                                Object(65),
+                                Object(67),
                             ),
                             directives: [],
                             selections: [
@@ -79,7 +79,7 @@ fragment Foo on User {
                                     definition: WithLocation {
                                         location: directive-include.graphql:97:106,
                                         item: FieldID(
-                                            447,
+                                            457,
                                         ),
                                     },
                                     arguments: [],
@@ -140,7 +140,7 @@ fragment Foo on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
@@ -148,7 +148,7 @@ fragment Foo on User {
                     definition: WithLocation {
                         location: directive-include.graphql:168:170,
                         item: FieldID(
-                            450,
+                            460,
                         ),
                     },
                     arguments: [],

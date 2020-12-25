@@ -69,7 +69,7 @@ function writeRelayGeneratedFile(
   languagePlugin: ?PluginInterface,
   includePersistedQueryTextInDev: boolean,
 ): Promise<?GeneratedNode> {
-  let generatedNode = _generatedNode;
+  let generatedNode: GeneratedNode = _generatedNode;
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
   const operationName =

@@ -18,7 +18,10 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
   id
 }
 ==================================== ERROR ====================================
-Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined, use @arguments instead.:
-fragment-with-unnecessary-unchecked-arguments.invalid.graphql:12:40:
-  ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
-}
+✖︎ Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead.
+
+  fragment-with-unnecessary-unchecked-arguments.invalid.graphql:13:40
+   12 │   }
+   13 │   ...Foo @uncheckedArguments_DEPRECATED(localId: $id)
+      │                                        ^^^^^^^^^^^^^^
+   14 │ }

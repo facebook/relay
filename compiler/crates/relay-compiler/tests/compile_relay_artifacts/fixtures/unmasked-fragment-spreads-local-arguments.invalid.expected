@@ -1,21 +1,29 @@
 ==================================== INPUT ====================================
 # expected-to-throw
 
-query TestQuery {
+query unmaskedFragmentSpreadsLocalArguments_TestQuery {
   me {
-    ...User_user @relay(mask: false)
+    ...unmaskedFragmentSpreadsLocalArguments_User_user @relay(mask: false)
   }
 }
 
-fragment User_user on User
+fragment unmaskedFragmentSpreadsLocalArguments_User_user on User
   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
   url(relative: $isRelative)
 }
 ==================================== ERROR ====================================
-Cannot use @relay(mask: false) on fragment spreads for fragments with directives.:
-unmasked-fragment-spreads-local-arguments.invalid.graphql:4:8:
-    ...User_user @relay(mask: false)
+✖︎ Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
 
+  unmasked-fragment-spreads-local-arguments.invalid.graphql:5:8
+    4 │   me {
+    5 │     ...unmaskedFragmentSpreadsLocalArguments_User_user @relay(mask: false)
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }
 
-unmasked-fragment-spreads-local-arguments.invalid.graphql:8:10:
-fragment User_user on User
+  ℹ︎ related location
+
+  unmasked-fragment-spreads-local-arguments.invalid.graphql:9:10
+    8 │ 
+    9 │ fragment unmaskedFragmentSpreadsLocalArguments_User_user on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {

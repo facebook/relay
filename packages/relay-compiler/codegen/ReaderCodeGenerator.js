@@ -39,16 +39,20 @@ import type {
   InlineDataFragmentSpread,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
+import type {RequiredDirectiveMetadata} from '../transforms/RequiredFieldTransform';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from 'relay-runtime';
 
 /**
@@ -267,7 +271,7 @@ function generateInlineDataFragmentSpread(
 function generateLinkedField(
   schema: Schema,
   node: LinkedField,
-): ReaderLinkedField {
+): ReaderLinkedField | ReaderRequiredField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -298,7 +302,24 @@ function generateLinkedField(
   if (storageKey) {
     field = {...field, storageKey};
   }
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  if (requiredMetadata != null) {
+    return createRequiredField(field, requiredMetadata);
+  }
   return field;
+}
+
+function createRequiredField(
+  field: ReaderField,
+  requiredMetadata: RequiredDirectiveMetadata,
+): ReaderRequiredField {
+  return {
+    kind: 'RequiredField',
+    field,
+    action: requiredMetadata.action,
+    path: requiredMetadata.path,
+  };
 }
 
 function generateModuleImport(
@@ -335,7 +356,7 @@ function generateModuleImport(
 function generateScalarField(
   schema: Schema,
   node: ScalarField,
-): ReaderScalarField {
+): ReaderScalarField | ReaderRequiredField | ReaderFlightField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -349,7 +370,7 @@ function generateScalarField(
   //     'ReaderCodeGenerator: unexpected handles',
   //   );
 
-  let field: ReaderScalarField = {
+  let field = {
     alias: node.alias === node.name ? null : node.alias,
     args: generateArgs(node.args),
     kind: 'ScalarField',
@@ -360,6 +381,20 @@ function generateScalarField(
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey) {
     field = {...field, storageKey};
+  }
+  if (node.metadata?.flight === true) {
+    field = {...field, kind: 'FlightField'};
+  }
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  if (requiredMetadata != null) {
+    if (field.kind === 'FlightField') {
+      throw new createUserError(
+        '@required cannot be used on a ReactFlightComponent.',
+        [node.loc],
+      );
+    }
+    return createRequiredField(field, requiredMetadata);
   }
   return field;
 }

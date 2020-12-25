@@ -14,7 +14,7 @@ fragment InlineUntypedFragment on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 InlineFragment {
@@ -26,7 +26,7 @@ fragment InlineUntypedFragment on User {
                             definition: WithLocation {
                                 location: inline-untyped-fragment.graphql:53:57,
                                 item: FieldID(
-                                    456,
+                                    466,
                                 ),
                             },
                             arguments: [],

@@ -47,9 +47,7 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(query.request.node, query.request.variables),
   ).toEqual(true);
 }
 
@@ -442,9 +440,9 @@ describe('useLazyLoadQueryNode', () => {
     expect(release).toBeCalledTimes(2);
 
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   it('disposes ongoing network request when component unmounts after committing', () => {
@@ -477,9 +475,40 @@ describe('useLazyLoadQueryNode', () => {
     // Assert data is released
     expect(release).toBeCalledTimes(1);
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
+  });
+
+  it('cancels network request when temporarily retained component that never commits is disposed of after timeout', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    ReactTestRenderer.act(() => {
+      instance.unmount();
+    });
+    // Resolve a payload but don't complete the network request
+    environment.mock.nextValue(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    // Trigger releasing of the temporary retain
+    jest.runAllTimers();
+    // Assert data is released
+    expect(release).toBeCalledTimes(1);
+    // Assert request in flight is cancelled
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   describe('partial rendering', () => {
@@ -579,7 +608,7 @@ describe('useLazyLoadQueryNode', () => {
 
       expect(logs).toMatchObject([
         {
-          name: 'execute.start',
+          name: 'network.start',
           transactionID: 100000,
         },
         {
@@ -588,11 +617,11 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
-          name: 'execute.next',
+          name: 'network.next',
           transactionID: 100000,
         },
         {
-          name: 'execute.complete',
+          name: 'network.complete',
           transactionID: 100000,
         },
         {
@@ -676,7 +705,7 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           // request for variables one starts
-          name: 'execute.start',
+          name: 'network.start',
           transactionID: 100000,
           variables: variablesOne,
         },
@@ -694,7 +723,7 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           // request for variables two starts
-          name: 'execute.start',
+          name: 'network.start',
           transactionID: 100001,
           variables: variablesTwo,
         },
@@ -713,11 +742,11 @@ describe('useLazyLoadQueryNode', () => {
         // fetch event for variables one is skipped
         // since it's already cached and reused
         {
-          name: 'execute.next',
+          name: 'network.next',
           transactionID: 100000,
         },
         {
-          name: 'execute.complete',
+          name: 'network.complete',
           transactionID: 100000,
         },
         // retain event for variables one

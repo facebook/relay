@@ -1,17 +1,17 @@
-query FooQuery($id: ID!) {
+query clientFragmentSpreadsInQuery_FooQuery($id: ID!) {
   node(id: $id) {
-    ...Foo_user
+    ...clientFragmentSpreadsInQuery_Foo_user
   }
 }
 
-fragment Foo_user on User {
+fragment clientFragmentSpreadsInQuery_Foo_user on User {
   id
   foo {
-    ...ClientTypeFragment
+    ...clientFragmentSpreadsInQuery_ClientTypeFragment
   }
 }
 
-fragment ClientTypeFragment on ClientType {
+fragment clientFragmentSpreadsInQuery_ClientTypeFragment on ClientType {
   client_field
 }
 

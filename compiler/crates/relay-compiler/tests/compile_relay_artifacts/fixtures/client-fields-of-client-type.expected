@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-fragment Foo_user on User {
+fragment clientFieldsOfClientType_Foo_user on User {
   id
 
   client_foo {
@@ -25,7 +25,7 @@ type Foo {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "Foo_user",
+  "name": "clientFieldsOfClientType_Foo_user",
   "selections": [
     {
       "alias": null,

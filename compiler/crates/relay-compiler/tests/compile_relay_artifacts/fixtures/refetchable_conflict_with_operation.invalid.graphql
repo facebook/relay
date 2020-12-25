@@ -1,0 +1,13 @@
+# expected-to-throw
+
+fragment refetchableConflictWithOperationF on Node
+  @refetchable(queryName: "refetchableConflictWithOperationQuery")
+{
+  __typename
+}
+
+query refetchableConflictWithOperationQuery {
+  node(id: "y") {
+    __typename
+  }
+}

@@ -44,7 +44,8 @@ function graphql(strings: Array<string>): GraphQLTaggedNode {
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
       'was not set up, or it failed to identify this call site. Make sure it ' +
-      'is being used verbatim as `graphql`.',
+      'is being used verbatim as `graphql`. Note also that there cannot be ' +
+      'a space between graphql and the backtick that follows.',
   );
 }
 
@@ -155,6 +156,7 @@ function getInlineDataFragment(
 
 module.exports = {
   getFragment,
+  getNode,
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,

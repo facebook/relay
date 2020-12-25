@@ -1,17 +1,17 @@
-query TestQuery($ProfilePicture_SIZE: [Int], $isRelative: Boolean) {
+query unmaskedFragmentSpreadsGlobalArguments_TestQuery($ProfilePicture_SIZE: [Int], $isRelative: Boolean) {
   me {
-    ...UserProfile_user
+    ...unmaskedFragmentSpreadsGlobalArguments_UserProfile_user
   }
 }
 
-fragment UserProfile_user on User {
+fragment unmaskedFragmentSpreadsGlobalArguments_UserProfile_user on User {
   profilePicture(size: $ProfilePicture_SIZE) {
     width
     height
   }
-  ...UserUtil_user @relay(mask: false)
+  ...unmaskedFragmentSpreadsGlobalArguments_UserUtil_user @relay(mask: false)
 }
 
-fragment UserUtil_user on User {
+fragment unmaskedFragmentSpreadsGlobalArguments_UserUtil_user on User {
   url(relative: $isRelative)
 }

@@ -12,7 +12,7 @@ fragment TestFragment on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(65),
+            type_condition: Object(67),
             directives: [],
             selections: [
                 ScalarField {
@@ -20,7 +20,7 @@ fragment TestFragment on User {
                     definition: WithLocation {
                         location: list-of-enums.graphql:34:40,
                         item: FieldID(
-                            472,
+                            482,
                         ),
                     },
                     arguments: [],

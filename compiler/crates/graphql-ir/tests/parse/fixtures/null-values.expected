@@ -59,7 +59,7 @@ query NullValuesQuery {
                             definition: WithLocation {
                                 location: null-values.graphql:60:64,
                                 item: FieldID(
-                                    479,
+                                    492,
                                 ),
                             },
                             arguments: [],

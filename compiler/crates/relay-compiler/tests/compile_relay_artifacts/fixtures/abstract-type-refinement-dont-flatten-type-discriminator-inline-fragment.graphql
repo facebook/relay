@@ -1,4 +1,4 @@
-query AbstractTypeRefinement {
+query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
   node(id: "4") {
     ... on Node {
       #  - Printed query should select __isNode

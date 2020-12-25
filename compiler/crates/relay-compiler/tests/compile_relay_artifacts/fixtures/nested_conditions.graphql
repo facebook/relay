@@ -1,4 +1,4 @@
-fragment QueryFragment on Query {
+fragment nestedConditions_QueryFragment on Query {
   viewer {
     ... @include(if: $sentinel) {
       account_user {
@@ -17,7 +17,7 @@ fragment QueryFragment on Query {
   }
 }
 
-fragment QueryFragment2 on Query {
+fragment nestedConditions_QueryFragment2 on Query {
   viewer {
     ... @include(if: $sentinel) @skip(if: $foo) {
       account_user @include(if: $bar) {

@@ -150,7 +150,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let selections = self.visit_selections(&typegen_operation.selections);
         let mut response_type =
-            self.selections_to_babel(Some(typegen_operation.type_), selections, false, None);
+            self.selections_to_ast(Some(typegen_operation.type_), selections, false, None);
 
         response_type = match typegen_operation
             .directives
@@ -163,7 +163,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
             let raw_response_selections =
                 self.raw_response_visit_selections(&normalization_operation.selections);
-            Some(self.raw_response_selections_to_babel(raw_response_selections, None))
+            Some(self.raw_response_selections_to_ast(raw_response_selections, None))
         } else {
             None
         };
@@ -286,7 +286,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
 
         let unmasked = RelayDirective::is_unmasked_fragment_definition(&node);
 
-        let base_type = self.selections_to_babel(
+        let base_type = self.selections_to_ast(
             Some(node.type_condition),
             selections,
             unmasked,
@@ -518,7 +518,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             */
 
             if !self.match_fields.contains_key(&directive_arg_name) {
-                let match_field = self.raw_response_selections_to_babel(
+                let match_field = self.raw_response_selections_to_ast(
                     selections
                         .iter()
                         .cloned()
@@ -620,7 +620,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         type_selections.append(&mut selections);
     }
 
-    fn selections_to_babel(
+    fn selections_to_ast(
         &mut self,
         node_type: Option<Type>,
         selections: Vec<TypeSelection>,
@@ -881,7 +881,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         }
     }
 
-    fn raw_response_selections_to_babel(
+    fn raw_response_selections_to_ast(
         &mut self,
         selections: Vec<TypeSelection>,
         concrete_type: Option<Type>,
@@ -979,7 +979,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             ..
         } = type_selection;
         let value = if let Some(node_type) = node_type {
-            let object_props = self.selections_to_babel(
+            let object_props = self.selections_to_ast(
                 Some(node_type.inner()),
                 hashmap_into_value_vec(node_selections.unwrap()),
                 unmasked,
@@ -1046,7 +1046,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             } else {
                 Some(node_type.inner())
             };
-            let object_props = self.raw_response_selections_to_babel(
+            let object_props = self.raw_response_selections_to_ast(
                 hashmap_into_value_vec(node_selections.unwrap()),
                 inner_concrete_type,
             );

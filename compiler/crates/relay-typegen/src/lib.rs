@@ -728,33 +728,8 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 );
             }
 
-            // It might be some other type then the listed concrete types. We try to
-            // figure out which types remain here.
-            let possible_types_left: Option<Vec<&Object>> = if let Some(node_type) = node_type {
-                if let Some(possible_types) = self.schema.get_possible_types(node_type) {
-                    let types_seen = by_concrete_type
-                        .keys()
-                        .map(|type_| self.schema.get_type_name(*type_))
-                        .collect::<Vec<_>>();
-                    Some(
-                        possible_types
-                            .into_iter()
-                            .filter(|possible_type| !types_seen.contains(&possible_type.name))
-                            .collect(),
-                    )
-                } else {
-                    None
-                }
-            } else {
-                None
-            };
-
-            if self.typegen_config.future_proof_abstract_types
-                || match &possible_types_left {
-                    Some(types) => !types.is_empty(),
-                    None => true,
-                }
-            {
+            if self.typegen_config.future_proof_abstract_types {
+                // concrete_types.push(AST::OtherTypename);
                 concrete_types.push(
                     typename_aliases
                         .iter()
@@ -762,34 +737,58 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                             key: *typename_alias,
                             read_only: true,
                             optional: false,
-                            value: possible_types_left
-                                .as_ref()
-                                .map(|types| {
-                                    AST::Union(
-                                        types
-                                            .iter()
-                                            .map(|type_| AST::StringLiteral(type_.name))
-                                            .chain(
-                                                // Would be nicer to chain() with iter::once or iter::empty, but then
-                                                // the if and else branch have incompatible return types.
-                                                std::iter::repeat(AST::OtherTypename).take(
-                                                    if self
-                                                        .typegen_config
-                                                        .future_proof_abstract_types
-                                                    {
-                                                        1
-                                                    } else {
-                                                        0
-                                                    },
-                                                ),
-                                            )
-                                            .collect(),
-                                    )
-                                })
-                                .unwrap_or(AST::OtherTypename),
+                            value: AST::OtherTypename,
                         })
                         .collect(),
                 );
+            } else {
+                // It might be some other type then the listed concrete types. We try to
+                // figure out which types remain here.
+                let possible_types_left: Option<Vec<&Object>> = if let Some(node_type) = node_type {
+                    if let Some(possible_types) = self.schema.get_possible_types(node_type) {
+                        let types_seen = by_concrete_type
+                            .keys()
+                            .map(|type_| self.schema.get_type_name(*type_))
+                            .collect::<Vec<_>>();
+                        Some(
+                            possible_types
+                                .into_iter()
+                                .filter(|possible_type| !types_seen.contains(&possible_type.name))
+                                .collect(),
+                        )
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                };
+
+                if match &possible_types_left {
+                    Some(types) => !types.is_empty(),
+                    None => true,
+                } {
+                    concrete_types.push(
+                        typename_aliases
+                            .iter()
+                            .map(|typename_alias| Prop {
+                                key: *typename_alias,
+                                read_only: true,
+                                optional: false,
+                                value: possible_types_left
+                                    .as_ref()
+                                    .map(|types| {
+                                        AST::Union(
+                                            types
+                                                .iter()
+                                                .map(|type_| AST::StringLiteral(type_.name))
+                                                .collect(),
+                                        )
+                                    })
+                                    .unwrap_or(AST::OtherTypename),
+                            })
+                            .collect(),
+                    );
+                }
             }
         }
 

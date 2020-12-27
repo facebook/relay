@@ -142,7 +142,7 @@ export type RelayClientIDFieldQueryResponse = {|
     |} | {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
-      +__typename: "MarkdownCommentBody" | "%other",
+      +__typename: "%other",
       +__id: string,
     |}),
     +__id: string,
@@ -150,7 +150,7 @@ export type RelayClientIDFieldQueryResponse = {|
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User" | "%other",
+    +__typename: "%other",
     +__id: string,
     +id: string,
   |}),
@@ -189,7 +189,7 @@ export type RelayClientIDFieldQueryResponse = {|
     |} | {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
-      +__typename: "MarkdownCommentBody" | "%other",
+      +__typename: "%other",
       +__id: string,
     |}),
     +__id: string,
@@ -197,7 +197,7 @@ export type RelayClientIDFieldQueryResponse = {|
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User" | "%other",
+    +__typename: "%other",
     +__id: string,
     +id: string,
   |}),

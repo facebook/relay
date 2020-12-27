@@ -453,7 +453,7 @@ export type TypenameOutsideWithAbstractType = ({
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
+  readonly __typename: "%other"
 }) & {
   readonly username?: string | null,
   readonly address?: {
@@ -614,7 +614,7 @@ export type TypenameOutsideWithAbstractType = ({
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
+  readonly __typename: "%other"
 }) & {
   readonly username?: string | null,
   readonly address?: {

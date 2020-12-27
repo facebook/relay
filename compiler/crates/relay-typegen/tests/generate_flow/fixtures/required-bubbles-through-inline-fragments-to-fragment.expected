@@ -69,7 +69,7 @@ export type Foo = ?({|
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other",
+  +__typename: "%other",
   +$refType: Foo$ref,
 |});
 export type Foo$data = Foo;
@@ -94,7 +94,7 @@ export type Foo = ?({|
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other",
+  +__typename: "%other",
   +$refType: Foo$ref,
 |});
 export type Foo$data = Foo;

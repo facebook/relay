@@ -126,7 +126,7 @@ export type UnionTypeTestResponse = {
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    readonly __typename: "NonNode" | "%other"
+    readonly __typename: "%other"
   } | null
 };
 export type UnionTypeTest = {
@@ -171,7 +171,7 @@ export type UnionTypeTestResponse = {
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    readonly __typename: "NonNode" | "%other"
+    readonly __typename: "%other"
   } | null
 };
 export type UnionTypeTest = {

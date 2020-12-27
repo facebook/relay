@@ -60,7 +60,7 @@ export type Foo = ({
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
+  readonly __typename: "%other"
 }) & {
   readonly " $refType": FragmentRefs<"Foo">
 } | null;
@@ -82,7 +82,7 @@ export type Foo = ({
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
+  readonly __typename: "%other"
 }) & {
   readonly " $refType": FragmentRefs<"Foo">
 } | null;

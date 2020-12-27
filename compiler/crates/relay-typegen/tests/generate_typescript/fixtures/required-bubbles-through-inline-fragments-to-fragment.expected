@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment Foo on Node {
   __typename
   ... on User {
@@ -13,9 +17,7 @@ export type Foo = ({
   readonly __typename: "User",
   readonly name: string,
 } | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other"
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
 }) & {
   readonly " $refType": FragmentRefs<"Foo">
 } | null;

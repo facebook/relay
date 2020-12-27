@@ -24,6 +24,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         [source] => (source, get_test_schema()),
         _ => panic!(),
     };
+    let parts = source.split("%%%").collect::<Vec<_>>();
+    let (typegen_input, source) = match parts.as_slice() {
+        [typegen_input, source] => (Some(typegen_input), source),
+        [source] => (None, source),
+        _ => panic!(),
+    };
 
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
@@ -45,11 +51,18 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     )
     .unwrap();
 
-    let typegen_config = TypegenConfig {
-        language: TypegenLanguage::Flow,
-        haste: true,
-        ..Default::default()
-    };
+    let typegen_config = typegen_input
+        .and_then(|str| serde_json::from_str(str).unwrap())
+        .map(|config| TypegenConfig {
+            language: TypegenLanguage::Flow,
+            haste: true,
+            ..config
+        })
+        .unwrap_or_else(|| TypegenConfig {
+            language: TypegenLanguage::Flow,
+            haste: true,
+            ..Default::default()
+        });
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);

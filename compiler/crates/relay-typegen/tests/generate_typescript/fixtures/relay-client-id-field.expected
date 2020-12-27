@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 query RelayClientIDFieldQuery($id: ID!) {
   __id # ok on query type
   me {
@@ -48,16 +52,12 @@ export type RelayClientIDFieldQueryResponse = {
         readonly text: string | null,
       } | null,
     } | {
-      // This will never be '%other', but we need some
-      // value in case none of the concrete values match.
-      readonly __typename: "%other"
+      readonly __typename: "MarkdownCommentBody"
     }) & {
       readonly __id: string
     } | null,
   } | {
-    // This will never be '%other', but we need some
-    // value in case none of the concrete values match.
-    readonly __typename: "%other"
+    readonly __typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "User"
   }) & {
     readonly __id: string,
     readonly id: string,

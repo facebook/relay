@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment TypenameInside on Actor {
   ... on User {
     __typename
@@ -91,11 +95,6 @@ export type TypenameAlias = {|
   +_typeAlias: "Page",
   +username: ?string,
   +$refType: TypenameAlias$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias: "%other",
-  +$refType: TypenameAlias$ref,
 |};
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
@@ -117,14 +116,6 @@ export type TypenameAliases = {|
   +_typeAlias2: "Page",
   +username: ?string,
   +$refType: TypenameAliases$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias1: "%other",
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +_typeAlias2: "%other",
-  +$refType: TypenameAliases$ref,
 |};
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
@@ -144,11 +135,6 @@ export type TypenameInside = {|
   +__typename: "Page",
   +username: ?string,
   +$refType: TypenameInside$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$refType: TypenameInside$ref,
 |};
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
@@ -167,11 +153,6 @@ export type TypenameOutside = {|
 |} | {|
   +__typename: "Page",
   +username: ?string,
-  +$refType: TypenameOutside$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$refType: TypenameOutside$ref,
 |};
 export type TypenameOutside$data = TypenameOutside;
@@ -198,9 +179,7 @@ export type TypenameOutsideWithAbstractType = {|
   |},
   +$refType: TypenameOutsideWithAbstractType$ref,
 |} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
@@ -226,12 +205,6 @@ export type TypenameWithCommonSelections = {|
 |} | {|
   +__typename: "Page",
   +username: ?string,
-  +name: ?string,
-  +$refType: TypenameWithCommonSelections$ref,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +name: ?string,
   +$refType: TypenameWithCommonSelections$ref,
 |};

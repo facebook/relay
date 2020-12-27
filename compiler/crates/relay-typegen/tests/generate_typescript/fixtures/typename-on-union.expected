@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment TypenameInside on Actor {
   ... on User {
     __typename
@@ -87,10 +91,6 @@ export type TypenameAlias = ({
 } | {
   readonly _typeAlias: "Page",
   readonly username: string | null,
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly _typeAlias: "%other"
 }) & {
   readonly " $refType": FragmentRefs<"TypenameAlias">
 };
@@ -109,13 +109,6 @@ export type TypenameAliases = ({
   readonly _typeAlias1: "Page",
   readonly _typeAlias2: "Page",
   readonly username: string | null,
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly _typeAlias1: "%other",
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly _typeAlias2: "%other",
 }) & {
   readonly " $refType": FragmentRefs<"TypenameAliases">
 };
@@ -132,10 +125,6 @@ export type TypenameInside = ({
 } | {
   readonly __typename: "Page",
   readonly username: string | null,
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other"
 }) & {
   readonly " $refType": FragmentRefs<"TypenameInside">
 };
@@ -152,10 +141,6 @@ export type TypenameOutside = ({
 } | {
   readonly __typename: "Page",
   readonly username: string | null,
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other"
 }) & {
   readonly " $refType": FragmentRefs<"TypenameOutside">
 };
@@ -174,9 +159,7 @@ export type TypenameOutsideWithAbstractType = ({
     readonly city: string | null,
   } | null,
 } | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other"
+  readonly __typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
 }) & {
   readonly username?: string | null,
   readonly address?: {
@@ -198,10 +181,6 @@ export type TypenameWithCommonSelections = ({
 } | {
   readonly __typename: "Page",
   readonly username: string | null,
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other"
 }) & {
   readonly name: string | null,
   readonly " $refType": FragmentRefs<"TypenameWithCommonSelections">,

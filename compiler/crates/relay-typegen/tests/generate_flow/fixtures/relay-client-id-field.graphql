@@ -1,3 +1,7 @@
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 query RelayClientIDFieldQuery($id: ID!) {
   __id # ok on query type
   me {

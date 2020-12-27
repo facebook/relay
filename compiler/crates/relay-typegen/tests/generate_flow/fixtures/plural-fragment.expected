@@ -3,68 +3,6 @@ fragment PluralFragment on Node @relay(plural: true) {
   id
 }
 ==================================== OUTPUT ===================================
-/*
- * future proof enums: false
- * future proof abstract types: false
- */
-
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type PluralFragment$ref: FragmentReference;
-declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;
-export type PluralFragment = $ReadOnlyArray<{|
-  +id: string,
-  +$refType: PluralFragment$ref,
-|}>;
-export type PluralFragment$data = PluralFragment;
-export type PluralFragment$key = $ReadOnlyArray<{
-  +$data?: PluralFragment$data,
-  +$fragmentRefs: PluralFragment$ref,
-  ...
-}>;
--------------------------------------------------------------------------------
-/*
- * future proof enums: true
- * future proof abstract types: false
- */
-
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type PluralFragment$ref: FragmentReference;
-declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;
-export type PluralFragment = $ReadOnlyArray<{|
-  +id: string,
-  +$refType: PluralFragment$ref,
-|}>;
-export type PluralFragment$data = PluralFragment;
-export type PluralFragment$key = $ReadOnlyArray<{
-  +$data?: PluralFragment$data,
-  +$fragmentRefs: PluralFragment$ref,
-  ...
-}>;
--------------------------------------------------------------------------------
-/*
- * future proof enums: false
- * future proof abstract types: true
- */
-
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type PluralFragment$ref: FragmentReference;
-declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;
-export type PluralFragment = $ReadOnlyArray<{|
-  +id: string,
-  +$refType: PluralFragment$ref,
-|}>;
-export type PluralFragment$data = PluralFragment;
-export type PluralFragment$key = $ReadOnlyArray<{
-  +$data?: PluralFragment$data,
-  +$fragmentRefs: PluralFragment$ref,
-  ...
-}>;
--------------------------------------------------------------------------------
-/*
- * future proof enums: true
- * future proof abstract types: true
- */
-
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type PluralFragment$ref: FragmentReference;
 declare export opaque type PluralFragment$fragmentType: PluralFragment$ref;

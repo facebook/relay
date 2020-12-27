@@ -6,62 +6,6 @@ fragment FragmentSpread on Node {
   }
 }
 ==================================== OUTPUT ===================================
-/*
- * future proof enums: false
- * future proof abstract types: false
- */
-
-import { FragmentRefs } from "relay-runtime";
-export type FragmentSpread = {
-  readonly id: string,
-  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
-  readonly " $refType": FragmentRefs<"FragmentSpread">,
-};
-export type FragmentSpread$data = FragmentSpread;
-export type FragmentSpread$key = {
-  readonly " $data"?: FragmentSpread$data,
-  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
-};
--------------------------------------------------------------------------------
-/*
- * future proof enums: true
- * future proof abstract types: false
- */
-
-import { FragmentRefs } from "relay-runtime";
-export type FragmentSpread = {
-  readonly id: string,
-  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
-  readonly " $refType": FragmentRefs<"FragmentSpread">,
-};
-export type FragmentSpread$data = FragmentSpread;
-export type FragmentSpread$key = {
-  readonly " $data"?: FragmentSpread$data,
-  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
-};
--------------------------------------------------------------------------------
-/*
- * future proof enums: false
- * future proof abstract types: true
- */
-
-import { FragmentRefs } from "relay-runtime";
-export type FragmentSpread = {
-  readonly id: string,
-  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
-  readonly " $refType": FragmentRefs<"FragmentSpread">,
-};
-export type FragmentSpread$data = FragmentSpread;
-export type FragmentSpread$key = {
-  readonly " $data"?: FragmentSpread$data,
-  readonly " $fragmentRefs": FragmentRefs<"FragmentSpread">,
-};
--------------------------------------------------------------------------------
-/*
- * future proof enums: true
- * future proof abstract types: true
- */
-
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread = {
   readonly id: string,

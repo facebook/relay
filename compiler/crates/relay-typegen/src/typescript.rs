@@ -21,6 +21,10 @@ impl Writer for TypeScriptPrinter {
         "FragmentRefs".intern()
     }
 
+    fn supports_exact_objects(&self) -> bool {
+        false
+    }
+
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
         match ast {
             AST::Any => write!(writer, "any"),

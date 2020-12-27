@@ -53,19 +53,20 @@ export type Bar$key = {
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type Foo$ref: FragmentReference;
 declare export opaque type Foo$fragmentType: Foo$ref;
-export type Foo = ?{|
+export type Foo = ?({|
   +__typename: "User",
   +name: string,
+  +$refType: Foo$ref,
 |} | {|
   +__typename: "Comment",
   +body: ?{|
     +text: ?string
   |},
+  +$refType: Foo$ref,
 |} | {|
-  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story"
-|} & {|
-  +$refType: Foo$ref
-|};
+  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story",
+  +$refType: Foo$ref,
+|});
 export type Foo$data = Foo;
 export type Foo$key = {
   +$data?: Foo$data,
@@ -98,19 +99,20 @@ export type Bar$key = {
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type Foo$ref: FragmentReference;
 declare export opaque type Foo$fragmentType: Foo$ref;
-export type Foo = ?{|
+export type Foo = ?({|
   +__typename: "User",
   +name: string,
+  +$refType: Foo$ref,
 |} | {|
   +__typename: "Comment",
   +body: ?{|
     +text: ?string
   |},
+  +$refType: Foo$ref,
 |} | {|
-  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story"
-|} & {|
-  +$refType: Foo$ref
-|};
+  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story",
+  +$refType: Foo$ref,
+|});
 export type Foo$data = Foo;
 export type Foo$key = {
   +$data?: Foo$data,
@@ -143,21 +145,22 @@ export type Bar$key = {
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type Foo$ref: FragmentReference;
 declare export opaque type Foo$fragmentType: Foo$ref;
-export type Foo = ?{|
+export type Foo = ?({|
   +__typename: "User",
   +name: string,
+  +$refType: Foo$ref,
 |} | {|
   +__typename: "Comment",
   +body: ?{|
     +text: ?string
   |},
+  +$refType: Foo$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
-|} & {|
-  +$refType: Foo$ref
-|};
+  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "%other",
+  +$refType: Foo$ref,
+|});
 export type Foo$data = Foo;
 export type Foo$key = {
   +$data?: Foo$data,
@@ -190,21 +193,22 @@ export type Bar$key = {
 import type { FragmentReference } from "relay-runtime";
 declare export opaque type Foo$ref: FragmentReference;
 declare export opaque type Foo$fragmentType: Foo$ref;
-export type Foo = ?{|
+export type Foo = ?({|
   +__typename: "User",
   +name: string,
+  +$refType: Foo$ref,
 |} | {|
   +__typename: "Comment",
   +body: ?{|
     +text: ?string
   |},
+  +$refType: Foo$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
-|} & {|
-  +$refType: Foo$ref
-|};
+  +__typename: "Feedback" | "Page" | "PhotoStory" | "Story" | "%other",
+  +$refType: Foo$ref,
+|});
 export type Foo$data = Foo;
 export type Foo$key = {
   +$data?: Foo$data,

@@ -91,11 +91,11 @@ declare export opaque type TypenameAlias$fragmentType: TypenameAlias$ref;
 export type TypenameAlias = {|
   +_typeAlias: "User",
   +firstName: ?string,
+  +$refType: TypenameAlias$ref,
 |} | {|
   +_typeAlias: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameAlias$ref
+  +$refType: TypenameAlias$ref,
 |};
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
@@ -111,12 +111,12 @@ export type TypenameAliases = {|
   +_typeAlias1: "User",
   +_typeAlias2: "User",
   +firstName: ?string,
+  +$refType: TypenameAliases$ref,
 |} | {|
   +_typeAlias1: "Page",
   +_typeAlias2: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameAliases$ref
+  +$refType: TypenameAliases$ref,
 |};
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
@@ -131,11 +131,11 @@ declare export opaque type TypenameInside$fragmentType: TypenameInside$ref;
 export type TypenameInside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameInside$ref
+  +$refType: TypenameInside$ref,
 |};
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
@@ -150,11 +150,11 @@ declare export opaque type TypenameOutside$fragmentType: TypenameOutside$ref;
 export type TypenameOutside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameOutside$ref
+  +$refType: TypenameOutside$ref,
 |};
 export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
@@ -173,9 +173,14 @@ export type TypenameOutsideWithAbstractType = {|
     +street: ?string,
     +city: ?string,
   |},
+  +username?: ?string,
+  +address?: ?{|
+    +city: ?string,
+    +country: ?string,
+  |},
+  +$refType: TypenameOutsideWithAbstractType$ref,
 |} | {|
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
-|} & {|
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
@@ -196,10 +201,11 @@ declare export opaque type TypenameWithCommonSelections$fragmentType: TypenameWi
 export type TypenameWithCommonSelections = {|
   +__typename: "User",
   +firstName: ?string,
+  +name: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
-|} & {|
   +name: ?string,
   +$refType: TypenameWithCommonSelections$ref,
 |};
@@ -251,11 +257,11 @@ declare export opaque type TypenameAlias$fragmentType: TypenameAlias$ref;
 export type TypenameAlias = {|
   +_typeAlias: "User",
   +firstName: ?string,
+  +$refType: TypenameAlias$ref,
 |} | {|
   +_typeAlias: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameAlias$ref
+  +$refType: TypenameAlias$ref,
 |};
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
@@ -271,12 +277,12 @@ export type TypenameAliases = {|
   +_typeAlias1: "User",
   +_typeAlias2: "User",
   +firstName: ?string,
+  +$refType: TypenameAliases$ref,
 |} | {|
   +_typeAlias1: "Page",
   +_typeAlias2: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameAliases$ref
+  +$refType: TypenameAliases$ref,
 |};
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
@@ -291,11 +297,11 @@ declare export opaque type TypenameInside$fragmentType: TypenameInside$ref;
 export type TypenameInside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameInside$ref
+  +$refType: TypenameInside$ref,
 |};
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
@@ -310,11 +316,11 @@ declare export opaque type TypenameOutside$fragmentType: TypenameOutside$ref;
 export type TypenameOutside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
-|} & {|
-  +$refType: TypenameOutside$ref
+  +$refType: TypenameOutside$ref,
 |};
 export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
@@ -333,9 +339,14 @@ export type TypenameOutsideWithAbstractType = {|
     +street: ?string,
     +city: ?string,
   |},
+  +username?: ?string,
+  +address?: ?{|
+    +city: ?string,
+    +country: ?string,
+  |},
+  +$refType: TypenameOutsideWithAbstractType$ref,
 |} | {|
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story"
-|} & {|
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
@@ -356,10 +367,11 @@ declare export opaque type TypenameWithCommonSelections$fragmentType: TypenameWi
 export type TypenameWithCommonSelections = {|
   +__typename: "User",
   +firstName: ?string,
+  +name: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
-|} & {|
   +name: ?string,
   +$refType: TypenameWithCommonSelections$ref,
 |};
@@ -411,15 +423,16 @@ declare export opaque type TypenameAlias$fragmentType: TypenameAlias$ref;
 export type TypenameAlias = {|
   +_typeAlias: "User",
   +firstName: ?string,
+  +$refType: TypenameAlias$ref,
 |} | {|
   +_typeAlias: "Page",
   +username: ?string,
+  +$refType: TypenameAlias$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +_typeAlias: "%other"
-|} & {|
-  +$refType: TypenameAlias$ref
+  +_typeAlias: "%other",
+  +$refType: TypenameAlias$ref,
 |};
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
@@ -435,10 +448,12 @@ export type TypenameAliases = {|
   +_typeAlias1: "User",
   +_typeAlias2: "User",
   +firstName: ?string,
+  +$refType: TypenameAliases$ref,
 |} | {|
   +_typeAlias1: "Page",
   +_typeAlias2: "Page",
   +username: ?string,
+  +$refType: TypenameAliases$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
@@ -446,8 +461,7 @@ export type TypenameAliases = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +_typeAlias2: "%other",
-|} & {|
-  +$refType: TypenameAliases$ref
+  +$refType: TypenameAliases$ref,
 |};
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
@@ -462,15 +476,16 @@ declare export opaque type TypenameInside$fragmentType: TypenameInside$ref;
 export type TypenameInside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other"
-|} & {|
-  +$refType: TypenameInside$ref
+  +__typename: "%other",
+  +$refType: TypenameInside$ref,
 |};
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
@@ -485,15 +500,16 @@ declare export opaque type TypenameOutside$fragmentType: TypenameOutside$ref;
 export type TypenameOutside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other"
-|} & {|
-  +$refType: TypenameOutside$ref
+  +__typename: "%other",
+  +$refType: TypenameOutside$ref,
 |};
 export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
@@ -512,11 +528,16 @@ export type TypenameOutsideWithAbstractType = {|
     +street: ?string,
     +city: ?string,
   |},
+  +username?: ?string,
+  +address?: ?{|
+    +city: ?string,
+    +country: ?string,
+  |},
+  +$refType: TypenameOutsideWithAbstractType$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
-|} & {|
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
@@ -537,14 +558,17 @@ declare export opaque type TypenameWithCommonSelections$fragmentType: TypenameWi
 export type TypenameWithCommonSelections = {|
   +__typename: "User",
   +firstName: ?string,
+  +name: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
+  +name: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other"
-|} & {|
+  +__typename: "%other",
   +name: ?string,
   +$refType: TypenameWithCommonSelections$ref,
 |};
@@ -596,15 +620,16 @@ declare export opaque type TypenameAlias$fragmentType: TypenameAlias$ref;
 export type TypenameAlias = {|
   +_typeAlias: "User",
   +firstName: ?string,
+  +$refType: TypenameAlias$ref,
 |} | {|
   +_typeAlias: "Page",
   +username: ?string,
+  +$refType: TypenameAlias$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +_typeAlias: "%other"
-|} & {|
-  +$refType: TypenameAlias$ref
+  +_typeAlias: "%other",
+  +$refType: TypenameAlias$ref,
 |};
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
@@ -620,10 +645,12 @@ export type TypenameAliases = {|
   +_typeAlias1: "User",
   +_typeAlias2: "User",
   +firstName: ?string,
+  +$refType: TypenameAliases$ref,
 |} | {|
   +_typeAlias1: "Page",
   +_typeAlias2: "Page",
   +username: ?string,
+  +$refType: TypenameAliases$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
@@ -631,8 +658,7 @@ export type TypenameAliases = {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +_typeAlias2: "%other",
-|} & {|
-  +$refType: TypenameAliases$ref
+  +$refType: TypenameAliases$ref,
 |};
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
@@ -647,15 +673,16 @@ declare export opaque type TypenameInside$fragmentType: TypenameInside$ref;
 export type TypenameInside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
+  +$refType: TypenameInside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other"
-|} & {|
-  +$refType: TypenameInside$ref
+  +__typename: "%other",
+  +$refType: TypenameInside$ref,
 |};
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
@@ -670,15 +697,16 @@ declare export opaque type TypenameOutside$fragmentType: TypenameOutside$ref;
 export type TypenameOutside = {|
   +__typename: "User",
   +firstName: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
+  +$refType: TypenameOutside$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other"
-|} & {|
-  +$refType: TypenameOutside$ref
+  +__typename: "%other",
+  +$refType: TypenameOutside$ref,
 |};
 export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
@@ -697,11 +725,16 @@ export type TypenameOutsideWithAbstractType = {|
     +street: ?string,
     +city: ?string,
   |},
+  +username?: ?string,
+  +address?: ?{|
+    +city: ?string,
+    +country: ?string,
+  |},
+  +$refType: TypenameOutsideWithAbstractType$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other"
-|} & {|
+  +__typename: "Comment" | "Feedback" | "Page" | "PhotoStory" | "Story" | "%other",
   +username?: ?string,
   +address?: ?{|
     +city: ?string,
@@ -722,14 +755,17 @@ declare export opaque type TypenameWithCommonSelections$fragmentType: TypenameWi
 export type TypenameWithCommonSelections = {|
   +__typename: "User",
   +firstName: ?string,
+  +name: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |} | {|
   +__typename: "Page",
   +username: ?string,
+  +name: ?string,
+  +$refType: TypenameWithCommonSelections$ref,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  +__typename: "%other"
-|} & {|
+  +__typename: "%other",
   +name: ?string,
   +$refType: TypenameWithCommonSelections$ref,
 |};

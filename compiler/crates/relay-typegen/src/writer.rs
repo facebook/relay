@@ -69,5 +69,9 @@ pub trait Writer {
         "FragmentReference".intern()
     }
 
+    fn supports_exact_objects(&self) -> bool {
+        true
+    }
+
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;
 }

@@ -863,14 +863,25 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         };
 
         let base_type_props_not_empty = !base_type_props.is_empty();
-        let base_type = props_to_object(base_type_props);
         if concrete_types.is_empty() {
-            return base_type;
+            return props_to_object(base_type_props);
+        }
+
+        if base_type_props_not_empty && self.writer.supports_exact_objects() {
+            return AST::Union(
+                concrete_types
+                    .into_iter()
+                    .map(|mut props: Vec<Prop>| {
+                        props.extend(base_type_props.iter().cloned());
+                        props_to_object(props)
+                    })
+                    .collect(),
+            );
         }
 
         let union_type = AST::Union(concrete_types.into_iter().map(props_to_object).collect());
         if base_type_props_not_empty {
-            AST::Intersection(vec![union_type, base_type])
+            AST::Intersection(vec![union_type, props_to_object(base_type_props)])
         } else {
             union_type
         }

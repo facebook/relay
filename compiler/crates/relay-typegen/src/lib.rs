@@ -33,7 +33,7 @@ use relay_transforms::{
     REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, Object, ScalarID, Schema, Type, TypeReference, Union};
-use std::fmt::{Result, Write};
+use std::fmt::Result;
 use std::hash::Hash;
 use writer::{Prop, AST, SPREAD_KEY};
 
@@ -59,12 +59,7 @@ lazy_static! {
 
 macro_rules! write_ast {
     ($self:ident, $ast:expr) => {{
-        let output = $self.writer.write_ast(&$ast);
-        if output.is_empty() {
-            Ok(())
-        } else {
-            ::std::writeln!($self.result, "{}", output)
-        }
+        $self.writer.write(&mut $self.result, &$ast)
     }};
 }
 

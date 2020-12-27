@@ -7,6 +7,7 @@
 
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use std::fmt::{Result, Write};
 
 #[derive(Debug, Clone)]
 pub enum AST {
@@ -68,5 +69,5 @@ pub trait Writer {
         "FragmentReference".intern()
     }
 
-    fn write_ast(&mut self, ast: &AST) -> String;
+    fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;
 }

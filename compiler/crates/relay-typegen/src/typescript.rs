@@ -21,23 +21,6 @@ impl Writer for TypeScriptPrinter {
         "FragmentRefs".intern()
     }
 
-    fn write_ast(&mut self, ast: &AST) -> String {
-        let mut writer = String::new();
-        self.write(&mut writer, ast)
-            .expect("Expected Ok result from writing TypeScript code");
-
-        writer
-    }
-}
-
-impl TypeScriptPrinter {
-    pub fn new(config: &TypegenConfig) -> Self {
-        Self {
-            indentation: 0,
-            use_import_type_syntax: config.use_import_type_syntax,
-        }
-    }
-
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
         match ast {
             AST::Any => write!(writer, "any"),
@@ -68,6 +51,15 @@ impl TypeScriptPrinter {
             AST::ExportFragmentList(_) => Ok(()),
             AST::DeclareExportFragment(_, _) => Ok(()),
             AST::ImportFragmentType(_, _) => Ok(()),
+        }
+    }
+}
+
+impl TypeScriptPrinter {
+    pub fn new(config: &TypegenConfig) -> Self {
+        Self {
+            indentation: 0,
+            use_import_type_syntax: config.use_import_type_syntax,
         }
     }
 
@@ -246,7 +238,7 @@ impl TypeScriptPrinter {
         types: &[StringKey],
         from: &StringKey,
     ) -> Result {
-        write!(
+        writeln!(
             writer,
             "import {}{{ {} }} from \"{}\";",
             if self.use_import_type_syntax {
@@ -269,7 +261,9 @@ impl TypeScriptPrinter {
         name: &StringKey,
         value: &AST,
     ) -> Result {
-        write!(writer, "type {} = {};", name, self.write_ast(value))
+        write!(writer, "type {} = ", name)?;
+        self.write(writer, value)?;
+        writeln!(writer, ";")
     }
 
     fn write_export_type_equals(
@@ -278,7 +272,9 @@ impl TypeScriptPrinter {
         name: &StringKey,
         value: &AST,
     ) -> Result {
-        write!(writer, "export type {} = {};", name, self.write_ast(value))
+        write!(writer, "export type {} = ", name)?;
+        self.write(writer, value)?;
+        writeln!(writer, ";")
     }
 }
 
@@ -288,7 +284,15 @@ mod tests {
     use interner::Intern;
 
     fn print_type(ast: &AST) -> String {
-        TypeScriptPrinter::new(&Default::default()).write_ast(ast)
+        print_type_with_config(ast, &Default::default())
+    }
+
+    fn print_type_with_config(ast: &AST, config: &TypegenConfig) -> String {
+        let mut result = String::new();
+        TypeScriptPrinter::new(config)
+            .write(&mut result, ast)
+            .unwrap();
+        result
     }
 
     #[test]
@@ -535,16 +539,18 @@ mod tests {
                 vec!["A".intern(), "B".intern()],
                 "module".intern()
             )),
-            "import { A, B } from \"module\";"
+            "import { A, B } from \"module\";\n"
         );
 
         assert_eq!(
-            TypeScriptPrinter::new(&TypegenConfig {
-                use_import_type_syntax: true,
-                ..Default::default()
-            })
-            .write_ast(&AST::ImportType(vec!["C".intern()], "./foo".intern())),
-            "import type { C } from \"./foo\";"
+            self::print_type_with_config(
+                &AST::ImportType(vec!["C".intern()], "./foo".intern()),
+                &TypegenConfig {
+                    use_import_type_syntax: true,
+                    ..Default::default()
+                }
+            ),
+            "import type { C } from \"./foo\";\n"
         );
     }
 }

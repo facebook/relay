@@ -501,17 +501,6 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 .item
                 .expect_string_literal();
 
-            /* TODO: Enable this after rolling out
-               This causes __typename to be `string`
-            if let Some(type_condition) = inline_fragment.type_condition {
-                if !type_condition.is_abstract_type() {
-                    for selection in &mut selections {
-                        selection.concrete_type = Some(type_condition);
-                    }
-                }
-            }
-            */
-
             if !self.match_fields.contains_key(&directive_arg_name) {
                 let match_field = self.raw_response_selections_to_ast(
                     selections

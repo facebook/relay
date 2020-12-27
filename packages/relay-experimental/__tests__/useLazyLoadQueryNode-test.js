@@ -608,12 +608,8 @@ describe('useLazyLoadQueryNode', () => {
 
       expect(logs).toMatchObject([
         {
-          name: 'execute.start',
-          transactionID: 100000,
-        },
-        {
           name: 'network.start',
-          transactionID: 100001,
+          transactionID: 100000,
         },
         {
           name: 'queryresource.fetch',
@@ -622,18 +618,10 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           name: 'network.next',
-          transactionID: 100001,
-        },
-        {
-          name: 'execute.next',
           transactionID: 100000,
         },
         {
           name: 'network.complete',
-          transactionID: 100001,
-        },
-        {
-          name: 'execute.complete',
           transactionID: 100000,
         },
         {
@@ -717,13 +705,8 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           // request for variables one starts
-          name: 'execute.start',
-          transactionID: 100000,
-          variables: variablesOne,
-        },
-        {
           name: 'network.start',
-          transactionID: 100001,
+          transactionID: 100000,
           variables: variablesOne,
         },
         {
@@ -740,13 +723,8 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           // request for variables two starts
-          name: 'execute.start',
-          transactionID: 100002,
-          variables: variablesTwo,
-        },
-        {
           name: 'network.start',
-          transactionID: 100003,
+          transactionID: 100001,
           variables: variablesTwo,
         },
         {
@@ -765,18 +743,10 @@ describe('useLazyLoadQueryNode', () => {
         // since it's already cached and reused
         {
           name: 'network.next',
-          transactionID: 100001,
-        },
-        {
-          name: 'execute.next',
           transactionID: 100000,
         },
         {
           name: 'network.complete',
-          transactionID: 100001,
-        },
-        {
-          name: 'execute.complete',
           transactionID: 100000,
         },
         // retain event for variables one

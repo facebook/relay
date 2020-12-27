@@ -27,6 +27,7 @@ pub enum TokenKind {
     ErrorUnterminatedString,
     ErrorUnsupportedStringCharacter,
     ErrorUnterminatedBlockString,
+    Empty,
 
     // Valid tokens
     #[token("&")]
@@ -221,6 +222,7 @@ impl fmt::Display for TokenKind {
             TokenKind::ErrorUnterminatedString => "unterminated string",
             TokenKind::ErrorUnsupportedStringCharacter => "unsupported character in string",
             TokenKind::ErrorUnterminatedBlockString => "unterminated block string",
+            TokenKind::Empty => "missing expected kind",
         };
         f.write_str(message)
     }

@@ -6,11 +6,18 @@
  */
 
 //! Utilities for providing the hover feature
-use crate::lsp::{HoverContents, LanguageString, MarkedString};
-use crate::utils::{NodeKind, NodeResolutionInfo};
+use crate::server::LSPExtraDataProvider;
+use crate::{
+    lsp::{HoverContents, LanguageString, MarkedString},
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    node_resolution_info::{NodeKind, NodeResolutionInfo},
+    server::LSPState,
+};
+use common::PerfLogger;
 use graphql_ir::{Program, Value};
 use graphql_text_printer::print_value;
 use interner::StringKey;
+use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::Schema;
 use schema_print::print_directive;
 use std::{
@@ -64,10 +71,11 @@ DEPRECATED version of `@arguments` directive.
     content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
 }
 
-pub fn get_hover_response_contents(
+fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &Schema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    extra_data_provider: &Box<dyn LSPExtraDataProvider>,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
 
@@ -96,12 +104,37 @@ pub fn get_hover_response_contents(
             }
         }
         NodeKind::FieldName => {
-            let type_ref = node_resolution_info
+            let field = node_resolution_info
                 .type_path
-                .resolve_current_type_reference(schema)?;
-            let type_name = schema.get_type_string(&type_ref);
+                .resolve_current_field(schema)?;
 
-            Some(hover_content_wrapper(type_name))
+            let type_name = schema.get_type_string(&field.type_);
+            let mut hover_contents: Vec<MarkedString> = vec![graphql_marked_string(format!(
+                "{}: {}",
+                field.name, type_name
+            ))];
+
+            if !field.arguments.is_empty() {
+                let mut args_string: Vec<String> =
+                    vec!["This field accepts following arguments:".to_string()];
+                args_string.push("```".to_string());
+                for arg in field.arguments.iter() {
+                    let default_value = match &arg.default_value {
+                        Some(default_value) => format!(" = {}", default_value),
+                        None => "".to_string(),
+                    };
+
+                    args_string.push(format!(
+                        "- {}: {}{}",
+                        arg.name,
+                        schema.get_type_string(&arg.type_),
+                        default_value,
+                    ));
+                }
+                args_string.push("```".to_string());
+                hover_contents.push(MarkedString::String(args_string.join("\n")))
+            }
+            Some(HoverContents::Array(hover_contents))
         }
         NodeKind::FieldArgument(field_name, argument_name) => {
             let type_ref = node_resolution_info
@@ -139,12 +172,10 @@ pub fn get_hover_response_contents(
                     variables_string.push("```".to_string());
                     for var in &fragment.variable_definitions {
                         let default_value = match var.default_value.clone() {
-                            Some(default_value) => {
-                                format!(
-                                    ", default_value = {}",
-                                    print_value(schema, &Value::Constant(default_value))
-                                )
-                            }
+                            Some(default_value) => format!(
+                                ", default_value = {}",
+                                print_value(schema, &Value::Constant(default_value))
+                            ),
                             None => "".to_string(),
                         };
                         variables_string.push(format!(
@@ -185,7 +216,81 @@ For example:
                 None
             }
         }
-        NodeKind::OperationDefinition => None,
-        NodeKind::FragmentDefinition(_) => None,
+        NodeKind::OperationDefinition(query_name) => {
+            let search_token = if let Some(query_name) = query_name {
+                query_name.lookup().to_string()
+            } else {
+                return None;
+            };
+
+            let extra_data = extra_data_provider.fetch_query_stats(search_token);
+            if !extra_data.is_empty() {
+                Some(HoverContents::Array(
+                    extra_data
+                        .iter()
+                        .map(|str| MarkedString::String(str.to_string()))
+                        .collect::<_>(),
+                ))
+            } else {
+                None
+            }
+        }
+        NodeKind::FragmentDefinition(name) => {
+            let type_ = node_resolution_info
+                .type_path
+                .resolve_current_type_reference(schema)?;
+            let title = graphql_marked_string(format!(
+                "fragment {} on {} {{ .. }}",
+                name,
+                schema.get_type_name(type_.inner())
+            ));
+
+            let hover_contents = vec![
+                title,
+                MarkedString::String(
+                    r#"Fragments let you construct sets of fields,
+and then include them in queries where you need to.
+
+---
+@see: https://graphql.org/learn/queries/#fragments
+"#
+                    .to_string(),
+                ),
+            ];
+
+            Some(HoverContents::Array(hover_contents))
+        }
+        NodeKind::InlineFragment => None,
+        NodeKind::TypeCondition(_) => None,
+    }
+}
+
+pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <HoverRequest as Request>::Params,
+) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
+    let node_resolution_info = state.resolve_node(params)?;
+    log::info!("Hovering over {:?}", node_resolution_info);
+    if let Some(schemas) = state
+        .get_schemas()
+        .read()
+        .expect("on_hover: could not acquire read lock for state.get_schemas")
+        .get(&node_resolution_info.project_name)
+    {
+        let contents = get_hover_response_contents(
+            node_resolution_info,
+            schemas,
+            state.get_source_programs_ref(),
+            &state.extra_data_provider,
+        )
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError("Unable to get hover contents".to_string())
+        })?;
+        Ok(Some(Hover {
+            contents,
+            range: None,
+        }))
+    } else {
+        Err(LSPRuntimeError::ExpectedError)
     }
 }

@@ -45,7 +45,7 @@ union Address @source(schema: "facebook", name: "Address") =
     MailingAddress
   | MailingAddress
 ==================================== OUTPUT ===================================
-Schema {
+Text Schema:Schema {
  query_type: Some(
     ObjectID(
         0,
@@ -761,3 +761,578 @@ Schema {
     },
 ]
  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: "extern_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Interface,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "fetchable",
+        arguments: [
+            Argument {
+                name: "field_name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Object,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "ref_type",
+        arguments: [
+            Argument {
+                name: "schema",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+            Argument {
+                name: "name",
+                type_: Named(
+                    Scalar(2),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            FieldDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(1),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+    Directive {
+        name: "source",
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        locations: [
+            Enum,
+            InputObject,
+            Interface,
+            Object,
+            Scalar,
+            Union,
+        ],
+        repeatable: false,
+        is_extension: false,
+    },
+]
+enums: []
+fields: [
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "is_default",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "label",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+]
+input_objects: [
+    InputObject {
+        name: "Country",
+        fields: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Country",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
+interfaces: [
+    Interface {
+        name: "XIGHuman",
+        is_extension: false,
+        implementing_objects: [],
+        fields: [],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "instagram",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Human",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+        interfaces: [],
+    },
+]
+objects: [
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+            FieldID(
+                2,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+            FieldID(
+                2,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+            FieldID(
+                2,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+    Object {
+        name: "MailingAddress",
+        is_extension: false,
+        fields: [
+            FieldID(
+                0,
+            ),
+            FieldID(
+                1,
+            ),
+            FieldID(
+                2,
+            ),
+        ],
+        interfaces: [
+            InterfaceID(
+                0,
+            ),
+            InterfaceID(
+                1,
+            ),
+            InterfaceID(
+                2,
+            ),
+        ],
+        directives: [],
+    },
+]
+scalars: [
+    Scalar {
+        name: "Boolean",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "Float",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "ID",
+        is_extension: false,
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "ID",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+    Scalar {
+        name: "Int",
+        is_extension: false,
+        directives: [],
+    },
+    Scalar {
+        name: "String",
+        is_extension: false,
+        directives: [],
+    },
+]
+unions: [
+    Union {
+        name: "Address",
+        is_extension: false,
+        members: [],
+        directives: [
+            DirectiveValue {
+                name: "source",
+                arguments: [
+                    ArgumentValue {
+                        name: "schema",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "facebook",
+                            },
+                        ),
+                    },
+                    ArgumentValue {
+                        name: "name",
+                        value: String(
+                            StringNode {
+                                token: Token {
+                                    span: 0:0,
+                                    kind: EndOfFile,
+                                },
+                                value: "Address",
+                            },
+                        ),
+                    },
+                ],
+            },
+        ],
+    },
+]
+}

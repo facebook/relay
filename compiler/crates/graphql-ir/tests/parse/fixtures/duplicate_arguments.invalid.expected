@@ -10,7 +10,7 @@ fragment DuplicateArguments on User {
   duplicate_arguments.invalid.graphql:3:7
     2 │ fragment DuplicateArguments on User {
     3 │   url(relative: true, relative: true)
-      │       ^^^^^^^^^^^^^^^^
+      │       ^^^^^^^^^^^^^^
     4 │     @customDirective(level: 1, level: 2)
 
   ℹ︎ conflicts with
@@ -27,7 +27,7 @@ fragment DuplicateArguments on User {
   duplicate_arguments.invalid.graphql:4:22
     3 │   url(relative: true, relative: true)
     4 │     @customDirective(level: 1, level: 2)
-      │                      ^^^^^^^^^^
+      │                      ^^^^^^^^
     5 │ }
 
   ℹ︎ conflicts with

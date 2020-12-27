@@ -102,7 +102,7 @@ impl FlattenTransform {
             type_: operation.type_,
             directives: operation.directives.clone(),
             variable_definitions: operation.variable_definitions.clone(),
-            selections: self.tranform_selections(&operation.selections, operation.type_)?,
+            selections: self.transform_selections(&operation.selections, operation.type_)?,
         })
     }
 
@@ -116,11 +116,11 @@ impl FlattenTransform {
             directives: fragment.directives.clone(),
             variable_definitions: fragment.variable_definitions.clone(),
             used_global_variables: fragment.used_global_variables.clone(),
-            selections: self.tranform_selections(&fragment.selections, fragment.type_condition)?,
+            selections: self.transform_selections(&fragment.selections, fragment.type_condition)?,
         })
     }
 
-    fn tranform_selections(
+    fn transform_selections(
         &self,
         selections: &[Selection],
         parent_type: Type,
@@ -157,7 +157,7 @@ impl FlattenTransform {
             definition: linked_field.definition,
             arguments: linked_field.arguments.clone(),
             directives: linked_field.directives.clone(),
-            selections: self.tranform_selections(&linked_field.selections, type_)?,
+            selections: self.transform_selections(&linked_field.selections, type_)?,
         });
         if should_cache {
             let mut seen_linked_fields = self.seen_linked_fields.write();
@@ -190,7 +190,7 @@ impl FlattenTransform {
         let result = Arc::new(InlineFragment {
             type_condition: fragment.type_condition,
             directives: fragment.directives.clone(),
-            selections: self.tranform_selections(&fragment.selections, next_parent_type)?,
+            selections: self.transform_selections(&fragment.selections, next_parent_type)?,
         });
         if should_cache {
             let mut seen_inline_fragments = self.seen_inline_fragments.write();
@@ -218,7 +218,7 @@ impl FlattenTransform {
             Selection::Condition(node) => Selection::Condition(Arc::new(Condition {
                 value: node.value.clone(),
                 passing_value: node.passing_value,
-                selections: self.tranform_selections(&node.selections, parent_type)?,
+                selections: self.transform_selections(&node.selections, parent_type)?,
             })),
             Selection::FragmentSpread(node) => Selection::FragmentSpread(Arc::clone(node)),
             Selection::ScalarField(node) => Selection::ScalarField(Arc::clone(node)),

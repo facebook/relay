@@ -309,6 +309,12 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
+    /// This is for future use. Where `has_breaking_schema_change` may return `false` for some of non-breaking changes
+    pub fn has_schema_changes(&self) -> bool {
+        // but for now it will return the same thing
+        self.has_breaking_schema_change()
+    }
+
     pub fn has_breaking_schema_change(&self) -> bool {
         self.extensions
             .values()
@@ -442,10 +448,10 @@ impl CompilerState {
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
                     let mut dirty_definitions = vec![];
-                    'outer: for (definition_name, artifact_tuples) in artifacts.0.iter() {
+                    'outer: for (definition_name, artifact_records) in artifacts.0.iter() {
                         let mut added = false;
-                        for artifact_tuple in artifact_tuples {
-                            if paths.remove(&artifact_tuple.0) && !added {
+                        for artifact_record in artifact_records {
+                            if paths.remove(&artifact_record.path) && !added {
                                 dirty_definitions.push(*definition_name);
                                 if paths.is_empty() {
                                     break 'outer;

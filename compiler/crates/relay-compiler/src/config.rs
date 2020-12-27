@@ -13,20 +13,17 @@ use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
-use graphql_ir::Program;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
-use schema::Schema;
 use serde::Deserialize;
 use sha1::{Digest, Sha1};
 use std::{
     collections::{HashMap, HashSet},
     fmt,
     path::PathBuf,
-    sync::Arc,
 };
 use watchman_client::pdu::ScmAwareClockData;
 
@@ -80,8 +77,6 @@ pub struct Config {
     >,
 
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
-
-    pub on_build_project_success: Option<OnBuildProjectSuccess>,
 }
 
 impl Config {
@@ -212,7 +207,6 @@ impl Config {
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
-            on_build_project_success: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -543,5 +537,3 @@ pub trait OperationPersister {
 
     fn worker_count(&self) -> usize;
 }
-
-type OnBuildProjectSuccess = Box<dyn Fn(ProjectName, &Arc<Schema>, &Program) + Send + Sync>;

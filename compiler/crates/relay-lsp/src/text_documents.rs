@@ -6,23 +6,24 @@
  */
 
 //! Utilities related to LSP text document syncing
-#![allow(dead_code)]
 
-use crate::lsp::{
-    DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
-    TextDocumentItem, Url,
+use crate::{
+    lsp::{DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem},
+    lsp_runtime_error::LSPRuntimeResult,
+    server::LSPState,
 };
 
+use common::PerfLogger;
 use graphql_syntax::GraphQLSource;
-use log::info;
+use lsp_types::notification::{
+    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
+    Notification,
+};
 
-pub type GraphQLTextDocumentCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
-
-pub fn on_did_open_text_document(
-    params: DidOpenTextDocumentParams,
-    graphql_source_cache: &mut GraphQLTextDocumentCache,
-) {
-    info!("Did open text document!");
+pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
+    lsp_state: &mut LSPState<TPerfLogger>,
+    params: <DidOpenTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
 
@@ -30,26 +31,28 @@ pub fn on_did_open_text_document(
     let graphql_sources = match extract_graphql_sources(&text) {
         Some(sources) => sources,
         // Exit early if there are no sources
-        None => return,
+        None => return Ok(()),
     };
 
     // Track the GraphQL sources for this document
-    graphql_source_cache.insert(uri, graphql_sources);
+    lsp_state.insert_synced_sources(uri, graphql_sources);
+
+    Ok(())
 }
 
-pub fn on_did_close_text_document(
-    params: DidCloseTextDocumentParams,
-    graphql_source_cache: &mut GraphQLTextDocumentCache,
-) {
+pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
+    lsp_state: &mut LSPState<TPerfLogger>,
+    params: <DidCloseTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
-    graphql_source_cache.remove(&uri);
+    lsp_state.remove_synced_sources(&uri);
+    Ok(())
 }
 
-pub fn on_did_change_text_document(
-    params: DidChangeTextDocumentParams,
-    graphql_source_cache: &mut GraphQLTextDocumentCache,
-) {
-    info!("Did change text document!");
+pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
+    lsp_state: &mut LSPState<TPerfLogger>,
+    params: <DidChangeTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
     let DidChangeTextDocumentParams {
         content_changes,
         text_document,
@@ -66,18 +69,19 @@ pub fn on_did_change_text_document(
         Some(sources) => sources,
         // Remove the item from the cache and exit early if there are no longer any sources
         None => {
-            graphql_source_cache.remove(&uri);
-            return;
+            lsp_state.remove_synced_sources(&uri);
+            return Ok(());
         }
     };
 
     // Update the GraphQL sources for this document
-    graphql_source_cache.insert(uri, graphql_sources);
+    lsp_state.insert_synced_sources(uri, graphql_sources);
+    Ok(())
 }
 
 /// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`
 /// if extracting fails or there are no GraphQL chunks in the file.
-pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
+fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
     match extract_graphql::parse_chunks(source) {
         Ok(chunks) => {
             if chunks.is_empty() {
@@ -89,4 +93,11 @@ pub fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
         // TODO T80565215 handle these errors
         Err(_) => None,
     }
+}
+
+pub(crate) fn on_did_save_text_document<TPerfLogger: PerfLogger + 'static>(
+    _lsp_state: &mut LSPState<TPerfLogger>,
+    _params: <DidSaveTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
+    Ok(())
 }

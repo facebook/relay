@@ -516,6 +516,16 @@ impl Schema {
         Ok(interface_id)
     }
 
+    pub fn add_implementing_object_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        object_id: ObjectID,
+    ) -> DiagnosticsResult<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.implementing_objects.push(object_id);
+        Ok(interface_id)
+    }
+
     pub fn add_member_to_union(
         &mut self,
         union_id: UnionID,
@@ -1421,7 +1431,6 @@ macro_rules! type_id {
         #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
         pub struct $name(pub $type);
         impl $name {
-            #[allow(dead_code)]
             fn as_usize(&self) -> usize {
                 self.0 as usize
             }

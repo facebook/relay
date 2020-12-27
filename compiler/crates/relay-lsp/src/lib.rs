@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-#![warn(clippy::all)]
+#![deny(clippy::all)]
 
 mod client;
 mod completion;
@@ -15,12 +15,14 @@ mod location;
 mod lsp;
 pub mod lsp_process_error;
 mod lsp_runtime_error;
+mod node_resolution_info;
 mod references;
 mod server;
+mod shutdown;
 mod status_reporting;
 mod text_documents;
-mod type_path;
 mod utils;
+pub use crate::server::LSPExtraDataProvider;
 use common::PerfLogger;
 use log::info;
 use lsp_process_error::LSPProcessResult;
@@ -31,6 +33,7 @@ use std::sync::Arc;
 pub async fn start_language_server<TPerfLogger>(
     config: Config,
     perf_logger: Arc<TPerfLogger>,
+    extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -39,7 +42,7 @@ where
     info!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     info!("JSON-RPC handshake completed");
-    server::run(connection, config, params, perf_logger).await?;
+    server::run(connection, config, params, perf_logger, extra_data_provider).await?;
     io_handles.join()?;
     Ok(())
 }

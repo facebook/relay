@@ -93,10 +93,10 @@ impl SourcePrinter {
             let mut something_highlighted_on_line = false;
             let mut marker = String::new();
             for byte_index in line_index_to_byte_range(line_index) {
-                if byte_index == end_byte_index {
-                    currently_hightlighted = false
-                } else if byte_index == start_byte_index {
-                    currently_hightlighted = true;
+                if byte_index == start_byte_index {
+                    currently_hightlighted = true
+                } else if byte_index == end_byte_index {
+                    currently_hightlighted = false;
                 }
 
                 let chr = match source
@@ -126,6 +126,9 @@ impl SourcePrinter {
                     write!(writer, "{}", chr.to_string().red()).unwrap();
                     marker.push_str("^");
                     something_highlighted_on_line = true;
+                    if start_byte_index == end_byte_index {
+                        currently_hightlighted = false;
+                    }
                 } else {
                     write!(writer, "{}", chr).unwrap();
                     if !something_highlighted_on_line {

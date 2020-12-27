@@ -5,42 +5,37 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::Artifact;
+use crate::build_project::{Artifact, ArtifactContent};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
-use sha1::{Digest, Sha1};
 use std::{collections::hash_map::Entry, path::PathBuf};
 
 /// Name of a fragment or operation.
 pub type DefinitionName = StringKey;
 
-/// Tuple with the path and hash of the artifact
-type ArtifactTuple = (PathBuf, Sha1Hash);
-
+/// Record that contains path to the artifact, persisted_operation_id (when available)
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Sha1Hash(String);
-
-impl Sha1Hash {
-    fn hash(data: &str) -> Self {
-        let mut hash = Sha1::new();
-        hash.input(data);
-        Sha1Hash(hex::encode(hash.result()))
-    }
+pub struct ArtifactRecord {
+    pub path: PathBuf,
+    pub persisted_operation_id: Option<String>,
 }
-
-/// A map from DefinitionName to output artifacts and their hashes
+/// A map from DefinitionName to output artifacts records
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(pub FnvHashMap<DefinitionName, Vec<ArtifactTuple>>);
+pub struct ArtifactMap(pub FnvHashMap<DefinitionName, Vec<ArtifactRecord>>);
 
 impl ArtifactMap {
     pub fn insert(&mut self, artifact: Artifact) {
-        let artifact_tuple = (
-            artifact.path,
-            Sha1Hash::hash(
-                "TODO", // &artifact.content
-            ),
-        );
+        let artifact_tuple = ArtifactRecord {
+            path: artifact.path,
+            persisted_operation_id: match artifact.content {
+                ArtifactContent::Operation {
+                    id_and_text_hash, ..
+                } => id_and_text_hash.map(|(id, _)| id),
+                _ => None,
+            },
+        };
+
         for source_definition_name in artifact.source_definition_names {
             match self.0.entry(source_definition_name) {
                 Entry::Occupied(mut entry) => {

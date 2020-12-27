@@ -165,7 +165,7 @@ export default function ArtistRenderer({artistID}) {
         if (error) {
           return <div>{error.message}</div>;
         } else if (props) {
-          return <Artist artist={props.artist} />;
+          return <ArtistHeader artist={props.artist} />;
         }
         return <div>Loading</div>;
       }}

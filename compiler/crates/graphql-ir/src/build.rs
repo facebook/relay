@@ -34,7 +34,7 @@ lazy_static! {
     static ref FIXME_FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
 
     static ref DIRECTIVE_UNCHECKED_ARGUMENTS: StringKey = "uncheckedArguments_DEPRECATED".intern();
-    static ref DIRECTIVE_ARGUMENTS: StringKey = "arguments".intern();
+    pub static ref DIRECTIVE_ARGUMENTS: StringKey = "arguments".intern();
 }
 
 /// The semantic of defining variables on a fragment definition.

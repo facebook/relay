@@ -13,7 +13,7 @@ fragment Page_fragment on Node {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.
+✖︎ Relay does not allow aliasing fields to `id`.
 
   id-alias-with-errors.invalid.graphql:10:7
     9 │       name
@@ -22,7 +22,7 @@ fragment Page_fragment on Node {
    11 │     }
 
 
-✖︎ Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.
+✖︎ Relay does not allow aliasing fields to `id`.
 
   id-alias-with-errors.invalid.graphql:3:3
     2 │ fragment User_fragment on User {
@@ -31,7 +31,7 @@ fragment Page_fragment on Node {
     4 │ }
 
 
-✖︎ Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.
+✖︎ Relay does not allow aliasing fields to `id`.
 
   id-alias-with-errors.invalid.graphql:8:5
     7 │   ... on Page {

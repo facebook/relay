@@ -26,5 +26,3 @@ fragment User_user on User {
     6 │     ...User_user @module(name: "User.react")
       │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     7 │   }
-      │ ^^
-    8 │ }

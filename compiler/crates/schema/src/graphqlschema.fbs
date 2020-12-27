@@ -43,12 +43,35 @@ table FBObjectValue {
 }
 
 enum FBTypeKind : byte {
-    Scalar = 0
+    Scalar = 0,
+    InputObject = 1,
+    Enum = 2,
+    Object = 3,
+    Interface = 4,
+    Union = 5,
 }
 
 table FBType {
     kind:FBTypeKind;
     scalar_id:uint32;
+    input_object_id:uint32;
+    enum_id:uint32;
+    object_id:uint32;
+    interface_id:uint32;
+    union_id:uint32;
+}
+
+enum FBTypeReferenceKind : byte {
+    Named = 0,
+    NonNull,
+    List
+}
+
+table FBTypeReference {
+    kind:FBTypeReferenceKind;
+    named:FBType;
+    null:FBTypeReference;
+    list:FBTypeReference;
 }
 
 table FBArgumentValue {
@@ -61,10 +84,97 @@ table FBDirectiveValue {
     arguments:[FBArgumentValue];
 }
 
+table FBArgument {
+    name:string;
+    type_:FBTypeReference;
+    value:FBConstValue;
+}
+
+enum FBDirectiveLocation : byte {
+    Query = 0,
+    Mutation,
+    Subscription,
+    Field,
+    FragmentDefinition,
+    FragmentSpread,
+    InlineFragment,
+    Schema,
+    Scalar,
+    Object,
+    FieldDefinition,
+    ArgumentDefinition,
+    Interface,
+    Union,
+    Enum,
+    EnumValue,
+    InputObject,
+    InputFieldDefinition,
+    VariableDefinition,
+}
+
+table FBDirective {
+    name:string;
+    is_extension:bool;
+    arguments:[FBArgument];
+    locations:[FBDirectiveLocation];
+    repeatable:bool;
+}
+
+table FBEnumValue {
+    value:string;
+    directives:[FBDirectiveValue];
+}
+
 table FBScalar {
     name:string;
     is_extension:bool;
     directives:[FBDirectiveValue];
+}
+
+table FBInputObject {
+    name:string;
+    fields:[FBArgument];
+    directives:[FBDirectiveValue];
+}
+
+table FBEnum {
+    name:string;
+    is_extension:bool;
+    values:[FBEnumValue];
+    directives:[FBDirectiveValue];
+}
+
+table FBObject {
+    name:string;
+    is_extension:bool;
+    fields:[uint32];
+    interfaces:[uint32];
+    directives:[FBDirectiveValue];
+}
+
+table FBInterface {
+    name:string;
+    is_extension:bool;
+    fields:[uint32];
+    interfaces:[uint32];
+    implementing_objects:[uint32];
+    directives:[FBDirectiveValue];
+}
+
+table FBUnion {
+    name:string;
+    is_extension:bool;
+    members:[uint32];
+    directives:[FBDirectiveValue];
+}
+
+table FBField {
+    name:string;
+    is_extension:bool;
+    arguments:[FBArgument];
+    type_:FBTypeReference;
+    directives:[FBDirectiveValue];
+    parent_type:FBType;
 }
 
 table FBTypeMap {
@@ -72,9 +182,21 @@ table FBTypeMap {
     value:FBType;
 }
 
+table FBDirectiveMap {
+    name:string (key);
+    value:FBDirective;
+}
+
 table FBSchema {
     types:[FBTypeMap];
+    directives: [FBDirectiveMap];
     scalars:[FBScalar];
+    input_objects:[FBInputObject];
+    enums:[FBEnum];
+    objects:[FBObject];
+    interfaces:[FBInterface];
+    unions:[FBUnion];
+    fields:[FBField];
 }
 
 root_type FBSchema;

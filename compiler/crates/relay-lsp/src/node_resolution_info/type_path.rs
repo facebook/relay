@@ -7,9 +7,9 @@
 
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Schema, Type, TypeReference};
+use schema::{Field, Schema, Type, TypeReference};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf
 /// type the request (completion/hover) is being made against
 pub enum TypePathItem {
@@ -66,26 +66,32 @@ fn resolve_relative_type_for_current_item(
     parent_type: Type,
     path_item: TypePathItem,
     schema: &Schema,
-) -> Option<TypeReference> {
+) -> Option<(TypeReference, Option<Field>)> {
     match path_item {
         TypePathItem::Operation(_) | TypePathItem::FragmentDefinition { .. } => None,
         TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
             if parent_type.is_abstract_type() || parent_type.is_object() {
                 let field_id = schema.named_field(parent_type, name)?;
                 let field = schema.field(field_id);
-                Some(field.type_.clone())
+                Some((field.type_.clone(), Some(field.clone())))
             } else {
                 None
             }
         }
-        TypePathItem::InlineFragment { type_name } => {
-            schema.get_type(type_name).map(TypeReference::Named)
-        }
+        TypePathItem::InlineFragment { type_name } => schema
+            .get_type(type_name)
+            .map(|type_| (TypeReference::Named(type_), None)),
     }
 }
 
 #[derive(Debug, Default)]
 pub struct TypePath(Vec<TypePathItem>);
+
+impl From<Vec<TypePathItem>> for TypePath {
+    fn from(type_path: Vec<TypePathItem>) -> TypePath {
+        TypePath(type_path)
+    }
+}
 
 impl TypePath {
     pub fn add_type(&mut self, type_path_item: TypePathItem) {
@@ -113,8 +119,33 @@ impl TypePath {
             schema,
         )?);
         while let Some(path_item) = type_path.pop() {
-            type_ = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
+            let result = resolve_relative_type_for_current_item(type_.inner(), path_item, schema)?;
+            type_ = result.0;
         }
         Some(type_)
+    }
+
+    /// Returns the leaf is it is a field
+    pub fn resolve_current_field(self, schema: &Schema) -> Option<&Field> {
+        let mut type_path = self.0;
+        type_path.reverse();
+        let mut type_ =
+            resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
+        while let Some(path_item) = type_path.pop() {
+            if type_path.is_empty() {
+                return match path_item {
+                    TypePathItem::LinkedField { name } => schema
+                        .named_field(type_, name)
+                        .map(|field_id| schema.field(field_id)),
+                    TypePathItem::ScalarField { name } => schema
+                        .named_field(type_, name)
+                        .map(|field_id| schema.field(field_id)),
+                    _ => None,
+                };
+            } else {
+                type_ = resolve_relative_type(type_, path_item, schema)?;
+            }
+        }
+        None
     }
 }

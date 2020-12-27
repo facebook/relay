@@ -4,44 +4,41 @@ title: Testing Relay Components
 ---
 The purpose of this document is to cover the Relay APIs for testing Relay components.
 
-The content is focused mostly on jest unit-tests (testing individual components) and integration tests (testing a combination of components).  But these testing tools may be applied in different cases: screenshot-tests, production smoke-tests, fuzz-tests, e2e test, etc.
+The content is focused mostly on Jest unit-tests (testing individual components) and integration tests (testing a combination of components), but these testing tools may be applied in different cases: screenshot-tests, production smoke-tests, fuzz-tests, e2e test, etc.
 
-What are the benefits of writing jest tests:
+The benefits of writing Jest tests:
 
-* In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce, and fix those regressions, and prevent them in the future.
-* It simplifies the refactoring process: when properly written (testing public interface, not implementation) - tests really help with changing the internal implementation of the components.
-* It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest —watch mode is really shining in this case.
+* In general, it improves the stability of the system. Flow really helps with catching a various set of JavaScript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce, and fix those regressions, and prevent them in the future.
+* It simplifies the refactoring process: when properly written (testing public interface, not implementation), tests really help with changing the internal implementation of the components.
+* It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest --watch mode is really shining in this case.
 * It will simplify the onboarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.
 
-One thing to notice: while jest unit and integration tests will help improve the stability of the system, they should be considered as a part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot, performance tests.
+One thing to note: while Jest unit and integration tests will help improve the stability of the system, they should be considered as a part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot and performance tests.
 
 ## Testing with Relay
 
 Testing applications that are using Relay may be challenging, because of the additional data fetching layer that is wrapping the actual product code.
 
-And it's not always easy to understand the mechanics of all processes that are happening behind Relay, and how to properly handle interactions with the framework.
+It's not always easy to understand the mechanics of all processes that are happening behind Relay, and how to properly handle interactions with the framework.
 
 Fortunately, we have tools that aim to simplify the process of writing tests for Relay components, by providing imperative APIs for controlling the request/response flow and additional API for mock data generation.
 
 There are two main modules that you may use in your tests:
 
-* createMockEnvironment(options): RelayMockEnvironment
-* MockPayloadGenerator and @relay_test_operation directive
+* `createMockEnvironment(options): RelayMockEnvironment`
+* `MockPayloadGenerator` and `@relay_test_operation` directive
 
-
-With `createMockEnvironment,` you will be able to create an instance of `RelayMockEnvironment`, a Relay environment specifically for your tests. The instance created by `createMockEnvironment` is implementing the Relay Environment Interface and it also has an additional Mock layer, with methods that allow to resolve/reject and control the flow of operations (queries/mutations/subscriptions).
+With `createMockEnvironment`, you are able to create an instance of `RelayMockEnvironment`, a Relay environment specifically for your tests. The instance created by `createMockEnvironment` is implementing the Relay Environment Interface and it also has an additional Mock layer, with methods that allow to resolve/reject and control the flow of operations (queries/mutations/subscriptions).
 
 The main purpose of `MockPayloadGenerator` is to improve the process of creating and maintaining the mock data for tested components.
 
-One of the patterns you may see in the tests for Relay components: 95% of the test code, is the test preparation: the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. And rest 5% is actual test. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests are time-consuming and painful to maintain.
+One of the patterns you may see in the tests for Relay components: 95% of the test code is the test preparation: the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. The remaining 5% is the actual test. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests is time-consuming and painful to maintain.
 
-With the MockPayloadGenerator and @relay_test_operation, we want to get rid of this pattern and switch the developer's focus from the preparation of the test to the actual testing.
+With the `MockPayloadGenerator` and `@relay_test_operation`, we want to get rid of this pattern and switch the developer's focus from the preparation of the test to the actual testing.
 
+## `RelayMockEnvironment` API Overview
 
-## RelayMockEnvironment API Overview
-
-RelayMockEnvironment is a special version of Relay Environment with an additional API methods for controlling the operation flow: resolving and rejection operations, providing incremental payloads for subscriptions, working with cache.
-
+`RelayMockEnvironment` is a special version of Relay Environment with an additional API methods for controlling the operation flow: resolving and rejection operations, providing incremental payloads for subscriptions, working with cache.
 
 * Methods for finding operations executed on the environment
     * `getAllOperations()` - get all operation executed during the test by the current time
@@ -58,13 +55,11 @@ RelayMockEnvironment is a special version of Relay Environment with an additiona
 * Additional utility methods
     * `isLoading(request | operation)` - will return `true` if operations have not been completed, yet.
     * `cachePayload(request | operation, variables, payload)` - will add payload to QueryResponse cache
-    * `clearCache() `- will clear QueryResponse cache
+    * `clearCache() `- will clear `QueryResponse` cache
 
+## Mock Payload Generator and `@relay_test_operation` Directive
 
-
-## Mock Payload Generator and @relay_test_operation Directive
-
-MockPayloadGenerator may drastically simplify the process of creating and maintaining mock data for your tests. MockPayloadGenerator is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions that will return the default data for the type.
+`MockPayloadGenerator` may drastically simplify the process of creating and maintaining mock data for your tests. `MockPayloadGenerator` is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions that will return the default data for the type.
 
 Example of a simple Mock Resolver:
 
@@ -81,8 +76,7 @@ Example of a simple Mock Resolver:
 }
 ```
 
-
-It is possible to define more resolvers for Object types
+It is possible to define more resolvers for Object types:
 
 ```javascript
 {
@@ -122,7 +116,7 @@ The first argument of the MockResolver is the object that contains Mock Resolver
 
 ### ID Generation
 
-The second argument of the Mock Resolver its a function that will generate a sequence of integers, useful to generate unique ids in the tests
+The second argument of the Mock Resolver its a function that will generate a sequence of integers, useful to generate unique IDs in the tests:
 
 ```javascript
 {
@@ -133,11 +127,11 @@ The second argument of the Mock Resolver its a function that will generate a seq
 }
 ```
 
-### @relay_test_operation
+### `@relay_test_operation`
 
 Most of GraphQL type information for a specific field in the selection is not available during Relay runtime. By default, Relay, cannot get type information for a scalar field in the selection, or an interface type of the object.
 
-Operation with the @relay_test_operation directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:
+Operations with the `@relay_test_operation` directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:
 
 ```javascript
 {
@@ -163,7 +157,7 @@ Operation with the @relay_test_operation directive will have additional metadata
 
 ### Relay Component Test
 
-Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from `relay-test-utils`
+Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from `relay-test-utils`.
 
 
 ```javascript
@@ -223,7 +217,7 @@ test('Error State', () => {
 
 ### Fragment Container Tests
 
-Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap your fragment container with the QueryRenderer that renders a Query that's spreads fragments from your fragment container.
+Essentially, in the example above, `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). Usually, the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap your fragment container with the QueryRenderer that renders a Query that's spreads fragments from your fragment container.
 
 ```javascript
 test('Fragment Container', () => {
@@ -260,7 +254,7 @@ test('Fragment Container', () => {
 
 ### Pagination Container Test
 
-Essentially, tests for Pagination container are not different from Fragment Container tests. But we can do more here, we can actually see how the pagination works - we can assert the behavior of our components when performing pagination (load more, refetch).
+Essentially, tests for Pagination container are not different from Fragment Container tests. We can also do more here. We can actually see how the pagination works by asserting the behavior of our components when performing pagination (load more, refetch).
 
 ```javascript
 // Pagination Example
@@ -379,7 +373,6 @@ test('Refetch Container', () => {
 ```
 
 
-
 ### Mutations
 
 Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.
@@ -441,8 +434,7 @@ test('it should subscribe', () => {
 
 ### Example with `queueOperationResolver`
 
-
-With `queueOpeararionResolver` it possible to define responses for operations that will be executed on the environment
+With `queueOpeararionResolver`, it possible to define responses for operations that will be executed on the environment
 
 ```javascript
 // Say you have a component with the QueryRenderer

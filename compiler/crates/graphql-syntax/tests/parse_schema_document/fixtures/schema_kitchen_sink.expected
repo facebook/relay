@@ -306,7 +306,7 @@ SchemaDocument {
                                                 },
                                                 type_: NonNull(
                                                     NonNullTypeAnnotation {
-                                                        span: 498:511,
+                                                        span: 498:508,
                                                         type_: Named(
                                                             Identifier {
                                                                 span: 498:507,
@@ -521,7 +521,7 @@ SchemaDocument {
                                                 },
                                                 type_: List(
                                                     ListTypeAnnotation {
-                                                        span: 681:690,
+                                                        span: 681:689,
                                                         open: Token {
                                                             span: 681:682,
                                                             kind: OpenBracket,
@@ -773,7 +773,7 @@ SchemaDocument {
                 interfaces: [],
                 directives: [
                     ConstantDirective {
-                        span: 832:856,
+                        span: 832:855,
                         at: Token {
                             span: 832:833,
                             kind: At,
@@ -920,7 +920,7 @@ SchemaDocument {
                                 ),
                                 directives: [
                                     ConstantDirective {
-                                        span: 926:935,
+                                        span: 926:934,
                                         at: Token {
                                             span: 926:927,
                                             kind: At,
@@ -1074,7 +1074,7 @@ SchemaDocument {
                 interfaces: [],
                 directives: [
                     ConstantDirective {
-                        span: 1029:1038,
+                        span: 1029:1036,
                         at: Token {
                             span: 1029:1030,
                             kind: At,
@@ -1225,7 +1225,7 @@ SchemaDocument {
                 interfaces: [],
                 directives: [
                     ConstantDirective {
-                        span: 1142:1155,
+                        span: 1142:1154,
                         at: Token {
                             span: 1142:1143,
                             kind: At,
@@ -1324,7 +1324,7 @@ SchemaDocument {
                                 ),
                                 directives: [
                                     ConstantDirective {
-                                        span: 1213:1222,
+                                        span: 1213:1221,
                                         at: Token {
                                             span: 1213:1214,
                                             kind: At,
@@ -1483,7 +1483,7 @@ SchemaDocument {
                 interfaces: [],
                 directives: [
                     ConstantDirective {
-                        span: 1351:1365,
+                        span: 1351:1363,
                         at: Token {
                             span: 1351:1352,
                             kind: At,
@@ -1756,7 +1756,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 1563:1572,
+                        span: 1563:1571,
                         at: Token {
                             span: 1563:1564,
                             kind: At,
@@ -1804,7 +1804,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 1605:1614,
+                        span: 1605:1613,
                         at: Token {
                             span: 1605:1606,
                             kind: At,
@@ -1897,7 +1897,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 1700:1710,
+                        span: 1700:1708,
                         at: Token {
                             span: 1700:1701,
                             kind: At,
@@ -1941,7 +1941,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 1754:1765,
+                        span: 1754:1763,
                         at: Token {
                             span: 1754:1755,
                             kind: At,
@@ -1971,7 +1971,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 1792:1803,
+                        span: 1792:1801,
                         at: Token {
                             span: 1792:1793,
                             kind: At,
@@ -2062,7 +2062,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 2020:2028,
+                        span: 2020:2027,
                         at: Token {
                             span: 2020:2021,
                             kind: At,
@@ -2097,7 +2097,7 @@ SchemaDocument {
                                 },
                                 directives: [
                                     ConstantDirective {
-                                        span: 2048:2063,
+                                        span: 2048:2060,
                                         at: Token {
                                             span: 2048:2049,
                                             kind: At,
@@ -2199,7 +2199,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 2142:2151,
+                        span: 2142:2149,
                         at: Token {
                             span: 2142:2143,
                             kind: At,
@@ -2248,7 +2248,7 @@ SchemaDocument {
                                 },
                                 type_: NonNull(
                                     NonNullTypeAnnotation {
-                                        span: 2176:2186,
+                                        span: 2176:2183,
                                         type_: Named(
                                             Identifier {
                                                 span: 2176:2182,
@@ -2321,7 +2321,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 2227:2242,
+                        span: 2227:2241,
                         at: Token {
                             span: 2227:2228,
                             kind: At,
@@ -2367,7 +2367,7 @@ SchemaDocument {
                                 default_value: None,
                                 directives: [
                                     ConstantDirective {
-                                        span: 2267:2291,
+                                        span: 2267:2290,
                                         at: Token {
                                             span: 2267:2268,
                                             kind: At,
@@ -2459,7 +2459,7 @@ SchemaDocument {
                                 ),
                                 directives: [
                                     ConstantDirective {
-                                        span: 2365:2389,
+                                        span: 2365:2388,
                                         at: Token {
                                             span: 2365:2366,
                                             kind: At,
@@ -2497,7 +2497,7 @@ SchemaDocument {
                 },
                 directives: [
                     ConstantDirective {
-                        span: 2415:2431,
+                        span: 2415:2429,
                         at: Token {
                             span: 2415:2416,
                             kind: At,
@@ -2545,7 +2545,7 @@ SchemaDocument {
                                 },
                                 type_: NonNull(
                                     NonNullTypeAnnotation {
-                                        span: 2560:2569,
+                                        span: 2560:2568,
                                         type_: Named(
                                             Identifier {
                                                 span: 2560:2567,
@@ -2565,7 +2565,7 @@ SchemaDocument {
                                 default_value: None,
                                 directives: [
                                     ConstantDirective {
-                                        span: 2569:2591,
+                                        span: 2569:2590,
                                         at: Token {
                                             span: 2569:2570,
                                             kind: At,
@@ -2792,7 +2792,7 @@ SchemaDocument {
             SchemaExtension {
                 directives: [
                     ConstantDirective {
-                        span: 2910:2921,
+                        span: 2910:2919,
                         at: Token {
                             span: 2910:2911,
                             kind: At,
@@ -2815,7 +2815,7 @@ SchemaDocument {
             SchemaExtension {
                 directives: [
                     ConstantDirective {
-                        span: 2935:2945,
+                        span: 2935:2944,
                         at: Token {
                             span: 2935:2936,
                             kind: At,

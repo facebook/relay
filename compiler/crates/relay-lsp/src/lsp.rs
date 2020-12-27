@@ -8,8 +8,10 @@
 //! Utilities for reading, writing, and transforming data for the LSP service
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
+use std::sync::{Arc, RwLock};
+
 use crate::lsp_process_error::LSPProcessResult;
-use common::Location;
+use crate::server::LSPStateError;
 use crossbeam::{crossbeam_channel::Sender, SendError};
 pub use lsp_server::{Connection, Message};
 pub use lsp_server::{
@@ -18,53 +20,6 @@ pub use lsp_server::{
 };
 pub use lsp_types::{notification::*, request::*, *};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
-
-#[derive(Debug, Clone)]
-pub enum LSPBridgeMessage {
-    CompletionRequest {
-        request_id: ServerRequestId,
-        params: CompletionParams,
-    },
-    HoverRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
-    GotoDefinitionRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
-    ReferencesRequest {
-        request_id: ServerRequestId,
-        reference_params: ReferenceParams,
-    },
-    DidOpenTextDocument(DidOpenTextDocumentParams),
-    DidChangeTextDocument(DidChangeTextDocumentParams),
-    DidCloseTextDocument(DidCloseTextDocumentParams),
-}
-
-impl LSPBridgeMessage {
-    pub(crate) fn get_message_type_for_logging(&self) -> &str {
-        match self {
-            LSPBridgeMessage::GotoDefinitionRequest { .. } => "GotoDefinitionRequest",
-            LSPBridgeMessage::CompletionRequest { .. } => "CompletionRequest",
-            LSPBridgeMessage::HoverRequest { .. } => "HoverRequest",
-            LSPBridgeMessage::ReferencesRequest { .. } => "ReferencesRequest",
-            LSPBridgeMessage::DidOpenTextDocument(_) => "DidOpenTextDocument",
-            LSPBridgeMessage::DidChangeTextDocument(_) => "DidChangeTextDocument",
-            LSPBridgeMessage::DidCloseTextDocument(_) => "DidCloseTextDocument",
-        }
-    }
-}
-
-/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
-/// Returns None if we are unable to do the conversion
-pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
-    let file_path = location.source_location().path();
-    let canonical_path = fs::canonicalize(root_dir.join(file_path)).ok()?;
-    Url::from_file_path(canonical_path).ok()
-}
 
 #[derive(Debug)]
 pub enum ShowStatus {}
@@ -98,7 +53,25 @@ impl Request for ShowStatus {
     const METHOD: &'static str = "window/showStatus";
 }
 
-pub fn set_ready_status(sender: &Sender<Message>) {
+pub fn set_actual_server_status(
+    sender: &Sender<Message>,
+    errors: &Arc<RwLock<Vec<LSPStateError>>>,
+) {
+    if let Ok(errors) = errors.read() {
+        if errors.is_empty() {
+            set_ready_status(sender);
+        } else {
+            set_error_status(sender, &errors)
+        }
+    } else {
+        // Ok, this is not entirely correct to return a ready status here.
+        // But the other option would be to surface the "acquire read lock error" to the user,
+        // which is too many details for the things we're doing here.
+        set_ready_status(sender);
+    }
+}
+
+fn set_ready_status(sender: &Sender<Message>) {
     update_status(
         Some("Relay: ready".into()),
         Some("Relay: ready".into()),
@@ -107,10 +80,29 @@ pub fn set_ready_status(sender: &Sender<Message>) {
     );
 }
 
-pub fn set_initializing_status(sender: &Sender<Message>) {
+fn set_error_status(sender: &Sender<Message>, errors: &[LSPStateError]) {
     update_status(
-        Some("Relay: initializing".into()),
-        Some("Relay: initializing".into()),
+        Some("Relay: invalid state".into()),
+        Some(format!(
+            "Unable to create correct server state:\n{}",
+            errors
+                .iter()
+                .map(|err| err.to_string())
+                .collect::<Vec<_>>()
+                .join("\n")
+        )),
+        MessageType::Error,
+        sender,
+    );
+}
+
+pub fn set_starting_status(sender: &Sender<Message>) {
+    update_status(
+        Some("Relay: starting...".into()),
+        Some(
+            "The Relay compiler will start when you open a Javascript file containing a graphql literal"
+                .into(),
+        ),
         MessageType::Warning,
         sender,
     );
@@ -143,7 +135,9 @@ fn update_status(
             actions: None,
         },
     );
-    sender.send(Message::Request(request)).unwrap();
+    sender
+        .send(Message::Request(request))
+        .expect("update_status: failed to send");
 }
 
 /// Show a notification in the client

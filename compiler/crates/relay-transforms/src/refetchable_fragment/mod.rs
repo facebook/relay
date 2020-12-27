@@ -274,7 +274,6 @@ const GENERATORS: [QueryGenerator; 4] = [
     FETCHABLE_QUERY_GENERATOR,
 ];
 
-#[allow(dead_code)]
 pub struct RefetchRoot {
     operation: Arc<OperationDefinition>,
     fragment: Arc<FragmentDefinition>,

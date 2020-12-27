@@ -11,14 +11,15 @@ use errors::*;
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use rayon::prelude::*;
 use regex::Regex;
 use schema::{
     EnumID, Field, FieldID, InputObjectID, Interface, Schema, Type, TypeReference, TypeWithFields,
     UnionID,
 };
 use schema_print::{print_directive, print_type};
-use std::fmt::Write;
 use std::time::Instant;
+use std::{fmt::Write, sync::Mutex};
 
 lazy_static! {
     static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![
@@ -64,14 +65,14 @@ impl ValidationContextType {
 
 pub struct ValidationContext<'schema> {
     pub schema: &'schema Schema,
-    pub errors: FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>,
+    pub errors: Mutex<FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>>,
 }
 
 impl<'schema> ValidationContext<'schema> {
     pub fn new(schema: &'schema Schema) -> Self {
         Self {
             schema,
-            errors: FnvHashMap::default(),
+            errors: Mutex::new(FnvHashMap::default()),
         }
     }
 
@@ -81,7 +82,10 @@ impl<'schema> ValidationContext<'schema> {
         self.validate_directives();
         self.validate_types();
         println!("Validated Schema in {}ms", now.elapsed().as_millis());
-        println!("Found {} validation errors", self.errors.len())
+        println!(
+            "Found {} validation errors",
+            self.errors.lock().unwrap().len()
+        )
     }
 
     fn validate_root_types(&mut self) {
@@ -90,7 +94,7 @@ impl<'schema> ValidationContext<'schema> {
         self.validate_root_type(self.schema.mutation_type(), *MUTATION);
     }
 
-    fn validate_root_type(&mut self, root_type: Option<Type>, type_name: StringKey) {
+    fn validate_root_type(&self, root_type: Option<Type>, type_name: StringKey) {
         if let Some(type_) = root_type {
             if !type_.is_object() {
                 self.report_error(
@@ -127,10 +131,11 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     fn validate_types(&mut self) {
-        for (type_name, type_) in self.schema.get_type_map() {
+        let types = self.schema.get_type_map().collect::<Vec<_>>();
+        types.par_iter().for_each(|(type_name, type_)| {
             // Ensure it is named correctly (excluding introspection types).
-            if !is_introspection_type(type_, *type_name) {
-                self.validate_name(*type_name, ValidationContextType::TypeNode(*type_name));
+            if !is_introspection_type(type_, **type_name) {
+                self.validate_name(**type_name, ValidationContextType::TypeNode(**type_name));
             }
             match type_ {
                 Type::Enum(id) => {
@@ -144,7 +149,7 @@ impl<'schema> ValidationContext<'schema> {
                 Type::Interface(id) => {
                     let interface = self.schema.interface(*id);
                     // Ensure fields are valid
-                    self.validate_fields(*type_name, &interface.fields);
+                    self.validate_fields(**type_name, &interface.fields);
 
                     // Validate cyclic references
                     if !self.validate_cyclic_implements_reference(interface) {
@@ -155,7 +160,7 @@ impl<'schema> ValidationContext<'schema> {
                 Type::Object(id) => {
                     let object = self.schema.object(*id);
                     // Ensure fields are valid
-                    self.validate_fields(*type_name, &object.fields);
+                    self.validate_fields(**type_name, &object.fields);
 
                     // Ensure objects implement the interfaces they claim to.
                     self.validate_type_with_interfaces(object);
@@ -166,10 +171,10 @@ impl<'schema> ValidationContext<'schema> {
                 }
                 Type::Scalar(_id) => {}
             };
-        }
+        });
     }
 
-    fn validate_fields(&mut self, type_name: StringKey, fields: &[FieldID]) {
+    fn validate_fields(&self, type_name: StringKey, fields: &[FieldID]) {
         let context = ValidationContextType::TypeNode(type_name);
         // Must define one or more fields.
         if fields.is_empty() {
@@ -232,7 +237,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_union_members(&mut self, id: UnionID) {
+    fn validate_union_members(&self, id: UnionID) {
         let union = self.schema.union(id);
         let context = ValidationContextType::TypeNode(union.name);
         if union.members.is_empty() {
@@ -253,7 +258,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_enum_type(&mut self, id: EnumID) {
+    fn validate_enum_type(&self, id: EnumID) {
         let enum_ = self.schema.enum_(id);
         let context = ValidationContextType::TypeNode(enum_.name);
         if enum_.values.is_empty() {
@@ -273,7 +278,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_input_object_fields(&mut self, id: InputObjectID) {
+    fn validate_input_object_fields(&self, id: InputObjectID) {
         let input_object = self.schema.input_object(id);
         let context = ValidationContextType::TypeNode(input_object.name);
         if input_object.fields.is_empty() {
@@ -300,7 +305,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields>(&mut self, type_: &T) {
+    fn validate_type_with_interfaces<T: TypeWithFields>(&self, type_: &T) {
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
@@ -320,7 +325,7 @@ impl<'schema> ValidationContext<'schema> {
     }
 
     fn validate_type_implements_interface<T: TypeWithFields>(
-        &mut self,
+        &self,
         type_: &T,
         interface: &Interface,
     ) {
@@ -426,7 +431,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_cyclic_implements_reference(&mut self, interface: &Interface) -> bool {
+    fn validate_cyclic_implements_reference(&self, interface: &Interface) -> bool {
         for id in interface.interfaces() {
             let mut path = Vec::new();
             let mut visited = FnvHashSet::default();
@@ -479,7 +484,7 @@ impl<'schema> ValidationContext<'schema> {
         false
     }
 
-    fn validate_name(&mut self, name: StringKey, context: ValidationContextType) {
+    fn validate_name(&self, name: StringKey, context: ValidationContextType) {
         let name = name.lookup();
         let mut chars = name.chars();
         if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
@@ -504,20 +509,23 @@ impl<'schema> ValidationContext<'schema> {
             .collect::<FnvHashMap<_, _>>()
     }
 
-    fn report_error(&mut self, error: SchemaValidationError, context: ValidationContextType) {
+    fn report_error(&self, error: SchemaValidationError, context: ValidationContextType) {
         self.errors
+            .lock()
+            .unwrap()
             .entry(context)
             .or_insert_with(Vec::new)
             .push(error);
     }
 
-    fn add_error(&mut self, error: SchemaValidationError) {
+    fn add_error(&self, error: SchemaValidationError) {
         self.report_error(error, ValidationContextType::None);
     }
 
     pub fn print_errors(&self) -> String {
         let mut builder: String = String::new();
-        let mut contexts: Vec<_> = self.errors.keys().collect();
+        let errors = self.errors.lock().unwrap();
+        let mut contexts: Vec<_> = errors.keys().collect();
         contexts.sort_by_key(|context| context.type_name());
         for context in contexts {
             match context {
@@ -541,15 +549,14 @@ impl<'schema> ValidationContext<'schema> {
                 )
                 .unwrap(),
             }
-            let mut errors = self
-                .errors
+            let mut error_strings = errors
                 .get(context)
                 .unwrap()
                 .iter()
                 .map(|error| format!("\t* {}", error))
                 .collect::<Vec<_>>();
-            errors.sort();
-            writeln!(builder, "{}", errors.join("\n")).unwrap();
+            error_strings.sort();
+            writeln!(builder, "{}", error_strings.join("\n")).unwrap();
             writeln!(builder).unwrap();
         }
         builder

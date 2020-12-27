@@ -148,10 +148,8 @@ pub enum ValidationMessage {
     #[error("Unexpected arguments on '__token' field")]
     InvalidArgumentsOnFetchTokenField(),
 
-    #[error(
-        "Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`."
-    )]
-    DisallowIdAsAliasError(),
+    #[error("Relay does not allow aliasing fields to `{0}`.")]
+    DisallowReservedAliasError(StringKey),
 
     #[error("Relay does not allow `__typename` field on Query, Mutation or Subscription.")]
     DisallowTypenameOnRoot(),
@@ -703,4 +701,10 @@ pub enum ValidationMessage {
 
     #[error("Duplicate variable `{name}`")]
     DuplicateVariable { name: StringKey },
+
+    #[error("{definition} `{name}` must start with an uppercase letter.")]
+    RequiredUppercaseNaming {
+        definition: StringKey,
+        name: StringKey,
+    },
 }

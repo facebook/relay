@@ -115,7 +115,7 @@ impl FlowPrinter {
     fn write_nullable(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
         write!(writer, "?")?;
         match of_type {
-            AST::Union(members) if members.len() > 1 => {
+            AST::Union(members) | AST::Intersection(members) if members.len() > 1 => {
                 write!(writer, "(")?;
                 self.write(writer, of_type)?;
                 write!(writer, ")")?;

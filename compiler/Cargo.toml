@@ -19,6 +19,7 @@ members = [
     "crates/relay-test-schema",
     "crates/relay-transforms",
     "crates/relay-typegen",
+    "crates/schema-diff",
     "crates/schema-print",
     "crates/schema",
     "crates/signedsource",

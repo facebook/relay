@@ -1,0 +1,10 @@
+query MyQuery(
+    $id: ID
+    $var: String
+    $var_with_default: String = "hello"
+    $var_with_null_default: String = null
+) {
+    node(id: $id) {
+        __typename
+    }
+}

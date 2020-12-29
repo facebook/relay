@@ -375,7 +375,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
                 match &var_def.default_value {
-                    Some(ConstantValue::Null()) | None => {}
+                    None => {}
                     Some(default_value) => {
                         write!(self.writer, " = ")?;
                         self.print_constant_value(&default_value)?;

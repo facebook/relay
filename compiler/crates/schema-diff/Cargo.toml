@@ -21,6 +21,3 @@ interner = { path = "../interner" }
 schema = { path = "../schema" }
 fnv = "1.0"
 lazy_static = "1.0"
-
-[dev-dependencies]
-graphql-test-helpers = { path = "../graphql-test-helpers" }

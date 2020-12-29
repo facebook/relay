@@ -287,9 +287,9 @@ fn compare_string_keys(
     (added, removed)
 }
 
-fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -> SchemaChange {
+fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>) -> SchemaChange {
     let mut changes = vec![];
-    let mut current_map = build_curent_map(current);
+    let mut current_map = build_curent_map(&current);
 
     for definition in previous {
         match definition {
@@ -537,17 +537,17 @@ fn diff(current: &[TypeSystemDefinition], previous: Vec<TypeSystemDefinition>) -
     SchemaChange::DefinitionChanges(changes)
 }
 
-pub fn detect_changes(
-    current_definitions: &[TypeSystemDefinition],
-    current_text: &str,
-    previous_text: &str,
-) -> SchemaChange {
+pub fn detect_changes(current_text: &str, previous_text: &str) -> SchemaChange {
     if current_text == previous_text {
         return SchemaChange::None;
     }
+    let current_definitions =
+        graphql_syntax::parse_schema_document(current_text, SourceLocationKey::Generated)
+            .expect("Current schema couldn't be parsed")
+            .definitions;
     let previous_definitions =
         graphql_syntax::parse_schema_document(previous_text, SourceLocationKey::Generated)
-            .expect("Schema couldn't be parsed")
+            .expect("Previous schema couldn't be parsed")
             .definitions;
     diff(current_definitions, previous_definitions)
 }

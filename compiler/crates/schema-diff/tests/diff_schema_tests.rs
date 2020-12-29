@@ -8,52 +8,19 @@
 use schema_diff::definitions::*;
 use schema_diff::*;
 
-use common::SourceLocationKey;
-use graphql_syntax::parse_schema_document;
-use graphql_test_helpers::diagnostics_to_sorted_string;
 use interner::Intern;
 use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
-    match parse_schema_document(current, SourceLocationKey::generated()) {
-        Ok(graphql_syntax::SchemaDocument {
-            location: _,
-            definitions,
-        }) => {
-            let mut change = detect_changes(&definitions, current, previous);
-            sort_change(&mut change);
-            change
-        }
-        Err(diagnostics) => {
-            println!(
-                "Parsing schema document failed:\n{}",
-                diagnostics_to_sorted_string(current, &diagnostics)
-            );
-            SchemaChange::None
-        }
-    }
+    let mut change = detect_changes(current, previous);
+    sort_change(&mut change);
+    change
 }
 
 fn is_safe(current: &str, previous: &str) -> bool {
-    match parse_schema_document(current, SourceLocationKey::generated()) {
-        Ok(graphql_syntax::SchemaDocument {
-            location: _,
-            definitions,
-        }) => {
-            let schema = build_schema(current).unwrap();
-            let change = detect_changes(&definitions, current, previous);
-            let ret = change.is_safe(&schema);
-            println! {"Is change safe? {}\n", ret};
-            ret
-        }
-        Err(diagnostics) => {
-            println!(
-                "Parsing schema document failed:\n{}",
-                diagnostics_to_sorted_string(current, &diagnostics)
-            );
-            false
-        }
-    }
+    let schema = build_schema(current).unwrap();
+    let change = detect_changes(current, previous);
+    change.is_safe(&schema)
 }
 
 #[test]

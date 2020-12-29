@@ -43,6 +43,12 @@ pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String 
     result
 }
 
+pub fn print_selections(schema: &Schema, selections: &[Selection]) -> String {
+    let mut result = String::new();
+    write_selections(schema, selections, &mut result).unwrap();
+    result
+}
+
 pub fn print_arguments(schema: &Schema, arguments: &[Argument]) -> String {
     let mut result = String::new();
     write_arguments(schema, arguments, &mut result).unwrap();
@@ -86,6 +92,15 @@ pub fn write_fragment(
 ) -> Result {
     let printer = Printer::new(&schema, &mut result);
     printer.print_fragment(fragment)
+}
+
+pub fn write_selections(
+    schema: &Schema,
+    selections: &[Selection],
+    mut result: &mut impl Write,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_selections(selections, 0)
 }
 
 pub fn write_arguments(

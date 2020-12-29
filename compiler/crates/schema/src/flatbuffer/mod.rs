@@ -5,14 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod graphqlschema_generated;
+
 use crate::definitions::{Argument, Directive, *};
-use crate::graphqlschema_generated::graphqlschema::*;
 use common::Span;
 use flatbuffers::*;
 use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
     FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
 };
+pub use graphqlschema_generated::graphqlschema;
+use graphqlschema_generated::graphqlschema::*;
 use interner::{Intern, StringKey};
 use std::convert::TryInto;
 

@@ -11,7 +11,7 @@
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
 use graphql_syntax::{ConstantArgument, ConstantValue, List};
-use schema::{Argument, *};
+use schema::*;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 

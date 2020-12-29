@@ -13,8 +13,7 @@
 
 pub mod definitions;
 mod errors;
-mod fb_schema;
-mod graphqlschema_generated;
+mod flatbuffer;
 
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
@@ -23,9 +22,9 @@ pub use definitions::{
     ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
-use fb_schema::FlatBufferSchema;
+pub use flatbuffer::graphqlschema::*;
+use flatbuffer::FlatBufferSchema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use graphqlschema_generated::graphqlschema::*;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 

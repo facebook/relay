@@ -63,9 +63,16 @@ pub trait Transformer {
     ) -> Transformed<FragmentDefinition> {
         let selections = self.transform_selections(&fragment.selections);
         let directives = self.transform_directives(&fragment.directives);
-        if selections.should_keep() && directives.should_keep() {
+        let variable_definitions =
+            self.transform_variable_definitions(&fragment.variable_definitions);
+
+        if selections.should_keep()
+            && directives.should_keep()
+            && variable_definitions.should_keep()
+        {
             return Transformed::Keep;
         }
+
         Transformed::Replace(FragmentDefinition {
             directives: directives.replace_or_else(|| fragment.directives.clone()),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
@@ -86,20 +93,68 @@ pub trait Transformer {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         let selections = self.transform_selections(&operation.selections);
+        let directives = self.transform_directives(&operation.directives);
+        let variable_definitions =
+            self.transform_variable_definitions(&operation.variable_definitions);
+
         // Special-case for empty selections
         if let TransformedValue::Replace(selections) = &selections {
             if selections.is_empty() {
                 return Transformed::Delete;
             }
         }
-        let directives = self.transform_directives(&operation.directives);
-        if selections.should_keep() && directives.should_keep() {
+
+        if variable_definitions.should_keep()
+            && directives.should_keep()
+            && selections.should_keep()
+        {
             return Transformed::Keep;
         }
+
         Transformed::Replace(OperationDefinition {
+            variable_definitions: variable_definitions
+                .replace_or_else(|| operation.variable_definitions.clone()),
             directives: directives.replace_or_else(|| operation.directives.clone()),
             selections: selections.replace_or_else(|| operation.selections.clone()),
             ..operation.clone()
+        })
+    }
+
+    fn transform_variable_definitions(
+        &mut self,
+        variable_definitions: &[VariableDefinition],
+    ) -> TransformedValue<Vec<VariableDefinition>> {
+        self.default_transform_variable_definitions(variable_definitions)
+    }
+
+    fn default_transform_variable_definitions(
+        &mut self,
+        variable_definitions: &[VariableDefinition],
+    ) -> TransformedValue<Vec<VariableDefinition>> {
+        self.transform_list(
+            variable_definitions,
+            Self::default_transform_variable_definition,
+        )
+    }
+
+    fn transform_variable_definition(
+        &mut self,
+        variable_definition: &VariableDefinition,
+    ) -> TransformedValue<VariableDefinition> {
+        self.default_transform_variable_definition(variable_definition)
+    }
+
+    fn default_transform_variable_definition(
+        &mut self,
+        variable_definition: &VariableDefinition,
+    ) -> TransformedValue<VariableDefinition> {
+        let directives = self.transform_directives(&variable_definition.directives);
+        if directives.should_keep() {
+            return TransformedValue::Keep;
+        }
+        TransformedValue::Replace(VariableDefinition {
+            directives: directives.replace_or_else(|| variable_definition.directives.clone()),
+            ..variable_definition.clone()
         })
     }
 

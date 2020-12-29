@@ -381,6 +381,8 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                         self.print_constant_value(&default_value)?;
                     }
                 }
+
+                self.print_directives(&var_def.directives, None, None)?;
             }
             write!(self.writer, "\n)")?;
         }

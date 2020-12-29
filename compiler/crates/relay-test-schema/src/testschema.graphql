@@ -12,6 +12,10 @@ directive @customDirective(level: Int!) on FIELD
 
 directive @fixme_fat_interface on FIELD
 
+directive @configurable on VARIABLE_DEFINITION
+
+directive @_auto_hoisted on VARIABLE_DEFINITION
+
 directive @defer(
   label: String!
   if: Boolean = true

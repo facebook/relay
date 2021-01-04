@@ -1118,14 +1118,16 @@ impl Schema {
                         .iter()
                         .map(|name| self.build_interface_id(name.value))
                         .collect::<DiagnosticsResult<Vec<_>>>()?;
-                    let filtered_interfaces =
-                        _filter_duplicates(&self.objects[index].interfaces, built_interfaces);
-                    self.objects[index].interfaces.extend(filtered_interfaces);
+                    extend_without_duplicates(
+                        &mut self.objects[index].interfaces,
+                        built_interfaces,
+                    );
 
                     let built_directives = self.build_directive_values(&directives);
-                    let filtered_directives =
-                        _filter_duplicates(&self.objects[index].directives, built_directives);
-                    self.objects[index].directives.extend(filtered_directives);
+                    extend_without_duplicates(
+                        &mut self.objects[index].directives,
+                        built_directives,
+                    );
                 }
                 _ => {
                     return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
@@ -1153,11 +1155,10 @@ impl Schema {
                     self.interfaces[index].fields.extend(client_fields);
 
                     let built_directives = self.build_directive_values(&directives);
-                    let filtered_directives =
-                        _filter_duplicates(&self.interfaces[index].directives, built_directives);
-                    self.interfaces[index]
-                        .directives
-                        .extend(filtered_directives);
+                    extend_without_duplicates(
+                        &mut self.interfaces[index].directives,
+                        built_directives,
+                    );
                 }
                 _ => {
                     return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
@@ -1390,20 +1391,17 @@ impl Schema {
     }
 }
 
-fn _filter_duplicates<T: std::cmp::Eq + std::hash::Hash>(left: &[T], right: Vec<T>) -> Vec<T> {
-    let mut hs = HashSet::new();
-    for t in left {
-        hs.insert(t);
-    }
-
-    let mut v = Vec::new();
-    for t in right {
-        if !hs.contains(&t) {
-            v.push(t);
+/// Extends the `target` with `extensions` ignoring items that are already in
+/// `target`.
+fn extend_without_duplicates<T: PartialEq>(
+    target: &mut Vec<T>,
+    extensions: impl IntoIterator<Item = T>,
+) {
+    for extension in extensions {
+        if !target.contains(&extension) {
+            target.push(extension);
         }
     }
-
-    v
 }
 
 macro_rules! type_id {
@@ -1823,4 +1821,16 @@ impl TypeWithFields for Object {
 
 fn len_of_option_list<T>(option_list: &Option<List<T>>) -> usize {
     option_list.as_ref().map_or(0, |list| list.items.len())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extend_without_duplicates() {
+        let mut target = vec![10, 11];
+        extend_without_duplicates(&mut target, vec![1, 10, 100]);
+        assert_eq!(target, vec![10, 11, 1, 100]);
+    }
 }

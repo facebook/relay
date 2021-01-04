@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
@@ -222,12 +223,20 @@ impl<'program> MatchTransform<'program> {
 
             // no other directives are allowed
             if spread.directives.len() != 1 {
-                return Err(Diagnostic::error(
-                    ValidationMessage::InvalidModuleWithAdditionalDirectives {
-                        spread_name: spread.fragment.item,
-                    },
-                    spread.arguments[0].name.location,
-                ));
+                if !(spread.directives.len() == 2
+                    && spread
+                        .directives
+                        .named(DEFER_STREAM_CONSTANTS.defer_name)
+                        .is_some())
+                {
+                    // allow @defer and @module in typegen transforms
+                    return Err(Diagnostic::error(
+                        ValidationMessage::InvalidModuleWithAdditionalDirectives {
+                            spread_name: spread.fragment.item,
+                        },
+                        spread.directives[1].name.location,
+                    ));
+                }
             }
 
             self.validate_js_module_type(spread.fragment.location)?;
@@ -338,17 +347,6 @@ impl<'program> MatchTransform<'program> {
             get_normalization_operation_name(&mut normalization_name, spread.fragment.item);
             normalization_name.push_str(".graphql");
 
-            let component_key = format!(
-                "{}{}",
-                MATCH_CONSTANTS.module_component_key_prefix, module_key
-            )
-            .intern();
-            let operation_key = format!(
-                "{}{}",
-                MATCH_CONSTANTS.module_operation_key_prefix, module_key
-            )
-            .intern();
-
             let mut component_field_arguments = vec![build_string_literal_argument(
                 MATCH_CONSTANTS.js_field_module_arg,
                 module_name,
@@ -374,7 +372,7 @@ impl<'program> MatchTransform<'program> {
             let component_field = Selection::ScalarField(Arc::new(ScalarField {
                 alias: Some(WithLocation::new(
                     module_directive.name.location,
-                    component_key,
+                    format!("__module_component_{}", module_key).intern(),
                 )),
                 definition: WithLocation::new(module_directive.name.location, js_field_id),
                 arguments: component_field_arguments,
@@ -384,7 +382,7 @@ impl<'program> MatchTransform<'program> {
             let operation_field = Selection::ScalarField(Arc::new(ScalarField {
                 alias: Some(WithLocation::new(
                     module_directive.name.location,
-                    operation_key,
+                    format!("__module_operation_{}", module_key).intern(),
                 )),
                 definition: WithLocation::new(module_directive.name.location, js_field_id),
                 arguments: operation_field_arguments,

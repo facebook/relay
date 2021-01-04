@@ -1,0 +1,7 @@
+# expected-to-throw
+
+fragment F on User {
+  __typename
+}
+
+foobar

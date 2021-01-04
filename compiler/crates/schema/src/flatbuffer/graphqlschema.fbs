@@ -1,0 +1,202 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+namespace graphqlschema;
+
+enum FBConstValueKind : byte {
+    Null = 0,
+    String,
+    Bool,
+    Int,
+    Float,
+    Enum,
+    List,
+    Object
+}
+
+table FBConstValue {
+    kind:FBConstValueKind;
+    string_value:string;
+    bool_value:bool;
+    int_value:string;
+    float_value:string;
+    enum_value:string;
+    list_value:FBListValue;
+    object_value:FBObjectValue;
+}
+
+table FBListValue {
+    values:[FBConstValue];
+}
+
+table FBObjectField {
+    name:string;
+    value:FBConstValue;
+}
+
+table FBObjectValue {
+    fields:[FBObjectField];
+}
+
+enum FBTypeKind : byte {
+    Scalar = 0,
+    InputObject = 1,
+    Enum = 2,
+    Object = 3,
+    Interface = 4,
+    Union = 5,
+}
+
+table FBType {
+    kind:FBTypeKind;
+    scalar_id:uint32;
+    input_object_id:uint32;
+    enum_id:uint32;
+    object_id:uint32;
+    interface_id:uint32;
+    union_id:uint32;
+}
+
+enum FBTypeReferenceKind : byte {
+    Named = 0,
+    NonNull,
+    List
+}
+
+table FBTypeReference {
+    kind:FBTypeReferenceKind;
+    named:FBType;
+    null:FBTypeReference;
+    list:FBTypeReference;
+}
+
+table FBArgumentValue {
+    name:string;
+    value:FBConstValue;
+}
+
+table FBDirectiveValue {
+    name:string;
+    arguments:[FBArgumentValue];
+}
+
+table FBArgument {
+    name:string;
+    type_:FBTypeReference;
+    value:FBConstValue;
+}
+
+enum FBDirectiveLocation : byte {
+    Query = 0,
+    Mutation,
+    Subscription,
+    Field,
+    FragmentDefinition,
+    FragmentSpread,
+    InlineFragment,
+    Schema,
+    Scalar,
+    Object,
+    FieldDefinition,
+    ArgumentDefinition,
+    Interface,
+    Union,
+    Enum,
+    EnumValue,
+    InputObject,
+    InputFieldDefinition,
+    VariableDefinition,
+}
+
+table FBDirective {
+    name:string;
+    is_extension:bool;
+    arguments:[FBArgument];
+    locations:[FBDirectiveLocation];
+    repeatable:bool;
+}
+
+table FBEnumValue {
+    value:string;
+    directives:[FBDirectiveValue];
+}
+
+table FBScalar {
+    name:string;
+    is_extension:bool;
+    directives:[FBDirectiveValue];
+}
+
+table FBInputObject {
+    name:string;
+    fields:[FBArgument];
+    directives:[FBDirectiveValue];
+}
+
+table FBEnum {
+    name:string;
+    is_extension:bool;
+    values:[FBEnumValue];
+    directives:[FBDirectiveValue];
+}
+
+table FBObject {
+    name:string;
+    is_extension:bool;
+    fields:[uint32];
+    interfaces:[uint32];
+    directives:[FBDirectiveValue];
+}
+
+table FBInterface {
+    name:string;
+    is_extension:bool;
+    fields:[uint32];
+    interfaces:[uint32];
+    implementing_objects:[uint32];
+    directives:[FBDirectiveValue];
+}
+
+table FBUnion {
+    name:string;
+    is_extension:bool;
+    members:[uint32];
+    directives:[FBDirectiveValue];
+}
+
+table FBField {
+    name:string;
+    is_extension:bool;
+    arguments:[FBArgument];
+    type_:FBTypeReference;
+    directives:[FBDirectiveValue];
+    parent_type:FBType;
+}
+
+table FBTypeMap {
+    name:string (key);
+    value:FBType;
+}
+
+table FBDirectiveMap {
+    name:string (key);
+    value:FBDirective;
+}
+
+table FBSchema {
+    types:[FBTypeMap];
+    directives: [FBDirectiveMap];
+    scalars:[FBScalar];
+    input_objects:[FBInputObject];
+    enums:[FBEnum];
+    objects:[FBObject];
+    interfaces:[FBInterface];
+    unions:[FBUnion];
+    fields:[FBField];
+}
+
+root_type FBSchema;

@@ -1,0 +1,5 @@
+mutation Mutation(
+  $variable: ID = null @some_directive
+) {
+  field
+}

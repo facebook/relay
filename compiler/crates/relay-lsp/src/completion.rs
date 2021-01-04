@@ -6,244 +6,549 @@
  */
 
 //! Utilities for providing the completion language feature
-#![allow(dead_code)]
-use crate::lsp::Position;
-use common::{SourceLocationKey, Span};
-use graphql_syntax::{parse_executable, ExecutableDocument, GraphQLSource};
-use interner::StringKey;
-use log::info;
-
-use relay_compiler::Programs;
-
-use crate::lsp::{
-    CompletionItem, CompletionParams, CompletionResponse, Connection, Message, ServerRequestId,
-    ServerResponse, TextDocumentPositionParams, Url,
+use crate::{
+    lsp::{CompletionItem, CompletionResponse},
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    node_resolution_info::{TypePath, TypePathItem},
+    server::LSPState,
 };
-use schema::{Directive as SchemaDirective, Schema, Type, TypeReference, TypeWithFields};
+use common::{NamedItem, PerfLogger, Span};
 
+use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
 use graphql_syntax::{
-    Directive, DirectiveLocation, ExecutableDefinition, FragmentSpread, InlineFragment,
-    LinkedField, List, OperationDefinition, OperationKind, ScalarField, Selection,
+    Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
+    ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
+    OperationKind, ScalarField, Selection, TokenKind, Value,
+};
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
+use log::info;
+use lsp_types::request::{Completion, Request};
+use schema::{
+    Argument as SchemaArgument, Directive as SchemaDirective, Schema, Type, TypeReference,
+    TypeWithFields,
+};
+use std::{
+    collections::{HashMap, HashSet},
+    iter::once,
+    sync::{Arc, RwLock},
 };
 
-pub type GraphQLSourceCache = std::collections::HashMap<Url, Vec<GraphQLSource>>;
-
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+lazy_static! {
+    static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
+}
+#[derive(Debug, Clone)]
 pub enum CompletionKind {
-    FieldName,
+    FieldName {
+        existing_linked_field: bool,
+    },
     FragmentSpread,
-    DirectiveName { location: DirectiveLocation },
+    DirectiveName {
+        location: DirectiveLocation,
+    },
+    ArgumentName {
+        has_colon: bool,
+        existing_names: HashSet<StringKey>,
+        kind: ArgumentKind,
+    },
+    ArgumentValue {
+        executable_name: ExecutableName,
+        argument_name: StringKey,
+        kind: ArgumentKind,
+    },
+    InlineFragmentType {
+        existing_inline_fragment: bool,
+    },
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone)]
+pub enum ArgumentKind {
+    Field,
+    Directive(StringKey),
+    ArgumentsDirective(StringKey),
+}
+
+#[derive(Debug)]
 pub struct CompletionRequest {
     /// The type of the completion request we're responding to
     kind: CompletionKind,
     /// A list of type metadata that we can use to resolve the leaf
     /// type the request is being made against
-    type_path: Vec<TypePathItem>,
-}
-
-impl Default for CompletionRequest {
-    fn default() -> Self {
-        CompletionRequest {
-            kind: CompletionKind::FieldName,
-            type_path: vec![],
-        }
-    }
+    type_path: TypePath,
+    /// The project the request belongs to
+    pub project_name: StringKey,
 }
 
 impl CompletionRequest {
-    fn add_type(&mut self, type_path_item: TypePathItem) {
-        self.type_path.push(type_path_item)
-    }
-
-    /// Returns the leaf type, which is the type that the completion request is being made against.
-    fn resolve_leaf_type(self, schema: &Schema) -> Option<Type> {
-        let mut type_path = self.type_path;
-        type_path.reverse();
-        let mut type_ =
-            resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
-        while let Some(path_item) = type_path.pop() {
-            type_ = resolve_relative_type(type_, path_item, schema)?;
+    fn new(project_name: StringKey, kind: CompletionKind, type_path: TypePath) -> Self {
+        Self {
+            kind,
+            type_path,
+            project_name,
         }
-        Some(type_)
     }
 }
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
-pub enum TypePathItem {
-    Operation(OperationKind),
-    FragmentDefinition { type_name: StringKey },
-    InlineFragment { type_name: StringKey },
-    LinkedField { name: StringKey },
-    ScalarField { name: StringKey },
+#[derive(Debug, Copy, Clone)]
+pub enum ExecutableName {
+    Operation(StringKey),
+    Fragment(StringKey),
 }
 
-pub fn create_completion_request(
-    document: ExecutableDocument,
-    position_span: Span,
-) -> Option<CompletionRequest> {
-    info!("Building completion path for {:#?}", document);
-    let mut completion_request = CompletionRequest::default();
+trait ArgumentLike {
+    fn name(&self) -> StringKey;
+    fn type_(&self) -> &TypeReference;
+}
 
-    for definition in document.definitions {
-        match &definition {
-            ExecutableDefinition::Operation(operation) => {
-                if operation.location.contains(position_span) {
-                    let (_, kind) = operation.operation.clone()?;
-                    completion_request.add_type(TypePathItem::Operation(kind));
+impl ArgumentLike for &SchemaArgument {
+    fn name(&self) -> StringKey {
+        self.name
+    }
+    fn type_(&self) -> &TypeReference {
+        &self.type_
+    }
+}
 
-                    info!(
-                        "Completion request is within operation: {:?}",
-                        operation.name
-                    );
-                    let OperationDefinition {
-                        selections,
-                        directives,
-                        ..
-                    } = operation;
+impl ArgumentLike for &VariableDefinition {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
+    fn type_(&self) -> &TypeReference {
+        &self.type_
+    }
+}
 
-                    let directive_location = match kind {
-                        OperationKind::Query => DirectiveLocation::Query,
-                        OperationKind::Mutation => DirectiveLocation::Mutation,
-                        OperationKind::Subscription => DirectiveLocation::Subscription,
+struct CompletionRequestBuilder {
+    project_name: StringKey,
+    current_executable_name: Option<ExecutableName>,
+}
+
+impl CompletionRequestBuilder {
+    fn new(project_name: StringKey) -> Self {
+        Self {
+            project_name,
+            current_executable_name: None,
+        }
+    }
+
+    fn new_request(&self, kind: CompletionKind, type_path: Vec<TypePathItem>) -> CompletionRequest {
+        CompletionRequest::new(self.project_name, kind, type_path.into())
+    }
+
+    fn create_completion_request(
+        &mut self,
+        document: ExecutableDocument,
+        position_span: Span,
+    ) -> Option<CompletionRequest> {
+        for definition in document.definitions {
+            match &definition {
+                ExecutableDefinition::Operation(operation) => {
+                    if operation.location.contains(position_span) {
+                        self.current_executable_name = if let Some(name) = &operation.name {
+                            Some(ExecutableName::Operation(name.value))
+                        } else {
+                            None
+                        };
+                        let (_, kind) = operation.operation.clone()?;
+                        let type_path = vec![TypePathItem::Operation(kind)];
+
+                        info!(
+                            "Completion request is within operation: {:?}",
+                            operation.name
+                        );
+                        let OperationDefinition {
+                            selections,
+                            directives,
+                            ..
+                        } = operation;
+
+                        let directive_location = match kind {
+                            OperationKind::Query => DirectiveLocation::Query,
+                            OperationKind::Mutation => DirectiveLocation::Mutation,
+                            OperationKind::Subscription => DirectiveLocation::Subscription,
+                        };
+
+                        if let Some(req) = self.build_request_from_selection_or_directives(
+                            selections,
+                            directives,
+                            directive_location,
+                            position_span,
+                            type_path,
+                        ) {
+                            return Some(req);
+                        }
+                    }
+                    // Check if the position span is within this operation's span
+                }
+                ExecutableDefinition::Fragment(fragment) => {
+                    if fragment.location.contains(position_span) {
+                        self.current_executable_name =
+                            Some(ExecutableName::Fragment(fragment.name.value));
+                        let type_name = fragment.type_condition.type_.value;
+                        let type_path = vec![TypePathItem::FragmentDefinition { type_name }];
+                        if let Some(req) = self.build_request_from_selection_or_directives(
+                            &fragment.selections,
+                            &fragment.directives,
+                            DirectiveLocation::FragmentDefinition,
+                            position_span,
+                            type_path,
+                        ) {
+                            return Some(req);
+                        }
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    fn build_request_from_selections(
+        &self,
+        selections: &List<Selection>,
+        position_span: Span,
+        mut type_path: Vec<TypePathItem>,
+    ) -> Option<CompletionRequest> {
+        for item in &selections.items {
+            if item.span().contains(position_span) {
+                return match item {
+                    Selection::LinkedField(node) => {
+                        if node.name.span.contains(position_span) {
+                            return Some(self.new_request(
+                                CompletionKind::FieldName {
+                                    existing_linked_field: true,
+                                },
+                                type_path,
+                            ));
+                        }
+                        let LinkedField {
+                            name,
+                            selections,
+                            directives,
+                            arguments,
+                            ..
+                        } = node;
+                        type_path.push(TypePathItem::LinkedField { name: name.value });
+                        if let Some(arguments) = arguments {
+                            if arguments.span.contains(position_span) {
+                                return self.build_request_from_arguments(
+                                    arguments,
+                                    position_span,
+                                    type_path,
+                                    ArgumentKind::Field,
+                                );
+                            }
+                        }
+                        self.build_request_from_selection_or_directives(
+                            selections,
+                            directives,
+                            DirectiveLocation::Field,
+                            position_span,
+                            type_path,
+                        )
+                    }
+                    Selection::FragmentSpread(spread) => {
+                        let FragmentSpread {
+                            name, directives, ..
+                        } = spread;
+                        if name.span.contains(position_span) {
+                            Some(self.new_request(CompletionKind::FragmentSpread, type_path))
+                        } else {
+                            self.build_request_from_directives(
+                                directives,
+                                DirectiveLocation::FragmentSpread,
+                                position_span,
+                                type_path,
+                                Some(name.value),
+                            )
+                        }
+                    }
+                    Selection::InlineFragment(node) => {
+                        let InlineFragment {
+                            selections,
+                            directives,
+                            type_condition,
+                            ..
+                        } = node;
+                        if let Some(type_condition) = type_condition {
+                            let type_name = type_condition.type_.value;
+                            if type_condition.span.contains(position_span) {
+                                return Some(self.new_request(
+                                    CompletionKind::InlineFragmentType {
+                                        existing_inline_fragment: selections.start.kind
+                                            != TokenKind::Empty,
+                                    },
+                                    type_path,
+                                ));
+                            }
+                            type_path.push(TypePathItem::InlineFragment { type_name });
+                        }
+                        self.build_request_from_selection_or_directives(
+                            selections,
+                            directives,
+                            DirectiveLocation::InlineFragment,
+                            position_span,
+                            type_path,
+                        )
+                    }
+                    Selection::ScalarField(node) => {
+                        if node.name.span.contains(position_span) {
+                            return Some(self.new_request(
+                                CompletionKind::FieldName {
+                                    existing_linked_field: false,
+                                },
+                                type_path,
+                            ));
+                        }
+                        let ScalarField {
+                            directives,
+                            name,
+                            arguments,
+                            ..
+                        } = node;
+                        type_path.push(TypePathItem::ScalarField { name: name.value });
+                        if let Some(arguments) = arguments {
+                            if arguments.span.contains(position_span) {
+                                return self.build_request_from_arguments(
+                                    arguments,
+                                    position_span,
+                                    type_path,
+                                    ArgumentKind::Field,
+                                );
+                            }
+                        }
+                        self.build_request_from_directives(
+                            directives,
+                            DirectiveLocation::Scalar,
+                            position_span,
+                            type_path,
+                            None,
+                        )
+                    }
+                };
+            }
+        }
+        // The selection list is empty or the current cursor is out of any of the selection
+        Some(self.new_request(
+            CompletionKind::FieldName {
+                existing_linked_field: false,
+            },
+            type_path,
+        ))
+    }
+
+    fn build_request_from_arguments(
+        &self,
+        arguments: &List<Argument>,
+        position_span: Span,
+        type_path: Vec<TypePathItem>,
+        kind: ArgumentKind,
+    ) -> Option<CompletionRequest> {
+        for (
+            i,
+            Argument {
+                name,
+                value,
+                colon,
+                span,
+                ..
+            },
+        ) in arguments.items.iter().enumerate()
+        {
+            if span.contains(position_span) {
+                return if name.span.contains(position_span) {
+                    Some(self.new_request(
+                        CompletionKind::ArgumentName {
+                            has_colon: colon.kind != TokenKind::Empty,
+                            existing_names:
+                                arguments.items.iter().map(|arg| arg.name.value).collect(),
+                            kind,
+                        },
+                        type_path,
+                    ))
+                } else if let Some(executable_name) = self.current_executable_name {
+                    match value {
+                        Value::Constant(ConstantValue::Null(token))
+                            if token.kind == TokenKind::Empty =>
+                        {
+                            Some(self.new_request(
+                                CompletionKind::ArgumentValue {
+                                    argument_name: name.value,
+                                    executable_name,
+                                    kind,
+                                },
+                                type_path,
+                            ))
+                        }
+                        Value::Variable(_) => Some(self.new_request(
+                            CompletionKind::ArgumentValue {
+                                argument_name: name.value,
+                                executable_name,
+                                kind,
+                            },
+                            type_path,
+                        )),
+                        _ => None,
+                    }
+                } else {
+                    None
+                };
+            } else if span.end <= position_span.start {
+                let is_cursor_in_next_white_space = {
+                    if let Some(next_argument) = arguments.items.get(i + 1) {
+                        position_span.start < next_argument.span.start
+                    } else {
+                        position_span.start < arguments.span.end
+                    }
+                };
+                if is_cursor_in_next_white_space {
+                    // Handles the following speicial case
+                    // (args1:  | args2:$var)
+                    //          ^ cursor here
+                    // The cursor is on the white space between args1 and args2.
+                    // We want to autocomplete the value if it's empty.
+                    return if let Some(executable_name) = self.current_executable_name {
+                        match value {
+                            Value::Constant(ConstantValue::Null(token))
+                                if token.kind == TokenKind::Empty =>
+                            {
+                                Some(self.new_request(
+                                    CompletionKind::ArgumentValue {
+                                        argument_name: name.value,
+                                        executable_name,
+                                        kind,
+                                    },
+                                    type_path,
+                                ))
+                            }
+                            _ => Some(self.new_request(
+                                CompletionKind::ArgumentName {
+                                    has_colon: false,
+                                    existing_names:
+                                        arguments.items.iter().map(|arg| arg.name.value).collect(),
+                                    kind,
+                                },
+                                type_path,
+                            )),
+                        }
+                    } else {
+                        None
                     };
-
-                    build_request_from_selection_or_directives(
-                        selections,
-                        directives,
-                        directive_location,
-                        position_span,
-                        &mut completion_request,
-                    );
-                }
-                // Check if the position span is within this operation's span
-            }
-            ExecutableDefinition::Fragment(fragment) => {
-                if fragment.location.contains(position_span) {
-                    let type_name = fragment.type_condition.type_.value;
-                    completion_request.add_type(TypePathItem::FragmentDefinition { type_name });
-                    build_request_from_selection_or_directives(
-                        &fragment.selections,
-                        &fragment.directives,
-                        DirectiveLocation::FragmentDefinition,
-                        position_span,
-                        &mut completion_request,
-                    );
                 }
             }
         }
+        // The argument list is empty or the cursor is not on any of the argument
+        Some(self.new_request(
+            CompletionKind::ArgumentName {
+                has_colon: false,
+                existing_names: arguments.items.iter().map(|arg| arg.name.value).collect(),
+                kind,
+            },
+            type_path,
+        ))
     }
-    Some(completion_request)
-}
 
-/// Resolves the root type of this completion path.
-fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Option<Type> {
-    match root_path_item {
-        TypePathItem::Operation(kind) => match kind {
-            OperationKind::Query => schema.query_type(),
-            OperationKind::Mutation => schema.mutation_type(),
-            OperationKind::Subscription => schema.subscription_type(),
-        },
-        TypePathItem::FragmentDefinition { type_name } => schema.get_type(type_name),
-        _ => {
-            // TODO(brandondail) log here
-            None
+    fn build_request_from_directives(
+        &self,
+        directives: &[Directive],
+        location: DirectiveLocation,
+        position_span: Span,
+        type_path: Vec<TypePathItem>,
+        fragment_spread_name: Option<StringKey>,
+    ) -> Option<CompletionRequest> {
+        for directive in directives {
+            if !directive.span.contains(position_span) {
+                continue;
+            };
+            return if directive.name.span.contains(position_span) {
+                Some(self.new_request(CompletionKind::DirectiveName { location }, type_path))
+            } else if let Some(arguments) = &directive.arguments {
+                if arguments.span.contains(position_span) {
+                    self.build_request_from_arguments(
+                        arguments,
+                        position_span,
+                        type_path,
+                        if let Some(fragment_spread_name) = fragment_spread_name {
+                            if directive.name.value == *DIRECTIVE_ARGUMENTS {
+                                ArgumentKind::ArgumentsDirective(fragment_spread_name)
+                            } else {
+                                ArgumentKind::Directive(directive.name.value)
+                            }
+                        } else {
+                            ArgumentKind::Directive(directive.name.value)
+                        },
+                    )
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+        }
+        None
+    }
+
+    fn build_request_from_selection_or_directives(
+        &self,
+        selections: &List<Selection>,
+        directives: &[Directive],
+        directive_location: DirectiveLocation,
+        position_span: Span,
+        type_path: Vec<TypePathItem>,
+    ) -> Option<CompletionRequest> {
+        if selections.span.contains(position_span) {
+            // TODO(brandondail) handle when the completion occurs at/within the start token
+            self.build_request_from_selections(selections, position_span, type_path)
+        } else {
+            self.build_request_from_directives(
+                directives,
+                directive_location,
+                position_span,
+                type_path,
+                None,
+            )
         }
     }
 }
 
-fn resolve_relative_type(
-    parent_type: Type,
-    path_item: TypePathItem,
-    schema: &Schema,
-) -> Option<Type> {
-    match path_item {
-        TypePathItem::Operation(_) => {
-            // TODO(brandondail) log here
-            None
-        }
-        TypePathItem::FragmentDefinition { .. } => {
-            // TODO(brandondail) log here
-            None
-        }
-        TypePathItem::LinkedField { name } => {
-            let field_id = schema.named_field(parent_type, name)?;
-            let field = schema.field(field_id);
-            info!("resolved type for {:?} : {:?}", field.name, field.type_);
-            Some(field.type_.inner())
-        }
-        TypePathItem::ScalarField { .. } => Some(parent_type),
-        TypePathItem::InlineFragment { type_name } => schema.get_type(type_name),
-    }
-}
-
-fn resolve_completion_items_from_fields<T: TypeWithFields>(
-    type_: &T,
-    schema: &Schema,
-) -> Vec<CompletionItem> {
-    type_
-        .fields()
-        .iter()
-        .map(|field_id| {
-            let field = schema.field(*field_id);
-            let name = field.name.to_string();
-            CompletionItem::new_simple(name, String::from(""))
-        })
-        .collect()
-}
-
-/// Finds all the valid fragment names for a given type. Used to complete fragment spreads
-fn get_valid_fragments_for_type(type_: Type, programs: &Programs) -> Vec<StringKey> {
-    let mut valid_fragment_names = vec![];
-    for fragment in programs.source.fragments() {
-        if fragment.type_condition == type_ {
-            valid_fragment_names.push(fragment.name.item);
-        }
-    }
-    info!("get_valid_fragments_for_type {:#?}", valid_fragment_names);
-    valid_fragment_names
-}
-
-fn resolve_completion_items_for_fragment_spread(
-    type_: Type,
-    programs: &Programs,
-) -> Vec<CompletionItem> {
-    get_valid_fragments_for_type(type_, programs)
-        .iter()
-        .map(|fragment_name| {
-            CompletionItem::new_simple(fragment_name.to_string(), String::from(""))
-        })
-        .collect()
-}
-
-pub fn completion_items_for_request(
+fn completion_items_for_request(
     request: CompletionRequest,
     schema: &Schema,
-    programs: Option<&Programs>,
+    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    let leaf_type = request.resolve_leaf_type(schema)?;
-    info!("completion_items_for_request: {:?} - {:?}", leaf_type, kind);
+    let project_name = request.project_name;
+    info!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
-            if let Some(programs) = programs {
-                let items = resolve_completion_items_for_fragment_spread(leaf_type, programs);
+            let leaf_type = request.type_path.resolve_leaf_type(schema)?;
+            if let Some(source_program) = source_programs
+                .read()
+                .expect(
+                    "completion_items_for_request: could not acquire read lock for source_programs",
+                )
+                .get(&project_name)
+            {
+                info!("has source program");
+                let items =
+                    resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
                 Some(items)
             } else {
                 None
             }
         }
-        CompletionKind::FieldName => match leaf_type {
+        CompletionKind::FieldName {
+            existing_linked_field,
+        } => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
-                let items = resolve_completion_items_from_fields(interface, schema);
+                let items =
+                    resolve_completion_items_from_fields(interface, schema, existing_linked_field);
                 Some(items)
             }
             Type::Object(object_id) => {
                 let object = schema.object(object_id);
-                let items = resolve_completion_items_from_fields(object, schema);
+                let items =
+                    resolve_completion_items_from_fields(object, schema, existing_linked_field);
                 Some(items)
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
@@ -256,117 +561,355 @@ pub fn completion_items_for_request(
                 .collect();
             Some(items)
         }
+        CompletionKind::ArgumentName {
+            has_colon,
+            existing_names,
+            kind,
+        } => match kind {
+            ArgumentKind::Field => {
+                let field = request.type_path.resolve_current_field(schema)?;
+                Some(resolve_completion_items_for_argument_name(
+                    field.arguments.iter(),
+                    schema,
+                    existing_names,
+                    has_colon,
+                ))
+            }
+            ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
+                let source_program = source_programs.read().expect(
+                    "completion_items_for_request: could not acquire read lock for source_programs",
+                );
+                let fragment = source_program
+                    .get(&request.project_name)?
+                    .fragment(fragment_spread_name)?;
+                Some(resolve_completion_items_for_argument_name(
+                    fragment.variable_definitions.iter(),
+                    schema,
+                    existing_names,
+                    has_colon,
+                ))
+            }
+            ArgumentKind::Directive(directive_name) => {
+                Some(resolve_completion_items_for_argument_name(
+                    schema.get_directive(directive_name)?.arguments.iter(),
+                    schema,
+                    existing_names,
+                    has_colon,
+                ))
+            }
+        },
+        CompletionKind::ArgumentValue {
+            executable_name,
+            argument_name,
+            kind,
+        } => {
+            if let Some(source_program) = source_programs
+                .read()
+                .expect(
+                    "completion_items_for_request: could not acquire read lock for source_programs",
+                )
+                .get(&project_name)
+            {
+                let argument_type = match kind {
+                    ArgumentKind::Field => {
+                        let field = request.type_path.resolve_current_field(schema)?;
+                        &field.arguments.named(argument_name)?.type_
+                    }
+                    ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
+                        let fragment = source_program.fragment(fragment_spread_name)?;
+                        &fragment.variable_definitions.named(argument_name)?.type_
+                    }
+                    ArgumentKind::Directive(directive_name) => {
+                        &schema
+                            .get_directive(directive_name)?
+                            .arguments
+                            .named(argument_name)?
+                            .type_
+                    }
+                };
+                Some(resolve_completion_items_for_argument_value(
+                    argument_type,
+                    source_program,
+                    executable_name,
+                ))
+            } else {
+                None
+            }
+        }
+        CompletionKind::InlineFragmentType {
+            existing_inline_fragment,
+        } => {
+            let type_ = request.type_path.resolve_leaf_type(schema)?;
+            Some(resolve_completion_items_for_inline_fragment_type(
+                type_,
+                schema,
+                existing_inline_fragment,
+            ))
+        }
     }
 }
 
-fn build_request_from_selections(
-    selections: &List<Selection>,
-    position_span: Span,
-    completion_request: &mut CompletionRequest,
-) {
-    for item in &selections.items {
-        if item.span().contains(position_span) {
-            match item {
-                Selection::LinkedField(node) => {
-                    completion_request.kind = CompletionKind::FieldName;
-                    let LinkedField {
-                        name,
-                        selections,
-                        directives,
-                        ..
-                    } = node;
-                    completion_request.add_type(TypePathItem::LinkedField { name: name.value });
-                    build_request_from_selection_or_directives(
-                        selections,
-                        directives,
-                        DirectiveLocation::Field,
-                        position_span,
-                        completion_request,
-                    );
+fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
+    arguments: impl Iterator<Item = T>,
+    schema: &Schema,
+    existing_names: HashSet<StringKey>,
+    has_colon: bool,
+) -> Vec<CompletionItem> {
+    arguments
+        .filter(|arg| !existing_names.contains(&arg.name()))
+        .map(|arg| {
+            let label = arg.name().lookup().into();
+            let detail = schema.get_type_string(arg.type_());
+            if has_colon {
+                CompletionItem::new_simple(label, detail)
+            } else {
+                CompletionItem {
+                    label: label.clone(),
+                    kind: None,
+                    detail: Some(detail),
+                    documentation: None,
+                    deprecated: None,
+                    preselect: None,
+                    sort_text: None,
+                    filter_text: None,
+                    insert_text: Some(format!("{}: $1", label)),
+                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                    text_edit: None,
+                    additional_text_edits: None,
+                    command: Some(lsp_types::Command::new(
+                        "Suggest".into(),
+                        "editor.action.triggerSuggest".into(),
+                        None,
+                    )),
+                    data: None,
+                    tags: None,
                 }
-                Selection::FragmentSpread(spread) => {
-                    let FragmentSpread {
-                        name, directives, ..
-                    } = spread;
-                    if name.span.contains(position_span) {
-                        completion_request.kind = CompletionKind::FragmentSpread;
-                    } else {
-                        build_request_from_directives(
-                            directives,
-                            DirectiveLocation::FragmentSpread,
-                            position_span,
-                            completion_request,
-                        );
-                    }
-                }
-                Selection::InlineFragment(node) => {
-                    let InlineFragment {
-                        selections,
-                        directives,
-                        type_condition,
-                        ..
-                    } = node;
-                    if let Some(type_condition) = type_condition {
-                        let type_name = type_condition.type_.value;
-                        completion_request.add_type(TypePathItem::InlineFragment { type_name });
-                        build_request_from_selection_or_directives(
-                            selections,
-                            directives,
-                            DirectiveLocation::InlineFragment,
-                            position_span,
-                            completion_request,
-                        )
-                    }
-                }
-                Selection::ScalarField(node) => {
-                    let ScalarField {
-                        directives, name, ..
-                    } = node;
-                    completion_request.add_type(TypePathItem::ScalarField { name: name.value });
-                    build_request_from_directives(
-                        directives,
-                        DirectiveLocation::Scalar,
-                        position_span,
-                        completion_request,
-                    );
-                }
+            }
+        })
+        .collect()
+}
+
+fn resolve_completion_items_for_inline_fragment_type(
+    type_: Type,
+    schema: &Schema,
+    existing_inline_fragment: bool,
+) -> Vec<CompletionItem> {
+    match type_ {
+        Type::Interface(id) => {
+            let interface = schema.interface(id);
+            once(type_)
+                .chain(
+                    interface
+                        .implementing_objects
+                        .iter()
+                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                )
+                .collect()
+        }
+        Type::Union(id) => {
+            let union = schema.union(id);
+            once(type_)
+                .chain(
+                    union
+                        .members
+                        .iter()
+                        .filter_map(|id| schema.get_type(schema.object(*id).name)),
+                )
+                .collect()
+        }
+        Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![type_],
+    }
+    .into_iter()
+    .map(|type_| {
+        let label = schema.get_type_name(type_).lookup().into();
+        if existing_inline_fragment {
+            CompletionItem::new_simple(label, "".into())
+        } else {
+            CompletionItem {
+                label: label.clone(),
+                kind: None,
+                detail: None,
+                documentation: None,
+                deprecated: None,
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text: Some(format!("{} {{\n\t$1\n}}", label)),
+                insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                text_edit: None,
+                additional_text_edits: None,
+                command: Some(lsp_types::Command::new(
+                    "Suggest".into(),
+                    "editor.action.triggerSuggest".into(),
+                    None,
+                )),
+                data: None,
+                tags: None,
+            }
+        }
+    })
+    .collect()
+}
+
+fn resolve_completion_items_for_argument_value(
+    type_: &TypeReference,
+    source_program: &Program,
+    executable_name: ExecutableName,
+) -> Vec<CompletionItem> {
+    match executable_name {
+        ExecutableName::Fragment(name) => {
+            if let Some(fragment) = source_program.fragment(name) {
+                fragment
+                    .used_global_variables
+                    .iter()
+                    .chain(fragment.variable_definitions.iter())
+                    .filter(|variable| variable.type_.eq(type_))
+                    .map(|variable| {
+                        CompletionItem::new_simple(format!("${}", variable.name.item,), "".into())
+                    })
+                    .collect()
+            } else {
+                vec![]
+            }
+        }
+        ExecutableName::Operation(name) => {
+            if let Some(operation) = source_program.operation(name) {
+                operation
+                    .variable_definitions
+                    .iter()
+                    .filter(|variable| variable.type_.eq(type_))
+                    .map(|variable| {
+                        CompletionItem::new_simple(format!("${}", variable.name.item,), "".into())
+                    })
+                    .collect()
+            } else {
+                vec![]
             }
         }
     }
 }
 
-fn build_request_from_directives(
-    directives: &[Directive],
-    location: DirectiveLocation,
-    position_span: Span,
-    completion_request: &mut CompletionRequest,
-) {
-    for Directive { span, .. } in directives {
-        if span.contains(position_span) {
-            completion_request.kind = CompletionKind::DirectiveName { location };
-            break;
-        }
-    }
+fn resolve_completion_items_from_fields<T: TypeWithFields>(
+    type_: &T,
+    schema: &Schema,
+    existing_linked_field: bool,
+) -> Vec<CompletionItem> {
+    type_
+        .fields()
+        .iter()
+        .map(|field_id| {
+            let field = schema.field(*field_id);
+            let name = field.name.to_string();
+            let deprecated_directive = field.directives.named(*DEPRECATED_DIRECTIVE);
+            let deprecated_reason = if let Some(deprecated_directive) = deprecated_directive {
+                if let Some(ConstantValue::String(reason)) =
+                    deprecated_directive.arguments.get(0).map(|arg| &arg.value)
+                {
+                    Some(reason.value.lookup().to_string())
+                } else {
+                    None
+                }
+            } else {
+                None
+            };
+            let args = create_arguments_snippets(field.arguments.iter(), schema);
+            let insert_text = match (
+                existing_linked_field
+                    || matches!(field.type_.inner(), Type::Scalar(_) | Type::Enum(_)), // don't insert { }
+                args.is_empty(), // don't insert arguments
+            ) {
+                (true, true) => None,
+                (true, false) => Some(format!("{}({})", name, args.join(", "))),
+                (false, true) => Some(format!("{} {{\n\t$1\n}}", name)),
+                (false, false) => Some(format!(
+                    "{}({}) {{\n\t${}\n}}",
+                    name,
+                    args.join(", "),
+                    args.len() + 1
+                )),
+            };
+            let (insert_text_format, command) = if insert_text.is_some() {
+                (
+                    Some(lsp_types::InsertTextFormat::Snippet),
+                    Some(lsp_types::Command::new(
+                        "Suggest".into(),
+                        "editor.action.triggerSuggest".into(),
+                        None,
+                    )),
+                )
+            } else {
+                (None, None)
+            };
+            CompletionItem {
+                label: name,
+                kind: None,
+                detail: deprecated_reason,
+                documentation: None,
+                deprecated: Some(deprecated_directive.is_some()),
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text,
+                insert_text_format,
+                text_edit: None,
+                additional_text_edits: None,
+                command,
+                data: None,
+                tags: None,
+            }
+        })
+        .collect()
 }
 
-fn build_request_from_selection_or_directives(
-    selections: &List<Selection>,
-    directives: &[Directive],
-    directive_location: DirectiveLocation,
-    position_span: Span,
-    completion_request: &mut CompletionRequest,
-) {
-    if selections.span.contains(position_span) {
-        // TODO(brandondail) handle when the completion occurs at/within the start token
-        build_request_from_selections(selections, position_span, completion_request);
-    } else {
-        build_request_from_directives(
-            directives,
-            directive_location,
-            position_span,
-            completion_request,
-        )
+fn resolve_completion_items_for_fragment_spread(
+    type_: Type,
+    source_program: &Program,
+    schema: &Schema,
+) -> Vec<CompletionItem> {
+    let mut valid_fragments = vec![];
+    for fragment in source_program.fragments() {
+        if schema.are_overlapping_types(fragment.type_condition, type_) {
+            let label = fragment.name.item.to_string();
+            let detail = schema
+                .get_type_name(fragment.type_condition)
+                .lookup()
+                .to_string();
+            if fragment.variable_definitions.is_empty() {
+                valid_fragments.push(CompletionItem::new_simple(label, detail))
+            } else {
+                // Create a snippet if the fragment has required argumentDefinition with no default values
+                let args = create_arguments_snippets(fragment.variable_definitions.iter(), schema);
+                valid_fragments.push(if args.is_empty() {
+                    CompletionItem::new_simple(label, detail)
+                } else {
+                    let insert_text = format!("{} @arguments({})", label, args.join(", "));
+                    CompletionItem {
+                        label,
+                        kind: None,
+                        detail: Some(detail),
+                        documentation: None,
+                        deprecated: None,
+                        preselect: None,
+                        sort_text: None,
+                        filter_text: None,
+                        insert_text: Some(insert_text),
+                        insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                        text_edit: None,
+                        additional_text_edits: None,
+                        command: Some(lsp_types::Command::new(
+                            "Suggest".into(),
+                            "editor.action.triggerSuggest".into(),
+                            None,
+                        )),
+                        data: None,
+                        tags: None,
+                    }
+                });
+            }
+        }
     }
+    info!("get_valid_fragments_for_type {:#?}", valid_fragments);
+    valid_fragments
 }
 
 fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) -> CompletionItem {
@@ -383,22 +926,7 @@ fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) 
     let (insert_text, insert_text_format) = if arguments.is_empty() {
         (label.clone(), InsertTextFormat::PlainText)
     } else {
-        let mut cursor_location = 1;
-        let mut args = vec![];
-
-        for arg in arguments.iter() {
-            if let TypeReference::NonNull(type_) = &arg.type_ {
-                let value_snippet = match type_ {
-                    t if t.is_list() => format!("[${}]", cursor_location),
-                    t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
-                    _ => format!("${}", cursor_location),
-                };
-                let str = format!("{} : {}", arg.name, value_snippet);
-                args.push(str);
-                cursor_location += 1;
-            }
-        }
-
+        let args = create_arguments_snippets(arguments.iter(), schema);
         if args.is_empty() {
             (label.clone(), InsertTextFormat::PlainText)
         } else {
@@ -420,136 +948,63 @@ fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) 
         insert_text_format: Some(insert_text_format),
         text_edit: None,
         additional_text_edits: None,
-        command: None,
+        command: Some(lsp_types::Command::new(
+            "Suggest".into(),
+            "editor.action.triggerSuggest".into(),
+            None,
+        )),
         data: None,
         tags: None,
     }
 }
 
-/// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
-/// this completion request came from
-pub fn position_to_span(position: Position, source: &GraphQLSource) -> Option<Span> {
-    let mut index_of_last_line = 0;
-    let mut line_index = source.line_index as u64;
+fn create_arguments_snippets<T: ArgumentLike>(
+    arguments: impl Iterator<Item = T>,
+    schema: &Schema,
+) -> Vec<String> {
+    let mut cursor_location = 1;
+    let mut args = vec![];
 
-    let mut chars = source.text.chars().enumerate().peekable();
-
-    while let Some((index, chr)) = chars.next() {
-        let is_newline = match chr {
-            // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
-            '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => match (chr, chars.peek()) {
-                // <CLRF>
-                ('\u{000D}', Some((_, '\u{000D}'))) => false,
-                _ => true,
-            },
-            _ => false,
-        };
-
-        if is_newline {
-            line_index += 1;
-            index_of_last_line = index as u64;
-        }
-
-        if line_index == position.line {
-            let start_offset = (index_of_last_line + position.character) as u32;
-            return Some(Span::new(start_offset, start_offset));
-        }
-    }
-    None
-}
-
-pub fn send_completion_response(
-    items: Vec<CompletionItem>,
-    request_id: ServerRequestId,
-    connection: &Connection,
-) {
-    // If there are no items, don't send any response
-    if items.is_empty() {
-        return;
-    }
-    let completion_response = CompletionResponse::Array(items);
-    let result = serde_json::to_value(&completion_response).ok();
-    let response = ServerResponse {
-        id: request_id,
-        error: None,
-        result,
-    };
-    connection.sender.send(Message::Response(response)).ok();
-}
-
-/// Return a `CompletionPath` for this request, only if the completion request occurs
-// within a GraphQL document. Otherwise return `None`
-pub fn get_completion_request(
-    params: CompletionParams,
-    graphql_source_cache: &GraphQLSourceCache,
-) -> Option<CompletionRequest> {
-    let CompletionParams {
-        text_document_position,
-        ..
-    } = params;
-    let TextDocumentPositionParams {
-        text_document,
-        position,
-    } = text_document_position;
-    let url = text_document.uri;
-    let graphql_sources = match graphql_source_cache.get(&url) {
-        Some(sources) => sources,
-        // If we have no sources for this file, do nothing
-        None => return None,
-    };
-
-    info!(
-        "Got completion request for file with sources: {:#?}",
-        *graphql_sources
-    );
-
-    info!("position: {:?}", position);
-
-    // We have GraphQL documents, now check if the completion request
-    // falls within the range of one of these documents.
-    let mut target_graphql_source: Option<&GraphQLSource> = None;
-    for graphql_source in &*graphql_sources {
-        let range = graphql_source.to_range();
-        if position >= range.start && position <= range.end {
-            target_graphql_source = Some(graphql_source);
-            break;
-        }
-    }
-
-    let graphql_source = match target_graphql_source {
-        Some(source) => source,
-        // Exit early if this completion request didn't fall within
-        // the range of one of our GraphQL documents
-        None => return None,
-    };
-
-    match parse_executable(
-        &graphql_source.text,
-        SourceLocationKey::standalone(&url.to_string()),
-    ) {
-        Ok(document) => {
-            // Now we need to take the `Position` and map that to an offset relative
-            // to this GraphQL document, as the `Span`s in the document are relative.
-            info!("Successfully parsed the definitions for a target GraphQL source");
-            // Map the position to a zero-length span, relative to this GraphQL source.
-            let position_span = match position_to_span(position, &graphql_source) {
-                Some(span) => span,
-                // Exit early if we can't map the position for some reason
-                None => return None,
+    for arg in arguments {
+        if let TypeReference::NonNull(type_) = arg.type_() {
+            let value_snippet = match type_ {
+                t if t.is_list() => format!("[${}]", cursor_location),
+                t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
+                _ => format!("${}", cursor_location),
             };
-            // Now we need to walk the Document, tracking our path along the way, until
-            // we find the position within the document. Note that the GraphQLSource will
-            // already be updated *with the characters that triggered the completion request*
-            // since the change event fires before completion.
-            info!("position_span: {:?}", position_span);
-            let completion_request = create_completion_request(document, position_span);
-            info!("Completion path: {:#?}", completion_request);
-            completion_request
+            let str = format!("{}: {}", arg.name(), value_snippet);
+            args.push(str);
+            cursor_location += 1;
         }
-        Err(err) => {
-            info!("Failed to parse this target!");
-            info!("{:?}", err);
-            None
-        }
+    }
+    args
+}
+
+pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <Completion as Request>::Params,
+) -> LSPRuntimeResult<<Completion as Request>::Result> {
+    let (document, position_span, project_name) =
+        state.extract_executable_document_from_text(params.text_document_position)?;
+
+    let completion_request = CompletionRequestBuilder::new(project_name)
+        .create_completion_request(document, position_span)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    if let Some(schema) = state
+        .get_schemas()
+        .read()
+        .expect("on_completion: could not acquire read lock for state.get_schemas")
+        .get(&project_name)
+    {
+        let items = completion_items_for_request(
+            completion_request,
+            schema,
+            state.get_source_programs_ref(),
+        )
+        .unwrap_or_else(Vec::new);
+        Ok(Some(CompletionResponse::Array(items)))
+    } else {
+        Err(LSPRuntimeError::ExpectedError)
     }
 }

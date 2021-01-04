@@ -11,13 +11,14 @@ use crate::util::{
     is_relay_custom_inline_fragment_directive, PointerAddress, CUSTOM_METADATA_DIRECTIVES,
 };
 use graphql_ir::{
-    Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, ScalarField, Selection, ValidationMessage,
+    Argument, Condition, Directive, FragmentDefinition, InlineFragment, LinkedField,
+    OperationDefinition, Program, ScalarField, Selection, ValidationMessage,
 };
+use interner::StringKey;
 use schema::Type;
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
@@ -101,7 +102,7 @@ impl FlattenTransform {
             type_: operation.type_,
             directives: operation.directives.clone(),
             variable_definitions: operation.variable_definitions.clone(),
-            selections: self.tranform_selections(&operation.selections, operation.type_)?,
+            selections: self.transform_selections(&operation.selections, operation.type_)?,
         })
     }
 
@@ -115,11 +116,11 @@ impl FlattenTransform {
             directives: fragment.directives.clone(),
             variable_definitions: fragment.variable_definitions.clone(),
             used_global_variables: fragment.used_global_variables.clone(),
-            selections: self.tranform_selections(&fragment.selections, fragment.type_condition)?,
+            selections: self.transform_selections(&fragment.selections, fragment.type_condition)?,
         })
     }
 
-    fn tranform_selections(
+    fn transform_selections(
         &self,
         selections: &[Selection],
         parent_type: Type,
@@ -156,7 +157,7 @@ impl FlattenTransform {
             definition: linked_field.definition,
             arguments: linked_field.arguments.clone(),
             directives: linked_field.directives.clone(),
-            selections: self.tranform_selections(&linked_field.selections, type_)?,
+            selections: self.transform_selections(&linked_field.selections, type_)?,
         });
         if should_cache {
             let mut seen_linked_fields = self.seen_linked_fields.write();
@@ -189,7 +190,7 @@ impl FlattenTransform {
         let result = Arc::new(InlineFragment {
             type_condition: fragment.type_condition,
             directives: fragment.directives.clone(),
-            selections: self.tranform_selections(&fragment.selections, next_parent_type)?,
+            selections: self.transform_selections(&fragment.selections, next_parent_type)?,
         });
         if should_cache {
             let mut seen_inline_fragments = self.seen_inline_fragments.write();
@@ -217,7 +218,7 @@ impl FlattenTransform {
             Selection::Condition(node) => Selection::Condition(Arc::new(Condition {
                 value: node.value.clone(),
                 passing_value: node.passing_value,
-                selections: self.tranform_selections(&node.selections, parent_type)?,
+                selections: self.transform_selections(&node.selections, parent_type)?,
             })),
             Selection::FragmentSpread(node) => Selection::FragmentSpread(Arc::clone(node)),
             Selection::ScalarField(node) => Selection::ScalarField(Arc::clone(node)),
@@ -311,14 +312,13 @@ impl FlattenTransform {
                                 &node.arguments,
                                 &flattened_node.arguments,
                             ) {
-                                let error = Diagnostic::error(
-                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
-                                        field_name: node.alias_or_name(&self.schema),
-                                    },
+                                return Err(vec![self.create_conflicting_fields_error(
+                                    node.alias_or_name(&self.schema),
+                                    flattened_node.definition.location,
+                                    &flattened_node.arguments,
                                     node.definition.location,
-                                )
-                                .annotate("conflicting field", flattened_node.definition.location);
-                                return Err(vec![error]);
+                                    &node.arguments,
+                                )]);
                             }
                             let type_ = self
                                 .schema
@@ -373,14 +373,13 @@ impl FlattenTransform {
                                 &node.arguments,
                                 &flattened_node.arguments,
                             ) {
-                                let error = Diagnostic::error(
-                                    ValidationMessage::InvalidSameFieldWithDifferentArguments {
-                                        field_name: node.alias_or_name(&self.schema),
-                                    },
+                                return Err(vec![self.create_conflicting_fields_error(
+                                    node.alias_or_name(&self.schema),
                                     flattened_node.definition.location,
-                                )
-                                .annotate("conflicts with", node.definition.location);
-                                return Err(vec![error]);
+                                    &flattened_node.arguments,
+                                    node.definition.location,
+                                    &node.arguments,
+                                )]);
                             }
                             let should_merge_handles = node.directives.iter().any(|d| {
                                 CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
@@ -416,6 +415,30 @@ impl FlattenTransform {
         self.flatten_selections(&mut flattened_selections, selections_a, parent_type)?;
         self.flatten_selections(&mut flattened_selections, selections_b, parent_type)?;
         Ok(flattened_selections)
+    }
+
+    fn create_conflicting_fields_error(
+        &self,
+        field_name: StringKey,
+        location_a: Location,
+        arguments_a: &[Argument],
+        location_b: Location,
+        arguments_b: &[Argument],
+    ) -> Diagnostic {
+        Diagnostic::error(
+            ValidationMessage::InvalidSameFieldWithDifferentArguments {
+                field_name,
+                arguments_a: graphql_text_printer::print_arguments(&self.schema, &arguments_a),
+            },
+            location_a,
+        )
+        .annotate(
+            format!(
+                "which conflicts with this field with applied argument values {}",
+                graphql_text_printer::print_arguments(&self.schema, &arguments_b),
+            ),
+            location_b,
+        )
     }
 }
 

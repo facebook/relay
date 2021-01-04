@@ -1,4 +1,11 @@
-// @generated SignedSource<<283ad01cc8cebe0a6adf17c82a3d0297>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<5485f969d2c4ec061b42a61e18f80eed>>
+ */
 
 mod uppercase;
 

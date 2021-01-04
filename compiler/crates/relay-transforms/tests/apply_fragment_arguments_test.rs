@@ -1,4 +1,11 @@
-// @generated SignedSource<<484bdc0e657aebe7312780a304f9ebe6>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<bd1e568c917c0f5121cad5d8d5480cd8>>
+ */
 
 mod apply_fragment_arguments;
 

@@ -7,30 +7,30 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type UpdateAllSeenStateInput = {|
-  clientMutationId?: ?string,
-  storyIds?: ?$ReadOnlyArray<?string>,
-|};
-export type InputHasArrayVariables = {|
-  input?: ?UpdateAllSeenStateInput
-|};
-export type InputHasArrayResponse = {|
-  +viewerNotificationsUpdateAllSeenState: ?{|
-    +stories: ?$ReadOnlyArray<?{|
-      +actorCount: ?number
-    |}>
-  |}
-|};
-export type InputHasArrayRawResponse = {|
-  +viewerNotificationsUpdateAllSeenState: ?{|
-    +stories: ?$ReadOnlyArray<?{|
-      +actorCount: ?number,
-      +id: string,
-    |}>
-  |}
-|};
-export type InputHasArray = {|
+export type UpdateAllSeenStateInput = {
+  clientMutationId?: string | null,
+  storyIds?: ReadonlyArray<string | null> | null,
+};
+export type InputHasArrayVariables = {
+  input?: UpdateAllSeenStateInput | null
+};
+export type InputHasArrayResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly actorCount: number | null
+    } | null> | null
+  } | null
+};
+export type InputHasArrayRawResponse = {
+  readonly viewerNotificationsUpdateAllSeenState: {
+    readonly stories: ReadonlyArray<{
+      readonly actorCount: number | null,
+      readonly id: string,
+    } | null> | null
+  } | null
+};
+export type InputHasArray = {
   variables: InputHasArrayVariables,
   response: InputHasArrayResponse,
   rawResponse: InputHasArrayRawResponse,
-|};
+};

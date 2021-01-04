@@ -12,10 +12,10 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use interner::Intern;
 use relay_compiler::apply_transforms;
+use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{ConnectionInterface, FeatureFlags};
-use relay_typegen::{self, TypegenConfig};
+use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
-use test_schema::{get_test_schema, get_test_schema_with_extensions};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -45,6 +45,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     )
     .unwrap();
 
+    let typegen_config = TypegenConfig {
+        language: TypegenLanguage::Flow,
+        haste: true,
+        ..Default::default()
+    };
+
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
@@ -56,15 +62,15 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             typegen_operation,
             normalization_operation,
             &schema,
-            &TypegenConfig::default(),
+            &typegen_config,
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
-    let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type(frag, &schema, &TypegenConfig::default())
-    });
+    let fragment_strings = fragments
+        .into_iter()
+        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &typegen_config));
 
     let mut result: Vec<String> = operation_strings.collect();
     result.extend(fragment_strings);

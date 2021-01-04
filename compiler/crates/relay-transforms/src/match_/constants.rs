@@ -18,12 +18,8 @@ pub struct MatchConstants {
     pub match_directive_name: StringKey,
     pub supported_arg: StringKey,
     pub name_arg: StringKey,
-    pub module_component_key_prefix: &'static str,
-    pub module_operation_key_prefix: &'static str,
     pub custom_module_directive_name: StringKey,
     pub source_document_arg: StringKey,
-    pub parent_sources_arg: StringKey,
-    pub derived_from_arg: StringKey,
 }
 
 lazy_static! {
@@ -37,11 +33,7 @@ lazy_static! {
         module_directive_name: "module".intern(),
         supported_arg: "supported".intern(),
         name_arg: "name".intern(),
-        module_component_key_prefix: "__module_component_",
-        module_operation_key_prefix: "__module_operation_",
         custom_module_directive_name: "__module".intern(),
         source_document_arg: "sourceDocument".intern(),
-        parent_sources_arg: "parentSources".intern(),
-        derived_from_arg: "derivedFrom".intern(),
     };
 }

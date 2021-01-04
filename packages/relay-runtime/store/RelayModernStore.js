@@ -13,18 +13,20 @@
 'use strict';
 
 const DataChecker = require('./DataChecker');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
+const RelayStoreSubscriptionsUsingMapByID = require('./RelayStoreSubscriptionsUsingMapByID');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
 const invariant = require('invariant');
-const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
@@ -45,19 +47,13 @@ import type {
   SingularReaderSelector,
   Snapshot,
   Store,
+  StoreSubscriptions,
   UpdatedRecords,
 } from './RelayStoreTypes';
 
 export opaque type InvalidationState = {|
   dataIDs: $ReadOnlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
-|};
-
-type Subscription = {|
-  callback: (snapshot: Snapshot) => void,
-  snapshot: Snapshot,
-  stale: boolean,
-  backup: ?Snapshot,
 |};
 
 type InvalidationSubscription = {|
@@ -105,7 +101,7 @@ class RelayModernStore implements Store {
     |},
   >;
   _shouldScheduleGC: boolean;
-  _subscriptions: Set<Subscription>;
+  _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: UpdatedRecords;
 
   constructor(
@@ -148,7 +144,10 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._subscriptions = new Set();
+    this._storeSubscriptions =
+      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
+        ? new RelayStoreSubscriptionsUsingMapByID()
+        : new RelayStoreSubscriptions();
     this._updatedRecordIDs = {};
 
     initializeRecordSource(this._recordSource);
@@ -231,7 +230,7 @@ class RelayModernStore implements Store {
 
         if (rootEntryIsStale) {
           this._roots.delete(id);
-          this._scheduleGC();
+          this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
 
@@ -241,7 +240,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             this._roots.delete(_id);
-            this._scheduleGC();
+            this.scheduleGC();
           }
         }
       }
@@ -301,12 +300,11 @@ class RelayModernStore implements Store {
 
     const source = this.getSource();
     const updatedOwners = [];
-    this._subscriptions.forEach(subscription => {
-      const owner = this._updateSubscription(source, subscription);
-      if (owner != null) {
-        updatedOwners.push(owner);
-      }
-    });
+    this._storeSubscriptions.updateSubscriptions(
+      source,
+      this._updatedRecordIDs,
+      updatedOwners,
+    );
     this._invalidationSubscriptions.forEach(subscription => {
       this._updateInvalidationSubscription(
         subscription,
@@ -388,12 +386,7 @@ class RelayModernStore implements Store {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    const subscription = {backup: null, callback, snapshot, stale: false};
-    const dispose = () => {
-      this._subscriptions.delete(subscription);
-    };
-    this._subscriptions.add(subscription);
-    return {dispose};
+    return this._storeSubscriptions.subscribe(snapshot, callback);
   }
 
   holdGC(): Disposable {
@@ -406,7 +399,7 @@ class RelayModernStore implements Store {
       if (this._gcHoldCounter > 0) {
         this._gcHoldCounter--;
         if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
-          this._scheduleGC();
+          this.scheduleGC();
           this._shouldScheduleGC = false;
         }
       }
@@ -421,43 +414,6 @@ class RelayModernStore implements Store {
   // Internal API
   __getUpdatedRecordIDs(): UpdatedRecords {
     return this._updatedRecordIDs;
-  }
-
-  // Returns the owner (RequestDescriptor) if the subscription was affected by the
-  // latest update, or null if it was not affected.
-  _updateSubscription(
-    source: RecordSource,
-    subscription: Subscription,
-  ): ?RequestDescriptor {
-    const {backup, callback, snapshot, stale} = subscription;
-    const hasOverlappingUpdates = hasOverlappingIDs(
-      snapshot.seenRecords,
-      this._updatedRecordIDs,
-    );
-    if (!stale && !hasOverlappingUpdates) {
-      return;
-    }
-    let nextSnapshot: Snapshot =
-      hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector)
-        : backup;
-    const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = ({
-      data: nextData,
-      isMissingData: nextSnapshot.isMissingData,
-      seenRecords: nextSnapshot.seenRecords,
-      selector: nextSnapshot.selector,
-      missingRequiredFields: nextSnapshot.missingRequiredFields,
-    }: Snapshot);
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    subscription.snapshot = nextSnapshot;
-    subscription.stale = false;
-    if (nextSnapshot.data !== snapshot.data) {
-      callback(nextSnapshot);
-      return snapshot.selector.owner;
-    }
   }
 
   lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
@@ -539,29 +495,7 @@ class RelayModernStore implements Store {
         name: 'store.snapshot',
       });
     }
-    this._subscriptions.forEach(subscription => {
-      // Backup occurs after writing a new "final" payload(s) and before (re)applying
-      // optimistic changes. Each subscription's `snapshot` represents what was *last
-      // published to the subscriber*, which notably may include previous optimistic
-      // updates. Therefore a subscription can be in any of the following states:
-      // - stale=true: This subscription was restored to a different value than
-      //   `snapshot`. That means this subscription has changes relative to its base,
-      //   but its base has changed (we just applied a final payload): recompute
-      //   a backup so that we can later restore to the state the subscription
-      //   should be in.
-      // - stale=false: This subscription was restored to the same value than
-      //   `snapshot`. That means this subscription does *not* have changes relative
-      //   to its base, so the current `snapshot` is valid to use as a backup.
-      if (!subscription.stale) {
-        subscription.backup = subscription.snapshot;
-        return;
-      }
-      const snapshot = subscription.snapshot;
-      const backup = RelayReader.read(this.getSource(), snapshot.selector);
-      const nextData = recycleNodesInto(snapshot.data, backup.data);
-      (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
-      subscription.backup = backup;
-    });
+    this._storeSubscriptions.snapshotSubscriptions(this.getSource());
     if (this._gcRun) {
       this._gcRun = null;
       this._shouldScheduleGC = true;
@@ -585,29 +519,12 @@ class RelayModernStore implements Store {
     }
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
-      this._scheduleGC();
+      this.scheduleGC();
     }
-    this._subscriptions.forEach(subscription => {
-      const backup = subscription.backup;
-      subscription.backup = null;
-      if (backup) {
-        if (backup.data !== subscription.snapshot.data) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = {
-          data: subscription.snapshot.data,
-          isMissingData: backup.isMissingData,
-          seenRecords: backup.seenRecords,
-          selector: backup.selector,
-          missingRequiredFields: backup.missingRequiredFields,
-        };
-      } else {
-        subscription.stale = true;
-      }
-    });
+    this._storeSubscriptions.restoreSubscriptions();
   }
 
-  _scheduleGC() {
+  scheduleGC() {
     if (this._gcHoldCounter > 0) {
       this._shouldScheduleGC = true;
       return;
@@ -771,7 +688,15 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
+      // ReactFlightClientResponses are lazy and only materialize when readRoot
+      // is called when we read the field, so if the record is a Flight field
+      // we always use the new record's data regardless of whether
+      // it actually changed. Let React take care of reconciliation instead.
+      const nextRecord =
+        RelayModernRecord.getType(targetRecord) ===
+        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
+          ? sourceRecord
+          : RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {

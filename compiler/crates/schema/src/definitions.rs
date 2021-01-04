@@ -31,14 +31,16 @@ pub struct Schema {
 
     clientid_field: FieldID,
     typename_field: FieldID,
+    fetch_token_field: FieldID,
 
     clientid_field_name: StringKey,
     typename_field_name: StringKey,
+    fetch_token_field_name: StringKey,
 
-    string_type: Type,
-    id_type: Type,
+    string_type: Option<Type>,
+    id_type: Option<Type>,
 
-    unchecked_argument_type_sentinel: TypeReference,
+    unchecked_argument_type_sentinel: Option<TypeReference>,
 
     directives: HashMap<StringKey, Directive>,
 
@@ -72,6 +74,10 @@ impl Schema {
         self.typename_field
     }
 
+    pub fn fetch_token_field(&self) -> FieldID {
+        self.fetch_token_field
+    }
+
     pub fn get_type(&self, type_name: StringKey) -> Option<Type> {
         self.type_map.get(&type_name).cloned()
     }
@@ -81,7 +87,7 @@ impl Schema {
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
     pub fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
-        &self.unchecked_argument_type_sentinel
+        self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
     pub fn is_type_subtype_of(
@@ -187,7 +193,7 @@ impl Schema {
     }
 
     pub fn is_string(&self, type_: Type) -> bool {
-        type_ == self.string_type
+        type_ == self.string_type.unwrap()
     }
 
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
@@ -239,6 +245,10 @@ impl Schema {
         self.directives.get(&name)
     }
 
+    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+        self.directives.get_mut(&name)
+    }
+
     pub fn is_extension_directive(&self, name: StringKey) -> bool {
         if let Some(directive) = self.get_directive(name) {
             directive.is_extension
@@ -254,6 +264,10 @@ impl Schema {
         if can_have_typename {
             if name == self.typename_field_name {
                 return Some(self.typename_field);
+            }
+            // TODO(inanc): Also check if the parent type is fetchable?
+            if name == self.fetch_token_field_name {
+                return Some(self.fetch_token_field);
             }
             if name == self.clientid_field_name {
                 return Some(self.clientid_field);
@@ -316,7 +330,7 @@ impl Schema {
     }
 
     pub fn is_id(&self, type_: Type) -> bool {
-        type_ == self.id_type
+        type_ == self.id_type.unwrap()
     }
 
     pub fn get_type_map(&self) -> impl Iterator<Item = (&StringKey, &Type)> {
@@ -482,6 +496,16 @@ impl Schema {
         Ok(interface_id)
     }
 
+    pub fn add_implementing_object_to_interface(
+        &mut self,
+        interface_id: InterfaceID,
+        object_id: ObjectID,
+    ) -> DiagnosticsResult<InterfaceID> {
+        let interface = self.interfaces.get_mut(interface_id.as_usize()).unwrap();
+        interface.implementing_objects.push(object_id);
+        Ok(interface_id)
+    }
+
     pub fn add_member_to_union(
         &mut self,
         union_id: UnionID,
@@ -616,6 +640,35 @@ impl Schema {
         Ok(())
     }
 
+    /// Creates an uninitialized, invalid schema which can then be added to using the add_*
+    /// methods. Note that we still bake in some assumptions about the clientid and typename
+    /// fields, but in practice this is not an issue.
+    pub fn create_uninitialized() -> Schema {
+        Schema {
+            query_type: None,
+            mutation_type: None,
+            subscription_type: None,
+            type_map: HashMap::new(),
+            clientid_field: FieldID(0),
+            typename_field: FieldID(0),
+            fetch_token_field: FieldID(0),
+            clientid_field_name: "__id".intern(),
+            typename_field_name: "__typename".intern(),
+            fetch_token_field_name: "__token".intern(),
+            string_type: None,
+            id_type: None,
+            unchecked_argument_type_sentinel: None,
+            directives: HashMap::new(),
+            enums: Vec::new(),
+            fields: Vec::new(),
+            input_objects: Vec::new(),
+            interfaces: Vec::new(),
+            objects: Vec::new(),
+            scalars: Vec::new(),
+            unions: Vec::new(),
+        }
+    }
+
     pub fn build(
         schema_definitions: &[graphql_syntax::TypeSystemDefinition],
         client_definitions: &[graphql_syntax::TypeSystemDefinition],
@@ -695,8 +748,9 @@ impl Schema {
         let string_type = *type_map.get(&"String".intern()).unwrap();
         let id_type = *type_map.get(&"ID".intern()).unwrap();
 
-        let unchecked_argument_type_sentinel =
-            TypeReference::Named(*type_map.get(&"Boolean".intern()).unwrap());
+        let unchecked_argument_type_sentinel = Some(TypeReference::Named(
+            *type_map.get(&"Boolean".intern()).unwrap(),
+        ));
 
         let mut schema = Schema {
             query_type: None,
@@ -705,10 +759,12 @@ impl Schema {
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
+            fetch_token_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             typename_field_name: "__typename".intern(),
-            string_type,
-            id_type,
+            fetch_token_field_name: "__token".intern(),
+            string_type: Some(string_type),
+            id_type: Some(id_type),
             unchecked_argument_type_sentinel,
             directives: HashMap::with_capacity(directive_count),
             enums: Vec::with_capacity(next_enum_id.try_into().unwrap()),
@@ -752,11 +808,16 @@ impl Schema {
             }
         }
 
-        schema.load_default_root_types();
-        schema.load_default_typename_field();
-        schema.load_default_clientid_field();
+        schema.load_defaults();
 
         Ok(schema)
+    }
+
+    pub fn load_defaults(&mut self) {
+        self.load_default_root_types();
+        self.load_default_typename_field();
+        self.load_default_fetch_token_field();
+        self.load_default_clientid_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription
@@ -791,6 +852,20 @@ impl Schema {
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
+            directives: Vec::new(),
+            parent_type: None,
+        });
+    }
+
+    fn load_default_fetch_token_field(&mut self) {
+        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let fetch_token_field_id = self.fields.len();
+        self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: self.fetch_token_field_name,
+            is_extension: false,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
         });
@@ -868,7 +943,7 @@ impl Schema {
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
                 arguments,
-                repeatable: _repeatable,
+                repeatable,
                 locations,
             }) => {
                 if self.directives.contains_key(&name.value) {
@@ -887,6 +962,7 @@ impl Schema {
                         name: name.value,
                         arguments,
                         locations: locations.clone(),
+                        repeatable: *repeatable,
                         is_extension,
                     },
                 );
@@ -1042,14 +1118,16 @@ impl Schema {
                         .iter()
                         .map(|name| self.build_interface_id(name.value))
                         .collect::<DiagnosticsResult<Vec<_>>>()?;
-                    let filtered_interfaces =
-                        _filter_duplicates(&self.objects[index].interfaces, built_interfaces);
-                    self.objects[index].interfaces.extend(filtered_interfaces);
+                    extend_without_duplicates(
+                        &mut self.objects[index].interfaces,
+                        built_interfaces,
+                    );
 
                     let built_directives = self.build_directive_values(&directives);
-                    let filtered_directives =
-                        _filter_duplicates(&self.objects[index].directives, built_directives);
-                    self.objects[index].directives.extend(filtered_directives);
+                    extend_without_duplicates(
+                        &mut self.objects[index].directives,
+                        built_directives,
+                    );
                 }
                 _ => {
                     return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
@@ -1077,11 +1155,10 @@ impl Schema {
                     self.interfaces[index].fields.extend(client_fields);
 
                     let built_directives = self.build_directive_values(&directives);
-                    let filtered_directives =
-                        _filter_duplicates(&self.interfaces[index].directives, built_directives);
-                    self.interfaces[index]
-                        .directives
-                        .extend(filtered_directives);
+                    extend_without_duplicates(
+                        &mut self.interfaces[index].directives,
+                        built_directives,
+                    );
                 }
                 _ => {
                     return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
@@ -1259,8 +1336,10 @@ impl Schema {
             directives,
             clientid_field: _clientid_field,
             typename_field: _typename_field,
+            fetch_token_field: _fetch_token_field,
             clientid_field_name: _clientid_field_name,
             typename_field_name: _typename_field_name,
+            fetch_token_field_name: _fetch_token_field_name,
             string_type: _string_type,
             id_type: _id_type,
             unchecked_argument_type_sentinel: _unchecked_argument_type_sentinel,
@@ -1312,20 +1391,17 @@ impl Schema {
     }
 }
 
-fn _filter_duplicates<T: std::cmp::Eq + std::hash::Hash>(left: &[T], right: Vec<T>) -> Vec<T> {
-    let mut hs = HashSet::new();
-    for t in left {
-        hs.insert(t);
-    }
-
-    let mut v = Vec::new();
-    for t in right {
-        if !hs.contains(&t) {
-            v.push(t);
+/// Extends the `target` with `extensions` ignoring items that are already in
+/// `target`.
+fn extend_without_duplicates<T: PartialEq>(
+    target: &mut Vec<T>,
+    extensions: impl IntoIterator<Item = T>,
+) {
+    for extension in extensions {
+        if !target.contains(&extension) {
+            target.push(extension);
         }
     }
-
-    v
 }
 
 macro_rules! type_id {
@@ -1333,7 +1409,6 @@ macro_rules! type_id {
         #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
         pub struct $name(pub $type);
         impl $name {
-            #[allow(dead_code)]
             fn as_usize(&self) -> usize {
                 self.0 as usize
             }
@@ -1554,6 +1629,7 @@ pub struct Directive {
     pub name: StringKey,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
+    pub repeatable: bool,
     pub is_extension: bool,
 }
 
@@ -1745,4 +1821,16 @@ impl TypeWithFields for Object {
 
 fn len_of_option_list<T>(option_list: &Option<List<T>>) -> usize {
     option_list.as_ref().map_or(0, |list| list.items.len())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_extend_without_duplicates() {
+        let mut target = vec![10, 11];
+        extend_without_duplicates(&mut target, vec![1, 10, 100]);
+        assert_eq!(target, vec![10, 11, 1, 100]);
+    }
 }

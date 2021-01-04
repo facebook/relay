@@ -14,7 +14,9 @@ use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::print_full_operation;
 use interner::StringKey;
-use relay_transforms::{RefetchableDerivedFromMetadata, SplitOperationMetaData, MATCH_CONSTANTS};
+use relay_transforms::{
+    RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
+};
 use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -38,10 +40,10 @@ pub fn generate_artifacts(
     for normalization_operation in programs.normalization.operations() {
         if let Some(directive) = normalization_operation
             .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
         {
             // Generate normalization file for SplitOperation
-            let metadata = SplitOperationMetaData::from(directive);
+            let metadata = SplitOperationMetadata::from(directive);
             let source_fragment = programs
                 .source
                 .fragment(metadata.derived_from)

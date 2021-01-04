@@ -16,6 +16,8 @@ pub enum SyntaxError {
     ExpectedSelection,
     #[error("Expected a fragment, mutation, query, or subscription definition")]
     ExpectedDefinition,
+    #[error("Expected a definition")]
+    ExpectedExecutableDefinition,
     #[error("Expected a 'mutation', 'query', or 'subscription' keyword")]
     ExpectedOperationKind,
     #[error(
@@ -28,10 +30,18 @@ pub enum SyntaxError {
     ExpectedConstantValue,
     #[error("Expected a type annotation (e.g. '<Type>', '[Type]', 'Type!', etc)")]
     ExpectedTypeAnnotation,
+    #[error(
+        "Expected a value ('$example', boolean, integer, float, string, null, list, or object)"
+    )]
+    ExpectedValue,
     #[error("Expected a variable ('$example')")]
     ExpectedVariable,
     #[error("Expected a spread ('...')")]
     ExpectedSpread,
+    #[error("Expected an argument")]
+    ExpectedArgument,
+    #[error("Expected the list to be non-empty")]
+    ExpectedNonEmptyList,
     #[error("Invalid floating point value")]
     InvalidFloat,
     #[error("Invalid integer value")]

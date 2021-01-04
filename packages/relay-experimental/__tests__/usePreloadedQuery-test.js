@@ -988,97 +988,6 @@ describe('usePreloadedQuery', () => {
       });
     });
 
-    describe('AST timeout', () => {
-      const LOAD_QUERY_AST_MAX_TIMEOUT = 15 * 1000;
-
-      beforeEach(() => {
-        jest.clearAllTimers();
-        jest.useFakeTimers();
-        jest
-          .spyOn(PreloadableQueryRegistry, 'get')
-          .mockImplementation(() => null);
-      });
-
-      it('fetches the query when the AST times out after render', () => {
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
-        let data;
-        expect(dataSource).toBeDefined();
-        if (dataSource) {
-          dataSource.next(response);
-        }
-        TestRenderer.act(() => jest.runAllImmediates());
-
-        expect(fetch).toHaveBeenCalled();
-        fetch.mockClear();
-        dataSource = null;
-        function Component(props) {
-          data = usePreloadedQuery(query, props.prefetched);
-          return data.node.name;
-        }
-        const renderer = TestRenderer.create(
-          <RelayEnvironmentProvider environment={environment}>
-            <React.Suspense fallback="Fallback">
-              <Component prefetched={prefetched} />
-            </React.Suspense>
-          </RelayEnvironmentProvider>,
-        );
-
-        jest.advanceTimersByTime(LOAD_QUERY_AST_MAX_TIMEOUT - 1);
-        expect(renderer.toJSON()).toEqual('Fallback');
-        TestRenderer.act(() => jest.runAllImmediates());
-
-        jest.advanceTimersByTime(1);
-        expect(fetch).toHaveBeenCalledTimes(1);
-        expect(dataSource).toBeDefined();
-        if (dataSource) {
-          dataSource.next(response);
-        }
-        TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('Zuck');
-      });
-
-      it('fetches the query if the AST times out before render', () => {
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
-        let data;
-        expect(dataSource).toBeDefined();
-        if (dataSource) {
-          dataSource.next(response);
-        }
-        TestRenderer.act(() => jest.runAllImmediates());
-
-        expect(fetch).toHaveBeenCalled();
-        fetch.mockClear();
-        dataSource = null;
-        function Component(props) {
-          data = usePreloadedQuery(query, props.prefetched);
-          return data.node.name;
-        }
-        const renderer = TestRenderer.create(
-          <RelayEnvironmentProvider environment={environment}>
-            <React.Suspense fallback="Fallback">
-              <Component prefetched={prefetched} />
-            </React.Suspense>
-          </RelayEnvironmentProvider>,
-        );
-
-        jest.advanceTimersByTime(LOAD_QUERY_AST_MAX_TIMEOUT);
-        expect(renderer.toJSON()).toEqual('Fallback');
-        TestRenderer.act(() => jest.runAllImmediates());
-
-        expect(fetch).toHaveBeenCalledTimes(1);
-        expect(dataSource).toBeDefined();
-        if (dataSource) {
-          dataSource.next(response);
-        }
-        TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('Zuck');
-      });
-    });
-
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
       it('warns that the preloadedQuery has already been disposed', () => {
         const expectWarningMessage = expect.stringMatching(
@@ -1119,6 +1028,206 @@ describe('usePreloadedQuery', () => {
           false, // invariant broken
           expectWarningMessage,
         );
+      });
+    });
+
+    describe('refetching', () => {
+      it('renders updated data correctly when refetching same query and variables', () => {
+        const loadedFirst = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        let data;
+        function Component(props) {
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node.name;
+        }
+        const renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedFirst} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next(response);
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(data).toEqual({
+          node: {
+            id: '4',
+            name: 'Zuck',
+          },
+        });
+
+        // Refetch
+        data = undefined;
+        dataSource = undefined;
+        const loadedSecond = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        renderer.update(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedSecond} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next({
+            data: {
+              node: {
+                __typename: 'User',
+                id: '4',
+                name: 'Zuck Refetched',
+              },
+            },
+            extensions: {
+              is_final: true,
+            },
+          });
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck Refetched');
+        expect(data).toEqual({
+          node: {
+            id: '4',
+            name: 'Zuck Refetched',
+          },
+        });
+      });
+
+      it('renders updated data correctly when refetching different variables', () => {
+        const loadedFirst = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        let data;
+        function Component(props) {
+          data = usePreloadedQuery(query, props.prefetched);
+          return data.node.name;
+        }
+        const renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedFirst} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next(response);
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(data).toEqual({
+          node: {
+            id: '4',
+            name: 'Zuck',
+          },
+        });
+
+        // Refetch
+        data = undefined;
+        dataSource = undefined;
+        const loadedSecond = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '5',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        renderer.update(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={loadedSecond} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next({
+            data: {
+              node: {
+                __typename: 'User',
+                id: '5',
+                name: 'User 5',
+              },
+            },
+            extensions: {
+              is_final: true,
+            },
+          });
+          dataSource.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('User 5');
+        expect(data).toEqual({
+          node: {
+            id: '5',
+            name: 'User 5',
+          },
+        });
       });
     });
   });

@@ -423,6 +423,9 @@ class RelayReader {
     const reactFlightClientResponseRecord = this._recordSource.get(
       reactFlightClientResponseRecordID,
     );
+    this._seenRecords[
+      reactFlightClientResponseRecordID
+    ] = reactFlightClientResponseRecord;
     if (reactFlightClientResponseRecord == null) {
       data[applicationName] = reactFlightClientResponseRecord;
       if (reactFlightClientResponseRecord === undefined) {

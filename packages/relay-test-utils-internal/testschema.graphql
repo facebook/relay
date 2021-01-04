@@ -120,6 +120,7 @@ type Mutation {
     input: UpdateAllSeenStateInput
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
+  storyUpdate(input: StoryUpdateInput): StoryUpdateResponsePayload
 }
 
 type Subscription {
@@ -236,6 +237,11 @@ input CheckinSearchInput {
   inputs: [CheckinSearchInput]
 }
 
+input StoryUpdateInput {
+  clientMutationId: String
+  body: Text
+}
+
 type PlainCommentBody {
   text: Text
 }
@@ -339,6 +345,11 @@ type CommentsDeleteResponsePayload {
   feedback: Feedback
 }
 
+type StoryUpdateResponsePayload {
+  clientMutationId: String
+  story: Story
+}
+
 type CommentsConnection {
   count: Int
   edges: [CommentsEdge]
@@ -383,7 +394,8 @@ type Date {
   year: Int
 }
 
-type Feedback implements Node {
+type Feedback implements Node & HasJsField {
+  js(module: String!, id: String): JSDependency
   actor: Actor
   actors: [Actor]
   actorCount: Int

@@ -113,7 +113,6 @@ export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   FragmentMap,
-  FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,
@@ -204,6 +203,7 @@ export type {
   VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
+export type {RequestIdentifier} from './util/getRequestIdentifier';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.

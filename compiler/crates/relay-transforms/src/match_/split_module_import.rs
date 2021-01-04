@@ -5,15 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
+use super::{get_normalization_operation_name, SplitOperationMetadata, MATCH_CONSTANTS};
 use common::{NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, InlineFragment, OperationDefinition, Program, Selection,
-    Transformed, TransformedValue, Transformer, Value,
+    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedValue,
+    Transformer,
 };
 use graphql_syntax::OperationKind;
-
 use interner::{Intern, StringKey};
 use std::sync::Arc;
 
@@ -27,52 +26,9 @@ pub fn split_module_import(
         .replace_or_else(|| program.clone())
 }
 
-pub struct SplitOperationMetaData {
-    pub derived_from: StringKey,
-    pub parent_sources: FnvHashSet<StringKey>,
-}
-
-impl From<&Directive> for SplitOperationMetaData {
-    fn from(directive: &Directive) -> Self {
-        debug_assert!(directive.name.item == MATCH_CONSTANTS.custom_module_directive_name);
-        let derived_from_arg = directive
-            .arguments
-            .named(MATCH_CONSTANTS.derived_from_arg)
-            .expect("Expected derived_from arg to exist");
-        let derived_from = derived_from_arg.value.item.expect_string_literal();
-        let parent_sources_arg = directive
-            .arguments
-            .named(MATCH_CONSTANTS.parent_sources_arg)
-            .expect("Expected parent_sources arg to exist");
-        if let Value::Constant(ConstantValue::List(source_definition_names)) =
-            &parent_sources_arg.value.item
-        {
-            let parent_sources = source_definition_names
-                .iter()
-                .map(|val| {
-                    if let ConstantValue::String(name) = val {
-                        name
-                    } else {
-                        panic!("Expected item in the parent sources to be a StringKey.")
-                    }
-                })
-                .cloned()
-                .collect();
-            Self {
-                derived_from,
-                parent_sources,
-            }
-        } else {
-            panic!("Expected parent sources to be a constant of list.");
-        }
-    }
-}
-
-type SplitOperations = FnvHashMap<StringKey, (SplitOperationMetaData, OperationDefinition)>;
-
 pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {
     program: &'program Program,
-    split_operations: SplitOperations,
+    split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
     base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
 }
 
@@ -107,7 +63,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
         } else {
             let mut next_program = program.clone();
             for (_, (metadata, mut operation)) in self.split_operations.drain() {
-                attach_split_operation_metadata(&mut operation, metadata);
+                operation.directives.push(metadata.to_directive());
                 next_program.insert_operation(Arc::new(operation))
             }
             TransformedValue::Replace(next_program)
@@ -166,7 +122,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                         }
                     }
                     (
-                        SplitOperationMetaData {
+                        SplitOperationMetadata {
                             derived_from: name,
                             parent_sources: Default::default(),
                         },
@@ -190,39 +146,4 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
         }
         self.default_transform_inline_fragment(fragment)
     }
-}
-
-fn attach_split_operation_metadata(
-    operation: &mut OperationDefinition,
-    mut metadata: SplitOperationMetaData,
-) {
-    let arguments = vec![
-        Argument {
-            name: WithLocation::new(operation.name.location, MATCH_CONSTANTS.derived_from_arg),
-            value: WithLocation::new(
-                operation.name.location,
-                Value::Constant(ConstantValue::String(metadata.derived_from)),
-            ),
-        },
-        Argument {
-            name: WithLocation::new(operation.name.location, MATCH_CONSTANTS.parent_sources_arg),
-            value: WithLocation::new(
-                operation.name.location,
-                Value::Constant(ConstantValue::List(
-                    metadata
-                        .parent_sources
-                        .drain()
-                        .map(ConstantValue::String)
-                        .collect(),
-                )),
-            ),
-        },
-    ];
-    operation.directives.push(Directive {
-        name: WithLocation::new(
-            operation.name.location,
-            MATCH_CONSTANTS.custom_module_directive_name,
-        ),
-        arguments,
-    });
 }

@@ -1,4 +1,11 @@
-// @generated SignedSource<<962270ff9a737fa26a49064783db4091>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<8f017f687ee7cc87942c4c22f19d0722>>
+ */
 
 mod match_transform;
 
@@ -59,6 +66,13 @@ fn module_on_inline_data_invalid() {
     let input = include_str!("match_transform/fixtures/module-on-inline-data.invalid.graphql");
     let expected = include_str!("match_transform/fixtures/module-on-inline-data.invalid.expected");
     test_fixture(transform_fixture, "module-on-inline-data.invalid.graphql", "match_transform/fixtures/module-on-inline-data.invalid.expected", input, expected);
+}
+
+#[test]
+fn module_with_other_directives_invalid() {
+    let input = include_str!("match_transform/fixtures/module-with-other-directives.invalid.graphql");
+    let expected = include_str!("match_transform/fixtures/module-with-other-directives.invalid.expected");
+    test_fixture(transform_fixture, "module-with-other-directives.invalid.graphql", "match_transform/fixtures/module-with-other-directives.invalid.expected", input, expected);
 }
 
 #[test]

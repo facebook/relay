@@ -18,7 +18,7 @@ const stableCopy = require('./stableCopy');
 import type {RequestParameters} from './RelayConcreteNode';
 import type {Variables} from './RelayRuntimeTypes';
 
-export opaque type RequestIdentifier: string = string;
+export type RequestIdentifier = string;
 
 /**
  * Returns a stable identifier for the given pair of `RequestParameters` +

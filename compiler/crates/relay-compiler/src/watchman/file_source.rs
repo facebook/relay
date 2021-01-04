@@ -68,9 +68,13 @@ impl<'config> FileSource<'config> {
             let file_source_result = self
                 .query_file_result(Some(compiler_state.clock.clone()), perf_logger_event)
                 .await?;
+            compiler_state
+                .pending_file_source_changes
+                .write()
+                .unwrap()
+                .push(file_source_result);
             compiler_state.merge_file_source_changes(
                 &self.config,
-                &file_source_result,
                 perf_logger_event,
                 perf_logger,
                 true,
@@ -124,7 +128,7 @@ impl<'config> FileSource<'config> {
         self,
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
-    ) -> Result<(CompilerState, FileSourceSubscription<'config>)> {
+    ) -> Result<(CompilerState, FileSourceSubscription)> {
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
@@ -148,7 +152,7 @@ impl<'config> FileSource<'config> {
         Ok((
             compiler_state,
             FileSourceSubscription {
-                file_source: self,
+                resolved_root: self.resolved_root.clone(),
                 subscription,
             },
         ))
@@ -230,13 +234,23 @@ impl<'config> FileSource<'config> {
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)
             })
-            .map_err(|_| "failed to deserialize")?;
+            .map_err(|err| {
+                let error_event = perf_logger.create_event("saved_state_loader_error");
+                error_event.string("error", format!("Failed to deserialize: {}", err));
+                perf_logger.complete_event(error_event);
+                perf_logger.flush();
+                "failed to deserialize"
+            })?;
         if compiler_state.saved_state_version != saved_state_version {
             return Err("Saved state version doesn't match.");
         }
+        compiler_state
+            .pending_file_source_changes
+            .write()
+            .unwrap()
+            .push(file_source_result);
         if let Err(parse_error) = compiler_state.merge_file_source_changes(
             &self.config,
-            &file_source_result,
             perf_logger_event,
             perf_logger,
             true,
@@ -248,12 +262,12 @@ impl<'config> FileSource<'config> {
     }
 }
 
-pub struct FileSourceSubscription<'config> {
-    file_source: FileSource<'config>,
+pub struct FileSourceSubscription {
+    resolved_root: ResolvedRoot,
     subscription: WatchmanSubscription<WatchmanFile>,
 }
 
-impl<'config> FileSourceSubscription<'config> {
+impl FileSourceSubscription {
     /// Awaits changes from Watchman and provides the next set of changes
     /// if there were any changes to files
     pub async fn next_change(&mut self) -> Result<Option<FileSourceResult>> {
@@ -262,7 +276,7 @@ impl<'config> FileSourceSubscription<'config> {
             if let Some(files) = changes.files {
                 return Ok(Some(FileSourceResult {
                     files,
-                    resolved_root: self.file_source.resolved_root.clone(),
+                    resolved_root: self.resolved_root.clone(),
                     clock: changes.clock,
                     saved_state_info: None,
                 }));

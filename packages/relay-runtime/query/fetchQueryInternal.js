@@ -24,7 +24,6 @@ import type {
   OperationDescriptor,
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
-import type {CacheConfig} from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 type RequestCacheEntry = {|
@@ -106,14 +105,10 @@ const requestCachesByEnvironment = WEAKMAP_SUPPORTED
 function fetchQuery(
   environment: IEnvironment,
   operation: OperationDescriptor,
-  options?: {|
-    networkCacheConfig?: CacheConfig,
-  |},
 ): Observable<GraphQLResponse> {
   return fetchQueryDeduped(environment, operation.request.identifier, () =>
     environment.execute({
       operation,
-      cacheConfig: options?.networkCacheConfig,
     }),
   );
 }

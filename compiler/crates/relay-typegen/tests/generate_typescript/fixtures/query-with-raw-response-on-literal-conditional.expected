@@ -22,46 +22,43 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
-export type ExampleQueryVariables = {|
+export type ExampleQueryVariables = {
   id: string
-|};
-export type ExampleQueryResponse = {|
-  +node: ?{|
-    +username: ?string,
-    +friends?: ?{|
-      +count: ?number
-    |},
-    +$fragmentRefs: FriendFragment$ref,
-  |}
-|};
-export type ExampleQueryRawResponse = {|
-  +node: ?{|
-    +__typename: string,
-    +username: ?string,
-    +id: string,
-  |}
-|};
-export type ExampleQuery = {|
+};
+export type ExampleQueryResponse = {
+  readonly node: {
+    readonly username: string | null,
+    readonly friends?: {
+      readonly count: number | null
+    } | null,
+    readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
+  } | null
+};
+export type ExampleQueryRawResponse = {
+  readonly node: {
+    readonly __typename: string,
+    readonly username: string | null,
+    readonly id: string,
+  } | null
+};
+export type ExampleQuery = {
   variables: ExampleQueryVariables,
   response: ExampleQueryResponse,
   rawResponse: ExampleQueryRawResponse,
-|};
+};
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type FriendFragment$ref = FragmentReference & { _: "FriendFragment$ref" };
-export type FriendFragment$fragmentType = FriendFragment$ref & { _: "FriendFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
-  readonly name?: string,
-  readonly lastName?: string,
+  readonly name?: string | null,
+  readonly lastName?: string | null,
   readonly feedback?: {
     readonly id: string,
-    readonly name?: string,
-  },
-  readonly $refType: FriendFragment$ref,
+    readonly name: string | null,
+  } | null,
+  readonly " $refType": FragmentRefs<"FriendFragment">,
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
-  readonly $data?: FriendFragment$data,
-  readonly $fragmentRefs: FriendFragment$ref,
+  readonly " $data"?: FriendFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
 };

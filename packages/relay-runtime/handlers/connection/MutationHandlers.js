@@ -105,6 +105,13 @@ function edgeUpdater(
       'MutationHandlers: Expected connection IDs to be specified.',
     );
     const serverEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
+    if (serverEdge == null) {
+      warning(
+        false,
+        'MutationHandlers: Expected the server edge to be non-null',
+      );
+      return;
+    }
     for (const connectionID of connections) {
       const connection = store.get(connectionID);
       if (connection == null) {
@@ -155,10 +162,10 @@ function nodeUpdater(
         serverNodes = record.getLinkedRecords(payload.fieldKey, payload.args);
       } catch {}
     }
-    invariant(
-      singleServerNode != null || serverNodes != null,
-      'MutationHandlers: Expected target node to exist.',
-    );
+    if (singleServerNode == null && serverNodes == null) {
+      warning(false, 'MutationHandlers: Expected target node to exist.');
+      return;
+    }
     const serverNodeList = serverNodes ?? [singleServerNode];
     for (const serverNode of serverNodeList) {
       if (serverNode == null) {

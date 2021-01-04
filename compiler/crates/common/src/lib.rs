@@ -12,15 +12,15 @@
 mod console_logger;
 mod diagnostic;
 mod location;
-mod murmurhash;
 mod named_item;
 mod perf_logger;
 mod span;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
-pub use diagnostic::{diagnostics_result, Diagnostic, DiagnosticsResult};
+pub use diagnostic::{
+    combined_result, diagnostics_result, Diagnostic, DiagnosticsResult, WithDiagnostics,
+};
 pub use location::{Location, SourceLocationKey, WithLocation};
-pub use murmurhash::murmurhash;
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
-pub use span::{Span, Spanned};
+pub use span::Span;

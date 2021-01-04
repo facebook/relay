@@ -1,4 +1,11 @@
-// @generated SignedSource<<0c23041b52b5e3bc600e16a0c1bfa124>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<3a29526cf45905aef6f25f5ab7fcf58c>>
+ */
 
 mod print;
 
@@ -73,13 +80,6 @@ fn kitchen_sink() {
     let input = include_str!("print/fixtures/kitchen-sink.graphql");
     let expected = include_str!("print/fixtures/kitchen-sink.expected");
     test_fixture(transform_fixture, "kitchen-sink.graphql", "print/fixtures/kitchen-sink.expected", input, expected);
-}
-
-#[test]
-fn lowercase_enum_fragment_arg() {
-    let input = include_str!("print/fixtures/lowercase-enum-fragment-arg.graphql");
-    let expected = include_str!("print/fixtures/lowercase-enum-fragment-arg.expected");
-    test_fixture(transform_fixture, "lowercase-enum-fragment-arg.graphql", "print/fixtures/lowercase-enum-fragment-arg.expected", input, expected);
 }
 
 #[test]

@@ -18,44 +18,44 @@ query TestStream @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestStreamVariables = {||};
-export type TestStreamResponse = {|
-  +node: ?{|
-    +name?: ?string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string
-        |}
-      |}>
-    |},
-  |}
-|};
-export type TestStreamRawResponse = {|
-  +node: ?({|
-    +__typename: "User",
-    +id: string,
-    +name: ?string,
-    +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-          +__typename: "User",
-        |},
-        +cursor: ?string,
-      |}>,
-      +pageInfo: ?{|
-        +endCursor: ?string,
-        +hasNextPage: ?boolean,
-      |},
-    |},
-  |} | {|
-    +__typename: string,
-    +id: string,
-  |})
-|};
-export type TestStream = {|
+export type TestStreamVariables = {};
+export type TestStreamResponse = {
+  readonly node: {
+    readonly name?: string | null,
+    readonly friends?: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly id: string
+        } | null
+      } | null> | null
+    } | null,
+  } | null
+};
+export type TestStreamRawResponse = {
+  readonly node: {
+    readonly __typename: "User",
+    readonly id: string,
+    readonly name: string | null,
+    readonly friends: {
+      readonly edges: ReadonlyArray<{
+        readonly node: {
+          readonly id: string,
+          readonly __typename: "User",
+        } | null,
+        readonly cursor: string | null,
+      } | null> | null,
+      readonly pageInfo: {
+        readonly endCursor: string | null,
+        readonly hasNextPage: boolean | null,
+      } | null,
+    } | null,
+  } | {
+    readonly __typename: string,
+    readonly id: string,
+  } | null
+};
+export type TestStream = {
   variables: TestStreamVariables,
   response: TestStreamResponse,
   rawResponse: TestStreamRawResponse,
-|};
+};

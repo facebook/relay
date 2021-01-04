@@ -486,11 +486,6 @@ where
         self.data.iter().any(|(k, _v)| k == key)
     }
 
-    #[allow(dead_code)]
-    fn get(&self, key: &K) -> Option<&V> {
-        self.data.iter().find(|(k, _v)| k == key).map(|(_k, v)| v)
-    }
-
     fn get_mut(&mut self, key: &K) -> Option<&mut V> {
         let data = Arc::make_mut(&mut self.data);
         data.iter_mut().find(|(k, _v)| k == key).map(|(_k, v)| v)

@@ -1,6 +1,0 @@
-# expected-to-throw
-query Query @preloadable @preloadable {
-  node(id: "foo") {
-    id
-  }
-}

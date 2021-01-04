@@ -1,0 +1,151 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  photo(s: 42, $size)
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:48,
+    definitions: [
+        FragmentDefinition {
+            location: argument-value-only-2.graphql:0:47,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:47,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 26:45,
+                        alias: None,
+                        name: Identifier {
+                            span: 26:31,
+                            token: Token {
+                                span: 26:31,
+                                kind: Identifier,
+                            },
+                            value: "photo",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 31:45,
+                                start: Token {
+                                    span: 31:32,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 32:37,
+                                        name: Identifier {
+                                            span: 32:33,
+                                            token: Token {
+                                                span: 32:33,
+                                                kind: Identifier,
+                                            },
+                                            value: "s",
+                                        },
+                                        colon: Token {
+                                            span: 33:34,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            Int(
+                                                IntNode {
+                                                    token: Token {
+                                                        span: 35:37,
+                                                        kind: IntegerLiteral,
+                                                    },
+                                                    value: 42,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                    Argument {
+                                        span: 39:44,
+                                        name: Identifier {
+                                            span: 37:37,
+                                            token: Token {
+                                                span: 37:37,
+                                                kind: Empty,
+                                            },
+                                            value: "",
+                                        },
+                                        colon: Token {
+                                            span: 44:44,
+                                            kind: Empty,
+                                        },
+                                        value: Variable(
+                                            VariableIdentifier {
+                                                span: 39:44,
+                                                token: Token {
+                                                    span: 40:44,
+                                                    kind: Identifier,
+                                                },
+                                                name: "size",
+                                            },
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 44:45,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 46:47,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a colon (':')
+
+  argument-value-only-2.graphql:2:14
+    1 │ fragment Test on User {
+    2 │   photo(s: 42, $size)
+      │              ^^
+    3 │ }
+
+
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  argument-value-only-2.graphql:2:16
+    1 │ fragment Test on User {
+    2 │   photo(s: 42, $size)
+      │                ^
+    3 │ }

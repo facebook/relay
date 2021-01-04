@@ -1,4 +1,11 @@
-// @generated SignedSource<<958d6eea05e8137c7da17490e2bc59dc>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<69abb1a6bc9c1c54ce6e9be197cda04c>>
+ */
 
 mod relay_early_flush;
 

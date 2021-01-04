@@ -47,9 +47,7 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(query.request.node, query.request.variables),
   ).toEqual(true);
 }
 
@@ -610,7 +608,7 @@ describe('useLazyLoadQueryNode', () => {
 
       expect(logs).toMatchObject([
         {
-          name: 'execute.start',
+          name: 'network.start',
           transactionID: 100000,
         },
         {
@@ -619,11 +617,11 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
-          name: 'execute.next',
+          name: 'network.next',
           transactionID: 100000,
         },
         {
-          name: 'execute.complete',
+          name: 'network.complete',
           transactionID: 100000,
         },
         {
@@ -707,7 +705,7 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           // request for variables one starts
-          name: 'execute.start',
+          name: 'network.start',
           transactionID: 100000,
           variables: variablesOne,
         },
@@ -725,7 +723,7 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           // request for variables two starts
-          name: 'execute.start',
+          name: 'network.start',
           transactionID: 100001,
           variables: variablesTwo,
         },
@@ -744,11 +742,11 @@ describe('useLazyLoadQueryNode', () => {
         // fetch event for variables one is skipped
         // since it's already cached and reused
         {
-          name: 'execute.next',
+          name: 'network.next',
           transactionID: 100000,
         },
         {
-          name: 'execute.complete',
+          name: 'network.complete',
           transactionID: 100000,
         },
         // retain event for variables one

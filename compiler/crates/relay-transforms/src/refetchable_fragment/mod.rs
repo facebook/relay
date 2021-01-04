@@ -14,7 +14,7 @@ mod viewer_query_generator;
 use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
@@ -96,8 +96,23 @@ impl RefetchableFragment<'_> {
         &mut self,
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<RefetchRoot>> {
-        let refetch_name = self.get_refetch_query_name(fragment)?;
-        if let Some(refetch_name) = refetch_name {
+        if let Some((refetch_name, refetch_name_location)) =
+            self.get_refetch_query_name(fragment)?
+        {
+            if let Some(existing_query) = self.program.operation(refetch_name) {
+                return Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::RefetchableQueryConflictWithQuery {
+                            query_name: refetch_name,
+                        },
+                        refetch_name_location,
+                    )
+                    .annotate(
+                        "an operation with that name is already defined here",
+                        existing_query.name.location,
+                    ),
+                ]);
+            }
             let variables_map = self.visitor.infer_fragment_variables(fragment);
             for generator in GENERATORS.iter() {
                 if let Some(refetch_root) = (generator.build_refetch_operation)(
@@ -132,7 +147,7 @@ impl RefetchableFragment<'_> {
     fn get_refetch_query_name(
         &mut self,
         fragment: &FragmentDefinition,
-    ) -> DiagnosticsResult<Option<StringKey>> {
+    ) -> DiagnosticsResult<Option<(StringKey, Location)>> {
         if let Some(directive) = fragment.directives.named(CONSTANTS.refetchable_name) {
             if let Some(query_name_arg) = directive.arguments.named(CONSTANTS.query_name_arg) {
                 if let Some(query_name) = query_name_arg.value.item.get_string_literal() {
@@ -152,7 +167,7 @@ impl RefetchableFragment<'_> {
                             .annotate("previously defined here", previous_fragment.location),
                         ])
                     } else {
-                        Ok(Some(query_name))
+                        Ok(Some((query_name, query_name_arg.value.location)))
                     }
                 } else {
                     Err(vec![Diagnostic::error(
@@ -259,7 +274,6 @@ const GENERATORS: [QueryGenerator; 4] = [
     FETCHABLE_QUERY_GENERATOR,
 ];
 
-#[allow(dead_code)]
 pub struct RefetchRoot {
     operation: Arc<OperationDefinition>,
     fragment: Arc<FragmentDefinition>,

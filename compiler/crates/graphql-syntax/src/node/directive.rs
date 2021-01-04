@@ -7,7 +7,8 @@
 
 use super::primitive::*;
 use super::value::Argument;
-use common::Span;
+use common::{Named, Span};
+use interner::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Directive {
@@ -15,4 +16,10 @@ pub struct Directive {
     pub at: Token,
     pub name: Identifier,
     pub arguments: Option<List<Argument>>,
+}
+
+impl Named for Directive {
+    fn name(&self) -> StringKey {
+        self.name.value
+    }
 }

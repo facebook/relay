@@ -14,14 +14,6 @@ use common::{Location, Span};
 use interner::StringKey;
 use std::fmt;
 
-/// A document only consisting of executable definitions (fragments and operations).
-/// This excludes schema definitions and schema extensions.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct ExecutableDocument {
-    pub span: Span,
-    pub definitions: Vec<ExecutableDefinition>,
-}
-
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ExecutableDefinition {
     Operation(OperationDefinition),
@@ -178,6 +170,15 @@ impl Selection {
             Selection::InlineFragment(node) => node.span,
             Selection::LinkedField(node) => node.span,
             Selection::ScalarField(node) => node.span,
+        }
+    }
+
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            Selection::FragmentSpread(node) => &node.directives,
+            Selection::InlineFragment(node) => &node.directives,
+            Selection::LinkedField(node) => &node.directives,
+            Selection::ScalarField(node) => &node.directives,
         }
     }
 }

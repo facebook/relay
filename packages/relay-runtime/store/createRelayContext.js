@@ -31,6 +31,9 @@ let firstReact: ?React;
 function createRelayContext(react: React): React$Context<RelayContext | null> {
   if (!relayContext) {
     relayContext = react.createContext(null);
+    if (__DEV__) {
+      relayContext.displayName = 'RelayContext';
+    }
     firstReact = react;
   }
   invariant(

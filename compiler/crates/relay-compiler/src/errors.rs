@@ -105,6 +105,12 @@ pub enum Error {
     PostArtifactsError {
         error: Box<dyn std::error::Error + Sync + Send>,
     },
+
+    #[error("Compilation cancelled due to new changes")]
+    Cancelled,
+
+    #[error("IO error {0}")]
+    IOError(std::io::Error),
 }
 
 #[derive(Debug, Error)]
@@ -196,4 +202,7 @@ pub enum BuildProjectError {
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },
+
+    #[error("Unable to get schema for project {project_name}")]
+    SchemaNotFoundForProject { project_name: ProjectName },
 }

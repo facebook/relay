@@ -1,4 +1,11 @@
-// @generated SignedSource<<4c31822e265c0aea50c1eaa001e681df>>
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<fe688696cd2af5dcfdd2c8aedb108888>>
+ */
 
 mod defer_stream;
 

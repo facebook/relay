@@ -7,19 +7,17 @@ fragment NonNullFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import { FragmentReference } from "relay-runtime";
-export type NonNullFragment$ref = FragmentReference & { _: "NonNullFragment$ref" };
-export type NonNullFragment$fragmentType = NonNullFragment$ref & { _: "NonNullFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type NonNullFragment = {
-  readonly firstName?: string,
-  readonly screennames?: ReadonlyArray<{
-    readonly name?: string,
+  readonly firstName: string | null,
+  readonly screennames: ReadonlyArray<{
+    readonly name: string | null,
     readonly service: string,
-  } | null>,
-  readonly $refType: NonNullFragment$ref,
+  } | null> | null,
+  readonly " $refType": FragmentRefs<"NonNullFragment">,
 };
 export type NonNullFragment$data = NonNullFragment;
 export type NonNullFragment$key = {
-  readonly $data?: NonNullFragment$data,
-  readonly $fragmentRefs: NonNullFragment$ref,
+  readonly " $data"?: NonNullFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"NonNullFragment">,
 };

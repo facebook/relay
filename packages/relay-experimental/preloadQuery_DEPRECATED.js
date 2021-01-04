@@ -154,7 +154,9 @@ function preloadQueryDeduped<TQuery: OperationType>(
 
   const availability =
     fetchPolicy === STORE_OR_NETWORK_DEFAULT && query != null && query != null
-      ? environment.check(createOperationDescriptor(query, variables))
+      ? environment.check(
+          createOperationDescriptor(query, variables, networkCacheConfig),
+        )
       : {status: 'missing'};
 
   let nextQueryEntry: ?PendingQueryEntry;
@@ -186,17 +188,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
     }
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
-    const [logObserver, logRequestInfo] = environment.__createLogObserver(
-      params,
-      variables,
-    );
-    const source = network.execute(
-      params,
-      variables,
-      networkCacheConfig,
-      null,
-      logRequestInfo,
-    );
+    const source = network.execute(params, variables, networkCacheConfig, null);
     const subject = new ReplaySubject();
     nextQueryEntry = {
       cacheKey,
@@ -224,7 +216,6 @@ function preloadQueryDeduped<TQuery: OperationType>(
             }
           }, DEFAULT_PREFETCH_TIMEOUT);
         })
-        .do(logObserver)
         .subscribe({
           complete: () => {
             subject.complete();

@@ -7,11 +7,11 @@
 
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use std::fmt::{Result, Write};
 
 #[derive(Debug, Clone)]
 pub enum AST {
     Union(Vec<AST>),
-    Intersection(Vec<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     Identifier(StringKey),
@@ -20,16 +20,19 @@ pub enum AST {
     String,
     StringLiteral(StringKey),
     /// Prints as `"%other" with a comment explaining open enums.
-    OtherEnumValue,
+    OtherTypename,
     Local3DPayload(StringKey, Box<AST>),
     ExactObject(Vec<Prop>),
     InexactObject(Vec<Prop>),
     Number,
     Boolean,
     Any,
+    DefineType(StringKey, Box<AST>),
+    FragmentReference(Vec<StringKey>),
     ImportType(Vec<StringKey>, StringKey),
-    DeclareExportOpaqueType(StringKey, StringKey),
-    ExportList(Vec<StringKey>),
+    ImportFragmentType(Vec<StringKey>, StringKey),
+    DeclareExportFragment(StringKey, Option<StringKey>),
+    ExportFragmentList(Vec<StringKey>),
     ExportTypeEquals(StringKey, Box<AST>),
 }
 
@@ -47,5 +50,9 @@ lazy_static! {
 }
 
 pub trait Writer {
-    fn write_ast(&mut self, ast: &AST) -> String;
+    fn get_runtime_fragment_import(&self) -> StringKey {
+        "FragmentReference".intern()
+    }
+
+    fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;
 }

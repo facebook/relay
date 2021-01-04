@@ -1,0 +1,3 @@
+fragment Test on User {
+  photo(h: 42, 12, scale: 2.0)
+}

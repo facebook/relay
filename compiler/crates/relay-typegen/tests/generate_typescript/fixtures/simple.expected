@@ -8,20 +8,18 @@ fragment LinkedField on User {
   }
 }
 ==================================== OUTPUT ===================================
-import { FragmentReference } from "relay-runtime";
-export type LinkedField$ref = FragmentReference & { _: "LinkedField$ref" };
-export type LinkedField$fragmentType = LinkedField$ref & { _: "LinkedField$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type LinkedField = {
-  readonly name?: string,
-  readonly profilePicture?: {
-    readonly uri?: string,
-    readonly width?: number,
-    readonly height?: number,
-  },
-  readonly $refType: LinkedField$ref,
+  readonly name: string | null,
+  readonly profilePicture: {
+    readonly uri: string | null,
+    readonly width: number | null,
+    readonly height: number | null,
+  } | null,
+  readonly " $refType": FragmentRefs<"LinkedField">,
 };
 export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
-  readonly $data?: LinkedField$data,
-  readonly $fragmentRefs: LinkedField$ref,
+  readonly " $data"?: LinkedField$data,
+  readonly " $fragmentRefs": FragmentRefs<"LinkedField">,
 };

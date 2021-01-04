@@ -43,6 +43,12 @@ pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String 
     result
 }
 
+pub fn print_selections(schema: &Schema, selections: &[Selection]) -> String {
+    let mut result = String::new();
+    write_selections(schema, selections, &mut result).unwrap();
+    result
+}
+
 pub fn print_arguments(schema: &Schema, arguments: &[Argument]) -> String {
     let mut result = String::new();
     write_arguments(schema, arguments, &mut result).unwrap();
@@ -86,6 +92,15 @@ pub fn write_fragment(
 ) -> Result {
     let printer = Printer::new(&schema, &mut result);
     printer.print_fragment(fragment)
+}
+
+pub fn write_selections(
+    schema: &Schema,
+    selections: &[Selection],
+    mut result: &mut impl Write,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_selections(selections, 0)
 }
 
 pub fn write_arguments(
@@ -360,12 +375,14 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
                 match &var_def.default_value {
-                    Some(ConstantValue::Null()) | None => {}
+                    None => {}
                     Some(default_value) => {
                         write!(self.writer, " = ")?;
                         self.print_constant_value(&default_value)?;
                     }
                 }
+
+                self.print_directives(&var_def.directives, None, None)?;
             }
             write!(self.writer, "\n)")?;
         }

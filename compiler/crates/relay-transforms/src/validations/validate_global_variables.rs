@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{root_variables::InferVariablesVisitor, MATCH_CONSTANTS};
+use crate::{root_variables::InferVariablesVisitor, DIRECTIVE_SPLIT_OPERATION};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
 
@@ -35,7 +35,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         // Skip 3D normalization fragments
         if operation
             .directives
-            .named(MATCH_CONSTANTS.custom_module_directive_name)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
             .is_some()
         {
             return Ok(());

@@ -19,6 +19,7 @@ use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use schema::Schema;
+use schema_diff::detect_changes;
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
@@ -157,6 +158,12 @@ impl SchemaSources {
                 }
             }
         }
+        sources.sort_by_key(|file_content| file_content.0);
+        sources.iter().map(|file_content| file_content.1).collect()
+    }
+
+    pub fn get_old_sources(&self) -> Vec<&String> {
+        let mut sources: Vec<_> = self.processed.iter().collect();
         sources.sort_by_key(|file_content| file_content.0);
         sources.iter().map(|file_content| file_content.1).collect()
     }
@@ -315,14 +322,39 @@ impl CompilerState {
         self.has_breaking_schema_change()
     }
 
+    fn is_change_safe(&self, project_name: &ProjectName, sources: &SchemaSources) -> bool {
+        let previous = sources
+            .get_old_sources()
+            .into_iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+
+        let current = sources
+            .get_sources()
+            .into_iter()
+            .map(String::as_str)
+            .collect::<Vec<_>>();
+
+        let schema_change = detect_changes(&current.join("\n"), &previous.join("\n"));
+
+        match self.schema_cache.get(&project_name) {
+            Some(schema) => schema_change.is_safe(&schema),
+            None => {
+                match relay_schema::build_schema_with_extensions(&previous, &Vec::<&str>::new()) {
+                    Ok(schema) => schema_change.is_safe(&schema),
+                    Err(_) => false,
+                }
+            }
+        }
+    }
+
     pub fn has_breaking_schema_change(&self) -> bool {
         self.extensions
             .values()
             .any(|sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .values()
-                .any(|sources| !sources.pending.is_empty())
+            || self.schemas.iter().any(|(proj_name, sources)| {
+                !(sources.pending.is_empty() || self.is_change_safe(&proj_name, &sources))
+            })
     }
 
     /// Merges pending changes from the file source into the compiler state.

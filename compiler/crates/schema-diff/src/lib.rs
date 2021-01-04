@@ -17,9 +17,9 @@ use crate::definitions::*;
 use common::SourceLocationKey;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::{
-    EnumTypeDefinition, FieldDefinition, Identifier, InputObjectTypeDefinition,
-    InputValueDefinition, InterfaceTypeDefinition, List, ObjectTypeDefinition,
-    ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
+    parse_schema_document, EnumTypeDefinition, FieldDefinition, Identifier,
+    InputObjectTypeDefinition, InputValueDefinition, InterfaceTypeDefinition, List,
+    ObjectTypeDefinition, ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
 };
 use interner::StringKey;
 use std::iter::FromIterator;
@@ -541,13 +541,14 @@ pub fn detect_changes(current_text: &str, previous_text: &str) -> SchemaChange {
     if current_text == previous_text {
         return SchemaChange::None;
     }
-    let current_definitions =
-        graphql_syntax::parse_schema_document(current_text, SourceLocationKey::Generated)
-            .expect("Current schema couldn't be parsed")
-            .definitions;
-    let previous_definitions =
-        graphql_syntax::parse_schema_document(previous_text, SourceLocationKey::Generated)
-            .expect("Previous schema couldn't be parsed")
-            .definitions;
-    diff(current_definitions, previous_definitions)
+
+    match (
+        parse_schema_document(current_text, SourceLocationKey::Generated),
+        parse_schema_document(previous_text, SourceLocationKey::Generated),
+    ) {
+        (Ok(current_schema), Ok(previous_schema)) => {
+            diff(current_schema.definitions, previous_schema.definitions)
+        }
+        (_, _) => SchemaChange::InvalidSchema,
+    }
 }

@@ -16,6 +16,7 @@ impl SchemaChange {
         match self {
             SchemaChange::None => true,
             SchemaChange::GenericChange => false,
+            SchemaChange::InvalidSchema => false,
             SchemaChange::DefinitionChanges(changes) => {
                 for change in changes {
                     match change {

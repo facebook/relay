@@ -1975,6 +1975,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "schema-validate-lib"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "fixture-tests",
+ "fnv",
+ "interner",
+ "lazy_static",
+ "rayon",
+ "regex",
+ "schema",
+ "schema-print",
+ "structopt",
+ "thiserror",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

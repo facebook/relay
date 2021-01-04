@@ -59,7 +59,7 @@ Relay.injectNetworkLayer(
 
 Relay also lets us completely replace the default network layer.
 
-Custom network layers must conform to the following [RelayNetworkLayer](interfaces-relay-network-layer.html) interface. Although the default network layer is an instantiable class that accepts some configuration, this is not a requirement of an injected network layer.
+Custom network layers must conform to the following [RelayNetworkLayer](classic-interfaces-relay-network-layer.html) interface. Although the default network layer is an instantiable class that accepts some configuration, this is not a requirement of an injected network layer.
 
 For example, a network layer can be a simple object that conforms to the interface:
 
@@ -79,4 +79,4 @@ var myNetworkLayer = {
 Relay.injectNetworkLayer(myNetworkLayer);
 ```
 
-You can read more about the API [RelayNetworkLayer](interfaces-relay-network-layer.html) interface.
+You can read more about the API [RelayNetworkLayer](classic-interfaces-relay-network-layer.html) interface.

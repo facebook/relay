@@ -6,10 +6,16 @@
  */
 
 use fixture_tests::Fixture;
+use interner::Intern;
 use schema::build_schema;
-use schema_print::print;
+use schema_print::{print_directives, print_types_directives_as_shards};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let schema = build_schema(fixture.content).unwrap();
-    Ok(print(&schema))
+    let mut type_shard_count = fnv::FnvHashMap::default();
+    type_shard_count.insert("Query".intern(), 2);
+    let directives = print_directives(&schema);
+    let types = print_types_directives_as_shards(&schema, 4, type_shard_count)
+        .join("\n=======Shard=======\n\n");
+    Ok(format!("{}{}", directives, types))
 }

@@ -73,9 +73,17 @@ interface Image implements Resource & Node {
   thumbnail: String
 }
 ==================================== OUTPUT ===================================
-schema {
-  query: Query
-}
+directive @extern_type(schema: String, name: String) on INTERFACE
+
+directive @fetchable(field_name: String) on OBJECT
+
+directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+
+directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 
 directive @extern_type(schema: String, name: String) on INTERFACE
 
@@ -108,10 +116,6 @@ interface BaseNode {
 
 scalar Boolean
 
-scalar Float
-
-scalar ID @source(schema: "instagram", name: "Story")
-
 interface Image implements Resource & Node {
   id: ID!
   url: String
@@ -119,25 +123,6 @@ interface Image implements Resource & Node {
 }
 
 scalar Int
-
-interface Node implements BaseNode {
-  name: String!
-}
-
-type Page {
-  id: ID
-}
-
-type Query {
-  fetch__User(id: ID): User
-  fetch__XIGStory(id: ID): XIGStory
-}
-
-interface Resource implements Node {
-  id: ID!
-  name: String!
-  url: String
-}
 
 scalar String
 
@@ -152,7 +137,39 @@ interface XIGHuman @source(schema: "instagram", name: "Human") {
   name: String
 }
 
+
+=======Shard=======
+
+scalar Float
+
+scalar ID @source(schema: "instagram", name: "Story")
+
+interface Node implements BaseNode {
+  name: String!
+}
+
+type Page {
+  id: ID
+}
+
+interface Resource implements Node {
+  id: ID!
+  name: String!
+  url: String
+}
+
 type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {
   id: ID
   name: String
+}
+
+
+=======Shard=======
+
+type Query {
+
+=======Shard=======
+
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
 }

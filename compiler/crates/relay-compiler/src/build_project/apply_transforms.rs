@@ -26,6 +26,7 @@ pub fn apply_transforms<TPerfLogger>(
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: &ConnectionInterface,
+    defer_stream_interface: &DeferStreamInterface,
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<TPerfLogger>,
 ) -> DiagnosticsResult<Programs>
@@ -50,6 +51,7 @@ where
                 project_name,
                 Arc::clone(&program),
                 connection_interface,
+                defer_stream_interface,
                 Arc::clone(&feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
@@ -71,6 +73,7 @@ where
                                 project_name,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&perf_logger),
+                                defer_stream_interface,
                             )
                         },
                         || {
@@ -78,6 +81,7 @@ where
                                 project_name,
                                 Arc::clone(&operation_program),
                                 Arc::clone(&perf_logger),
+                                defer_stream_interface,
                             )
                         },
                     )
@@ -89,6 +93,7 @@ where
                         Arc::clone(&feature_flags),
                         Arc::clone(&base_fragment_names),
                         Arc::clone(&perf_logger),
+                        defer_stream_interface,
                     )
                 },
             )
@@ -100,6 +105,7 @@ where
                 Arc::clone(&feature_flags),
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
+                defer_stream_interface,
             )
         },
     )?;
@@ -118,6 +124,7 @@ fn apply_common_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     connection_interface: &ConnectionInterface,
+    defer_stream_interface: &DeferStreamInterface,
     feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
@@ -133,13 +140,15 @@ fn apply_common_transforms(
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
     let program = log_event.time("transform_connections", || {
-        transform_connections(&program, connection_interface)
+        transform_connections(&program, connection_interface, defer_stream_interface)
     });
     let program = log_event.time("mask", || mask(&program));
     let program = log_event.time("transform_defer_stream", || {
-        transform_defer_stream(&program)
+        transform_defer_stream(&program, &defer_stream_interface)
     })?;
-    let program = log_event.time("transform_match", || transform_match(&program))?;
+    let program = log_event.time("transform_match", || {
+        transform_match(&program, &defer_stream_interface)
+    })?;
     let program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
@@ -161,6 +170,7 @@ fn apply_reader_transforms(
     feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + ClientExtensionsTransform
@@ -183,7 +193,9 @@ fn apply_reader_transforms(
         remove_base_fragments(&program, base_fragment_names)
     });
     let program = log_event.time("flatten", || flatten(&program, true))?;
-    let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("skip_redundant_nodes", || {
+        skip_redundant_nodes(&program, defer_stream_interface)
+    });
     let program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
     });
@@ -247,6 +259,7 @@ fn apply_normalization_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipUnreachableNodeTransform
@@ -264,7 +277,9 @@ fn apply_normalization_transforms(
     let program = log_event.time("client_extensions", || client_extensions(&program));
     let program = log_event.time("generate_typename", || generate_typename(&program, true));
     let program = log_event.time("flatten", || flatten(&program, true))?;
-    let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    let program = log_event.time("skip_redundant_nodes", || {
+        skip_redundant_nodes(&program, defer_stream_interface)
+    });
     let program = log_event.time("generate_test_operation_metadata", || {
         generate_test_operation_metadata(&program)
     });
@@ -282,6 +297,7 @@ fn apply_operation_text_transforms(
     project_name: StringKey,
     program: Arc<Program>,
     perf_logger: Arc<impl PerfLogger>,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // + SkipSplitOperationTransform
@@ -313,7 +329,7 @@ fn apply_operation_text_transforms(
         validate_required_arguments(&program)
     })?;
     let program = log_event.time("unwrap_custom_directive_selection", || {
-        unwrap_custom_directive_selection(&program)
+        unwrap_custom_directive_selection(&program, defer_stream_interface)
     });
     perf_logger.complete_event(log_event);
 
@@ -326,6 +342,7 @@ fn apply_typegen_transforms(
     feature_flags: Arc<FeatureFlags>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
     // * RelayDirectiveTransform
@@ -337,7 +354,9 @@ fn apply_typegen_transforms(
     log_event.string("project", project_name.to_string());
 
     let program = log_event.time("mask", || mask(&program));
-    let program = log_event.time("transform_match", || transform_match(&program))?;
+    let program = log_event.time("transform_match", || {
+        transform_match(&program, defer_stream_interface)
+    })?;
     let program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;

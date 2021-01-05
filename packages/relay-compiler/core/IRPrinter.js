@@ -15,6 +15,7 @@
 const invariant = require('invariant');
 
 const {DEFAULT_HANDLE_KEY} = require('../util/DefaultHandleKey');
+const {DeferStreamInterface} = require('relay-runtime');
 
 import type {CompilerContextDocument} from './CompilerContext';
 import type {
@@ -130,6 +131,12 @@ function printSelection(
   let str;
   const parentDirectives = options?.parentDirectives ?? '';
   const isClientExtension = options?.isClientExtension === true;
+  const {
+    INITIAL_COUNT,
+    LABEL,
+    IF,
+    USE_CUSTOMIZED_BATCH,
+  } = DeferStreamInterface.get();
   if (selection.kind === 'LinkedField') {
     str = printField(schema, selection, {parentDirectives, isClientExtension});
     str += printSelections(schema, selection, indent + INDENT, {
@@ -192,19 +199,19 @@ function printSelection(
     str = subSelections.join('\n' + indent + INDENT);
   } else if (selection.kind === 'Stream') {
     let streamStr = parentDirectives;
-    streamStr += ` @stream(label: "${selection.label}"`;
+    streamStr += ` @stream(${LABEL}: "${selection.label}"`;
     if (selection.if !== null) {
-      streamStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
+      streamStr += `, ${IF}: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     if (selection.initialCount !== null) {
-      streamStr += `, initial_count: ${printValue(
+      streamStr += `, ${INITIAL_COUNT}: ${printValue(
         schema,
         selection.initialCount,
         null,
       ) ?? ''}`;
     }
     if (selection.useCustomizedBatch !== null) {
-      streamStr += `, use_customized_batch: ${printValue(
+      streamStr += `, ${USE_CUSTOMIZED_BATCH}: ${printValue(
         schema,
         selection.useCustomizedBatch,
         null,
@@ -220,9 +227,9 @@ function printSelection(
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'Defer') {
     let deferStr = parentDirectives;
-    deferStr += ` @defer(label: "${selection.label}"`;
+    deferStr += ` @defer(${LABEL}: "${selection.label}"`;
     if (selection.if !== null) {
-      deferStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
+      deferStr += `, ${IF}: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     deferStr += ')';
     if (

@@ -14,6 +14,7 @@
 
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
+const DeferStreamInterface = require('./handlers/directives/DeferStreamInterface');
 const GraphQLTag = require('./query/GraphQLTag');
 const MutationHandlers = require('./handlers/connection/MutationHandlers');
 const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
@@ -293,6 +294,7 @@ module.exports = {
 
   // Configuration interface for legacy or special uses
   ConnectionInterface,
+  DeferStreamInterface,
 
   // Utilities
   PreloadableQueryRegistry,

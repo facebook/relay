@@ -488,7 +488,7 @@ describe('useBlockingPaginationFragment', () => {
             last: $last,
             orderby: $orderby,
             isViewerFriend: $isViewerFriendLocal
-          ) @stream_connection(key: "UserFragment_friends", initial_count: 1) {
+          ) @stream_connection(key: "UserFragment_friends", initialCount: 1) {
             edges {
               node {
                 id

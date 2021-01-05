@@ -407,7 +407,7 @@ pub enum ValidationMessage {
     #[error("Invalid use of @stream on scalar field '{field_name}'")]
     InvalidStreamOnScalarField { field_name: StringKey },
 
-    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
+    #[error("Invalid use of @stream, the 'initialCount' argument is required.")]
     StreamInitialCountRequired,
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]

@@ -15,6 +15,7 @@ use crate::indentation::print_indentation;
 use crate::utils::escape;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
+use relay_transforms::DeferStreamInterface;
 use schema::Schema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
@@ -22,12 +23,20 @@ use indexmap::IndexMap;
 use interner::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
-pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
-    Printer::without_dedupe().print_operation(schema, operation)
+pub fn print_operation(
+    schema: &Schema,
+    operation: &OperationDefinition,
+    defer_stream_interface: &DeferStreamInterface,
+) -> String {
+    Printer::without_dedupe().print_operation(schema, operation, defer_stream_interface)
 }
 
-pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
-    Printer::without_dedupe().print_fragment(schema, fragment)
+pub fn print_fragment(
+    schema: &Schema,
+    fragment: &FragmentDefinition,
+    defer_stream_interface: &DeferStreamInterface,
+) -> String {
+    Printer::without_dedupe().print_fragment(schema, fragment, defer_stream_interface)
 }
 
 pub fn print_request(
@@ -35,21 +44,34 @@ pub fn print_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> String {
-    Printer::without_dedupe().print_request(schema, operation, fragment, request_parameters)
+    Printer::without_dedupe().print_request(
+        schema,
+        operation,
+        fragment,
+        request_parameters,
+        defer_stream_interface,
+    )
 }
 
 pub fn print_request_params(
     schema: &Schema,
     operation: &OperationDefinition,
     query_id: Option<String>,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
     request_parameters.id = query_id;
 
     let mut builder = AstBuilder::default();
-    let request_parameters_ast_key =
-        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
+    let request_parameters_ast_key = build_request_params_ast_key(
+        schema,
+        request_parameters,
+        &mut builder,
+        operation,
+        defer_stream_interface,
+    );
     let printer = JSONPrinter::new(&builder);
     printer.print(request_parameters_ast_key, false)
 }
@@ -80,28 +102,45 @@ impl Printer {
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters,
+        defer_stream_interface: &DeferStreamInterface,
     ) -> String {
-        let request_parameters =
-            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let request_parameters = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            defer_stream_interface,
+        );
         let key = build_request(
             schema,
             &mut self.builder,
             operation,
             fragment,
             request_parameters,
+            defer_stream_interface,
         );
         let printer = JSONPrinter::new(&self.builder);
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_operation(&mut self, schema: &Schema, operation: &OperationDefinition) -> String {
-        let key = build_operation(schema, &mut self.builder, operation);
+    pub fn print_operation(
+        &mut self,
+        schema: &Schema,
+        operation: &OperationDefinition,
+        defer_stream_interface: &DeferStreamInterface,
+    ) -> String {
+        let key = build_operation(schema, &mut self.builder, operation, defer_stream_interface);
         let printer = JSONPrinter::new(&self.builder);
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_fragment(&mut self, schema: &Schema, fragment: &FragmentDefinition) -> String {
-        let key = build_fragment(schema, &mut self.builder, fragment);
+    pub fn print_fragment(
+        &mut self,
+        schema: &Schema,
+        fragment: &FragmentDefinition,
+        defer_stream_interface: &DeferStreamInterface,
+    ) -> String {
+        let key = build_fragment(schema, &mut self.builder, fragment, defer_stream_interface);
         let printer = JSONPrinter::new(&self.builder);
         printer.print(key, self.dedupe)
     }

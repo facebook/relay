@@ -236,6 +236,7 @@ fn generate_operation(
             normalization_operation,
             &operation_fragment,
             request_parameters,
+            &config.defer_stream_interface
         )
     )
     .unwrap();
@@ -280,7 +281,7 @@ fn generate_split_operation(
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation(schema, node)
+        printer.print_operation(schema, node, &config.defer_stream_interface)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();
@@ -346,7 +347,7 @@ fn generate_fragment(
         content,
         "var node/*: {}*/ = {};\n",
         reader_node_flow_type,
-        printer.print_fragment(schema, reader_fragment)
+        printer.print_fragment(schema, reader_fragment, &config.defer_stream_interface)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();

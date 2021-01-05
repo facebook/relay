@@ -11,6 +11,7 @@ use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use relay_codegen::Printer;
 use relay_test_schema::TEST_SCHEMA;
+use relay_transforms::DeferStreamInterface;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut printer = Printer::with_dedupe();
@@ -19,6 +20,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         SourceLocationKey::standalone(fixture.file_name),
     )
     .unwrap();
+    let defer_stream_interface = DeferStreamInterface::default();
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|definitions| {
             definitions
@@ -26,11 +28,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .map(|def| match def {
                     graphql_ir::ExecutableDefinition::Operation(operation) => format!(
                         "Operation:\n{}\n",
-                        printer.print_operation(&TEST_SCHEMA, operation)
+                        printer.print_operation(&TEST_SCHEMA, operation, &defer_stream_interface)
                     ),
                     graphql_ir::ExecutableDefinition::Fragment(fragment) => format!(
                         "Fragment:\n{}\n",
-                        printer.print_fragment(&TEST_SCHEMA, fragment)
+                        printer.print_fragment(&TEST_SCHEMA, fragment, &defer_stream_interface)
                     ),
                 })
                 .collect::<Vec<_>>()

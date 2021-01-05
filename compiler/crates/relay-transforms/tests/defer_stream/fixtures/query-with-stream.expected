@@ -2,7 +2,7 @@
 query QueryWithStream($id: ID!) {
   node(id: $id) {
     ... on Feedback {
-      actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      actors @stream(initialCount: 1, label: "StreamedActorsLabel") {
         name
       }
     }
@@ -14,7 +14,7 @@ query QueryWithStream(
 ) {
   node(id: $id) {
     ... on Feedback {
-      actors @stream(label: "QueryWithStream$stream$StreamedActorsLabel", initial_count: 1) {
+      actors @stream(label: "QueryWithStream$stream$StreamedActorsLabel", initialCount: 1) {
         name
       }
     }

@@ -9,7 +9,7 @@ query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
 fragment FeedbackFragment on Feedback {
   id
   actors
-    @stream(initial_count: 1, label: "StreamedActorsLabel", if: $enableStream) {
+    @stream(initialCount: 1, label: "StreamedActorsLabel", if: $enableStream) {
     name
   }
 }
@@ -26,7 +26,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: $enableStream, initial_count: 1) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: $enableStream, initialCount: 1) {
     name
   }
 }

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::defer_stream::DeferStreamInterface;
 use crate::node_identifier::NodeIdentifier;
 use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
-use crate::DEFER_STREAM_CONSTANTS;
 
 use common::NamedItem;
 use dashmap::DashMap;
@@ -111,8 +111,11 @@ use std::sync::Arc;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-pub fn skip_redundant_nodes(program: &Program) -> Program {
-    let transform = SkipRedundantNodesTransform::new(program);
+pub fn skip_redundant_nodes(
+    program: &Program,
+    defer_stream_interface: &DeferStreamInterface,
+) -> Program {
+    let transform = SkipRedundantNodesTransform::new(program, defer_stream_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -123,16 +126,18 @@ struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
-struct SkipRedundantNodesTransform {
+struct SkipRedundantNodesTransform<'s> {
     schema: Arc<Schema>,
     cache: Cache,
+    defer_stream_interface: &'s DeferStreamInterface,
 }
 
-impl<'s> SkipRedundantNodesTransform {
-    fn new(program: &'_ Program) -> Self {
+impl<'s> SkipRedundantNodesTransform<'s> {
+    fn new(program: &'_ Program, defer_stream_interface: &'s DeferStreamInterface) -> Self {
         Self {
             schema: Arc::clone(&program.schema),
             cache: DashMap::new(),
+            defer_stream_interface,
         }
     }
 
@@ -331,7 +336,7 @@ impl<'s> SkipRedundantNodesTransform {
         }
         let mut result: Vec<Selection> = Vec::new();
         let mut has_changes = false;
-        let selections = get_partitioned_selections(selections);
+        let selections = get_partitioned_selections(selections, self.defer_stream_interface);
 
         for (index, prev_item) in selections.iter().enumerate() {
             let next_item = self.transform_selection(prev_item, selection_map);
@@ -429,18 +434,19 @@ impl<'s> SkipRedundantNodesTransform {
  * guaranteed to be fetched are encountered prior to any duplicates that may be
  * fetched within a conditional.
  */
-fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
+fn get_partitioned_selections<'a>(
+    selections: &'a [Selection],
+    defer_stream_interface: &DeferStreamInterface,
+) -> Vec<&'a Selection> {
     let mut result = Vec::with_capacity(selections.len());
-    unsafe {
-        result.set_len(selections.len())
-    };
+    unsafe { result.set_len(selections.len()) };
     let mut non_field_index = selections
         .iter()
-        .filter(|sel| is_selection_linked_or_scalar(sel))
+        .filter(|sel| is_selection_linked_or_scalar(sel, defer_stream_interface))
         .count();
     let mut field_index = 0;
     for sel in selections.iter() {
-        if is_selection_linked_or_scalar(sel) {
+        if is_selection_linked_or_scalar(sel, defer_stream_interface) {
             result[field_index] = sel;
             field_index += 1;
         } else {
@@ -451,11 +457,14 @@ fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
     result
 }
 
-fn is_selection_linked_or_scalar(selection: &Selection) -> bool {
+fn is_selection_linked_or_scalar(
+    selection: &Selection,
+    defer_stream_interface: &DeferStreamInterface,
+) -> bool {
     match selection {
         Selection::LinkedField(field) => field
             .directives
-            .named(DEFER_STREAM_CONSTANTS.stream_name)
+            .named(defer_stream_interface.stream_name)
             .is_none(),
         Selection::ScalarField(_) => true,
         _ => false,

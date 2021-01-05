@@ -51,6 +51,7 @@ export type GraphQLResponseWithData = {|
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
+  +hasNext?: boolean,
 |};
 
 export type GraphQLResponseWithoutData = {|
@@ -59,6 +60,7 @@ export type GraphQLResponseWithoutData = {|
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
+  +hasNext?: boolean,
 |};
 
 export type GraphQLResponseWithExtensionsOnly = {|
@@ -72,6 +74,7 @@ export type GraphQLResponseWithExtensionsOnly = {|
   // does not necessarily indicate that there was an error.
   +data: null,
   +extensions: PayloadExtensions,
+  +hasNext?: boolean,
 |};
 
 export type GraphQLSingularResponse =

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::defer_stream::DeferStreamInterface;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
@@ -15,6 +15,7 @@ use graphql_ir::{
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed,
     TransformedValue, Transformer, ValidationMessage, Value,
 };
+
 use indexmap::IndexSet;
 use interner::{Intern, StringKey};
 use schema::{FieldID, ScalarID, Type, TypeReference};
@@ -22,8 +23,11 @@ use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 /// Transform and validate @match and @module
-pub fn transform_match(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program);
+pub fn transform_match(
+    program: &Program,
+    defer_stream_interface: &DeferStreamInterface,
+) -> DiagnosticsResult<Program> {
+    let mut transformer = MatchTransform::new(program, defer_stream_interface);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -66,10 +70,14 @@ pub struct MatchTransform<'program> {
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
     matches_for_path: MatchesForPath,
+    defer_stream_interface: &'program DeferStreamInterface,
 }
 
 impl<'program> MatchTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(
+        program: &'program Program,
+        defer_stream_interface: &'program DeferStreamInterface,
+    ) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -79,6 +87,7 @@ impl<'program> MatchTransform<'program> {
             errors: Vec::new(),
             path: Default::default(),
             matches_for_path: Default::default(),
+            defer_stream_interface,
         }
     }
 
@@ -226,7 +235,7 @@ impl<'program> MatchTransform<'program> {
                 if !(spread.directives.len() == 2
                     && spread
                         .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name)
+                        .named(self.defer_stream_interface.defer_name)
                         .is_some())
                 {
                     // allow @defer and @module in typegen transforms

@@ -4,9 +4,9 @@ query streamConnectionConditionalQuery($id: ID!, $cond: Boolean!) {
     ... on Story {
       comments(first: 10)
       @stream_connection(
-        use_customized_batch: $cond
+        useCustomizedBatch: $cond
         if: $cond
-        initial_count: 0
+        initialCount: 0
         key: "NodeQuery_comments"
       ) {
         edges {

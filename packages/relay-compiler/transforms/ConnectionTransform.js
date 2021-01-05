@@ -20,7 +20,11 @@ const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
 const {parse} = require('graphql');
-const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
+const {
+  ConnectionInterface,
+  DeferStreamInterface,
+  RelayFeatureFlags,
+} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
@@ -109,9 +113,9 @@ const SCHEMA_EXTENSION = `
     key: String!
     filters: [String]
     handler: String
-    initial_count: Int!
+    initialCount: Int!
     if: Boolean = true
-    use_customized_batch: Boolean = false
+    useCustomizedBatch: Boolean = false
     dynamicKey_UNSTABLE: String
   ) on FIELD
 `;
@@ -227,6 +231,7 @@ function buildConnectionArguments(
   field: LinkedField,
   connectionDirective: Directive,
 ): ConnectionArguments {
+  const {INITIAL_COUNT, USE_CUSTOMIZED_BATCH} = DeferStreamInterface.get();
   const {
     handler,
     key,
@@ -294,10 +299,10 @@ function buildConnectionArguments(
   let stream = null;
   if (connectionDirective.name === STREAM_CONNECTION) {
     const initialCountArg = connectionDirective.args.find(
-      arg => arg.name === 'initial_count',
+      arg => arg.name === INITIAL_COUNT,
     );
     const useCustomizedBatchArg = connectionDirective.args.find(
-      arg => arg.name === 'use_customized_batch',
+      arg => arg.name === USE_CUSTOMIZED_BATCH,
     );
     const ifArg = connectionDirective.args.find(arg => arg.name === 'if');
     stream = {

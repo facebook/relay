@@ -15,7 +15,9 @@ use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags, DIRECTIVE_SPLIT_OPERATION};
+use relay_transforms::{
+    ConnectionInterface, DeferStreamInterface, FeatureFlags, DIRECTIVE_SPLIT_OPERATION,
+};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -42,6 +44,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let connection_interface = ConnectionInterface::default();
+    let defer_stream_interface = DeferStreamInterface::default();
 
     validate(&program, &connection_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
@@ -57,6 +60,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &connection_interface,
+        &defer_stream_interface,
         Arc::new(feature_flags),
         Arc::new(ConsoleLogger),
     )
@@ -73,7 +77,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
-                print_operation(&schema, operation)
+                print_operation(&schema, operation, &defer_stream_interface)
             } else {
                 let name = operation.name.item;
                 let print_operation_node = programs
@@ -97,7 +101,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 let request_parameters = build_request_params(&operation);
                 format!(
                     "{}\n\nQUERY:\n\n{}",
-                    print_request(&schema, operation, &operation_fragment, request_parameters,),
+                    print_request(
+                        &schema,
+                        operation,
+                        &operation_fragment,
+                        request_parameters,
+                        &defer_stream_interface
+                    ),
                     text
                 )
             }
@@ -108,7 +118,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             fragments.sort_by(|a, b| a.name.item.lookup().cmp(&b.name.item.lookup()));
             fragments
                 .into_iter()
-                .map(|fragment| print_fragment(&schema, fragment))
+                .map(|fragment| print_fragment(&schema, fragment, &defer_stream_interface))
         })
         .collect::<Vec<_>>();
     Ok(result.join("\n\n"))

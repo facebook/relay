@@ -117,6 +117,7 @@ fn build_programs(
             Arc::new(program),
             Arc::new(base_fragment_names),
             &config.connection_interface,
+            &config.defer_stream_interface,
             Arc::new(project_config.feature_flags.unwrap_or(config.feature_flags)),
             perf_logger,
         )

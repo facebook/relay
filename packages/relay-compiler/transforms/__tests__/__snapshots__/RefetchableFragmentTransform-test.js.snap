@@ -923,7 +923,7 @@ fragment PaginationFragment on Node
   ... on User {
     name
     friends(after: $cursor, first: $count)
-      @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+      @stream_connection(key: "PaginationFragment_friends", initialCount: 1) {
       edges {
         node {
           id
@@ -942,7 +942,7 @@ fragment PaginationFragment on Node @argumentDefinitions(
   ... on User {
     name
     friends(after: $cursor, first: $count) @__clientField(handle: "connection", key: "PaginationFragment_friends") {
-      edges @stream(initial_count: 1, label: "PaginationFragment_friends") {
+      edges @stream(initialCount: 1, label: "PaginationFragment_friends") {
         node {
           id
         }

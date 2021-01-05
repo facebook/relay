@@ -65,7 +65,7 @@ describe('executeSubscrption() with @stream', () => {
 
         fragment FeedbackFragment on Feedback {
           id
-          actors @stream(label: "actors", initial_count: 0) {
+          actors @stream(label: "actors", initialCount: 0) {
             name @__clientField(handle: "name_handler")
           }
         }

@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod defer_stream_interface;
 mod directives;
 
 use super::get_applied_fragment_name;
 use crate::util::{remove_directive, replace_directive};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+pub use defer_stream_interface::DeferStreamInterface;
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
@@ -17,41 +19,18 @@ use graphql_ir::{
     ValidationMessage, Value,
 };
 use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
 use std::{collections::HashMap, sync::Arc};
 
-pub struct DeferStreamConstants {
-    pub defer_name: StringKey,
-    pub stream_name: StringKey,
-    pub if_arg: StringKey,
-    pub label_arg: StringKey,
-    pub initial_count_arg: StringKey,
-    pub use_customized_batch_arg: StringKey,
-}
-
-impl Default for DeferStreamConstants {
-    fn default() -> Self {
-        Self {
-            defer_name: "defer".intern(),
-            stream_name: "stream".intern(),
-            if_arg: "if".intern(),
-            label_arg: "label".intern(),
-            initial_count_arg: "initial_count".intern(),
-            use_customized_batch_arg: "use_customized_batch".intern(),
-        }
-    }
-}
-
-lazy_static! {
-    pub static ref DEFER_STREAM_CONSTANTS: DeferStreamConstants = Default::default();
-}
-
-pub fn transform_defer_stream(program: &Program) -> DiagnosticsResult<Program> {
+pub fn transform_defer_stream(
+    program: &Program,
+    defer_stream_interface: &DeferStreamInterface,
+) -> DiagnosticsResult<Program> {
     let mut transformer = DeferStreamTransform {
         program,
         current_document_name: None,
         labels: Default::default(),
         errors: Default::default(),
+        defer_stream_interface,
     };
     let next_program = transformer.transform_program(program);
 
@@ -67,6 +46,7 @@ struct DeferStreamTransform<'s> {
     current_document_name: Option<StringKey>,
     labels: HashMap<StringKey, Directive>,
     errors: Vec<Diagnostic>,
+    defer_stream_interface: &'s DeferStreamInterface,
 }
 
 impl DeferStreamTransform<'_> {
@@ -81,7 +61,7 @@ impl DeferStreamTransform<'_> {
                 self.errors.push(
                     Diagnostic::error(
                         ValidationMessage::LabelNotUniqueForDeferStream {
-                            directive_name: DEFER_STREAM_CONSTANTS.defer_name,
+                            directive_name: self.defer_stream_interface.defer_name,
                         },
                         prev.name.location,
                     )
@@ -99,7 +79,8 @@ impl DeferStreamTransform<'_> {
         spread: &FragmentSpread,
         defer: &Directive,
     ) -> Result<Transformed<Selection>, Diagnostic> {
-        let DeferDirective { if_arg, label_arg } = DeferDirective::from(defer);
+        let DeferDirective { if_arg, label_arg } =
+            DeferDirective::from(defer, self.defer_stream_interface);
 
         if is_literal_false_arg(if_arg) {
             return Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
@@ -116,14 +97,14 @@ impl DeferStreamTransform<'_> {
         let transformed_label = transform_label(
             self.current_document_name
                 .expect("We expect the parent name to be defined here."),
-            DEFER_STREAM_CONSTANTS.defer_name,
+            self.defer_stream_interface.defer_name,
             label,
         );
         self.record_label(transformed_label, defer);
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
         let next_label_arg = Argument {
             name: WithLocation {
-                item: DEFER_STREAM_CONSTANTS.label_arg,
+                item: self.defer_stream_interface.label_arg,
                 location: label_arg.map_or(defer.name.location, |arg| arg.name.location),
             },
             value: WithLocation {
@@ -165,7 +146,7 @@ impl DeferStreamTransform<'_> {
             label_arg,
             initial_count_arg,
             use_customized_batch_arg,
-        } = StreamDirective::from(stream);
+        } = StreamDirective::from(stream, self.defer_stream_interface);
 
         let transformed_linked_field = self.default_transform_linked_field(linked_field);
         let get_next_selection = |directives| match transformed_linked_field {
@@ -205,14 +186,14 @@ impl DeferStreamTransform<'_> {
         let transformed_label = transform_label(
             self.current_document_name
                 .expect("We expect the parent name to be defined here."),
-            DEFER_STREAM_CONSTANTS.stream_name,
+            self.defer_stream_interface.stream_name,
             label,
         );
         self.record_label(transformed_label, stream);
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
         let next_label_arg = Argument {
             name: WithLocation {
-                item: DEFER_STREAM_CONSTANTS.label_arg,
+                item: self.defer_stream_interface.label_arg,
                 location: label_arg.map_or(stream.name.location, |arg| arg.name.location),
             },
             value: WithLocation {
@@ -273,10 +254,13 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     ) -> Transformed<Selection> {
         let defer_directive = inline_fragment
             .directives
-            .named(DEFER_STREAM_CONSTANTS.defer_name);
+            .named(self.defer_stream_interface.defer_name);
         if let Some(directive) = defer_directive {
             // Special case for @defer generated by transform_connection
-            if let Some(label) = directive.arguments.named(DEFER_STREAM_CONSTANTS.label_arg) {
+            if let Some(label) = directive
+                .arguments
+                .named(self.defer_stream_interface.label_arg)
+            {
                 if let Some(label) = label.value.item.get_string_literal() {
                     if label.lookup().contains("$defer$") {
                         return self.default_transform_inline_fragment(inline_fragment);
@@ -294,7 +278,9 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
 
     /// Transform of fragment spread with @defer is delegated to `transform_defer`.
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        let defer_directive = spread.directives.named(DEFER_STREAM_CONSTANTS.defer_name);
+        let defer_directive = spread
+            .directives
+            .named(self.defer_stream_interface.defer_name);
         if let Some(defer) = defer_directive {
             match self.transform_defer(spread, defer) {
                 Ok(transformed) => transformed,
@@ -312,7 +298,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     fn transform_scalar_field(&mut self, scalar_field: &ScalarField) -> Transformed<Selection> {
         let stream_directive = &scalar_field
             .directives
-            .named(DEFER_STREAM_CONSTANTS.stream_name);
+            .named(self.defer_stream_interface.stream_name);
         if let Some(directive) = stream_directive {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidStreamOnScalarField {
@@ -328,7 +314,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
         let stream_directive = linked_field
             .directives
-            .named(DEFER_STREAM_CONSTANTS.stream_name);
+            .named(self.defer_stream_interface.stream_name);
         if let Some(stream) = stream_directive {
             match self.transform_stream(linked_field, stream) {
                 Ok(transformed) => transformed,

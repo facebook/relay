@@ -964,6 +964,30 @@ describe('getObservableForActiveRequest', () => {
     expect(events).toEqual(['next']);
   });
 
+  it('calls next asynchronously with subsequent non-final payloads (OSS)', () => {
+    fetchQuery(environment, query).subscribe({});
+    const observable = getObservableForActiveRequest(
+      environment,
+      query.request,
+    );
+    expect(observable).not.toEqual(null);
+    if (!observable) {
+      return;
+    }
+
+    response = {
+      ...response,
+      extensions: {},
+      hasNext: true,
+    };
+
+    observable.subscribe(observer);
+    expect(events).toEqual([]);
+
+    environment.mock.nextValue(gqlQuery, response);
+    expect(events).toEqual(['next']);
+  });
+
   it('calls complete asynchronously with subsequent final payload', () => {
     fetchQuery(environment, query).subscribe({});
     const observable = getObservableForActiveRequest(
@@ -974,6 +998,30 @@ describe('getObservableForActiveRequest', () => {
     if (!observable) {
       return;
     }
+
+    observable.subscribe(observer);
+    expect(events).toEqual([]);
+
+    environment.mock.nextValue(gqlQuery, response);
+    expect(events).toEqual(['complete']);
+  });
+
+  it('calls complete asynchronously with subsequent final payload (OSS)', () => {
+    fetchQuery(environment, query).subscribe({});
+    const observable = getObservableForActiveRequest(
+      environment,
+      query.request,
+    );
+    expect(observable).not.toEqual(null);
+    if (!observable) {
+      return;
+    }
+
+    response = {
+      ...response,
+      extensions: {},
+      hasNext: false,
+    };
 
     observable.subscribe(observer);
     expect(events).toEqual([]);

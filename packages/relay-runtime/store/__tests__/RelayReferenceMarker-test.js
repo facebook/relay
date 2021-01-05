@@ -1308,7 +1308,7 @@ describe('RelayReferenceMarker', () => {
         `
           fragment TestFragment on Feedback {
             id
-            actors @stream(label: "TestFragmentActors", initial_count: 0) {
+            actors @stream(label: "TestFragmentActors", initialCount: 0) {
               name
             }
           }

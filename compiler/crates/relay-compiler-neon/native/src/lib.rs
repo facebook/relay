@@ -18,7 +18,7 @@ use relay_compiler::{
     status_reporter::ConsoleStatusReporter,
     ArtifactFileWriter, SourceHashes,
 };
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, DeferStreamInterface, FeatureFlags};
 use schema::build_schema;
 use std::str;
 use std::sync::Arc;
@@ -107,6 +107,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         saved_state_loader: None,
         saved_state_version: "0".to_owned(),
         connection_interface: Default::default(),
+        defer_stream_interface: Default::default(),
         feature_flags: FeatureFlags::default(),
         operation_persister: None,
         compile_everything: false,
@@ -138,6 +139,7 @@ fn compile(mut cx: FunctionContext<'_>) -> JsResult<'_, JsObject> {
         Arc::new(program),
         Arc::new(Default::default()),
         &ConnectionInterface::default(),
+        &DeferStreamInterface::default(),
         Arc::new(FeatureFlags::default()),
         Arc::new(ConsoleLogger),
     )

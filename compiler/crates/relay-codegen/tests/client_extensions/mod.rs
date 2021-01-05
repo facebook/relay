@@ -11,7 +11,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation};
 use relay_test_schema::get_test_schema_with_extensions;
-use relay_transforms::{client_extensions, sort_selections};
+use relay_transforms::{client_extensions, sort_selections, DeferStreamInterface};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -22,13 +22,14 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
         let next_program = sort_selections(&client_extensions(&program));
+        let defer_stream_interface = DeferStreamInterface::default();
         let mut result = next_program
             .fragments()
-            .map(|def| print_fragment(&schema, &def))
+            .map(|def| print_fragment(&schema, &def, &defer_stream_interface))
             .chain(
                 next_program
                     .operations()
-                    .map(|def| print_operation(&schema, &def)),
+                    .map(|def| print_operation(&schema, &def, &defer_stream_interface)),
             )
             .collect::<Vec<_>>();
         result.sort_unstable();

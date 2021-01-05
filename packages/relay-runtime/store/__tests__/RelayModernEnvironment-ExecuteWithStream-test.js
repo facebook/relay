@@ -63,7 +63,7 @@ describe('execute() a query with @stream', () => {
 
         fragment FeedbackFragment on Feedback {
           id
-          actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
+          actors @stream(label: "actors", if: $enableStream, initialCount: 0) {
             name @__clientField(handle: "name_handler")
           }
         }
@@ -258,7 +258,7 @@ describe('execute() a query with @stream', () => {
     expect(error).toBeCalledTimes(0);
   });
 
-  it('processes batched streamed payloads (with use_customized_batch)', () => {
+  it('processes batched streamed payloads (with useCustomizedBatch)', () => {
     const initialSnapshot = environment.lookup(selector);
     const callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);

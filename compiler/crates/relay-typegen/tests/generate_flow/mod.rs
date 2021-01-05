@@ -13,7 +13,7 @@ use graphql_syntax::parse_executable;
 use interner::Intern;
 use relay_compiler::apply_transforms;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, DeferStreamInterface, FeatureFlags};
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
@@ -37,6 +37,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Arc::new(program),
         Default::default(),
         &ConnectionInterface::default(),
+        &DeferStreamInterface::default(),
         Arc::new(FeatureFlags {
             enable_flight_transform: false,
             enable_required_transform_for_prefix: Some("".intern()),

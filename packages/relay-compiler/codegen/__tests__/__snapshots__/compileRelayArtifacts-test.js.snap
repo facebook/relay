@@ -9351,7 +9351,7 @@ query QueryWithFragmentWithStream($id: ID!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+  actors @stream(initialCount: 1, label: "StreamedActorsLabel") {
     name
   }
 }
@@ -9493,7 +9493,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initialCount: 1) {
     __typename
     name
     id
@@ -18291,7 +18291,7 @@ fragment PaginationFragment on Node
   ... on User {
     name
     friends(after: $cursor, first: $count)
-      @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+      @stream_connection(key: "PaginationFragment_friends", initialCount: 1) {
       edges {
         node {
           id
@@ -18546,7 +18546,7 @@ fragment PaginationFragment_1G22uz on Node {
   ... on User {
     name
     friends(after: $cursor, first: $count) {
-      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
+      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initialCount: 1) {
         node {
           id
           __typename
@@ -18722,7 +18722,7 @@ fragment PaginationFragment on Node
     if: {type: "Boolean", defaultValue: false}
     count: {type: "Int", defaultValue: 10}
     cursor: {type: "ID"}
-    initial_count: {type: "Int", defaultValue: 5}
+    initialCount: {type: "Int", defaultValue: 5}
   ) {
   id
   ... on User {
@@ -18731,7 +18731,7 @@ fragment PaginationFragment on Node
       @stream_connection(
         if: $if
         key: "PaginationFragment_friends"
-        initial_count: $initial_count
+        initialCount: $initialCount
       ) {
       edges {
         node {
@@ -18958,7 +18958,7 @@ Fragment {
     },
     LocalArgument {
       defaultValue: 5,
-      name: "initial_count",
+      name: "initialCount",
     },
   ],
   metadata: {
@@ -19090,7 +19090,7 @@ fragment PaginationFragment on Node
   @argumentDefinitions(
     count: {type: "Int", defaultValue: 10}
     cursor: {type: "ID"}
-    initial_count: {type: "Int", defaultValue: 5}
+    initialCount: {type: "Int", defaultValue: 5}
   ) {
   id
   ... on User {
@@ -19098,7 +19098,7 @@ fragment PaginationFragment on Node
     friends(after: $cursor, first: $count)
       @stream_connection(
         key: "PaginationFragment_friends"
-        initial_count: $initial_count
+        initialCount: $initialCount
       ) {
       edges {
         node {
@@ -19307,7 +19307,7 @@ fragment PaginationFragment on Node {
   ... on User {
     name
     friends(first: 10) {
-      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initial_count: 5) {
+      edges @stream(label: "PaginationFragment$stream$PaginationFragment_friends", initialCount: 5) {
         node {
           id
           __typename
@@ -19337,7 +19337,7 @@ Fragment {
     },
     LocalArgument {
       defaultValue: 5,
-      name: "initial_count",
+      name: "initialCount",
     },
   ],
   metadata: {
@@ -20534,7 +20534,7 @@ query NodeQuery($id: ID!) {
     id
     ... on Story {
       comments(first: 10)
-        @stream_connection(key: "NodeQuery_comments", initial_count: 0) {
+        @stream_connection(key: "NodeQuery_comments", initialCount: 0) {
         edges {
           node {
             actor {
@@ -20868,7 +20868,7 @@ query NodeQuery(
     id
     ... on Story {
       comments(first: 10) {
-        edges @stream(label: "NodeQuery$stream$NodeQuery_comments", initial_count: 0) {
+        edges @stream(label: "NodeQuery$stream$NodeQuery_comments", initialCount: 0) {
           node {
             actor {
               __typename

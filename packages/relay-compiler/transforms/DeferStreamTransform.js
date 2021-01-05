@@ -18,6 +18,7 @@ const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentV
 const murmurHash = require('../util/murmurHash');
 
 const {createUserError} = require('../core/CompilerError');
+const {DeferStreamInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
@@ -53,27 +54,28 @@ function deferStreamTransform(context: CompilerContext): CompilerContext {
       ScalarField: visitScalarField,
     },
     sourceNode => {
+      const {LABEL} = DeferStreamInterface.get();
       const labels = new Map();
       return {
         documentName: sourceNode.name,
         recordLabel: (label, directive) => {
           const prevDirective = labels.get(label);
           if (prevDirective) {
-            const labelArg = directive.args.find(({name}) => name === 'label');
+            const labelArg = directive.args.find(({name}) => name === LABEL);
             const prevLabelArg = prevDirective.args.find(
-              ({name}) => name === 'label',
+              ({name}) => name === LABEL,
             );
             const previousLocation = prevLabelArg?.loc ?? prevDirective.loc;
             if (labelArg) {
               throw createUserError(
                 `Invalid use of @${directive.name}, the provided label is ` +
-                  "not unique. Specify a unique 'label' as a literal string.",
+                  `not unique. Specify a unique '${LABEL}' as a literal string.`,
                 [labelArg?.loc, previousLocation],
               );
             } else {
               throw createUserError(
                 `Invalid use of @${directive.name}, could not generate a ` +
-                  "default label that is unique. Specify a unique 'label' " +
+                  `default label that is unique. Specify a unique '${LABEL}' ` +
                   'as a literal string.',
                 [directive.loc, previousLocation],
               );
@@ -90,6 +92,12 @@ function visitLinkedField(
   field: LinkedField,
   state: State,
 ): LinkedField | Stream {
+  const {
+    INITIAL_COUNT,
+    LABEL,
+    IF,
+    USE_CUSTOMIZED_BATCH,
+  } = DeferStreamInterface.get();
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
 
@@ -113,25 +121,24 @@ function visitLinkedField(
       directive => directive.name !== 'stream',
     ),
   };
-  const ifArg = streamDirective.args.find(arg => arg.name === 'if');
+  const ifArg = streamDirective.args.find(arg => arg.name === IF);
   if (isLiteralFalse(ifArg)) {
     return transformedField;
   }
   const initialCount = streamDirective.args.find(
-    arg => arg.name === 'initial_count',
+    arg => arg.name === INITIAL_COUNT,
   );
   if (initialCount == null) {
     throw createUserError(
-      "Invalid use of @stream, the 'initial_count' argument is required.",
+      `Invalid use of @stream, the '${INITIAL_COUNT}' argument is required.`,
       [streamDirective.loc],
     );
   }
   const useCustomizedBatch = streamDirective.args.find(
-    arg => arg.name === 'use_customized_batch',
+    arg => arg.name === USE_CUSTOMIZED_BATCH,
   );
 
-  const label =
-    getLiteralStringArgument(streamDirective, 'label') ?? field.alias;
+  const label = getLiteralStringArgument(streamDirective, LABEL) ?? field.alias;
   const transformedLabel = transformLabel(state.documentName, 'stream', label);
   state.recordLabel(transformedLabel, streamDirective);
   return {
@@ -179,6 +186,7 @@ function visitFragmentSpread(
   spread: FragmentSpread,
   state: State,
 ): FragmentSpread | Defer {
+  const {LABEL, IF} = DeferStreamInterface.get();
   let transformedSpread: FragmentSpread = this.traverse(spread, state);
   const deferDirective = transformedSpread.directives.find(
     directive => directive.name === 'defer',
@@ -192,12 +200,12 @@ function visitFragmentSpread(
       directive => directive.name !== 'defer',
     ),
   };
-  const ifArg = deferDirective.args.find(arg => arg.name === 'if');
+  const ifArg = deferDirective.args.find(arg => arg.name === IF);
   if (isLiteralFalse(ifArg)) {
     return transformedSpread;
   }
   const label =
-    getLiteralStringArgument(deferDirective, 'label') ??
+    getLiteralStringArgument(deferDirective, LABEL) ??
     getFragmentSpreadName(spread);
   const transformedLabel = transformLabel(state.documentName, 'defer', label);
   state.recordLabel(transformedLabel, deferDirective);

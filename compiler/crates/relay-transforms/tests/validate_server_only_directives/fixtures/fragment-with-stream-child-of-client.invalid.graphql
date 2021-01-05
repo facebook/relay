@@ -10,7 +10,7 @@ fragment FeedbackFragment on Feedback {
   id
   foo {
     bar {
-      users @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      users @stream(initialCount: 1, label: "StreamedActorsLabel") {
         id
         name
       }

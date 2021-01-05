@@ -12,7 +12,9 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_codegen::{build_request_params, Printer};
 use relay_test_schema::get_test_schema;
-use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
+use relay_transforms::{
+    transform_connections, validate_connections, ConnectionInterface, DeferStreamInterface,
+};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -28,11 +30,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let connection_interface = ConnectionInterface::default();
+    let defer_stream_interface = DeferStreamInterface::default();
 
     validate_connections(&program, &connection_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let next_program = transform_connections(&program, &connection_interface);
+    let next_program =
+        transform_connections(&program, &connection_interface, &defer_stream_interface);
 
     let mut printed = next_program
         .operations()
@@ -46,11 +50,17 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 type_condition: def.type_,
             };
             let request_parameters = build_request_params(&def);
-            printer.print_request(&schema, def, &operation_fragment, request_parameters)
+            printer.print_request(
+                &schema,
+                def,
+                &operation_fragment,
+                request_parameters,
+                &defer_stream_interface,
+            )
         })
         .collect::<Vec<_>>();
     for def in next_program.fragments() {
-        printed.push(printer.print_fragment(&schema, def));
+        printed.push(printer.print_fragment(&schema, def, &defer_stream_interface));
     }
     printed.sort();
     Ok(printed.join("\n\n"))

@@ -197,7 +197,7 @@ describe('usePaginationFragment', () => {
             isViewerFriend: $isViewerFriendLocal
             scale: $scale
           ) @stream_connection(
-              initial_count: 1
+              initialCount: 1
               key: "UserFragment_friends",
               filters: ["orderby", "isViewerFriend"]
             ) {

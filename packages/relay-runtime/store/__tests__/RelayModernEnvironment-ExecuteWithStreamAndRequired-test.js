@@ -53,7 +53,7 @@ describe('execute() a query with @stream and @required', () => {
         fragment FeedbackFragment on Feedback {
           id
           actors
-            @stream(label: "actors", if: $enableStream, initial_count: 0)
+            @stream(label: "actors", if: $enableStream, initialCount: 0)
             @required(action: LOG)
           {
             name

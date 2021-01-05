@@ -11,7 +11,7 @@ use crate::connections::{
     extract_connection_directive, get_default_filters, ConnectionConstants, ConnectionInterface,
     ConnectionMetadata,
 };
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::defer_stream::DeferStreamInterface;
 use crate::handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME};
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
@@ -24,8 +24,10 @@ use std::sync::Arc;
 pub fn transform_connections(
     program: &Program,
     connection_interface: &ConnectionInterface,
+    defer_stream_interface: &DeferStreamInterface,
 ) -> Program {
-    let mut transform = ConnectionTransform::new(program, connection_interface);
+    let mut transform =
+        ConnectionTransform::new(program, connection_interface, defer_stream_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -33,6 +35,7 @@ pub fn transform_connections(
 
 struct ConnectionTransform<'s> {
     connection_interface: &'s ConnectionInterface,
+    defer_stream_interface: &'s DeferStreamInterface,
     connection_constants: ConnectionConstants,
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
@@ -41,10 +44,15 @@ struct ConnectionTransform<'s> {
 }
 
 impl<'s> ConnectionTransform<'s> {
-    fn new(program: &'s Program, connection_interface: &'s ConnectionInterface) -> Self {
+    fn new(
+        program: &'s Program,
+        connection_interface: &'s ConnectionInterface,
+        defer_stream_interface: &'s DeferStreamInterface,
+    ) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
+            defer_stream_interface,
             current_path: None,
             current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
@@ -112,16 +120,16 @@ impl<'s> ConnectionTransform<'s> {
         if is_stream_connection {
             let mut arguments = vec![];
             for arg in &connection_directive.arguments {
-                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
+                if arg.name.item == self.defer_stream_interface.if_arg
+                    || arg.name.item == self.defer_stream_interface.initial_count_arg
+                    || arg.name.item == self.defer_stream_interface.use_customized_batch_arg
                 {
                     arguments.push(arg.clone());
                 } else if arg.name.item == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(
                             arg.name.location,
-                            DEFER_STREAM_CONSTANTS.label_arg,
+                            self.defer_stream_interface.label_arg,
                         ),
                         value: arg.value.clone(),
                     });
@@ -130,7 +138,7 @@ impl<'s> ConnectionTransform<'s> {
             transformed_edges_field.directives.push(Directive {
                 name: WithLocation::new(
                     connection_directive.name.location,
-                    DEFER_STREAM_CONSTANTS.stream_name,
+                    self.defer_stream_interface.stream_name,
                 ),
                 arguments,
             });
@@ -197,7 +205,7 @@ impl<'s> ConnectionTransform<'s> {
                 arguments.push(Argument {
                     name: WithLocation::new(
                         key_arg.name.location,
-                        DEFER_STREAM_CONSTANTS.label_arg,
+                        self.defer_stream_interface.label_arg,
                     ),
                     value: WithLocation::new(
                         key_arg.value.location,
@@ -213,7 +221,7 @@ impl<'s> ConnectionTransform<'s> {
                     ),
                 });
             }
-            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg) {
+            if let Some(if_arg) = connection_args.named(self.defer_stream_interface.if_arg) {
                 arguments.push(if_arg.clone());
             }
             Selection::InlineFragment(Arc::new(InlineFragment {
@@ -224,7 +232,7 @@ impl<'s> ConnectionTransform<'s> {
                 directives: vec![Directive {
                     name: WithLocation::new(
                         connection_directive.name.location,
-                        DEFER_STREAM_CONSTANTS.defer_name,
+                        self.defer_stream_interface.defer_name,
                     ),
                     arguments,
                 }],

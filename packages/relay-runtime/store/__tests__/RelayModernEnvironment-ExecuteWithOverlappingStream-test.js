@@ -66,7 +66,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         fragment FeedbackFragment on Feedback {
           id
           actors
-          @stream(label: "actors", if: $enableStream, initial_count: 0)
+          @stream(label: "actors", if: $enableStream, initialCount: 0)
           @__clientField(handle: "actors_handler") {
             name @__clientField(handle: "name_handler")
           }
@@ -75,7 +75,7 @@ describe('execute() a query with multiple @stream selections on the same record'
 
         fragment DeferFragment on Feedback {
           viewedBy
-          @stream(label: "viewedBy", if: $enableStream, initial_count: 0)
+          @stream(label: "viewedBy", if: $enableStream, initialCount: 0)
           @__clientField(handle: "actors_handler") {
             name @__clientField(handle: "name_handler")
           }

@@ -1145,7 +1145,7 @@ describe('RelayResponseNormalizer', () => {
         `
           fragment TestFragment on Feedback {
             id
-            actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
+            actors @stream(label: "actors", if: $enableStream, initialCount: 0) {
               name
             }
           }
@@ -1202,7 +1202,7 @@ describe('RelayResponseNormalizer', () => {
         `
           fragment TestFragment on Feedback {
             id
-            actors @stream(label: "actors", if: true, initial_count: 0) {
+            actors @stream(label: "actors", if: true, initialCount: 0) {
               name
             }
           }
@@ -1265,7 +1265,7 @@ describe('RelayResponseNormalizer', () => {
         `
           fragment TestFragment on Feedback {
             id
-            actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
+            actors @stream(label: "actors", if: $enableStream, initialCount: 0) {
               name
             }
           }
@@ -1334,7 +1334,7 @@ describe('RelayResponseNormalizer', () => {
             actors {
               ... on User {
                 name
-                actors @stream(label: "actors", if: true, initial_count: 0) {
+                actors @stream(label: "actors", if: true, initialCount: 0) {
                   name
                 }
               }
@@ -1418,7 +1418,7 @@ describe('RelayResponseNormalizer', () => {
         `
           fragment TestFragment on Feedback {
             id
-            actors @stream(label: "actors", initial_count: 0) {
+            actors @stream(label: "actors", initialCount: 0) {
               name
             }
           }

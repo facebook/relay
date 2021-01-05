@@ -9,7 +9,7 @@ fragment PaginationFragment on Node
     if: {type: "Boolean", defaultValue: false}
     count: {type: "Int", defaultValue: 10}
     cursor: {type: "ID"}
-    initial_count: {type: "Int", defaultValue: 5}
+    initialCount: {type: "Int", defaultValue: 5}
   ) {
   id
   ... on User {
@@ -18,7 +18,7 @@ fragment PaginationFragment on Node
       @stream_connection(
         if: $if
         key: "PaginationFragment_friends"
-        initial_count: $initial_count
+        initialCount: $initialCount
       ) {
       edges {
         node {

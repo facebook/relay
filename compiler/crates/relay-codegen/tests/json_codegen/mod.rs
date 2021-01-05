@@ -11,6 +11,7 @@ use graphql_ir::{build, ExecutableDefinition};
 use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation};
 use relay_test_schema::TEST_SCHEMA;
+use relay_transforms::DeferStreamInterface;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(
@@ -18,16 +19,17 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         SourceLocationKey::standalone(fixture.file_name),
     )
     .unwrap();
+    let defer_stream_interface = DeferStreamInterface::default();
     build(&TEST_SCHEMA, &ast.definitions)
         .map(|definitions| {
             definitions
                 .iter()
                 .map(|def| match def {
                     ExecutableDefinition::Operation(operation) => {
-                        print_operation(&TEST_SCHEMA, operation)
+                        print_operation(&TEST_SCHEMA, operation, &defer_stream_interface)
                     }
                     ExecutableDefinition::Fragment(fragment) => {
-                        print_fragment(&TEST_SCHEMA, fragment)
+                        print_fragment(&TEST_SCHEMA, fragment, &defer_stream_interface)
                     }
                 })
                 .collect::<Vec<_>>()

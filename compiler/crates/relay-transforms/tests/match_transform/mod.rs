@@ -7,8 +7,10 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::transform_match;
+use relay_transforms::{transform_match, DeferStreamInterface};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    apply_transform_for_test(fixture, transform_match)
+    apply_transform_for_test(fixture, |program| {
+        transform_match(program, &DeferStreamInterface::default())
+    })
 }

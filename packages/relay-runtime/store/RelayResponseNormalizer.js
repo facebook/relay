@@ -354,7 +354,7 @@ class RelayResponseNormalizer {
   ) {
     // Always normalize regardless of whether streaming is enabled or not,
     // this populates the initial array value (including any items when
-    // initial_count > 0).
+    // initialCount > 0).
     this._traverseSelections(stream, record, data);
     const isStreamed = stream.if === null || this._getVariableValue(stream.if);
     if (__DEV__) {

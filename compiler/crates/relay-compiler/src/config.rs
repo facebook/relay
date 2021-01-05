@@ -16,7 +16,7 @@ use async_trait::async_trait;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, DeferStreamInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
 use serde::Deserialize;
 use sha1::{Digest, Sha1};
@@ -59,6 +59,7 @@ pub struct Config {
     pub repersist_operations: bool,
 
     pub connection_interface: ConnectionInterface,
+    pub defer_stream_interface: DeferStreamInterface,
     pub feature_flags: FeatureFlags,
 
     pub saved_state_config: Option<ScmAwareClockData>,
@@ -202,6 +203,7 @@ impl Config {
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
+            defer_stream_interface: config_file.defer_stream_interface,
             feature_flags: config_file.feature_flags,
             operation_persister: None,
             compile_everything: false,
@@ -335,6 +337,7 @@ impl fmt::Debug for Config {
             saved_state_config,
             saved_state_loader,
             connection_interface,
+            defer_stream_interface,
             feature_flags,
             saved_state_version,
             operation_persister,
@@ -343,7 +346,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")
@@ -371,6 +378,7 @@ impl fmt::Debug for Config {
                 &option_fn_to_string(saved_state_loader),
             )
             .field("connection_interface", connection_interface)
+            .field("defer_stream_interface", defer_stream_interface)
             .field("feature_flags", feature_flags)
             .field("saved_state_version", saved_state_version)
             .field(
@@ -440,6 +448,9 @@ struct ConfigFile {
 
     #[serde(default)]
     connection_interface: ConnectionInterface,
+
+    #[serde(default)]
+    defer_stream_interface: DeferStreamInterface,
 
     #[serde(default)]
     feature_flags: FeatureFlags,

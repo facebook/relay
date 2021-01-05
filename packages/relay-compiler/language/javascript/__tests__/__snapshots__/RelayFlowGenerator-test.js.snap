@@ -1938,7 +1938,7 @@ query TestStream @raw_response_type {
       friends(first: 10)
         @stream_connection(
           key: "PaginationFragment_friends"
-          initial_count: 1
+          initialCount: 1
         ) {
         edges {
           node {
@@ -2002,7 +2002,7 @@ query TestDefer @raw_response_type {
     ... on User {
       name
       friends(first: 10)
-        @stream_connection(key: "TestDefer_friends", initial_count: 0) {
+        @stream_connection(key: "TestDefer_friends", initialCount: 0) {
         edges {
           node {
             actor {

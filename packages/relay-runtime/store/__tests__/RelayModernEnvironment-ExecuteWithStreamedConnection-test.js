@@ -61,7 +61,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           @stream_connection(
             key: "RelayModernEnvironment_newsFeed"
             if: $enableStream
-            initial_count: 0
+            initialCount: 0
           ) {
             edges {
               cursor
@@ -337,7 +337,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
+  it('initializes the connection with subsequent edges (1 => 2 edges) when initialCount=1', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);
@@ -435,7 +435,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
     });
   });
 
-  it('initializes the connection with subsequent edges (1 => 3 edges) when initial_count=1 with batch response', () => {
+  it('initializes the connection with subsequent edges (1 => 3 edges) when initialCount=1 with batch response', () => {
     const initialSnapshot = environment.lookup(selector);
     callback = jest.fn();
     environment.subscribe(initialSnapshot, callback);

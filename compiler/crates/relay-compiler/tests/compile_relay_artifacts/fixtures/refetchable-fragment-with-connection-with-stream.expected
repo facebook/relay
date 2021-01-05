@@ -9,7 +9,7 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment on Node
   ... on User {
     name
     friends(after: $cursor, first: $count)
-      @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+      @stream_connection(key: "PaginationFragment_friends", initialCount: 1) {
       edges {
         node {
           id
@@ -307,7 +307,7 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment_1G22uz o
   ... on User {
     name
     friends(after: $cursor, first: $count) {
-      edges @stream(label: "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends", initial_count: 1) {
+      edges @stream(label: "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends", initialCount: 1) {
         node {
           id
           __typename

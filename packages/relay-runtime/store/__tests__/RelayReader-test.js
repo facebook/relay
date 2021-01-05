@@ -1569,7 +1569,7 @@ describe('RelayReader', () => {
       beforeEach(() => {
         const nodes = generateAndCompile(
           ` fragment UserProfile on User {
-              friends(first: 3) @stream_connection(key: "UserProfile_friends", initial_count: 0) {
+              friends(first: 3) @stream_connection(key: "UserProfile_friends", initialCount: 0) {
                 edges  {
                   node {
                     name

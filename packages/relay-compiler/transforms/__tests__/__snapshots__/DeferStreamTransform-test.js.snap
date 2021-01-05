@@ -274,7 +274,7 @@ query QueryWithFragmentWithStream($id: ID!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+  actors @stream(initialCount: 1, label: "StreamedActorsLabel") {
     name
   }
 }
@@ -291,7 +291,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: 1) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initialCount: 1) {
     name
   }
 }
@@ -309,7 +309,7 @@ query QueryWithFragmentWithStream($id: ID!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1) {
+  actors @stream(initialCount: 1) {
     name
   }
 }
@@ -326,7 +326,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$actors", initial_count: 1) {
+  actors @stream(label: "FeedbackFragment$stream$actors", initialCount: 1) {
     name
   }
 }
@@ -345,10 +345,10 @@ query QueryWithFragmentWithStream($id: ID!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "actors") {
+  actors @stream(initialCount: 1, label: "actors") {
     name
   }
-  otherActors: actors @stream(initial_count: 1, label: "actors") {
+  otherActors: actors @stream(initialCount: 1, label: "actors") {
     # invalid: duplicate label
     name
   }
@@ -359,16 +359,16 @@ THROWN EXCEPTION:
 
 Invalid use of @stream, the provided label is not unique. Specify a unique 'label' as a literal string.
 
-Source: GraphQL request (14:49)
+Source: GraphQL request (14:48)
 13:   }
-14:   otherActors: actors @stream(initial_count: 1, label: "actors") {
-                                                    ^
+14:   otherActors: actors @stream(initialCount: 1, label: "actors") {
+                                                   ^
 15:     # invalid: duplicate label
 
-Source: GraphQL request (11:36)
+Source: GraphQL request (11:35)
 10:   id
-11:   actors @stream(initial_count: 1, label: "actors") {
-                                       ^
+11:   actors @stream(initialCount: 1, label: "actors") {
+                                      ^
 12:     name
 
 `;
@@ -385,7 +385,7 @@ query QueryWithFragmentWithStream($id: ID!, $enableStream: Boolean) {
 fragment FeedbackFragment on Feedback {
   id
   actors
-    @stream(initial_count: 1, label: "StreamedActorsLabel", if: $enableStream) {
+    @stream(initialCount: 1, label: "StreamedActorsLabel", if: $enableStream) {
     name
   }
 }
@@ -403,7 +403,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: $enableStream, initial_count: 1) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: $enableStream, initialCount: 1) {
     name
   }
 }
@@ -421,7 +421,7 @@ query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: $initialCount, label: "StreamedActorsLabel") {
+  actors @stream(initialCount: $initialCount, label: "StreamedActorsLabel") {
     name
   }
 }
@@ -439,7 +439,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initial_count: $initialCount) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", initialCount: $initialCount) {
     name
   }
 }
@@ -459,7 +459,7 @@ query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
 fragment FeedbackFragment on Feedback {
   id
   actors @stream(label: "StreamedActorsLabel") {
-    # invalid: missing initial_count
+    # invalid: missing initialCount
     name
   }
 }
@@ -467,13 +467,13 @@ fragment FeedbackFragment on Feedback {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid use of @stream, the 'initial_count' argument is required.
+Invalid use of @stream, the 'initialCount' argument is required.
 
 Source: GraphQL request (11:10)
 10:   id
 11:   actors @stream(label: "StreamedActorsLabel") {
              ^
-12:     # invalid: missing initial_count
+12:     # invalid: missing initialCount
 
 `;
 
@@ -488,7 +488,7 @@ query QueryWithFragmentWithStream($id: ID!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: "StreamedActorsLabel", if: false) {
+  actors @stream(initialCount: 1, label: "StreamedActorsLabel", if: false) {
     name
   }
 }
@@ -526,9 +526,9 @@ fragment FeedbackFragment on Feedback {
   actors
     @stream(
       if: true
-      initial_count: 1
+      initialCount: 1
       label: "StreamedActorsLabel"
-      use_customized_batch: $useCustomizedBatch
+      useCustomizedBatch: $useCustomizedBatch
     ) {
     name
   }
@@ -547,7 +547,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: true, initial_count: 1, use_customized_batch: $useCustomizedBatch) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: true, initialCount: 1, useCustomizedBatch: $useCustomizedBatch) {
     name
   }
 }
@@ -566,7 +566,7 @@ query QueryWithFragmentWithStream($id: ID!, $label: String!) {
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(initial_count: 1, label: $label) {
+  actors @stream(initialCount: 1, label: $label) {
     name
   }
 }
@@ -576,10 +576,10 @@ THROWN EXCEPTION:
 
 Expected the 'label' value to @stream to be a string literal if provided.
 
-Source: GraphQL request (11:43)
+Source: GraphQL request (11:42)
 10:   id
-11:   actors @stream(initial_count: 1, label: $label) {
-                                              ^
+11:   actors @stream(initialCount: 1, label: $label) {
+                                             ^
 12:     name
 
 `;
@@ -684,7 +684,7 @@ exports[`DeferStreamTransform when streaming is enabled matches expected output:
 query QueryWithStream($id: ID!) {
   node(id: $id) {
     ... on Feedback {
-      actors @stream(initial_count: 1, label: "StreamedActorsLabel") {
+      actors @stream(initialCount: 1, label: "StreamedActorsLabel") {
         name
       }
     }
@@ -697,7 +697,7 @@ query QueryWithStream(
 ) {
   node(id: $id) {
     ... on Feedback {
-      actors @stream(label: "QueryWithStream$stream$StreamedActorsLabel", initial_count: 1) {
+      actors @stream(label: "QueryWithStream$stream$StreamedActorsLabel", initialCount: 1) {
         name
       }
     }

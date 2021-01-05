@@ -177,6 +177,7 @@ impl fmt::Debug for TypeChange {
 pub enum SchemaChange {
     None,
     GenericChange,
+    InvalidSchema,
     DefinitionChanges(Vec<DefinitionChange>),
 }
 
@@ -185,6 +186,7 @@ impl fmt::Debug for SchemaChange {
         match self {
             SchemaChange::None => write!(f, "None"),
             SchemaChange::GenericChange => write!(f, "GenericChange"),
+            SchemaChange::InvalidSchema => write!(f, "InvalidSchema"),
             SchemaChange::DefinitionChanges(changes) => write!(f, "{:?}", changes),
         }
     }

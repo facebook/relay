@@ -47,6 +47,29 @@ fn test_same_text() {
 }
 
 #[test]
+fn test_invalid_text() {
+    assert_eq!(
+        diff(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+
+         #",
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         #",
+        ),
+        SchemaChange::InvalidSchema
+    );
+}
+
+#[test]
 fn test_add_enum_value() {
     assert_eq!(
         diff(

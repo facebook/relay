@@ -66,6 +66,13 @@ pub trait Transformer {
         let variable_definitions =
             self.transform_variable_definitions(&fragment.variable_definitions);
 
+        // Special-case for empty selections
+        if let TransformedValue::Replace(selections) = &selections {
+            if selections.is_empty() {
+                return Transformed::Delete;
+            }
+        }
+
         if selections.should_keep()
             && directives.should_keep()
             && variable_definitions.should_keep()

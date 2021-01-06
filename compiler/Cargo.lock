@@ -1885,6 +1885,7 @@ dependencies = [
  "relay-transforms",
  "schema",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

@@ -21,6 +21,10 @@ impl Writer for TypeScriptPrinter {
         "FragmentRefs".intern()
     }
 
+    fn supports_exact_objects(&self) -> bool {
+        false
+    }
+
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
         match ast {
             AST::Any => write!(writer, "any"),
@@ -32,6 +36,7 @@ impl Writer for TypeScriptPrinter {
             AST::Identifier(identifier) => write!(writer, "{}", identifier),
             AST::RawType(raw) => write!(writer, "{}", raw),
             AST::Union(members) => self.write_union(writer, members),
+            AST::Intersection(members) => self.write_intersection(writer, members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type),
             AST::Nullable(of_type) => self.write_nullable(writer, of_type),
             AST::ExactObject(props) => self.write_object(writer, props, true),
@@ -74,6 +79,21 @@ impl TypeScriptPrinter {
         write!(writer, r#""%other""#)
     }
 
+    fn write_and_wrap_union(&mut self, writer: &mut dyn Write, ast: &AST) -> Result {
+        match ast {
+            AST::Union(members) if members.len() > 1 => {
+                write!(writer, "(")?;
+                self.write_union(writer, members)?;
+                write!(writer, ")")?;
+            }
+            _ => {
+                self.write(writer, ast)?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn write_union(&mut self, writer: &mut dyn Write, members: &[AST]) -> Result {
         let mut first = true;
         for member in members {
@@ -83,6 +103,20 @@ impl TypeScriptPrinter {
                 write!(writer, " | ")?;
             }
             self.write(writer, member)?;
+        }
+        Ok(())
+    }
+
+    fn write_intersection(&mut self, writer: &mut dyn Write, members: &[AST]) -> Result {
+        let mut first = true;
+        for member in members {
+            if first {
+                first = false;
+            } else {
+                write!(writer, " & ")?;
+            }
+
+            self.write_and_wrap_union(writer, member)?;
         }
         Ok(())
     }
@@ -129,7 +163,7 @@ impl TypeScriptPrinter {
             }
 
             self.write_indentation(writer)?;
-            if let AST::OtherTypename = prop.value {
+            if prop.value.contains_other_typename() {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
                 writeln!(
@@ -205,7 +239,7 @@ impl TypeScriptPrinter {
     fn write_import_type(
         &mut self,
         writer: &mut dyn Write,
-        types: &Vec<StringKey>,
+        types: &[StringKey],
         from: &StringKey,
     ) -> Result {
         writeln!(
@@ -302,6 +336,63 @@ mod tests {
             ])))),
             "string | number | null"
         )
+    }
+
+    #[test]
+    fn intersections() {
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::ExactObject(vec![Prop {
+                    key: "first".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::String
+                }]),
+                AST::ExactObject(vec![Prop {
+                    key: "second".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                }]),
+            ])),
+            r"{
+  first: string
+} & {
+  second: number
+}"
+        );
+
+        assert_eq!(
+            print_type(&AST::Intersection(vec![
+                AST::Union(vec![
+                    AST::ExactObject(vec![Prop {
+                        key: "first".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String
+                    }]),
+                    AST::ExactObject(vec![Prop {
+                        key: "second".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::Number
+                    }]),
+                ]),
+                AST::ExactObject(vec![Prop {
+                    key: "third".intern(),
+                    optional: false,
+                    read_only: false,
+                    value: AST::Number
+                }]),
+            ],)),
+            r"({
+  first: string
+} | {
+  second: number
+}) & {
+  third: number
+}"
+        );
     }
 
     #[test]
@@ -456,7 +547,7 @@ mod tests {
         );
 
         assert_eq!(
-            print_type_with_config(
+            self::print_type_with_config(
                 &AST::ImportType(vec!["C".intern()], "./foo".intern()),
                 &TypegenConfig {
                     use_import_type_syntax: true,

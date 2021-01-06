@@ -133,11 +133,6 @@ import { FragmentRefs } from "relay-runtime";
 export type SomeFragment = {
   readonly __typename: "User",
   readonly " $refType": FragmentRefs<"SomeFragment">,
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other",
-  readonly " $refType": FragmentRefs<"SomeFragment">,
 };
 export type SomeFragment$data = SomeFragment;
 export type SomeFragment$key = {

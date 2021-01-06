@@ -1,3 +1,7 @@
+{
+  "futureProofEnums": false
+}
+%%%
 mutation CommentCreateMutation(
   $input: CommentCreateInput!
   $first: Int

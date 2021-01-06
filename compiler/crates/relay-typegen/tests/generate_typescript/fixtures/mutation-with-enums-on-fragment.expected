@@ -1,4 +1,8 @@
 ==================================== INPUT ====================================
+{
+  "futureProofEnums": false
+}
+%%%
 mutation CommentCreateMutation(
   $input: CommentCreateInput!
   $first: Int
@@ -27,7 +31,7 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestEnums = "mark" | "zuck" | "%future added value";
+export type TestEnums = "mark" | "zuck";
 export type CommentCreateInput = {
   clientMutationId?: string | null,
   feedbackId?: string | null,
@@ -85,7 +89,7 @@ export type CommentCreateMutation = {
   rawResponse: CommentCreateMutationRawResponse,
 };
 -------------------------------------------------------------------------------
-export type TestEnums = "mark" | "zuck" | "%future added value";
+export type TestEnums = "mark" | "zuck";
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
   readonly name: string | null,

@@ -12,6 +12,7 @@ use std::fmt::{Result, Write};
 #[derive(Debug, Clone)]
 pub enum AST {
     Union(Vec<AST>),
+    Intersection(Vec<AST>),
     ReadOnlyArray(Box<AST>),
     Nullable(Box<AST>),
     Identifier(StringKey),
@@ -36,6 +37,19 @@ pub enum AST {
     ExportTypeEquals(StringKey, Box<AST>),
 }
 
+impl AST {
+    pub fn contains_other_typename(&self) -> bool {
+        match self {
+            AST::Union(members) => members
+                .iter()
+                .any(|member| member.contains_other_typename()),
+            AST::Nullable(inner) => inner.contains_other_typename(),
+            AST::OtherTypename => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Prop {
     pub key: StringKey,
@@ -52,6 +66,10 @@ lazy_static! {
 pub trait Writer {
     fn get_runtime_fragment_import(&self) -> StringKey {
         "FragmentReference".intern()
+    }
+
+    fn supports_exact_objects(&self) -> bool {
+        true
     }
 
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;

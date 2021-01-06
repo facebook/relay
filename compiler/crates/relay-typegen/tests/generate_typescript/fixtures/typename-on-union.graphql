@@ -1,3 +1,7 @@
+{
+  "futureProofAbstractTypes": false
+}
+%%%
 fragment TypenameInside on Actor {
   ... on User {
     __typename

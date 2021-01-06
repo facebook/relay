@@ -25,6 +25,7 @@ impl Writer for FlowPrinter {
             AST::Identifier(identifier) => write!(writer, "{}", identifier),
             AST::RawType(raw) => write!(writer, "{}", raw),
             AST::Union(members) => self.write_union(writer, members),
+            AST::Intersection(members) => self.write_intersection(writer, members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(writer, of_type),
             AST::Nullable(of_type) => self.write_nullable(writer, of_type),
             AST::ExactObject(props) => self.write_object(writer, props, true),
@@ -114,7 +115,7 @@ impl FlowPrinter {
     fn write_nullable(&mut self, writer: &mut dyn Write, of_type: &AST) -> Result {
         write!(writer, "?")?;
         match of_type {
-            AST::Union(members) if members.len() > 1 => {
+            AST::Union(members) | AST::Intersection(members) if members.len() > 1 => {
                 write!(writer, "(")?;
                 self.write(writer, of_type)?;
                 write!(writer, ")")?;
@@ -159,7 +160,7 @@ impl FlowPrinter {
                 writeln!(writer, ",")?;
                 continue;
             }
-            if let AST::OtherTypename = prop.value {
+            if prop.value.contains_other_typename() {
                 writeln!(writer, "// This will never be '%other', but we need some")?;
                 self.write_indentation(writer)?;
                 writeln!(
@@ -213,7 +214,7 @@ impl FlowPrinter {
     fn write_import_type(
         &mut self,
         writer: &mut dyn Write,
-        types: &Vec<StringKey>,
+        types: &[StringKey],
         from: &StringKey,
     ) -> Result {
         writeln!(
@@ -259,7 +260,7 @@ impl FlowPrinter {
         writeln!(writer, ";")
     }
 
-    fn write_export_list(&mut self, writer: &mut dyn Write, names: &Vec<StringKey>) -> Result {
+    fn write_export_list(&mut self, writer: &mut dyn Write, names: &[StringKey]) -> Result {
         writeln!(
             writer,
             "export type {{ {} }};",

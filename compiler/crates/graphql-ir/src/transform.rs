@@ -14,6 +14,7 @@ pub trait Transformer {
     const NAME: &'static str;
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
+    const RETAIN_EMPTY_SELECTION_SETS: bool = false;
 
     fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
         self.default_transform_program(program)
@@ -106,7 +107,7 @@ pub trait Transformer {
 
         // Special-case for empty selections
         if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
+            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
                 return Transformed::Delete;
             }
         }
@@ -213,7 +214,7 @@ pub trait Transformer {
         // Special-case for empty selections
         let selections = self.transform_selections(&field.selections);
         if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
+            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
                 return Transformed::Delete;
             }
         }
@@ -241,7 +242,7 @@ pub trait Transformer {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
         if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
+            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
                 return Transformed::Delete;
             }
         }
@@ -284,7 +285,7 @@ pub trait Transformer {
         // Special-case for empty selections
         let selections = self.transform_selections(&condition.selections);
         if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
+            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
                 return Transformed::Delete;
             }
         }

@@ -8,7 +8,8 @@
 use fixture_tests::Fixture;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use schema::{
-    build_schema, build_schema_from_flat_buffer, build_schema_with_extensions, Schema, Type,
+    build_schema, build_schema_from_flat_buffer, build_schema_with_extensions, GraphQLSchema,
+    Schema, Type,
 };
 use schema_print::serialize_as_fb;
 use std::collections::BTreeMap;

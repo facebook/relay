@@ -17,7 +17,7 @@ use graphql_ir::{
     Validator, Value,
 };
 use interner::StringKey;
-use schema::{Field, Type, TypeReference};
+use schema::{Field, GraphQLSchema, Type, TypeReference};
 
 pub fn validate_connections(
     program: &Program,

@@ -15,7 +15,7 @@ use common::{DiagnosticsResult, WithLocation};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::Schema;
+use schema::{GraphQLSchema, Schema};
 use std::sync::Arc;
 
 fn build_refetch_operation(

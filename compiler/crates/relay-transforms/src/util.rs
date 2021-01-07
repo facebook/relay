@@ -23,7 +23,7 @@ use fnv::FnvHashSet;
 use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::{GraphQLSchema, Schema, Type};
 
 // A wrapper type that allows comparing pointer equality of references. Two
 // `PointerAddress` values are equal if they point to the same memory location.

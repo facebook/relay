@@ -15,7 +15,7 @@ use crate::connections::ConnectionInterface;
 use crate::handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::Type;
+use schema::{GraphQLSchema, Type};
 use std::sync::Arc;
 
 pub fn transform_declarative_connection(

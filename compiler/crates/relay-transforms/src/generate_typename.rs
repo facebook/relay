@@ -18,7 +18,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::{GraphQLSchema, Schema, Type};
 use std::sync::Arc;
 
 lazy_static! {

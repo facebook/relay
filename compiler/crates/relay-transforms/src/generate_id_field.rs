@@ -12,7 +12,7 @@ use graphql_ir::{
 };
 
 use interner::{Intern, StringKey};
-use schema::{FieldID, InterfaceID, ObjectID, Type};
+use schema::{FieldID, GraphQLSchema, InterfaceID, ObjectID, Type};
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::sync::Arc;

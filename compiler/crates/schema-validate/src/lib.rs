@@ -14,8 +14,8 @@ use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
 use schema::{
-    EnumID, Field, FieldID, InputObjectID, Interface, Schema, Type, TypeReference, TypeWithFields,
-    UnionID,
+    EnumID, Field, FieldID, GraphQLSchema, InputObjectID, Interface, Schema, Type, TypeReference,
+    TypeWithFields, UnionID,
 };
 use schema_print::{print_directive, print_type};
 use std::time::Instant;

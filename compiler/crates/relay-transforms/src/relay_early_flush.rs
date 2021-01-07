@@ -13,7 +13,7 @@ use graphql_ir::{
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
-use schema::{Argument as ArgumentDef, FieldID, Schema};
+use schema::{Argument as ArgumentDef, FieldID, GraphQLSchema, Schema};
 use std::sync::Arc;
 
 lazy_static! {

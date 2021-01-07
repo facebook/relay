@@ -14,6 +14,7 @@
 pub mod definitions;
 mod errors;
 mod flatbuffer;
+pub mod graphql_schema;
 pub mod sdl;
 
 use common::{DiagnosticsResult, SourceLocationKey};
@@ -25,6 +26,7 @@ pub use definitions::{
 pub use errors::{Result, SchemaError};
 pub use flatbuffer::graphqlschema::*;
 use flatbuffer::FlatBufferSchema;
+pub use graphql_schema::GraphQLSchema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
 pub use sdl::Schema;
 

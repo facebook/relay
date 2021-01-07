@@ -8,8 +8,8 @@
 use common::{Location, Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
-use schema::Schema;
 use schema::{FieldID, Type, TypeReference};
+use schema::{GraphQLSchema, Schema};
 use std::fmt;
 use std::sync::Arc;
 // Definitions

@@ -26,7 +26,7 @@ use relay_transforms::{
     PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, REQUIRED_METADATA_KEY,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
-use schema::Schema;
+use schema::{GraphQLSchema, Schema};
 
 pub fn build_request_params_ast_key(
     schema: &Schema,

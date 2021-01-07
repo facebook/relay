@@ -23,6 +23,7 @@ use lsp_types::{
     request::{GotoDefinition, Request},
     Url,
 };
+use schema::GraphQLSchema;
 use std::{
     collections::HashMap,
     path::PathBuf,

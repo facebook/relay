@@ -19,7 +19,8 @@ use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
 use schema::{
-    ArgumentDefinitions, Enum, FieldID, InputObject, Scalar, Schema, Type, TypeReference,
+    ArgumentDefinitions, Enum, FieldID, GraphQLSchema, InputObject, Scalar, Schema, Type,
+    TypeReference,
 };
 
 lazy_static! {

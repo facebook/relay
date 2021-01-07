@@ -15,7 +15,7 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, ValidationMessage,
 };
 use interner::StringKey;
-use schema::Type;
+use schema::{GraphQLSchema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};

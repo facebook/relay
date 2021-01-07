@@ -1,0 +1,189 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+use crate::definitions::{Directive, *};
+use interner::StringKey;
+use std::fmt::{Result as FormatResult, Write};
+
+pub trait GraphQLSchema {
+    fn query_type(&self) -> Option<Type>;
+
+    fn mutation_type(&self) -> Option<Type>;
+
+    fn subscription_type(&self) -> Option<Type>;
+
+    fn clientid_field(&self) -> FieldID;
+
+    fn typename_field(&self) -> FieldID;
+
+    fn fetch_token_field(&self) -> FieldID;
+
+    fn get_type(&self, type_name: StringKey) -> Option<Type>;
+
+    fn get_directive(&self, name: StringKey) -> Option<&Directive>;
+
+    fn input_object(&self, id: InputObjectID) -> &InputObject;
+
+    fn enum_(&self, id: EnumID) -> &Enum;
+
+    fn scalar(&self, id: ScalarID) -> &Scalar;
+
+    fn field(&self, id: FieldID) -> &Field;
+
+    fn object(&self, id: ObjectID) -> &Object;
+
+    fn union(&self, id: UnionID) -> &Union;
+
+    fn interface(&self, id: InterfaceID) -> &Interface;
+
+    fn get_type_name(&self, type_: Type) -> StringKey;
+
+    fn is_extension_type(&self, type_: Type) -> bool;
+
+    fn is_string(&self, type_: Type) -> bool;
+
+    fn is_id(&self, type_: Type) -> bool;
+
+    fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID>;
+
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference;
+
+    fn snapshot_print(self) -> String;
+
+    fn is_type_subtype_of(
+        &self,
+        maybe_subtype: &TypeReference,
+        super_type: &TypeReference,
+    ) -> bool {
+        match (maybe_subtype, super_type) {
+            (TypeReference::NonNull(of_sub), TypeReference::NonNull(of_super)) => {
+                self.is_type_subtype_of(of_sub, of_super)
+            }
+            // If supertype is non-null, maybeSubType must be non-nullable too
+            (_, TypeReference::NonNull(_)) => false,
+            // If supertype is nullable, maybeSubType may be non-nullable or nullable
+            (TypeReference::NonNull(of_sub), _) => self.is_type_subtype_of(of_sub, super_type),
+            (TypeReference::List(of_sub), TypeReference::List(of_super)) => {
+                self.is_type_subtype_of(of_sub, of_super)
+            }
+            // If supertype is a list, maybeSubType must be a list too
+            (_, TypeReference::List(_)) => false,
+            // If supertype is not a list, maybeSubType must also not be a list
+            (TypeReference::List(_), _) => false,
+            (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
+                self.is_named_type_subtype_of(*named_subtype, *named_supertype)
+            }
+        }
+    }
+
+    fn is_named_type_subtype_of(&self, maybe_subtype: Type, super_type: Type) -> bool {
+        match (maybe_subtype, super_type) {
+            (Type::Object(sub_id), Type::Interface(super_id)) => {
+                // does object implement the interface
+                let object = self.object(sub_id);
+                object.interfaces.contains(&super_id)
+            }
+            (Type::Object(sub_id), Type::Union(super_id)) => {
+                // is object a member of the union
+                let union = self.union(super_id);
+                union.members.contains(&sub_id)
+            }
+            (Type::Interface(sub_id), Type::Interface(super_id)) => {
+                // does interface implement the interface
+                let interface = self.interface(sub_id);
+                sub_id == super_id || interface.interfaces.contains(&super_id)
+            }
+            _ => maybe_subtype == super_type,
+        }
+    }
+
+    fn are_overlapping_types(&self, a: Type, b: Type) -> bool {
+        if a == b {
+            return true;
+        };
+        match (a, b) {
+            (Type::Interface(a), Type::Interface(b)) => {
+                let b_implementors = &self.interface(b).implementing_objects;
+                self.interface(a)
+                    .implementing_objects
+                    .iter()
+                    .any(|x| b_implementors.contains(x))
+            }
+            (Type::Interface(a), Type::Union(b)) => {
+                let b_members = &self.union(b).members;
+                self.interface(a)
+                    .implementing_objects
+                    .iter()
+                    .any(|x| b_members.contains(x))
+            }
+            (Type::Interface(a), Type::Object(b)) => {
+                self.interface(a).implementing_objects.contains(&b)
+            }
+            (Type::Union(a), Type::Interface(b)) => {
+                let b_implementors = &self.interface(b).implementing_objects;
+                self.union(a)
+                    .members
+                    .iter()
+                    .any(|x| b_implementors.contains(x))
+            }
+            (Type::Union(a), Type::Union(b)) => {
+                let b_members = &self.union(b).members;
+                self.union(a).members.iter().any(|x| b_members.contains(x))
+            }
+            (Type::Union(a), Type::Object(b)) => self.union(a).members.contains(&b),
+            (Type::Object(a), Type::Interface(b)) => {
+                self.interface(b).implementing_objects.contains(&a)
+            }
+            (Type::Object(a), Type::Union(b)) => self.union(b).members.contains(&a),
+            (Type::Object(a), Type::Object(b)) => a == b,
+            _ => false, // todo: change Type representation to allow only Interface/Union/Object as input
+        }
+    }
+
+    fn is_abstract_type(&self, type_: Type) -> bool {
+        type_.is_abstract_type()
+    }
+
+    fn is_object(&self, type_: Type) -> bool {
+        type_.is_object()
+    }
+
+    fn is_interface(&self, type_: Type) -> bool {
+        type_.is_interface()
+    }
+
+    fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
+        match type_ {
+            TypeReference::Named(inner) => {
+                write!(writer, "{}", self.get_type_name(*inner).lookup())
+            }
+            TypeReference::NonNull(of) => {
+                self.write_type_string(writer, of)?;
+                write!(writer, "!")
+            }
+            TypeReference::List(of) => {
+                write!(writer, "[")?;
+                self.write_type_string(writer, of)?;
+                write!(writer, "]")
+            }
+        }
+    }
+
+    fn get_type_string(&self, type_: &TypeReference) -> String {
+        let mut result = String::new();
+        self.write_type_string(&mut result, type_).unwrap();
+        result
+    }
+
+    fn is_extension_directive(&self, name: StringKey) -> bool {
+        if let Some(directive) = self.get_directive(name) {
+            directive.is_extension
+        } else {
+            panic!("Unknown directive {}.", name.lookup())
+        }
+    }
+}

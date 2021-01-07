@@ -12,7 +12,7 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
 };
 use interner::StringKey;
-use schema::{Schema, Type};
+use schema::{GraphQLSchema, Schema, Type};
 
 /// Helper to assert and extract the expected selections for a connection
 /// field. This function will panic if the expected selections aren't present,

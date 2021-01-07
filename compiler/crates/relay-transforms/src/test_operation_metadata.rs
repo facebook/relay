@@ -14,7 +14,7 @@ use graphql_ir::{
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{EnumValue, Field, Schema, Type};
+use schema::{EnumValue, Field, GraphQLSchema, Schema, Type};
 
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();

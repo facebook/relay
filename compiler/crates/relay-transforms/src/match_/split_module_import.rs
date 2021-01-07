@@ -14,6 +14,7 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
+use schema::GraphQLSchema;
 use std::sync::Arc;
 
 pub fn split_module_import(

@@ -18,7 +18,7 @@ use graphql_ir::{Program, Value};
 use graphql_text_printer::print_value;
 use interner::StringKey;
 use lsp_types::{request::HoverRequest, request::Request, Hover};
-use schema::Schema;
+use schema::{GraphQLSchema, Schema};
 use schema_print::print_directive;
 use std::{
     collections::HashMap,

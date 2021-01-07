@@ -17,7 +17,7 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{FieldID, Schema, Type};
+use schema::{FieldID, GraphQLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(

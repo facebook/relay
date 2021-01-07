@@ -25,8 +25,8 @@ use lazy_static::lazy_static;
 use log::info;
 use lsp_types::request::{Completion, Request};
 use schema::{
-    Argument as SchemaArgument, Directive as SchemaDirective, Schema, Type, TypeReference,
-    TypeWithFields,
+    Argument as SchemaArgument, Directive as SchemaDirective, GraphQLSchema, Schema, Type,
+    TypeReference, TypeWithFields,
 };
 use std::{
     collections::{HashMap, HashSet},

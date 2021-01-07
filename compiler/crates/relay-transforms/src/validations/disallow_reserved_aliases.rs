@@ -9,7 +9,7 @@ use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use errors::validate;
 use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
 use interner::{Intern, StringKey};
-use schema::{FieldID, Schema};
+use schema::{FieldID, GraphQLSchema, Schema};
 
 pub fn disallow_reserved_aliases(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowReservedAliases::new(program);

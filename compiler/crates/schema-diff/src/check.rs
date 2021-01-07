@@ -8,7 +8,7 @@
 use crate::definitions::{ArgumentChange, DefinitionChange, SchemaChange, Type, TypeChange};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::Schema;
+use schema::{GraphQLSchema, Schema};
 
 /// Return if the changes are safe to skip full rebuild.
 impl SchemaChange {

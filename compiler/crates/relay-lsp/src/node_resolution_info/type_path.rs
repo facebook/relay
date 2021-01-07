@@ -7,7 +7,7 @@
 
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Field, Schema, Type, TypeReference};
+use schema::{Field, GraphQLSchema, Schema, Type, TypeReference};
 
 #[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf

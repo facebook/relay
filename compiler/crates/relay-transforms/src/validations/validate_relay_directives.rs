@@ -14,6 +14,7 @@ use graphql_ir::{
     ValidationMessage, Validator, Value, VariableDefinition,
 };
 use interner::StringKey;
+use schema::GraphQLSchema;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);

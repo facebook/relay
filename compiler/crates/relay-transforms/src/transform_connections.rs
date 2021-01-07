@@ -19,6 +19,7 @@ use graphql_ir::{
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
 };
 use interner::{Intern, StringKey};
+use schema::GraphQLSchema;
 use std::sync::Arc;
 
 pub fn transform_connections(

@@ -16,7 +16,7 @@ use errors::{par_try_map, try2};
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Schema, Type, TypeReference};
+use schema::{GraphQLSchema, Schema, Type, TypeReference};
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();

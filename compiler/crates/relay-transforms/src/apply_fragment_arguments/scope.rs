@@ -85,7 +85,7 @@ mod tests {
     use common::{Location, SourceLocationKey, Span, WithLocation};
     use graphql_ir::{Argument, ConstantValue, VariableDefinition};
     use interner::Intern;
-    use schema::TypeReference;
+    use schema::{GraphQLSchema, TypeReference};
 
     use relay_test_schema::TEST_SCHEMA;
 

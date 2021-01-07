@@ -32,7 +32,7 @@ use relay_transforms::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
     REQUIRED_METADATA_KEY,
 };
-use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
+use schema::{EnumID, GraphQLSchema, ScalarID, Schema, Type, TypeReference};
 use std::fmt::Result;
 use std::hash::Hash;
 use writer::{Prop, AST, SPREAD_KEY};

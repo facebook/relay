@@ -7,12 +7,12 @@
 
 use crate::definitions::{Argument, Directive, *};
 use crate::errors::SchemaError;
+use crate::graphql_schema::GraphQLSchema;
 use common::{Diagnostic, DiagnosticsResult, Location};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::convert::TryInto;
-use std::fmt::{Result as FormatResult, Write};
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
@@ -49,173 +49,68 @@ pub struct Schema {
     unions: Vec<Union>,
 }
 
-impl Schema {
-    pub fn query_type(&self) -> Option<Type> {
+impl GraphQLSchema for Schema {
+    fn query_type(&self) -> Option<Type> {
         self.query_type.as_ref().map(|x| Type::Object(*x))
     }
 
-    pub fn mutation_type(&self) -> Option<Type> {
+    fn mutation_type(&self) -> Option<Type> {
         self.mutation_type.as_ref().map(|x| Type::Object(*x))
     }
 
-    pub fn subscription_type(&self) -> Option<Type> {
+    fn subscription_type(&self) -> Option<Type> {
         self.subscription_type.as_ref().map(|x| Type::Object(*x))
     }
 
-    pub fn clientid_field(&self) -> FieldID {
+    fn clientid_field(&self) -> FieldID {
         self.clientid_field
     }
 
-    pub fn typename_field(&self) -> FieldID {
+    fn typename_field(&self) -> FieldID {
         self.typename_field
     }
 
-    pub fn fetch_token_field(&self) -> FieldID {
+    fn fetch_token_field(&self) -> FieldID {
         self.fetch_token_field
     }
 
-    pub fn get_type(&self, type_name: StringKey) -> Option<Type> {
+    fn get_type(&self, type_name: StringKey) -> Option<Type> {
         self.type_map.get(&type_name).cloned()
     }
 
-    /// A value that represents a type of unchecked arguments where we don't
-    /// have a type to instantiate the argument.
-    ///
-    /// TODO: we probably want to replace this with a proper `Unknown` type.
-    pub fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
-        self.unchecked_argument_type_sentinel.as_ref().unwrap()
+    fn get_directive(&self, name: StringKey) -> Option<&Directive> {
+        self.directives.get(&name)
     }
 
-    pub fn is_type_subtype_of(
-        &self,
-        maybe_subtype: &TypeReference,
-        super_type: &TypeReference,
-    ) -> bool {
-        match (maybe_subtype, super_type) {
-            (TypeReference::NonNull(of_sub), TypeReference::NonNull(of_super)) => {
-                self.is_type_subtype_of(of_sub, of_super)
-            }
-            // If supertype is non-null, maybeSubType must be non-nullable too
-            (_, TypeReference::NonNull(_)) => false,
-            // If supertype is nullable, maybeSubType may be non-nullable or nullable
-            (TypeReference::NonNull(of_sub), _) => self.is_type_subtype_of(of_sub, super_type),
-            (TypeReference::List(of_sub), TypeReference::List(of_super)) => {
-                self.is_type_subtype_of(of_sub, of_super)
-            }
-            // If supertype is a list, maybeSubType must be a list too
-            (_, TypeReference::List(_)) => false,
-            // If supertype is not a list, maybeSubType must also not be a list
-            (TypeReference::List(_), _) => false,
-            (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
-                self.is_named_type_subtype_of(*named_subtype, *named_supertype)
-            }
-        }
+    fn input_object(&self, id: InputObjectID) -> &InputObject {
+        &self.input_objects[id.as_usize()]
     }
 
-    pub fn is_named_type_subtype_of(&self, maybe_subtype: Type, super_type: Type) -> bool {
-        match (maybe_subtype, super_type) {
-            (Type::Object(sub_id), Type::Interface(super_id)) => {
-                // does object implement the interface
-                let object = self.object(sub_id);
-                object.interfaces.contains(&super_id)
-            }
-            (Type::Object(sub_id), Type::Union(super_id)) => {
-                // is object a member of the union
-                let union = self.union(super_id);
-                union.members.contains(&sub_id)
-            }
-            (Type::Interface(sub_id), Type::Interface(super_id)) => {
-                // does interface implement the interface
-                let interface = self.interface(sub_id);
-                sub_id == super_id || interface.interfaces.contains(&super_id)
-            }
-            _ => maybe_subtype == super_type,
-        }
+    fn enum_(&self, id: EnumID) -> &Enum {
+        &self.enums[id.as_usize()]
     }
 
-    pub fn are_overlapping_types(&self, a: Type, b: Type) -> bool {
-        if a == b {
-            return true;
-        };
-        match (a, b) {
-            (Type::Interface(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementing_objects;
-                self.interface(a)
-                    .implementing_objects
-                    .iter()
-                    .any(|x| b_implementors.contains(x))
-            }
-            (Type::Interface(a), Type::Union(b)) => {
-                let b_members = &self.union(b).members;
-                self.interface(a)
-                    .implementing_objects
-                    .iter()
-                    .any(|x| b_members.contains(x))
-            }
-            (Type::Interface(a), Type::Object(b)) => {
-                self.interface(a).implementing_objects.contains(&b)
-            }
-            (Type::Union(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementing_objects;
-                self.union(a)
-                    .members
-                    .iter()
-                    .any(|x| b_implementors.contains(x))
-            }
-            (Type::Union(a), Type::Union(b)) => {
-                let b_members = &self.union(b).members;
-                self.union(a).members.iter().any(|x| b_members.contains(x))
-            }
-            (Type::Union(a), Type::Object(b)) => self.union(a).members.contains(&b),
-            (Type::Object(a), Type::Interface(b)) => {
-                self.interface(b).implementing_objects.contains(&a)
-            }
-            (Type::Object(a), Type::Union(b)) => self.union(b).members.contains(&a),
-            (Type::Object(a), Type::Object(b)) => a == b,
-            _ => false, // todo: change Type representation to allow only Interface/Union/Object as input
-        }
+    fn scalar(&self, id: ScalarID) -> &Scalar {
+        &self.scalars[id.as_usize()]
     }
 
-    pub fn is_abstract_type(&self, type_: Type) -> bool {
-        type_.is_abstract_type()
+    fn field(&self, id: FieldID) -> &Field {
+        &self.fields[id.as_usize()]
     }
 
-    pub fn is_object(&self, type_: Type) -> bool {
-        type_.is_object()
+    fn object(&self, id: ObjectID) -> &Object {
+        &self.objects[id.as_usize()]
     }
 
-    pub fn is_interface(&self, type_: Type) -> bool {
-        type_.is_interface()
+    fn union(&self, id: UnionID) -> &Union {
+        &self.unions[id.as_usize()]
     }
 
-    pub fn is_string(&self, type_: Type) -> bool {
-        type_ == self.string_type.unwrap()
+    fn interface(&self, id: InterfaceID) -> &Interface {
+        &self.interfaces[id.as_usize()]
     }
 
-    fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
-        match type_ {
-            TypeReference::Named(inner) => {
-                write!(writer, "{}", self.get_type_name(*inner).lookup())
-            }
-            TypeReference::NonNull(of) => {
-                self.write_type_string(writer, of)?;
-                write!(writer, "!")
-            }
-            TypeReference::List(of) => {
-                write!(writer, "[")?;
-                self.write_type_string(writer, of)?;
-                write!(writer, "]")
-            }
-        }
-    }
-
-    pub fn get_type_string(&self, type_: &TypeReference) -> String {
-        let mut result = String::new();
-        self.write_type_string(&mut result, type_).unwrap();
-        result
-    }
-
-    pub fn get_type_name(&self, type_: Type) -> StringKey {
+    fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
             Type::Enum(id) => self.enums[id.as_usize()].name,
             Type::InputObject(id) => self.input_objects[id.as_usize()].name,
@@ -226,7 +121,7 @@ impl Schema {
         }
     }
 
-    pub fn is_extension_type(&self, type_: Type) -> bool {
+    fn is_extension_type(&self, type_: Type) -> bool {
         match type_ {
             Type::Enum(id) => self.enums[id.as_usize()].is_extension,
             Type::Interface(id) => self.interfaces[id.as_usize()].is_extension,
@@ -237,23 +132,15 @@ impl Schema {
         }
     }
 
-    pub fn get_directive(&self, name: StringKey) -> Option<&Directive> {
-        self.directives.get(&name)
+    fn is_string(&self, type_: Type) -> bool {
+        type_ == self.string_type.unwrap()
     }
 
-    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
-        self.directives.get_mut(&name)
+    fn is_id(&self, type_: Type) -> bool {
+        type_ == self.id_type.unwrap()
     }
 
-    pub fn is_extension_directive(&self, name: StringKey) -> bool {
-        if let Some(directive) = self.get_directive(name) {
-            directive.is_extension
-        } else {
-            panic!("Unknown directive {}.", name.lookup())
-        }
-    }
-
-    pub fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
+    fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
         // Special case for __typename and __id fields, which should not be in the list of type fields
         // but should be fine to select.
         let can_have_typename = parent_type.is_object() || parent_type.is_abstract_type();
@@ -297,36 +184,80 @@ impl Schema {
             .cloned()
     }
 
-    pub fn input_object(&self, id: InputObjectID) -> &InputObject {
-        &self.input_objects[id.as_usize()]
+    /// A value that represents a type of unchecked arguments where we don't
+    /// have a type to instantiate the argument.
+    ///
+    /// TODO: we probably want to replace this with a proper `Unknown` type.
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+        self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
-    pub fn enum_(&self, id: EnumID) -> &Enum {
-        &self.enums[id.as_usize()]
-    }
+    fn snapshot_print(self) -> String {
+        let Self {
+            query_type,
+            mutation_type,
+            subscription_type,
+            directives,
+            clientid_field: _clientid_field,
+            typename_field: _typename_field,
+            fetch_token_field: _fetch_token_field,
+            clientid_field_name: _clientid_field_name,
+            typename_field_name: _typename_field_name,
+            fetch_token_field_name: _fetch_token_field_name,
+            string_type: _string_type,
+            id_type: _id_type,
+            unchecked_argument_type_sentinel: _unchecked_argument_type_sentinel,
+            type_map,
+            enums,
+            fields,
+            input_objects,
+            interfaces,
+            objects,
+            scalars,
+            unions,
+        } = self;
+        let ordered_type_map: BTreeMap<String, Type> = type_map
+            .into_iter()
+            .map(|(key, value)| (key.lookup().to_owned(), value))
+            .collect();
 
-    pub fn scalar(&self, id: ScalarID) -> &Scalar {
-        &self.scalars[id.as_usize()]
-    }
+        let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
+        ordered_directives.sort_by_key(|dir| dir.name.lookup());
 
-    pub fn field(&self, id: FieldID) -> &Field {
-        &self.fields[id.as_usize()]
+        format!(
+            r#"Schema {{
+ query_type: {:#?}
+ mutation_type: {:#?}
+ subscription_type: {:#?}
+ directives: {:#?}
+ type_map: {:#?}
+ enums: {:#?}
+ fields: {:#?}
+ input_objects: {:#?}
+ interfaces: {:#?}
+ objects: {:#?}
+ scalars: {:#?}
+ unions: {:#?}
+ }}"#,
+            query_type,
+            mutation_type,
+            subscription_type,
+            ordered_directives,
+            ordered_type_map,
+            enums,
+            fields,
+            input_objects,
+            interfaces,
+            objects,
+            scalars,
+            unions,
+        )
     }
+}
 
-    pub fn object(&self, id: ObjectID) -> &Object {
-        &self.objects[id.as_usize()]
-    }
-
-    pub fn union(&self, id: UnionID) -> &Union {
-        &self.unions[id.as_usize()]
-    }
-
-    pub fn interface(&self, id: InterfaceID) -> &Interface {
-        &self.interfaces[id.as_usize()]
-    }
-
-    pub fn is_id(&self, type_: Type) -> bool {
-        type_ == self.id_type.unwrap()
+impl Schema {
+    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+        self.directives.get_mut(&name)
     }
 
     pub fn get_type_map(&self) -> impl Iterator<Item = (&StringKey, &Type)> {
@@ -809,7 +740,7 @@ impl Schema {
         Ok(schema)
     }
 
-    pub fn load_defaults(&mut self) {
+    fn load_defaults(&mut self) {
         self.load_default_root_types();
         self.load_default_typename_field();
         self.load_default_fetch_token_field();
@@ -1322,68 +1253,6 @@ impl Schema {
                 }
             })
             .collect()
-    }
-
-    pub fn snapshot_print(self) -> String {
-        let Self {
-            query_type,
-            mutation_type,
-            subscription_type,
-            directives,
-            clientid_field: _clientid_field,
-            typename_field: _typename_field,
-            fetch_token_field: _fetch_token_field,
-            clientid_field_name: _clientid_field_name,
-            typename_field_name: _typename_field_name,
-            fetch_token_field_name: _fetch_token_field_name,
-            string_type: _string_type,
-            id_type: _id_type,
-            unchecked_argument_type_sentinel: _unchecked_argument_type_sentinel,
-            type_map,
-            enums,
-            fields,
-            input_objects,
-            interfaces,
-            objects,
-            scalars,
-            unions,
-        } = self;
-        let ordered_type_map: BTreeMap<String, Type> = type_map
-            .into_iter()
-            .map(|(key, value)| (key.lookup().to_owned(), value))
-            .collect();
-
-        let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
-        ordered_directives.sort_by_key(|dir| dir.name.lookup());
-
-        format!(
-            r#"Schema {{
- query_type: {:#?}
- mutation_type: {:#?}
- subscription_type: {:#?}
- directives: {:#?}
- type_map: {:#?}
- enums: {:#?}
- fields: {:#?}
- input_objects: {:#?}
- interfaces: {:#?}
- objects: {:#?}
- scalars: {:#?}
- unions: {:#?}
- }}"#,
-            query_type,
-            mutation_type,
-            subscription_type,
-            ordered_directives,
-            ordered_type_map,
-            enums,
-            fields,
-            input_objects,
-            interfaces,
-            objects,
-            scalars,
-            unions,
-        )
     }
 }
 

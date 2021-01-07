@@ -13,7 +13,7 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::Schema;
+use schema::{GraphQLSchema, Schema};
 use std::fmt::{Result, Write};
 
 const TAB_SIZE: usize = 2;

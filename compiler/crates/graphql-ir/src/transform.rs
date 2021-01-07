@@ -69,7 +69,7 @@ pub trait Transformer {
 
         // Special-case for empty selections
         if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
+            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
                 return Transformed::Delete;
             }
         }

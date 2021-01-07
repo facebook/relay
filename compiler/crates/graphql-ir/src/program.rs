@@ -9,19 +9,19 @@ use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use indexmap::IndexMap;
 use interner::StringKey;
 use rayon::{iter::ParallelIterator, prelude::*};
-use schema::Schema;
+use schema::SDLSchema;
 use std::sync::Arc;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
 pub struct Program {
-    pub schema: Arc<Schema>,
+    pub schema: Arc<SDLSchema>,
     fragments: IndexMap<StringKey, Arc<FragmentDefinition>>,
     operations: Vec<Arc<OperationDefinition>>,
 }
 
 impl Program {
-    pub fn new(schema: Arc<Schema>) -> Self {
+    pub fn new(schema: Arc<SDLSchema>) -> Self {
         Self {
             schema,
             fragments: Default::default(),
@@ -29,7 +29,10 @@ impl Program {
         }
     }
 
-    pub fn from_definitions(schema: Arc<Schema>, definitions: Vec<ExecutableDefinition>) -> Self {
+    pub fn from_definitions(
+        schema: Arc<SDLSchema>,
+        definitions: Vec<ExecutableDefinition>,
+    ) -> Self {
         let mut operations = Vec::new();
         let mut fragments = IndexMap::new();
         for definition in definitions {

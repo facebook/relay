@@ -18,7 +18,7 @@ use graphql_ir::{Program, Value};
 use graphql_text_printer::print_value;
 use interner::StringKey;
 use lsp_types::{request::HoverRequest, request::Request, Hover};
-use schema::{GraphQLSchema, Schema};
+use schema::{SDLSchema, Schema};
 use schema_print::print_directive;
 use std::{
     collections::HashMap,
@@ -73,7 +73,7 @@ DEPRECATED version of `@arguments` directive.
 
 fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
-    schema: &Schema,
+    schema: &SDLSchema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
     extra_data_provider: &Box<dyn LSPExtraDataProvider>,
 ) -> Option<HoverContents> {

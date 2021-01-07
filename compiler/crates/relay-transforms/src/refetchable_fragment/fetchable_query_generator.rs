@@ -18,11 +18,11 @@ use graphql_ir::{
 };
 use graphql_syntax::{ConstantValue, OperationKind};
 use interner::{Intern, StringKey};
-use schema::{Argument as ArgumentDef, FieldID, GraphQLSchema, Schema, Type};
+use schema::{Argument as ArgumentDef, FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
@@ -112,7 +112,7 @@ fn build_refetch_operation(
 
 fn get_fetchable_field_name<'schema>(
     fragment: &FragmentDefinition,
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
 ) -> DiagnosticsResult<Option<StringKey>> {
     if let Type::Object(id) = fragment.type_condition {
         let object = schema.object(id);
@@ -136,7 +136,7 @@ fn get_fetchable_field_name<'schema>(
 
 fn get_identifier_field_id(
     fragment: &FragmentDefinition,
-    schema: &Schema,
+    schema: &SDLSchema,
     identifier_field_name: StringKey,
 ) -> DiagnosticsResult<FieldID> {
     let identifier_field_id = schema.named_field(fragment.type_condition, identifier_field_name);
@@ -158,7 +158,7 @@ fn get_identifier_field_id(
 
 fn get_fetch_field_id_and_id_arg<'s>(
     fragment: &FragmentDefinition,
-    schema: &'s Schema,
+    schema: &'s SDLSchema,
     query_type: Type,
     fetch_field_name: StringKey,
 ) -> DiagnosticsResult<(FieldID, &'s ArgumentDef)> {

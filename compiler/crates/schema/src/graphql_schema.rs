@@ -9,7 +9,7 @@ use crate::definitions::{Directive, *};
 use interner::StringKey;
 use std::fmt::{Result as FormatResult, Write};
 
-pub trait GraphQLSchema {
+pub trait Schema {
     fn query_type(&self) -> Option<Type>;
 
     fn mutation_type(&self) -> Option<Type>;

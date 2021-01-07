@@ -16,7 +16,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue,
 };
 use rayon::prelude::*;
-use schema::Schema;
+use schema::SDLSchema;
 use std::iter::Iterator;
 use std::sync::Arc;
 
@@ -124,7 +124,7 @@ struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
 struct SkipRedundantNodesTransform {
-    schema: Arc<Schema>,
+    schema: Arc<SDLSchema>,
     cache: Cache,
 }
 

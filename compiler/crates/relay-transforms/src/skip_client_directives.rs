@@ -6,7 +6,7 @@
  */
 
 use graphql_ir::{Directive, Program, Transformed, Transformer};
-use schema::GraphQLSchema;
+use schema::Schema;
 
 pub fn skip_client_directives(program: &Program) -> Program {
     let mut transform = SkipClientDirectives::new(program);

@@ -18,11 +18,11 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Argument as ArgumentDef, FieldID, GraphQLSchema, InterfaceID, Schema, Type};
+use schema::{Argument as ArgumentDef, FieldID, InterfaceID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
@@ -163,7 +163,7 @@ fn build_refetch_operation(
 }
 
 fn get_node_field_id_and_id_arg<'s>(
-    schema: &'s Schema,
+    schema: &'s SDLSchema,
     query_type: Type,
     fragment: &FragmentDefinition,
 ) -> DiagnosticsResult<(FieldID, &'s ArgumentDef)> {
@@ -187,7 +187,7 @@ fn get_node_field_id_and_id_arg<'s>(
 
 fn enforce_selections_with_id_field(
     fragment: &FragmentDefinition,
-    schema: &Schema,
+    schema: &SDLSchema,
     id_field_id: FieldID,
     node_interface_id: Option<InterfaceID>,
 ) -> Vec<Selection> {

@@ -8,8 +8,8 @@
 use fixture_tests::Fixture;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use schema::{
-    build_schema, build_schema_from_flat_buffer, build_schema_with_extensions, GraphQLSchema,
-    Schema, Type,
+    build_schema, build_schema_from_flat_buffer, build_schema_with_extensions, SDLSchema, Schema,
+    Type,
 };
 use schema_print::serialize_as_fb;
 use std::collections::BTreeMap;
@@ -27,7 +27,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }
 
-fn print_schema_and_flat_buffer_schema(schema: Schema) -> String {
+fn print_schema_and_flat_buffer_schema(schema: SDLSchema) -> String {
     let bytes = serialize_as_fb(&schema);
     let fb_schema = build_schema_from_flat_buffer(&bytes).unwrap();
     let mut objects = Vec::new();

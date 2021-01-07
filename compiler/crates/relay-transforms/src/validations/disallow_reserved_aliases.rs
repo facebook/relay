@@ -9,7 +9,7 @@ use common::{Diagnostic, DiagnosticsResult, WithLocation};
 use errors::validate;
 use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
 use interner::{Intern, StringKey};
-use schema::{FieldID, GraphQLSchema, Schema};
+use schema::{FieldID, SDLSchema, Schema};
 
 pub fn disallow_reserved_aliases(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowReservedAliases::new(program);
@@ -66,7 +66,7 @@ impl Validator for DisallowReservedAliases<'_> {
 }
 
 fn validate_field_alias(
-    schema: &Schema,
+    schema: &SDLSchema,
     reserved_aliases: &[StringKey],
     alias: &WithLocation<StringKey>,
     field: FieldID,
@@ -88,7 +88,7 @@ fn validate_field_alias(
 }
 
 fn validate_field_alias_once(
-    schema: &Schema,
+    schema: &SDLSchema,
     reserved_alias: StringKey,
     alias: &WithLocation<StringKey>,
     field: FieldID,

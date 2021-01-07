@@ -22,7 +22,7 @@ use futures::future::join_all;
 use graphql_ir::Program;
 use log::info;
 use rayon::prelude::*;
-use schema::Schema;
+use schema::SDLSchema;
 use std::{collections::HashMap, collections::HashSet, sync::Arc};
 use tokio::{sync::Notify, task};
 
@@ -60,7 +60,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> (HashMap<ProjectName, Arc<Schema>>, Vec<Diagnostic>) {
+    ) -> (HashMap<ProjectName, Arc<SDLSchema>>, Vec<Diagnostic>) {
         let mut errors: Vec<Diagnostic> = vec![];
         let timer = setup_event.start("build_schemas");
         let mut schemas = HashMap::default();
@@ -84,7 +84,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     pub fn build_raw_programs(
         &self,
         compiler_state: &CompilerState,
-        schemas: &HashMap<ProjectName, Arc<Schema>>,
+        schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
         affected_projects: Option<HashSet<&ProjectName>>, // for watch-mode to filter-out unchanged projects
         setup_event: &impl PerfLogEvent,
     ) -> Result<(HashMap<ProjectName, Program>, Vec<BuildProjectError>)> {

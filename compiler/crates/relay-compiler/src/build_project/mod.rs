@@ -40,7 +40,7 @@ use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
 use log::info;
 use relay_codegen::Printer;
-use schema::Schema;
+use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::validate;
@@ -56,7 +56,7 @@ pub enum BuildProjectFailure {
 pub fn build_raw_program(
     project_config: &ProjectConfig,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
-    schema: Arc<Schema>,
+    schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
 ) -> Result<Program, BuildProjectError> {
     let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
@@ -74,7 +74,7 @@ fn build_programs(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
-    schema: Arc<Schema>,
+    schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(Programs, Arc<SourceHashes>), BuildProjectFailure> {
@@ -134,7 +134,7 @@ pub fn build_project(
     compiler_state: &CompilerState,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
-) -> Result<(ProjectName, Arc<Schema>, Programs, Vec<Artifact>), BuildProjectFailure> {
+) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name.lookup();
@@ -189,7 +189,7 @@ pub async fn commit_project(
     config: &Config,
     project_config: &ProjectConfig,
     perf_logger: Arc<impl PerfLogger + 'static>,
-    schema: &Schema,
+    schema: &SDLSchema,
     programs: Programs,
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,

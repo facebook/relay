@@ -18,7 +18,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{GraphQLSchema, Schema, Type};
+use schema::{SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 lazy_static! {
@@ -203,7 +203,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
     }
 }
 
-fn has_typename_field(schema: &Schema, selections: &[Selection]) -> bool {
+fn has_typename_field(schema: &SDLSchema, selections: &[Selection]) -> bool {
     let typename_field = schema.typename_field();
     selections.iter().any(|x| match x {
         Selection::ScalarField(child) => {
@@ -214,7 +214,7 @@ fn has_typename_field(schema: &Schema, selections: &[Selection]) -> bool {
 }
 
 fn generate_abstract_key_field(
-    schema: &Schema,
+    schema: &SDLSchema,
     type_: Type,
     location: Location,
     is_for_codegen: bool,

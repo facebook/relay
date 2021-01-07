@@ -12,7 +12,7 @@ use graphql_ir::{
     ScalarField, Transformed, Transformer,
 };
 use interner::StringKey;
-use schema::GraphQLSchema;
+use schema::Schema;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema

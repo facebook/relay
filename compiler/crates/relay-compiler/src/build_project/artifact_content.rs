@@ -15,7 +15,7 @@ use relay_transforms::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
 };
 use relay_typegen::generate_fragment_type;
-use schema::Schema;
+use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
 use std::sync::Arc;
@@ -49,7 +49,7 @@ impl ArtifactContent {
         config: &Config,
         project_config: &ProjectConfig,
         printer: &mut Printer,
-        schema: &Schema,
+        schema: &SDLSchema,
     ) -> Vec<u8> {
         match self {
             ArtifactContent::Operation {
@@ -151,7 +151,7 @@ fn generate_operation(
     config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer,
-    schema: &Schema,
+    schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
@@ -257,7 +257,7 @@ fn generate_operation(
 fn generate_split_operation(
     config: &Config,
     printer: &mut Printer,
-    schema: &Schema,
+    schema: &SDLSchema,
     node: &OperationDefinition,
     source_hash: &str,
 ) -> Vec<u8> {
@@ -294,7 +294,7 @@ fn generate_fragment(
     config: &Config,
     project_config: &ProjectConfig,
     printer: &mut Printer,
-    schema: &Schema,
+    schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
     source_hash: &str,

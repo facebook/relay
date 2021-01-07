@@ -14,7 +14,7 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::GraphQLSchema;
+use schema::Schema;
 
 lazy_static! {
     pub static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();

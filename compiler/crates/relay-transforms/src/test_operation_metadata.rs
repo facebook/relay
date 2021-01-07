@@ -14,7 +14,7 @@ use graphql_ir::{
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{EnumValue, Field, GraphQLSchema, Schema, Type};
+use schema::{EnumValue, Field, SDLSchema, Schema, Type};
 
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();
@@ -150,7 +150,7 @@ pub struct RelayTestOperationSelectionTypeInfo {
 }
 
 impl RelayTestOperationSelectionTypeInfo {
-    fn new(schema: &Schema, field: &Field) -> Self {
+    fn new(schema: &SDLSchema, field: &Field) -> Self {
         let type_ = field.type_.inner();
         RelayTestOperationSelectionTypeInfo {
             type_: schema.get_type_name(type_),
@@ -170,7 +170,7 @@ pub struct RelayTestOperationMetadata {
 }
 
 impl RelayTestOperationMetadata {
-    pub fn new(schema: &Schema, selections: &[Selection]) -> Self {
+    pub fn new(schema: &SDLSchema, selections: &[Selection]) -> Self {
         let mut selection_type_info: IndexMap<StringKey, RelayTestOperationSelectionTypeInfo> =
             Default::default();
 

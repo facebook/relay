@@ -12,13 +12,13 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,
 };
 use interner::StringKey;
-use schema::{GraphQLSchema, Schema, Type};
+use schema::{SDLSchema, Schema, Type};
 
 /// Helper to assert and extract the expected selections for a connection
 /// field. This function will panic if the expected selections aren't present,
 /// with the assumption that the connection field has already been validated.
 pub fn assert_connection_selections<'s>(
-    schema: &'s Schema,
+    schema: &'s SDLSchema,
     selections: &'s [Selection],
     connection_interface: &ConnectionInterface,
 ) -> ((usize, &'s LinkedField), Option<(usize, &'s LinkedField)>) {
@@ -281,7 +281,7 @@ pub fn extract_connection_metadata_from_directive(
 /// Builds the selections that will be added to the edges selection
 /// by the connections transform
 pub fn build_edge_selections(
-    schema: &Schema,
+    schema: &SDLSchema,
     edge_type: Type,
     connection_interface: &ConnectionInterface,
 ) -> Selection {
@@ -325,7 +325,7 @@ pub fn build_edge_selections(
 /// Builds the selections that will be added to the page_info selection
 /// by the connections transform
 pub fn build_page_info_selections(
-    schema: &Schema,
+    schema: &SDLSchema,
     page_info_type: Type,
     connection_metadata: &ConnectionMetadata,
     connection_constants: ConnectionConstants,

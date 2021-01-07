@@ -17,11 +17,11 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{FieldID, GraphQLSchema, Schema, Type};
+use schema::{FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
@@ -70,7 +70,7 @@ fn build_refetch_operation(
 }
 
 fn get_viewer_field_id(
-    schema: &Schema,
+    schema: &SDLSchema,
     query_type: Type,
     fragment: &FragmentDefinition,
 ) -> DiagnosticsResult<FieldID> {

@@ -9,7 +9,7 @@ use common::{Diagnostic, DiagnosticsResult};
 use graphql_ir::{
     FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage, Validator,
 };
-use schema::GraphQLSchema;
+use schema::Schema;
 
 pub fn disallow_typename_on_root(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowTypenameOnRoot::new(program);

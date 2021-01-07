@@ -19,8 +19,7 @@ use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
 use schema::{
-    ArgumentDefinitions, Enum, FieldID, GraphQLSchema, InputObject, Scalar, Schema, Type,
-    TypeReference,
+    ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
 };
 
 lazy_static! {
@@ -69,7 +68,7 @@ pub struct BuilderOptions {
 /// a list of errors if the corpus is invalid.
 /// NOTE: Uses Relay defaults.
 pub fn build_ir_with_relay_options(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let signatures = build_signatures(schema, &definitions)?;
@@ -92,7 +91,7 @@ pub fn build_ir_with_relay_options(
 /// a list of errors if the corpus is invalid. `options` can be set to
 /// control the builder activities.
 pub fn build_ir_with_extra_features(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
     options: BuilderOptions,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
@@ -104,7 +103,7 @@ pub fn build_ir_with_extra_features(
 }
 
 pub fn build_type_annotation(
-    schema: &Schema,
+    schema: &SDLSchema,
     annotation: &graphql_syntax::TypeAnnotation,
     location: Location,
 ) -> DiagnosticsResult<TypeReference> {
@@ -123,7 +122,7 @@ pub fn build_type_annotation(
 }
 
 pub fn build_constant_value(
-    schema: &Schema,
+    schema: &SDLSchema,
     value: &graphql_syntax::ConstantValue,
     type_: &TypeReference,
     location: Location,
@@ -144,7 +143,7 @@ pub fn build_constant_value(
 }
 
 pub fn build_variable_definitions(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::VariableDefinition],
     location: Location,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
@@ -174,7 +173,7 @@ struct VariableUsage {
 }
 
 struct Builder<'schema, 'signatures> {
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     signatures: &'signatures FragmentSignatures,
     location: Location,
     defined_variables: VariableDefinitions,
@@ -184,7 +183,7 @@ struct Builder<'schema, 'signatures> {
 
 impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     pub fn new(
-        schema: &'schema Schema,
+        schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
         options: BuilderOptions,

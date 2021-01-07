@@ -17,7 +17,7 @@ use graphql_ir::{
 };
 use indexmap::IndexSet;
 use interner::{Intern, StringKey};
-use schema::{FieldID, GraphQLSchema, ScalarID, Type, TypeReference};
+use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 

@@ -16,7 +16,7 @@ use errors::{par_try_map, try2};
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{GraphQLSchema, Schema, Type, TypeReference};
+use schema::{SDLSchema, Schema, Type, TypeReference};
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
@@ -46,7 +46,7 @@ pub struct FragmentSignature {
 }
 
 pub fn build_signatures(
-    schema: &Schema,
+    schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<FragmentSignatures> {
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
@@ -82,7 +82,7 @@ pub fn build_signatures(
 }
 
 fn build_fragment_signature(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
 ) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
@@ -161,7 +161,7 @@ fn build_fragment_signature(
 }
 
 fn build_fragment_variable_definitions(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
     directive: &graphql_syntax::Directive,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
@@ -230,7 +230,7 @@ fn build_fragment_variable_definitions(
 }
 
 fn get_argument_type(
-    schema: &Schema,
+    schema: &SDLSchema,
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> DiagnosticsResult<TypeReference> {
@@ -276,7 +276,7 @@ fn get_argument_type(
 }
 
 fn get_default_value(
-    schema: &Schema,
+    schema: &SDLSchema,
     location: Location,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
     type_: &TypeReference,

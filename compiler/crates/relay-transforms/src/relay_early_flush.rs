@@ -13,7 +13,7 @@ use graphql_ir::{
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
-use schema::{Argument as ArgumentDef, FieldID, GraphQLSchema, Schema};
+use schema::{Argument as ArgumentDef, FieldID, SDLSchema, Schema};
 use std::sync::Arc;
 
 lazy_static! {
@@ -113,7 +113,7 @@ impl<'s> Transformer for RelayEarlyFlush<'s> {
 }
 
 fn get_early_flush_field_id_and_query_name_arg(
-    schema: &'_ Schema,
+    schema: &'_ SDLSchema,
     directive_loc: Location,
 ) -> Result<(FieldID, &'_ ArgumentDef), Diagnostic> {
     let query_type = schema.query_type().unwrap();

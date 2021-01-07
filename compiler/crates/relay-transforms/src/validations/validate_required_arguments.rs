@@ -13,7 +13,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{ArgumentDefinitions, GraphQLSchema};
+use schema::{ArgumentDefinitions, Schema};
 
 lazy_static! {
     pub static ref FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();

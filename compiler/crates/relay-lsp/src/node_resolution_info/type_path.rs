@@ -7,7 +7,7 @@
 
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::{Field, GraphQLSchema, Schema, Type, TypeReference};
+use schema::{Field, SDLSchema, Schema, Type, TypeReference};
 
 #[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf
@@ -23,7 +23,7 @@ pub enum TypePathItem {
 /// Given a root path item and the schema this function will return a root type of the document
 /// For operations -> Query/Mutation/Subscription
 /// For fragments -> type of the fragment
-fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Option<Type> {
+fn resolve_root_type(root_path_item: TypePathItem, schema: &SDLSchema) -> Option<Type> {
     match root_path_item {
         TypePathItem::Operation(kind) => match kind {
             OperationKind::Query => schema.query_type(),
@@ -41,7 +41,7 @@ fn resolve_root_type(root_path_item: TypePathItem, schema: &Schema) -> Option<Ty
 fn resolve_relative_type(
     parent_type: Type,
     path_item: TypePathItem,
-    schema: &Schema,
+    schema: &SDLSchema,
 ) -> Option<Type> {
     match path_item {
         TypePathItem::Operation(_) => {
@@ -65,7 +65,7 @@ fn resolve_relative_type(
 fn resolve_relative_type_for_current_item(
     parent_type: Type,
     path_item: TypePathItem,
-    schema: &Schema,
+    schema: &SDLSchema,
 ) -> Option<(TypeReference, Option<Field>)> {
     match path_item {
         TypePathItem::Operation(_) | TypePathItem::FragmentDefinition { .. } => None,
@@ -99,7 +99,7 @@ impl TypePath {
     }
 
     /// Returns the leaf type, which is the type that the completion request is being made against.
-    pub fn resolve_leaf_type(self, schema: &Schema) -> Option<Type> {
+    pub fn resolve_leaf_type(self, schema: &SDLSchema) -> Option<Type> {
         let mut type_path = self.0;
         type_path.reverse();
         let mut type_ =
@@ -111,7 +111,7 @@ impl TypePath {
     }
 
     /// Similar to `resolve_leaf_type` except for ScalarType it will return the type of the field itself
-    pub fn resolve_current_type_reference(self, schema: &Schema) -> Option<TypeReference> {
+    pub fn resolve_current_type_reference(self, schema: &SDLSchema) -> Option<TypeReference> {
         let mut type_path = self.0;
         type_path.reverse();
         let mut type_ = TypeReference::Named(resolve_root_type(
@@ -126,7 +126,7 @@ impl TypePath {
     }
 
     /// Returns the leaf is it is a field
-    pub fn resolve_current_field(self, schema: &Schema) -> Option<&Field> {
+    pub fn resolve_current_field(self, schema: &SDLSchema) -> Option<&Field> {
         let mut type_path = self.0;
         type_path.reverse();
         let mut type_ =

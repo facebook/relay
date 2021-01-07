@@ -9,7 +9,7 @@ use super::{artifact_content::ArtifactContent, Artifact, ProjectConfig};
 use common::SourceLocationKey;
 use graphql_ir::OperationDefinition;
 use interner::StringKey;
-use schema::Schema;
+use schema::SDLSchema;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -18,7 +18,7 @@ pub struct GenerateExtraArtifactArgs<'schema, 'artifact> {
     pub name: StringKey,
     pub normalization_operation: Arc<OperationDefinition>,
     pub project_config: &'artifact ProjectConfig,
-    pub schema: &'schema Schema,
+    pub schema: &'schema SDLSchema,
     pub source_file: SourceLocationKey,
     pub text: &'artifact str,
 }
@@ -27,7 +27,7 @@ pub type GenerateExtraArtifactsFn =
     Box<dyn for<'schema> Fn(GenerateExtraArtifactArgs<'schema, '_>) -> Vec<Artifact> + Send + Sync>;
 
 pub fn generate_extra_artifacts(
-    schema: &Schema,
+    schema: &SDLSchema,
     project_config: &ProjectConfig,
     artifacts: &mut Vec<Artifact>,
     generate_extra_operation_artifacts_fn: &GenerateExtraArtifactsFn,

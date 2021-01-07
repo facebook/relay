@@ -348,7 +348,7 @@ mod test {
     use graphql_syntax::parse_executable;
     use interner::Intern;
     use relay_test_schema::get_test_schema;
-    use schema::GraphQLSchema;
+    use schema::Schema;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
         let document = parse_executable(

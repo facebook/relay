@@ -18,7 +18,7 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
-use schema::Schema;
+use schema::SDLSchema;
 use schema_diff::detect_changes;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -191,7 +191,7 @@ pub struct CompilerState {
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
-    pub schema_cache: FnvHashMap<ProjectName, Arc<Schema>>,
+    pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
 }
 
 impl CompilerState {

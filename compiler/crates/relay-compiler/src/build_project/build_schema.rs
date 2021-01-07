@@ -8,13 +8,13 @@
 use crate::compiler_state::CompilerState;
 use crate::config::ProjectConfig;
 use common::DiagnosticsResult;
-use schema::Schema;
+use schema::SDLSchema;
 use std::sync::Arc;
 
 pub fn build_schema(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
-) -> DiagnosticsResult<Arc<Schema>> {
+) -> DiagnosticsResult<Arc<SDLSchema>> {
     let schema = compiler_state.schema_cache.get(&project_config.name);
     match schema {
         Some(schema) if !compiler_state.project_has_pending_schema_changes(project_config.name) => {

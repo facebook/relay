@@ -17,7 +17,7 @@ use std::{
 
 const DEAULT_SHARD_COUNT: usize = 1;
 
-pub fn print(schema: &Schema) -> String {
+pub fn print(schema: &SDLSchema) -> String {
     let mut builder: String = String::new();
     write!(
         builder,
@@ -30,7 +30,7 @@ pub fn print(schema: &Schema) -> String {
     builder
 }
 
-pub fn print_schema_definition(schema: &Schema) -> String {
+pub fn print_schema_definition(schema: &SDLSchema) -> String {
     if is_schema_of_common_name(schema) {
         return String::new();
     }
@@ -39,29 +39,29 @@ pub fn print_schema_definition(schema: &Schema) -> String {
     result.first().unwrap().to_owned()
 }
 
-pub fn print_directives(schema: &Schema) -> String {
+pub fn print_directives(schema: &SDLSchema) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_directives(schema, &mut result).unwrap();
     result.first().unwrap().to_owned()
 }
 
-pub fn print_directive(schema: &Schema, directive: &Directive) -> String {
+pub fn print_directive(schema: &SDLSchema, directive: &Directive) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_directive(schema, &mut result, directive).unwrap();
     result.first().unwrap().to_owned()
 }
 
-pub fn print_types(schema: &Schema) -> String {
+pub fn print_types(schema: &SDLSchema) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_types(schema, &mut result).unwrap();
     result.first().unwrap().to_owned()
 }
 
-/// Returns a sharded GraphQL Schema
+/// Returns a sharded GraphQL SDLSchema
 ///
 /// # Arguments
 ///
-/// * `schema` - GraphQL Schema
+/// * `schema` - GraphQL SDLSchema
 ///
 /// * `shard_count` - Total shard count. Returned vec will have this size.
 ///
@@ -69,7 +69,7 @@ pub fn print_types(schema: &Schema) -> String {
 /// For e.g you might want to shard Query type because its huge.
 /// Sum of all the shard counts provided here must be less than shard_count param.
 pub fn print_types_directives_as_shards(
-    schema: &Schema,
+    schema: &SDLSchema,
     shard_count: usize,
     type_shard_count: FnvHashMap<StringKey, usize>,
 ) -> Vec<String> {
@@ -106,34 +106,34 @@ pub fn print_types_directives_as_shards(
     shards
 }
 
-pub fn print_type(schema: &Schema, type_: Type) -> String {
+pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_type(schema, &mut result, type_).unwrap();
     result.first().unwrap().to_owned()
 }
 
-fn write_schema_definition(schema: &Schema, result: &mut Vec<String>) -> Result {
+fn write_schema_definition(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
     let mut printer = Printer::new(&schema, result);
     printer.print_schema_definition()
 }
 
-fn write_directives(schema: &Schema, result: &mut Vec<String>) -> Result {
+fn write_directives(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
     let mut printer = Printer::new(&schema, result);
     printer.print_directives()
 }
 
-fn write_directive(schema: &Schema, result: &mut Vec<String>, directive: &Directive) -> Result {
+fn write_directive(schema: &SDLSchema, result: &mut Vec<String>, directive: &Directive) -> Result {
     let mut printer = Printer::new(&schema, result);
     printer.print_directive(directive)
 }
 
-fn write_types(schema: &Schema, result: &mut Vec<String>) -> Result {
+fn write_types(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
     let mut printer = Printer::new(&schema, result);
     printer.print_types()
 }
 
 fn write_types_as_shards<'a>(
-    schema: &Schema,
+    schema: &SDLSchema,
     shards: &'a mut Vec<String>,
     shard_count: usize,
     type_shards: &'a mut FnvHashMap<StringKey, Vec<String>>,
@@ -142,13 +142,13 @@ fn write_types_as_shards<'a>(
     printer.print_types()
 }
 
-fn write_type(schema: &Schema, result: &mut Vec<String>, type_: Type) -> Result {
+fn write_type(schema: &SDLSchema, result: &mut Vec<String>, type_: Type) -> Result {
     let mut printer = Printer::new(&schema, result);
     printer.print_type(type_)
 }
 
 struct Printer<'schema, 'writer> {
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     // Each writer here represents a shard
     writers: &'writer mut Vec<String>,
     // Index to specify which shard to write for a given type
@@ -163,7 +163,7 @@ struct Printer<'schema, 'writer> {
 }
 
 impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
-    fn new(schema: &'schema Schema, writers: &'writer mut Vec<String>) -> Self {
+    fn new(schema: &'schema SDLSchema, writers: &'writer mut Vec<String>) -> Self {
         Self {
             schema,
             writers_index: 0,
@@ -175,7 +175,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 
     fn new_with_shards(
-        schema: &'schema Schema,
+        schema: &'schema SDLSchema,
         writers: &'writer mut Vec<String>,
         shard_count: usize,
         type_writers: Option<&'writer mut FnvHashMap<StringKey, Vec<String>>>,
@@ -500,7 +500,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 }
 
-fn is_schema_of_common_name(schema: &Schema) -> bool {
+fn is_schema_of_common_name(schema: &SDLSchema) -> bool {
     match schema.query_type() {
         Some(_) => {}
         None => return false,

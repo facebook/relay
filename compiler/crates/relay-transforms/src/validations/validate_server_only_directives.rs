@@ -13,7 +13,7 @@ use graphql_ir::{
     ValidationMessage, Validator,
 };
 use interner::{Intern, StringKey};
-use schema::GraphQLSchema;
+use schema::Schema;
 use std::iter::FromIterator;
 
 pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<()> {

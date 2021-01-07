@@ -15,7 +15,7 @@ use graphql_ir::{
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
-use schema::GraphQLSchema;
+use schema::Schema;
 use std::sync::Arc;
 
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments

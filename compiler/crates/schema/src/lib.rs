@@ -26,20 +26,20 @@ pub use definitions::{
 pub use errors::{Result, SchemaError};
 pub use flatbuffer::graphqlschema::*;
 use flatbuffer::FlatBufferSchema;
-pub use graphql_schema::GraphQLSchema;
+pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use sdl::Schema;
+pub use sdl::SDLSchema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 
-pub fn build_schema(sdl: &str) -> DiagnosticsResult<Schema> {
+pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[sdl], &[])
 }
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
     extension_sdls: &[U],
-) -> DiagnosticsResult<Schema> {
+) -> DiagnosticsResult<SDLSchema> {
     let mut server_definitions = builtins()?;
     let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
@@ -62,7 +62,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
         );
     }
 
-    Schema::build(&server_definitions, &extension_definitions)
+    SDLSchema::build(&server_definitions, &extension_definitions)
 }
 
 pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {

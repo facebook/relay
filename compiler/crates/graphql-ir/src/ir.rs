@@ -9,7 +9,7 @@ use common::{Location, Named, WithLocation};
 use graphql_syntax::{FloatValue, OperationKind};
 use interner::StringKey;
 use schema::{FieldID, Type, TypeReference};
-use schema::{GraphQLSchema, Schema};
+use schema::{SDLSchema, Schema};
 use std::fmt;
 use std::sync::Arc;
 // Definitions
@@ -167,7 +167,7 @@ pub struct LinkedField {
 }
 
 impl LinkedField {
-    pub fn alias_or_name(&self, schema: &Schema) -> StringKey {
+    pub fn alias_or_name(&self, schema: &SDLSchema) -> StringKey {
         if let Some(name) = self.alias {
             name.item
         } else {
@@ -193,7 +193,7 @@ pub struct ScalarField {
 }
 
 impl ScalarField {
-    pub fn alias_or_name(&self, schema: &Schema) -> StringKey {
+    pub fn alias_or_name(&self, schema: &SDLSchema) -> StringKey {
         if let Some(name) = self.alias {
             name.item
         } else {

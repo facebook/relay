@@ -15,14 +15,14 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, ValidationMessage,
 };
 use interner::StringKey;
-use schema::{GraphQLSchema, Type};
+use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use rayon::prelude::*;
-use schema::Schema;
+use schema::SDLSchema;
 use std::sync::Arc;
 
 type SeenLinkedFields = Arc<RwLock<FnvHashMap<PointerAddress, Arc<LinkedField>>>>;
@@ -76,7 +76,7 @@ pub fn flatten(program: &Program, is_for_codegen: bool) -> DiagnosticsResult<Pro
 }
 
 struct FlattenTransform {
-    schema: Arc<Schema>,
+    schema: Arc<SDLSchema>,
     is_for_codegen: bool,
     seen_linked_fields: SeenLinkedFields,
     seen_inline_fragments: SeenInlineFragments,

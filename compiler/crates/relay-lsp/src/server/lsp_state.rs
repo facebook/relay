@@ -20,7 +20,7 @@ use relay_compiler::{
     compiler::Compiler, compiler_state::CompilerState, config::Config, FileCategorizer, FileSource,
     FileSourceSubscription,
 };
-use schema::Schema;
+use schema::SDLSchema;
 use std::fmt;
 use std::{
     collections::{HashMap, HashSet},
@@ -72,7 +72,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     root_dir: PathBuf,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
-    schemas: Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
+    schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     errors: Arc<RwLock<Vec<LSPStateError>>>,
@@ -226,7 +226,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         });
     }
 
-    pub(crate) fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<Schema>>>> {
+    pub(crate) fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>> {
         self.schemas.clone()
     }
 
@@ -327,7 +327,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: &Arc<Config>,
         compiler: &Compiler<TPerfLogger>,
         compiler_state: &mut CompilerState,
-        schemas: &Arc<RwLock<HashMap<StringKey, Arc<Schema>>>>,
+        schemas: &Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
         source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
         perf_logger: Arc<TPerfLogger>,
         log_event: &impl PerfLogEvent,

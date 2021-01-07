@@ -14,7 +14,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use interner::StringKey;
 use md5::{Digest, Md5};
-use schema::Schema;
+use schema::SDLSchema;
 
 pub struct BuildIRResult {
     pub ir: Vec<graphql_ir::ExecutableDefinition>,
@@ -43,7 +43,7 @@ impl SourceHashes {
 
 pub fn build_ir(
     project_config: &ProjectConfig,
-    schema: &Schema,
+    schema: &SDLSchema,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<Diagnostic>> {

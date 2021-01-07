@@ -14,7 +14,7 @@ use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
 use schema::{
-    EnumID, Field, FieldID, GraphQLSchema, InputObjectID, Interface, Schema, Type, TypeReference,
+    EnumID, Field, FieldID, InputObjectID, Interface, SDLSchema, Schema, Type, TypeReference,
     TypeWithFields, UnionID,
 };
 use schema_print::{print_directive, print_type};
@@ -40,7 +40,7 @@ lazy_static! {
     static ref TYPE_NAME_REGEX: Regex = Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap();
 }
 
-pub fn validate(schema: &Schema) -> ValidationContext<'_> {
+pub fn validate(schema: &SDLSchema) -> ValidationContext<'_> {
     let mut validation_context = ValidationContext::new(schema);
     validation_context.validate();
     validation_context
@@ -64,12 +64,12 @@ impl ValidationContextType {
 }
 
 pub struct ValidationContext<'schema> {
-    pub schema: &'schema Schema,
+    pub schema: &'schema SDLSchema,
     pub errors: Mutex<FnvHashMap<ValidationContextType, Vec<SchemaValidationError>>>,
 }
 
 impl<'schema> ValidationContext<'schema> {
-    pub fn new(schema: &'schema Schema) -> Self {
+    pub fn new(schema: &'schema SDLSchema) -> Self {
         Self {
             schema,
             errors: Mutex::new(FnvHashMap::default()),

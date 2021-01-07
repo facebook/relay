@@ -14,7 +14,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{GraphQLSchema, TypeReference};
+use schema::{Schema, TypeReference};
 
 lazy_static! {
     pub static ref DATA_DRIVEN_DEPENDENCY_METADATA_KEY: StringKey =

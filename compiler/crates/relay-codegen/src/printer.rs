@@ -15,23 +15,23 @@ use crate::indentation::print_indentation;
 use crate::utils::escape;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use schema::Schema;
+use schema::SDLSchema;
 
 use fnv::{FnvBuildHasher, FnvHashSet};
 use indexmap::IndexMap;
 use interner::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
-pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
+pub fn print_operation(schema: &SDLSchema, operation: &OperationDefinition) -> String {
     Printer::without_dedupe().print_operation(schema, operation)
 }
 
-pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
+pub fn print_fragment(schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
     Printer::without_dedupe().print_fragment(schema, fragment)
 }
 
 pub fn print_request(
-    schema: &Schema,
+    schema: &SDLSchema,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters,
@@ -40,7 +40,7 @@ pub fn print_request(
 }
 
 pub fn print_request_params(
-    schema: &Schema,
+    schema: &SDLSchema,
     operation: &OperationDefinition,
     query_id: Option<String>,
 ) -> String {
@@ -76,7 +76,7 @@ impl Printer {
 
     pub fn print_request(
         &mut self,
-        schema: &Schema,
+        schema: &SDLSchema,
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters,
@@ -94,13 +94,17 @@ impl Printer {
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_operation(&mut self, schema: &Schema, operation: &OperationDefinition) -> String {
+    pub fn print_operation(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+    ) -> String {
         let key = build_operation(schema, &mut self.builder, operation);
         let printer = JSONPrinter::new(&self.builder);
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_fragment(&mut self, schema: &Schema, fragment: &FragmentDefinition) -> String {
+    pub fn print_fragment(&mut self, schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
         let key = build_fragment(schema, &mut self.builder, fragment);
         let printer = JSONPrinter::new(&self.builder);
         printer.print(key, self.dedupe)

@@ -10,7 +10,7 @@ use crate::MATCH_CONSTANTS;
 use common::WithLocation;
 use graphql_ir::*;
 use interner::StringKey;
-use schema::Schema;
+use schema::SDLSchema;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 /**
@@ -28,7 +28,7 @@ pub enum NodeIdentifier {
 }
 
 impl NodeIdentifier {
-    pub fn from_selection(schema: &Schema, selection: &Selection) -> Self {
+    pub fn from_selection(schema: &SDLSchema, selection: &Selection) -> Self {
         match selection {
             Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier(
                 Arc::clone(&node),
@@ -44,7 +44,7 @@ impl NodeIdentifier {
         }
     }
 
-    pub fn are_equal(schema: &Schema, a: &Selection, b: &Selection) -> bool {
+    pub fn are_equal(schema: &SDLSchema, a: &Selection, b: &Selection) -> bool {
         match (a, b) {
             (Selection::FragmentSpread(a), Selection::FragmentSpread(b)) => {
                 a.fragment.item == b.fragment.item && a.arguments.location_agnostic_eq(&b.arguments)

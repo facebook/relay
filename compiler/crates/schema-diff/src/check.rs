@@ -8,11 +8,11 @@
 use crate::definitions::{ArgumentChange, DefinitionChange, SchemaChange, Type, TypeChange};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{GraphQLSchema, Schema};
+use schema::{SDLSchema, Schema};
 
 /// Return if the changes are safe to skip full rebuild.
 impl SchemaChange {
-    pub fn is_safe(self: &SchemaChange, schema: &Schema) -> bool {
+    pub fn is_safe(self: &SchemaChange, schema: &SDLSchema) -> bool {
         match self {
             SchemaChange::None => true,
             SchemaChange::GenericChange => false,
@@ -83,7 +83,7 @@ lazy_static! {
 ///   }
 /// But we have a special case for `Node`. The `id` field is automatically
 /// added to the selection for all types that implements `Node`.
-fn is_object_add_safe(name: StringKey, schema: &Schema) -> bool {
+fn is_object_add_safe(name: StringKey, schema: &SDLSchema) -> bool {
     if let schema::Type::Object(id) = schema.get_type(name).unwrap() {
         let object = schema.object(id);
         if object

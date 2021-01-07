@@ -25,7 +25,7 @@ use lazy_static::lazy_static;
 use log::info;
 use lsp_types::request::{Completion, Request};
 use schema::{
-    Argument as SchemaArgument, Directive as SchemaDirective, GraphQLSchema, Schema, Type,
+    Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
 use std::{
@@ -512,7 +512,7 @@ impl CompletionRequestBuilder {
 
 fn completion_items_for_request(
     request: CompletionRequest,
-    schema: &Schema,
+    schema: &SDLSchema,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -651,7 +651,7 @@ fn completion_items_for_request(
 
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
     arguments: impl Iterator<Item = T>,
-    schema: &Schema,
+    schema: &SDLSchema,
     existing_names: HashSet<StringKey>,
     has_colon: bool,
 ) -> Vec<CompletionItem> {
@@ -691,7 +691,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
 
 fn resolve_completion_items_for_inline_fragment_type(
     type_: Type,
-    schema: &Schema,
+    schema: &SDLSchema,
     existing_inline_fragment: bool,
 ) -> Vec<CompletionItem> {
     match type_ {
@@ -791,7 +791,7 @@ fn resolve_completion_items_for_argument_value(
 
 fn resolve_completion_items_from_fields<T: TypeWithFields>(
     type_: &T,
-    schema: &Schema,
+    schema: &SDLSchema,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -864,7 +864,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
     source_program: &Program,
-    schema: &Schema,
+    schema: &SDLSchema,
 ) -> Vec<CompletionItem> {
     let mut valid_fragments = vec![];
     for fragment in source_program.fragments() {
@@ -912,7 +912,10 @@ fn resolve_completion_items_for_fragment_spread(
     valid_fragments
 }
 
-fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) -> CompletionItem {
+fn completion_item_from_directive(
+    directive: &SchemaDirective,
+    schema: &SDLSchema,
+) -> CompletionItem {
     let SchemaDirective {
         name, arguments, ..
     } = directive;
@@ -960,7 +963,7 @@ fn completion_item_from_directive(directive: &SchemaDirective, schema: &Schema) 
 
 fn create_arguments_snippets<T: ArgumentLike>(
     arguments: impl Iterator<Item = T>,
-    schema: &Schema,
+    schema: &SDLSchema,
 ) -> Vec<String> {
     let mut cursor_location = 1;
     let mut args = vec![];

@@ -6,7 +6,7 @@
  */
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use schema::GraphQLSchema;
+use schema::Schema;
 mod requireable_field;
 
 use super::FeatureFlags;

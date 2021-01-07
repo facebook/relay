@@ -10,7 +10,7 @@ use crate::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use common::NamedItem;
 use fnv::FnvHashMap;
 use graphql_ir::{InlineFragment, Program, Selection, Transformed, TransformedValue, Transformer};
-use schema::GraphQLSchema;
+use schema::Schema;
 use std::sync::Arc;
 
 /// Maintain a few invariants:

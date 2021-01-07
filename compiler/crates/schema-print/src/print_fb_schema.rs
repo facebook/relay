@@ -15,13 +15,13 @@ use schema::*;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 
-pub fn serialize_as_fb(schema: &Schema) -> Vec<u8> {
+pub fn serialize_as_fb(schema: &SDLSchema) -> Vec<u8> {
     let mut serializer = Serializer::new(&schema);
     serializer.serialize_schema()
 }
 
 struct Serializer<'fb, 'schema> {
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     bldr: FlatBufferBuilder<'fb>,
     scalars: Vec<WIPOffset<FBScalar<'fb>>>,
     input_objects: Vec<WIPOffset<FBInputObject<'fb>>>,
@@ -36,7 +36,7 @@ struct Serializer<'fb, 'schema> {
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
-    fn new(schema: &'schema Schema) -> Self {
+    fn new(schema: &'schema SDLSchema) -> Self {
         Self {
             schema,
             bldr: FlatBufferBuilder::new(),

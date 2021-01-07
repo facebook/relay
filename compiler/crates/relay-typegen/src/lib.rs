@@ -32,7 +32,7 @@ use relay_transforms::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
     REQUIRED_METADATA_KEY,
 };
-use schema::{EnumID, GraphQLSchema, ScalarID, Schema, Type, TypeReference};
+use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::fmt::Result;
 use std::hash::Hash;
 use writer::{Prop, AST, SPREAD_KEY};
@@ -63,7 +63,7 @@ macro_rules! write_ast {
 
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
-    schema: &Schema,
+    schema: &SDLSchema,
     typegen_config: &TypegenConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(schema, typegen_config);
@@ -74,7 +74,7 @@ pub fn generate_fragment_type(
 pub fn generate_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
-    schema: &Schema,
+    schema: &SDLSchema,
     typegen_config: &TypegenConfig,
 ) -> String {
     let mut generator = TypeGenerator::new(schema, typegen_config);
@@ -97,7 +97,7 @@ struct RuntimeImports {
 
 struct TypeGenerator<'schema, 'config> {
     result: String,
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     used_enums: FnvHashSet<EnumID>,
@@ -108,7 +108,7 @@ struct TypeGenerator<'schema, 'config> {
     writer: Box<dyn Writer>,
 }
 impl<'schema, 'config> TypeGenerator<'schema, 'config> {
-    fn new(schema: &'schema Schema, typegen_config: &'config TypegenConfig) -> Self {
+    fn new(schema: &'schema SDLSchema, typegen_config: &'config TypegenConfig) -> Self {
         Self {
             result: String::new(),
             schema,

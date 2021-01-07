@@ -7,7 +7,7 @@
 
 use crate::definitions::{Argument, Directive, *};
 use crate::errors::SchemaError;
-use crate::graphql_schema::GraphQLSchema;
+use crate::graphql_schema::Schema;
 use common::{Diagnostic, DiagnosticsResult, Location};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
@@ -19,7 +19,7 @@ fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
 }
 
 #[derive(Debug)]
-pub struct Schema {
+pub struct SDLSchema {
     query_type: Option<ObjectID>,
     mutation_type: Option<ObjectID>,
     subscription_type: Option<ObjectID>,
@@ -49,7 +49,7 @@ pub struct Schema {
     unions: Vec<Union>,
 }
 
-impl GraphQLSchema for Schema {
+impl Schema for SDLSchema {
     fn query_type(&self) -> Option<Type> {
         self.query_type.as_ref().map(|x| Type::Object(*x))
     }
@@ -255,7 +255,7 @@ impl GraphQLSchema for Schema {
     }
 }
 
-impl Schema {
+impl SDLSchema {
     pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
         self.directives.get_mut(&name)
     }
@@ -570,8 +570,8 @@ impl Schema {
     /// Creates an uninitialized, invalid schema which can then be added to using the add_*
     /// methods. Note that we still bake in some assumptions about the clientid and typename
     /// fields, but in practice this is not an issue.
-    pub fn create_uninitialized() -> Schema {
-        Schema {
+    pub fn create_uninitialized() -> SDLSchema {
+        SDLSchema {
             query_type: None,
             mutation_type: None,
             subscription_type: None,
@@ -679,7 +679,7 @@ impl Schema {
             *type_map.get(&"Boolean".intern()).unwrap(),
         ));
 
-        let mut schema = Schema {
+        let mut schema = SDLSchema {
             query_type: None,
             mutation_type: None,
             subscription_type: None,

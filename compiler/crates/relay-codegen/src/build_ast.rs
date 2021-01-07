@@ -26,10 +26,10 @@ use relay_transforms::{
     PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, REQUIRED_METADATA_KEY,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
-use schema::{GraphQLSchema, Schema};
+use schema::{SDLSchema, Schema};
 
 pub fn build_request_params_ast_key(
-    schema: &Schema,
+    schema: &SDLSchema,
     request_parameters: RequestParameters,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
@@ -40,7 +40,7 @@ pub fn build_request_params_ast_key(
 }
 
 pub fn build_request(
-    schema: &Schema,
+    schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
@@ -83,7 +83,7 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
 }
 
 pub fn build_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
 ) -> AstKey {
@@ -92,7 +92,7 @@ pub fn build_operation(
 }
 
 pub fn build_fragment(
-    schema: &Schema,
+    schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
 ) -> AstKey {
@@ -102,7 +102,7 @@ pub fn build_fragment(
 
 struct CodegenBuilder<'schema, 'builder> {
     connection_constants: ConnectionConstants,
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
 }
@@ -115,7 +115,7 @@ enum CodegenVariant {
 
 impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn new(
-        schema: &'schema Schema,
+        schema: &'schema SDLSchema,
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
     ) -> Self {

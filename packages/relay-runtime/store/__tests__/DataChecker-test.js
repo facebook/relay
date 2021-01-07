@@ -716,6 +716,7 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
+      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'PlainUserNameRenderer_name$normalization.graphql',
       );
@@ -1125,6 +1126,7 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(loader.get).toBeCalledTimes(1);
+      // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
         'PlainUserNameRenderer_name$normalization.graphql',
       );

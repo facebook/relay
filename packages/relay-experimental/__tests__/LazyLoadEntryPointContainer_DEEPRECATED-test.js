@@ -174,6 +174,7 @@ it('suspends while the query is loading', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
@@ -216,6 +217,7 @@ it('suspends then updates when the query and component load', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   dataSource.next(response);
   dataSource.complete();
@@ -237,6 +239,7 @@ it('renders synchronously when the query and component are already loaded', () =
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
@@ -266,6 +269,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   });
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
@@ -306,6 +310,7 @@ it('re-renders and reloads when prefetch params change', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   });
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
@@ -376,6 +381,7 @@ it('fetches and renders synchronously when the query data is cached, then update
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
 
   let renderer;
@@ -440,6 +446,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
 
   let renderer;

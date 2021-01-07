@@ -735,6 +735,7 @@ describe('getPromiseForActiveRequest', () => {
         return;
       }
 
+      // $FlowFixMe[prop-missing]
       operationLoader.get.mockImplementationOnce(
         () => markdownRendererNormalizationFragment,
       );
@@ -1046,6 +1047,7 @@ describe('getObservableForActiveRequest', () => {
       observable.subscribe(observer);
       expect(events).toEqual([]);
 
+      // $FlowFixMe[prop-missing]
       operationLoader.get.mockImplementationOnce(
         () => markdownRendererNormalizationFragment,
       );

@@ -14,17 +14,19 @@
 pub mod definitions;
 mod errors;
 mod flatbuffer;
+pub mod sdl;
 
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
     EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
-    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
+    ObjectID, Scalar, ScalarID, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
 pub use flatbuffer::graphqlschema::*;
 use flatbuffer::FlatBufferSchema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
+pub use sdl::Schema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 

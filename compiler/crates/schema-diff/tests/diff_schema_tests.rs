@@ -868,7 +868,7 @@ fn test_add_safe_types() {
 }
 
 #[test]
-fn test_unimplmented_changes() {
+fn test_unimplemented_changes() {
     assert!(!is_safe(
         r"
             type A {

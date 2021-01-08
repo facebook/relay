@@ -74,7 +74,7 @@ lazy_static! {
     static ref NODE_INTERFACE_KEY: StringKey = "Node".intern();
 }
 
-/// If the type has an `id` field and the type implments interfaces
+/// If the type has an `id` field and the type implements interfaces
 /// other than `Node`, then the change isn't safe:
 /// If the object type implements an `Actor` interfaces (for example).
 /// We may need to add an inline spread with
@@ -84,7 +84,7 @@ lazy_static! {
 /// But we have a special case for `Node`. The `id` field is automatically
 /// added to the selection for all types that implements `Node`.
 fn is_object_add_safe(name: StringKey, schema: &SDLSchema) -> bool {
-    if let schema::Type::Object(id) = schema.get_type(name).unwrap() {
+    if let Some(schema::Type::Object(id)) = schema.get_type(name) {
         let object = schema.object(id);
         if object
             .fields
@@ -98,7 +98,10 @@ fn is_object_add_safe(name: StringKey, schema: &SDLSchema) -> bool {
             return false;
         }
     } else {
-        panic!("Object not found in the schema")
+        panic!(
+            "The object '{}' was not found in the schema during schema change detection.",
+            name
+        );
     }
     true
 }

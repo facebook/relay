@@ -19,7 +19,7 @@ use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
 use schema::SDLSchema;
-use schema_diff::detect_changes;
+use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
@@ -316,13 +316,7 @@ impl CompilerState {
                 .any(|sources| !sources.processed.is_empty())
     }
 
-    /// This is for future use. Where `has_breaking_schema_change` may return `false` for some of non-breaking changes
-    pub fn has_schema_changes(&self) -> bool {
-        // but for now it will return the same thing
-        self.has_breaking_schema_change()
-    }
-
-    fn is_change_safe(&self, project_name: &ProjectName, sources: &SchemaSources) -> bool {
+    fn is_change_safe(&self, sources: &SchemaSources) -> bool {
         let previous = sources
             .get_old_sources()
             .into_iter()
@@ -337,24 +331,36 @@ impl CompilerState {
 
         let schema_change = detect_changes(&current.join("\n"), &previous.join("\n"));
 
-        match self.schema_cache.get(&project_name) {
-            Some(schema) => schema_change.is_safe(&schema),
-            None => {
-                match relay_schema::build_schema_with_extensions(&previous, &Vec::<&str>::new()) {
-                    Ok(schema) => schema_change.is_safe(&schema),
-                    Err(_) => false,
-                }
+        if schema_change == SchemaChange::None {
+            true
+        } else {
+            match relay_schema::build_schema_with_extensions(&current, &Vec::<&str>::new()) {
+                Ok(schema) => schema_change.is_safe(&schema),
+                Err(_) => false,
             }
         }
     }
 
+    /// This method will detect any schema changes in the pending sources (for LSP Server, to invalidate schema cache)
+    pub fn has_schema_changes(&self) -> bool {
+        self.extensions
+            .values()
+            .any(|sources| !sources.pending.is_empty())
+            || self
+                .schemas
+                .iter()
+                .any(|(_, sources)| !sources.pending.is_empty())
+    }
+
+    /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
     pub fn has_breaking_schema_change(&self) -> bool {
         self.extensions
             .values()
             .any(|sources| !sources.pending.is_empty())
-            || self.schemas.iter().any(|(proj_name, sources)| {
-                !(sources.pending.is_empty() || self.is_change_safe(&proj_name, &sources))
-            })
+            || self
+                .schemas
+                .iter()
+                .any(|(_, sources)| !(sources.pending.is_empty() || self.is_change_safe(&sources)))
     }
 
     /// Merges pending changes from the file source into the compiler state.

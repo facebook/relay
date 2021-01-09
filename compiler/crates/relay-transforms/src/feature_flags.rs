@@ -7,10 +7,10 @@
 
 use indexmap::IndexSet;
 use interner::StringKey;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -36,7 +36,7 @@ impl Default for FeatureFlags {
     }
 }
 
-#[derive(Debug, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone, Serialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum NoInlineFeature {
     /// Fully disabled: developers may not use @no_inline

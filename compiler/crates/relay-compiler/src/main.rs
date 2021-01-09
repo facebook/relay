@@ -8,7 +8,7 @@
 use env_logger::Env;
 use log::{error, info};
 use relay_compiler::{compiler::Compiler, config::Config};
-use std::{path::PathBuf, sync::Arc};
+use std::{env::current_dir, path::PathBuf, sync::Arc};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -21,8 +21,10 @@ struct Opt {
     #[structopt(long, short)]
     watch: bool,
 
-    /// Path to the compiler config file
-    config: PathBuf,
+    /// Compile using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
+    config: Option<PathBuf>,
 }
 
 #[tokio::main]
@@ -31,13 +33,16 @@ async fn main() {
 
     let opt = Opt::from_args();
 
-    let config = match Config::load(opt.config) {
-        Ok(config) => config,
-        Err(err) => {
-            error!("{}", err);
-            std::process::exit(1);
-        }
+    let config_result = if let Some(config_option) = opt.config {
+        Config::load(config_option)
+    } else {
+        Config::search(&current_dir().expect("Unable to get current working directory."))
     };
+
+    let config = config_result.unwrap_or_else(|err| {
+        error!("{}", err);
+        std::process::exit(1);
+    });
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
 

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Debug, Deserialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum JsModuleFormat {
     CommonJS,

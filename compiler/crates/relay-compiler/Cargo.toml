@@ -18,6 +18,7 @@ path = "tests/compile_relay_artifacts_test.rs"
 async-trait = "0.1.45"
 bincode = "1.2"
 common = { path = "../common" }
+js-config-loader = { path = "../js-config-loader" }
 dependency-analyzer = { path = "../dependency-analyzer" }
 env_logger = "0.7"
 errors = { path = "../errors" }

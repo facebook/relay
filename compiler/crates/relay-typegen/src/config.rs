@@ -7,9 +7,9 @@
 
 use fnv::FnvHashMap;
 use interner::StringKey;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
     Flow,
@@ -22,7 +22,7 @@ impl Default for TypegenLanguage {
     }
 }
 
-#[derive(Debug, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".

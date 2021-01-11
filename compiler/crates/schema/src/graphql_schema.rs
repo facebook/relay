@@ -144,18 +144,6 @@ pub trait Schema {
         }
     }
 
-    fn is_abstract_type(&self, type_: Type) -> bool {
-        type_.is_abstract_type()
-    }
-
-    fn is_object(&self, type_: Type) -> bool {
-        type_.is_object()
-    }
-
-    fn is_interface(&self, type_: Type) -> bool {
-        type_.is_interface()
-    }
-
     fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
         match type_ {
             TypeReference::Named(inner) => {

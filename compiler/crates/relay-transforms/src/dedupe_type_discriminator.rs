@@ -10,7 +10,6 @@ use crate::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use common::NamedItem;
 use fnv::FnvHashMap;
 use graphql_ir::{InlineFragment, Program, Selection, Transformed, TransformedValue, Transformer};
-use schema::Schema;
 use std::sync::Arc;
 
 /// Maintain a few invariants:
@@ -23,7 +22,7 @@ use std::sync::Arc;
 /// - The inline fragment contains other selections: return all the selections
 ///   minus any Discriminators w the same key
 pub fn dedupe_type_discriminator(program: &Program) -> Program {
-    let mut transform = DedupeTypeDiscriminator::new(program);
+    let mut transform = DedupeTypeDiscriminator::new();
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -31,15 +30,13 @@ pub fn dedupe_type_discriminator(program: &Program) -> Program {
 
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
-struct DedupeTypeDiscriminator<'program> {
+struct DedupeTypeDiscriminator {
     seen: Seen,
-    program: &'program Program,
 }
 
-impl<'program> DedupeTypeDiscriminator<'program> {
-    fn new(program: &'program Program) -> Self {
+impl DedupeTypeDiscriminator {
+    fn new() -> Self {
         Self {
-            program,
             seen: Default::default(),
         }
     }
@@ -49,11 +46,9 @@ impl<'program> DedupeTypeDiscriminator<'program> {
             .directives
             .iter()
             .any(is_relay_custom_inline_fragment_directive)
-            && if let Some(type_condition) = fragment.type_condition {
-                self.program.schema.is_abstract_type(type_condition)
-            } else {
-                false
-            };
+            && fragment
+                .type_condition
+                .map_or(false, |type_condition| type_condition.is_abstract_type());
         if is_abstract_inline_fragment {
             let type_discriminator_index = fragment.selections.iter().position(|selection| {
                 if let Selection::ScalarField(selection) = selection {
@@ -105,7 +100,7 @@ impl<'program> DedupeTypeDiscriminator<'program> {
     }
 }
 
-impl<'program> Transformer for DedupeTypeDiscriminator<'program> {
+impl Transformer for DedupeTypeDiscriminator {
     const NAME: &'static str = "DedupeTypeDiscriminator";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

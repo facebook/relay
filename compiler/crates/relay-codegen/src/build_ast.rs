@@ -229,7 +229,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.abstract_key,
-                value: if self.schema.is_abstract_type(fragment.type_condition) {
+                value: if fragment.type_condition.is_abstract_type() {
                     Primitive::String(generate_abstract_type_refinement_key(
                         self.schema,
                         fragment.type_condition,
@@ -698,7 +698,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.concrete_type,
-                value: if self.schema.is_abstract_type(schema_field.type_.inner()) {
+                value: if schema_field.type_.inner().is_abstract_type() {
                     Primitive::Null
                 } else {
                     Primitive::String(self.schema.get_type_name(schema_field.type_.inner()))
@@ -1004,7 +1004,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
             Some(type_condition) => {
                 if self.variant == CodegenVariant::Normalization {
-                    let is_abstract_inline_fragment = self.schema.is_abstract_type(type_condition);
+                    let is_abstract_inline_fragment = type_condition.is_abstract_type();
                     if is_abstract_inline_fragment {
                         // Maintain a few invariants:
                         // - InlineFragment (and `selections` arrays generally) cannot be empty
@@ -1096,7 +1096,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     },
                     ObjectEntry {
                         key: CODEGEN_CONSTANTS.abstract_key,
-                        value: if self.schema.is_abstract_type(type_condition) {
+                        value: if type_condition.is_abstract_type() {
                             Primitive::String(generate_abstract_type_refinement_key(
                                 self.schema,
                                 type_condition,

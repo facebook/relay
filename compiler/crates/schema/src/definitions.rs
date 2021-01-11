@@ -47,52 +47,35 @@ pub enum Type {
 
 impl Type {
     pub fn is_scalar(self) -> bool {
-        match self {
-            Type::Scalar(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Scalar(_))
     }
 
     pub fn is_enum(self) -> bool {
-        match self {
-            Type::Enum(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Enum(_))
     }
 
     pub fn is_input_type(self) -> bool {
-        match self {
-            Type::Scalar(_) | Type::Enum(_) | Type::InputObject(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Scalar(_) | Type::Enum(_) | Type::InputObject(_))
     }
 
     pub fn is_abstract_type(self) -> bool {
-        match self {
-            Type::Union(_) | Type::Interface(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Union(_) | Type::Interface(_))
     }
 
     pub fn is_object(self) -> bool {
-        match self {
-            Type::Object(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Object(_))
     }
 
     pub fn is_interface(self) -> bool {
-        match self {
-            Type::Interface(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Interface(_))
+    }
+
+    pub fn is_object_or_interface(self) -> bool {
+        matches!(self, Type::Object(_) | Type::Interface(_))
     }
 
     pub fn is_union(self) -> bool {
-        match self {
-            Type::Union(_) => true,
-            _ => false,
-        }
+        matches!(self, Type::Union(_))
     }
 
     pub fn get_enum_id(self) -> Option<EnumID> {
@@ -184,17 +167,11 @@ impl TypeReference {
     }
 
     pub fn is_non_null(&self) -> bool {
-        match self {
-            TypeReference::NonNull(_) => true,
-            _ => false,
-        }
+        matches!(self, TypeReference::NonNull(_))
     }
 
     pub fn is_list(&self) -> bool {
-        match self.nullable_type() {
-            TypeReference::List(_) => true,
-            _ => false,
-        }
+        matches!(self.nullable_type(), TypeReference::List(_))
     }
 
     // If the type is Named or NonNull<Named> return the inner named.

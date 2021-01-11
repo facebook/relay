@@ -78,7 +78,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         let schema = &self.program.schema;
         let mut selections = self.transform_selections(&fragment.selections);
         let type_ = fragment.type_condition;
-        if !schema.is_extension_type(type_) && schema.is_abstract_type(type_) {
+        if !schema.is_extension_type(type_) && type_.is_abstract_type() {
             let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);
             next_selections.push(generate_abstract_key_field(
                 schema,
@@ -109,7 +109,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         self.parent_type = Some(field_definition.type_.inner());
         let selections = self.transform_selections(&field.selections);
         self.parent_type = parent_type;
-        let is_abstract = schema.is_abstract_type(field_definition.type_.inner());
+        let is_abstract = field_definition.type_.inner().is_abstract_type();
         let selections = if is_abstract && !has_typename_field(schema, &field.selections) {
             let mut next_selections = Vec::with_capacity(field.selections.len() + 1);
             next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
@@ -164,7 +164,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
             .iter()
             .any(is_relay_custom_inline_fragment_directive)
             && !schema.is_extension_type(type_)
-            && schema.is_abstract_type(type_)
+            && type_.is_abstract_type()
         {
             let mut next_selections = Vec::with_capacity(fragment.selections.len() + 1);
             next_selections.push(generate_abstract_key_field(

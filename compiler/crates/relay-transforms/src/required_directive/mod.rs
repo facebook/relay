@@ -6,7 +6,6 @@
  */
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use schema::Schema;
 mod requireable_field;
 
 use super::FeatureFlags;
@@ -436,7 +435,7 @@ impl<'s> Transformer for RequiredDirective<'s> {
         let previous = self.within_abstract_inline_fragment;
 
         if let Some(type_) = fragment.type_condition {
-            if self.program.schema.is_abstract_type(type_) {
+            if type_.is_abstract_type() {
                 self.within_abstract_inline_fragment = true;
             }
         }

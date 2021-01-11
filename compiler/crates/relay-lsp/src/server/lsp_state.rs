@@ -262,13 +262,14 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     pub(crate) fn extract_executable_document_from_text(
         &mut self,
         position: TextDocumentPositionParams,
+        index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
         extract_executable_document_from_text(
             position,
             &self.synced_graphql_documents,
             &self.file_categorizer,
             &self.root_dir,
-            0,
+            index_offset,
         )
     }
 

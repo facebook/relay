@@ -988,7 +988,7 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
     let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(params.text_document_position)?;
+        state.extract_executable_document_from_text(params.text_document_position, 0)?;
 
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span)

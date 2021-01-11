@@ -164,7 +164,10 @@ function visitLinkedField(field: LinkedField): LinkedField {
   }
   const schema = this.getContext().getSchema();
   if (edgeDirective) {
-    const fields = schema.getFields(transformedField.type);
+    const fieldType = schema.isList(transformedField.type)
+      ? transformedField.type.ofType
+      : transformedField.type;
+    const fields = schema.getFields(fieldType);
     let cursorFieldID;
     let nodeFieldID;
     for (const fieldID of fields) {

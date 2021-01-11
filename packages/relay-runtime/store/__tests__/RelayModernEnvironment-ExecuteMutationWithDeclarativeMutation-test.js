@@ -576,11 +576,15 @@ describe('connection edge mutations', () => {
   let source;
   let store;
   let AppendCommentMutation;
+  let AppendCommentsMutation;
   let PrependCommentMutation;
+  let PrependCommentsMutation;
   let DeleteCommentMutation;
   let DeleteCommentsMutation;
   let appendOperation;
+  let appendMultipleOperation;
   let prependOperation;
+  let prependMultipleOperation;
   let deleteOperation;
   let deletePluralOperation;
   const clientID =
@@ -594,7 +598,9 @@ describe('connection edge mutations', () => {
     ({
       FeedbackQuery: query,
       AppendCommentMutation,
+      AppendCommentsMutation,
       PrependCommentMutation,
+      PrependCommentsMutation,
       DeleteCommentMutation,
       DeleteCommentsMutation,
     } = generateAndCompile(`
@@ -606,7 +612,9 @@ describe('connection edge mutations', () => {
           ) {
             __id
             edges {
+              __typename
               node {
+                __typename
                 id
               }
             }
@@ -628,12 +636,40 @@ describe('connection edge mutations', () => {
         }
       }
 
+      mutation AppendCommentsMutation(
+        $connections: [ID!]!
+        $input: CommentsCreateInput
+      ) {
+        commentsCreate(input: $input) {
+          feedbackCommentEdges @appendEdge(connections: $connections) {
+            cursor
+            node {
+              id
+            }
+          }
+        }
+      }
+
       mutation PrependCommentMutation(
         $connections: [ID!]!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
           feedbackCommentEdge @prependEdge(connections: $connections) {
+            cursor
+            node {
+              id
+            }
+          }
+        }
+      }
+
+      mutation PrependCommentsMutation(
+        $connections: [ID!]!
+        $input: CommentsCreateInput
+      ) {
+        commentsCreate(input: $input) {
+          feedbackCommentEdges @prependEdge(connections: $connections) {
             cursor
             node {
               id
@@ -668,10 +704,24 @@ describe('connection edge mutations', () => {
       connections: [clientID],
       input: {},
     });
+    appendMultipleOperation = createOperationDescriptor(
+      AppendCommentsMutation,
+      {
+        connections: [clientID],
+        input: {},
+      },
+    );
     prependOperation = createOperationDescriptor(PrependCommentMutation, {
       connections: [clientID],
       input: {},
     });
+    prependMultipleOperation = createOperationDescriptor(
+      PrependCommentsMutation,
+      {
+        connections: [clientID],
+        input: {},
+      },
+    );
     deleteOperation = createOperationDescriptor(DeleteCommentMutation, {
       connections: [clientID],
       input: {},
@@ -705,6 +755,7 @@ describe('connection edge mutations', () => {
           comments: {
             edges: [
               {
+                __typename: 'CommentsEdge',
                 cursor: 'cursor-1',
                 node: {
                   __typename: 'Comment',
@@ -712,6 +763,7 @@ describe('connection edge mutations', () => {
                 },
               },
               {
+                __typename: 'CommentsEdge',
                 cursor: 'cursor-2',
                 node: {
                   __typename: 'Comment',
@@ -735,6 +787,7 @@ describe('connection edge mutations', () => {
           __id: clientID,
           edges: [
             {
+              __typename: 'CommentsEdge',
               cursor: 'cursor-1',
               node: {
                 __typename: 'Comment',
@@ -742,6 +795,7 @@ describe('connection edge mutations', () => {
               },
             },
             {
+              __typename: 'CommentsEdge',
               cursor: 'cursor-2',
               node: {
                 __typename: 'Comment',
@@ -795,6 +849,7 @@ describe('connection edge mutations', () => {
       // $FlowExpectedError[incompatible-use]
       expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-1',
           node: {
             __typename: 'Comment',
@@ -802,6 +857,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-2',
           node: {
             __typename: 'Comment',
@@ -809,6 +865,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-append',
           node: {
             __typename: 'Comment',
@@ -842,6 +899,7 @@ describe('connection edge mutations', () => {
       // $FlowExpectedError[incompatible-use]
       expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-prepend',
           node: {
             __typename: 'Comment',
@@ -849,6 +907,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-1',
           node: {
             __typename: 'Comment',
@@ -856,6 +915,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-2',
           node: {
             __typename: 'Comment',
@@ -863,10 +923,174 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-append',
           node: {
             __typename: 'Comment',
             id: 'node-append',
+          },
+        },
+      ]);
+    });
+
+    it('commits the mutation and inserts multiple comment edges into the connection', () => {
+      const snapshot = environment.lookup(operation.fragment);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment
+        .executeMutation({
+          operation: appendMultipleOperation,
+        })
+        .subscribe(callbacks);
+
+      callback.mockClear();
+      subject.next({
+        data: {
+          commentsCreate: {
+            feedbackCommentEdges: [
+              {
+                __typename: 'CommentsEdge',
+                cursor: 'node-append-1',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-append-1',
+                },
+              },
+              {
+                __typename: 'CommentsEdge',
+                cursor: 'node-append-2',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-append-2',
+                },
+              },
+            ],
+          },
+        },
+      });
+      subject.complete();
+
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+      // $FlowExpectedError[incompatible-use]
+      expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-2',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'node-append-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-append-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'node-append-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-append-2',
+          },
+        },
+      ]);
+
+      environment
+        .executeMutation({
+          operation: prependMultipleOperation,
+        })
+        .subscribe(callbacks);
+
+      callback.mockClear();
+      subject.next({
+        data: {
+          commentsCreate: {
+            feedbackCommentEdges: [
+              {
+                __typename: 'CommentsEdge',
+                cursor: 'node-prepend-1',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-prepend-1',
+                },
+              },
+              {
+                __typename: 'CommentsEdge',
+                cursor: 'node-prepend-2',
+                node: {
+                  __typename: 'Comment',
+                  id: 'node-prepend-2',
+                },
+              },
+            ],
+          },
+        },
+      });
+      subject.complete();
+      expect(callback.mock.calls.length).toBe(1);
+      // $FlowExpectedError[incompatible-use]
+      expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'node-prepend-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-prepend-2',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'node-prepend-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-prepend-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-2',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'node-append-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-append-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'node-append-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-append-2',
           },
         },
       ]);
@@ -898,6 +1122,7 @@ describe('connection edge mutations', () => {
       // $FlowExpectedError[incompatible-use]
       expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-1',
           node: {
             __typename: 'Comment',
@@ -905,6 +1130,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-2',
           node: {
             __typename: 'Comment',
@@ -912,6 +1138,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-optimistic-append',
           node: {
             __typename: 'Comment',
@@ -942,6 +1169,7 @@ describe('connection edge mutations', () => {
       // $FlowExpectedError[incompatible-use]
       expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-1',
           node: {
             __typename: 'Comment',
@@ -949,6 +1177,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-2',
           node: {
             __typename: 'Comment',
@@ -956,6 +1185,7 @@ describe('connection edge mutations', () => {
           },
         },
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-append',
           node: {
             __typename: 'Comment',
@@ -994,6 +1224,7 @@ describe('connection edge mutations', () => {
       // $FlowExpectedError[incompatible-use]
       expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
         {
+          __typename: 'CommentsEdge',
           cursor: 'cursor-2',
           node: {
             __typename: 'Comment',

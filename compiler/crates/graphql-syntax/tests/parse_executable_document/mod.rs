@@ -5,10 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::SourceLocationKey;
+use common::{Diagnostic, SourceLocationKey};
 use fixture_tests::Fixture;
+use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::parse_executable;
-use graphql_test_helpers::diagnostics_to_sorted_string;
+
+// NOTE: copied from graphql-test-helpers to avoid cyclic dependency breaking Rust Analyzer
+fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
+    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let mut printed = diagnostics
+        .iter()
+        .map(|diagnostic| printer.diagnostic_to_string(diagnostic))
+        .collect::<Vec<_>>();
+    printed.sort();
+    printed.join("\n\n")
+}
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     parse_executable(

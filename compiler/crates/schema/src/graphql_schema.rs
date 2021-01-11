@@ -102,45 +102,41 @@ pub trait Schema {
     }
 
     fn are_overlapping_types(&self, a: Type, b: Type) -> bool {
+        fn overlapping_objects(a: &[ObjectID], b: &[ObjectID]) -> bool {
+            a.iter().any(|item| b.contains(item))
+        }
+
         if a == b {
             return true;
         };
         match (a, b) {
-            (Type::Interface(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementing_objects;
-                self.interface(a)
-                    .implementing_objects
-                    .iter()
-                    .any(|x| b_implementors.contains(x))
-            }
-            (Type::Interface(a), Type::Union(b)) => {
-                let b_members = &self.union(b).members;
-                self.interface(a)
-                    .implementing_objects
-                    .iter()
-                    .any(|x| b_members.contains(x))
-            }
-            (Type::Interface(a), Type::Object(b)) => {
-                self.interface(a).implementing_objects.contains(&b)
-            }
-            (Type::Union(a), Type::Interface(b)) => {
-                let b_implementors = &self.interface(b).implementing_objects;
-                self.union(a)
-                    .members
-                    .iter()
-                    .any(|x| b_implementors.contains(x))
-            }
+            (Type::Interface(a), Type::Interface(b)) => overlapping_objects(
+                &self.interface(a).implementing_objects,
+                &self.interface(b).implementing_objects,
+            ),
+
             (Type::Union(a), Type::Union(b)) => {
-                let b_members = &self.union(b).members;
-                self.union(a).members.iter().any(|x| b_members.contains(x))
+                overlapping_objects(&self.union(a).members, &self.union(b).members)
             }
-            (Type::Union(a), Type::Object(b)) => self.union(a).members.contains(&b),
-            (Type::Object(a), Type::Interface(b)) => {
-                self.interface(b).implementing_objects.contains(&a)
+
+            (Type::Union(union_id), Type::Interface(interface_id))
+            | (Type::Interface(interface_id), Type::Union(union_id)) => overlapping_objects(
+                &self.union(union_id).members,
+                &self.interface(interface_id).implementing_objects,
+            ),
+
+            (Type::Interface(interface_id), Type::Object(object_id))
+            | (Type::Object(object_id), Type::Interface(interface_id)) => self
+                .interface(interface_id)
+                .implementing_objects
+                .contains(&object_id),
+
+            (Type::Union(union_id), Type::Object(object_id))
+            | (Type::Object(object_id), Type::Union(union_id)) => {
+                self.union(union_id).members.contains(&object_id)
             }
-            (Type::Object(a), Type::Union(b)) => self.union(b).members.contains(&a),
-            (Type::Object(a), Type::Object(b)) => a == b,
-            _ => false, // todo: change Type representation to allow only Interface/Union/Object as input
+
+            _ => false,
         }
     }
 

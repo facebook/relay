@@ -16,7 +16,14 @@
   "projects": {
     "tests": {
       "enumModuleSuffix": ".tests",
-      "schema": "packages/relay-test-utils-internal/testschema.graphql"
+      "schema": "packages/relay-test-utils-internal/testschema.graphql",
+      "extensions": [
+        "packages/relay-test-utils-internal/schema-extension"
+      ],
+      "featureFlags": {
+        "enable_flight_transform": true,
+        "enable_required_transform_for_prefix": ""
+      }
     }
   }
 }

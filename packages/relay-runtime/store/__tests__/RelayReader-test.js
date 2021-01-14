@@ -13,7 +13,7 @@
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const {getRequest} = require('../../query/GraphQLTag');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -21,7 +21,6 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('RelayReader', () => {
   let source;
@@ -89,8 +88,8 @@ describe('RelayReader', () => {
   });
 
   it('reads query data', () => {
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery($id: ID, $size: [Int]) {
+    const FooQuery = graphql`
+      query RelayReaderTestReadsQueryDataFooQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -116,7 +115,7 @@ describe('RelayReader', () => {
           }
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1', size: 32});
     const {data, seenRecords} = read(source, operation.fragment);
     expect(data).toEqual({
@@ -161,15 +160,17 @@ describe('RelayReader', () => {
   });
 
   it('reads fragment data', () => {
-    const {BarFragment, UserQuery} = generateAndCompile(`
-      query UserQuery($size: [Int]) {
+    const UserQuery = graphql`
+      query RelayReaderTestReadsFragmentDataUserQuery($size: [Int]) {
         me {
-          ...BarFragment @arguments(size: $size)
+          ...RelayReaderTestReadsFragmentData @arguments(size: $size)
         }
       }
-      fragment BarFragment on User @argumentDefinitions(
-        size: {type: "[Int]"}
-      ) {
+    `;
+
+    const BarFragment = graphql`
+      fragment RelayReaderTestReadsFragmentData on User
+        @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 3) {
@@ -185,7 +186,7 @@ describe('RelayReader', () => {
           uri
         }
       }
-    `);
+    `;
     const owner = createOperationDescriptor(UserQuery, {size: 32});
     const {data, seenRecords} = read(
       source,
@@ -229,25 +230,31 @@ describe('RelayReader', () => {
   });
 
   it('creates fragment pointers with fragment owner when owner is provided', () => {
-    const {ParentQuery, UserProfile} = generateAndCompile(`
-      query ParentQuery($size: Float!) {
+    const ParentQuery = graphql`
+      query RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery(
+        $size: Float!
+      ) {
         me {
-          ...UserProfile
+          ...RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile
         }
       }
+    `;
 
-      fragment UserProfile on User {
+    const UserProfile = graphql`
+      fragment RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile on User {
         id
         name
-        ...UserProfilePicture
+        ...RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfilePicture
       }
+    `;
 
-      fragment UserProfilePicture on User {
+    graphql`
+      fragment RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfilePicture on User {
         profilePicture(size: $size) {
           uri
         }
       }
-    `);
+    `;
 
     const queryNode = getRequest(ParentQuery);
     const owner = createOperationDescriptor(queryNode, {size: 42});
@@ -259,7 +266,7 @@ describe('RelayReader', () => {
       id: '1',
       __id: '1',
       __fragments: {
-        UserProfilePicture: {},
+        RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfilePicture: {},
       },
       __fragmentOwner: owner.request,
     });
@@ -268,28 +275,30 @@ describe('RelayReader', () => {
   });
 
   it('creates fragment pointers with variable @arguments', () => {
-    const {UserProfile, UserQuery} = generateAndCompile(`
-      query UserQuery {
+    const UserQuery = graphql`
+      query RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery {
         me {
-          ...UserProfile
+          ...RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile
         }
       }
-
-      fragment UserProfile on User @argumentDefinitions(
-        size: {type: "[Int]"}
-      ) {
+    `;
+    const UserProfile = graphql`
+      fragment RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile on User
+        @argumentDefinitions(size: {type: "[Int]"}) {
         id
-        ...UserProfilePicture @arguments(size: $size)
+        ...RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture
+          @arguments(size: $size)
       }
+    `;
 
-      fragment UserProfilePicture on User @argumentDefinitions(
-        size: {type: "[Int]"}
-      ) {
+    graphql`
+      fragment RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture on User
+        @argumentDefinitions(size: {type: "[Int]"}) {
         profilePicture(size: $size) {
           uri
         }
       }
-    `);
+    `;
 
     const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
@@ -300,7 +309,7 @@ describe('RelayReader', () => {
       id: '1',
       __id: '1',
       __fragments: {
-        UserProfilePicture: {
+        RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture: {
           size: 42,
         },
       },
@@ -310,26 +319,28 @@ describe('RelayReader', () => {
   });
 
   it('creates fragment pointers with literal @arguments', () => {
-    const {UserProfile, UserQuery} = generateAndCompile(`
-      query UserQuery {
+    const UserQuery = graphql`
+      query RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserQuery {
         me {
-          ...UserProfile
+          ...RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile
         }
       }
-
-      fragment UserProfile on User {
+    `;
+    const UserProfile = graphql`
+      fragment RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile on User {
         id
-        ...UserProfilePicture @arguments(size: 42)
+        ...RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture
+          @arguments(size: 42)
       }
-
-      fragment UserProfilePicture on User @argumentDefinitions(
-        size: {type: "[Int]"}
-      ) {
+    `;
+    graphql`
+      fragment RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture on User
+        @argumentDefinitions(size: {type: "[Int]"}) {
         profilePicture(size: $size) {
           uri
         }
       }
-    `);
+    `;
 
     const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
@@ -340,7 +351,7 @@ describe('RelayReader', () => {
       id: '1',
       __id: '1',
       __fragments: {
-        UserProfilePicture: {
+        RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture: {
           size: 42,
         },
       },
@@ -351,23 +362,27 @@ describe('RelayReader', () => {
 
   describe('@inline', () => {
     it('reads a basic fragment', () => {
-      const {UserProfile, UserQuery} = generateAndCompile(`
-        query UserQuery {
+      const UserQuery = graphql`
+        query RelayReaderTestReadsBasicFragmentUserQuery {
           me {
-            ...UserProfile
+            ...RelayReaderTestReadsBasicFragmentUserProfile
           }
         }
-
-        fragment UserProfile on User  {
+      `;
+      const UserProfile = graphql`
+        fragment RelayReaderTestReadsBasicFragmentUserProfile on User {
           id
-          ...UserProfilePicture
+          ...RelayReaderTestReadsBasicFragmentUserProfilePicture
         }
-        fragment UserProfilePicture on User @inline {
+      `;
+      graphql`
+        fragment RelayReaderTestReadsBasicFragmentUserProfilePicture on User
+          @inline {
           profilePicture(size: 32) {
             uri
           }
         }
-      `);
+      `;
       const owner = createOperationDescriptor(UserQuery, {});
       const {data, seenRecords} = read(
         source,
@@ -377,120 +392,21 @@ describe('RelayReader', () => {
         id: '1',
         __id: '1',
         __fragments: {
-          UserProfilePicture: {
+          RelayReaderTestReadsBasicFragmentUserProfilePicture: {
             profilePicture: {uri: 'https://example.com/32.png'},
           },
         },
       });
       expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
     });
-
-    // it('uses global variables', () => {
-    //   const {UserProfile} = generateAndCompile(`
-    //     fragment UserProfile on User  {
-    //       id
-    //       ...UserProfilePicture
-    //     }
-    //     fragment UserProfilePicture on User @inline {
-    //       profilePicture(size: $globalSize) {
-    //         uri
-    //       }
-    //     }
-    //   `);
-    //   const {data, seenRecords} = read(source, {
-    //     dataID: '1',
-    //     node: UserProfile,
-    //     variables: {
-    //       globalSize: 32,
-    //     },
-    //   });
-    //   expect(data).toEqual({
-    //     id: '1',
-    //     __id: '1',
-    //     __fragments: {
-    //       UserProfilePicture: {
-    //         profilePicture: {uri: 'https://example.com/32.png'},
-    //       },
-    //     },
-    //   });
-    //   expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
-    // });
-
-    // it('creates inline data fragment pointers', () => {
-    //   const {UserProfile} = generateAndCompile(`
-    //     fragment UserProfile on User @argumentDefinitions(
-    //       globalSize: {type: "[Int]"}
-    //     ) {
-    //       id
-    //       ...UserProfilePicture # @arguments(argSize: $globalSize)
-    //     }
-    //
-    //     fragment UserProfilePicture on User @inline @argumentDefinitions(
-    //       argSize: {type: "[Int]"}
-    //     ) {
-    //       profilePicture(size: $argSize) {
-    //         uri
-    //       }
-    //     }
-    //   `);
-    //
-    //   const {data, seenRecords} = read(source, {
-    //     dataID: '1',
-    //     node: UserProfile,
-    //     variables: {
-    //       globalSize: 32
-    //     },
-    //   });
-    //   expect(data).toEqual({
-    //     id: '1',
-    //     __id: '1',
-    //     __fragments: {
-    //       UserProfilePicture: {
-    //         profilePicture: {uri: 'https://example.com/32.png'},
-    //       },
-    //     },
-    //   });
-    //   expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
-    // });
-
-    // test('@inline works with default arguments', () => {
-    //   const {UserProfile} = generateAndCompile(`
-    //     fragment UserProfile on User {
-    //       ...UserProfilePicture
-    //     }
-    //
-    //     fragment UserProfilePicture on User @inline @argumentDefinitions(
-    //       size: {type: "[Int]", defaultValue: 32}
-    //     ) {
-    //       profilePicture(size: 32) {
-    //         uri
-    //       }
-    //     }
-    //   `);
-    //
-    //   const {data, seenRecords} = read(source, {
-    //     dataID: '1',
-    //     node: UserProfile,
-    //     variables: {},
-    //   });
-    //   expect(data).toEqual({
-    //     __id: '1',
-    //     __fragments: {
-    //       UserProfilePicture: {
-    //         profilePicture: {uri: 'https://example.com/32.png'},
-    //       },
-    //     },
-    //   });
-    //   expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
-    // });
   });
 
   it('reads data when the root is deleted', () => {
-    const {UserProfile} = generateAndCompile(`
-      fragment UserProfile on User {
+    const UserProfile = graphql`
+      fragment RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile on User {
         name
       }
-    `);
+    `;
     source = RelayRecordSource.create();
     source.delete('4');
     const {data, seenRecords} = read(
@@ -502,11 +418,11 @@ describe('RelayReader', () => {
   });
 
   it('reads data when the root is unfetched', () => {
-    const {UserProfile} = generateAndCompile(`
-      fragment UserProfile on User {
+    const UserProfile = graphql`
+      fragment RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile on User {
         name
       }
-    `);
+    `;
     source = RelayRecordSource.create();
     const {data, seenRecords} = read(
       source,
@@ -549,8 +465,10 @@ describe('RelayReader', () => {
       },
     };
     source = RelayRecordSource.create(records);
-    const {UserFriends} = generateAndCompile(`
-      query UserFriends($id: ID!) {
+    const UserFriends = graphql`
+      query RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery(
+        $id: ID!
+      ) {
         node(id: $id) {
           ... on User {
             friends(first: 1) @__clientField(handle: "bestFriends") {
@@ -565,7 +483,7 @@ describe('RelayReader', () => {
           }
         }
       }
-    `);
+    `;
     const {data, seenRecords} = read(
       source,
       createReaderSelector(UserFriends.fragment, ROOT_ID, {id: '1'}),
@@ -622,8 +540,8 @@ describe('RelayReader', () => {
       },
     };
     source = RelayRecordSource.create(records);
-    const {UserFriends} = generateAndCompile(`
-      fragment UserFriends on User {
+    const UserFriends = graphql`
+      fragment RelayReaderTestReadsHandleFieldsForFragmentsUserFriends on User {
         friends(first: 1) @__clientField(handle: "bestFriends") {
           edges {
             cursor
@@ -634,7 +552,7 @@ describe('RelayReader', () => {
           }
         }
       }
-    `);
+    `;
     const {data, seenRecords} = read(
       source,
       createReaderSelector(UserFriends, '1', {}),
@@ -665,33 +583,37 @@ describe('RelayReader', () => {
     let BarQuery;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(`
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      graphql`
+        fragment RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name on PlainUserNameRenderer {
           plaintext
         }
+      `;
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      graphql`
+        fragment RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           markdown
         }
+      `;
 
-        fragment BarFragment on User {
+      BarFragment = graphql`
+        fragment RelayReaderTestWhenMatchDirectiveIsPresentBarFragment on User {
           id
           nameRenderer @match {
-            ...PlainUserNameRenderer_name
+            ...RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name
               @module(name: "PlainUserNameRenderer.react")
-            ...MarkdownUserNameRenderer_name
+            ...RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name
               @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+      `;
 
-        query BarQuery {
+      BarQuery = graphql`
+        query RelayReaderTestWhenMatchDirectiveIsPresentBarQuery {
           me {
-            ...BarFragment
+            ...RelayReaderTestWhenMatchDirectiveIsPresentBarFragment
           }
         }
-      `);
-      BarFragment = nodes.BarFragment;
-      BarQuery = nodes.BarQuery;
+      `;
     });
 
     it('creates fragment and module pointers for fragment that matches resolved type (1)', () => {
@@ -710,9 +632,10 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
-          __module_component_BarFragment: 'PlainUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'PlainUserNameRenderer_name$normalization.graphql',
+          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
         },
         'client:root': {
@@ -733,7 +656,7 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
-            PlainUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
@@ -763,9 +686,10 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'MarkdownUserNameRenderer_name$normalization.graphql',
+          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
         },
         'client:root': {
@@ -786,7 +710,7 @@ describe('RelayReader', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
-            MarkdownUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
@@ -898,33 +822,38 @@ describe('RelayReader', () => {
     let BarFragment;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(`
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      graphql`
+        fragment RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name on PlainUserNameRenderer {
           plaintext
         }
+      `;
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      graphql`
+        fragment RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           markdown
         }
+      `;
 
-        fragment BarFragment on User {
+      BarFragment = graphql`
+        fragment RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment on User {
           id
-          nameRenderer { # intentionally no @match here
-            ...PlainUserNameRenderer_name
+          nameRenderer {
+            # intentionally no @match here
+            ...RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name
               @module(name: "PlainUserNameRenderer.react")
-            ...MarkdownUserNameRenderer_name
+            ...RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name
               @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+      `;
 
-        query BarQuery {
+      BarQuery = graphql`
+        query RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery {
           me {
-            ...BarFragment
+            ...RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment
           }
         }
-      `);
-      BarFragment = nodes.BarFragment;
-      BarQuery = nodes.BarQuery;
+      `;
     });
 
     it('creates fragment and module pointers when the type matches a @module selection (1)', () => {
@@ -941,9 +870,10 @@ describe('RelayReader', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'PlainUserNameRenderer',
-          __module_component_BarFragment: 'PlainUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'PlainUserNameRenderer_name$normalization.graphql',
+          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment:
+            'RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
         },
         'client:root': {
@@ -963,7 +893,7 @@ describe('RelayReader', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragments: {
-            PlainUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
@@ -988,9 +918,10 @@ describe('RelayReader', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'MarkdownUserNameRenderer_name$normalization.graphql',
+          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment:
+            'RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
         },
         'client:root': {
@@ -1010,7 +941,7 @@ describe('RelayReader', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragments: {
-            MarkdownUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name: {},
           },
           __fragmentOwner: owner.request,
           __fragmentPropName: 'name',
@@ -1060,16 +991,19 @@ describe('RelayReader', () => {
   describe('`isMissingData` field', () => {
     describe('readScalar', () => {
       it('should have `isMissingData = false` if data is available', () => {
-        const {UserProfile, UserQuery} = generateAndCompile(`
-          fragment UserProfile on User {
+        const UserProfile = graphql`
+          fragment RelayReaderTestReadScalarProfile on User {
             id
           }
-          query UserQuery {
+        `;
+        const UserQuery = graphql`
+          query RelayReaderTestReadScalarUserQuery {
             me {
-              ...UserProfile
+              ...RelayReaderTestReadScalarProfile
             }
           }
-        `);
+        `;
+
         const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
@@ -1080,17 +1014,19 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing', () => {
-        const {UserProfile, UserQuery} = generateAndCompile(`
-          fragment UserProfile on User {
+        const UserProfile = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile on User {
             id
             username
           }
-          query UserQuery {
+        `;
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery {
             me {
-              ...UserProfile
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile
             }
           }
-        `);
+        `;
         const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
@@ -1104,19 +1040,23 @@ describe('RelayReader', () => {
 
     describe('readLink', () => {
       it('should have `isMissingData = false` if data is available', () => {
-        const {ProfilePicture, UserQuery} = generateAndCompile(`
-          fragment ProfilePicture on User {
+        const ProfilePicture = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture on User {
             id
             profilePicture(size: $size) {
               uri
             }
           }
-          query UserQuery($size: [Int]) {
+        `;
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery(
+            $size: [Int]
+          ) {
             me {
-              ...ProfilePicture
+              ...RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture
             }
           }
-        `);
+        `;
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const {data, isMissingData} = read(
           source,
@@ -1134,14 +1074,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing', () => {
-        const {Address} = generateAndCompile(`
-          fragment Address on User {
+        const Address = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress on User {
             id
             address {
               city
             }
           }
-        `);
+        `;
         const {data, isMissingData} = read(
           source,
           createReaderSelector(Address, '1', {}),
@@ -1152,14 +1092,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing (variables)', () => {
-        const {ProfilePicture} = generateAndCompile(`
-          fragment ProfilePicture on User {
+        const ProfilePicture = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePicture on User {
             id
             profilePicture(size: $size) {
               uri
             }
           }
-        `);
+        `;
         const {data, isMissingData} = read(
           source,
           createReaderSelector(ProfilePicture, '1', {
@@ -1237,8 +1177,8 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = false` if data is available', () => {
-        const {UserFriends} = generateAndCompile(`
-          fragment UserFriends on User {
+        const UserFriends = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends on User {
             id
             friends(first: 3) {
               edges {
@@ -1249,7 +1189,7 @@ describe('RelayReader', () => {
               }
             }
           }
-        `);
+        `;
         const {data, isMissingData} = read(
           source,
           createReaderSelector(UserFriends, '1', {}),
@@ -1273,8 +1213,8 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing in the node', () => {
-        const {UserFriends} = generateAndCompile(`
-          fragment UserFriends on User {
+        const UserFriends = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends on User {
             id
             friends(first: 3) {
               edges {
@@ -1286,7 +1226,7 @@ describe('RelayReader', () => {
               }
             }
           }
-        `);
+        `;
         const {data, isMissingData} = read(
           source,
           createReaderSelector(UserFriends, '1', {}),
@@ -1310,8 +1250,8 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing for connection', () => {
-        const {UserFriends} = generateAndCompile(`
-          fragment UserFriends on User {
+        const UserFriends = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends on User {
             id
             friends(first: 2) {
               edges {
@@ -1322,7 +1262,7 @@ describe('RelayReader', () => {
               }
             }
           }
-        `);
+        `;
         const {data, isMissingData} = read(
           source,
           createReaderSelector(UserFriends, '2', {}),
@@ -1333,13 +1273,16 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing for edge in the connection', () => {
-        const {UserFriends, UserQuery} = generateAndCompile(`
-          query UserQuery {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForEdgeInTheConnectionUserQuery {
             me {
-              ...UserFriends
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForEdgeInTheConnectionUserFriends
             }
           }
-          fragment UserFriends on User {
+        `;
+
+        const UserFriends = graphql`
+          fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForEdgeInTheConnectionUserFriends on User {
             id
             friends(first: 1) {
               edges {
@@ -1350,7 +1293,7 @@ describe('RelayReader', () => {
               }
             }
           }
-        `);
+        `;
         const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
@@ -1362,14 +1305,18 @@ describe('RelayReader', () => {
       });
 
       it('should not have missing data if missing fields are client fields', () => {
-        const {UserProfile, UserQuery} = generateAndCompile(`
-          query UserQuery($size: [Int]) {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery(
+            $size: [Int]
+          ) {
             me {
-              ...UserProfile
+              ...RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile
             }
           }
+        `;
 
-          fragment UserProfile on User {
+        const UserProfile = graphql`
+          fragment RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile on User {
             id
             friends(first: 3) {
               client_friends_connection_field
@@ -1416,29 +1363,9 @@ describe('RelayReader', () => {
               client_actor_field
             }
           }
-          extend type User {
-            nickname: String
-            best_friends: FriendsConnection
-            client_actor_field: String
-            client_foo: Foo
-          }
-          extend type Page {
-            client_actor_field: String
-          }
-          extend type FriendsEdge {
-            client_friend_edge_field: String
-          }
-          extend type FriendsConnection {
-            client_friends_connection_field: String
-          }
-          extend interface Actor {
-            client_actor_field: String
-          }
-          type Foo {
-            client_name: String
-            profile_picture(scale: Float): Image
-          }
-        `);
+        `;
+        // Extensions are defined in `relay-test-utils-internal/testschema-extensions.graphql`
+
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const {data, isMissingData} = read(
           source,
@@ -1449,18 +1376,22 @@ describe('RelayReader', () => {
       });
 
       it('should not consider data missing if the fragment type does not match the data', () => {
-        const {ActorQuery, UserProfile} = generateAndCompile(`
-          query ActorQuery {
+        const ActorQuery = graphql`
+          query RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataActorQuery {
             viewer {
               actor {
-                ...UserProfile
+                ...RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile
               }
             }
           }
-          fragment UserProfile on User {
+        `;
+
+        const UserProfile = graphql`
+          fragment RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile on User {
             name
           }
-        `);
+        `;
+
         source = new RelayRecordSource({
           'client:root': {
             __id: 'client:root',
@@ -1492,18 +1423,20 @@ describe('RelayReader', () => {
       });
 
       it('should consider data missing if the fragment type is abstract', () => {
-        const {ActorQuery, ActorProfile} = generateAndCompile(`
-          query ActorQuery {
+        const ActorQuery = graphql`
+          query RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery {
             viewer {
               actor {
-                ...ActorProfile
+                ...RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile
               }
             }
           }
-          fragment ActorProfile on Actor {
+        `;
+        const ActorProfile = graphql`
+          fragment RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile on Actor {
             name
           }
-        `);
+        `;
         source = new RelayRecordSource({
           'client:root': {
             __id: 'client:root',
@@ -1534,16 +1467,20 @@ describe('RelayReader', () => {
       });
 
       it('should consider data missing if the fragment is concrete but on the root', () => {
-        const {Query, RootFragment} = generateAndCompile(`
-          query Query {
-            ...RootFragment
+        const Query = graphql`
+          query RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery {
+            ...RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment
           }
-          fragment RootFragment on Query {
+        `;
+
+        const RootFragment = graphql`
+          fragment RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment on Query {
             me {
               name
             }
           }
-        `);
+        `;
+
         source = new RelayRecordSource({
           'client:root': {
             __id: 'client:root',
@@ -1567,24 +1504,25 @@ describe('RelayReader', () => {
       let UserQuery;
       let UserProfile;
       beforeEach(() => {
-        const nodes = generateAndCompile(
-          ` fragment UserProfile on User {
-              friends(first: 3) @stream_connection(key: "UserProfile_friends", initial_count: 0) {
-                edges  {
-                  node {
-                    name
-                  }
+        UserProfile = graphql`
+          fragment RelayReaderTestStreamConnectionUserProfile on User {
+            friends(first: 3)
+              @stream_connection(key: "UserProfile_friends", initial_count: 0) {
+              edges {
+                node {
+                  name
                 }
               }
             }
-            query UserQuery($id: ID!) {
-              node(id: $id) {
-                ...UserProfile
-              }
-            }`,
-        );
-        UserQuery = nodes.UserQuery;
-        UserProfile = nodes.UserProfile;
+          }
+        `;
+        UserQuery = graphql`
+          query RelayReaderTestStreamConnectionUserQuery($id: ID!) {
+            node(id: $id) {
+              ...RelayReaderTestStreamConnectionUserProfile
+            }
+          }
+        `;
       });
 
       it('should not have missing data if all data is fetched', () => {
@@ -1734,20 +1672,22 @@ describe('RelayReader', () => {
     });
 
     it('does not record a dependency on type records for abstract type discriminators', () => {
-      const {Query, Fragment} = generateAndCompile(`
-      query Query {
-        me {
-          ...Fragment
-        }
-      }
-      fragment Fragment on Node {
-        actor {
-          ... on Entity {
-            url
+      const Query = graphql`
+        query RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery {
+          me {
+            ...RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment
           }
         }
-      }
-    `);
+      `;
+      const Fragment = graphql`
+        fragment RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment on Node {
+          actor {
+            ... on Entity {
+              url
+            }
+          }
+        }
+      `;
       const userTypeID = generateTypeID('User');
       const pageTypeID = generateTypeID('Page');
       const data = {
@@ -1795,24 +1735,18 @@ describe('RelayReader', () => {
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
-      ({FlightQuery} = generateAndCompile(`
-        query FlightQuery($id: ID!, $count: Int!) {
+      FlightQuery = graphql`
+        query RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery(
+          $id: ID!
+          $count: Int!
+        ) {
           node(id: $id) {
             ... on Story {
               flightComponent(condition: true, count: $count, id: $id)
             }
           }
         }
-
-        extend type Story {
-          flightComponent(
-            condition: Boolean!
-            count: Int!
-            id: ID!
-          ): ReactFlightComponent
-            @react_flight_component(name: "FlightComponent.server")
-        }
-      `));
+      `;
     });
     afterEach(() => {
       RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;

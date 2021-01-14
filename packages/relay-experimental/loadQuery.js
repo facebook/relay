@@ -84,21 +84,52 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     force: true,
   };
 
+  // executeWithNetworkSource will retain and execute an operation
+  // against the Relay store, given an Observable that would provide
+  // the network events for the operation.
+  let retainReference;
+  let didExecuteNetworkSource = false;
+  const executeWithNetworkSource = (
+    operation: OperationDescriptor,
+    networkObservable: Observable<GraphQLResponse>,
+  ): Observable<GraphQLResponse> => {
+    didExecuteNetworkSource = true;
+    retainReference = environment.retain(operation);
+    return environment.executeWithSource({
+      operation,
+      source: networkObservable,
+    });
+  };
+
+  // N.B. For loadQuery, we unconventionally want to return an Observable
+  // that isn't lazily executed, meaning that we don't want to wait
+  // until the returned Observable is subscribed to to actually start
+  // fetching and executing an operation; i.e. we want to execute the
+  // operation eagerly, when loadQuery is called.
+  // For this reason, we use an intermediate executionSubject which
+  // allows us to capture the events that occur during the eager execution
+  // of the operation, and then replay them to the Observable we
+  // ultimately return.
+  const executionSubject = new ReplaySubject();
+  const returnedObservable = Observable.create(sink =>
+    executionSubject.subscribe(sink),
+  );
+
   let unsubscribeFromNetworkRequest;
   let networkError = null;
   // makeNetworkRequest will immediately start a raw network request if
   // one isn't already in flight and return an Observable that when
   // subscribed to will replay the network events that have occured so far,
   // as well as subsequent events.
-  let madeNetworkRequest = false;
+  let didMakeNetworkRequest = false;
   const makeNetworkRequest = (params): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
-    // madeNetworkRequest is safe to rely on in the returned value
+    // didMakeNetworkRequest is safe to rely on in the returned value
     // Even if the request gets deduped below, we still wan't to return an
     // observable that provides the replayed network events for the query,
     // so we set this to true before deduping, to guarantee that the
     // `source` observable is returned.
-    madeNetworkRequest = true;
+    didMakeNetworkRequest = true;
 
     let observable;
     const subject = new ReplaySubject();
@@ -129,7 +160,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       observable = network.execute(params, variables, networkCacheConfig);
     }
 
-    ({unsubscribe: unsubscribeFromNetworkRequest} = observable.subscribe({
+    const {unsubscribe} = observable.subscribe({
       error(err) {
         networkError = err;
         subject.error(err);
@@ -140,38 +171,16 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       complete() {
         subject.complete();
       },
-    }));
-    return Observable.create(sink => subject.subscribe(sink));
-  };
-
-  // executeWithNetworkSource will retain and execute an operation
-  // against the Relay store, given an Observable that would provide
-  // the network events for the operation.
-  let retainReference;
-  const executeWithNetworkSource = (
-    operation: OperationDescriptor,
-    networkObservable: Observable<GraphQLResponse>,
-  ): Observable<GraphQLResponse> => {
-    retainReference = environment.retain(operation);
-    return environment.executeWithSource({
-      operation,
-      source: networkObservable,
+    });
+    unsubscribeFromNetworkRequest = unsubscribe;
+    return Observable.create(sink => {
+      const subjectSubscription = subject.subscribe(sink);
+      return () => {
+        subjectSubscription.unsubscribe();
+        unsubscribeFromNetworkRequest();
+      };
     });
   };
-
-  // N.B. For loadQuery, we unconventionally want to return an Observable
-  // that isn't lazily executed, meaning that we don't want to wait
-  // until the returned Observable is subscribed to to actually start
-  // fetching and executing an operation; i.e. we want to execute the
-  // operation eagerly, when loadQuery is called.
-  // For this reason, we use an intermediate executionSubject which
-  // allows us to capture the events that occur during the eager execution
-  // of the operation, and then replay them to the Observable we
-  // ultimately return.
-  const executionSubject = new ReplaySubject();
-  const returnedObservable = Observable.create(sink =>
-    executionSubject.subscribe(sink),
-  );
 
   let unsubscribeFromExecution;
   const executeDeduped = (
@@ -187,7 +196,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       // an observable that provides the replayed network events for the query,
       // so we set this to true before deduping, to guarantee that the `source`
       // observable is returned.
-      madeNetworkRequest = true;
+      didMakeNetworkRequest = true;
     }
 
     // Here, we are calling fetchQueryDeduped, which ensures that only
@@ -301,8 +310,11 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       if (isDisposed) {
         return;
       }
-      unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
-      unsubscribeFromExecution && unsubscribeFromExecution();
+      if (didExecuteNetworkSource) {
+        unsubscribeFromExecution && unsubscribeFromExecution();
+      } else {
+        unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
+      }
       retainReference && retainReference.dispose();
       cancelOnLoadCallback && cancelOnLoadCallback();
       isDisposed = true;
@@ -320,7 +332,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     name: params.name,
     networkCacheConfig,
     fetchPolicy,
-    source: madeNetworkRequest ? returnedObservable : undefined,
+    source: didMakeNetworkRequest ? returnedObservable : undefined,
     variables,
   };
 }

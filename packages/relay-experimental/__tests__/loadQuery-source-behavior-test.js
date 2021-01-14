@@ -75,8 +75,16 @@ let writeDataToStore;
 let sink;
 let next;
 let error;
+let complete;
+let executeObservable;
+let executeUnsubscribe;
+let networkUnsubscribe;
 
 beforeEach(() => {
+  next = jest.fn();
+  error = jest.fn();
+  complete = jest.fn();
+
   // In several tests, we expect unhandled errors from network requests
   // that emit errors after the query reference has been disposed.
   // The default behavior when encountering unhandled errors is to fail
@@ -94,14 +102,45 @@ beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
-    return Observable.create(_sink => {
+    const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    const originalSubscribe = observable.subscribe.bind(observable);
+    networkUnsubscribe = jest.fn();
+    jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
+      const subscription = originalSubscribe(...args);
+      jest
+        .spyOn(subscription, 'unsubscribe')
+        .mockImplementation(() => networkUnsubscribe());
+      return subscription;
+    });
+    return observable;
   });
 
   environment = createMockEnvironment({network: Network.create(fetch)});
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);
+
+  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+  executeObservable = undefined;
+  executeUnsubscribe = undefined;
+
+  jest
+    .spyOn(environment, 'executeWithSource')
+    .mockImplementation((...params) => {
+      executeObservable = originalExecuteWithSource(...params);
+      const originalSubscribe = executeObservable.subscribe.bind(
+        executeObservable,
+      );
+      jest
+        .spyOn(executeObservable, 'subscribe')
+        .mockImplementation(subscriptionCallbacks => {
+          originalSubscribe(subscriptionCallbacks);
+          executeUnsubscribe = jest.fn();
+          return {unsubscribe: executeUnsubscribe};
+        });
+      return executeObservable;
+    });
 
   writeDataToStore = () => {
     loadQuery(environment, preloadableConcreteRequest, variables);
@@ -129,10 +168,12 @@ beforeEach(() => {
 
     next = jest.fn();
     error = jest.fn();
+    complete = jest.fn();
     if (loadedQuery.source) {
       loadedQuery.source.subscribe({
         next,
         error,
+        complete,
       });
     }
 
@@ -349,6 +390,68 @@ describe('when passed a PreloadableConcreteRequest', () => {
         Observable.onUnhandledError(() => done());
         sink.error(networkError);
         expect(error).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('when loading and disposing same query multiple times', () => {
+      it('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', () => {
+        // This test case simulates what happens in useQueryLoader or useEntryPointLoader, where the load
+        // function can be called multiple times, and all previous query references corresponding to prior
+        // calls to load will get disposed
+
+        // Start initial load of query
+        const queryRef1 = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {fetchPolicy: 'store-or-network'},
+        );
+
+        // Assert that we start a network request, but we can't start
+        // processing results (executeWithSource) since the query ast module
+        // isn't available yet.
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(environment.executeWithSource).toBeCalledTimes(0);
+
+        // Provide the query module ast
+        PreloadableQueryRegistry.set(ID, query);
+        // Assert that we are now able to start processing query results.
+        expect(environment.executeWithSource).toBeCalledTimes(1);
+
+        // Start second load of query
+        const queryRef2 = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {fetchPolicy: 'store-or-network'},
+        );
+
+        // Assert that we don't start a new network request or
+        // processing execution, since they should be deduped with
+        // the ones already in flight.
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(environment.executeWithSource).toBeCalledTimes(1);
+
+        // Dispose of the initial query reference, like
+        // useQueryLoader or useEntryPointLoader would
+        queryRef1.dispose();
+        expect(networkUnsubscribe).toHaveBeenCalledTimes(0);
+        expect(executeUnsubscribe).toHaveBeenCalledTimes(0);
+
+        // Provide the initial response from the network
+        sink.next(response);
+        sink.complete();
+
+        // Subscribe to the query reference and assert that
+        // we can observe the query results
+        queryRef2.source?.subscribe({
+          next,
+          error,
+          complete,
+        });
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith(response);
+        expect(complete).toHaveBeenCalledTimes(1);
       });
     });
   });

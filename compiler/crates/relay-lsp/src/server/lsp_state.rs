@@ -382,8 +382,21 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     fn preload_documentation(&self) {
         for project_config in self.config.enabled_projects() {
             self.extra_data_provider
-                .get_schema_documentation(project_config.name.lookup().to_string());
+                .get_schema_documentation(self.get_schema_name_for_project(&project_config.name));
         }
+    }
+
+    pub fn get_schema_name_for_project(&self, project_name: &StringKey) -> String {
+        for project_config in self.config.enabled_projects() {
+            if project_name == &project_config.name {
+                return project_config
+                    .schema_name
+                    .clone()
+                    .unwrap_or_else(|| project_name.lookup().to_string());
+            }
+        }
+
+        panic!("Expected to find project with name {}", project_name)
     }
 
     fn log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, errors: &[T]) {

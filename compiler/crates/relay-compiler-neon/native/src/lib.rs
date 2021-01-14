@@ -83,6 +83,7 @@ fn create_configs() -> (Config, ProjectConfig) {
         shard_strip_regex: None,
         extensions: vec![],
         enabled: true,
+        schema_name: None,
         schema_location: SchemaLocation::File(Default::default()),
         typegen_config: Default::default(),
         persist: None,

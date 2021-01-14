@@ -1822,6 +1822,7 @@ dependencies = [
  "relay-compiler",
  "relay-test-schema",
  "schema",
+ "schema-documentation",
  "schema-print",
  "serde",
  "serde_json",

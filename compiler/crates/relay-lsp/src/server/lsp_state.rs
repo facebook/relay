@@ -21,9 +21,10 @@ use relay_compiler::{
     FileSourceSubscription,
 };
 use schema::SDLSchema;
-use std::fmt;
+use schema_documentation::SchemaDocumentation;
 use std::{
     collections::{HashMap, HashSet},
+    fmt,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
@@ -64,6 +65,7 @@ pub trait LSPExtraDataProvider {
         parent_type: String,
         field_name: Option<String>,
     ) -> Option<Result<(String, u64), String>>;
+    fn get_schema_documentation(&self, schema_name: String) -> Arc<SchemaDocumentation>;
 }
 
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
@@ -124,6 +126,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         lsp_state.initial_build(&mut compiler_state, &setup_event, Arc::clone(&perf_logger))?;
 
+        // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
+        lsp_state.preload_documentation();
+
         // Finally, start a dedicated watchman subscription, just for LSP to update schemas/programs in lsp_state
         lsp_state.watch_and_update_schemas(
             compiler_state,
@@ -138,6 +143,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         perf_logger.flush();
 
         lsp_state.compiler = Some(Compiler::new(Arc::clone(&lsp_state.config), perf_logger));
+
 
         Ok(lsp_state)
     }
@@ -371,6 +377,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         log_event.stop(timer);
         Ok(())
+    }
+
+    fn preload_documentation(&self) {
+        for project_config in self.config.enabled_projects() {
+            self.extra_data_provider
+                .get_schema_documentation(project_config.name.lookup().to_string());
+        }
     }
 
     fn log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, errors: &[T]) {

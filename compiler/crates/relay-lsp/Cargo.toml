@@ -16,6 +16,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
 relay-compiler = { path = "../relay-compiler" }
 schema = { path = "../schema" }
+schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 crossbeam = "0.7"
 lazy_static = "1.0"

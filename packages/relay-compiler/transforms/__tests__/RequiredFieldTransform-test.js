@@ -82,7 +82,7 @@ describe('RequiredFieldTransform Feature Flag', () => {
       expect(() => {
         context.applyTransforms([RequiredFieldTransform.transform]);
       }).toThrowError(
-        /^The @required directive is experimental and not yet supported for use in product code/,
+        /^(- )?The @required directive is experimental and not yet supported for use in product code/,
       );
     });
   });
@@ -121,7 +121,7 @@ describe('RequiredFieldTransform Feature Flag', () => {
       expect(() => {
         context.applyTransforms([RequiredFieldTransform.transform]);
       }).toThrowError(
-        /^The @required directive is experimental and not yet supported for use in product code/,
+        /^(- )?The @required directive is experimental and not yet supported for use in product code/,
       );
     });
   });
@@ -140,7 +140,7 @@ describe('RequiredFieldTransform Feature Flag', () => {
       expect(() => {
         context.applyTransforms([RequiredFieldTransform.transform]);
       }).toThrowError(
-        /^The @required directive is experimental and not yet supported for use in product code/,
+        /^(- )?The @required directive is experimental and not yet supported for use in product code/,
       );
     });
 
@@ -154,7 +154,7 @@ describe('RequiredFieldTransform Feature Flag', () => {
       expect(() => {
         context.applyTransforms([RequiredFieldTransform.transform]);
       }).toThrowError(
-        /^The @required directive is experimental and not yet supported for use in product code/,
+        /^(- )?The @required directive is experimental and not yet supported for use in product code/,
       );
     });
   });

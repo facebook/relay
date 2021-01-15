@@ -10,14 +10,14 @@ mutation TestMutation {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Relay does not allow \`__typename\` field on Query, Mutation or Subscription
-
-Source: GraphQL request (3:3)
-2: mutation TestMutation {
-3:   __typename
-     ^
-4: }
-
+- Relay does not allow \`__typename\` field on Query, Mutation or Subscription
+  
+  Source: GraphQL request (3:3)
+  2: mutation TestMutation {
+  3:   __typename
+       ^
+  4: }
+  
 `;
 
 exports[`matches expected output: typename-on-query.invalid.graphql 1`] = `
@@ -33,12 +33,12 @@ query TestQuery {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Relay does not allow \`__typename\` field on Query, Mutation or Subscription
-
-Source: GraphQL request (3:3)
-2: query TestQuery {
-3:   __typename
-     ^
-4:   me {
-
+- Relay does not allow \`__typename\` field on Query, Mutation or Subscription
+  
+  Source: GraphQL request (3:3)
+  2: query TestQuery {
+  3:   __typename
+       ^
+  4:   me {
+  
 `;

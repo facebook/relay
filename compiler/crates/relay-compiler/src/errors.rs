@@ -80,7 +80,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Watchman error.")]
+    #[error("Watchman error: {source}.")]
     Watchman {
         #[from]
         source: watchman_client::Error,

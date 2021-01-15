@@ -144,8 +144,15 @@ pub fn test_fixture<T, U, V>(
         }
 
         if env::var_os("UPDATE_SNAPSHOTS").is_some() {
-            File::create("tests/".to_string() + expected_file_name)
-                .unwrap()
+            let file_name = format!("tests/{}", expected_file_name);
+            File::create(&file_name)
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "Unable to create {}/{}",
+                        env::current_dir().unwrap().to_str().unwrap(),
+                        file_name
+                    )
+                })
                 .write_all(actual.as_bytes())
                 .unwrap();
         } else {

@@ -66,6 +66,10 @@ impl Type {
         matches!(self, Type::Object(_))
     }
 
+    pub fn is_input_object(self) -> bool {
+        matches!(self, Type::InputObject(_))
+    }
+
     pub fn is_interface(self) -> bool {
         matches!(self, Type::Interface(_))
     }

@@ -161,7 +161,7 @@ const configs = [{
 ```
 
 ### RANGE_ADD
-Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the connectionInfo.
+Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the `connectionInfo`.
 
 #### Arguments
 * `parentID: string`: The DataID of the parent node that contains the
@@ -262,7 +262,7 @@ When you provide these functions, this is roughly what happens during the mutati
 - Relay will then automatically update the fields under the record corresponding to the ids in the response payload.
 - If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
 
-Here are a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
+Here's a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
 
 ```javascript
 // AddTodoMutation.js

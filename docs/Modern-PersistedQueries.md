@@ -22,7 +22,7 @@ In your `npm` script in `package.json`, run the relay compiler using the `--pers
 }
 ```
 
-The `--persist-ouput` flag does 3 things:
+The `--persist-ouput` flag does 2 things:
 
 1. It converts all query and mutation operation texts to md5 hashes.
 

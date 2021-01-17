@@ -22,9 +22,7 @@ If you're new to Relay, we provide some basic debugging strategies that should s
 
 ## Tools
 
-Relay DevTools is tool designed to help developers inspect their Relay state and understand how store changes overtime. Relay DevTools ships in two ways:
-
-- [Chrome Extension][extension] creates a Relay tab in the developer tools interface for debugging apps in Chrome
+Relay DevTools is a tool designed to help developers inspect their Relay state and understand how the store changes overtime. Relay DevTools ships as a [Chrome Extension][extension] which creates a Relay tab in the developer tools interface for debugging apps in Chrome.
 
 ![Store Explorer](/img/docs/store-explorer-updated.png)
 ![Mutations View](/img/docs/mutations-view-updated.png)

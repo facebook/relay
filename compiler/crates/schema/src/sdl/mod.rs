@@ -51,15 +51,15 @@ pub struct SDLSchema {
 
 impl Schema for SDLSchema {
     fn query_type(&self) -> Option<Type> {
-        self.query_type.as_ref().map(|x| Type::Object(*x))
+        self.query_type.map(Type::Object)
     }
 
     fn mutation_type(&self) -> Option<Type> {
-        self.mutation_type.as_ref().map(|x| Type::Object(*x))
+        self.mutation_type.map(Type::Object)
     }
 
     fn subscription_type(&self) -> Option<Type> {
-        self.subscription_type.as_ref().map(|x| Type::Object(*x))
+        self.subscription_type.map(Type::Object)
     }
 
     fn clientid_field(&self) -> FieldID {
@@ -75,7 +75,7 @@ impl Schema for SDLSchema {
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
-        self.type_map.get(&type_name).cloned()
+        self.type_map.get(&type_name).copied()
     }
 
     fn get_directive(&self, name: StringKey) -> Option<&Directive> {
@@ -143,7 +143,8 @@ impl Schema for SDLSchema {
     fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
         // Special case for __typename and __id fields, which should not be in the list of type fields
         // but should be fine to select.
-        let can_have_typename = parent_type.is_object() || parent_type.is_abstract_type();
+        let can_have_typename =
+            matches!(parent_type, Type::Object(_) | Type::Interface(_) | Type::Union(_));
         if can_have_typename {
             if name == self.typename_field_name {
                 return Some(self.typename_field);

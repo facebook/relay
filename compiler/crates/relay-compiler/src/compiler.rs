@@ -177,7 +177,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         .write()
                         .unwrap()
                         .push(file_source_changes);
-                    notify_sender.notify();
+                    notify_sender.notify_one();
                 }
             }
         });
@@ -186,7 +186,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             notify_receiver.notified().await;
             // Single change to file sometimes produces 2 watchman change events for the same file
             // wait for 50ms in case there is a subsequent request
-            tokio::time::delay_for(std::time::Duration::from_millis(50)).await;
+            tokio::time::sleep(std::time::Duration::from_millis(50)).await;
             if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");

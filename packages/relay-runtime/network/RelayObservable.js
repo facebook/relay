@@ -504,6 +504,8 @@ function fromAsyncIterator<T>(obj: AsyncIterator<T>): RelayObservable<T> {
       }
       sink.complete();
     })().catch(sink.error);
+
+    return () => obj.return?.()
   });
 }
 

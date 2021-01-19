@@ -29,3 +29,4 @@ tokio = { version = "1", features = ["full", "test-util"] }
 
 [dev-dependencies]
 relay-test-schema = { path = "../relay-test-schema" }
+assert_matches = "1.3"

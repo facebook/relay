@@ -17,6 +17,7 @@ pub mod lsp_process_error;
 mod lsp_runtime_error;
 mod node_resolution_info;
 mod references;
+mod resolution_path;
 mod server;
 mod shutdown;
 mod status_reporting;
@@ -29,6 +30,9 @@ use lsp_process_error::LSPProcessResult;
 use lsp_server::Connection;
 use relay_compiler::config::Config;
 use std::sync::Arc;
+#[cfg(test)]
+#[macro_use]
+extern crate assert_matches;
 
 pub async fn start_language_server<TPerfLogger>(
     config: Config,

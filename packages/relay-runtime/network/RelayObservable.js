@@ -468,7 +468,10 @@ declare function isAsyncIterator(p: mixed): boolean %checks(p instanceof
   AsyncIterator);
 
 function isAsyncIterator(obj) {
-  return typeof obj === 'object' && typeof obj[Symbol.asyncIterator] < 'u';
+  return typeof val < 'u' &&
+    val !== null &&
+      (val[Symbol.toStringTag] === 'AsyncGenerator' ||
+        (Symbol.asyncIterator && Symbol.asyncIterator in val));
 }
 
 function fromObservable<T>(obj: Subscribable<T>): RelayObservable<T> {

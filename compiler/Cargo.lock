@@ -248,16 +248,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "console_error_panic_hook"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8d976903543e0c48546a91908f21588a680a8c8f984df9a5d69feccb2b2a211"
-dependencies = [
- "cfg-if 0.1.10",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "const-random"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -459,12 +449,6 @@ name = "crunchy"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
-
-[[package]]
-name = "cslice"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "697c714f50560202b1f4e2e09cd50a421881c83e9025db75d15f276616f04f40"
 
 [[package]]
 name = "csv"
@@ -1311,48 +1295,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "neon"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6cac4691701b686e6c07b2eb5b51a9f26f5c11179c5d7924b78100dd387fc99d"
-dependencies = [
- "cslice",
- "neon-build",
- "neon-runtime",
- "semver",
-]
-
-[[package]]
-name = "neon-build"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9ed332afd4711b84f4f83d334428a1fd9ce53620b62b87595934297c5ede2ed"
-dependencies = [
- "cfg-if 0.1.10",
- "neon-sys",
-]
-
-[[package]]
-name = "neon-runtime"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2beea093a60c08463f65e1da4cda68149986f60d8d2177489b44589463c782a6"
-dependencies = [
- "cfg-if 0.1.10",
- "neon-sys",
-]
-
-[[package]]
-name = "neon-sys"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69a6c1ba6b926746f4d3f596de18ce49d062d78fd9f35f636080232aa77a0e16"
-dependencies = [
- "cc",
- "regex",
-]
-
-[[package]]
 name = "net2"
 version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1820,36 +1762,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "watchman_client",
-]
-
-[[package]]
-name = "relay-compiler-neon"
-version = "0.1.0"
-dependencies = [
- "common",
- "graphql-ir",
- "graphql-syntax",
- "graphql-text-printer",
- "interner",
- "neon",
- "neon-build",
- "relay-codegen",
- "relay-compiler",
- "relay-transforms",
- "schema",
-]
-
-[[package]]
-name = "relay-compiler-wasm"
-version = "0.1.0"
-dependencies = [
- "common",
- "console_error_panic_hook",
- "graphql-ir",
- "graphql-syntax",
- "schema",
- "wasm-bindgen",
- "web-sys",
 ]
 
 [[package]]

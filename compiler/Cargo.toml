@@ -15,8 +15,6 @@ members = [
     "crates/persist-query",
     "crates/relay-codegen",
     "crates/relay-compiler",
-    "crates/relay-compiler-neon/native",
-    "crates/relay-compiler-wasm",
     "crates/relay-lsp",
     "crates/relay-schema",
     "crates/relay-test-schema",

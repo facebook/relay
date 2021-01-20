@@ -11,8 +11,6 @@
 
 // flowlint ambiguous-object-type:error
 
-'use strict';
-
 import useFragment from '../useFragment';
 import {
   fragmentInput,

@@ -11,8 +11,6 @@
 
 // flowlint ambiguous-object-type:error
 
-'use strict';
-
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import usePaginationFragment from '../usePaginationFragment';
 import {

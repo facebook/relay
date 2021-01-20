@@ -11,8 +11,6 @@
 
 // flowlint ambiguous-object-type:error
 
-'use strict';
-
 import useRefetchableFragment from '../useRefetchableFragment';
 import {
   fragmentInput,

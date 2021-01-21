@@ -990,18 +990,16 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
     let (document, position_span, project_name) =
         state.extract_executable_document_from_text(params.text_document_position, 0)?;
 
-    let completion_request = CompletionRequestBuilder::new(project_name)
-        .create_completion_request(document, position_span)
-        .ok_or(LSPRuntimeError::ExpectedError)?;
-
     if let Some(schema) = state
         .get_schemas()
         .read()
         .expect("on_completion: could not acquire read lock for state.get_schemas")
         .get(&project_name)
     {
-        let items = completion_items_for_request(
-            completion_request,
+        let items = resolve_completion_items(
+            document,
+            position_span,
+            project_name,
             schema,
             state.get_source_programs_ref(),
         )
@@ -1011,3 +1009,20 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
         Err(LSPRuntimeError::ExpectedError)
     }
 }
+
+fn resolve_completion_items(
+    document: ExecutableDocument,
+    position_span: Span,
+    project_name: StringKey,
+    schema: &SDLSchema,
+    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+) -> Option<Vec<CompletionItem>> {
+    let completion_request = CompletionRequestBuilder::new(project_name)
+        .create_completion_request(document, position_span);
+    completion_request.and_then(|completion_request| {
+        completion_items_for_request(completion_request, schema, source_programs)
+    })
+}
+
+#[cfg(test)]
+mod test;

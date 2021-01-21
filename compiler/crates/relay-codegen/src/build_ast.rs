@@ -452,7 +452,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_selections_from_selection(&mut self, selection: &Selection) -> Vec<Primitive> {
         match selection {
-            // TODO(T63303873) Normalization handles
             Selection::Condition(condition) => vec![self.build_condition(&condition)],
             Selection::FragmentSpread(frag_spread) => {
                 vec![self.build_fragment_spread(&frag_spread)]
@@ -520,7 +519,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
-        // TODO(T63303873) check for skipNormalizationNode metadata
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
             CodegenVariant::Normalization => {

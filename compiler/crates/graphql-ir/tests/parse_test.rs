@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5e66518bd5787f41788b165885ced829>>
+ * @generated SignedSource<<9ab1817b2805a8906400e35dc2ed1ac1>>
  */
 
 mod parse;
@@ -472,6 +472,13 @@ fn simple_query() {
     let input = include_str!("parse/fixtures/simple-query.graphql");
     let expected = include_str!("parse/fixtures/simple-query.expected");
     test_fixture(transform_fixture, "simple-query.graphql", "parse/fixtures/simple-query.expected", input, expected);
+}
+
+#[test]
+fn subscription_with_multiple_selections_invalid() {
+    let input = include_str!("parse/fixtures/subscription-with-multiple-selections.invalid.graphql");
+    let expected = include_str!("parse/fixtures/subscription-with-multiple-selections.invalid.expected");
+    test_fixture(transform_fixture, "subscription-with-multiple-selections.invalid.graphql", "parse/fixtures/subscription-with-multiple-selections.invalid.expected", input, expected);
 }
 
 #[test]

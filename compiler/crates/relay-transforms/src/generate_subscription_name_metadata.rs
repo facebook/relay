@@ -58,52 +58,44 @@ impl<'s> Transformer for GenerateSubscriptionNameMetadata<'s> {
     ) -> Transformed<OperationDefinition> {
         match operation.kind {
             OperationKind::Subscription => {
-                if operation.selections.len() != 1 {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
-                            subscription_name: operation.name.item,
-                        },
-                        operation.name.location,
-                    ));
-                    Transformed::Keep
-                } else {
-                    match &operation.selections[0] {
-                        Selection::LinkedField(linked_field) => {
-                            let mut directives = operation.directives.clone();
-                            let subscription_name =
-                                self.program.schema.field(linked_field.definition.item).name;
-                            directives.push(Directive {
+                // We already validate that the subscription contains exactly one selection
+                // during IR construction, so we can just grab it here.
+                match &operation.selections[0] {
+                    Selection::LinkedField(linked_field) => {
+                        let mut directives = operation.directives.clone();
+                        let subscription_name =
+                            self.program.schema.field(linked_field.definition.item).name;
+                        directives.push(Directive {
+                            name: WithLocation::new(
+                                operation.name.location,
+                                *INTERNAL_METADATA_DIRECTIVE,
+                            ),
+                            arguments: vec![Argument {
                                 name: WithLocation::new(
                                     operation.name.location,
-                                    *INTERNAL_METADATA_DIRECTIVE,
+                                    *SUBSCRITION_NAME_METADATA_KEY,
                                 ),
-                                arguments: vec![Argument {
-                                    name: WithLocation::new(
-                                        operation.name.location,
-                                        *SUBSCRITION_NAME_METADATA_KEY,
-                                    ),
-                                    value: WithLocation::new(
-                                        operation.name.location,
-                                        Value::Constant(ConstantValue::String(subscription_name)),
-                                    ),
-                                }],
-                            });
+                                value: WithLocation::new(
+                                    operation.name.location,
+                                    Value::Constant(ConstantValue::String(subscription_name)),
+                                ),
+                            }],
+                        });
 
-                            Transformed::Replace(OperationDefinition {
-                                directives,
-                                ..operation.clone()
-                            })
-                        }
-                        _ => {
-                            self.errors.push(Diagnostic::error(
-                                ValidationMessage::GenerateSubscriptionNameSimpleSelection {
-                                    subscription_name: operation.name.item,
-                                },
-                                operation.name.location,
-                            ));
+                        Transformed::Replace(OperationDefinition {
+                            directives,
+                            ..operation.clone()
+                        })
+                    }
+                    _ => {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::GenerateSubscriptionNameSimpleSelection {
+                                subscription_name: operation.name.item,
+                            },
+                            operation.name.location,
+                        ));
 
-                            Transformed::Keep
-                        }
+                        Transformed::Keep
                     }
                 }
             }

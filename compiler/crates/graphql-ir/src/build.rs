@@ -305,6 +305,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             },
         );
         let operation_type_reference = TypeReference::Named(operation_type);
+        // assert the subscription only contains one selection
+        if let OperationKind::Subscription = kind {
+            if operation.selections.items.len() != 1 {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
+                        subscription_name: name.value,
+                    },
+                    operation.location,
+                )]);
+            }
+        }
         let selections =
             self.build_selections(&operation.selections.items, &operation_type_reference);
         let (directives, selections) = try2(directives, selections)?;

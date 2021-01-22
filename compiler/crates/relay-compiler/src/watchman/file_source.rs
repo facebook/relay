@@ -60,6 +60,7 @@ impl<'config> FileSource<'config> {
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
         info!("querying files to compile...");
+        let query_time = perf_logger_event.start("file_source_query_time");
         // If the saved state flag is passed, load from it or fail.
         if let Some(saved_state_path) = &self.config.load_saved_state_file {
             let mut compiler_state = perf_logger_event.time("deserialize_saved_state", || {
@@ -79,6 +80,7 @@ impl<'config> FileSource<'config> {
                 perf_logger,
                 true,
             )?;
+            perf_logger_event.stop(query_time);
             return Ok(compiler_state);
         }
 
@@ -102,7 +104,10 @@ impl<'config> FileSource<'config> {
                 )
                 .await
             {
-                Ok(load_result) => return load_result,
+                Ok(load_result) => {
+                    perf_logger_event.stop(query_time);
+                    return load_result;
+                }
                 Err(saved_state_failure) => {
                     warn!(
                         "Unable to load saved state, falling back to full build: {}",
@@ -114,12 +119,15 @@ impl<'config> FileSource<'config> {
 
         // Finally, do a simple full query.
         let file_source_result = self.query_file_result(None, perf_logger_event).await?;
-        let compiler_state = CompilerState::from_file_source_changes(
-            &self.config,
-            &file_source_result,
-            perf_logger_event,
-            perf_logger,
-        )?;
+        let compiler_state = perf_logger_event.time("from_file_source_changes", || {
+            CompilerState::from_file_source_changes(
+                &self.config,
+                &file_source_result,
+                perf_logger_event,
+                perf_logger,
+            )
+        })?;
+        perf_logger_event.stop(query_time);
         Ok(compiler_state)
     }
 
@@ -227,9 +235,11 @@ impl<'config> FileSource<'config> {
             .saved_state_info
             .as_ref()
             .ok_or("no saved state in watchman response")?;
-        let saved_state_path = saved_state_loader
-            .load(&saved_state_info)
-            .ok_or("unable to load")?;
+        let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
+            saved_state_loader
+                .load(&saved_state_info)
+                .ok_or("unable to load")
+        })?;
         let mut compiler_state = perf_logger_event
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)
@@ -249,12 +259,14 @@ impl<'config> FileSource<'config> {
             .write()
             .unwrap()
             .push(file_source_result);
-        if let Err(parse_error) = compiler_state.merge_file_source_changes(
-            &self.config,
-            perf_logger_event,
-            perf_logger,
-            true,
-        ) {
+        if let Err(parse_error) = perf_logger_event.time("merge_file_source_changes", || {
+            compiler_state.merge_file_source_changes(
+                &self.config,
+                perf_logger_event,
+                perf_logger,
+                true,
+            )
+        }) {
             Ok(Err(parse_error))
         } else {
             Ok(Ok(compiler_state))

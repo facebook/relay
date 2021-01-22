@@ -1450,19 +1450,18 @@ describe('RelayObservable', () => {
       async function* generate() {
         yield value;
       }
+
+      // Something else will "run" this before, like the fetchFn
       const result = generate();
       const obs = RelayObservable.from(result);
 
+      expect.assertions(1);
       obs.subscribe({
         next: val => {
           expect(val).toEqual(value);
         },
-        error: err => {
-          done(err);
-        },
-        complete: () => {
-          done();
-        },
+        error: err => done(err),
+        complete: () => done(),
       });
     });
 

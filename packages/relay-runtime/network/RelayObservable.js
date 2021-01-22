@@ -467,11 +467,14 @@ function isObservable(obj) {
 declare function isAsyncIterator(p: mixed): boolean %checks(p instanceof
   AsyncIterator);
 
-function isAsyncIterator(obj) {
-  return typeof val < 'u' &&
+function isAsyncIterator(val) {
+  return (
+    typeof val !== undefined &&
     val !== null &&
-      (val[Symbol.toStringTag] === 'AsyncGenerator' ||
-        (Symbol.asyncIterator && Symbol.asyncIterator in val));
+    typeof val === 'object' &&
+    (val[Symbol.toStringTag] === 'AsyncGenerator' ||
+      (Symbol.asyncIterator && Symbol.asyncIterator in val))
+  );
 }
 
 function fromObservable<T>(obj: Subscribable<T>): RelayObservable<T> {
@@ -502,11 +505,13 @@ function fromAsyncIterator<T>(obj: AsyncIterator<T>): RelayObservable<T> {
     (async () => {
       while (true) {
         const {value, done} = await obj.next();
-        if (done) {break;}
+        if (done) break;
         sink.next(value);
       }
       sink.complete();
-    })().catch(sink.error);
+    })().catch(error => {
+      sink.error(error, true /* isUncaughtThrownError */);
+    });
 
     return () => obj.return?.();
   });

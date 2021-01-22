@@ -403,8 +403,8 @@ impl<'s> ConnectionValidation<'s> {
             Some((arg, key_val)) => match key_val {
                 ConstantValue::String(string_val) => {
                     let field_alias_or_name = match connection_field.alias {
-                        Some(alias) => alias.item.lookup(),
-                        None => connection_schema_field.name.lookup(),
+                        Some(alias) => alias.item,
+                        None => connection_schema_field.name,
                     };
                     let postfix = format!("_{}", field_alias_or_name);
                     if !string_val.lookup().ends_with(postfix.as_str()) {

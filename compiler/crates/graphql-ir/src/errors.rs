@@ -123,16 +123,16 @@ pub enum ValidationMessage {
         "Invalid type '{type_condition}' in inline fragment, this type can never occur for parent type '{parent_type}'"
     )]
     InvalidInlineFragmentTypeCondition {
-        parent_type: String,
-        type_condition: String,
+        parent_type: StringKey,
+        type_condition: StringKey,
     },
     #[error(
         "Invalid fragment spread '{fragment_name}', the type of this fragment ('{type_condition}') can never occur for parent type '{parent_type}'"
     )]
     InvalidFragmentSpreadType {
         fragment_name: StringKey,
-        parent_type: String,
-        type_condition: String,
+        parent_type: StringKey,
+        type_condition: StringKey,
     },
     #[error("Directive '{0}' not supported in this location")]
     InvalidDirectiveUsageUnsupportedLocation(StringKey),

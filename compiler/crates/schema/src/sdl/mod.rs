@@ -172,7 +172,7 @@ impl Schema for SDLSchema {
             Type::Union(_) => return None,
             _ => panic!(
                 "Cannot get field {} on type '{:?}', this type does not have fields",
-                name.lookup(),
+                name,
                 self.get_type_name(parent_type)
             ),
         };

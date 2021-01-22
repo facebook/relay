@@ -615,16 +615,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidFragmentSpreadType {
                     fragment_name: spread.name.value,
-                    parent_type: self
-                        .schema
-                        .get_type_name(parent_type.inner())
-                        .lookup()
-                        .to_owned(),
-                    type_condition: self
-                        .schema
-                        .get_type_name(signature.type_condition)
-                        .lookup()
-                        .to_owned(),
+                    parent_type: self.schema.get_type_name(parent_type.inner()),
+                    type_condition: self.schema.get_type_name(signature.type_condition),
                 },
                 self.location.with_span(spread.span),
             )]);
@@ -751,16 +743,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 // no possible overlap
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::InvalidInlineFragmentTypeCondition {
-                        parent_type: self
-                            .schema
-                            .get_type_name(parent_type.inner())
-                            .lookup()
-                            .to_owned(),
-                        type_condition: self
-                            .schema
-                            .get_type_name(type_condition)
-                            .lookup()
-                            .to_owned(),
+                        parent_type: self.schema.get_type_name(parent_type.inner()),
+                        type_condition: self.schema.get_type_name(type_condition),
                     },
                     self.location.with_span(fragment.span),
                 )]);
@@ -1373,7 +1357,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             Ok(Value::Object(fields?))
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
-            missing.sort_by_key(|x| x.lookup());
+            missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
                 self.location.with_span(object.span),
@@ -1502,7 +1486,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             Ok(ConstantValue::Object(fields?))
         } else {
             let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
-            missing.sort_by_key(|x| x.lookup());
+            missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
                 self.location.with_span(object.span),

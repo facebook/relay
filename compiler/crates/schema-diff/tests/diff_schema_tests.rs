@@ -912,16 +912,16 @@ fn sort_change(change: &mut SchemaChange) {
                     ref mut removed,
                     ..
                 } => {
-                    added.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
-                    removed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    added.sort_by_key(|item| item.name);
+                    removed.sort_by_key(|item| item.name);
                 }
                 DefinitionChange::InterfaceChanged {
                     ref mut added,
                     ref mut removed,
                     ..
                 } => {
-                    added.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
-                    removed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    added.sort_by_key(|item| item.name);
+                    removed.sort_by_key(|item| item.name);
                 }
                 DefinitionChange::ObjectChanged {
                     ref mut added,
@@ -931,9 +931,9 @@ fn sort_change(change: &mut SchemaChange) {
                     ref mut interfaces_removed,
                     ..
                 } => {
-                    added.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
-                    removed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
-                    changed.sort_by(|a, b| a.name.lookup().cmp(b.name.lookup()));
+                    added.sort_by_key(|item| item.name);
+                    removed.sort_by_key(|item| item.name);
+                    changed.sort_by_key(|item| item.name);
                     interfaces_added.sort();
                     interfaces_removed.sort();
                 }

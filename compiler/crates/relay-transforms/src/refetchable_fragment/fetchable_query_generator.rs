@@ -31,11 +31,8 @@ fn build_refetch_operation(
         let identifier_field_id = get_identifier_field_id(fragment, schema, identifier_field_name)?;
 
         let query_type = schema.query_type().unwrap();
-        let fetch_field_name = format!(
-            "fetch__{}",
-            schema.get_type_name(fragment.type_condition).lookup()
-        )
-        .intern();
+        let fetch_field_name =
+            format!("fetch__{}", schema.get_type_name(fragment.type_condition)).intern();
         let (fetch_field_id, id_arg) =
             get_fetch_field_id_and_id_arg(fragment, schema, query_type, fetch_field_name)?;
 

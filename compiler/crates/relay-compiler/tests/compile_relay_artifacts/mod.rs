@@ -64,7 +64,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut operations: Vec<&std::sync::Arc<OperationDefinition>> =
         programs.normalization.operations().collect();
-    operations.sort_by(|a, b| a.name.item.lookup().cmp(&b.name.item.lookup()));
+    operations.sort_by_key(|operation| operation.name.item);
     let result = operations
         .into_iter()
         .map(|operation| {
@@ -105,7 +105,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .chain({
             let mut fragments: Vec<&std::sync::Arc<FragmentDefinition>> =
                 programs.reader.fragments().collect();
-            fragments.sort_by(|a, b| a.name.item.lookup().cmp(&b.name.item.lookup()));
+            fragments.sort_by_key(|fragment| fragment.name.item);
             fragments
                 .into_iter()
                 .map(|fragment| print_fragment(&schema, fragment))

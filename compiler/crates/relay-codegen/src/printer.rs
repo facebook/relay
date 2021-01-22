@@ -225,7 +225,7 @@ impl<'b> JSONPrinter<'b> {
                     for ObjectEntry { key, value } in object {
                         f.push('\n');
                         print_indentation(f, next_indent);
-                        write!(f, "\"{}\": ", key.lookup()).unwrap();
+                        write!(f, "\"{}\": ", key).unwrap();
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
                             .unwrap();
                         f.push(',');

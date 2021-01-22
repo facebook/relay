@@ -1225,7 +1225,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
         let mut sorted_args: Vec<&Argument> = arguments.iter().map(|arg| arg).collect();
-        sorted_args.sort_unstable_by_key(|arg| arg.name.item.lookup());
+        sorted_args.sort_unstable_by_key(|arg| arg.name.item);
 
         let args = sorted_args
             .into_iter()
@@ -1391,7 +1391,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             }
             ConstantValue::Object(val_object) => {
                 let mut sorted_val_object: Vec<&_> = val_object.iter().collect();
-                sorted_val_object.sort_unstable_by_key(|arg| arg.name.item.lookup());
+                sorted_val_object.sort_unstable_by_key(|arg| arg.name.item);
 
                 let json_values = sorted_val_object
                     .into_iter()

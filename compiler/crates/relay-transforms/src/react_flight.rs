@@ -206,8 +206,8 @@ impl<'s> ReactFlightTransform<'s> {
     // Generate a metadata directive recording which server components were reachable
     // from the visited IR nodes
     fn generate_flight_local_flight_components_metadata_directive(&self) -> Directive {
-        let mut components: Vec<StringKey> = self.local_components.iter().cloned().collect();
-        components.sort_by_key(|s| s.lookup());
+        let mut components: Vec<StringKey> = self.local_components.iter().copied().collect();
+        components.sort();
         Directive {
             name: WithLocation::generated(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY),
             arguments: vec![Argument {
@@ -222,8 +222,8 @@ impl<'s> ReactFlightTransform<'s> {
     // Generate a server directive recording which server components were *transitively* reachable
     // from the visited IR nodes
     fn generate_flight_transitive_flight_components_server_directive(&self) -> Directive {
-        let mut components: Vec<StringKey> = self.transitive_components.iter().cloned().collect();
-        components.sort_by_key(|s| s.lookup());
+        let mut components: Vec<StringKey> = self.transitive_components.iter().copied().collect();
+        components.sort();
         Directive {
             name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME),
             arguments: vec![Argument {

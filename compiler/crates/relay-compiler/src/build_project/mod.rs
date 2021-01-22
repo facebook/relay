@@ -199,6 +199,7 @@ pub async fn commit_project(
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
 ) -> Result<ArtifactMap, BuildProjectError> {
     let log_event = perf_logger.create_event("commit_project");
+    log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
     if let Some(ref operation_persister) = config.operation_persister {

@@ -232,6 +232,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
         self.config.status_reporter.build_starts();
+        let build_projects_time = setup_event.start("build_projects_time");
         let result = build_projects(
             Arc::clone(&self.config),
             Arc::clone(&self.perf_logger),
@@ -239,7 +240,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             compiler_state,
         )
         .await;
-        let result = match result {
+        setup_event.stop(build_projects_time);
+        let result = setup_event.time("post_build_projects_time", || match result {
             Ok(()) => {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
@@ -255,7 +257,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 }
             }
             Err(error) => Err(error),
-        };
+        });
         self.config.status_reporter.build_finishes(&result);
         result
     }

@@ -102,10 +102,8 @@ where
     )
     .await?;
 
-    // At this point we're ready to provide hover/complete/go_to_definition capabilities
     set_actual_server_status(&connection.sender, &lsp_state.get_errors());
 
-    // And now we can listen for messages and notification
     for msg in connection.receiver {
         info!("LSP message received {:?}", msg);
         match msg {

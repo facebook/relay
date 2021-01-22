@@ -20,7 +20,7 @@ use std::{fs, path::PathBuf};
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
-    static ref REQUEST_ID_REGEX: Regex = Regex::new(r#"@relayRequestID (\w+)\n"#).unwrap();
+    static ref REQUEST_ID_REGEX: Regex = Regex::new(r#"@relayRequestID (.+)\n"#).unwrap();
 }
 
 pub async fn persist_operations(

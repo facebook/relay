@@ -144,7 +144,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         lsp_state.compiler = Some(Compiler::new(Arc::clone(&lsp_state.config), perf_logger));
 
-
         Ok(lsp_state)
     }
 
@@ -181,7 +180,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                             );
                             false
                         });
-
 
                     let mut errors_write_lock = errors.write().unwrap();
 
@@ -413,7 +411,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     /// A quick helper so we can unwrap things and log, if somethings isn't right
     fn log_error(logger: &Arc<TPerfLogger>, error_message: String) {
         let error_event = logger.create_event("lsp_state_error");
-        error_event.string("message", error_message);
+        error_event.string("error", error_message);
         logger.complete_event(error_event);
         logger.flush();
     }

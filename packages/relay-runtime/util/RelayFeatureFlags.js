@@ -23,6 +23,7 @@ type FeatureFlags = {|
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: boolean,
   ENABLE_STORE_SUBSCRIPTIONS_REFACTOR: boolean,
   ENABLE_LOAD_QUERY_REQUEST_DEDUPING: boolean,
+  ENABLE_DO_NOT_WRAP_LIVE_QUERY: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -36,6 +37,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FRIENDLY_QUERY_NAME_GQL_URL: false,
   ENABLE_STORE_SUBSCRIPTIONS_REFACTOR: false,
   ENABLE_LOAD_QUERY_REQUEST_DEDUPING: true,
+  ENABLE_DO_NOT_WRAP_LIVE_QUERY: false,
 };
 
 module.exports = RelayFeatureFlags;

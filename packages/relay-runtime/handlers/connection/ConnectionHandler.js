@@ -306,10 +306,10 @@ function getConnection(
  * ```
  */
 function getConnectionID(
-  recordID: string,
+  recordID: DataID,
   key: string,
   filters?: ?Variables,
-): string {
+): DataID {
   const handleKey = getRelayHandleKey(CONNECTION, key, null);
   const storageKey = getStableStorageKey(handleKey, filters);
   return generateClientID(recordID, storageKey);

@@ -6,6 +6,7 @@
  */
 
 use crate::{
+    code_action::on_code_action,
     completion::on_completion,
     goto_definition::on_goto_definition,
     hover::on_hover,
@@ -31,7 +32,8 @@ use lsp_types::{
     notification::{
         DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument, Exit,
     },
-    request::{Completion, References, Shutdown},
+    request::{CodeActionRequest, Completion, References, Shutdown},
+    CodeActionProviderCapability,
 };
 use relay_compiler::config::Config;
 use std::sync::{Arc, RwLock};
@@ -62,6 +64,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
     server_capabilities.hover_provider = Some(true);
     server_capabilities.definition_provider = Some(true);
     server_capabilities.references_provider = Some(true);
+    server_capabilities.code_action_provider = Some(CodeActionProviderCapability::Simple(true));
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -145,6 +148,7 @@ fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?
             .on_request_sync::<Completion>(on_completion)?
+            .on_request_sync::<CodeActionRequest>(on_code_action)?
             .on_request_sync::<Shutdown>(on_shutdown)?
             .request();
 

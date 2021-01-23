@@ -15,6 +15,8 @@ pub fn validate_module_names(program: &Program) -> DiagnosticsResult<()> {
     (ValidateModuleNames {}).validate_program(program)
 }
 
+pub use extract_module_name::extract_module_name;
+
 pub struct ValidateModuleNames {}
 
 impl Validator for ValidateModuleNames {
@@ -25,8 +27,7 @@ impl Validator for ValidateModuleNames {
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         let operation_name = operation.name.item.to_string();
         let path = operation.name.location.source_location().path();
-        let module_name =
-            extract_module_name::extract_module_name(path).expect("Unable to extract module name.");
+        let module_name = extract_module_name(path).expect("Unable to extract module name.");
         let (operation_type_suffix, pluralized_string) = match operation.kind {
             OperationKind::Query => ("Query", "Queries"),
             OperationKind::Mutation => ("Mutation", "Mutations"),

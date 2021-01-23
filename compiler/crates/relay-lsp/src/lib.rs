@@ -8,6 +8,7 @@
 #![deny(clippy::all)]
 
 mod client;
+mod code_action;
 mod completion;
 mod goto_definition;
 mod hover;

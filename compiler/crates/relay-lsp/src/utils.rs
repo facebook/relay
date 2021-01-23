@@ -9,41 +9,77 @@ use std::{collections::HashMap, path::PathBuf};
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::{SourceLocationKey, Span};
-use graphql_syntax::{parse_executable_with_error_recovery, ExecutableDocument, GraphQLSource};
+use graphql_syntax::{
+    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
+};
 use interner::StringKey;
 use log::info;
-use lsp_types::{Position, TextDocumentPositionParams, Url};
+use lsp_types::{Position, TextDocumentIdentifier, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 
-/// Return a `GraphQLSource` for a given position, if the position
-/// falls within a graphql literal.
-fn get_graphql_source<'a>(
-    text_document_position: &'a TextDocumentPositionParams,
+/// Return a vector of `GraphQLSource` from the document
+fn get_all_graphql_sources_from_text_document<'a>(
+    text_document: &'a TextDocumentIdentifier,
     graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
-) -> LSPRuntimeResult<&'a GraphQLSource> {
-    let TextDocumentPositionParams {
-        text_document,
-        position,
-    } = text_document_position;
-    let url = &text_document.uri;
+) -> LSPRuntimeResult<&'a Vec<GraphQLSource>> {
+    let uri = &text_document.uri;
 
     let graphql_sources = graphql_source_cache
-        .get(url)
+        .get(uri)
         // If the source isn't present in the source cache, then that means that
         // the source has no graphql documents.
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
+    Ok(graphql_sources)
+}
+
+/// Return a `GraphQLSource` for a given position, if the position
+/// falls within a graphql literal.
+fn get_graphql_source_from_text_document_position<'a>(
+    text_document_position: &'a TextDocumentPositionParams,
+    graphql_source_cache: &'a HashMap<Url, Vec<GraphQLSource>>,
+) -> LSPRuntimeResult<&'a GraphQLSource> {
+    let TextDocumentPositionParams { position, .. } = text_document_position;
+
     // We have GraphQL documents, now check if the position
     // falls within the range of one of these documents.
-    let graphql_source = graphql_sources
-        .iter()
-        .find(|graphql_source| {
-            let range = graphql_source.to_range();
-            position >= &range.start && position <= &range.end
-        })
-        .ok_or_else(|| LSPRuntimeError::ExpectedError)?;
+    get_all_graphql_sources_from_text_document(
+        &text_document_position.text_document,
+        graphql_source_cache,
+    )?
+    .iter()
+    .find(|graphql_source| {
+        let range = graphql_source.to_range();
+        position >= &range.start && position <= &range.end
+    })
+    .ok_or(LSPRuntimeError::ExpectedError)
+}
 
-    Ok(graphql_source)
+pub fn extract_executable_definitions_from_text(
+    text_document_position: TextDocumentPositionParams,
+    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
+) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+    let graphql_sources = get_all_graphql_sources_from_text_document(
+        &text_document_position.text_document,
+        graphql_source_cache,
+    )?;
+    let url = &text_document_position.text_document.uri;
+
+    let definitions = graphql_sources
+        .iter()
+        .map(|graphql_source| {
+            let document = parse_executable_with_error_recovery(
+                &graphql_source.text,
+                SourceLocationKey::standalone(&url.to_string()),
+            )
+            .item;
+
+            document.definitions
+        })
+        .flatten()
+        .collect::<Vec<ExecutableDefinition>>();
+
+    Ok(definitions)
 }
 
 /// Return a parsed executable document for this LSP request, only if the request occurs
@@ -55,7 +91,10 @@ pub fn extract_executable_document_from_text(
     root_dir: &PathBuf,
     index_offset: usize,
 ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
-    let graphql_source = get_graphql_source(&text_document_position, graphql_source_cache)?;
+    let graphql_source = get_graphql_source_from_text_document_position(
+        &text_document_position,
+        graphql_source_cache,
+    )?;
     let url = &text_document_position.text_document.uri;
     let position = text_document_position.position;
     let absolute_file_path = PathBuf::from(url.path());

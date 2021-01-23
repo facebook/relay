@@ -9,11 +9,11 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
-    utils::extract_executable_document_from_text,
+    utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
 };
 use common::{PerfLogEvent, PerfLogger, Span};
 use graphql_ir::Program;
-use graphql_syntax::{ExecutableDocument, GraphQLSource};
+use graphql_syntax::{ExecutableDefinition, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{
@@ -248,6 +248,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             &self.file_categorizer,
             &self.root_dir,
         )
+    }
+
+    pub(crate) fn resolve_executable_definitions(
+        &self,
+        params: TextDocumentPositionParams,
+    ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
+        extract_executable_definitions_from_text(params, &self.synced_graphql_documents)
     }
 
     pub(crate) fn root_dir(&self) -> &PathBuf {

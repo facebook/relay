@@ -15,6 +15,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
 relay-compiler = { path = "../relay-compiler" }
+relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
@@ -23,6 +24,7 @@ lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
 lsp-server = "0.3.2"
 lsp-types = "0.73.0"
+rand = { version = "0.7", features = ["small_rng"] }
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = { version = "1.0", features = ["float_roundtrip"] }
 tokio = { version = "1", features = ["full", "test-util"] }

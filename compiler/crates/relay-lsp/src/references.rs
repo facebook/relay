@@ -34,20 +34,20 @@ fn get_references_response(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<Vec<lsp_types::Location>> {
     match node_resolution_info.kind {
-        NodeKind::FragmentDefinition(fragment_name) => {
+        NodeKind::FragmentDefinition(fragment) => {
             let project_name = node_resolution_info.project_name;
             if let Some(source_program) = source_programs
                 .read()
                 .expect("get_references_response: Could not acquire read lock for source_programs")
                 .get(&project_name)
             {
-                let references =
-                    ReferenceFinder::get_references_to_fragment(source_program, fragment_name)
-                        .into_iter()
-                        .map(|location| {
-                            transform_reference_locations_to_lsp_locations(root_dir, location)
-                        })
-                        .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+                let references = ReferenceFinder::get_references_to_fragment(
+                    source_program,
+                    fragment.name.value,
+                )
+                .into_iter()
+                .map(|location| transform_reference_locations_to_lsp_locations(root_dir, location))
+                .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
                 Ok(references)
             } else {

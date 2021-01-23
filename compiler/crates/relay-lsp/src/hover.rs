@@ -229,9 +229,9 @@ For example:
                 None
             }
         }
-        NodeKind::OperationDefinition(query_name) => {
-            let search_token = if let Some(query_name) = query_name {
-                query_name.lookup().to_string()
+        NodeKind::OperationDefinition(operation) => {
+            let search_token = if let Some(operation_name) = operation.name {
+                operation_name.value.lookup().to_string()
             } else {
                 return None;
             };
@@ -248,13 +248,13 @@ For example:
                 None
             }
         }
-        NodeKind::FragmentDefinition(name) => {
+        NodeKind::FragmentDefinition(fragment) => {
             let type_ = node_resolution_info
                 .type_path
                 .resolve_current_type_reference(schema)?;
             let title = graphql_marked_string(format!(
                 "fragment {} on {} {{ .. }}",
-                name,
+                fragment.name.value,
                 schema.get_type_name(type_.inner())
             ));
 

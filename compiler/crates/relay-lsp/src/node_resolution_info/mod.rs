@@ -13,8 +13,9 @@ use crate::{
 };
 use common::Span;
 use graphql_syntax::{
-    Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentSpread, GraphQLSource,
-    InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection, TypeCondition,
+    Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentDefinition,
+    FragmentSpread, GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition,
+    ScalarField, Selection, TypeCondition,
 };
 use interner::StringKey;
 use lsp_types::{TextDocumentPositionParams, Url};
@@ -25,8 +26,8 @@ pub use type_path::{TypePath, TypePathItem};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
-    OperationDefinition(Option<StringKey>),
-    FragmentDefinition(StringKey),
+    OperationDefinition(OperationDefinition),
+    FragmentDefinition(FragmentDefinition),
     FieldName,
     FieldArgument(StringKey, StringKey),
     FragmentSpread(StringKey),
@@ -109,10 +110,7 @@ fn create_node_resolution_info(
             if operation.location.contains(position_span) {
                 let mut node_resolution_info = NodeResolutionInfo::new(
                     project_name,
-                    NodeKind::OperationDefinition(match &operation.name {
-                        Some(name) => Some(name.value),
-                        None => None,
-                    }),
+                    NodeKind::OperationDefinition(operation.clone()),
                 );
                 let OperationDefinition {
                     selections,
@@ -157,7 +155,7 @@ fn create_node_resolution_info(
             if fragment.location.contains(position_span) {
                 let mut node_resolution_info = NodeResolutionInfo::new(
                     project_name,
-                    NodeKind::FragmentDefinition(fragment.name.value),
+                    NodeKind::FragmentDefinition(fragment.clone()),
                 );
                 if let Some(node_resolution_info) = build_node_resolution_for_directive(
                     &fragment.directives,
@@ -425,10 +423,12 @@ mod test {
             26,
         );
 
-        assert_eq!(
-            node_resolution_info.kind,
-            NodeKind::FragmentDefinition("User_data".intern())
-        );
+        match node_resolution_info.kind {
+            NodeKind::FragmentDefinition(fragment) => {
+                assert_eq!(fragment.name.value, "User_data".intern())
+            }
+            node_kind => panic!("Unexpected node node_resolution_info.kind {:?}", node_kind),
+        }
     }
 
     #[test]

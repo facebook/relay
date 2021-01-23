@@ -110,6 +110,24 @@ describe('ConnectionHandler', () => {
     ));
   });
 
+  describe('getConnectionID()', () => {
+    it('returns the connection ID when no filters are specified', () => {
+      expect(
+        ConnectionHandler.getConnectionID('4', 'ConnectionQuery_friends'),
+      ).toBe('client:4:__ConnectionQuery_friends_connection');
+    });
+
+    it('returns the connection ID when filters are specified', () => {
+      expect(
+        ConnectionHandler.getConnectionID('4', 'ConnectionQuery_friends', {
+          orderby: ['first name'],
+        }),
+      ).toBe(
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+      );
+    });
+  });
+
   describe('insertEdgeAfter()', () => {
     let connection;
     let connectionID;

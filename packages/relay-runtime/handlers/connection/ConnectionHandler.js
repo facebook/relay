@@ -19,6 +19,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {generateClientID} = require('../../store/ClientID');
+const {getStableStorageKey} = require('../../store/RelayStoreUtils');
 
 import type {
   HandleFieldPayload,
@@ -271,6 +272,47 @@ function getConnection(
 ): ?RecordProxy {
   const handleKey = getRelayHandleKey(CONNECTION, key, null);
   return record.getLinkedRecord(handleKey, filters);
+}
+
+/**
+ * @public
+ *
+ * Given a record ID, the key of a connection field, and optional filters used
+ * to identify the connection, returns the connection ID.
+ *
+ * Example:
+ *
+ * Given that data has already been fetched on some user `<user-id>` on the `friends`
+ * field:
+ *
+ * ```
+ * fragment FriendsFragment on User {
+ *   friends(first: 10) @connection(key: "FriendsFragment_friends") {
+ *     edges {
+ *       node {
+ *         id
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * The ID of the `friends` connection record can be accessed with:
+ *
+ * ```
+ * store => {
+ *   const connectionID = ConnectionHandler.getConnectionID('<user-id>', 'FriendsFragment_friends');
+ * }
+ * ```
+ */
+function getConnectionID(
+  recordID: string,
+  key: string,
+  filters?: ?Variables,
+): string {
+  const handleKey = getRelayHandleKey(CONNECTION, key, null);
+  const storageKey = getStableStorageKey(handleKey, filters);
+  return generateClientID(recordID, storageKey);
 }
 
 /**
@@ -543,6 +585,7 @@ module.exports = {
   createEdge,
   deleteNode,
   getConnection,
+  getConnectionID,
   insertEdgeAfter,
   insertEdgeBefore,
   update,

@@ -104,7 +104,6 @@ fn build_programs(
 
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
-        // TODO(T63482263): Pass connection interface from configuration
         validate(&program, &config.connection_interface).map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
         })

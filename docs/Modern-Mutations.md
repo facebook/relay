@@ -9,6 +9,7 @@ Table of Contents:
 - [Optimistic Updates](#optimistic-updates)
 - [Updater Configs](#updater-configs)
 - [Using updater and optimisticUpdater](#using-updater-and-optimisticupdater)
+- [The `@appendNode` and `@prependNode` Directives](#the-appendnode-and-prependnode-directives)
 - [Committing Local Updates](#committing-local-updates)
 
 ## `commitMutation`
@@ -351,6 +352,78 @@ function commit(environment, text, user) {
 ```
 
 For details on how to interact with the Relay Store, please refer to our Relay Store [docs](./relay-store).
+
+## The `@appendNode` and `@prependNode` Directives
+
+The `@appendNode` and `@prependNode` directives can be used to declaratively update connections in the store after executing a mutation.
+
+Let's say that we have a mutation that adds a comment to a story:
+
+```graphql
+mutation AddCommentMutation($input: AddCommentInput!) {
+  addComment(input: $input) {
+    comment {
+      id
+      ...StoryComment_comment
+    }
+  }
+}
+```
+
+If we want to append the new comment to the comments connection, we could imperatively specify an `updater` function that creates an edge and appends it to the connection. Alternatively, we can append the new comment declaratively using the `@appendNode` directive:
+
+```graphql
+mutation AddCommentMutation($input: AddCommentInput!, $connections: [ID!]!) {
+  addComment(input: $input) {
+    comment @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
+      id
+      ...StoryComment_comment
+    }
+  }
+}
+```
+
+The `@appendNode` directive is specified on the field corresponding to the node, in our case `comment`, and it takes two arguments:
+
+- `connections: [ID!]!`: An array of connection IDs, specifying the connections to which to append the new node.
+- `edgeTypeName: String!`: The GraphQL type name of the edge that contains the node.
+
+`@appendNode` will essentially create an edge that contains the node and append that edge to the specified connections.
+
+To get the ID of a connection, you can directly query the `__id` field on that connection:
+
+```graphql
+fragment Story_story on Story {
+  comments(first: $count, after: $cursor) @connection(key: "Story_story_comments") {
+    __id
+    edges {
+      node {
+        id
+        ...StoryComment_comment
+      }
+    }
+  }
+}
+```
+
+Then, you can access the connection ID as `story.comments.__id` and pass it to the mutation.
+
+Note that the `__id` field is not something that your GraphQL API needs to expose. Instead, it's an identifier that Relay automatically adds to identify the connection record.
+
+`@appendNode` works with lists of nodes too. For example, if we have a mutation that adds multiple comments to a story, we can append all of them to the specified connections:
+
+```graphql
+mutation AddCommentsMutation($input: AddCommentsInput!, $connections: [ID!]!) {
+  addComments(input: $input) {
+    comments @appendNode(connections: $connections, edgeTypeName: "CommentEdge") {
+      id
+      ...StoryComment_comment
+    }
+  }
+}
+```
+
+`@prependNode` is equivalent to `@appendNode`, the only difference is that it prepends the nodes rather than appending them.
 
 ## Committing Local Updates
 

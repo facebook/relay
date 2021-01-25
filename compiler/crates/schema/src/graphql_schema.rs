@@ -52,7 +52,7 @@ pub trait Schema {
 
     fn unchecked_argument_type_sentinel(&self) -> &TypeReference;
 
-    fn snapshot_print(self) -> String;
+    fn snapshot_print(&self) -> String;
 
     fn is_type_subtype_of(
         &self,
@@ -140,7 +140,7 @@ pub trait Schema {
         }
     }
 
-    fn write_type_string<W: Write>(&self, writer: &mut W, type_: &TypeReference) -> FormatResult {
+    fn write_type_string(&self, writer: &mut String, type_: &TypeReference) -> FormatResult {
         match type_ {
             TypeReference::Named(inner) => {
                 write!(writer, "{}", self.get_type_name(*inner).lookup())

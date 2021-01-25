@@ -193,7 +193,7 @@ impl Schema for SDLSchema {
         self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
-    fn snapshot_print(self) -> String {
+    fn snapshot_print(&self) -> String {
         let Self {
             query_type,
             mutation_type,
@@ -217,10 +217,7 @@ impl Schema for SDLSchema {
             scalars,
             unions,
         } = self;
-        let ordered_type_map: BTreeMap<String, Type> = type_map
-            .into_iter()
-            .map(|(key, value)| (key.lookup().to_owned(), value))
-            .collect();
+        let ordered_type_map: BTreeMap<_, _> = type_map.iter().collect();
 
         let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
         ordered_directives.sort_by_key(|dir| dir.name.lookup());

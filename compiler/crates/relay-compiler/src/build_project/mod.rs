@@ -43,7 +43,7 @@ use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
-pub use validate::validate;
+pub use validate::{validate, AdditionalValidations};
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
@@ -104,7 +104,12 @@ fn build_programs(
 
     // Call validation rules that go beyond type checking.
     log_event.time("validate_time", || {
-        validate(&program, &config.connection_interface).map_err(|errors| {
+        validate(
+            &program,
+            &config.connection_interface,
+            &config.additional_validations,
+        )
+        .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
         })
     })?;

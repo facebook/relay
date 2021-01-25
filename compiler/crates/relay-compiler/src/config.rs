@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::{
+    artifact_writer::{ArtifactFileWriter, ArtifactWriter},
+    AdditionalValidations,
+};
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::rollout::Rollout;
@@ -75,6 +78,10 @@ pub struct Config {
                 + Sync,
         >,
     >,
+
+    /// Validations that can be added to the config that will be called in addition to default
+    /// validation rules.
+    pub additional_validations: Option<AdditionalValidations>,
 
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
 }
@@ -208,6 +215,7 @@ impl Config {
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
+            additional_validations: None,
         };
 
         let mut validation_errors = Vec::new();

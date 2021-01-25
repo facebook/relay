@@ -62,6 +62,10 @@ impl Type {
         matches!(self, Type::Union(_) | Type::Interface(_))
     }
 
+    pub fn is_composite_type(self) -> bool {
+        matches!(self, Type::Object(_) | Type::Interface(_) | Type::Union(_))
+    }
+
     pub fn is_object(self) -> bool {
         matches!(self, Type::Object(_))
     }

@@ -19,7 +19,7 @@ query TestQuery {
                 location: field-arguments.graphql:6:15,
                 item: "TestQuery",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [],
             directives: [],
             selections: [
@@ -28,7 +28,7 @@ query TestQuery {
                     definition: WithLocation {
                         location: field-arguments.graphql:20:24,
                         item: FieldID(
-                            14,
+                            500,
                         ),
                     },
                     arguments: [
@@ -54,7 +54,7 @@ query TestQuery {
                             definition: WithLocation {
                                 location: field-arguments.graphql:44:49,
                                 item: FieldID(
-                                    29,
+                                    499,
                                 ),
                             },
                             arguments: [],
@@ -67,7 +67,7 @@ query TestQuery {
                     definition: WithLocation {
                         location: field-arguments.graphql:56:64,
                         item: FieldID(
-                            12,
+                            497,
                         ),
                     },
                     arguments: [
@@ -93,7 +93,7 @@ query TestQuery {
                             definition: WithLocation {
                                 location: field-arguments.graphql:89:107,
                                 item: FieldID(
-                                    512,
+                                    480,
                                 ),
                             },
                             arguments: [],
@@ -106,7 +106,7 @@ query TestQuery {
                     definition: WithLocation {
                         location: field-arguments.graphql:114:132,
                         item: FieldID(
-                            0,
+                            478,
                         ),
                     },
                     arguments: [
@@ -145,7 +145,7 @@ query TestQuery {
                             definition: WithLocation {
                                 location: field-arguments.graphql:164:169,
                                 item: FieldID(
-                                    57,
+                                    35,
                                 ),
                             },
                             arguments: [],

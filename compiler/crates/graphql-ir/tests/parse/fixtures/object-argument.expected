@@ -13,7 +13,7 @@ query ObjectArgument($text: String!) {
                 location: object-argument.graphql:6:20,
                 item: "ObjectArgument",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
@@ -22,7 +22,7 @@ query ObjectArgument($text: String!) {
                     },
                     type_: NonNull(
                         Named(
-                            Scalar(2),
+                            Scalar(0),
                         ),
                     ),
                     default_value: None,
@@ -36,7 +36,7 @@ query ObjectArgument($text: String!) {
                     definition: WithLocation {
                         location: object-argument.graphql:41:59,
                         item: FieldID(
-                            0,
+                            478,
                         ),
                     },
                     arguments: [
@@ -63,7 +63,7 @@ query ObjectArgument($text: String!) {
                                                             item: "text",
                                                         },
                                                         type_: Named(
-                                                            Scalar(2),
+                                                            Scalar(0),
                                                         ),
                                                     },
                                                 ),
@@ -81,7 +81,7 @@ query ObjectArgument($text: String!) {
                             definition: WithLocation {
                                 location: object-argument.graphql:89:94,
                                 item: FieldID(
-                                    57,
+                                    35,
                                 ),
                             },
                             arguments: [],

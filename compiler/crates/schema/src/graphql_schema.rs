@@ -105,7 +105,6 @@ pub trait Schema {
         fn overlapping_objects(a: &[ObjectID], b: &[ObjectID]) -> bool {
             a.iter().any(|item| b.contains(item))
         }
-
         if a == b {
             return true;
         };

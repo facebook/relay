@@ -1,5 +1,0 @@
-# expected-to-throw
-
-type User {
-  emails: [Email!]!
-}

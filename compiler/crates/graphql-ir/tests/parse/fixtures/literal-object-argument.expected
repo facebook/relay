@@ -13,7 +13,7 @@ query LiteralObjectArgument {
                 location: literal-object-argument.graphql:6:27,
                 item: "LiteralObjectArgument",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [],
             directives: [],
             selections: [
@@ -22,7 +22,7 @@ query LiteralObjectArgument {
                     definition: WithLocation {
                         location: literal-object-argument.graphql:32:50,
                         item: FieldID(
-                            0,
+                            478,
                         ),
                     },
                     arguments: [
@@ -61,7 +61,7 @@ query LiteralObjectArgument {
                             definition: WithLocation {
                                 location: literal-object-argument.graphql:85:90,
                                 item: FieldID(
-                                    57,
+                                    35,
                                 ),
                             },
                             arguments: [],

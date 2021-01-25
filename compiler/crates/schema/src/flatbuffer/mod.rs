@@ -6,6 +6,8 @@
  */
 
 mod graphqlschema_generated;
+mod serialize;
+mod wrapper;
 
 use crate::definitions::{Argument, Directive, *};
 use common::Span;
@@ -17,7 +19,9 @@ use graphql_syntax::{
 pub use graphqlschema_generated::graphqlschema;
 use graphqlschema_generated::graphqlschema::*;
 use interner::{Intern, StringKey};
+pub use serialize::serialize_as_fb;
 use std::convert::TryInto;
+pub use wrapper::SchemaWrapper;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {
@@ -133,11 +137,11 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_type(&self, type_: FBType<'_>) -> Option<Type> {
         Some(match type_.kind() {
             FBTypeKind::Scalar => Type::Scalar(ScalarID(type_.scalar_id())),
-            FBTypeKind::InputObject => Type::InputObject(InputObjectID(type_.scalar_id())),
-            FBTypeKind::Enum => Type::Enum(EnumID(type_.scalar_id())),
-            FBTypeKind::Object => Type::Object(ObjectID(type_.scalar_id())),
-            FBTypeKind::Interface => Type::Interface(InterfaceID(type_.scalar_id())),
-            FBTypeKind::Union => Type::Union(UnionID(type_.scalar_id())),
+            FBTypeKind::InputObject => Type::InputObject(InputObjectID(type_.input_object_id())),
+            FBTypeKind::Enum => Type::Enum(EnumID(type_.enum_id())),
+            FBTypeKind::Object => Type::Object(ObjectID(type_.object_id())),
+            FBTypeKind::Interface => Type::Interface(InterfaceID(type_.interface_id())),
+            FBTypeKind::Union => Type::Union(UnionID(type_.union_id())),
         })
     }
 
@@ -182,7 +186,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             name,
             is_extension: object.is_extension(),
             fields: object.fields()?.iter().map(FieldID).collect(),
-            interfaces: object.fields()?.iter().map(InterfaceID).collect(),
+            interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),
             directives: self.parse_directive_values(object.directives()?)?,
         };
         Some(parsed_object)
@@ -191,13 +195,14 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_interface(&self, id: InterfaceID) -> Option<Interface> {
         let interface = self.fb_schema.interfaces()?.get(id.0.try_into().unwrap());
         let name = interface.name()?.intern();
+
         let parsed_interface = Interface {
             name,
             is_extension: interface.is_extension(),
-            implementing_objects: vec![],
-            fields: vec![],
+            implementing_objects: wrap_ids(interface.implementing_objects(), ObjectID),
+            fields: wrap_ids(interface.fields(), FieldID),
             directives: self.parse_directive_values(interface.directives()?)?,
-            interfaces: vec![],
+            interfaces: wrap_ids(interface.interfaces(), InterfaceID),
         };
         Some(parsed_interface)
     }
@@ -207,7 +212,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let parsed_union = Union {
             name: union.name()?.intern(),
             is_extension: union.is_extension(),
-            members: vec![],
+            members: wrap_ids(union.members(), ObjectID),
             directives: self.parse_directive_values(union.directives()?)?,
         };
         Some(parsed_union)
@@ -476,6 +481,10 @@ fn get_empty_token() -> Token {
 
 fn get_empty_span() -> Span {
     Span { start: 0, end: 0 }
+}
+
+fn wrap_ids<T>(ids: Option<Vector<'_, u32>>, f: impl Fn(u32) -> T) -> Vec<T> {
+    ids.map_or_else(Vec::new, |ids| ids.into_iter().map(f).collect())
 }
 
 fn get_mapped_location(location: FBDirectiveLocation) -> DirectiveLocation {

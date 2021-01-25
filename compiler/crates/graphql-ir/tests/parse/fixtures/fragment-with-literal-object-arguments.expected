@@ -22,7 +22,7 @@ fragment ChildFragment on Query
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(0),
+            type_condition: Object(68),
             directives: [],
             selections: [
                 LinkedField {
@@ -35,7 +35,7 @@ fragment ChildFragment on Query
                     definition: WithLocation {
                         location: fragment-with-literal-object-arguments.graphql:54:72,
                         item: FieldID(
-                            0,
+                            478,
                         ),
                     },
                     arguments: [
@@ -74,7 +74,7 @@ fragment ChildFragment on Query
                             definition: WithLocation {
                                 location: fragment-with-literal-object-arguments.graphql:105:110,
                                 item: FieldID(
-                                    57,
+                                    35,
                                 ),
                             },
                             arguments: [],
@@ -135,7 +135,7 @@ fragment ChildFragment on Query
                     },
                     type_: NonNull(
                         Named(
-                            InputObject(16),
+                            InputObject(6),
                         ),
                     ),
                     default_value: None,
@@ -143,7 +143,7 @@ fragment ChildFragment on Query
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(0),
+            type_condition: Object(68),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -159,7 +159,7 @@ fragment ChildFragment on Query
                     definition: WithLocation {
                         location: fragment-with-literal-object-arguments.graphql:268:286,
                         item: FieldID(
-                            0,
+                            478,
                         ),
                     },
                     arguments: [
@@ -177,7 +177,7 @@ fragment ChildFragment on Query
                                             item: "query",
                                         },
                                         type_: Named(
-                                            InputObject(16),
+                                            InputObject(6),
                                         ),
                                     },
                                 ),
@@ -191,7 +191,7 @@ fragment ChildFragment on Query
                             definition: WithLocation {
                                 location: fragment-with-literal-object-arguments.graphql:308:313,
                                 item: FieldID(
-                                    57,
+                                    35,
                                 ),
                             },
                             arguments: [],

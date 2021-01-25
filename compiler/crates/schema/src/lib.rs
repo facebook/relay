@@ -24,11 +24,10 @@ pub use definitions::{
     ObjectID, Scalar, ScalarID, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
-pub use flatbuffer::graphqlschema::*;
 use flatbuffer::FlatBufferSchema;
+pub use flatbuffer::SchemaWrapper as SDLSchema;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use sdl::SDLSchema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 
@@ -62,7 +61,11 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
         );
     }
 
-    SDLSchema::build(&server_definitions, &extension_definitions)
+    let sdl_schema = sdl::SDLSchema::build(&server_definitions, &extension_definitions)?;
+
+    let flatbuffer_bytes = flatbuffer::serialize_as_fb(&sdl_schema);
+
+    Ok(flatbuffer::SchemaWrapper::from_vec(flatbuffer_bytes))
 }
 
 pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {

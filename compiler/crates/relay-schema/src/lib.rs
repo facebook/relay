@@ -14,7 +14,7 @@
 use common::DiagnosticsResult;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
+use schema::SDLSchema;
 use std::iter::once;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
@@ -32,22 +32,22 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     let extensions: Vec<&str> = once(RELAY_EXTENSIONS)
         .chain(extension_sdls.iter().map(|sdl| sdl.as_ref()))
         .collect();
-    let mut schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;
+    let schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;
 
     // Remove label arg from @defer and @stream directives since the compiler
     // adds these arguments.
-    for directive_name in &[*DEFER_DIRECTIVE, *STREAM_DIRECTIVE] {
-        if let Some(directive) = schema.get_directive_mut(*directive_name) {
-            let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
-            for arg in next_args.iter_mut() {
-                if arg.name == *LABEL_ARG {
-                    if let TypeReference::NonNull(of) = &arg.type_ {
-                        arg.type_ = *of.clone()
-                    };
-                }
-            }
-            directive.arguments = ArgumentDefinitions::new(next_args);
-        }
-    }
+    // for directive_name in &[*DEFER_DIRECTIVE, *STREAM_DIRECTIVE] {
+    //     if let Some(directive) = schema.get_directive_mut(*directive_name) {
+    //         let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
+    //         for arg in next_args.iter_mut() {
+    //             if arg.name == *LABEL_ARG {
+    //                 if let TypeReference::NonNull(of) = &arg.type_ {
+    //                     arg.type_ = *of.clone()
+    //                 };
+    //             }
+    //         }
+    //         directive.arguments = ArgumentDefinitions::new(next_args);
+    //     }
+    // }
     Ok(schema)
 }

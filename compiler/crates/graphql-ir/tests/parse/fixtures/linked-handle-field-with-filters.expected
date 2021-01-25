@@ -22,14 +22,14 @@ fragment LinkedHandleField on User {
                     },
                     type_: List(
                         Named(
-                            Scalar(2),
+                            Scalar(0),
                         ),
                     ),
                     default_value: None,
                     directives: [],
                 },
             ],
-            type_condition: Object(67),
+            type_condition: Object(6),
             directives: [],
             selections: [
                 LinkedField {
@@ -37,7 +37,7 @@ fragment LinkedHandleField on User {
                     definition: WithLocation {
                         location: linked-handle-field-with-filters.graphql:39:46,
                         item: FieldID(
-                            458,
+                            337,
                         ),
                     },
                     arguments: [
@@ -70,7 +70,7 @@ fragment LinkedHandleField on User {
                                         },
                                         type_: List(
                                             Named(
-                                                Scalar(2),
+                                                Scalar(0),
                                             ),
                                         ),
                                     },
@@ -129,7 +129,7 @@ fragment LinkedHandleField on User {
                             definition: WithLocation {
                                 location: linked-handle-field-with-filters.graphql:158:163,
                                 item: FieldID(
-                                    178,
+                                    16,
                                 ),
                             },
                             arguments: [],

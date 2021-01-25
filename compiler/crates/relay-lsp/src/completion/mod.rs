@@ -554,13 +554,14 @@ fn completion_items_for_request(
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
         },
-        CompletionKind::DirectiveName { location } => {
-            let directives = schema.directives_for_location(location);
-            let items = directives
-                .iter()
-                .map(|directive| completion_item_from_directive(directive, schema))
-                .collect();
-            Some(items)
+        CompletionKind::DirectiveName { location: _ } => {
+            todo!()
+            // let directives = schema.directives_for_location(location);
+            // let items = directives
+            //     .iter()
+            //     .map(|directive| completion_item_from_directive(directive, schema))
+            //     .collect();
+            // Some(items)
         }
         CompletionKind::ArgumentName {
             has_colon,
@@ -913,7 +914,7 @@ fn resolve_completion_items_for_fragment_spread(
     valid_fragments
 }
 
-fn completion_item_from_directive(
+fn _completion_item_from_directive(
     directive: &SchemaDirective,
     schema: &SDLSchema,
 ) -> CompletionItem {

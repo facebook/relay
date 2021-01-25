@@ -11,7 +11,7 @@ use itertools::Itertools;
 use schema::*;
 use std::fmt::{Result, Write};
 use std::{
-    collections::{hash_map::DefaultHasher, BTreeMap},
+    collections::hash_map::DefaultHasher,
     hash::{Hash, Hasher},
 };
 
@@ -222,15 +222,16 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 
     fn print_directives(&mut self) -> Result {
-        if self.schema.get_directives().count() == 0 {
-            return Ok(());
-        }
-        let mut ordered_directives = self.schema.get_directives().collect::<Vec<_>>();
-        ordered_directives.sort_by_key(|dir| dir.name);
-        for directive in ordered_directives {
-            self.print_directive(directive)?;
-        }
-        Ok(())
+        todo!()
+        // if self.schema.get_directives().count() == 0 {
+        //     return Ok(());
+        // }
+        // let mut ordered_directives = self.schema.get_directives().collect::<Vec<_>>();
+        // ordered_directives.sort_by_key(|dir| dir.name);
+        // for directive in ordered_directives {
+        //     self.print_directive(directive)?;
+        // }
+        // Ok(())
     }
 
     fn print_directive(&mut self, directive: &Directive) -> Result {
@@ -245,11 +246,12 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
     }
 
     fn print_types(&mut self) -> Result {
-        let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
-        for (_key, value) in ordered_type_map.iter() {
-            self.print_type(**value)?;
-        }
-        Ok(())
+        todo!()
+        // let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
+        // for (_key, value) in ordered_type_map.iter() {
+        //     self.print_type(**value)?;
+        // }
+        // Ok(())
     }
 
     fn print_type(&mut self, type_: Type) -> Result {

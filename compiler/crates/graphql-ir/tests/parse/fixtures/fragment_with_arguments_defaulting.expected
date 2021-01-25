@@ -28,7 +28,7 @@ fragment F2 on Query @argumentDefinitions(
                         item: "defaultedID",
                     },
                     type_: Named(
-                        Scalar(4),
+                        Scalar(3),
                     ),
                     default_value: Some(
                         String(
@@ -39,7 +39,7 @@ fragment F2 on Query @argumentDefinitions(
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(0),
+            type_condition: Object(68),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -71,7 +71,7 @@ fragment F2 on Query @argumentDefinitions(
                                         },
                                         type_: NonNull(
                                             Named(
-                                                Scalar(4),
+                                                Scalar(3),
                                             ),
                                         ),
                                     },
@@ -98,7 +98,7 @@ fragment F2 on Query @argumentDefinitions(
                     },
                     type_: NonNull(
                         Named(
-                            Scalar(4),
+                            Scalar(3),
                         ),
                     ),
                     default_value: None,
@@ -106,7 +106,7 @@ fragment F2 on Query @argumentDefinitions(
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(0),
+            type_condition: Object(68),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -122,7 +122,7 @@ fragment F2 on Query @argumentDefinitions(
                     definition: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:303:319,
                         item: FieldID(
-                            10,
+                            495,
                         ),
                     },
                     arguments: [
@@ -141,7 +141,7 @@ fragment F2 on Query @argumentDefinitions(
                                         },
                                         type_: NonNull(
                                             Named(
-                                                Scalar(4),
+                                                Scalar(3),
                                             ),
                                         ),
                                     },
@@ -156,7 +156,7 @@ fragment F2 on Query @argumentDefinitions(
                             definition: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:342:352,
                                 item: FieldID(
-                                    514,
+                                    10000001,
                                 ),
                             },
                             arguments: [],

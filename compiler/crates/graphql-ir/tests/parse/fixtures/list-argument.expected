@@ -15,7 +15,7 @@ query ListArgumentQuery {
                 location: list-argument.graphql:6:23,
                 item: "ListArgumentQuery",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [],
             directives: [],
             selections: [
@@ -24,7 +24,7 @@ query ListArgumentQuery {
                     definition: WithLocation {
                         location: list-argument.graphql:28:33,
                         item: FieldID(
-                            2,
+                            487,
                         ),
                     },
                     arguments: [
@@ -79,7 +79,7 @@ query ListArgumentQuery {
                             definition: WithLocation {
                                 location: list-argument.graphql:79:84,
                                 item: FieldID(
-                                    30,
+                                    486,
                                 ),
                             },
                             arguments: [],
@@ -90,7 +90,7 @@ query ListArgumentQuery {
                                     definition: WithLocation {
                                         location: list-argument.graphql:93:97,
                                         item: FieldID(
-                                            33,
+                                            485,
                                         ),
                                     },
                                     arguments: [],

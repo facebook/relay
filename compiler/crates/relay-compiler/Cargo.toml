@@ -53,7 +53,7 @@ sha-1 = "0.8"
 structopt = "0.3.21"
 thiserror = "1.0"
 tokio = { version = "1", features = ["full", "test-util"] }
-watchman_client = "0.6"
+watchman_client = "^0.6.1"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::{Arc, RwLock};
+use std::{
+    collections::HashSet,
+    sync::{Arc, RwLock},
+};
 
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
@@ -40,13 +43,16 @@ fn parse_and_resolve_completion_items(source: &str) -> Option<Vec<CompletionItem
     )
 }
 
-fn assert_labels(items: Vec<CompletionItem>, lables: Vec<&str>) {
-    assert_eq!(items.len(), lables.len());
-    for i in 0..items.len() {
-        let item = &items[i];
-        let label = lables[i];
-        assert_eq!(item.label, label);
+fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
+    assert_eq!(items.len(), labels.len());
+    let mut current_labels = items
+        .into_iter()
+        .map(|item| item.label)
+        .collect::<HashSet<_>>();
+    for label in labels {
+        assert!(current_labels.remove(label));
     }
+    assert!(current_labels.is_empty());
 }
 
 #[test]
@@ -117,4 +123,104 @@ fn whitespace_in_inline_fragment() {
         "#,
     );
     assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+}
+
+#[test]
+fn inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Viewer {
+                ... on a|
+            }
+        "#,
+    );
+    assert_labels(items.unwrap(), vec!["Viewer"]);
+}
+
+#[test]
+fn directive() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+        fragment Test on User {
+            profile_picture @a| {
+                uri
+            }
+        }
+        "#,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "prependEdge",
+            "deleteRecord",
+            "appendNode",
+            "deleteEdge",
+            "__clientField",
+            "appendEdge",
+            "required",
+            "stream_connection",
+            "match",
+            "customDirective",
+            "prependNode",
+            "fixme_fat_interface",
+            "stream",
+            "include",
+            "connection",
+            "skip",
+        ],
+    );
+}
+
+#[test]
+fn empty_argument_list() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Viewer {
+                profile_picture @stream(|) {
+                    uri
+                }
+            }
+        "#,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["label", "initial_count", "if", "use_customized_batch"],
+    );
+}
+
+#[test]
+fn argument_name_without_value() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Viewer {
+                profile_picture @stream(i|) {
+                    uri
+                }
+            }
+        "#,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["label", "initial_count", "if", "use_customized_batch"],
+    );
+}
+
+#[test]
+fn argument_name_with_existing_name() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Viewer {
+                profile_picture @stream(
+                    if: false
+                    |
+                ) {
+                    uri
+                }
+            }
+        "#,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["label", "initial_count", "use_customized_batch"],
+    );
 }

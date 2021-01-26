@@ -130,18 +130,12 @@ function printSelection(
   let str;
   const parentDirectives = options?.parentDirectives ?? '';
   const isClientExtension = options?.isClientExtension === true;
-  if (
-    selection.kind === 'LinkedField' ||
-    selection.kind === 'ConnectionField'
-  ) {
+  if (selection.kind === 'LinkedField') {
     str = printField(schema, selection, {parentDirectives, isClientExtension});
     str += printSelections(schema, selection, indent + INDENT, {
       isClientExtension,
     });
-  } else if (
-    selection.kind === 'ModuleImport' ||
-    selection.kind === 'Connection'
-  ) {
+  } else if (selection.kind === 'ModuleImport') {
     str = selection.selections
       .map(matchSelection =>
         printSelection(schema, matchSelection, indent, {
@@ -195,9 +189,10 @@ function printSelection(
         isClientExtension,
       }),
     );
-    str = subSelections.join('\n' + INDENT);
+    str = subSelections.join('\n' + indent + INDENT);
   } else if (selection.kind === 'Stream') {
-    let streamStr = ` @stream(label: "${selection.label}"`;
+    let streamStr = parentDirectives;
+    streamStr += ` @stream(label: "${selection.label}"`;
     if (selection.if !== null) {
       streamStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
@@ -208,8 +203,14 @@ function printSelection(
         null,
       ) ?? ''}`;
     }
+    if (selection.useCustomizedBatch !== null) {
+      streamStr += `, use_customized_batch: ${printValue(
+        schema,
+        selection.useCustomizedBatch,
+        null,
+      ) ?? 'false'}`;
+    }
     streamStr += ')';
-    streamStr += parentDirectives;
     const subSelections = selection.selections.map(sel =>
       printSelection(schema, sel, indent, {
         parentDirectives: streamStr,
@@ -218,12 +219,12 @@ function printSelection(
     );
     str = subSelections.join('\n' + INDENT);
   } else if (selection.kind === 'Defer') {
-    let deferStr = ` @defer(label: "${selection.label}"`;
+    let deferStr = parentDirectives;
+    deferStr += ` @defer(label: "${selection.label}"`;
     if (selection.if !== null) {
       deferStr += `, if: ${printValue(schema, selection.if, null) ?? ''}`;
     }
     deferStr += ')';
-    deferStr += parentDirectives;
     if (
       selection.selections.every(
         subSelection =>
@@ -239,17 +240,7 @@ function printSelection(
       );
       str = subSelections.join('\n' + INDENT);
     } else {
-      if (
-        selection.metadata != null &&
-        selection.metadata.fragmentTypeCondition != null
-      ) {
-        str =
-          `... on ${schema.getTypeString(
-            selection.metadata.fragmentTypeCondition,
-          )}` + deferStr;
-      } else {
-        str = '...' + deferStr;
-      }
+      str = '...' + deferStr;
       str += printSelections(schema, selection, indent + INDENT, {
         isClientExtension,
       });
@@ -324,14 +315,18 @@ function printHandles(schema: Schema, field: Field): string {
     return '';
   }
   const printed = field.handles.map(handle => {
-    // For backward compatibility and also because this module is shared by ComponentScript.
+    // For backward compatibility.
     const key =
       handle.key === DEFAULT_HANDLE_KEY ? '' : `, key: "${handle.key}"`;
     const filters =
       handle.filters == null
         ? ''
         : `, filters: ${JSON.stringify(Array.from(handle.filters).sort())}`;
-    return `@__clientField(handle: "${handle.name}"${key}${filters})`;
+    const handleArgs =
+      handle.handleArgs == null
+        ? ''
+        : `, handleArgs: ${printArguments(schema, handle.handleArgs)}`;
+    return `@__clientField(handle: "${handle.name}"${key}${filters}${handleArgs})`;
   });
   return printed.length ? ' ' + printed.join(' ') : '';
 }
@@ -381,6 +376,31 @@ function printValue(
   }
   if (value.kind === 'Variable') {
     return '$' + value.variableName;
+  } else if (value.kind === 'ObjectValue') {
+    const inputType = type != null ? schema.asInputObjectType(type) : null;
+    const pairs = value.fields
+      .map(field => {
+        const fieldConfig =
+          inputType != null
+            ? schema.hasField(inputType, field.name)
+              ? schema.getFieldConfig(schema.expectField(inputType, field.name))
+              : null
+            : null;
+        const innerValue = printValue(schema, field.value, fieldConfig?.type);
+        return innerValue == null ? null : field.name + ': ' + innerValue;
+      })
+      .filter(Boolean);
+
+    return '{' + pairs.join(', ') + '}';
+  } else if (value.kind === 'ListValue') {
+    invariant(
+      type && schema.isList(type),
+      'GraphQLIRPrinter: Need a type in order to print arrays.',
+    );
+    const innerType = schema.getListItemType(type);
+    return `[${value.items
+      .map(i => printValue(schema, i, innerType))
+      .join(', ')}]`;
   } else if (value.value != null) {
     return printLiteral(schema, value.value, type);
   } else {

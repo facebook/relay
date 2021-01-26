@@ -30,7 +30,7 @@ function useRelayEnvironment(): IEnvironment {
       'This usually means that useRelayEnvironment was used in a ' +
       'component that is not a descendant of a `RelayEnvironmentProvider`. ' +
       'Please make sure a `RelayEnvironmentProvider` has been rendered somewhere ' +
-      'as a parent of ancestor your compontent.',
+      'as a parent or ancestor of your component.',
   );
   return context.environment;
 }

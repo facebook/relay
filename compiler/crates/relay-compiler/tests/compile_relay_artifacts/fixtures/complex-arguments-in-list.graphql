@@ -1,0 +1,15 @@
+query complexArgumentsInList_CheckinSearchQuery(
+  $queryText: String!
+  $searchInputText: String
+  $searchInput: CheckinSearchInput
+  $searchInputLast: CheckinSearchInput!
+) {
+  checkinSearchQuery(
+    query: {
+      query: $queryText
+      inputs: [{query: $searchInputText}, $searchInput, null, $searchInputLast]
+    }
+  ) {
+    query
+  }
+}

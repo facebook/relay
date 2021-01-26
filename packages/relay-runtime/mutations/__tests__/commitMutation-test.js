@@ -13,6 +13,7 @@
 
 'use strict';
 
+const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -20,6 +21,7 @@ const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 
 const commitMutation = require('../commitMutation');
+const nullthrows = require('nullthrows');
 
 const {
   createOperationDescriptor,
@@ -59,7 +61,6 @@ describe('Configs: NODE_DELETE', () => {
     const secondCommentID = 'comment789';
     const variables = {
       input: {
-        clientMutationId: '0',
         deletedCommentId: firstCommentID,
       },
     };
@@ -125,6 +126,7 @@ describe('Configs: NODE_DELETE', () => {
       FeedbackCommentQuery,
       {},
     );
+    environment.commitPayload(operationDescriptor, payload);
     const snapshot = store.lookup(
       createReaderSelector(
         FeedbackCommentQuery.fragment,
@@ -134,7 +136,6 @@ describe('Configs: NODE_DELETE', () => {
       ),
     );
     const callback = jest.fn();
-    environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -183,7 +184,6 @@ describe('Configs: RANGE_DELETE', () => {
         $input: CommentDeleteInput
       ) {
         commentDelete(input: $input) {
-          clientMutationId
           deletedCommentId
           feedback {
             comments {
@@ -196,13 +196,11 @@ describe('Configs: RANGE_DELETE', () => {
     const commentID = 'comment123';
     const variables = {
       input: {
-        clientMutationId: '0',
         commentId: commentID,
       },
     };
     const optimisticResponse = {
       commentDelete: {
-        clientMutationId: '0',
         deletedCommentId: commentID,
         feedback: {
           id: '123',
@@ -301,7 +299,6 @@ describe('Configs: RANGE_DELETE', () => {
     environment.mock.resolve(operation, {
       data: {
         commentDelete: {
-          clientMutationId: '0',
           deletedCommentId: commentID,
           feedback: {
             id: '123',
@@ -347,7 +344,6 @@ describe('Configs: RANGE_DELETE', () => {
     ];
     const variables = {
       input: {
-        clientMutationId: '0',
         friendId: '456',
       },
     };
@@ -395,7 +391,6 @@ describe('Configs: RANGE_DELETE', () => {
     environment.commitPayload(operationDescriptor, payload);
     const optimisticResponse = {
       unfriend: {
-        clientMutationId: '0',
         actor: {
           id: '123',
           __typename: 'User',
@@ -430,7 +425,6 @@ describe('Configs: RANGE_DELETE', () => {
     environment.mock.resolve(operation, {
       data: {
         unfriend: {
-          clientMutationId: '0',
           actor: {
             id: '123',
             __typename: 'User',
@@ -578,6 +572,7 @@ describe('Configs: RANGE_ADD', () => {
       },
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, nullthrows(payload));
     const snapshot = store.lookup(
       createReaderSelector(
         CommentQuery.fragment,
@@ -586,7 +581,6 @@ describe('Configs: RANGE_ADD', () => {
         operationDescriptor.request,
       ),
     );
-    environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -797,6 +791,7 @@ describe('Configs: RANGE_ADD', () => {
       },
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, nullthrows(payload));
     const snapshot = store.lookup(
       createReaderSelector(
         CommentQuery.fragment,
@@ -805,7 +800,6 @@ describe('Configs: RANGE_ADD', () => {
         operationDescriptor.request,
       ),
     );
-    environment.commitPayload(operationDescriptor, payload);
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
@@ -861,7 +855,7 @@ describe('Configs: RANGE_ADD', () => {
         }
       }`));
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
-    environment.commitPayload(operationDescriptor, payload);
+    environment.commitPayload(operationDescriptor, nullthrows(payload));
     const snapshot = store.lookup(
       createReaderSelector(
         CommentQuery.fragment,
@@ -889,6 +883,176 @@ describe('Configs: RANGE_ADD', () => {
     // Does not need to fire again since server data should be the same
     expect(updater).toBeCalled();
     expect(callback.mock.calls.length).toBe(0);
+  });
+
+  it('does not overwrite previous edge when appended multiple times in updater function', () => {
+    updater = updaterStore => {
+      payload = updaterStore.getRootField('commentCreate');
+      const newEdge = nullthrows(payload).getLinkedRecord(
+        'feedbackCommentEdge',
+      );
+      const feedbackProxy = nullthrows(updaterStore).get(feedbackID);
+      const conn = ConnectionHandler.getConnection(
+        nullthrows(feedbackProxy),
+        'Feedback_topLevelComments',
+      );
+      ConnectionHandler.insertEdgeAfter(nullthrows(conn), nullthrows(newEdge));
+    };
+    // prepare existing data
+    const operationDescriptor = createOperationDescriptor(CommentQuery, {});
+    environment.commitPayload(operationDescriptor, {
+      node: {
+        id: feedbackID,
+        __typename: 'Feedback',
+        topLevelComments: {
+          count: 1,
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                id: 'comment1',
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    // send mutation
+    commitMutation(environment, {
+      updater,
+      mutation,
+      variables,
+    });
+
+    let serverResponse = {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment2:cursor',
+            node: {
+              id: 'comment2',
+              // these are extra fields which should be stripped off before appending
+              // to the connection.
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const snapshot = store.lookup(
+      createReaderSelector(
+        CommentQuery.fragment,
+        ROOT_ID,
+        {},
+        operationDescriptor.request,
+      ),
+    );
+
+    environment.subscribe(snapshot, callback);
+
+    const operation = environment.executeMutation.mock.calls[0][0].operation;
+    environment.mock.resolve(operation, serverResponse);
+    jest.runAllTimers();
+
+    expect(callback).toBeCalledTimes(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      node: {
+        topLevelComments: {
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment1',
+              },
+            },
+            {
+              cursor: 'comment2:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment2',
+              },
+            },
+          ],
+          // The following fields are not quite related. Though not explicted requested in the query,
+          // Relay now automatically adds the page info.
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
+    callback.mockClear();
+
+    serverResponse = {
+      data: {
+        commentCreate: {
+          feedbackCommentEdge: {
+            __typename: 'CommentsEdge',
+            cursor: 'comment3:cursor',
+            node: {
+              id: 'comment3',
+              // these are extra fields which should be stripped off before appending
+              // to the connection.
+              body: {
+                text: variables.input.message.text,
+              },
+            },
+          },
+        },
+      },
+    };
+    // send the same mutation again
+    commitMutation(environment, {
+      updater,
+      mutation,
+      variables,
+    });
+    environment.mock.resolve(operation, serverResponse);
+    jest.runAllTimers();
+
+    expect(callback).toBeCalledTimes(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      node: {
+        topLevelComments: {
+          edges: [
+            {
+              cursor: 'comment1:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment1',
+              },
+            },
+            {
+              cursor: 'comment2:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment2',
+              },
+            },
+            {
+              cursor: 'comment3:cursor',
+              node: {
+                __typename: 'Comment',
+                id: 'comment3',
+              },
+            },
+          ],
+          // The following fields are not quite related. Though not explicted requested in the query,
+          // Relay now automatically adds the page info.
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
+        },
+      },
+    });
   });
 });
 
@@ -970,7 +1134,6 @@ describe('commitMutation()', () => {
       `));
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: '1',
       },
     };
@@ -1251,5 +1414,98 @@ describe('commitMutation()', () => {
     expect(onCompleted).toBeCalledTimes(0);
     expect(onError).toBeCalledTimes(1);
     expect(onError.mock.calls[0][0]).toBe(error);
+  });
+});
+
+describe('commitMutation() cacheConfig', () => {
+  let cacheConfig;
+  let environment;
+  let fragment;
+  let mutation;
+  let variables;
+
+  beforeEach(() => {
+    ({
+      CreateCommentMutation: mutation,
+      CommentFragment: fragment,
+    } = generateAndCompile(`
+        mutation CreateCommentMutation($input: CommentCreateInput!) {
+          commentCreate(input: $input) {
+            comment {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+        fragment CommentFragment on Comment {
+          id
+          body {
+            text
+          }
+        }
+      `));
+    variables = {
+      input: {
+        clientMutationId: '0',
+        feedbackId: '1',
+      },
+    };
+
+    cacheConfig = undefined;
+    const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      cacheConfig = _cacheConfig;
+      return RelayObservable.create(() => {});
+    });
+    const source = RelayRecordSource.create({});
+    const store = new RelayModernStore(source);
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+    });
+  });
+
+  it('with cacheConfig', () => {
+    const operation = createOperationDescriptor(mutation, variables);
+    const initialSnapshot = environment.lookup(
+      createReaderSelector(fragment, '1', {}, operation.request),
+    );
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    const metadata = {
+      text: 'Gave Relay',
+    };
+
+    commitMutation(environment, {
+      cacheConfig: {
+        force: false, // should be overriden with false
+        metadata,
+      },
+      mutation,
+      variables,
+    });
+
+    expect(cacheConfig).toEqual({
+      force: true,
+      metadata,
+    });
+  });
+
+  it('without cacheConfig', () => {
+    const operation = createOperationDescriptor(mutation, variables);
+    const initialSnapshot = environment.lookup(
+      createReaderSelector(fragment, '1', {}, operation.request),
+    );
+    const callback = jest.fn();
+    environment.subscribe(initialSnapshot, callback);
+
+    commitMutation(environment, {
+      mutation,
+      variables,
+    });
+
+    expect(cacheConfig).toEqual({force: true});
   });
 });

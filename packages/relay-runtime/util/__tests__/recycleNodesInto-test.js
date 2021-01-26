@@ -42,6 +42,18 @@ describe('recycleNodesInto', () => {
   });
 
   describe('objects', () => {
+    it('recycles empty objects', () => {
+      const prevData = {};
+      const nextData = {};
+      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
+    });
+
+    it('recycles nested empty objects', () => {
+      const prevData = {foo: {bar: {}}};
+      const nextData = {foo: {bar: {}}};
+      expect(recycleNodesInto(prevData, nextData)).toBe(prevData);
+    });
+
     it('recycles equal leaf objects', () => {
       const prevData = {foo: 1};
       const nextData = {foo: 1};
@@ -217,6 +229,100 @@ describe('recycleNodesInto', () => {
       const prevData = Object.assign(Object.create({length: 2}), {0: 1, 1: 2});
       const nextData = [1, 2];
       expect(recycleNodesInto(prevData, nextData)).not.toBe(prevData);
+    });
+  });
+
+  describe('sets', () => {
+    it('does not recycle sets with unequal values', () => {
+      const prevData = new Set([1, 2, 3]);
+      const nextData = new Set([4, 5, 6]);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+
+    it('does not recycle sets with equal values', () => {
+      const prevData = new Set([1, 2, 3]);
+      const nextData = new Set([1, 2, 3]);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+  });
+
+  describe('weaksets', () => {
+    describe('when not supported by environment', () => {
+      const WeakSetOriginal = WeakSet;
+      beforeEach(() => {
+        delete global.WeakSet;
+      });
+      afterEach(() => {
+        global.WeakSet = WeakSetOriginal;
+      });
+      it('handles weaksets being undefined', () => {
+        const data = {};
+        expect(() => recycleNodesInto(data, data)).not.toThrow();
+      });
+    });
+
+    it('does not recycle weaksets with unequal values', () => {
+      const prevData = new WeakSet([{a: 1}, {b: 2}, {c: 3}]);
+      const nextData = new WeakSet([{a: 4}, {b: 5}, {c: 6}]);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+
+    it('does not recycle weaksets with equal values', () => {
+      const prevData = new WeakSet([{a: 1}, {b: 2}, {c: 3}]);
+      const nextData = new WeakSet([{a: 1}, {b: 2}, {c: 3}]);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+  });
+
+  describe('maps', () => {
+    it('does not recycle maps with unequal values', () => {
+      const prevData = new Map();
+      prevData.set('a', 1);
+      const nextData = new Map();
+      nextData.set('a', 2);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+
+    it('does not recycle maps with equal values', () => {
+      const prevData = new Map();
+      prevData.set('a', 1);
+      const nextData = new Map();
+      nextData.set('a', 1);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+  });
+
+  describe('weakmaps', () => {
+    describe('when not supported by environment', () => {
+      const WeakMapOriginal = WeakMap;
+      beforeEach(() => {
+        delete global.WeakMap;
+      });
+      afterEach(() => {
+        global.WeakMap = WeakMapOriginal;
+      });
+      it('handles weakmaps being undefined', () => {
+        const data = {};
+        expect(() => recycleNodesInto(data, data)).not.toThrow();
+      });
+    });
+
+    it('does not recycle weakmaps with unequal values', () => {
+      const a = {};
+      const prevData = new WeakMap();
+      prevData.set(a, 1);
+      const nextData = new WeakMap();
+      nextData.set(a, 2);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
+    });
+
+    it('does not recycle weakmaps with equal values', () => {
+      const a = {};
+      const prevData = new WeakMap();
+      prevData.set(a, 1);
+      const nextData = new WeakMap();
+      nextData.set(a, 1);
+      expect(recycleNodesInto(prevData, nextData)).toBe(nextData);
     });
   });
 });

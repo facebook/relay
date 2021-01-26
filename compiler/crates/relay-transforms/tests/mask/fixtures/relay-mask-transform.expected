@@ -1,0 +1,92 @@
+==================================== INPUT ====================================
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ...PhotoFragment @relay(mask: false)
+    ...AnotherRecursiveFragment @relay(mask: false) @include(if: $cond)
+    ...PhotoFragment
+  }
+  smallPic: profilePicture(size: 20) {
+    ...PhotoFragment @relay(mask: true)
+  }
+}
+
+fragment PhotoFragment on Image {
+  uri
+  ...RecursiveFragment @relay(mask: false)
+}
+
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+
+fragment AnotherRecursiveFragment on Image {
+  uri
+}
+==================================== OUTPUT ===================================
+fragment AnotherRecursiveFragment on Image {
+  uri
+}
+[]
+
+fragment PhotoFragment on Image {
+  uri
+  ... on Image {
+    uri
+    width
+  }
+}
+[]
+
+fragment RecursiveFragment on Image {
+  uri
+  width
+}
+[]
+
+fragment UserProfile on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    ... on Image {
+      uri
+      ... on Image {
+        uri
+        width
+      }
+    }
+    ... on Image @include(if: $cond) {
+      uri
+    }
+    ...PhotoFragment
+  }
+  smallPic: profilePicture(size: 20) {
+    ...PhotoFragment @relay(mask: true)
+  }
+}
+[
+    VariableDefinition {
+        name: WithLocation {
+            location: relay-mask-transform.graphql:54:74,
+            item: "ProfilePicture_SIZE",
+        },
+        type_: List(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        default_value: None,
+        directives: [],
+    },
+    VariableDefinition {
+        name: WithLocation {
+            location: relay-mask-transform.graphql:184:189,
+            item: "cond",
+        },
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        default_value: None,
+        directives: [],
+    },
+]

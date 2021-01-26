@@ -33,10 +33,9 @@ function getRootVariablesForFragments<TProps: {...}>(
         ? selector.selectors[0]?.owner.variables ?? {}
         : selector?.owner.variables ?? {};
     rootVariables = {
+      // $FlowFixMe[exponential-spread]
       ...rootVariables,
-      /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-       * v0.111.0 was deployed. To see the error, delete this comment and run
-       * Flow. */
+      // $FlowFixMe[exponential-spread]
       ...fragmentOwnerVariables,
     };
   });

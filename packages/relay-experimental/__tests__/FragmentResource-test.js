@@ -20,14 +20,14 @@ jest.mock('relay-runtime', () => {
     ...originalRuntime,
     __internal: {
       ...originalInternal,
-      getPromiseForRequestInFlight: jest.fn(),
+      getPromiseForActiveRequest: jest.fn(),
     },
   };
 });
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForRequestInFlight},
+  __internal: {getPromiseForActiveRequest},
   createOperationDescriptor,
   getFragment,
 } = require('relay-runtime');
@@ -125,7 +125,7 @@ describe('FragmentResource', () => {
   });
 
   afterEach(() => {
-    (getPromiseForRequestInFlight: any).mockReset();
+    (getPromiseForActiveRequest: any).mockReset();
   });
 
   describe('read', () => {
@@ -417,7 +417,7 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForRequestInFlight: any).mockReturnValue(Promise.resolve());
+      (getPromiseForActiveRequest: any).mockReturnValue(Promise.resolve());
       const fragmentNode = getFragment(UserFragmentMissing);
       const fragmentRef = {
         __id: '4',
@@ -450,6 +450,48 @@ describe('FragmentResource', () => {
       expect(cached).toBe(thrown);
     });
 
+    it('should not cache or throw an error if network request for parent query errored', () => {
+      let reject = (e: Error) => {};
+      (getPromiseForActiveRequest: any).mockReturnValueOnce(
+        new Promise((_, r) => {
+          reject = r;
+        }),
+      );
+      const fragmentNode = getFragment(UserFragmentMissing);
+      const fragmentRef = {
+        __id: '4',
+        __fragments: {
+          UserFragment: {},
+        },
+        __fragmentOwner: queryMissingData.request,
+      };
+
+      // Try reading a fragment while parent query is in flight
+      let thrown = null;
+      try {
+        FragmentResource.read(fragmentNode, fragmentRef, componentDisplayName);
+      } catch (p) {
+        expect(p).toBeInstanceOf(Promise);
+        thrown = p;
+      }
+      // Assert that promise for request in flight is thrown
+      expect(thrown).not.toBe(null);
+
+      // Make the network request error
+      reject(new Error('Network Error'));
+      jest.runAllImmediates();
+
+      // Try reading a fragment a second time after the parent query errored
+      let cached = null;
+      try {
+        FragmentResource.read(fragmentNode, fragmentRef, componentDisplayName);
+      } catch (p) {
+        cached = p;
+      }
+      // Assert that promise from first read was cached
+      expect(cached).toBe(null);
+    });
+
     it('should raise a warning if data is missing and no pending requests', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
       FragmentResource.read(
@@ -465,7 +507,7 @@ describe('FragmentResource', () => {
       );
 
       expect(console.error).toHaveBeenCalledTimes(1);
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       const warningMessage = console.error.mock.calls[0][0];
       expect(
         warningMessage.startsWith(
@@ -474,8 +516,22 @@ describe('FragmentResource', () => {
             'missing data and its parent query `UserQuery` is not being fetched.',
         ),
       ).toEqual(true);
-      // $FlowFixMe
+      // $FlowFixMe[prop-missing]
       console.error.mockClear();
+    });
+
+    it('should show a readable error message if fragment is conditionally included', () => {
+      expect(() =>
+        FragmentResource.read(
+          getFragment(UserFragment),
+          {
+            /* no fragment reference */
+          },
+          componentDisplayName,
+        ),
+      ).toThrow(
+        "Relay: Expected to receive an object where `...UserFragment` was spread, but the fragment reference was not found`. This is most likely the result of:\n- Forgetting to spread `UserFragment` in `TestComponent`'s parent's fragment.\n- Conditionally fetching `UserFragment` but unconditionally passing a fragment reference prop to `TestComponent`. If the parent fragment only fetches the fragment conditionally - with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` spread  - then the fragment reference will not exist. In this case, pass `null` if the conditions for evaluating the fragment are not met (e.g. if the `@include(if)` value is false.)",
+      );
     });
   });
 
@@ -503,9 +559,7 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForRequestInFlight: any).mockReturnValueOnce(
-        Promise.resolve(),
-      );
+      (getPromiseForActiveRequest: any).mockReturnValueOnce(Promise.resolve());
       const fragmentNodes = {
         user: getFragment(UserFragmentMissing),
       };

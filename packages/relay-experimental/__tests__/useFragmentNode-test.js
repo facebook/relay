@@ -137,9 +137,6 @@ beforeEach(() => {
   jest.mock('scheduler', () => {
     return jest.requireActual('scheduler/unstable_mock');
   });
-  jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-    canUseDOM: () => true,
-  }));
   renderSpy = jest.fn();
 
   ({
@@ -299,6 +296,7 @@ beforeEach(() => {
           <SingularContainer owner={singularQuery} {...props} />
         </ContextProvider>
       </React.Suspense>,
+      // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
       {unstable_isConcurrent: isConcurrent},
     );
   };
@@ -316,6 +314,7 @@ beforeEach(() => {
           <PluralContainer owner={pluralQuery} {...props} />
         </ContextProvider>
       </React.Suspense>,
+      // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
       {unstable_isConcurrent: isConcurrent},
     );
   };
@@ -430,6 +429,42 @@ it('should update when fragment data changes', () => {
       shouldUpdate: true,
     },
   ]);
+});
+
+it('should preserve object identity when fragment data changes', () => {
+  renderSingularFragment();
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderSpy).toBeCalledTimes(1);
+  const prevData = renderSpy.mock.calls[0][0];
+  expect(prevData).toEqual({
+    id: '1',
+    name: 'Alice',
+    profile_picture: null,
+    ...createFragmentRef('1', singularQuery),
+  });
+  renderSpy.mockClear();
+
+  TestRenderer.act(() => {
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        // Update name
+        name: 'Alice in Wonderland',
+      },
+    });
+  });
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderSpy).toBeCalledTimes(1);
+  const nextData = renderSpy.mock.calls[0][0];
+  expect(nextData).toEqual({
+    id: '1',
+    // Assert that name is updated
+    name: 'Alice in Wonderland',
+    profile_picture: null,
+    ...createFragmentRef('1', singularQuery),
+  });
+  expect(nextData.__fragments).toBe(prevData.__fragments);
 });
 
 it('should re-read and resubscribe to fragment when environment changes', () => {
@@ -1058,7 +1093,7 @@ it('should throw a promise if if data is missing for fragment and request is in 
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});
   jest
-    .spyOn(require('relay-runtime').__internal, 'getPromiseForRequestInFlight')
+    .spyOn(require('relay-runtime').__internal, 'getPromiseForActiveRequest')
     .mockImplementationOnce(() => Promise.resolve());
 
   const missingDataVariables = {...singularVariables, id: '4'};
@@ -1078,25 +1113,66 @@ it('should throw a promise if if data is missing for fragment and request is in 
   expect(renderer.toJSON()).toEqual('Singular Fallback');
 });
 
-it('should throw an error if fragment reference is non-null but read-out data is null', () => {
+it('should warn if fragment reference is non-null but read-out data is null', () => {
   // Clearing the data in the environment will make it so the fragment ref
   // we pass to useFragmentNode points to data that does not exist; we expect
   // an error to be thrown in this case.
   (environment.getStore().getSource(): $FlowFixMe).clear();
   const warning = require('warning');
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
 
   renderSingularFragment();
   expect(warning).toBeCalledTimes(2);
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   const [, warningMessage] = warning.mock.calls[1];
   expect(
     warningMessage.startsWith(
       'Relay: Expected to have been able to read non-null data for fragment `%s`',
     ),
   ).toEqual(true);
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+});
+
+it('should NOT warn if plural fragment reference is non-null and empty', () => {
+  // Commit a paylaod where the nodes are an empty list
+  environment.commitPayload(pluralQuery, {
+    nodes: [],
+  });
+  const warning = require('warning');
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+
+  // Pass the updated fragment ref
+  const usersRef = (environment.lookup(pluralQuery.fragment).data: $FlowFixMe)
+    .nodes;
+  renderPluralFragment({usersRef});
+  expect(warning).toBeCalledTimes(0);
+
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+});
+
+it('should warn if plural fragment reference is non-null but read-out data is null', () => {
+  // Clearing the data in the environment will make it so the fragment ref
+  // we pass to useFragmentNode points to data that does not exist; we expect
+  // an error to be thrown in this case.
+  (environment.getStore().getSource(): $FlowFixMe).clear();
+  const warning = require('warning');
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+
+  renderPluralFragment();
+  expect(warning).toBeCalledTimes(2);
+  // $FlowFixMe[prop-missing]
+  const [, warningMessage] = warning.mock.calls[1];
+  expect(
+    warningMessage.startsWith(
+      'Relay: Expected to have been able to read non-null data for fragment `%s`',
+    ),
+  ).toEqual(true);
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
 });
 
@@ -1119,7 +1195,7 @@ it('should warn if data is missing and there are no pending requests', () => {
     },
   });
 
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
   TestRenderer.act(() => {
     renderSingularFragment({owner: missingDataQuery});
@@ -1127,7 +1203,7 @@ it('should warn if data is missing and there are no pending requests', () => {
 
   // Assert warning message
   expect(warning).toHaveBeenCalledTimes(1);
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   const [, warningMessage, ...warningArgs] = warning.mock.calls[0];
   expect(
     warningMessage.startsWith(
@@ -1176,7 +1252,7 @@ it('should subscribe for updates even if there is missing data', () => {
     },
   });
 
-  // $FlowFixMe
+  // $FlowFixMe[prop-missing]
   warning.mockClear();
   renderSingularFragment({owner: missingDataQuery});
 
@@ -1211,6 +1287,73 @@ it('should subscribe for updates even if there is missing data', () => {
         profile_picture: undefined,
         ...createFragmentRef('4', missingDataQuery),
       },
+      shouldUpdate: true,
+    },
+  ]);
+});
+
+it('should subscribe for updates to plural fragments even if there is missing data', () => {
+  // This prevents console.error output in the test, which is expected
+  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
+  const warning = require('warning');
+
+  const missingDataVariables = {...pluralVariables, ids: ['4']};
+  const missingDataQuery = createOperationDescriptor(
+    gqlPluralQuery,
+    missingDataVariables,
+  );
+
+  // Commit a payload where name is missing.
+  environment.commitPayload(missingDataQuery, {
+    nodes: [
+      {
+        __typename: 'User',
+        id: '4',
+      },
+    ],
+  });
+
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+  renderPluralFragment({owner: missingDataQuery});
+
+  // Assert render output with missing data
+  assertFragmentResults([
+    {
+      data: [
+        {
+          id: '4',
+          name: undefined,
+          profile_picture: undefined,
+          ...createFragmentRef('4', missingDataQuery),
+        },
+      ],
+      shouldUpdate: true,
+    },
+  ]);
+
+  // Commit a payload with updated name.
+  environment.commitPayload(missingDataQuery, {
+    nodes: [
+      {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+      },
+    ],
+  });
+
+  // Assert render output with updated data
+  assertFragmentResults([
+    {
+      data: [
+        {
+          id: '4',
+          name: 'Mark',
+          profile_picture: undefined,
+          ...createFragmentRef('4', missingDataQuery),
+        },
+      ],
       shouldUpdate: true,
     },
   ]);

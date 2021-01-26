@@ -14,6 +14,7 @@
 'use strict';
 
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 
 const {toASTRecord} = require('./extractAST');
 const {Source, parse} = require('graphql');
@@ -48,13 +49,6 @@ type SourcesState = {
   },
   ...,
 };
-
-function md5(x: string): string {
-  return require('crypto')
-    .createHash('md5')
-    .update(x, 'utf8')
-    .digest('hex');
-}
 
 class Sources<T: ASTNode> {
   _extractFromFile: GraphQLExtractor<T>;
@@ -129,9 +123,7 @@ class Sources<T: ASTNode> {
         }
       } catch (error) {
         throw new Error(
-          `RelayCompiler: Sources module failed to parse ${file.name}:\n${
-            error.message
-          }`,
+          `RelayCompiler: Sources module failed to parse ${file.name}:\n${error.message}`,
         );
       }
       const hasEntry = state.hasOwnProperty(file.name);
@@ -145,6 +137,20 @@ class Sources<T: ASTNode> {
         const newTexts = new Set();
         for (const {ast, text} of newDefs) {
           const hashedText = md5(text);
+          if (newTexts.has(hashedText)) {
+            let name = 'unknown';
+            switch (ast.kind) {
+              case 'FragmentDefinition':
+                name = ast.name.value;
+                break;
+              case 'OperationDefinition':
+                name = ast.name?.value ?? 'unnamed operation';
+                break;
+            }
+            throw new Error(
+              `Duplicate definition of \`${name}\` in \`${file.name}\``,
+            );
+          }
           newTexts.add(hashedText);
           if (hasEntry && oldEntry[hashedText] != null) {
             // Entity text did not change, so we
@@ -172,9 +178,7 @@ class Sources<T: ASTNode> {
         // Finally, update the state with the changes
         state[file.name] = {
           nodes: newEntry,
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
+          // $FlowFixMe[incompatible-type]
           sources: newSources,
         };
       } else {
@@ -191,9 +195,7 @@ class Sources<T: ASTNode> {
     }
 
     return {
-      /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-       * v0.111.0 was deployed. To see the error, delete this comment and run
-       * Flow. */
+      // $FlowFixMe[incompatible-return]
       changes: {added, removed},
       sources: new Sources({
         extractFromFile: this._extractFromFile,

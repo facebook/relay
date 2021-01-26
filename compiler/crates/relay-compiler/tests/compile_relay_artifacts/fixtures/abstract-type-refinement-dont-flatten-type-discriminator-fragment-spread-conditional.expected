@@ -1,0 +1,163 @@
+==================================== INPUT ====================================
+query abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_AbstractTypeRefinementQuery($shouldInclude: Boolean!) {
+  node(id: "4") {
+    ... @include(if: $shouldInclude) {
+      # Fragment will be inlined:
+      #  - Printed query should select __isNode
+      #  - Normalization ast should include inline fragment with abstractKey
+      ...abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_NodeFragment
+    }
+  }
+}
+
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_NodeFragment on Node {
+  id
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "shouldInclude"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "condition": "shouldInclude",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_NodeFragment"
+              }
+            ]
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "shouldInclude"
+      }
+    ],
+    "kind": "Operation",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "condition": "shouldInclude",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              }
+            ]
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_AbstractTypeRefinementQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_AbstractTypeRefinementQuery(
+  $shouldInclude: Boolean!
+) {
+  node(id: "4") {
+    __typename
+    __isNode: __typename @include(if: $shouldInclude)
+    ...abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_NodeFragment @include(if: $shouldInclude)
+    id
+  }
+}
+
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_NodeFragment on Node {
+  __isNode: __typename
+  id
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpreadConditional_NodeFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

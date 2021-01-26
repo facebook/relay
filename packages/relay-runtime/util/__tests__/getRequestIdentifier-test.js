@@ -15,13 +15,18 @@
 
 const getRequestIdentifier = require('../getRequestIdentifier');
 
+import type {RequestParameters} from '../../util/RelayConcreteNode';
+
 describe('getRequestIdentifier', () => {
   it('passes with `id`', () => {
     const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',
+        operationKind: 'query',
+        metadata: {},
         id: '123',
-      }: any),
+        text: null,
+      }: RequestParameters),
       {foo: 1},
     );
     expect(queryIdentifier).toEqual('123{"foo":1}');
@@ -31,24 +36,14 @@ describe('getRequestIdentifier', () => {
     const queryIdentifier = getRequestIdentifier(
       ({
         name: 'FooQuery',
-        text: 'query FooQuery {}',
-      }: any),
-      {bar: 1},
+        operationKind: 'query',
+        metadata: {},
+        id: null,
+        text: 'query Test { __typename }',
+        cacheID: 'test-cache-id',
+      }: RequestParameters),
+      {foo: 1},
     );
-    expect(queryIdentifier).toEqual('query FooQuery {}{"bar":1}');
-  });
-
-  it('fails without `id` or `text`', () => {
-    expect(() => {
-      getRequestIdentifier(
-        ({
-          name: 'FooQuery',
-        }: any),
-        {foo: 1},
-      );
-    }).toThrowError(
-      'getRequestIdentifier: Expected request `FooQuery` to have ' +
-        'either a valid `id` or `text` property',
-    );
+    expect(queryIdentifier).toEqual('test-cache-id{"foo":1}');
   });
 });

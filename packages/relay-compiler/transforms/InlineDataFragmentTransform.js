@@ -36,7 +36,8 @@ function inlineDataFragmentTransform(
   context: CompilerContext,
 ): CompilerContext {
   return IRTransformer.transform(context, {
-    // $FlowFixMe - this visitor intentionally changes node types
+    // $FlowFixMe[prop-missing] - this visitor intentionally changes node types
+    // $FlowFixMe[incompatible-call] - this visitor intentionally changes node types
     FragmentSpread: visitFragmentSpread,
     Fragment: visitFragment,
   });

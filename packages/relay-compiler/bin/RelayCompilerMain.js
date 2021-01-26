@@ -23,6 +23,7 @@ const WatchmanClient = require('../core/GraphQLWatchmanClient');
 
 const crypto = require('crypto');
 const fs = require('fs');
+const glob = require('glob');
 const invariant = require('invariant');
 const path = require('path');
 
@@ -57,8 +58,10 @@ export type Config = {|
   quiet: boolean,
   persistOutput?: ?string,
   noFutureProofEnums: boolean,
+  eagerESModules?: boolean,
   language: string | PluginInitializer,
   persistFunction?: ?string | ?((text: string) => Promise<string>),
+  repersist: boolean,
   artifactDirectory?: ?string,
   customScalars?: ScalarTypeMapping,
 |};
@@ -91,12 +94,17 @@ function getFilepathsFromGlob(
   },
 ): Array<string> {
   const {extensions, include, exclude} = config;
-  const patterns = include.map(inc => `${inc}/*.+(${extensions.join('|')})`);
-  const glob = require('fast-glob');
-  return glob.sync(patterns, {
-    cwd: baseDir,
-    ignore: exclude,
-  });
+
+  const files = new Set();
+  include.forEach(inc =>
+    glob
+      .sync(`${inc}/*.+(${extensions.join('|')})`, {
+        cwd: baseDir,
+        ignore: exclude,
+      })
+      .forEach(file => files.add(file)),
+  );
+  return Array.from(files);
 }
 
 type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};
@@ -114,9 +122,14 @@ type LanguagePlugin = PluginInitializer | {default: PluginInitializer, ...};
  */
 function getLanguagePlugin(
   language: string | PluginInitializer,
+  options?: {|
+    eagerESModules: boolean,
+  |},
 ): PluginInterface {
   if (language === 'javascript') {
-    return RelayLanguagePluginJavaScript();
+    return RelayLanguagePluginJavaScript({
+      eagerESModules: Boolean(options && options.eagerESModules),
+    });
   } else {
     let languagePlugin: LanguagePlugin;
     if (typeof language === 'string') {
@@ -141,11 +154,12 @@ function getLanguagePlugin(
       languagePlugin = language;
     }
     if (languagePlugin.default != null) {
-      // $FlowFixMe - Flow no longer considers statics of functions as any
+      /* $FlowFixMe[incompatible-type] - Flow no longer considers statics of
+       * functions as any */
       languagePlugin = languagePlugin.default;
     }
     if (typeof languagePlugin === 'function') {
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-use]
       return languagePlugin();
     } else {
       throw new Error('Expected plugin to be a initializer function.');
@@ -269,7 +283,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
     quiet: config.quiet,
   });
   const schema = getSchemaSource(config.schema);
-  const languagePlugin = getLanguagePlugin(config.language);
+  const languagePlugin = getLanguagePlugin(config.language, {
+    eagerESModules: config.eagerESModules === true,
+  });
   const persistQueryFunction = getPersistQueryFunction(config);
   const inputExtensions = config.extensions || languagePlugin.inputExtensions;
   const outputExtension = languagePlugin.outputExtension;
@@ -277,6 +293,7 @@ function getCodegenRunner(config: Config): CodegenRunner {
   const sourceWriterName = outputExtension;
   const sourceModuleParser = RelaySourceModuleParser(
     languagePlugin.findGraphQLTags,
+    languagePlugin.getFileFilter,
   );
   const providedArtifactDirectory = config.artifactDirectory;
   const artifactDirectory =
@@ -294,6 +311,9 @@ function getCodegenRunner(config: Config): CodegenRunner {
     include: config.include,
     exclude: [path.relative(config.src, config.schema)].concat(config.exclude),
   };
+  const defaultIsGeneratedFile = (filePath: string) =>
+    filePath.endsWith('.graphql.' + outputExtension) &&
+    filePath.includes(generatedDirectoryName);
   const schemaExtensions = languagePlugin.schemaExtensions
     ? [...languagePlugin.schemaExtensions, ...relaySchemaExtensions]
     : relaySchemaExtensions;
@@ -334,10 +354,11 @@ function getCodegenRunner(config: Config): CodegenRunner {
         config.persistOutput,
         config.customScalars,
         persistQueryFunction,
+        config.repersist,
       ),
-      isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.graphql.' + outputExtension) &&
-        filePath.includes(generatedDirectoryName),
+      isGeneratedFile: languagePlugin.isGeneratedFile
+        ? languagePlugin.isGeneratedFile
+        : defaultIsGeneratedFile,
       parser: sourceParserName,
       baseParsers: ['graphql'],
     },
@@ -368,6 +389,7 @@ function getRelayFileWriter(
   persistedQueryPath?: ?string,
   customScalars?: ScalarTypeMapping,
   persistFunction?: ?(text: string) => Promise<string>,
+  repersist?: boolean,
 ) {
   return async ({
     onlyValidate,
@@ -416,6 +438,7 @@ function getRelayFileWriter(
         typeGenerator: languagePlugin.typeGenerator,
         outputDir,
         persistQuery,
+        repersist,
       },
       onlyValidate,
       schema,
@@ -423,6 +446,7 @@ function getRelayFileWriter(
       documents,
       reporter,
       sourceControl,
+      languagePlugin,
     });
     if (queryMap != null && persistedQueryPath != null) {
       let object = {};

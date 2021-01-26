@@ -1,0 +1,7 @@
+query queryWithRawResponseTypeDirective_ViewerQuery @raw_response_type {
+  viewer {
+    actor {
+      id
+    }
+  }
+}

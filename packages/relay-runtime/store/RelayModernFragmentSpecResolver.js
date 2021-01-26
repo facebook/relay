@@ -12,10 +12,15 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const warning = require('warning');
 
+const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -30,6 +35,7 @@ import type {
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
+  MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
   SelectorData,
@@ -81,7 +87,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._context = context;
     this._data = {};
     this._fragments = fragments;
-    this._props = props;
+    this._props = {};
     this._resolvers = {};
     this._stale = false;
 
@@ -134,6 +140,8 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   setProps(props: Props): void {
     const ownedSelectors = getSelectorsFromObject(this._fragments, props);
+    this._props = {};
+
     for (const key in ownedSelectors) {
       if (ownedSelectors.hasOwnProperty(key)) {
         const ownedSelector = ownedSelectors[key];
@@ -174,10 +182,10 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
             resolver.setSelector(ownedSelector);
           }
         }
+        this._props[key] = props[key];
         this._resolvers[key] = resolver;
       }
     }
-    this._props = props;
     this._stale = true;
   }
 
@@ -209,6 +217,8 @@ class SelectorResolver {
   _callback: () => void;
   _data: ?SelectorData;
   _environment: IEnvironment;
+  _isMissingData: boolean;
+  _missingRequiredFields: ?MissingRequiredFields;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
 
@@ -220,6 +230,8 @@ class SelectorResolver {
     const snapshot = environment.lookup(selector);
     this._callback = callback;
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._environment = environment;
     this._selector = selector;
     this._subscription = environment.subscribe(snapshot, this._onChange);
@@ -233,6 +245,53 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
+    if (
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
+      this._isMissingData === true
+    ) {
+      // NOTE: This branch exists to handle the case in which:
+      // - A RelayModern container is rendered as a descendant of a Relay Hook
+      //   root using a "partial" renderPolicy (this means that eargerly
+      //   reading any cached data that is available instead of blocking
+      //   at the root until the whole query is fetched).
+      // - A parent Relay Hook didnt' suspend earlier on data being fetched,
+      //   either because the fragment data for the parent was available, or
+      //   the parent fragment didn't have any data dependencies.
+      // Even though our Flow types reflect the possiblity of null data, there
+      // might still be cases where it's not handled at runtime becuase the
+      // Flow types are being ignored, or simply not being used (for example,
+      // the case reported here: https://fburl.com/srnbucf8, was due to
+      // misuse of Flow types here: https://fburl.com/g3m0mqqh).
+      // Additionally, even though the null data might be handled without a
+      // runtime error, we might not suspend when we intended to if a parent
+      // Relay Hook (e.g. that is using @defer) decided not to suspend becuase
+      // it's immediate data was already available (even if it was deferred),
+      // or it didn't actually need any data (was just spreading other fragments).
+      // This should eventually go away with something like @optional, where we only
+      // suspend at specific boundaries depending on whether the boundary
+      // can be fulfilled or not.
+      const promise =
+        getPromiseForActiveRequest(this._environment, this._selector.owner) ??
+        this._environment
+          .getOperationTracker()
+          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+      if (promise != null) {
+        warning(
+          false,
+          'Relay: Relay Container for fragment `%s` suspended. When using ' +
+            'features such as @defer or @module, use `useFragment` instead ' +
+            'of a Relay Container.',
+          this._selector.node.name,
+        );
+        throw promise;
+      }
+    }
+    if (this._missingRequiredFields != null) {
+      reportMissingRequiredFields(
+        this._environment,
+        this._missingRequiredFields,
+      );
+    }
     return this._data;
   }
 
@@ -246,6 +305,8 @@ class SelectorResolver {
     this.dispose();
     const snapshot = this._environment.lookup(selector);
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -264,7 +325,7 @@ class SelectorResolver {
     // NOTE: We manually create the request descriptor here instead of
     // calling createOperationDescriptor() because we want to set a
     // descriptor with *unaltered* variables as the fragment owner.
-    // This is a hack that allows us to preserve exisiting (broken)
+    // This is a hack that allows us to preserve existing (broken)
     // behavior of RelayModern containers while using fragment ownership
     // to propagate variables instead of Context.
     // For more details, see the summary of D13999308
@@ -280,6 +341,8 @@ class SelectorResolver {
 
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
+    this._isMissingData = snapshot.isMissingData;
+    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._callback();
   };
 }

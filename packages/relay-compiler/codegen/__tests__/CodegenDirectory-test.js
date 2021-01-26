@@ -108,4 +108,32 @@ describe('deleteExtraFiles', () => {
       updated: ['bar.js'],
     });
   });
+
+  test('allows whitelisting files to not delete through function provided to deleteExtraFiles', () => {
+    const filesystem = new TestFilesystem();
+    const codegenDir = new CodegenDirectory('/generated', {
+      filesystem,
+      onlyValidate: false,
+    });
+    codegenDir.writeFile('foo.js', 'mock-content-/generated/foo.js');
+    codegenDir.writeFile('bar.js', 'mock-content-/generated/bar.js-changed');
+    codegenDir.deleteExtraFiles(filePath => filePath.endsWith('unexpected.js'));
+    expect(filesystem.__mockOperations).toEqual([
+      'existsSync(/generated)',
+      'statSync(/generated)',
+      'existsSync(/generated)',
+      'existsSync(/generated/foo.js)',
+      'readFileSync(/generated/foo.js)',
+      'existsSync(/generated/bar.js)',
+      'readFileSync(/generated/bar.js)',
+      'writeFileSync(/generated/bar.js)',
+      'readdirSync(/generated)',
+    ]);
+    expect(codegenDir.changes).toEqual({
+      created: [],
+      deleted: [],
+      unchanged: ['foo.js'],
+      updated: ['bar.js'],
+    });
+  });
 });

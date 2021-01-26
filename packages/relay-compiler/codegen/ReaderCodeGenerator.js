@@ -14,15 +14,15 @@
 
 const CodeMarker = require('../util/CodeMarker');
 
+const argumentContainsVariables = require('../util/argumentContainsVariables');
+const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+
 const {createCompilerError, createUserError} = require('../core/CompilerError');
-const {
-  ConnectionInterface,
-  getStorageKey,
-  stableCopy,
-} = require('relay-runtime');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 
 import type {
   Argument,
+  ArgumentValue,
   ArgumentDefinition,
   ClientExtension,
   Defer,
@@ -36,22 +36,23 @@ import type {
   FragmentSpread,
   InlineFragment,
   ModuleImport,
-  Connection,
-  ConnectionField,
   InlineDataFragmentSpread,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
+import type {RequiredDirectiveMetadata} from '../transforms/RequiredFieldTransform';
 import type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnection,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from 'relay-runtime';
 
 /**
@@ -76,33 +77,43 @@ function generate(schema: Schema, node: Fragment): ReaderFragment {
       metadata = metadata ?? {};
       metadata.mask = mask;
     }
-    if (typeof plural === 'boolean') {
+    if (plural === true) {
       metadata = metadata ?? {};
-      metadata.plural = plural;
+      metadata.plural = true;
     }
-    if (typeof refetch === 'object') {
+    if (refetch != null && typeof refetch === 'object') {
       metadata = metadata ?? {};
       metadata.refetch = {
-        // $FlowFixMe
         connection: refetch.connection,
-        // $FlowFixMe
-        operation: CodeMarker.moduleDependency(refetch.operation + '.graphql'),
-        // $FlowFixMe
         fragmentPathInResult: refetch.fragmentPathInResult,
+        operation: CodeMarker.moduleDependency(
+          // $FlowFixMe[unclear-addition]
+          refetch.operation + '.graphql',
+        ),
       };
+      if (typeof refetch.identifierField === 'string') {
+        metadata.refetch = {
+          ...metadata.refetch,
+          identifierField: refetch.identifierField,
+        };
+      }
     }
   }
+  const rawType = schema.getRawType(node.type);
   return {
-    kind: 'Fragment',
-    name: node.name,
-    type: schema.getTypeString(node.type),
-    // $FlowFixMe
-    metadata,
     argumentDefinitions: generateArgumentDefinitions(
       schema,
       node.argumentDefinitions,
     ),
+    kind: 'Fragment',
+    // $FlowFixMe[incompatible-return]
+    metadata,
+    name: node.name,
     selections: generateSelections(schema, node.selections),
+    type: schema.getTypeString(rawType),
+    abstractKey: schema.isAbstractType(rawType)
+      ? generateAbstractTypeRefinementKey(schema, rawType)
+      : null,
   };
 }
 
@@ -120,6 +131,12 @@ function generateSelections(
         case 'Condition':
           return generateCondition(schema, selection);
         case 'ScalarField':
+          // NOTE: The type discriminator is used only for the
+          // normalization ast.
+          const isTypeDiscriminator = selection.metadata?.abstractKey != null;
+          if (isTypeDiscriminator) {
+            return null;
+          }
           return generateScalarField(schema, selection);
         case 'ModuleImport':
           return generateModuleImport(schema, selection);
@@ -129,10 +146,6 @@ function generateSelections(
           return generateInlineFragment(schema, selection);
         case 'LinkedField':
           return generateLinkedField(schema, selection);
-        case 'ConnectionField':
-          return generateConnectionField(schema, selection);
-        case 'Connection':
-          return generateConnection(schema, selection);
         case 'Defer':
           return generateDefer(schema, selection);
         case 'Stream':
@@ -149,25 +162,33 @@ function generateArgumentDefinitions(
   schema: Schema,
   nodes: $ReadOnlyArray<ArgumentDefinition>,
 ): $ReadOnlyArray<ReaderArgumentDefinition> {
-  return nodes.map(node => {
-    switch (node.kind) {
-      case 'LocalArgumentDefinition':
-        return {
-          kind: 'LocalArgument',
-          name: node.name,
-          type: schema.getTypeString(node.type),
-          defaultValue: node.defaultValue,
-        };
-      case 'RootArgumentDefinition':
-        return {
-          kind: 'RootArgument',
-          name: node.name,
-          type: node.type ? schema.getTypeString(node.type) : null,
-        };
-      default:
-        throw new Error();
-    }
-  });
+  return nodes
+    .map(node => {
+      switch (node.kind) {
+        case 'LocalArgumentDefinition':
+          return {
+            defaultValue: stableCopy(node.defaultValue),
+            kind: 'LocalArgument',
+            name: node.name,
+          };
+        case 'RootArgumentDefinition':
+          return {
+            kind: 'RootArgument',
+            name: node.name,
+          };
+        default:
+          throw new Error();
+      }
+    })
+    .sort((nodeA, nodeB) => {
+      if (nodeA.name > nodeB.name) {
+        return 1;
+      }
+      if (nodeA.name < nodeB.name) {
+        return -1;
+      }
+      return 0;
+    });
 }
 
 function generateClientExtension(
@@ -203,9 +224,9 @@ function generateCondition(schema: Schema, node: Condition): ReaderSelection {
     );
   }
   return {
+    condition: node.condition.variableName,
     kind: 'Condition',
     passingValue: node.passingValue,
-    condition: node.condition.variableName,
     selections: generateSelections(schema, node.selections),
   };
 }
@@ -215,9 +236,9 @@ function generateFragmentSpread(
   node: FragmentSpread,
 ): ReaderSelection {
   return {
+    args: generateArgs(node.args),
     kind: 'FragmentSpread',
     name: node.name,
-    args: generateArgs(node.args),
   };
 }
 
@@ -225,10 +246,14 @@ function generateInlineFragment(
   schema: Schema,
   node: InlineFragment,
 ): ReaderSelection {
+  const rawType = schema.getRawType(node.typeCondition);
   return {
     kind: 'InlineFragment',
-    type: schema.getTypeString(node.typeCondition),
     selections: generateSelections(schema, node.selections),
+    type: schema.getTypeString(rawType),
+    abstractKey: schema.isAbstractType(rawType)
+      ? generateAbstractTypeRefinementKey(schema, rawType)
+      : null,
   };
 }
 
@@ -246,7 +271,7 @@ function generateInlineDataFragmentSpread(
 function generateLinkedField(
   schema: Schema,
   node: LinkedField,
-): ReaderLinkedField {
+): ReaderLinkedField | ReaderRequiredField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -261,96 +286,39 @@ function generateLinkedField(
   //   );
   const rawType = schema.getRawType(node.type);
   let field: ReaderLinkedField = {
-    kind: 'LinkedField',
     alias: node.alias === node.name ? null : node.alias,
-    name: node.name,
-    storageKey: null,
     args: generateArgs(node.args),
     concreteType: !schema.isAbstractType(rawType)
       ? schema.getTypeString(rawType)
       : null,
+    kind: 'LinkedField',
+    name: node.name,
     plural: isPlural(schema, node.type),
     selections: generateSelections(schema, node.selections),
+    storageKey: null,
   };
   // Precompute storageKey if possible
   const storageKey = getStaticStorageKey(field, node.metadata);
   if (storageKey) {
     field = {...field, storageKey};
   }
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  if (requiredMetadata != null) {
+    return createRequiredField(field, requiredMetadata);
+  }
   return field;
 }
 
-function generateConnectionField(
-  schema: Schema,
-  node: ConnectionField,
-): ReaderLinkedField {
-  return generateLinkedField(schema, {
-    name: node.name,
-    alias: node.alias,
-    loc: node.loc,
-    directives: node.directives,
-    metadata: node.metadata,
-    selections: node.selections,
-    type: node.type,
-    connection: false, // this is only on the linked fields with @conneciton
-    handles: null,
-    args: node.args.filter(
-      arg =>
-        !ConnectionInterface.isConnectionCall({name: arg.name, value: null}),
-    ),
-    kind: 'LinkedField',
-  });
-}
-
-function generateConnection(
-  schema: Schema,
-  node: Connection,
-): ReaderConnection {
-  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  const selections = generateSelections(schema, node.selections);
-  let edges: ?ReaderLinkedField;
-  let pageInfo: ?ReaderLinkedField;
-  selections.forEach(selection => {
-    if (selection.kind === 'LinkedField') {
-      if (selection.name === EDGES) {
-        edges = selection;
-      } else if (selection.name === PAGE_INFO) {
-        pageInfo = selection;
-      }
-    } else if (selection.kind === 'Stream') {
-      selection.selections.forEach(subselection => {
-        if (
-          subselection.kind === 'LinkedField' &&
-          subselection.name === EDGES
-        ) {
-          edges = subselection;
-        }
-      });
-    } else if (selection.kind === 'Defer') {
-      selection.selections.forEach(subselection => {
-        if (
-          subselection.kind === 'LinkedField' &&
-          subselection.name === PAGE_INFO
-        ) {
-          pageInfo = subselection;
-        }
-      });
-    }
-  });
-  if (edges == null || pageInfo == null) {
-    throw createUserError(
-      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
-        'to exist.',
-      [node.loc],
-    );
-  }
+function createRequiredField(
+  field: ReaderField,
+  requiredMetadata: RequiredDirectiveMetadata,
+): ReaderRequiredField {
   return {
-    kind: 'Connection',
-    label: node.label,
-    name: node.name,
-    args: generateArgs(node.args),
-    edges,
-    pageInfo,
+    kind: 'RequiredField',
+    field,
+    action: requiredMetadata.action,
+    path: requiredMetadata.path,
   };
 }
 
@@ -378,17 +346,17 @@ function generateModuleImport(
     );
   }
   return {
-    kind: 'ModuleImport',
-    documentName: node.documentName,
+    documentName: node.key,
     fragmentName,
     fragmentPropName,
+    kind: 'ModuleImport',
   };
 }
 
 function generateScalarField(
   schema: Schema,
   node: ScalarField,
-): ReaderScalarField {
+): ReaderScalarField | ReaderRequiredField | ReaderFlightField {
   // Note: it is important that the arguments of this field be sorted to
   // ensure stable generation of storage keys for equivalent arguments
   // which may have originally appeared in different orders across an app.
@@ -402,11 +370,11 @@ function generateScalarField(
   //     'ReaderCodeGenerator: unexpected handles',
   //   );
 
-  let field: ReaderScalarField = {
-    kind: 'ScalarField',
+  let field = {
     alias: node.alias === node.name ? null : node.alias,
-    name: node.name,
     args: generateArgs(node.args),
+    kind: 'ScalarField',
+    name: node.name,
     storageKey: null,
   };
   // Precompute storageKey if possible
@@ -414,16 +382,32 @@ function generateScalarField(
   if (storageKey) {
     field = {...field, storageKey};
   }
+  if (node.metadata?.flight === true) {
+    field = {...field, kind: 'FlightField'};
+  }
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  if (requiredMetadata != null) {
+    if (field.kind === 'FlightField') {
+      throw new createUserError(
+        '@required cannot be used on a ReactFlightComponent.',
+        [node.loc],
+      );
+    }
+    return createRequiredField(field, requiredMetadata);
+  }
   return field;
 }
 
-function generateArgument(node: Argument): ReaderArgument | null {
-  const value = node.value;
+function generateArgument(
+  name: string,
+  value: ArgumentValue,
+): ReaderArgument | null {
   switch (value.kind) {
     case 'Variable':
       return {
         kind: 'Variable',
-        name: node.name,
+        name: name,
         variableName: value.variableName,
       };
     case 'Literal':
@@ -431,14 +415,48 @@ function generateArgument(node: Argument): ReaderArgument | null {
         ? null
         : {
             kind: 'Literal',
-            name: node.name,
+            name: name,
             value: stableCopy(value.value),
           };
+    case 'ObjectValue': {
+      const objectKeys = value.fields.map(field => field.name).sort();
+      const objectValues = new Map(
+        value.fields.map(field => {
+          return [field.name, field.value];
+        }),
+      );
+      return {
+        fields: objectKeys.map(fieldName => {
+          const fieldValue = objectValues.get(fieldName);
+          if (fieldValue == null) {
+            throw createCompilerError('Expected to have object field value');
+          }
+          return (
+            generateArgument(fieldName, fieldValue) ?? {
+              kind: 'Literal',
+              name: fieldName,
+              value: null,
+            }
+          );
+        }),
+        kind: 'ObjectValue',
+        name: name,
+      };
+    }
+    case 'ListValue': {
+      return {
+        items: value.items.map((item, index) => {
+          return generateArgument(`${name}.${index}`, item);
+        }),
+        kind: 'ListValue',
+        name: name,
+      };
+    }
     default:
       throw createUserError(
         'ReaderCodeGenerator: Complex argument values (Lists or ' +
           'InputObjects with nested variables) are not supported.',
-        [node.value.loc],
+        [value.loc],
       );
   }
 }
@@ -448,7 +466,7 @@ function generateArgs(
 ): ?$ReadOnlyArray<ReaderArgument> {
   const concreteArguments = [];
   args.forEach(arg => {
-    const concreteArgument = generateArgument(arg);
+    const concreteArgument = generateArgument(arg.name, arg.value);
     if (concreteArgument !== null) {
       concreteArguments.push(concreteArgument);
     }
@@ -478,7 +496,7 @@ function getStaticStorageKey(field: ReaderField, metadata: Metadata): ?string {
   if (
     !field.args ||
     field.args.length === 0 ||
-    field.args.some(arg => arg.kind !== 'Literal')
+    field.args.some(argumentContainsVariables)
   ) {
     return null;
   }

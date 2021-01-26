@@ -16,14 +16,14 @@ const ReactRelayPaginationContainer = require('../ReactRelayPaginationContainer'
 const ReactTestRenderer = require('react-test-renderer');
 
 const {
-  createReaderSelector,
-  createOperationDescriptor,
   ConnectionHandler,
   ConnectionInterface,
+  createOperationDescriptor,
+  createReaderSelector,
+  graphql,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
-  generateAndCompile,
   unwrapContainer,
 } = require('relay-test-utils-internal');
 
@@ -89,8 +89,8 @@ describe('ReactRelayPaginationContainer', () => {
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    ({UserFragment, UserQuery} = generateAndCompile(`
-      query UserQuery(
+    UserQuery = graphql`
+      query ReactRelayPaginationContainerTestUserQuery(
         $after: ID
         $count: Int!
         $id: ID!
@@ -100,20 +100,23 @@ describe('ReactRelayPaginationContainer', () => {
         node(id: $id) {
           id
           __typename
-          ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+          ...ReactRelayPaginationContainerTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
+    `;
 
-      fragment UserFragment on User
+    UserFragment = graphql`
+      fragment ReactRelayPaginationContainerTestUserFragment on User
         @argumentDefinitions(
           isViewerFriendLocal: {type: "Boolean", defaultValue: false}
           orderby: {type: "[String]"}
         ) {
         id
         friends(
-          after: $after,
-          first: $count,
-          orderby: $orderby,
+          after: $after
+          first: $count
+          orderby: $orderby
           isViewerFriend: $isViewerFriendLocal
         ) @connection(key: "UserFragment_friends") {
           edges {
@@ -123,7 +126,7 @@ describe('ReactRelayPaginationContainer', () => {
           }
         }
       }
-    `));
+    `;
 
     render = jest.fn(props => {
       ({hasMore, isLoading, loadMore, refetchConnection} = props.relay);
@@ -151,7 +154,7 @@ describe('ReactRelayPaginationContainer', () => {
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       {
         direction: 'forward',
@@ -330,6 +333,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
+      missingRequiredFields: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -433,6 +437,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
+      missingRequiredFields: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -496,6 +501,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
+      missingRequiredFields: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -590,6 +596,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
+      missingRequiredFields: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -743,8 +750,8 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('fails if missing @connection directive', () => {
-    ({UserFragment, UserQuery} = generateAndCompile(`
-      query UserQuery(
+    UserQuery = graphql`
+      query ReactRelayPaginationContainerTestNoConnectionUserQuery(
         $after: ID
         $count: Int!
         $id: ID!
@@ -752,11 +759,13 @@ describe('ReactRelayPaginationContainer', () => {
       ) {
         node(id: $id) {
           id
-          ...UserFragment
+          ...ReactRelayPaginationContainerTestNoConnectionUserFragment
         }
       }
+    `;
 
-      fragment UserFragment on User {
+    UserFragment = graphql`
+      fragment ReactRelayPaginationContainerTestNoConnectionUserFragment on User {
         friends(after: $after, first: $count, orderby: $orderby) {
           edges {
             node {
@@ -769,13 +778,12 @@ describe('ReactRelayPaginationContainer', () => {
           }
         }
       }
-    `));
-
+    `;
     expect(() => {
       ReactRelayPaginationContainer.createContainer(
         TestComponent,
         {
-          user: () => UserFragment,
+          user: UserFragment,
         },
         {
           direction: 'forward',
@@ -794,33 +802,34 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('does not fail invariant if one fragment has a @connection directive', () => {
-    let ViewerFragment;
-    ({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(`
-      query UserQuery(
+    UserQuery = graphql`
+      query ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery(
         $after: ID
         $count: Int!
         $id: ID!
         $orderby: [String]
       ) {
         viewer {
-          ...ViewerFragment
+          ...ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment
         }
         node(id: $id) {
           id
-          ...UserFragment
+          ...ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment
         }
       }
+    `;
 
-      fragment ViewerFragment on Viewer {
-        actor{
+    const ViewerFragment = graphql`
+      fragment ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment on Viewer {
+        actor {
           id
         }
       }
-
-      fragment UserFragment on User {
-        friends(after: $after, first: $count, orderby: $orderby) @connection(
-          key: "UserFragment_friends"
-        ) {
+    `;
+    UserFragment = graphql`
+      fragment ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment on User {
+        friends(after: $after, first: $count, orderby: $orderby)
+          @connection(key: "UserFragment_friends") {
           edges {
             node {
               id
@@ -832,13 +841,13 @@ describe('ReactRelayPaginationContainer', () => {
           }
         }
       }
-    `));
+    `;
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
       {
-        user: () => UserFragment,
-        viewer: () => ViewerFragment,
+        user: UserFragment,
+        viewer: ViewerFragment,
       },
       {
         direction: 'forward',
@@ -1887,7 +1896,7 @@ describe('ReactRelayPaginationContainer', () => {
     const TestUnwrappingContainer = ReactRelayPaginationContainer.createContainer(
       TestUnwrapping,
       {
-        user: () => UserFragment,
+        user: UserFragment,
       },
       {
         direction: 'forward',

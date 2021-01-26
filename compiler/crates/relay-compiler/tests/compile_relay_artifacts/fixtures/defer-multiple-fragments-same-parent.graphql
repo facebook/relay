@@ -1,0 +1,26 @@
+query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery($id: ID!) {
+  feedback: node(id: $id) {
+    id
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer
+  }
+}
+
+fragment deferMultipleFragmentsSameParent_FeedbackComments_feedback on Feedback {
+  comments(first: 10) {
+    edges {
+      node {
+        id
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}
+
+fragment deferMultipleFragmentsSameParent_FeedbackText_feedback on Feedback {
+  body {
+    text
+  }
+}

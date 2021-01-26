@@ -1,0 +1,11 @@
+query QueryWithValidNameQuery {
+    me {
+        name
+    }
+}
+
+query QueryWithValidNameSecondQuery {
+    me {
+        name
+    }
+}

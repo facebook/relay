@@ -11,22 +11,40 @@
 
 const users = [
   {
-    caption: 'Facebook',
-    image: '/img/logos/facebook.png',
-    infoLink: 'https://code.facebook.com',
+    caption: '1stdibs',
+    image: '/img/logos/1stdibs.png',
+    infoLink: 'https://www.1stdibs.com/',
     pinned: true,
-  },
-  {
-    caption: 'Oculus',
-    image: '/img/logos/oculus.png',
-    infoLink: 'https://www.oculus.com/',
-    pinned: true,
+    description: 'Used on 1stdibs.com',
   },
   {
     caption: 'Artsy',
     image: '/img/logos/artsy.png',
     infoLink: 'http://artsy.github.io/open-source/',
     pinned: true,
+    description: 'Used on artsy.net, and the React Native iOS app, Eigen.',
+  },
+  {
+    caption: 'Entria',
+    image: '/img/logos/entria.png',
+    infoLink: 'https://github.com/entria',
+    pinned: true,
+    description: 'Powers feedback.house',
+  },
+  {
+    caption: 'Facebook',
+    image: '/img/logos/facebook.png',
+    infoLink: 'https://code.facebook.com',
+    pinned: true,
+    description: 'Used on facebook.com, and in the React Native mobile app.',
+  },
+  {
+    caption: 'Oculus',
+    image: '/img/logos/oculus.png',
+    infoLink: 'https://www.oculus.com/',
+    pinned: true,
+    description:
+      'Used on oculus.com, Oculus Home in VR, and the React Native Oculus companion app.',
   },
   {
     caption: 'Lattice',
@@ -53,21 +71,9 @@ const users = [
     pinned: false,
   },
   {
-    caption: '1stdibs',
-    image: '/img/logos/1stdibs.png',
-    infoLink: 'https://www.1stdibs.com/',
-    pinned: false,
-  },
-  {
     caption: 'Parabol',
     image: '/img/logos/parabol.png',
     infoLink: 'https://www.parabol.co/',
-    pinned: false,
-  },
-  {
-    caption: 'Entria',
-    image: '/img/logos/entria.png',
-    infoLink: 'https://github.com/entria',
     pinned: false,
   },
   {
@@ -98,7 +104,8 @@ const users = [
     caption: 'AutoGuru',
     image: '/img/logos/autoguru.png',
     infoLink: 'https://www.autoguru.com.au/',
-    pinned: false,
+    pinned: true,
+    description: 'Used at autoguru.com.au, and affiliates',
   },
   {
     caption: 'Foton',
@@ -148,33 +155,49 @@ const users = [
     infoLink: 'https://mindworking.eu/',
     pinned: false,
   },
+  {
+    caption: 'domonda',
+    image: '/img/logos/domonda.png',
+    infoLink: 'https://domonda.com/',
+    pinned: false,
+  },
+  {
+    caption: 'SwissDev JavaScript Jobs',
+    image: '/img/logos/swissdev-javascript-jobs.png',
+    infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
+    pinned: false,
+  },
 ];
 
 const siteConfig = {
   title: 'Relay',
-  tagline: 'A JavaScript framework for building data-driven React applications',
+  tagline: 'The production-ready GraphQL client for React.',
   url: 'https://relay.dev',
   baseUrl: '/',
   projectName: 'relay',
+  cname: 'relay.dev',
   users,
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [
     {doc: 'introduction-to-relay', label: 'Docs'},
-    {page: 'help', label: 'Support'},
+    {page: 'help', label: 'Help'},
+    {search: true},
     {
       href: 'https://github.com/facebook/relay',
       label: 'GitHub',
     },
     {languages: false},
   ],
-  headerIcon: 'img/relay-white.svg',
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
   twitterImage: 'img/relay.png',
+  ogImage: 'img/relay.png',
   colors: {
     primaryColor: '#f26b00',
     secondaryColor: '#f26b00',
     prismColor: 'rgba(242, 107, 0, 0.03)',
+    lightGrayColor: '#f7f7f7',
+    darkGrayColor: '#959595',
   },
   // See https://docusaurus.io/docs/search for more information about Aloglia
   // search

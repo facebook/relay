@@ -1,0 +1,162 @@
+==================================== INPUT ====================================
+fragment InlineFragment on Node {
+  id
+  ... on Actor {
+    id
+    name
+  }
+  ... on User {
+    message {
+      text
+    }
+  }
+}
+
+fragment InlineFragmentWithOverlappingFields on Actor {
+  ... on User {
+    hometown {
+      id
+      name
+    }
+  }
+  ... on Page {
+    name
+    hometown {
+      id
+      message {
+        text
+      }
+    }
+  }
+}
+
+fragment InlineFragmentConditionalID on Node {
+  ... on Actor {
+    id # nullable since it's conditional
+    name
+  }
+}
+
+fragment InlineFragmentKitchenSink on Story {
+  actor {
+    id
+    profilePicture {
+      uri
+    }
+    ... on User {
+      id
+      name
+      ...SomeFragment
+      profilePicture {
+        width
+      }
+    }
+    ... on Page {
+      profilePicture {
+        uri
+        height
+      }
+    }
+  }
+}
+
+fragment SomeFragment on User {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type InlineFragment$ref: FragmentReference;
+declare export opaque type InlineFragment$fragmentType: InlineFragment$ref;
+export type InlineFragment = {|
+  +id: string,
+  +name?: ?string,
+  +message?: ?{|
+    +text: ?string
+  |},
+  +$refType: InlineFragment$ref,
+|};
+export type InlineFragment$data = InlineFragment;
+export type InlineFragment$key = {
+  +$data?: InlineFragment$data,
+  +$fragmentRefs: InlineFragment$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type InlineFragmentConditionalID$ref: FragmentReference;
+declare export opaque type InlineFragmentConditionalID$fragmentType: InlineFragmentConditionalID$ref;
+export type InlineFragmentConditionalID = {|
+  +id?: string,
+  +name?: ?string,
+  +$refType: InlineFragmentConditionalID$ref,
+|};
+export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
+export type InlineFragmentConditionalID$key = {
+  +$data?: InlineFragmentConditionalID$data,
+  +$fragmentRefs: InlineFragmentConditionalID$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { SomeFragment$ref } from "SomeFragment.graphql";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type InlineFragmentKitchenSink$ref: FragmentReference;
+declare export opaque type InlineFragmentKitchenSink$fragmentType: InlineFragmentKitchenSink$ref;
+export type InlineFragmentKitchenSink = {|
+  +actor: ?{|
+    +id: string,
+    +profilePicture: ?{|
+      +uri: ?string,
+      +width?: ?number,
+      +height?: ?number,
+    |},
+    +name?: ?string,
+    +$fragmentRefs: SomeFragment$ref,
+  |},
+  +$refType: InlineFragmentKitchenSink$ref,
+|};
+export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
+export type InlineFragmentKitchenSink$key = {
+  +$data?: InlineFragmentKitchenSink$data,
+  +$fragmentRefs: InlineFragmentKitchenSink$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference;
+declare export opaque type InlineFragmentWithOverlappingFields$fragmentType: InlineFragmentWithOverlappingFields$ref;
+export type InlineFragmentWithOverlappingFields = {|
+  +hometown?: ?{|
+    +id: string,
+    +name: ?string,
+    +message?: ?{|
+      +text: ?string
+    |},
+  |},
+  +name?: ?string,
+  +$refType: InlineFragmentWithOverlappingFields$ref,
+|};
+export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
+export type InlineFragmentWithOverlappingFields$key = {
+  +$data?: InlineFragmentWithOverlappingFields$data,
+  +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type SomeFragment$ref: FragmentReference;
+declare export opaque type SomeFragment$fragmentType: SomeFragment$ref;
+export type SomeFragment = {|
+  +__typename: "User",
+  +$refType: SomeFragment$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: SomeFragment$ref,
+|};
+export type SomeFragment$data = SomeFragment;
+export type SomeFragment$key = {
+  +$data?: SomeFragment$data,
+  +$fragmentRefs: SomeFragment$ref,
+  ...
+};

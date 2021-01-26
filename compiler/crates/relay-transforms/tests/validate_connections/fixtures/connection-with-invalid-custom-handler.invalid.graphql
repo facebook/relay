@@ -1,0 +1,25 @@
+# expected-to-throw
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments", handler: 10) {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10)
+                @connection(key: "NodeQuery_friends", handler: false) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -26,7 +26,6 @@ const {
 } = require('relay-runtime');
 
 import type {
-  CacheConfig,
   FetchPolicy,
   GraphQLResponse,
   Observable,
@@ -35,15 +34,14 @@ import type {
   RenderPolicy,
 } from 'relay-runtime';
 
-const {useContext, useEffect} = React;
+const {useContext, useEffect, useState, useRef} = React;
 
 function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   query: OperationDescriptor,
   componentDisplayName: string,
-  fetchObservable?: Observable<GraphQLResponse>,
+  fetchObservable?: ?Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
-  networkCacheConfig?: CacheConfig,
   renderPolicy?: ?RenderPolicy,
 |}): $ElementType<TQuery, 'response'> {
   const environment = useRelayEnvironment();
@@ -58,10 +56,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
     renderPolicy,
   } = args;
   const fetchObservable =
-    args.fetchObservable ??
-    fetchQuery(environment, query, {
-      networkCacheConfig: args.networkCacheConfig ?? {force: true},
-    });
+    args.fetchObservable ?? fetchQuery(environment, query);
   const {startFetch, completeFetch} = useFetchTrackingRef();
 
   const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {
@@ -72,11 +67,42 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
       renderPolicy,
       {start: startFetch, complete: completeFetch, error: completeFetch},
       fetchKey,
+      profilerContext,
     );
   });
 
+  let _forceUpdate;
+  let _maybeFastRefresh;
+  if (__DEV__) {
+    /* eslint-disable react-hooks/rules-of-hooks */
+    [, _forceUpdate] = useState(0);
+    _maybeFastRefresh = useRef(false);
+    useEffect(() => {
+      return () => {
+        // Detect fast refresh, only runs multiple times in fast refresh
+        _maybeFastRefresh.current = true;
+      };
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    /* eslint-enable react-hooks/rules-of-hooks */
+  }
+
   useEffect(() => {
-    const disposable = QueryResource.retain(preparedQueryResult);
+    if (__DEV__) {
+      if (_maybeFastRefresh && _maybeFastRefresh.current) {
+        /**
+         * This block only runs during fast refresh, as the current resource and
+         * its cache are disposed in the previous cleanup. Stop retaining and
+         * force a re-render to restart fetchObservable and retain correctly.
+         */
+        _maybeFastRefresh.current = false;
+        _forceUpdate && _forceUpdate(n => n + 1);
+        return;
+      }
+    }
+    const disposable = QueryResource.retain(
+      preparedQueryResult,
+      profilerContext,
+    );
     return () => {
       disposable.dispose();
     };

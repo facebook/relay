@@ -70,9 +70,7 @@ function traverseDefinition<T: Definition>(node: T): T {
   }
   if (rootType == null) {
     throw createUserError(
-      `ClientExtensionTransform: Expected the type of \`${
-        node.name
-      }\` to have been defined in the schema. Make sure both server and ` +
+      `ClientExtensionTransform: Expected the type of \`${node.name}\` to have been defined in the schema. Make sure both server and ` +
         'client schema are up to date.',
       [node.loc],
     );
@@ -85,14 +83,17 @@ function traverseSelections<T: Node>(
   compilerContext: CompilerContext,
   parentType: TypeID,
 ): T {
+  // $FlowFixMe[escaped-generic]
   let nodeCache = cachesByNode.get(node);
   if (nodeCache == null) {
     nodeCache = new Map();
+    // $FlowFixMe[escaped-generic]
     cachesByNode.set(node, nodeCache);
   }
   let result = nodeCache.get(parentType);
   if (result != null) {
-    // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+    /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
+     * changing result type */
     return result;
   }
   const schema = compilerContext.getSchema();
@@ -106,7 +107,6 @@ function traverseSelections<T: Node>(
           [selection.loc],
         );
       case 'Condition':
-      case 'Connection':
       case 'Defer':
       case 'InlineDataFragmentSpread':
       case 'ModuleImport':
@@ -124,7 +124,6 @@ function traverseSelections<T: Node>(
         } else {
           return selection;
         }
-      case 'ConnectionField':
       case 'LinkedField': {
         if (
           schema.isClientDefinedField(
@@ -151,24 +150,12 @@ function traverseSelections<T: Node>(
         );
       }
       case 'FragmentSpread': {
-        const fragment = compilerContext.getFragment(
-          selection.name,
-          selection.loc,
-        );
-        const isClientType = !schema.isServerType(fragment.type);
-
-        if (isClientType) {
-          clientSelections.push(selection);
-          return null;
-        }
         return selection;
       }
       default:
         (selection: empty);
         throw createCompilerError(
-          `ClientExtensionTransform: Unexpected selection of kind \`${
-            selection.kind
-          }\`.`,
+          `ClientExtensionTransform: Unexpected selection of kind \`${selection.kind}\`.`,
           [selection.loc],
         );
     }
@@ -197,8 +184,10 @@ function traverseSelections<T: Node>(
       ],
     };
   }
+  // $FlowFixMe[escaped-generic]
   nodeCache.set(parentType, result);
-  // $FlowFixMe - TODO: type IRTransformer to allow changing result type
+  /* $FlowFixMe[incompatible-return] - TODO: type IRTransformer to allow
+   * changing result type */
   return result;
 }
 

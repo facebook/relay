@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!, $orderBy: String) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: null) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the filters argument to @connection to be a list of string literals for field 'comments'.
+
+  connection-filters-null.invalid.graphql:7:57
+    6 │       comments(first: 10, orderby: $orderBy)
+    7 │         @connection(key: "NodeQuery_comments", filters: null) {
+      │                                                         ^^^^
+    8 │         edges {
+
+  ℹ︎ related location
+
+  connection-filters-null.invalid.graphql:6:7
+    5 │     ... on Story {
+    6 │       comments(first: 10, orderby: $orderBy)
+      │       ^^^^^^^^
+    7 │         @connection(key: "NodeQuery_comments", filters: null) {

@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment ParentFragment on User {
+  mobile_checkins: checkins(environments: [MOBILE]) {
+    query
+  }
+  ...ChildFragment @arguments(environment: WEB) # OK: matches defined type
+}
+
+fragment ChildFragment on User
+  @argumentDefinitions(environment: {type: "Environment!"}) {
+  # variables of a non-list type cannot flow into list types,
+  # the singular -> list promotion only works for literal values
+  checkins(environments: $environment) {
+    # expected error
+    query
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable was defined as type 'Environment!' but used where a variable of type '[Environment!]!' is expected.
+
+  fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql:13:26
+   12 │   # the singular -> list promotion only works for literal values
+   13 │   checkins(environments: $environment) {
+      │                          ^^^^^^^^^^^^
+   14 │     # expected error

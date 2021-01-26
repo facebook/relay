@@ -45,25 +45,43 @@ export type PayloadExtensions = {[key: string]: mixed, ...};
  * The shape of a GraphQL response as dictated by the
  * [spec](https://graphql.github.io/graphql-spec/June2018/#sec-Response-Format)
  */
-export type GraphQLResponseWithData = {
+export type GraphQLResponseWithData = {|
   +data: PayloadData,
   +errors?: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-  ...
-};
-export type GraphQLResponseWithoutData = {
+|};
+
+export type GraphQLResponseWithoutData = {|
   +data?: ?PayloadData,
   +errors: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-  ...
-};
-export type GraphQLResponse =
+|};
+
+export type GraphQLResponseWithExtensionsOnly = {|
+  // Per https://spec.graphql.org/June2018/#sec-Errors
+  // > If the data entry in the response is not present, the errors entry
+  // > in the response must not be empty. It must contain at least one error
+  // This means a payload has to have either a data key or an errors key:
+  // but the spec leaves room for the combination of data: null plus extensions
+  // since `data: null` is a *required* output if there was an error during
+  // execution, but the inverse is not described in the sepc: `data: null`
+  // does not necessarily indicate that there was an error.
+  +data: null,
+  +extensions: PayloadExtensions,
+|};
+
+export type GraphQLSingularResponse =
   | GraphQLResponseWithData
+  | GraphQLResponseWithExtensionsOnly
   | GraphQLResponseWithoutData;
+
+export type GraphQLResponse =
+  | GraphQLSingularResponse
+  | $ReadOnlyArray<GraphQLSingularResponse>;
 
 /**
  * A function that returns an Observable representing the response of executing
@@ -101,7 +119,27 @@ export type SubscribeFunction = (
   cacheConfig: CacheConfig,
 ) => RelayObservable<GraphQLResponse>;
 
-// $FlowFixMe(site=react_native_fb) this is compatible with classic api see D4658012
 export type Uploadable = File | Blob;
-// $FlowFixMe(site=mobile,www)
 export type UploadableMap = {[key: string]: Uploadable, ...};
+
+/**
+ * React Flight tree created on the server.
+ */
+export type ReactFlightServerTree = mixed;
+export type ReactFlightPayloadQuery = {|
+  +id: mixed,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
+/**
+ * Data that is returned by a Flight compliant GraphQL server.
+ *
+ * - tree: an array of values that will be iterated and fed into
+ *     ReactFlightDOMRelayClient.
+ * - queries: an array of queries that the server preloaded for the client.
+ */
+export type ReactFlightPayloadData = {|
+  +tree: Array<ReactFlightServerTree>,
+  +queries: Array<ReactFlightPayloadQuery>,
+|};

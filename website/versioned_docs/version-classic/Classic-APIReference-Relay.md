@@ -190,7 +190,7 @@ var {InteractionManager} = require('react-native');
 Relay.injectTaskScheduler(InteractionManager.runAfterInteractions);
 ```
 
-You can read more about `InteractionManager` on the [React Native API docs](http://facebook.github.io/react-native/docs/interactionmanager.html).
+You can read more about `InteractionManager` on the [React Native API docs](https://reactnative.dev/docs/interactionmanager.html).
 
 ### isContainer (static method)
 

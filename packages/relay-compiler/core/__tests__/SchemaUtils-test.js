@@ -16,6 +16,8 @@
 const Schema = require('../Schema');
 const SchemaUtils = require('../SchemaUtils');
 
+const nullthrows = require('nullthrows');
+
 const {Source} = require('graphql');
 
 test('generateIDField', () => {
@@ -24,8 +26,11 @@ test('generateIDField', () => {
       interface Node { id: ID }
     `),
   );
-  const idType = schema.expectIdType();
-  expect(SchemaUtils.generateIDField(idType)).toEqual({
+  const nodeType = schema.assertCompositeType(
+    nullthrows(schema.getTypeFromString('Node')),
+  );
+
+  expect(SchemaUtils.generateIDField(schema, nodeType)).toEqual({
     kind: 'ScalarField',
     alias: 'id',
     args: [],
@@ -34,6 +39,6 @@ test('generateIDField', () => {
     loc: {kind: 'Generated'},
     metadata: null,
     name: 'id',
-    type: idType,
+    type: schema.expectIdType(),
   });
 });

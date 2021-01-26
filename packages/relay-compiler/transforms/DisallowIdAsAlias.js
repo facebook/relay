@@ -28,7 +28,7 @@ function visitField<T: ScalarField | LinkedField>(field: T): T {
       [field.loc],
     );
   }
-  return field;
+  return this.traverse(field);
 }
 
 /**

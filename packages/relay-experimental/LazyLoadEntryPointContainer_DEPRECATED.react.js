@@ -13,20 +13,34 @@
 
 'use strict';
 
+const ProfilerContext = require('./ProfilerContext');
 const React = require('react');
 
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
-const {useMemo} = require('react');
+const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
+
+type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
+  entryPoints: $PropertyType<
+    React.ElementConfig<TEntryPointComponent>,
+    'entryPoints',
+  >,
+  extraProps: $PropertyType<
+    React.ElementConfig<TEntryPointComponent>,
+    'extraProps',
+  >,
+  getComponent: () => TEntryPointComponent,
+  queries: $PropertyType<React.ElementConfig<TEntryPointComponent>, 'queries'>,
+  rootModuleID: string,
+|}>;
 
 import type {
   EntryPoint,
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
-  PreloadedEntryPoint,
 } from './EntryPointTypes.flow';
 
 type EntryPointContainerProps<
@@ -134,10 +148,11 @@ function prepareEntryPoint<
         loadingPromise = loadingPromise ?? entryPoint.root.load();
         throw loadingPromise;
       }
-      // $FlowFixMe - trust me Flow, its entryPoint component
+      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
       return (component: TEntryPointComponent);
     },
     queries: (preloadedQueries: TPreloadedQueries),
+    rootModuleID: entryPoint.root.getModuleId(),
   };
 }
 
@@ -165,7 +180,13 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   // *must* be computed first to fetch the component's data-dependencies in
   // parallel with the component itself (the code).
   const entryPointParamsHash = stableStringify(entryPointParams);
-  const {getComponent, queries, entryPoints, extraProps} = useMemo(() => {
+  const {
+    getComponent,
+    queries,
+    entryPoints,
+    extraProps,
+    rootModuleID,
+  } = useMemo(() => {
     return prepareEntryPoint(
       environmentProvider ?? {
         getEnvironment: () => environment,
@@ -179,6 +200,15 @@ function LazyLoadEntryPointContainer_DEPRECATED<
   const Component = useMemo(() => {
     return getComponent();
   }, [getComponent]);
+
+  const profilerContext = useContext(ProfilerContext);
+  useEffect(() => {
+    environment.__log({
+      name: 'entrypoint.root.consume',
+      profilerContext,
+      rootModuleID,
+    });
+  }, [environment, profilerContext, rootModuleID]);
   return (
     <Component
       entryPoints={entryPoints}

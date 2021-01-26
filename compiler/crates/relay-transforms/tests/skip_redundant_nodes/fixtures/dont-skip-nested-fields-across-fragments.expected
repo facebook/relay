@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+query DontSkipNestedFieldsAcrossFragments {
+  viewer {
+    actor {
+      hometown {
+        id
+      }
+      ... on User {
+        hometown {
+          name # keep: not yet fetched
+        }
+      }
+      ... on User {
+        hometown {
+          id # skip: fetched by parent
+          name # skip: fetched by sibling
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query DontSkipNestedFieldsAcrossFragments {
+  viewer {
+    actor {
+      hometown {
+        id
+      }
+      ... on User {
+        hometown {
+          name
+        }
+      }
+    }
+  }
+}

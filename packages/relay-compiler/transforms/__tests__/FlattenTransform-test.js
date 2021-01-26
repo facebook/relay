@@ -50,11 +50,16 @@ describe('FlattenTransform', () => {
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/flatten-transform`,
-    printContextTransform({}),
+    printContextTransform({isForCodegen: false}),
   );
 
   generateTestsFromFixtures(
     `${__dirname}/fixtures/flatten-transform-errors`,
-    printContextTransform({}),
+    printContextTransform({isForCodegen: false}),
+  );
+
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/flatten-transform-option-flatten-abstract`,
+    printContextTransform({isForCodegen: true}),
   );
 });

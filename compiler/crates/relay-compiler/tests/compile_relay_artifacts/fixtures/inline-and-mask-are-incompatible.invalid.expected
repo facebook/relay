@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment inlineAndMaskAreIncompatible_ParentFragment on Query {
+  me {
+    ...inlineAndMaskAreIncompatible_Profile @relay(mask: false)
+  }
+}
+
+fragment inlineAndMaskAreIncompatible_Profile on User @inline {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Cannot use @relay(mask: false) on fragment spreads for fragments with directives.
+
+  inline-and-mask-are-incompatible.invalid.graphql:5:8
+    4 │   me {
+    5 │     ...inlineAndMaskAreIncompatible_Profile @relay(mask: false)
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }
+
+  ℹ︎ related location
+
+  inline-and-mask-are-incompatible.invalid.graphql:9:10
+    8 │ 
+    9 │ fragment inlineAndMaskAreIncompatible_Profile on User @inline {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   id

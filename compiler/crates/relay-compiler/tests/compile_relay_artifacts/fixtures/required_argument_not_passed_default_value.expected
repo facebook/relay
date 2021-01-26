@@ -1,0 +1,166 @@
+==================================== INPUT ====================================
+# TODO this should fail, but needs product fixes.
+# The reason is that GraphQL spec disallows defaults if the type is non-nullable
+# as that would never use the default value and require you to pass the
+# argument. In other words, the type describes the type that has to be passed.
+
+query requiredArgumentNotPassedDefaultValueQuery {
+  me {
+    ...requiredArgumentNotPassedDefaultValueFragment
+  }
+}
+
+fragment requiredArgumentNotPassedDefaultValueFragment on User @argumentDefinitions(
+  sizearg: { type: "[Int!]!", defaultValue: [3] }
+) {
+  profilePicture(size: $sizearg) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "requiredArgumentNotPassedDefaultValueQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "requiredArgumentNotPassedDefaultValueFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "requiredArgumentNotPassedDefaultValueQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "size",
+                "value": [
+                  3
+                ]
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profilePicture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "uri",
+                "storageKey": null
+              }
+            ],
+            "storageKey": "profilePicture(size:[3])"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "requiredArgumentNotPassedDefaultValueQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query requiredArgumentNotPassedDefaultValueQuery {
+  me {
+    ...requiredArgumentNotPassedDefaultValueFragment
+    id
+  }
+}
+
+fragment requiredArgumentNotPassedDefaultValueFragment on User {
+  profilePicture(size: [3]) {
+    uri
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": [
+        3
+      ],
+      "kind": "LocalArgument",
+      "name": "sizearg"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "requiredArgumentNotPassedDefaultValueFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "sizearg"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

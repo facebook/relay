@@ -1,0 +1,45 @@
+directive @source(
+  name: String!
+) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @extern_type(schema: String, name: String) on INTERFACE
+directive @fetchable(field_name: String) on OBJECT
+
+scalar ID @source(schema: "facebook", name: "ID")
+
+type Query {
+  fetch__User(id: ID): User
+  fetch__XIGStory(id: ID): XIGStory
+}
+
+interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+type User implements XIGHuman @fetchable(field_name: "id") {
+  id: ID
+  story: XIGStory @ref_type(schema: "instagram", name: "Story")
+  default_mailing_address(country: Country): MailingAddress
+}
+
+type MailingAddress {
+  id: ID
+  is_default: Boolean
+  label: String
+}
+
+input Country @source(schema: "instagram", name: "Country") {
+  name: String!
+}
+
+# imported types
+type XIGStory
+  @fetchable(field_name: "id")
+  @source(schema: "instagram", name: "Story") {
+  id: ID
+  name: String
+}
+
+union Address @source(schema: "facebook", name: "Address") =
+    MailingAddress
+  | MailingAddress

@@ -32,6 +32,7 @@ function buildRefetchOperation(
   }
 
   return {
+    identifierField: null,
     path: [],
     node: {
       argumentDefinitions: buildOperationArgumentDefinitions(
@@ -51,6 +52,6 @@ function buildRefetchOperation(
 }
 
 module.exports = ({
-  description: 'the query type',
+  description: 'the Query type',
   buildRefetchOperation,
 }: QueryGenerator);

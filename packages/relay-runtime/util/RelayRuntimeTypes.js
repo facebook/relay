@@ -38,6 +38,8 @@ export type OperationType = {|
   +rawResponse?: {...},
 |};
 
+export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
+
 /**
  * Settings for how a query response may be cached.
  *
@@ -62,9 +64,9 @@ export type CacheConfig = {|
 /**
  * Experimental
  */
+export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
 export type FetchPolicy =
-  | 'store-only'
-  | 'store-or-network'
+  | FetchQueryFetchPolicy
   | 'store-and-network'
-  | 'network-only';
+  | 'store-only';
 export type RenderPolicy = 'full' | 'partial';

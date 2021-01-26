@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query ObjectArgument($text: String!) {
+  checkinSearchQuery(query: {query: $text, query: "YES"}) {
+    query
+  }
+}
+==================================== ERROR ====================================
+✖︎ Duplicate values found for field 'query'
+
+  argument-complex-object.invalid.graphql:3:30
+    2 │ query ObjectArgument($text: String!) {
+    3 │   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+      │                              ^^^^^
+    4 │     query
+
+  ℹ︎ also defined here
+
+  argument-complex-object.invalid.graphql:3:44
+    2 │ query ObjectArgument($text: String!) {
+    3 │   checkinSearchQuery(query: {query: $text, query: "YES"}) {
+      │                                            ^^^^^
+    4 │     query

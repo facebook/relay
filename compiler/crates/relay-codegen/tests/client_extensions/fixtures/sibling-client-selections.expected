@@ -1,0 +1,252 @@
+==================================== INPUT ====================================
+query Foo {
+  me {
+    ...Foo_user
+  }
+}
+
+fragment Foo_user on User {
+  id
+  name
+
+  # Different types of client selections should be grouped under single
+  # ClientExtension node:
+  client_nickname
+  client_foo {
+    client_name
+  }
+  client_friends {
+    edges {
+      client_friend_edge_field # nested client field, should not create new ClientExtension node
+      node {
+        id
+      }
+    }
+  }
+  client_foo {
+    ... on ClientNamed {
+      client_name
+    }
+  }
+  client_type {
+    ...ClientTypeFragment # include fragment on client-only type
+  }
+}
+
+fragment ClientTypeFragment on ClientType {
+  client_field
+}
+
+# %extensions%
+extend type User {
+  client_friends: FriendsConnection
+  client_nickname: String
+  client_foo: Foo
+  client_type: ClientType
+}
+
+extend type FriendsEdge {
+  client_friend_edge_field: String
+}
+
+type ClientType {
+  client_field: String
+}
+
+type Foo implements ClientNamed {
+  client_name: String
+}
+
+interface ClientNamed {
+  client_name: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientTypeFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientType",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "Foo",
+          "kind": "LinkedField",
+          "name": "client_foo",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "client_name",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "Foo",
+          "kind": "LinkedField",
+          "name": "client_foo",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_name",
+                  "storageKey": null
+                }
+              ],
+              "type": "ClientNamed",
+              "abstractKey": "__isClientNamed"
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "FriendsConnection",
+          "kind": "LinkedField",
+          "name": "client_friends",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "FriendsEdge",
+              "kind": "LinkedField",
+              "name": "edges",
+              "plural": true,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "User",
+                  "kind": "LinkedField",
+                  "name": "node",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "id",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "client_friend_edge_field",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
+          "plural": false,
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "ClientTypeFragment"
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_nickname",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "Foo_user"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

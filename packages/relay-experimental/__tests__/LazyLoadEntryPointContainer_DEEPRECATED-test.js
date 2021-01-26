@@ -13,10 +13,6 @@
 
 'use strict';
 
-jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-  canUseDOM: true,
-}));
-
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
 const React = require('react');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -30,6 +26,7 @@ const {
   Environment,
   Network,
   Observable,
+  PreloadableQueryRegistry,
   RecordSource,
   Store,
   createOperationDescriptor,
@@ -46,6 +43,9 @@ const query = generateAndCompile(`
     }
   }
 `).TestQuery;
+
+// Only queries with an ID are preloadable
+query.params.id = '12345';
 
 const response = {
   data: {
@@ -65,11 +65,11 @@ let environment;
 let fetch;
 let entryPoint;
 let params;
-let queryResource;
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
   _resource: T | null;
+  getModuleId: () => string;
   getModuleIfRequired: () => T | null;
   load: () => Promise<T>;
   resolve: T => void;
@@ -78,6 +78,7 @@ class FakeJSResource<T> {
     this._resolve = null;
     this._resource = resource;
 
+    this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
     this.load = jest.fn(() => {
       return new Promise(resolve => {
@@ -96,6 +97,8 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
+  PreloadableQueryRegistry.clear();
+
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -108,10 +111,9 @@ beforeEach(() => {
     store: new Store(new RecordSource()),
   });
 
-  queryResource = new FakeJSResource();
   params = {
+    kind: 'PreloadableConcreteRequest',
     params: query.params,
-    queryResource: (queryResource: $FlowFixMe),
   };
   entryPoint = {
     getPreloadProps: jest.fn(entryPointParams => {
@@ -172,6 +174,7 @@ it('suspends while the query is loading', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   const renderer = TestRenderer.create(
     <RelayEnvironmentProvider environment={environment}>
@@ -214,6 +217,7 @@ it('suspends then updates when the query and component load', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   dataSource.next(response);
   dataSource.complete();
@@ -235,6 +239,7 @@ it('renders synchronously when the query and component are already loaded', () =
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
@@ -264,6 +269,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   });
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
@@ -304,6 +310,7 @@ it('re-renders and reloads when prefetch params change', () => {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   });
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
   preloadQuery_DEPRECATED(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
@@ -374,6 +381,7 @@ it('fetches and renders synchronously when the query data is cached, then update
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
 
   let renderer;
@@ -430,7 +438,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
     },
   });
   // "load" the query ast
-  queryResource.resolve(query);
+  PreloadableQueryRegistry.set(query.params.id, query);
   const otherProps = {version: 0};
   let receivedProps = null;
   function Component(props) {
@@ -438,6 +446,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
+  // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
 
   let renderer;

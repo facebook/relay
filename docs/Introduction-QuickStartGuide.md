@@ -38,7 +38,7 @@ type Query {
 }
 ```
 
-Additionally, we will be using [Flow](https://flow.org/) inside our Javascript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.
+Additionally, we will be using [Flow](https://flow.org/) inside our JavaScript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.
 
 ## Relay Environment
 
@@ -74,7 +74,7 @@ function fetchQuery(
 
 const environment = new Environment({
   network: Network.create(fetchQuery),
-  store: new Store(new RecordSource()),  
+  store: new Store(new RecordSource()),
 });
 
 export default environment;
@@ -93,7 +93,7 @@ To start, let's assume we just want to render the user id on the screen. From ou
 query UserQuery {
   viewer {
     id
-  }  
+  }
 }
 ```
 
@@ -115,7 +115,7 @@ export default class App extends React.Component {
           query UserQuery {
             viewer {
               id
-            }  
+            }
           }
         `}
         variables={{}}
@@ -182,7 +182,7 @@ export default class UserTodoList extends React.Component<Props> {
           query UserQuery($userID: ID!) {
             node(id: $userID) {
               id
-            }  
+            }
           }
         `}
         variables={{userID}}
@@ -383,7 +383,7 @@ export default createFragmentContainer(
 );
 ```
 
-As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data when rendering the child `Todo` components (a.k.a. fragment containers).
+As with the first fragment container we defined, `TodoList` declares its data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data when rendering the child `Todo` components (a.k.a. fragment containers).
 
 One final thing to note when composing fragment containers is that the parent will not have access to the data defined by the child container. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay#data-masking), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
 
@@ -412,7 +412,7 @@ export default class ViewerTodoList extends React.Component {
             viewer {
               id
               # Re-use the fragment here
-              ...TodoList_userTodoData  
+              ...TodoList_userTodoData
             }
           }
         `}

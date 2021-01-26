@@ -1,0 +1,176 @@
+==================================== INPUT ====================================
+query FooQuery($id: ID!, $arg: String) {
+  client_root_field
+
+  node(id: $id) {
+    id
+  }
+
+  client_user {
+    ...ClientFragment
+  }
+}
+
+fragment ClientFragment on ClientUser {
+  name
+}
+
+mutation FooMutation {
+  client_root_field
+}
+
+subscription FooSubscription {
+  client_root_field
+}
+
+# %extensions%
+extend type Query {
+  client_root_field: String
+  client_user: ClientUser
+}
+
+extend type Mutation {
+  client_root_field: String
+}
+
+extend type Subscription {
+  client_root_field: String
+}
+
+type ClientUser {
+  name: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "id"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "arg"
+    }
+  ],
+  "kind": "Operation",
+  "name": "FooQuery",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientUser",
+          "kind": "LinkedField",
+          "name": "client_user",
+          "plural": false,
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "ClientFragment"
+            }
+          ],
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_root_field",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "FooMutation",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_root_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "FooSubscription",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_root_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}

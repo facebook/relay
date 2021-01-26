@@ -11,10 +11,7 @@
 
 // flowlint ambiguous-object-type:error
 
-'use strict';
-
-const useFragment = require('../useFragment');
-
+import useFragment from '../useFragment';
 import {
   fragmentInput,
   keyAnotherNonNullable,
@@ -23,6 +20,7 @@ import {
   keyNonNullablePlural,
   keyNullable,
   keyNullablePlural,
+  fragmentData,
 } from './utils';
 import type {
   NonNullableData,
@@ -51,5 +49,14 @@ import type {
 
 // $FlowExpectedError: Key should be one of the generated types
 (useFragment(fragmentInput, 'INVALID_KEY'): NullableData);
+
+// $FlowExpectedError: Key should not be a user provided object
+useFragment(fragmentInput, {a: 123});
+
+// $FlowExpectedError: Key should not be an empty object
+useFragment(fragmentInput, {});
+
+// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
+useFragment(fragmentInput, fragmentData);
 
 /* eslint-enable react-hooks/rules-of-hooks */

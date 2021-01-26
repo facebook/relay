@@ -1,0 +1,176 @@
+==================================== INPUT ====================================
+query abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    #  - Printed query should select __isNode
+    #  - Normalization ast should include inline fragment with abstractKey
+    #  - Other fields and inline fragments should be deduped/flattened as normal
+    ... on Node {
+      doesViewerLike
+      ...abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_NodeFragment
+    }
+  }
+}
+
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_NodeFragment on Node {
+  name
+  ... on Node {
+    lastName
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "doesViewerLike",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_NodeFragment"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "doesViewerLike",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "lastName",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_AbstractTypeRefinementQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    __typename
+    __isNode: __typename
+    doesViewerLike
+    ...abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_NodeFragment
+    id
+  }
+}
+
+fragment abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_NodeFragment on Node {
+  __isNode: __typename
+  name
+  lastName
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorNestedFragmentSpreadWithinInlineFragmentDifferentFields_NodeFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "lastName",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

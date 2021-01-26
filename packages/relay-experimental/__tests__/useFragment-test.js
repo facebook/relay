@@ -46,6 +46,7 @@ describe('useFragment', () => {
   let ContextProvider;
 
   function useFragment(fragmentNode, fragmentRef) {
+    // $FlowFixMe[incompatible-call] non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
@@ -238,9 +239,6 @@ describe('useFragment', () => {
     renderSpy.mockClear();
   });
 
-  // These tests are only a sanity check for useFragment as a wrapper
-  // around useFragmentNodes
-  // See full test behavior in useFragmentNodes-test.
   it('should render singular fragment without error when data is available', () => {
     renderSingularFragment();
     assertFragmentResults({
@@ -248,6 +246,16 @@ describe('useFragment', () => {
       name: 'Alice',
       ...createFragmentRef('1', singularQuery),
     });
+  });
+
+  it('should return the same data object if rendered multiple times: singular fragment', () => {
+    renderSingularFragment();
+    expect(renderSpy).toBeCalledTimes(1);
+    const actualData = renderSpy.mock.calls[0][0];
+    renderSingularFragment();
+    expect(renderSpy).toBeCalledTimes(2);
+    const actualData2 = renderSpy.mock.calls[1][0];
+    expect(actualData).toBe(actualData2);
   });
 
   it('should render plural fragment without error when data is available', () => {
@@ -264,5 +272,15 @@ describe('useFragment', () => {
         ...createFragmentRef('2', pluralQuery),
       },
     ]);
+  });
+
+  it('should return the same data object if rendered multiple times: plural fragment', () => {
+    renderPluralFragment();
+    expect(renderSpy).toBeCalledTimes(1);
+    const actualData = renderSpy.mock.calls[0][0];
+    renderPluralFragment();
+    expect(renderSpy).toBeCalledTimes(2);
+    const actualData2 = renderSpy.mock.calls[1][0];
+    expect(actualData).toBe(actualData2);
   });
 });

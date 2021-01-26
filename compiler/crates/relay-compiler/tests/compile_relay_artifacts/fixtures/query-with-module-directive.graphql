@@ -1,0 +1,21 @@
+query queryWithModuleDirective_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...queryWithModuleDirective_NameRendererFragment
+  }
+}
+
+fragment queryWithModuleDirective_NameRendererFragment on User {
+  id
+  nameRenderer {
+    # note: intentionally no @match here
+    ...queryWithModuleDirective_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment queryWithModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

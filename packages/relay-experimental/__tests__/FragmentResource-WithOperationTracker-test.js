@@ -109,7 +109,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           ...MarkdownUserNameRenderer_name
             @module(name: "MarkdownUserNameRenderer.react")
         }
-        plainNameRenderer: nameRenderer @match {
+        plainNameRenderer: nameRenderer @match(key: "UserFragment_plainNameRenderer") {
           ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
         }
       }
@@ -164,7 +164,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       ),
       jest.fn(),
     );
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     warning.mockClear();
   });
 
@@ -188,14 +188,15 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       plaintext: undefined,
     });
     expect(warning).toBeCalled();
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     expect(warning.mock.calls[0][0]).toBe(false);
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     expect(warning.mock.calls[0][1]).toMatch(/it has missing data/);
   });
 
   it('should throw and cache promise for pending operation affecting fragment owner', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
+    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -217,8 +218,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           },
           plainNameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment: 'PlainUserNameRenderer.react',
-            __module_operation_UserFragment:
+            __module_component_UserFragment_plainNameRenderer:
+              'PlainUserNameRenderer.react',
+            __module_operation_UserFragment_plainNameRenderer:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
@@ -275,6 +277,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
 
   it('should read the data from the store once operation fully completed', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
+    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -296,8 +299,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           },
           plainNameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment: 'PlainUserNameRenderer.react',
-            __module_operation_UserFragment:
+            __module_component_UserFragment_plainNameRenderer:
+              'PlainUserNameRenderer.react',
+            __module_operation_UserFragment_plainNameRenderer:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
@@ -311,7 +315,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     environment.mock.complete(nodeOperation);
     // To make sure promise is resolved
     jest.runAllTimers();
-    // $FlowFixMe
+    // $FlowFixMe[prop-missing]
     warning.mockClear();
     const snapshot = FragmentResource.read(
       PlainUserNameRenderer_name,
@@ -342,6 +346,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       },
     );
     environment.execute({operation: paginationOperation}).subscribe({});
+    // $FlowFixMe[prop-missing]
     operationLoader.load.mockImplementation(() =>
       Promise.resolve(PlainUserNameRenderer_name$normalization),
     );
@@ -370,9 +375,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                   },
                   plainNameRenderer: {
                     __typename: 'PlainUserNameRenderer',
-                    __module_component_UserFragment:
+                    __module_component_UserFragment_plainNameRenderer:
                       'PlainUserNameRenderer.react',
-                    __module_operation_UserFragment:
+                    __module_operation_UserFragment_plainNameRenderer:
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {

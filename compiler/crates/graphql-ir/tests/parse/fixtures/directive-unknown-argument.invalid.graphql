@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery {
+  task(number: 123) {
+    title @include(if: false, extra: true)
+  }
+}

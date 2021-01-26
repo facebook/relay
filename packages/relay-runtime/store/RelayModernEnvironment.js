@@ -14,7 +14,6 @@
 'use strict';
 
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
-const RelayDefaultMissingFieldHandlers = require('../handlers/RelayDefaultMissingFieldHandlers');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
@@ -23,6 +22,7 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
 
@@ -30,7 +30,6 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   GraphQLResponse,
   INetwork,
-  LogRequestInfoFunction,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
@@ -42,12 +41,14 @@ import type {
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {ActiveState} from './RelayModernQueryExecutor';
 import type {TaskScheduler} from './RelayModernQueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
+  RequiredFieldLogger,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -55,6 +56,7 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -65,8 +67,10 @@ import type {
 export type EnvironmentConfig = {|
   +configName?: string,
   +handlerProvider?: ?HandlerProvider,
+  +treatMissingFieldsAsNull?: boolean,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +network: INetwork,
   +scheduler?: ?TaskScheduler,
   +store: Store,
@@ -80,17 +84,15 @@ export type EnvironmentConfig = {|
   +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
+  +isServer?: boolean,
+  +requiredFieldLogger?: ?RequiredFieldLogger,
 |};
-
-const DEFAULT_RENDER_POLICY =
-  RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
-    ? 'partial'
-    : 'full';
 
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
   +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
@@ -99,14 +101,21 @@ class RelayModernEnvironment implements IEnvironment {
   _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
+  _treatMissingFieldsAsNull: boolean;
+  _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
+  +_isServer: boolean;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
     const handlerProvider = config.handlerProvider
       ? config.handlerProvider
       : RelayDefaultHandlerProvider;
+    this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
     const operationLoader = config.operationLoader;
+    const reactFlightPayloadDeserializer =
+      config.reactFlightPayloadDeserializer;
     if (__DEV__) {
       if (operationLoader != null) {
         invariant(
@@ -118,12 +127,26 @@ class RelayModernEnvironment implements IEnvironment {
           operationLoader,
         );
       }
+      if (reactFlightPayloadDeserializer != null) {
+        invariant(
+          typeof reactFlightPayloadDeserializer === 'function',
+          'RelayModernEnvironment: Expected `reactFlightPayloadDeserializer` ' +
+            ' to be a function, got `%s`.',
+          reactFlightPayloadDeserializer,
+        );
+      }
     }
     this.__log = config.log ?? emptyFunction;
+    this.requiredFieldLogger =
+      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._defaultRenderPolicy =
-      config.UNSTABLE_defaultRenderPolicy ?? DEFAULT_RENDER_POLICY;
+      config.UNSTABLE_defaultRenderPolicy ??
+      RelayFeatureFlags.ENABLE_PARTIAL_RENDERING_DEFAULT === true
+        ? 'partial'
+        : 'full';
     this._operationLoader = operationLoader;
-    this._network = config.network;
+    this._operationExecutions = new Map();
+    this._network = this.__wrapNetworkWithLogObserver(config.network);
     this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
@@ -133,8 +156,10 @@ class RelayModernEnvironment implements IEnvironment {
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
     this.options = config.options;
+    this._isServer = config.isServer ?? false;
 
-    (this: any).__setNet = newNet => (this._network = newNet);
+    (this: any).__setNet = newNet =>
+      (this._network = this.__wrapNetworkWithLogObserver(newNet));
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');
@@ -153,11 +178,10 @@ class RelayModernEnvironment implements IEnvironment {
     if (devToolsHook) {
       devToolsHook.registerEnvironment(this);
     }
-    this._missingFieldHandlers =
-      config.missingFieldHandlers ?? RelayDefaultMissingFieldHandlers;
-
+    this._missingFieldHandlers = config.missingFieldHandlers;
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
+    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
   }
 
   getStore(): Store {
@@ -172,32 +196,45 @@ class RelayModernEnvironment implements IEnvironment {
     return this._operationTracker;
   }
 
+  isRequestActive(requestIdentifier: string): boolean {
+    const activeState = this._operationExecutions.get(requestIdentifier);
+    return activeState === 'active';
+  }
+
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
     return this._defaultRenderPolicy;
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
     const dispose = () => {
-      this._publishQueue.revertUpdate(optimisticUpdate);
-      this._publishQueue.run();
+      this._scheduleUpdates(() => {
+        this._publishQueue.revertUpdate(optimisticUpdate);
+        this._publishQueue.run();
+      });
     };
-    this._publishQueue.applyUpdate(optimisticUpdate);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.applyUpdate(optimisticUpdate);
+      this._publishQueue.run();
+    });
     return {dispose};
   }
 
   revertUpdate(update: OptimisticUpdateFunction): void {
-    this._publishQueue.revertUpdate(update);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.revertUpdate(update);
+      this._publishQueue.run();
+    });
   }
 
   replaceUpdate(
     update: OptimisticUpdateFunction,
     newUpdate: OptimisticUpdateFunction,
   ): void {
-    this._publishQueue.revertUpdate(update);
-    this._publishQueue.applyUpdate(newUpdate);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.revertUpdate(update);
+      this._publishQueue.applyUpdate(newUpdate);
+      this._publishQueue.run();
+    });
   }
 
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
@@ -205,9 +242,11 @@ class RelayModernEnvironment implements IEnvironment {
       const source = RelayObservable.create(_sink => {});
       const executor = RelayModernQueryExecutor.execute({
         operation: optimisticConfig.operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
@@ -215,6 +254,7 @@ class RelayModernEnvironment implements IEnvironment {
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -224,7 +264,10 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   check(operation: OperationDescriptor): OperationAvailability {
-    if (this._missingFieldHandlers == null) {
+    if (
+      this._missingFieldHandlers == null ||
+      this._missingFieldHandlers.length === 0
+    ) {
       return this._store.check(operation);
     }
     return this._checkSelectorAndHandleMissingFields(
@@ -237,24 +280,32 @@ class RelayModernEnvironment implements IEnvironment {
     RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation: operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
-        scheduler: null, // make sure the first payload is sync
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        scheduler: this._scheduler,
         sink,
-        source: RelayObservable.from({data: payload}),
+        source: RelayObservable.from({
+          data: payload,
+        }),
         store: this._store,
         updater: null,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        isClientPayload: true,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     }).subscribe({});
   }
 
   commitUpdate(updater: StoreUpdater): void {
-    this._publishQueue.commitUpdate(updater);
-    this._publishQueue.run();
+    this._scheduleUpdates(() => {
+      this._publishQueue.commitUpdate(updater);
+      this._publishQueue.run();
+    });
   }
 
   lookup(readSelector: SingularReaderSelector): Snapshot {
@@ -272,6 +323,10 @@ class RelayModernEnvironment implements IEnvironment {
     return this._store.retain(operation);
   }
 
+  isServer(): boolean {
+    return this._isServer;
+  }
+
   _checkSelectorAndHandleMissingFields(
     operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
@@ -279,10 +334,21 @@ class RelayModernEnvironment implements IEnvironment {
     const target = RelayRecordSource.create();
     const result = this._store.check(operation, {target, handlers});
     if (target.size() > 0) {
-      this._publishQueue.commitSource(target);
-      this._publishQueue.run();
+      this._scheduleUpdates(() => {
+        this._publishQueue.commitSource(target);
+        this._publishQueue.run();
+      });
     }
     return result;
+  }
+
+  _scheduleUpdates(task: () => void) {
+    const scheduler = this._scheduler;
+    if (scheduler != null) {
+      scheduler.schedule(task);
+    } else {
+      task();
+    }
   }
 
   /**
@@ -295,31 +361,25 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
-    cacheConfig,
     updater,
-  }: {
+  }: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
-    ...
-  }): RelayObservable<GraphQLResponse> {
-    const [logObserver, logRequestInfo] = this.__createLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
+  |}): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
       const source = this._network.execute(
         operation.request.node.params,
         operation.request.variables,
-        cacheConfig || {},
+        operation.request.cacheConfig || {},
         null,
-        logRequestInfo,
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
@@ -327,9 +387,10 @@ class RelayModernEnvironment implements IEnvironment {
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -355,10 +416,6 @@ class RelayModernEnvironment implements IEnvironment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
-    const [logObserver, logRequestInfo] = this.__createLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {
@@ -371,15 +428,19 @@ class RelayModernEnvironment implements IEnvironment {
       const source = this._network.execute(
         operation.request.node.params,
         operation.request.variables,
-        {force: true},
+        {
+          ...operation.request.cacheConfig,
+          force: true,
+        },
         uploadables,
-        logRequestInfo,
       );
       const executor = RelayModernQueryExecutor.execute({
         operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         optimisticConfig,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
@@ -387,9 +448,10 @@ class RelayModernEnvironment implements IEnvironment {
         updater,
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -411,15 +473,18 @@ class RelayModernEnvironment implements IEnvironment {
     return RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation,
+        operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         operationTracker: this._operationTracker,
         optimisticConfig: null,
         publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         scheduler: this._scheduler,
         sink,
         source,
         store: this._store,
         getDataID: this._getDataID,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
     });
@@ -429,56 +494,70 @@ class RelayModernEnvironment implements IEnvironment {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 
-  __createLogObserver(
-    params: RequestParameters,
-    variables: Variables,
-  ): [Observer<GraphQLResponse>, LogRequestInfoFunction] {
-    const transactionID = generateID();
-    const log = this.__log;
-    const logObserver = {
-      start: subscription => {
-        log({
-          name: 'execute.start',
-          transactionID,
-          params,
-          variables,
-        });
-      },
-      next: response => {
-        log({
-          name: 'execute.next',
-          transactionID,
-          response,
-        });
-      },
-      error: error => {
-        log({
-          name: 'execute.error',
-          transactionID,
-          error,
-        });
-      },
-      complete: () => {
-        log({
-          name: 'execute.complete',
-          transactionID,
-        });
-      },
-      unsubscribe: () => {
-        log({
-          name: 'execute.unsubscribe',
-          transactionID,
-        });
+  /**
+   * Wraps the network with logging to ensure that network requests are
+   * always logged. Relying on each network callsite to be wrapped is
+   * untenable and will eventually lead to holes in the logging.
+   */
+  __wrapNetworkWithLogObserver(network: INetwork): INetwork {
+    const that = this;
+    return {
+      execute(
+        params: RequestParameters,
+        variables: Variables,
+        cacheConfig: CacheConfig,
+        uploadables?: ?UploadableMap,
+      ): RelayObservable<GraphQLResponse> {
+        const transactionID = generateID();
+        const log = that.__log;
+        const logObserver = {
+          start: subscription => {
+            log({
+              name: 'network.start',
+              transactionID,
+              params,
+              variables,
+            });
+          },
+          next: response => {
+            log({
+              name: 'network.next',
+              transactionID,
+              response,
+            });
+          },
+          error: error => {
+            log({
+              name: 'network.error',
+              transactionID,
+              error,
+            });
+          },
+          complete: () => {
+            log({
+              name: 'network.complete',
+              transactionID,
+            });
+          },
+          unsubscribe: () => {
+            log({
+              name: 'network.unsubscribe',
+              transactionID,
+            });
+          },
+        };
+        const logRequestInfo = info => {
+          log({
+            name: 'network.info',
+            transactionID,
+            info,
+          });
+        };
+        return network
+          .execute(params, variables, cacheConfig, uploadables, logRequestInfo)
+          .do(logObserver);
       },
     };
-    const logRequestInfo = info => {
-      log({
-        name: 'execute.info',
-        transactionID,
-        info,
-      });
-    };
-    return [logObserver, logRequestInfo];
   }
 }
 

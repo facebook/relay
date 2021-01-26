@@ -19,30 +19,26 @@ const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
+const RelayStoreSubscriptionsUsingMapByID = require('./RelayStoreSubscriptionsUsingMapByID');
+const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
 const defaultGetDataID = require('./defaultGetDataID');
-const hasOverlappingIDs = require('./hasOverlappingIDs');
 const invariant = require('invariant');
-const recycleNodesInto = require('../util/recycleNodesInto');
 const resolveImmediate = require('../util/resolveImmediate');
 
-const {createReaderSelector} = require('./RelayModernSelector');
+const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 
 const RelayMapStoreSource = require('./RelayMapStoreSource');
 
-import type {ReaderFragment} from '../util/ReaderNode';
-import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {
-  ConnectionID,
-  ConnectionInternalEvent,
-  ConnectionReference,
-  ConnectionResolver,
-  ConnectionSnapshot,
-} from './RelayConnection';
+import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
+import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
+  LogFunction,
   MutableRecordSource,
   OperationAvailability,
   OperationDescriptor,
@@ -54,35 +50,25 @@ import type {
   Snapshot,
   Store,
   StoreSource,
+  StoreSubscriptions,
   UpdatedRecords,
 } from './RelayStoreTypes';
 
-type Subscription = {
-  callback: (snapshot: Snapshot) => void,
-  snapshot: Snapshot,
-  stale: boolean,
-  backup: ?Snapshot,
-  ...
-};
-
-type UpdatedConnections = {[ConnectionID]: boolean, ...};
-type ConnectionEvents = {|
-  final: Array<ConnectionInternalEvent>,
-  optimistic: ?Array<ConnectionInternalEvent>,
+export opaque type InvalidationState = {|
+  dataIDs: $ReadOnlyArray<DataID>,
+  invalidations: Map<DataID, ?number>,
 |};
-type ConnectionSubscription<TEdge, TState> = {|
-  +callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
-  +id: string,
-  +resolver: ConnectionResolver<TEdge, TState>,
-  snapshot: ConnectionSnapshot<TEdge, TState>,
-  backup: ?ConnectionSnapshot<TEdge, TState>,
-  stale: boolean,
+
+type InvalidationSubscription = {|
+  callback: () => void,
+  invalidationState: InvalidationState,
 |};
 
 type RootSource = {|
   operation: OperationDescriptor,
   refCount: number,
   epoch: ?number,
+  fetchTime: ?number,
 |};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 0;
@@ -100,36 +86,36 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 0;
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayModernStore implements Store {
-  _connectionEvents: StoreSource<ConnectionID, ConnectionEvents>;
-  _connectionSubscriptions: Map<string, ConnectionSubscription<mixed, mixed>>;
   _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
+  _gcRun: ?Generator<void, void, void>;
   _gcScheduler: Scheduler;
   _getDataID: GetDataID;
   _globalInvalidationEpoch: ?number;
-  _hasScheduledGC: boolean;
-  _index: number;
+  _invalidationSubscriptions: Set<InvalidationSubscription>;
+  _invalidatedRecordIDs: Set<DataID>;
+  __log: ?LogFunction;
+  _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
-  _operationWriteEpochs: Map<string, number>;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
   _releaseBuffer: Array<string>;
   _roots: StoreSource<string, RootSource>;
   _shouldScheduleGC: boolean;
-  _subscriptions: Set<Subscription>;
-  _updatedConnectionIDs: UpdatedConnections;
+  _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: UpdatedRecords;
 
   constructor(
     source: MutableRecordSource,
     options?: {|
       gcScheduler?: ?Scheduler,
+      log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       roots?: ?StoreSource<string, RootSource>,
-      connectionEvents?: ?StoreSource<ConnectionID, ConnectionEvents>,
+      queryCacheExpirationTime?: ?number,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -142,20 +128,19 @@ class RelayModernStore implements Store {
         }
       }
     }
-    this._connectionEvents =
-      options?.connectionEvents ??
-      new RelayMapStoreSource<ConnectionID, ConnectionEvents>();
-    this._connectionSubscriptions = new Map();
     this._currentWriteEpoch = 0;
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
+    this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID =
       options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
-    this._hasScheduledGC = false;
-    this._index = 0;
+    this._invalidationSubscriptions = new Set();
+    this._invalidatedRecordIDs = new Set();
+    this.__log = options?.log ?? null;
+    this._queryCacheExpirationTime = options?.queryCacheExpirationTime;
     this._operationLoader = options?.operationLoader ?? null;
     this._optimisticSource = null;
     this._recordSource = source;
@@ -163,22 +148,17 @@ class RelayModernStore implements Store {
     this._roots =
       options?.roots ?? new RelayMapStoreSource<string, RootSource>();
     this._shouldScheduleGC = false;
-    this._subscriptions = new Set();
-    this._updatedConnectionIDs = {};
+    this._storeSubscriptions =
+      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
+        ? new RelayStoreSubscriptionsUsingMapByID()
+        : new RelayStoreSubscriptions();
     this._updatedRecordIDs = {};
+
+    initializeRecordSource(this._recordSource);
   }
 
   getSource(): RecordSource {
     return this._optimisticSource ?? this._recordSource;
-  }
-
-  getConnectionEvents_UNSTABLE(
-    connectionID: ConnectionID,
-  ): ?$ReadOnlyArray<ConnectionInternalEvent> {
-    const events = this._connectionEvents.get(connectionID);
-    if (events != null) {
-      return events.optimistic ?? events.final;
-    }
   }
 
   check(
@@ -189,82 +169,106 @@ class RelayModernStore implements Store {
     const source = this._optimisticSource ?? this._recordSource;
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
 
+    const rootEntry = this._roots.get(operation.request.identifier);
+    const operationLastWrittenAt = rootEntry != null ? rootEntry.epoch : null;
+
     // Check if store has been globally invalidated
     if (globalInvalidationEpoch != null) {
-      const rootEntry = this._roots.get(operation.request.identifier);
-      const operationWriteEpoch = rootEntry != null ? rootEntry.epoch : null;
-
       // If so, check if the operation we're checking was last written
       // before or after invalidation occured.
       if (
-        operationWriteEpoch == null ||
-        operationWriteEpoch <= globalInvalidationEpoch
+        operationLastWrittenAt == null ||
+        operationLastWrittenAt <= globalInvalidationEpoch
       ) {
-        // If the operation was written /before/ global invalidation ocurred,
+        // If the operation was written /before/ global invalidation occurred,
         // or if this operation has never been written to the store before,
         // we will consider the data for this operation to be stale
-        //  (i.e. not resolvable from the store).
-        return 'stale';
+        // (i.e. not resolvable from the store).
+        return {status: 'stale'};
       }
     }
 
     const target = options?.target ?? source;
     const handlers = options?.handlers ?? [];
-    return DataChecker.check(
+    const operationAvailability = DataChecker.check(
       source,
       target,
       selector,
       handlers,
       this._operationLoader,
       this._getDataID,
-      id => this.getConnectionEvents_UNSTABLE(id),
-    )
-      ? 'available'
-      : 'missing';
+    );
+
+    return getAvailabilityStatus(
+      operationAvailability,
+      operationLastWrittenAt,
+      rootEntry?.fetchTime,
+      this._queryCacheExpirationTime,
+    );
   }
 
   retain(operation: OperationDescriptor): Disposable {
     const id = operation.request.identifier;
+    let disposed = false;
     const dispose = () => {
-      // When disposing, instead of immediately decrementing the refCount and
-      // potentially deleting/collecting the root, move the operation onto
-      // the release buffer. When the operation is extracted from the release
-      // buffer, we will determine if it needs to be collected.
-      this._releaseBuffer.push(id);
+      // Ensure each retain can only dispose once
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      // For Flow: guard against the entry somehow not existing
+      const rootEntry = this._roots.get(id);
+      if (rootEntry == null) {
+        return;
+      }
+      // Decrement the ref count: if it becomes zero it is eligible
+      // for release.
+      rootEntry.refCount--;
 
-      // Only when the release buffer is full do we actually:
-      // - extract the least recent operation in the release buffer
-      // - attempt to release it and run GC if it's no longer referenced
-      //   (refCount reached 0).
-      if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
-        const _id = this._releaseBuffer.shift();
+      if (rootEntry.refCount === 0) {
+        const {_queryCacheExpirationTime} = this;
+        const rootEntryIsStale =
+          rootEntry.fetchTime != null &&
+          _queryCacheExpirationTime != null &&
+          rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
 
-        const entry = this._roots.get(_id);
-        if (entry == null) {
-          // If operation has already been fully released, we don't need
-          // to do anything.
-          return;
-        }
-
-        if (entry.refCount > 0) {
-          // If the operation is still retained by other callers
-          // decrement the refCount
-          entry.refCount -= 1;
+        if (rootEntryIsStale) {
+          this._roots.remove(id);
+          this.scheduleGC();
         } else {
           // Otherwise fully release the query and run GC.
-          this._roots.remove(_id);
-          this._scheduleGC();
+          this._releaseBuffer.push(id);
+
+          // If the release buffer is now over-full, remove the least-recently
+          // added entry and schedule a GC. Note that all items in the release
+          // buffer have a refCount of 0.
+          if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
+            const _id = this._releaseBuffer.shift();
+            this._roots.remove(_id);
+            this.scheduleGC();
+          }
         }
       }
     };
 
-    const entry = this._roots.get(id);
-    if (entry != null) {
-      // If we've previously retained this operation, inrement the refCount
-      entry.refCount += 1;
+    const rootEntry = this._roots.get(id);
+    if (rootEntry != null) {
+      if (rootEntry.refCount === 0) {
+        // This entry should be in the release buffer, but it no longer belongs
+        // there since it's retained. Remove it to maintain the invariant that
+        // all release buffer entries have a refCount of 0.
+        this._releaseBuffer = this._releaseBuffer.filter(_id => _id !== id);
+      }
+      // If we've previously retained this operation, increment the refCount
+      rootEntry.refCount += 1;
     } else {
       // Otherwise create a new entry for the operation
-      this._roots.set(id, {operation, refCount: 0, epoch: null});
+      this._roots.set(id, {
+        operation,
+        refCount: 1,
+        epoch: null,
+        fetchTime: null,
+      });
     }
 
     return {dispose};
@@ -279,30 +283,49 @@ class RelayModernStore implements Store {
     return snapshot;
   }
 
-  // This method will return a list of updated owners form the subscriptions
+  // This method will return a list of updated owners from the subscriptions
   notify(
     sourceOperation?: OperationDescriptor,
+    invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor> {
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.notify.start',
+      });
+    }
+
     // Increment the current write when notifying after executing
     // a set of changes to the store.
     this._currentWriteEpoch++;
 
+    if (invalidateStore === true) {
+      this._globalInvalidationEpoch = this._currentWriteEpoch;
+    }
+
     const source = this.getSource();
     const updatedOwners = [];
-    this._subscriptions.forEach(subscription => {
-      const owner = this._updateSubscription(source, subscription);
-      if (owner != null) {
-        updatedOwners.push(owner);
-      }
+    this._storeSubscriptions.updateSubscriptions(
+      source,
+      this._updatedRecordIDs,
+      updatedOwners,
+    );
+    this._invalidationSubscriptions.forEach(subscription => {
+      this._updateInvalidationSubscription(
+        subscription,
+        invalidateStore === true,
+      );
     });
-    this._connectionSubscriptions.forEach((subscription, id) => {
-      if (subscription.stale) {
-        subscription.stale = false;
-        subscription.callback(subscription.snapshot);
-      }
-    });
-    this._updatedConnectionIDs = {};
+    if (log != null) {
+      log({
+        name: 'store.notify.complete',
+        updatedRecordIDs: this._updatedRecordIDs,
+        invalidatedRecordIDs: this._invalidatedRecordIDs,
+      });
+    }
+
     this._updatedRecordIDs = {};
+    this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch
@@ -316,63 +339,72 @@ class RelayModernStore implements Store {
       const id = sourceOperation.request.identifier;
       const rootEntry = this._roots.get(id);
       if (rootEntry != null) {
-        this._roots.set(id, {
-          ...rootEntry,
+        rootEntry.epoch = this._currentWriteEpoch;
+        rootEntry.fetchTime = Date.now();
+      } else if (
+        sourceOperation.request.node.params.operationKind === 'query' &&
+        this._gcReleaseBufferSize > 0 &&
+        this._releaseBuffer.length < this._gcReleaseBufferSize
+      ) {
+        // The operation isn't retained but there is space in the release buffer:
+        // temporarily track this operation in case the data can be reused soon.
+        const temporaryRootEntry = {
+          operation: sourceOperation,
+          refCount: 0,
           epoch: this._currentWriteEpoch,
-        });
+          fetchTime: Date.now(),
+        };
+        this._releaseBuffer.push(id);
+        this._roots.set(id, temporaryRootEntry);
       }
     }
 
     return updatedOwners;
   }
 
-  publish(source: RecordSource): void {
+  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void {
     const target = this._optimisticSource ?? this._recordSource;
-    updateTargetFromSource(target, source, this._updatedRecordIDs);
-    this._connectionSubscriptions.forEach((subscription, id) => {
-      const hasStoreUpdates = hasOverlappingIDs(
-        subscription.snapshot.seenRecords,
-        this._updatedRecordIDs,
-      );
-      if (!hasStoreUpdates) {
-        return;
-      }
-      const nextSnapshot = this._updateConnection_UNSTABLE(
-        subscription.resolver,
-        subscription.snapshot,
+    updateTargetFromSource(
+      target,
+      source,
+      // We increment the current epoch at the end of the set of updates,
+      // in notify(). Here, we pass what will be the incremented value of
+      // the epoch to use to write to invalidated records.
+      this._currentWriteEpoch + 1,
+      idsMarkedForInvalidation,
+      this._updatedRecordIDs,
+      this._invalidatedRecordIDs,
+    );
+    // NOTE: log *after* processing the source so that even if a bad log function
+    // mutates the source, it doesn't affect Relay processing of it.
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.publish',
         source,
-        null,
-      );
-      if (nextSnapshot) {
-        subscription.snapshot = nextSnapshot;
-        subscription.stale = true;
-      }
-    });
-  }
-
-  invalidate() {
-    this._globalInvalidationEpoch = this._currentWriteEpoch;
+        optimistic: target === this._optimisticSource,
+      });
+    }
   }
 
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    const subscription = {backup: null, callback, snapshot, stale: false};
-    const dispose = () => {
-      this._subscriptions.delete(subscription);
-    };
-    this._subscriptions.add(subscription);
-    return {dispose};
+    return this._storeSubscriptions.subscribe(snapshot, callback);
   }
 
   holdGC(): Disposable {
+    if (this._gcRun) {
+      this._gcRun = null;
+      this._shouldScheduleGC = true;
+    }
     this._gcHoldCounter++;
     const dispose = () => {
       if (this._gcHoldCounter > 0) {
         this._gcHoldCounter--;
         if (this._gcHoldCounter === 0 && this._shouldScheduleGC) {
-          this._scheduleGC();
+          this.scheduleGC();
           this._shouldScheduleGC = false;
         }
       }
@@ -389,335 +421,71 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  // Returns the owner (RequestDescriptor) if the subscription was affected by the
-  // latest update, or null if it was not affected.
-  _updateSubscription(
-    source: RecordSource,
-    subscription: Subscription,
-  ): ?RequestDescriptor {
-    const {backup, callback, snapshot, stale} = subscription;
-    const hasOverlappingUpdates = hasOverlappingIDs(
-      snapshot.seenRecords,
-      this._updatedRecordIDs,
-    );
-    if (!stale && !hasOverlappingUpdates) {
-      return;
-    }
-    let nextSnapshot: Snapshot =
-      hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector)
-        : backup;
-    const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = ({
-      data: nextData,
-      isMissingData: nextSnapshot.isMissingData,
-      seenRecords: nextSnapshot.seenRecords,
-      selector: nextSnapshot.selector,
-    }: Snapshot);
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    subscription.snapshot = nextSnapshot;
-    subscription.stale = false;
-    if (nextSnapshot.data !== snapshot.data) {
-      callback(nextSnapshot);
-      return snapshot.selector.owner;
-    }
-  }
-
-  lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge>,
-    resolver: ConnectionResolver<TEdge, TState>,
-  ): ConnectionSnapshot<TEdge, TState> {
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const {id} = connectionReference;
-    const initialState: TState = resolver.initialize();
-    const connectionEvents = this._connectionEvents.get(id);
-    const events: ?$ReadOnlyArray<ConnectionInternalEvent> =
-      connectionEvents != null
-        ? connectionEvents.optimistic ?? connectionEvents.final
-        : null;
-    const initialSnapshot = {
-      edgeSnapshots: {},
-      id,
-      reference: connectionReference,
-      seenRecords: {},
-      state: initialState,
+  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
+    const invalidations = new Map();
+    dataIDs.forEach(dataID => {
+      const record = this.getSource().get(dataID);
+      invalidations.set(
+        dataID,
+        RelayModernRecord.getInvalidationEpoch(record) ?? null,
+      );
+    });
+    invalidations.set('global', this._globalInvalidationEpoch);
+    return {
+      dataIDs,
+      invalidations,
     };
-    if (events == null || events.length === 0) {
-      return initialSnapshot;
-    }
-    return this._reduceConnection_UNSTABLE(
-      resolver,
-      connectionReference,
-      initialSnapshot,
-      events,
-    );
   }
 
-  subscribeConnection_UNSTABLE<TEdge, TState>(
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    resolver: ConnectionResolver<TEdge, TState>,
-    callback: (ConnectionSnapshot<TEdge, TState>) => void,
+  checkInvalidationState(prevInvalidationState: InvalidationState): boolean {
+    const latestInvalidationState = this.lookupInvalidationState(
+      prevInvalidationState.dataIDs,
+    );
+    const currentInvalidations = latestInvalidationState.invalidations;
+    const prevInvalidations = prevInvalidationState.invalidations;
+
+    // Check if global invalidation has changed
+    if (
+      currentInvalidations.get('global') !== prevInvalidations.get('global')
+    ) {
+      return true;
+    }
+
+    // Check if the invalidation state for any of the ids has changed.
+    for (const dataID of prevInvalidationState.dataIDs) {
+      if (currentInvalidations.get(dataID) !== prevInvalidations.get(dataID)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  subscribeToInvalidationState(
+    invalidationState: InvalidationState,
+    callback: () => void,
   ): Disposable {
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const id = String(this._index++);
-    const subscription: ConnectionSubscription<TEdge, TState> = {
-      backup: null,
-      callback,
-      id,
-      resolver,
-      snapshot,
-      stale: false,
-    };
+    const subscription = {callback, invalidationState};
     const dispose = () => {
-      this._connectionSubscriptions.delete(id);
+      this._invalidationSubscriptions.delete(subscription);
     };
-    this._connectionSubscriptions.set(id, (subscription: $FlowFixMe));
+    this._invalidationSubscriptions.add(subscription);
     return {dispose};
   }
 
-  publishConnectionEvents_UNSTABLE(
-    events: Array<ConnectionInternalEvent>,
-    final: boolean,
-  ): void {
-    if (events.length === 0) {
+  _updateInvalidationSubscription(
+    subscription: InvalidationSubscription,
+    invalidatedStore: boolean,
+  ) {
+    const {callback, invalidationState} = subscription;
+    const {dataIDs} = invalidationState;
+    const isSubscribedToInvalidatedIDs =
+      invalidatedStore ||
+      dataIDs.some(dataID => this._invalidatedRecordIDs.has(dataID));
+    if (!isSubscribedToInvalidatedIDs) {
       return;
     }
-    invariant(
-      RelayFeatureFlags.ENABLE_CONNECTION_RESOLVERS,
-      'RelayModernStore: Connection resolvers are not yet supported.',
-    );
-    const pendingConnectionEvents = new Map<
-      ConnectionID,
-      Array<ConnectionInternalEvent>,
-    >();
-    events.forEach(event => {
-      const {connectionID} = event;
-      let pendingEvents = pendingConnectionEvents.get(connectionID);
-      if (pendingEvents == null) {
-        pendingEvents = [];
-        pendingConnectionEvents.set(connectionID, pendingEvents);
-      }
-      pendingEvents.push(event);
-      let connectionEvents: ?ConnectionEvents = this._connectionEvents.get(
-        connectionID,
-      );
-      if (connectionEvents == null) {
-        connectionEvents = {
-          final: [],
-          optimistic: null,
-        };
-        this._connectionEvents.set(connectionID, connectionEvents);
-      }
-      if (final) {
-        connectionEvents.final.push(event);
-      } else {
-        let optimisticEvents = connectionEvents.optimistic;
-        if (optimisticEvents == null) {
-          optimisticEvents = connectionEvents.final.slice();
-          connectionEvents.optimistic = optimisticEvents;
-        }
-        optimisticEvents.push(event);
-      }
-    });
-    this._connectionSubscriptions.forEach((subscription, id) => {
-      const pendingEvents = pendingConnectionEvents.get(
-        subscription.snapshot.reference.id,
-      );
-      if (pendingEvents == null) {
-        return;
-      }
-      const nextSnapshot = this._updateConnection_UNSTABLE(
-        subscription.resolver,
-        subscription.snapshot,
-        null,
-        pendingEvents,
-      );
-      if (nextSnapshot) {
-        subscription.snapshot = nextSnapshot;
-        subscription.stale = true;
-      }
-    });
-  }
-
-  _updateConnection_UNSTABLE<TEdge, TState>(
-    resolver: ConnectionResolver<TEdge, TState>,
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    source: ?RecordSource,
-    pendingEvents: ?Array<ConnectionInternalEvent>,
-  ): ?ConnectionSnapshot<TEdge, TState> {
-    const nextSnapshot = this._reduceConnection_UNSTABLE(
-      resolver,
-      snapshot.reference,
-      snapshot,
-      pendingEvents ?? [],
-      source,
-    );
-    const state = recycleNodesInto(snapshot.state, nextSnapshot.state);
-    if (__DEV__) {
-      deepFreeze(nextSnapshot);
-    }
-    if (state !== snapshot.state) {
-      return {...nextSnapshot, state};
-    }
-  }
-
-  _reduceConnection_UNSTABLE<TEdge, TState>(
-    resolver: ConnectionResolver<TEdge, TState>,
-    connectionReference: ConnectionReference<TEdge>,
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    events: $ReadOnlyArray<ConnectionInternalEvent>,
-    source: ?RecordSource = null,
-  ): ConnectionSnapshot<TEdge, TState> {
-    const {edgesField, id, variables} = connectionReference;
-    const fragment: ReaderFragment = {
-      kind: 'Fragment',
-      name: edgesField.name,
-      type: edgesField.concreteType ?? '__Any',
-      metadata: null,
-      argumentDefinitions: [],
-      selections: edgesField.selections,
-    };
-    const seenRecords = {};
-    const edgeSnapshots = {...snapshot.edgeSnapshots};
-    let initialState = snapshot.state;
-    if (source) {
-      const edgeData = {};
-      Object.keys(edgeSnapshots).forEach(edgeID => {
-        const prevSnapshot = edgeSnapshots[edgeID];
-        let nextSnapshot = RelayReader.read(
-          this.getSource(),
-          createReaderSelector(
-            fragment,
-            edgeID,
-            variables,
-            prevSnapshot.selector.owner,
-          ),
-        );
-        const data = recycleNodesInto(prevSnapshot.data, nextSnapshot.data);
-        nextSnapshot = {
-          data,
-          isMissingData: nextSnapshot.isMissingData,
-          seenRecords: nextSnapshot.seenRecords,
-          selector: nextSnapshot.selector,
-        };
-        if (data !== prevSnapshot.data) {
-          edgeData[edgeID] = data;
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
-          edgeSnapshots[edgeID] = nextSnapshot;
-        }
-      });
-      if (Object.keys(edgeData).length !== 0) {
-        initialState = resolver.reduce(initialState, {
-          kind: 'update',
-          edgeData,
-        });
-      }
-    }
-    const state: TState = events.reduce(
-      (prevState: TState, event: ConnectionInternalEvent) => {
-        if (event.kind === 'fetch') {
-          const edges = [];
-          event.edgeIDs.forEach(edgeID => {
-            if (edgeID == null) {
-              edges.push(edgeID);
-              return;
-            }
-            const edgeSnapshot = RelayReader.read(
-              this.getSource(),
-              createReaderSelector(fragment, edgeID, variables, event.request),
-            );
-            Object.assign(seenRecords, edgeSnapshot.seenRecords);
-            const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
-            /* $FlowFixMe(>=0.111.0) This comment suppresses an error found
-             * when Flow v0.111.0 was deployed. To see the error, delete this
-             * comment and run Flow. */
-            edgeSnapshots[edgeID] = edgeSnapshot;
-            edges.push(itemData);
-          });
-          return resolver.reduce(prevState, {
-            kind: 'fetch',
-            args: event.args,
-            edges,
-            pageInfo: event.pageInfo,
-            stream: event.stream,
-          });
-        } else if (event.kind === 'insert') {
-          const edgeSnapshot = RelayReader.read(
-            this.getSource(),
-            createReaderSelector(
-              fragment,
-              event.edgeID,
-              variables,
-              event.request,
-            ),
-          );
-          Object.assign(seenRecords, edgeSnapshot.seenRecords);
-          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
-          edgeSnapshots[event.edgeID] = edgeSnapshot;
-          return resolver.reduce(prevState, {
-            args: event.args,
-            edge: itemData,
-            kind: 'insert',
-          });
-        } else if (event.kind === 'stream.edge') {
-          const edgeSnapshot = RelayReader.read(
-            this.getSource(),
-            createReaderSelector(
-              fragment,
-              event.edgeID,
-              variables,
-              event.request,
-            ),
-          );
-          Object.assign(seenRecords, edgeSnapshot.seenRecords);
-          const itemData = ((edgeSnapshot.data: $FlowFixMe): ?TEdge);
-          /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-           * Flow v0.111.0 was deployed. To see the error, delete this comment
-           * and run Flow. */
-          edgeSnapshots[event.edgeID] = edgeSnapshot;
-          return resolver.reduce(prevState, {
-            args: event.args,
-            edge: itemData,
-            index: event.index,
-            kind: 'stream.edge',
-          });
-        } else if (event.kind === 'stream.pageInfo') {
-          return resolver.reduce(prevState, {
-            args: event.args,
-            kind: 'stream.pageInfo',
-            pageInfo: event.pageInfo,
-          });
-        } else {
-          (event.kind: empty);
-          invariant(
-            false,
-            'RelayModernStore: Unexpected connection event kind `%s`.',
-            event.kind,
-          );
-        }
-      },
-      initialState,
-    );
-    return {
-      edgeSnapshots,
-      id,
-      reference: connectionReference,
-      seenRecords,
-      state,
-    };
+    callback();
   }
 
   snapshot(): void {
@@ -726,12 +494,17 @@ class RelayModernStore implements Store {
       'RelayModernStore: Unexpected call to snapshot() while a previous ' +
         'snapshot exists.',
     );
-    this._connectionSubscriptions.forEach(subscription => {
-      subscription.backup = subscription.snapshot;
-    });
-    this._subscriptions.forEach(subscription => {
-      subscription.backup = subscription.snapshot;
-    });
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.snapshot',
+      });
+    }
+    this._storeSubscriptions.snapshotSubscriptions(this.getSource());
+    if (this._gcRun) {
+      this._gcRun = null;
+      this._shouldScheduleGC = true;
+    }
     this._optimisticSource = RelayOptimisticRecordSource.create(
       this.getSource(),
     );
@@ -743,137 +516,180 @@ class RelayModernStore implements Store {
       'RelayModernStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.restore',
+      });
+    }
     this._optimisticSource = null;
-    this._connectionEvents.getAllKeys().forEach(id => {
-      const event = this._connectionEvents.get(id);
-      if (event != null) {
-        event.optimistic = null;
-        this._connectionEvents.set(id, event);
-      }
-    });
-    this._subscriptions.forEach(subscription => {
-      const backup = subscription.backup;
-      subscription.backup = null;
-      if (backup) {
-        if (backup.data !== subscription.snapshot.data) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = {
-          data: subscription.snapshot.data,
-          isMissingData: backup.isMissingData,
-          seenRecords: backup.seenRecords,
-          selector: backup.selector,
-        };
-      } else {
-        subscription.stale = true;
-      }
-    });
-    this._connectionSubscriptions.forEach(subscription => {
-      const backup = subscription.backup;
-      subscription.backup = null;
-      if (backup) {
-        if (backup.state !== subscription.snapshot.state) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = backup;
-      } else {
-        // This subscription was established after the creation of the
-        // connection snapshot so there's nothing to restore to. Recreate the
-        // connection from scratch and check ifs value changes.
-        const baseSnapshot = this.lookupConnection_UNSTABLE(
-          subscription.snapshot.reference,
-          subscription.resolver,
-        );
-        const nextState = recycleNodesInto(
-          subscription.snapshot.state,
-          baseSnapshot.state,
-        );
-        if (nextState !== subscription.snapshot.state) {
-          subscription.stale = true;
-        }
-        subscription.snapshot = {...baseSnapshot, state: nextState};
-      }
-    });
+    if (this._shouldScheduleGC) {
+      this.scheduleGC();
+    }
+    this._storeSubscriptions.restoreSubscriptions();
   }
 
-  _scheduleGC() {
+  scheduleGC() {
     if (this._gcHoldCounter > 0) {
       this._shouldScheduleGC = true;
       return;
     }
-    if (this._hasScheduledGC) {
+    if (this._gcRun) {
       return;
     }
-    this._hasScheduledGC = true;
-    this._gcScheduler(() => {
-      this.__gc();
-      this._hasScheduledGC = false;
-    });
+    this._gcRun = this._collect();
+    this._gcScheduler(this._gcStep);
   }
 
+  /**
+   * Run a full GC synchronously.
+   */
   __gc(): void {
     // Don't run GC while there are optimistic updates applied
     if (this._optimisticSource != null) {
       return;
     }
-    const references = new Set();
-    const connectionReferences = new Set();
-    // Mark all records that are traversable from a root
-    this._roots.getAllKeys().forEach(id => {
-      const entry = this._roots.get(id);
-      if (entry != null) {
-        const {operation} = entry;
-        const selector = operation.root;
-        RelayReferenceMarker.mark(
-          this._recordSource,
-          selector,
+    const gcRun = this._collect();
+    while (!gcRun.next().done) {}
+  }
+
+  _gcStep = () => {
+    if (this._gcRun) {
+      if (this._gcRun.next().done) {
+        this._gcRun = null;
+      } else {
+        this._gcScheduler(this._gcStep);
+      }
+    }
+  };
+
+  *_collect(): Generator<void, void, void> {
+    /* eslint-disable no-labels */
+    top: while (true) {
+      const startEpoch = this._currentWriteEpoch;
+      const references = new Set();
+
+      // Mark all records that are traversable from a root
+      for (const key of this._roots.getAllKeys()) {
+        const entry = this._roots.get(key);
+        if (entry != null) {
+          const {operation} = entry;
+          const selector = operation.root;
+          RelayReferenceMarker.mark(
+            this._recordSource,
+            selector,
+            references,
+            this._operationLoader,
+          );
+        }
+        // Yield for other work after each operation
+        yield;
+
+        // If the store was updated, restart
+        if (startEpoch !== this._currentWriteEpoch) {
+          continue top;
+        }
+      }
+
+      const log = this.__log;
+      if (log != null) {
+        log({
+          name: 'store.gc',
           references,
-          connectionReferences,
-          id => this.getConnectionEvents_UNSTABLE(id),
-          this._operationLoader,
-        );
+        });
       }
-    });
-    if (references.size === 0) {
-      // Short-circuit if *nothing* is referenced
-      this._recordSource.clear();
-    } else {
-      // Evict any unreferenced nodes
-      const storeIDs = this._recordSource.getRecordIDs();
-      for (let ii = 0; ii < storeIDs.length; ii++) {
-        const dataID = storeIDs[ii];
-        if (!references.has(dataID)) {
-          this._recordSource.remove(dataID);
+
+      // Sweep records without references
+      if (references.size === 0) {
+        // Short-circuit if *nothing* is referenced
+        this._recordSource.clear();
+      } else {
+        // Evict any unreferenced nodes
+        const storeIDs = this._recordSource.getRecordIDs();
+        for (let ii = 0; ii < storeIDs.length; ii++) {
+          const dataID = storeIDs[ii];
+          if (!references.has(dataID)) {
+            this._recordSource.remove(dataID);
+          }
         }
       }
+      return;
     }
-    if (connectionReferences.size === 0) {
-      this._connectionEvents.clear();
-    } else {
-      // Evict any unreferenced connections
-      for (const connectionID of this._connectionEvents.getAllKeys()) {
-        if (!connectionReferences.has(connectionID)) {
-          this._connectionEvents.remove(connectionID);
-        }
-      }
-    }
+  }
+}
+
+function initializeRecordSource(target: MutableRecordSource) {
+  if (!target.has(ROOT_ID)) {
+    const rootRecord = RelayModernRecord.create(ROOT_ID, ROOT_TYPE);
+    target.set(ROOT_ID, rootRecord);
   }
 }
 
 /**
  * Updates the target with information from source, also updating a mapping of
  * which records in the target were changed as a result.
+ * Additionally, will mark records as invalidated at the current write epoch
+ * given the set of record ids marked as stale in this update.
  */
 function updateTargetFromSource(
   target: MutableRecordSource,
   source: RecordSource,
+  currentWriteEpoch: number,
+  idsMarkedForInvalidation: ?Set<DataID>,
   updatedRecordIDs: UpdatedRecords,
+  invalidatedRecordIDs: Set<DataID>,
 ): void {
+  // First, update any records that were marked for invalidation.
+  // For each provided dataID that was invalidated, we write the
+  // INVALIDATED_AT_KEY on the record, indicating
+  // the epoch at which the record was invalidated.
+  if (idsMarkedForInvalidation) {
+    idsMarkedForInvalidation.forEach(dataID => {
+      const targetRecord = target.get(dataID);
+      const sourceRecord = source.get(dataID);
+
+      // If record was deleted during the update (and also invalidated),
+      // we don't need to count it as an invalidated id
+      if (sourceRecord === null) {
+        return;
+      }
+
+      let nextRecord;
+      if (targetRecord != null) {
+        // If the target record exists, use it to set the epoch
+        // at which it was invalidated. This record will be updated with
+        // any changes from source in the section below
+        // where we update the target records based on the source.
+        nextRecord = RelayModernRecord.clone(targetRecord);
+      } else {
+        // If the target record doesn't exist, it means that a new record
+        // in the source was created (and also invalidated), so we use that
+        // record to set the epoch at which it was invalidated. This record
+        // will be updated with any changes from source in the section below
+        // where we update the target records based on the source.
+        nextRecord =
+          sourceRecord != null ? RelayModernRecord.clone(sourceRecord) : null;
+      }
+      if (!nextRecord) {
+        return;
+      }
+      RelayModernRecord.setValue(
+        nextRecord,
+        RelayStoreUtils.INVALIDATED_AT_KEY,
+        currentWriteEpoch,
+      );
+      invalidatedRecordIDs.add(dataID);
+      target.set(dataID, nextRecord);
+    });
+  }
+
+  // Update the target based on the changes present in source
   const dataIDs = source.getRecordIDs();
   for (let ii = 0; ii < dataIDs.length; ii++) {
     const dataID = dataIDs[ii];
     const sourceRecord = source.get(dataID);
     const targetRecord = target.get(dataID);
+
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
       if (sourceRecord) {
@@ -881,7 +697,15 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
+      // ReactFlightClientResponses are lazy and only materialize when readRoot
+      // is called when we read the field, so if the record is a Flight field
+      // we always use the new record's data regardless of whether
+      // it actually changed. Let React take care of reconciliation instead.
+      const nextRecord =
+        RelayModernRecord.getType(targetRecord) ===
+        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
+          ? sourceRecord
+          : RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {
@@ -902,11 +726,52 @@ function updateTargetFromSource(
   }
 }
 
+/**
+ * Returns an OperationAvailability given the Availability returned
+ * by checking an operation, and when that operation was last written to the store.
+ * Specifically, the provided Availability of an operation will contain the
+ * value of when a record referenced by the operation was most recently
+ * invalidated; given that value, and given when this operation was last
+ * written to the store, this function will return the overall
+ * OperationAvailability for the operation.
+ */
+function getAvailabilityStatus(
+  operationAvailability: Availability,
+  operationLastWrittenAt: ?number,
+  operationFetchTime: ?number,
+  queryCacheExpirationTime: ?number,
+): OperationAvailability {
+  const {mostRecentlyInvalidatedAt, status} = operationAvailability;
+  if (typeof mostRecentlyInvalidatedAt === 'number') {
+    // If some record referenced by this operation is stale, then the operation itself is stale
+    // if either the operation itself was never written *or* the operation was last written
+    // before the most recent invalidation of its reachable records.
+    if (
+      operationLastWrittenAt == null ||
+      mostRecentlyInvalidatedAt > operationLastWrittenAt
+    ) {
+      return {status: 'stale'};
+    }
+  }
+
+  if (status === 'missing') {
+    return {status: 'missing'};
+  }
+
+  if (operationFetchTime != null && queryCacheExpirationTime != null) {
+    const isStale = operationFetchTime <= Date.now() - queryCacheExpirationTime;
+    if (isStale) {
+      return {status: 'stale'};
+    }
+  }
+
+  // There were no invalidations of any reachable records *or* the operation is known to have
+  // been fetched after the most recent record invalidation.
+  return {status: 'available', fetchTime: operationFetchTime ?? null};
+}
+
 RelayProfiler.instrumentMethods(RelayModernStore.prototype, {
   lookup: 'RelayModernStore.prototype.lookup',
-  notify: 'RelayModernStore.prototype.notify',
-  publish: 'RelayModernStore.prototype.publish',
-  __gc: 'RelayModernStore.prototype.__gc',
 });
 
 module.exports = RelayModernStore;

@@ -13,13 +13,13 @@
 
 'use strict';
 
-const RelayConnectionInterface = require('../handlers/connection/RelayConnectionInterface');
 const RelayError = require('../util/RelayError');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('./RelayRecordSource');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
+const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
@@ -30,12 +30,11 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
   GraphQLResponse,
+  GraphQLSingularResponse,
   GraphQLResponseWithData,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
-  ConnectionEdgePlaceholder,
-  ConnectionPageInfoPlaceholder,
   DeferPlaceholder,
   RequestDescriptor,
   HandleFieldPayload,
@@ -48,6 +47,7 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
   Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
@@ -56,26 +56,34 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {
   NormalizationLinkedField,
-  NormalizationSplitOperation,
+  NormalizationOperation,
+  NormalizationRootNode,
   NormalizationSelectableNode,
+  NormalizationSplitOperation,
 } from '../util/NormalizationNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
+  +treatMissingFieldsAsNull: boolean,
   +operation: OperationDescriptor,
+  +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
   +operationTracker?: ?OperationTracker,
   +optimisticConfig: ?OptimisticResponseConfig,
   +publishQueue: PublishQueue,
+  +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +store: Store,
   +updater?: ?SelectorStoreUpdater,
+  +isClientPayload?: boolean,
 |};
+
+export type ActiveState = 'active' | 'inactive';
 
 export type TaskScheduler = {|
   +cancel: (id: string) => void,
@@ -111,16 +119,19 @@ function execute(config: ExecuteConfig): Executor {
  */
 class Executor {
   _getDataID: GetDataID;
+  _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
+  _operationExecutions: Map<string, ActiveState>;
   _operationLoader: ?OperationLoader;
   _operationTracker: ?OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
   _optimisticUpdates: null | Array<OptimisticUpdate>;
   _pendingModulePayloadsCount: number;
   _publishQueue: PublishQueue;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
@@ -131,9 +142,12 @@ class Executor {
   _store: Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
+  _retainDisposable: ?Disposable;
+  +_isClientPayload: boolean;
 
   constructor({
     operation,
+    operationExecutions,
     operationLoader,
     optimisticConfig,
     publishQueue,
@@ -143,13 +157,18 @@ class Executor {
     store,
     updater,
     operationTracker,
+    treatMissingFieldsAsNull,
     getDataID,
+    isClientPayload,
+    reactFlightPayloadDeserializer,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
+    this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
     this._nextSubscriptionId = 0;
     this._operation = operation;
+    this._operationExecutions = operationExecutions;
     this._operationLoader = operationLoader;
     this._operationTracker = operationTracker;
     this._operationUpdateEpochs = new Map();
@@ -163,6 +182,8 @@ class Executor {
     this._store = store;
     this._subscriptions = new Map();
     this._updater = updater;
+    this._isClientPayload = isClientPayload === true;
+    this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -184,6 +205,7 @@ class Executor {
           ? {data: optimisticConfig.response}
           : null,
         optimisticConfig.updater,
+        false,
       );
     }
   }
@@ -194,6 +216,8 @@ class Executor {
       return;
     }
     this._state = 'completed';
+    this._operationExecutions.delete(this._operation.request.identifier);
+
     if (this._subscriptions.size !== 0) {
       this._subscriptions.forEach(sub => sub.unsubscribe());
       this._subscriptions.clear();
@@ -208,6 +232,40 @@ class Executor {
     }
     this._incrementalResults.clear();
     this._completeOperationTracker();
+    if (this._retainDisposable) {
+      this._retainDisposable.dispose();
+      this._retainDisposable = null;
+    }
+  }
+
+  _updateActiveState(): void {
+    let activeState;
+    switch (this._state) {
+      case 'started': {
+        activeState = 'active';
+        break;
+      }
+      case 'loading_incremental': {
+        activeState = 'active';
+        break;
+      }
+      case 'completed': {
+        activeState = 'inactive';
+        break;
+      }
+      case 'loading_final': {
+        activeState =
+          this._pendingModulePayloadsCount > 0 ? 'active' : 'inactive';
+        break;
+      }
+      default:
+        (this._state: empty);
+        invariant(false, 'RelayModernQueryExecutor: invalid executor state.');
+    }
+    this._operationExecutions.set(
+      this._operation.request.identifier,
+      activeState,
+    );
   }
 
   _schedule(task: () => void): void {
@@ -249,6 +307,7 @@ class Executor {
 
   _start(id: number, subscription: Subscription): void {
     this._subscriptions.set(id, subscription);
+    this._updateActiveState();
   }
 
   // Handle a raw GraphQL response.
@@ -259,32 +318,71 @@ class Executor {
     });
   }
 
-  _handleNext(response: GraphQLResponse): void {
-    if (this._state === 'completed') {
-      return;
+  _handleErrorResponse(
+    responses: $ReadOnlyArray<GraphQLSingularResponse>,
+  ): $ReadOnlyArray<GraphQLResponseWithData> {
+    const results = [];
+    responses.forEach(response => {
+      if (
+        response.data === null &&
+        response.extensions != null &&
+        !response.hasOwnProperty('errors')
+      ) {
+        // Skip extensions-only payloads
+        return;
+      } else if (response.data == null) {
+        // Error if any other payload in the batch is missing data, regardless of whether
+        // it had `errors` or not.
+        const errors =
+          response.hasOwnProperty('errors') && response.errors != null
+            ? response.errors
+            : null;
+        const messages = errors
+          ? errors.map(({message}) => message).join('\n')
+          : '(No errors)';
+        const error = RelayError.create(
+          'RelayNetwork',
+          'No data returned for operation `' +
+            this._operation.request.node.params.name +
+            '`, got error(s):\n' +
+            messages +
+            '\n\nSee the error `source` property for more information.',
+        );
+        (error: $FlowFixMe).source = {
+          errors,
+          operation: this._operation.request.node,
+          variables: this._operation.request.variables,
+        };
+        // In V8, Error objects keep the closure scope chain alive until the
+        // err.stack property is accessed.
+        error.stack;
+        throw error;
+      } else {
+        const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
+        results.push(responseWithData);
+      }
+    });
+    return results;
+  }
+
+  /**
+   * This method return boolean to indicate if the optimistic
+   * response has been handled
+   */
+  _handleOptimisticResponses(
+    responses: $ReadOnlyArray<GraphQLResponseWithData>,
+  ): boolean {
+    if (responses.length > 1) {
+      if (
+        responses.some(
+          responsePart => responsePart.extensions?.isOptimistic === true,
+        )
+      ) {
+        invariant(false, 'Optimistic responses cannot be batched.');
+      }
+      return false;
     }
-    if (response.data == null) {
-      const {errors} = response;
-      const messages = errors
-        ? errors.map(({message}) => message).join('\n')
-        : '(No errors)';
-      const error = RelayError.create(
-        'RelayNetwork',
-        'No data returned for operation `' +
-          this._operation.request.node.params.name +
-          '`, got error(s):\n' +
-          messages +
-          '\n\nSee the error `source` property for more information.',
-      );
-      (error: $FlowFixMe).source = {
-        errors,
-        operation: this._operation.request.node,
-        variables: this._operation.request.variables,
-      };
-      throw error;
-    }
-    // Above check ensures that response.data != null
-    const responseWithData: GraphQLResponseWithData = (response: $FlowFixMe);
+    const response = responses[0];
     const isOptimistic = response.extensions?.isOptimistic === true;
     if (isOptimistic && this._state !== 'started') {
       invariant(
@@ -292,35 +390,80 @@ class Executor {
         'RelayModernQueryExecutor: optimistic payload received after server payload.',
       );
     }
-    const isFinal = response.extensions?.is_final === true;
-    this._state = isFinal ? 'loading_final' : 'loading_incremental';
-    if (isFinal) {
-      this._incrementalPayloadsPending = false;
+    if (isOptimistic) {
+      this._processOptimisticResponse(
+        response,
+        null,
+        this._treatMissingFieldsAsNull,
+      );
+      this._sink.next(response);
+      return true;
+    }
+    return false;
+  }
+
+  _handleNext(response: GraphQLResponse): void {
+    if (this._state === 'completed') {
+      return;
     }
 
-    if (isOptimistic) {
-      this._processOptimisticResponse(responseWithData, null);
-    } else {
-      const {path, label} = response;
-      if (path != null || label != null) {
-        if (typeof label === 'string' && Array.isArray(path)) {
-          this._processIncrementalResponse({
-            path,
-            label,
-            response: responseWithData,
-          });
-        } else {
-          invariant(
-            false,
-            'RelayModernQueryExecutor: invalid incremental payload, expected ' +
-              '`path` and `label` to either both be null/undefined, or ' +
-              '`path` to be an `Array<string | number>` and `label` to be a ' +
-              '`string`.',
-          );
-        }
-      } else {
-        this._processResponse(responseWithData);
+    const responses = Array.isArray(response) ? response : [response];
+    const responsesWithData = this._handleErrorResponse(responses);
+
+    if (responsesWithData.length === 0) {
+      // no results with data, nothing to process
+      // this can occur with extensions-only payloads
+      const isFinal = responses.some(x => x.extensions?.is_final === true);
+      if (isFinal) {
+        this._state = 'loading_final';
+        this._updateActiveState();
+        this._incrementalPayloadsPending = false;
       }
+      this._sink.next(response);
+      return;
+    }
+
+    // Next, handle optimistic responses
+    const isOptimistic = this._handleOptimisticResponses(responsesWithData);
+    if (isOptimistic) {
+      return;
+    }
+
+    const [
+      nonIncrementalResponses,
+      incrementalResponses,
+    ] = partitionGraphQLResponses(responsesWithData);
+
+    // In theory this doesn't preserve the ordering of the batch.
+    // The idea is that a batch is always:
+    //  * at most one non-incremental payload
+    //  * followed by zero or more incremental payloads
+    // The non-incremental payload can appear if the server sends a batch
+    // with the initial payload followed by some early-to-resolve incremental
+    // payloads (although, can that even happen?)
+    if (nonIncrementalResponses.length > 0) {
+      const payloadFollowups = this._processResponses(nonIncrementalResponses);
+      // Please note that we're passing `this._operation` to the publish
+      // queue here, which will later passed to the store (via notify)
+      // to indicate that this is an operation that caused the store to update
+      const updatedOwners = this._publishQueue.run(this._operation);
+      this._updateOperationTracker(updatedOwners);
+      this._processPayloadFollowups(payloadFollowups);
+      if (this._incrementalPayloadsPending && !this._retainDisposable) {
+        this._retainDisposable = this._store.retain(this._operation);
+      }
+    }
+
+    if (incrementalResponses.length > 0) {
+      const payloadFollowups = this._processIncrementalResponses(
+        incrementalResponses,
+      );
+      // For the incremental case, we're only handling follow-up responses
+      // for already initiated operation (and we're not passing it to
+      // the run(...) call)
+      const updatedOwners = this._publishQueue.run();
+      this._updateOperationTracker(updatedOwners);
+      this._processPayloadFollowups(payloadFollowups);
     }
     this._sink.next(response);
   }
@@ -328,6 +471,7 @@ class Executor {
   _processOptimisticResponse(
     response: ?GraphQLResponseWithData,
     updater: ?SelectorStoreUpdater,
+    treatMissingFieldsAsNull: boolean,
   ): void {
     invariant(
       this._optimisticUpdates === null,
@@ -346,7 +490,8 @@ class Executor {
         {
           getDataID: this._getDataID,
           path: [],
-          request: this._operation.request,
+          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          treatMissingFieldsAsNull,
         },
       );
       validateOptimisticResponsePayload(payload);
@@ -360,12 +505,12 @@ class Executor {
       optimisticUpdates.push({
         operation: this._operation,
         payload: {
-          connectionEvents: null,
           errors: null,
           fieldPayloads: null,
           incrementalPlaceholders: null,
           moduleImportPayloads: null,
           source: RelayRecordSource.create(),
+          isFinal: false,
         },
         updater: updater,
       });
@@ -397,11 +542,11 @@ class Executor {
             moduleImportPayload,
           );
         } else {
-          const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+          const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
             operation,
             moduleImportPayload,
           );
-          optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+          optimisticUpdates.push(...moduleImportOptimisticUpdates);
         }
       }
     }
@@ -423,15 +568,17 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
-        request: this._operation.request,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
   }
 
   _processOptimisticModuleImport(
-    operation: NormalizationSplitOperation,
+    normalizationRootNode: NormalizationRootNode,
     moduleImportPayload: ModuleImportPayload,
   ): $ReadOnlyArray<OptimisticUpdate> {
+    const operation = getOperation(normalizationRootNode);
     const optimisticUpdates = [];
     const modulePayload = this._normalizeModuleImport(
       moduleImportPayload,
@@ -457,101 +604,132 @@ class Executor {
         if (operation == null || this._state !== 'started') {
           return;
         }
-        const moduleImportOptimisitcUpdates = this._processOptimisticModuleImport(
+        const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
           operation,
           moduleImportPayload,
         );
-        moduleImportOptimisitcUpdates.forEach(update =>
+        moduleImportOptimisticUpdates.forEach(update =>
           this._publishQueue.applyUpdate(update),
         );
         if (this._optimisticUpdates == null) {
           warning(
             false,
-            'RelayModernQueryExecutor: Unexpected ModuleImport optimisitc ' +
+            'RelayModernQueryExecutor: Unexpected ModuleImport optimistic ' +
               'update in operation %s.' +
               this._operation.request.node.params.name,
           );
         } else {
-          this._optimisticUpdates.push(...moduleImportOptimisitcUpdates);
+          this._optimisticUpdates.push(...moduleImportOptimisticUpdates);
           this._publishQueue.run();
         }
       });
   }
 
-  _processResponse(response: GraphQLResponseWithData): void {
+  _processResponses(responses: $ReadOnlyArray<GraphQLResponseWithData>) {
     if (this._optimisticUpdates !== null) {
       this._optimisticUpdates.forEach(update =>
         this._publishQueue.revertUpdate(update),
       );
       this._optimisticUpdates = null;
     }
-    const payload = normalizeResponse(
-      response,
-      this._operation.root,
-      ROOT_TYPE,
-      {getDataID: this._getDataID, path: [], request: this._operation.request},
-    );
+
     this._incrementalPayloadsPending = false;
     this._incrementalResults.clear();
     this._source.clear();
-    this._publishQueue.commitPayload(this._operation, payload, this._updater);
-    const updatedOwners = this._publishQueue.run(this._operation);
-    this._updateOperationTracker(updatedOwners);
-    this._processPayloadFollowups(payload);
+    return responses.map(payloadPart => {
+      const relayPayload = normalizeResponse(
+        payloadPart,
+        this._operation.root,
+        ROOT_TYPE,
+        {
+          getDataID: this._getDataID,
+          path: [],
+          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        },
+      );
+      this._publishQueue.commitPayload(
+        this._operation,
+        relayPayload,
+        this._updater,
+      );
+      return relayPayload;
+    });
   }
 
   /**
    * Handles any follow-up actions for a Relay payload for @match, @defer,
    * and @stream directives.
    */
-  _processPayloadFollowups(payload: RelayResponsePayload): void {
+  _processPayloadFollowups(
+    payloads: $ReadOnlyArray<RelayResponsePayload>,
+  ): void {
     if (this._state === 'completed') {
       return;
     }
-    const {incrementalPlaceholders, moduleImportPayloads} = payload;
-    if (moduleImportPayloads && moduleImportPayloads.length !== 0) {
-      const operationLoader = this._operationLoader;
-      invariant(
-        operationLoader,
-        'RelayModernEnvironment: Expected an operationLoader to be ' +
-          'configured when using `@match`.',
-      );
-      moduleImportPayloads.forEach(moduleImportPayload => {
-        this._processModuleImportPayload(moduleImportPayload, operationLoader);
-      });
-    }
-    if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
-      this._incrementalPayloadsPending = this._state !== 'loading_final';
-      incrementalPlaceholders.forEach(incrementalPlaceholder => {
-        this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
-      });
-
-      if (this._state === 'loading_final') {
-        // The query has defer/stream selections that are enabled, but the
-        // server indicated that this is a "final" payload: no incremental
-        // payloads will be delivered. Warn that the query was (likely) executed
-        // on the server in non-streaming mode, with incremental delivery
-        // disabled.
-        warning(
-          false,
-          'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
-            'directives but was executed in non-streaming mode. See ' +
-            'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-          this._operation.request.node.params.name,
+    payloads.forEach(payload => {
+      const {incrementalPlaceholders, moduleImportPayloads, isFinal} = payload;
+      this._state = isFinal ? 'loading_final' : 'loading_incremental';
+      this._updateActiveState();
+      if (isFinal) {
+        this._incrementalPayloadsPending = false;
+      }
+      if (moduleImportPayloads && moduleImportPayloads.length !== 0) {
+        const operationLoader = this._operationLoader;
+        invariant(
+          operationLoader,
+          'RelayModernEnvironment: Expected an operationLoader to be ' +
+            'configured when using `@match`.',
         );
-        // But eagerly process any deferred payloads
-        incrementalPlaceholders.forEach(placeholder => {
-          if (placeholder.kind === 'defer') {
-            this._processDeferResponse(
-              placeholder.label,
-              placeholder.path,
-              placeholder,
-              {data: placeholder.data},
-            );
-          }
+        moduleImportPayloads.forEach(moduleImportPayload => {
+          this._processModuleImportPayload(
+            moduleImportPayload,
+            operationLoader,
+          );
         });
       }
-    }
+      if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
+        this._incrementalPayloadsPending = this._state !== 'loading_final';
+        incrementalPlaceholders.forEach(incrementalPlaceholder => {
+          this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
+        });
+
+        if (this._isClientPayload || this._state === 'loading_final') {
+          // The query has defer/stream selections that are enabled, but either
+          // the server indicated that this is a "final" payload: no incremental
+          // payloads will be delivered, then warn that the query was (likely)
+          // executed on the server in non-streaming mode, with incremental
+          // delivery disabled; or this is a client payload, and there will be
+          // no incremental payload.
+          warning(
+            this._isClientPayload,
+            'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            this._operation.request.node.params.name,
+          );
+          // But eagerly process any deferred payloads
+          const relayPayloads = [];
+          incrementalPlaceholders.forEach(placeholder => {
+            if (placeholder.kind === 'defer') {
+              relayPayloads.push(
+                this._processDeferResponse(
+                  placeholder.label,
+                  placeholder.path,
+                  placeholder,
+                  {data: placeholder.data},
+                ),
+              );
+            }
+          });
+          if (relayPayloads.length > 0) {
+            const updatedOwners = this._publishQueue.run();
+            this._updateOperationTracker(updatedOwners);
+            this._processPayloadFollowups(relayPayloads);
+          }
+        }
+      }
+    });
   }
 
   _maybeCompleteSubscriptionOperationTracking() {
@@ -579,16 +757,13 @@ class Executor {
     moduleImportPayload: ModuleImportPayload,
     operationLoader: OperationLoader,
   ): void {
-    const syncOperation = operationLoader.get(
-      moduleImportPayload.operationReference,
-    );
-    if (syncOperation != null) {
+    const node = operationLoader.get(moduleImportPayload.operationReference);
+    if (node != null) {
+      const operation = getOperation(node);
       // If the operation module is available synchronously, normalize the
       // data synchronously.
-      this._schedule(() => {
-        this._handleModuleImportPayload(moduleImportPayload, syncOperation);
-        this._maybeCompleteSubscriptionOperationTracking();
-      });
+      this._handleModuleImportPayload(moduleImportPayload, operation);
+      this._maybeCompleteSubscriptionOperationTracking();
     } else {
       // Otherwise load the operation module and schedule a task to normalize
       // the data when the module is available.
@@ -610,10 +785,13 @@ class Executor {
             .then(resolve, reject);
         }),
       )
-        .map((operation: ?NormalizationSplitOperation) => {
+        .map((operation: ?NormalizationRootNode) => {
           if (operation != null) {
             this._schedule(() => {
-              this._handleModuleImportPayload(moduleImportPayload, operation);
+              this._handleModuleImportPayload(
+                moduleImportPayload,
+                getOperation(operation),
+              );
             });
           }
         })
@@ -633,7 +811,7 @@ class Executor {
 
   _handleModuleImportPayload(
     moduleImportPayload: ModuleImportPayload,
-    operation: NormalizationSplitOperation,
+    operation: NormalizationSplitOperation | NormalizationOperation,
   ): void {
     const relayPayload = this._normalizeModuleImport(
       moduleImportPayload,
@@ -642,7 +820,7 @@ class Executor {
     this._publishQueue.commitPayload(this._operation, relayPayload);
     const updatedOwners = this._publishQueue.run();
     this._updateOperationTracker(updatedOwners);
-    this._processPayloadFollowups(relayPayload);
+    this._processPayloadFollowups([relayPayload]);
   }
 
   /**
@@ -679,15 +857,9 @@ class Executor {
     // modifications to the parent before items arrive and to replay
     // handle field payloads to account for new information on source records.
     let parentID;
-    if (
-      placeholder.kind === 'stream' ||
-      placeholder.kind === 'connection_edge'
-    ) {
+    if (placeholder.kind === 'stream') {
       parentID = placeholder.parentID;
-    } else if (
-      placeholder.kind === 'defer' ||
-      placeholder.kind === 'connection_page_info'
-    ) {
+    } else if (placeholder.kind === 'defer') {
       parentID = placeholder.selector.dataID;
     } else {
       (placeholder: empty);
@@ -749,11 +921,12 @@ class Executor {
     // If there were any queued responses, process them now that placeholders
     // are in place
     if (pendingResponses != null) {
-      pendingResponses.forEach(incrementalResponse => {
-        this._schedule(() => {
-          this._processIncrementalResponse(incrementalResponse);
-        });
-      });
+      const payloadFollowups = this._processIncrementalResponses(
+        pendingResponses,
+      );
+      const updatedOwners = this._publishQueue.run();
+      this._updateOperationTracker(updatedOwners);
+      this._processPayloadFollowups(payloadFollowups);
     }
   }
 
@@ -762,35 +935,30 @@ class Executor {
    * response, normalize/publish it, and process any nested defer/match/stream
    * metadata.
    */
-  _processIncrementalResponse(
-    incrementalResponse: IncrementalGraphQLResponse,
-  ): void {
-    const {label, path, response} = incrementalResponse;
-    let resultForLabel = this._incrementalResults.get(label);
-    if (resultForLabel == null) {
-      resultForLabel = new Map();
-      this._incrementalResults.set(label, resultForLabel);
-    }
-    if (label.indexOf('$defer$') !== -1) {
-      const pathKey = path.map(String).join('.');
-      let resultForPath = resultForLabel.get(pathKey);
-      if (resultForPath == null) {
-        resultForPath = {kind: 'response', responses: [incrementalResponse]};
-        resultForLabel.set(pathKey, resultForPath);
-        return;
-      } else if (resultForPath.kind === 'response') {
-        resultForPath.responses.push(incrementalResponse);
-        return;
+  _processIncrementalResponses(
+    incrementalResponses: $ReadOnlyArray<IncrementalGraphQLResponse>,
+  ): $ReadOnlyArray<RelayResponsePayload> {
+    const relayPayloads = [];
+    incrementalResponses.forEach(incrementalResponse => {
+      const {label, path, response} = incrementalResponse;
+      let resultForLabel = this._incrementalResults.get(label);
+      if (resultForLabel == null) {
+        resultForLabel = new Map();
+        this._incrementalResults.set(label, resultForLabel);
       }
-      const placeholder = resultForPath.placeholder;
-      if (placeholder.kind === 'connection_page_info') {
-        this._processConnectionPageInfoResponse(
-          label,
-          path,
-          placeholder,
-          response,
-        );
-      } else {
+
+      if (label.indexOf('$defer$') !== -1) {
+        const pathKey = path.map(String).join('.');
+        let resultForPath = resultForLabel.get(pathKey);
+        if (resultForPath == null) {
+          resultForPath = {kind: 'response', responses: [incrementalResponse]};
+          resultForLabel.set(pathKey, resultForPath);
+          return;
+        } else if (resultForPath.kind === 'response') {
+          resultForPath.responses.push(incrementalResponse);
+          return;
+        }
+        const placeholder = resultForPath.placeholder;
         invariant(
           placeholder.kind === 'defer',
           'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
@@ -799,30 +967,28 @@ class Executor {
           label,
           placeholder.kind,
         );
-        this._processDeferResponse(label, path, placeholder, response);
-      }
-    } else {
-      // @stream payload path values end in the field name and item index,
-      // but Relay records paths relative to the parent of the stream node:
-      // therefore we strip the last two elements just to lookup the path
-      // (the item index is used later to insert the element in the list)
-      const pathKey = path
-        .slice(0, -2)
-        .map(String)
-        .join('.');
-      let resultForPath = resultForLabel.get(pathKey);
-      if (resultForPath == null) {
-        resultForPath = {kind: 'response', responses: [incrementalResponse]};
-        resultForLabel.set(pathKey, resultForPath);
-        return;
-      } else if (resultForPath.kind === 'response') {
-        resultForPath.responses.push(incrementalResponse);
-        return;
-      }
-      const placeholder = resultForPath.placeholder;
-      if (placeholder.kind === 'connection_edge') {
-        this._processConnectionEdgeResponse(label, path, placeholder, response);
+        relayPayloads.push(
+          this._processDeferResponse(label, path, placeholder, response),
+        );
       } else {
+        // @stream payload path values end in the field name and item index,
+        // but Relay records paths relative to the parent of the stream node:
+        // therefore we strip the last two elements just to lookup the path
+        // (the item index is used later to insert the element in the list)
+        const pathKey = path
+          .slice(0, -2)
+          .map(String)
+          .join('.');
+        let resultForPath = resultForLabel.get(pathKey);
+        if (resultForPath == null) {
+          resultForPath = {kind: 'response', responses: [incrementalResponse]};
+          resultForLabel.set(pathKey, resultForPath);
+          return;
+        } else if (resultForPath.kind === 'response') {
+          resultForPath.responses.push(incrementalResponse);
+          return;
+        }
+        const placeholder = resultForPath.placeholder;
         invariant(
           placeholder.kind === 'stream',
           'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
@@ -831,72 +997,12 @@ class Executor {
           label,
           placeholder.kind,
         );
-        this._processStreamResponse(label, path, placeholder, response);
+        relayPayloads.push(
+          this._processStreamResponse(label, path, placeholder, response),
+        );
       }
-    }
-  }
-
-  _processConnectionPageInfoResponse(
-    label: string,
-    path: $ReadOnlyArray<mixed>,
-    placeholder: ConnectionPageInfoPlaceholder,
-    response: GraphQLResponseWithData,
-  ): void {
-    let relayPayload: RelayResponsePayload = normalizeResponse(
-      response,
-      placeholder.selector,
-      placeholder.typeName,
-      {
-        getDataID: this._getDataID,
-        path: placeholder.path,
-        request: this._operation.request,
-      },
-    );
-    const {
-      END_CURSOR,
-      HAS_NEXT_PAGE,
-      HAS_PREV_PAGE,
-      PAGE_INFO,
-      START_CURSOR,
-    } = RelayConnectionInterface.get();
-    const pageRecord = relayPayload.source.get(placeholder.selector.dataID);
-    const pageInfoID =
-      pageRecord != null
-        ? RelayModernRecord.getLinkedRecordID(pageRecord, PAGE_INFO)
-        : null;
-    const pageInfoRecord =
-      pageInfoID != null ? relayPayload.source.get(pageInfoID) : null;
-    let endCursor;
-    let hasNextPage;
-    let hasPrevPage;
-    let startCursor;
-    if (pageInfoRecord != null) {
-      endCursor = RelayModernRecord.getValue(pageInfoRecord, END_CURSOR);
-      hasNextPage = RelayModernRecord.getValue(pageInfoRecord, HAS_NEXT_PAGE);
-      hasPrevPage = RelayModernRecord.getValue(pageInfoRecord, HAS_PREV_PAGE);
-      startCursor = RelayModernRecord.getValue(pageInfoRecord, START_CURSOR);
-    }
-
-    relayPayload = {
-      ...relayPayload,
-      connectionEvents: (relayPayload.connectionEvents ?? []).concat({
-        kind: 'stream.pageInfo',
-        args: placeholder.args,
-        connectionID: placeholder.connectionID,
-        pageInfo: {
-          endCursor: typeof endCursor === 'string' ? endCursor : null,
-          startCursor: typeof startCursor === 'string' ? startCursor : null,
-          hasNextPage: typeof hasNextPage === 'boolean' ? hasNextPage : null,
-          hasPrevPage: typeof hasPrevPage === 'boolean' ? hasPrevPage : null,
-        },
-        request: this._operation.request,
-      }),
-    };
-    this._publishQueue.commitPayload(this._operation, relayPayload);
-
-    const updatedOwners = this._publishQueue.run();
-    this._updateOperationTracker(updatedOwners);
-    this._processPayloadFollowups(relayPayload);
+    });
+    return relayPayloads;
   }
 
   _processDeferResponse(
@@ -904,7 +1010,7 @@ class Executor {
     path: $ReadOnlyArray<mixed>,
     placeholder: DeferPlaceholder,
     response: GraphQLResponseWithData,
-  ): void {
+  ): RelayResponsePayload {
     const {dataID: parentID} = placeholder.selector;
     const relayPayload = normalizeResponse(
       response,
@@ -913,7 +1019,8 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: placeholder.path,
-        request: this._operation.request,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
@@ -930,54 +1037,19 @@ class Executor {
     const {fieldPayloads} = parentEntry;
     if (fieldPayloads.length !== 0) {
       const handleFieldsRelayPayload = {
-        connectionEvents: null,
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
         moduleImportPayloads: null,
         source: RelayRecordSource.create(),
+        isFinal: response.extensions?.is_final === true,
       };
       this._publishQueue.commitPayload(
         this._operation,
         handleFieldsRelayPayload,
       );
     }
-    const updatedOwners = this._publishQueue.run();
-    this._updateOperationTracker(updatedOwners);
-    this._processPayloadFollowups(relayPayload);
-  }
-
-  _processConnectionEdgeResponse(
-    label: string,
-    path: $ReadOnlyArray<mixed>,
-    placeholder: ConnectionEdgePlaceholder,
-    response: GraphQLResponseWithData,
-  ): void {
-    const {parentID, node, variables} = placeholder;
-    let {relayPayload, itemID, itemIndex} = this._normalizeStreamItem(
-      response,
-      parentID,
-      node,
-      variables,
-      path,
-      placeholder.path,
-    );
-    relayPayload = {
-      ...relayPayload,
-      connectionEvents: (relayPayload.connectionEvents ?? []).concat({
-        kind: 'stream.edge',
-        args: placeholder.args,
-        connectionID: placeholder.connectionID,
-        edgeID: itemID,
-        index: itemIndex,
-        request: this._operation.request,
-      }),
-    };
-
-    this._publishQueue.commitPayload(this._operation, relayPayload);
-    const updatedOwners = this._publishQueue.run();
-    this._updateOperationTracker(updatedOwners);
-    this._processPayloadFollowups(relayPayload);
+    return relayPayload;
   }
 
   /**
@@ -988,7 +1060,7 @@ class Executor {
     path: $ReadOnlyArray<mixed>,
     placeholder: StreamPlaceholder,
     response: GraphQLResponseWithData,
-  ): void {
+  ): RelayResponsePayload {
     const {parentID, node, variables} = placeholder;
     // Find the LinkedField where @stream was applied
     const field = node.selections[0];
@@ -1047,21 +1119,19 @@ class Executor {
     // also update any handle fields that are derived from the parent record.
     if (fieldPayloads.length !== 0) {
       const handleFieldsRelayPayload = {
-        connectionEvents: null,
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
         moduleImportPayloads: null,
         source: RelayRecordSource.create(),
+        isFinal: false,
       };
       this._publishQueue.commitPayload(
         this._operation,
         handleFieldsRelayPayload,
       );
     }
-    const updatedOwners = this._publishQueue.run();
-    this._updateOperationTracker(updatedOwners);
-    this._processPayloadFollowups(relayPayload);
+    return relayPayload;
   }
 
   _normalizeStreamItem(
@@ -1164,7 +1234,8 @@ class Executor {
     const relayPayload = normalizeResponse(response, selector, typeName, {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      request: this._operation.request,
+      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {
       fieldPayloads,
@@ -1198,6 +1269,38 @@ class Executor {
   }
 }
 
+function partitionGraphQLResponses(
+  responses: $ReadOnlyArray<GraphQLResponseWithData>,
+): [
+  $ReadOnlyArray<GraphQLResponseWithData>,
+  $ReadOnlyArray<IncrementalGraphQLResponse>,
+] {
+  const nonIncrementalResponses: Array<GraphQLResponseWithData> = [];
+  const incrementalResponses: Array<IncrementalGraphQLResponse> = [];
+  responses.forEach(response => {
+    if (response.path != null || response.label != null) {
+      const {label, path} = response;
+      if (label == null || path == null) {
+        invariant(
+          false,
+          'RelayModernQueryExecutor: invalid incremental payload, expected ' +
+            '`path` and `label` to either both be null/undefined, or ' +
+            '`path` to be an `Array<string | number>` and `label` to be a ' +
+            '`string`.',
+        );
+      }
+      incrementalResponses.push({
+        label,
+        path,
+        response,
+      });
+    } else {
+      nonIncrementalResponses.push(response);
+    }
+  });
+  return [nonIncrementalResponses, incrementalResponses];
+}
+
 function normalizeResponse(
   response: GraphQLResponseWithData,
   selector: NormalizationSelector,
@@ -1217,6 +1320,7 @@ function normalizeResponse(
   return {
     ...relayPayload,
     errors,
+    isFinal: response.extensions?.is_final === true,
   };
 }
 

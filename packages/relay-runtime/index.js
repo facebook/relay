@@ -12,16 +12,16 @@
 
 'use strict';
 
+const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
+const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const GraphQLTag = require('./query/GraphQLTag');
+const MutationHandlers = require('./handlers/connection/MutationHandlers');
+const PreloadableQueryRegistry = require('./query/PreloadableQueryRegistry');
 const RelayConcreteNode = require('./util/RelayConcreteNode');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');
-const RelayConnectionHandler = require('./handlers/connection/RelayConnectionHandler');
-const RelayConnectionInterface = require('./handlers/connection/RelayConnectionInterface');
-const RelayConnectionResolver = require('./store/RelayConnectionResolver');
 const RelayDeclarativeMutationConfig = require('./mutations/RelayDeclarativeMutationConfig');
 const RelayDefaultHandleKey = require('./util/RelayDefaultHandleKey');
 const RelayDefaultHandlerProvider = require('./handlers/RelayDefaultHandlerProvider');
-const RelayDefaultMissingFieldHandlers = require('./handlers/RelayDefaultMissingFieldHandlers');
 const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayModernEnvironment = require('./store/RelayModernEnvironment');
@@ -49,7 +49,6 @@ const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
-const getFragmentSpecIdentifier = require('./util/getFragmentSpecIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
 const isPromise = require('./util/isPromise');
@@ -57,6 +56,7 @@ const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const readInlineData = require('./store/readInlineData');
 const recycleNodesInto = require('./util/recycleNodesInto');
+const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const requestSubscription = require('./subscription/requestSubscription');
 const stableCopy = require('./util/stableCopy');
 
@@ -66,22 +66,18 @@ const {
   isClientID,
 } = require('./store/ClientID');
 
-export type {
-  ConnectionMetadata,
-} from './handlers/connection/RelayConnectionHandler';
+export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {
   EdgeRecord,
   PageInfo,
-} from './handlers/connection/RelayConnectionInterface';
+} from './handlers/connection/ConnectionInterface';
 export type {
   DeclarativeMutationConfig,
   MutationType,
   RangeBehaviors,
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
-export type {
-  OptimisticMutationConfig,
-} from './mutations/applyOptimisticMutation';
+export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
 export type {
   DEPRECATED_MutationConfig,
   MutationConfig,
@@ -91,10 +87,16 @@ export type {
   ExecuteFunction,
   FetchFunction,
   GraphQLResponse,
-  LogRequestInfoFunction,
+  GraphQLResponseWithData,
+  GraphQLResponseWithoutData,
+  GraphQLSingularResponse,
   INetwork,
+  LogRequestInfoFunction,
   PayloadData,
   PayloadError,
+  ReactFlightPayloadData,
+  ReactFlightPayloadQuery,
+  ReactFlightServerTree,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -106,28 +108,20 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
-export type {
-  ConnectionEvent,
-  ConnectionID,
-  ConnectionReference,
-  ConnectionReferenceObject,
-  ConnectionResolver,
-  ConnectionSnapshot,
-} from './store/RelayConnection';
-export type {ConnectionState} from './store/RelayConnectionResolver';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   FragmentMap,
-  FragmentPointer,
   FragmentReference,
   FragmentSpecResolver,
   HandleFieldPayload,
   IEnvironment,
+  InvalidationState,
   LogEvent,
   LogFunction,
   MissingFieldHandler,
+  MissingRequiredFields,
   ModuleImportPointer,
   NormalizationSelector,
   OperationAvailability,
@@ -140,6 +134,8 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
+  ReactFlightPayloadDeserializer,
+  ReactFlightClientResponse,
   ReaderSelector,
   ReadOnlyRecordProxy,
   RecordProxy,
@@ -153,15 +149,13 @@ export type {
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
-export type {
-  GraphQLSubscriptionConfig,
-} from './subscription/requestSubscription';
+export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
   NormalizationDefer,
-  NormalizationConnection,
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
@@ -170,13 +164,14 @@ export type {
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
+  NormalizationTypeDiscriminator,
 } from './util/NormalizationNode';
 export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
-  ReaderConnection,
   ReaderField,
+  ReaderFlightField,
   ReaderFragment,
   ReaderInlineDataFragment,
   ReaderInlineDataFragmentSpread,
@@ -185,8 +180,10 @@ export type {
   ReaderPaginationMetadata,
   ReaderRefetchableFragment,
   ReaderRefetchMetadata,
+  ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
+  RequiredFieldAction,
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
@@ -198,11 +195,14 @@ export type {
   DataID,
   Disposable,
   FetchPolicy,
+  FetchQueryFetchPolicy,
   OperationType,
   RenderPolicy,
   Variables,
+  VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
+export type {RequestIdentifier} from './util/getRequestIdentifier';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -245,6 +245,7 @@ module.exports = {
     RelayModernOperationDescriptor.createRequestDescriptor,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
+  getNode: GraphQLTag.getNode,
   getFragment: GraphQLTag.getFragment,
   getInlineDataFragment: GraphQLTag.getInlineDataFragment,
   getModuleComponentKey: RelayStoreUtils.getModuleComponentKey,
@@ -264,7 +265,11 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
+  reportMissingRequiredFields,
   graphql: GraphQLTag.graphql,
+  isFragment: GraphQLTag.isFragment,
+  isInlineDataFragment: GraphQLTag.isInlineDataFragment,
+  isRequest: GraphQLTag.isRequest,
   readInlineData,
 
   // Declarative mutation API
@@ -273,9 +278,8 @@ module.exports = {
 
   // Extensions
   DefaultHandlerProvider: RelayDefaultHandlerProvider,
-  DefaultMissingFieldHandlers: RelayDefaultMissingFieldHandlers,
-  ConnectionHandler: RelayConnectionHandler,
-  ConnectionResolver_UNSTABLE: RelayConnectionResolver,
+  ConnectionHandler,
+  MutationHandlers,
   VIEWER_ID: ViewerPattern.VIEWER_ID,
   VIEWER_TYPE: ViewerPattern.VIEWER_TYPE,
 
@@ -288,9 +292,10 @@ module.exports = {
   requestSubscription,
 
   // Configuration interface for legacy or special uses
-  ConnectionInterface: RelayConnectionInterface,
+  ConnectionInterface,
 
   // Utilities
+  PreloadableQueryRegistry,
   RelayProfiler: RelayProfiler,
   createPayloadFor3DField: createPayloadFor3DField,
 
@@ -318,17 +323,14 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
   getFragmentIdentifier: getFragmentIdentifier,
-  getFragmentSpecIdentifier: getFragmentSpecIdentifier,
   __internal: {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
-    getModernOperationVariables: RelayConcreteVariables.getOperationVariables,
+    getOperationVariables: RelayConcreteVariables.getOperationVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,
     fetchQueryDeduped: fetchQueryInternal.fetchQueryDeduped,
-    getPromiseForRequestInFlight:
-      fetchQueryInternal.getPromiseForRequestInFlight,
-    getObservableForRequestInFlight:
-      fetchQueryInternal.getObservableForRequestInFlight,
-    hasRequestInFlight: fetchQueryInternal.hasRequestInFlight,
+    getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
+    getObservableForActiveRequest:
+      fetchQueryInternal.getObservableForActiveRequest,
   },
 };

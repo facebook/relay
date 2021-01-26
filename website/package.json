@@ -3,7 +3,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "update-spec": "spec-md spec/Mutations.md > static/graphql/mutations.htm && spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
+    "update-spec": "spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
     "start": "docusaurus-start",
     "build": "docusaurus-build",
     "examples": "docusaurus-examples",
@@ -15,10 +15,12 @@
     "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master"
   },
   "dependencies": {
-    "docusaurus": "1.14.0",
+    "docusaurus": "1.14.6",
+    "react": "^16",
+    "react-syntax-highlighter": "15.3.1",
     "spec-md": "^1.1.1"
   },
   "resolutions": {
-    "underscore.string": "^3.3.5"
+    "highlight.js": "^10.4.1"
   }
 }

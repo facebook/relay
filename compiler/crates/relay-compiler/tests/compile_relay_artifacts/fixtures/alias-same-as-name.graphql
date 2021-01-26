@@ -1,0 +1,7 @@
+query aliasSameAsName_TestQuery {
+  viewer: viewer {
+    actor: actor {
+      name: name
+    }
+  }
+}

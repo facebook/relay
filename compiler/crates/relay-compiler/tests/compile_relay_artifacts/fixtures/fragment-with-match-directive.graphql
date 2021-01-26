@@ -1,0 +1,22 @@
+fragment fragmentWithMatchDirective_NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...fragmentWithMatchDirective_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...fragmentWithMatchDirective_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment fragmentWithMatchDirective_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

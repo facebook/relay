@@ -15,6 +15,8 @@
 
 const invariant = require('invariant');
 
+export type {StrictMap};
+
 class StrictMap<K, V> {
   _map: Map<K, V>;
 
@@ -69,7 +71,7 @@ class StrictMap<K, V> {
       'StrictMap: trying to read non-existent key `%s`.',
       String(key),
     );
-    // $FlowFixMe - we checked the key exists
+    // $FlowFixMe[incompatible-return] - we checked the key exists
     return this._map.get(key);
   }
 

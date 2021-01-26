@@ -20,6 +20,7 @@ const validateMutation = require('./validateMutation');
 const warning = require('warning');
 
 const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
@@ -30,16 +31,22 @@ import type {
   IEnvironment,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  Disposable,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
 export type DEPRECATED_MutationConfig<T> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   uploadables?: UploadableMap,
   onCompleted?: ?(response: T, errors: ?Array<PayloadError>) => void,
   onError?: ?(error: Error) => void,
+  onUnsubscribe?: ?() => void,
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: Object,
   updater?: ?SelectorStoreUpdater,
@@ -53,12 +60,14 @@ export type MutationParameters = {|
 
 export type MutationConfig<T: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
   mutation: GraphQLTaggedNode,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
     response: $ElementType<T, 'response'>,
     errors: ?Array<PayloadError>,
   ) => void,
+  onUnsubscribe?: ?() => void,
   optimisticResponse?: $ElementType<
     {
       +rawResponse?: {...},
@@ -94,8 +103,20 @@ function commitMutation<T: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {configs, onError, variables, uploadables} = config;
-  const operation = createOperationDescriptor(mutation, variables);
+  const {
+    configs,
+    cacheConfig,
+    onError,
+    onUnsubscribe,
+    variables,
+    uploadables,
+  } = config;
+  const operation = createOperationDescriptor(
+    mutation,
+    variables,
+    cacheConfig,
+    generateUniqueClientID(),
+  );
   // TODO: remove this check after we fix flow.
   if (typeof optimisticResponse === 'function') {
     optimisticResponse = optimisticResponse();
@@ -107,7 +128,7 @@ function commitMutation<T: MutationParameters>(
   }
   if (__DEV__) {
     if (optimisticResponse instanceof Object) {
-      validateMutation(optimisticResponse, mutation, config.variables);
+      validateMutation(optimisticResponse, mutation, variables);
     }
   }
   if (configs) {
@@ -129,8 +150,16 @@ function commitMutation<T: MutationParameters>(
     })
     .subscribe({
       next: payload => {
-        if (payload.errors) {
-          errors.push(...payload.errors);
+        if (Array.isArray(payload)) {
+          payload.forEach(item => {
+            if (item.errors) {
+              errors.push(...item.errors);
+            }
+          });
+        } else {
+          if (payload.errors) {
+            errors.push(...payload.errors);
+          }
         }
       },
       complete: () => {
@@ -144,6 +173,7 @@ function commitMutation<T: MutationParameters>(
         }
       },
       error: onError,
+      unsubscribe: onUnsubscribe,
     });
   return {dispose: subscription.unsubscribe};
 }

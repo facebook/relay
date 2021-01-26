@@ -12,7 +12,6 @@
 
 'use strict';
 
-import type {Fragment, Request, Root, SplitOperation} from './IR';
 import type {GeneratedNode} from 'relay-runtime';
 
 /**
@@ -32,17 +31,6 @@ function getReaderSourceDefinitionName(node: GeneratedNode): string {
   return typeof derivedFrom === 'string' ? derivedFrom : name;
 }
 
-// Version for IR
-function getSourceDefinitionName(
-  node: Fragment | Request | Root | SplitOperation,
-): string {
-  const derivedFrom =
-    node.kind === 'Request' ||
-    node.kind === 'Root' ||
-    node.kind === 'SplitOperation'
-      ? node.metadata?.derivedFrom
-      : null;
-  return typeof derivedFrom === 'string' ? derivedFrom : node.name;
-}
-
-module.exports = {getReaderSourceDefinitionName, getSourceDefinitionName};
+module.exports = {
+  getReaderSourceDefinitionName,
+};

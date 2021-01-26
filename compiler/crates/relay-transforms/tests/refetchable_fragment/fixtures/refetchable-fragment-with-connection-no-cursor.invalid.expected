@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(count: {type: "Int", defaultValue: 10}) {
+  id
+  ... on User {
+    name
+    friends(after: "<cursor>", first: $count)
+      @connection(key: "PaginationFragment_friends") {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @refetchable with @connection in fragment 'PaginationFragment', refetchable connections must use variables for the after and first arguments.
+
+  refetchable-fragment-with-connection-no-cursor.invalid.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ fragment PaginationFragment on Node
+      │          ^^^^^^^^^^^^^^^^^^
+    3 │   @refetchable(queryName: "RefetchableFragmentQuery")

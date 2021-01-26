@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+query MyQuery @relay_early_flush {
+  node(id: "foo") {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+query MyQuery {
+  relay_early_flush(query_name: "MyQuery")
+  node(id: "foo") {
+    id
+  }
+}

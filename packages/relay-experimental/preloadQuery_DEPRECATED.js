@@ -13,8 +13,6 @@
 
 'use strict';
 
-const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
-
 const invariant = require('invariant');
 
 const {
@@ -23,14 +21,17 @@ const {
   getRequest,
   getRequestIdentifier,
   Observable,
+  PreloadableQueryRegistry,
   ReplaySubject,
 } = require('relay-runtime');
 
 import type {
   PreloadableConcreteRequest,
-  PreloadedQuery,
+  PreloadedQueryInner_DEPRECATED,
   PreloadFetchPolicy,
   PreloadOptions,
+  PreloadQueryStatus,
+  VariablesOf,
 } from './EntryPointTypes.flow';
 import type {
   ConcreteRequest,
@@ -57,7 +58,9 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'network',
+      id: ?string,
       name: string,
+      status: PreloadQueryStatus,
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
     |}>
@@ -66,16 +69,18 @@ type PendingQueryEntry =
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
       kind: 'cache',
+      id: ?string,
       name: string,
+      status: PreloadQueryStatus,
     |}>;
 
 function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
-): PreloadedQuery<TQuery, TEnvironmentProviderOptions> {
+): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
   invariant(
     environment instanceof Environment,
     'preloadQuery(): Expected a RelayModernEnvironment',
@@ -104,13 +109,17 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         })
       : null;
   return {
+    kind: 'PreloadedQuery_DEPRECATED',
     environment,
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
     fetchPolicy: queryEntry.fetchPolicy,
+    networkCacheConfig: options?.networkCacheConfig,
+    id: queryEntry.id,
     name: queryEntry.name,
     source,
     variables,
+    status: queryEntry.status,
   };
 }
 
@@ -118,15 +127,15 @@ function preloadQueryDeduped<TQuery: OperationType>(
   environment: Environment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: VariablesOf<TQuery>,
   options: ?PreloadOptions,
 ): PendingQueryEntry {
   let params;
   let query: ?ConcreteRequest;
-  if (preloadableRequest.queryResource != null) {
+  if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
-    query = preloadableConcreteRequest.queryResource.getModuleIfRequired();
+    query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {
     query = getRequest((preloadableRequest: $FlowFixMe));
     params = query.params;
@@ -134,21 +143,24 @@ function preloadQueryDeduped<TQuery: OperationType>(
   const network = environment.getNetwork();
   const fetchPolicy = options?.fetchPolicy ?? STORE_OR_NETWORK_DEFAULT;
   const fetchKey = options?.fetchKey;
-  const networkCacheConfig = options?.networkCacheConfig ?? {force: true};
+  const networkCacheConfig = {
+    force: true,
+    ...options?.networkCacheConfig,
+  };
   const cacheKey = `${getRequestIdentifier(params, variables)}${
     fetchKey != null ? `-${fetchKey}` : ''
   }`;
   const prevQueryEntry = pendingQueries.get(cacheKey);
 
-  const shouldFulfillFromCache =
-    fetchPolicy === STORE_OR_NETWORK_DEFAULT &&
-    query != null &&
-    (prevQueryEntry?.kind === 'cache' ||
-      environment.check(createOperationDescriptor(query, variables)) ===
-        'available');
+  const availability =
+    fetchPolicy === STORE_OR_NETWORK_DEFAULT && query != null && query != null
+      ? environment.check(
+          createOperationDescriptor(query, variables, networkCacheConfig),
+        )
+      : {status: 'missing'};
 
-  let nextQueryEntry;
-  if (shouldFulfillFromCache) {
+  let nextQueryEntry: ?PendingQueryEntry;
+  if (availability.status === 'available' && query != null) {
     nextQueryEntry =
       prevQueryEntry && prevQueryEntry.kind === 'cache'
         ? prevQueryEntry
@@ -157,9 +169,15 @@ function preloadQueryDeduped<TQuery: OperationType>(
             fetchKey,
             fetchPolicy,
             kind: 'cache',
+            id: params.id,
             name: params.name,
+            status: {
+              cacheConfig: networkCacheConfig,
+              source: 'cache',
+              fetchTime: availability?.fetchTime ?? null,
+            },
           };
-    if (ExecutionEnvironment.canUseDOM && prevQueryEntry == null) {
+    if (!environment.isServer() && prevQueryEntry == null) {
       setTimeout(() => {
         // Clear the cache entry after the default timeout
         // null-check for Flow
@@ -170,28 +188,24 @@ function preloadQueryDeduped<TQuery: OperationType>(
     }
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
-    const [logObserver, logRequestInfo] = environment.__createLogObserver(
-      params,
-      variables,
-    );
-    const source = network.execute(
-      params,
-      variables,
-      networkCacheConfig,
-      null,
-      logRequestInfo,
-    );
+    const source = network.execute(params, variables, networkCacheConfig, null);
     const subject = new ReplaySubject();
     nextQueryEntry = {
       cacheKey,
       fetchKey,
       fetchPolicy,
       kind: 'network',
+      id: params.id,
       name: params.name,
+      status: {
+        cacheConfig: networkCacheConfig,
+        source: 'network',
+        fetchTime: null,
+      },
       subject,
       subscription: source
         .finally(() => {
-          if (!ExecutionEnvironment.canUseDOM) {
+          if (environment.isServer()) {
             return;
           }
           setTimeout(() => {
@@ -202,7 +216,6 @@ function preloadQueryDeduped<TQuery: OperationType>(
             }
           }, DEFAULT_PREFETCH_TIMEOUT);
         })
-        .do(logObserver)
         .subscribe({
           complete: () => {
             subject.complete();

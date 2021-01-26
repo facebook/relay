@@ -26,6 +26,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {graphql} = require('relay-runtime');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('Mutations on viewer', () => {
@@ -39,20 +40,22 @@ describe('Mutations on viewer', () => {
   let store;
 
   beforeEach(() => {
-    ({SetLocation: mutation} = generateAndCompile(`
-        mutation SetLocation($input: LocationInput!) {
-          setLocation(input: $input) {
-            viewer {
-              marketplace_settings {
-                location {
-                  latitude
-                  longitude
-                }
+    mutation = graphql`
+      mutation RelayModernEnvironmentViewerTest_SetLocationMutation(
+        $input: LocationInput!
+      ) {
+        setLocation(input: $input) {
+          viewer {
+            marketplace_settings {
+              location {
+                latitude
+                longitude
               }
             }
           }
         }
-      `));
+      }
+    `;
     variables = {
       input: {
         longitude: 30.0,
@@ -132,66 +135,5 @@ describe('Mutations on viewer', () => {
       },
     });
     expect(callback).toBeCalledTimes(0); // no changes to selector result
-  });
-
-  it('stores data onto viewer field when no viewer field exists in the store, and it can be queried, ', () => {
-    const {LocationQuery} = generateAndCompile(`
-      query LocationQuery {
-        viewer {
-          marketplace_settings {
-            location {
-              latitude
-              longitude
-            }
-          }
-        }
-      }`);
-
-    const operationDescriptor = createOperationDescriptor(LocationQuery, {});
-    const selector = createReaderSelector(
-      LocationQuery.fragment,
-      ROOT_ID,
-      {},
-      operationDescriptor.request,
-    );
-    const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
-
-    commitMutation(environment, {
-      mutation,
-      variables,
-      onCompleted,
-      onError,
-    });
-    dataSource.next({
-      data: {
-        setLocation: {
-          viewer: {
-            marketplace_settings: {
-              location: {
-                latitude: 30.0,
-                longitude: 30.0,
-              },
-            },
-          },
-        },
-      },
-    });
-    environment.check(operationDescriptor); // fill in missing viewer
-    expect(callback).toBeCalledTimes(2);
-    expect(callback.mock.calls[0][0].data).toEqual({
-      viewer: undefined,
-    });
-    expect(callback.mock.calls[1][0].data).toEqual({
-      viewer: {
-        marketplace_settings: {
-          location: {
-            latitude: 30,
-            longitude: 30,
-          },
-        },
-      },
-    });
   });
 });

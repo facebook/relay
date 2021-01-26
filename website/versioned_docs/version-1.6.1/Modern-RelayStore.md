@@ -460,7 +460,7 @@ import {ConnectionHandler} from 'relay-runtime';
 
 // The `friends` connection record can be accessed with:
 const user = store.get(userID);
-const friends = RelayConnectionHandler.getConnection(
+const friends = ConnectionHandler.getConnection(
  user,                        // parent record
  'FriendsFragment_friends'    // connection key
  {orderby: 'firstname'}       // 'filters' that is used to identify the connection
@@ -487,14 +487,14 @@ Given a connection, inserts the edge at the end of the connection, or after the 
 
 ```
 const user = store.get(userID);
-const friends = RelayConnectionHandler.getConnection(user, 'friends');
-const edge = RelayConnectionHandler.createEdge(store, friends, user, 'UserEdge');
+const friends = ConnectionHandler.getConnection(user, 'friends');
+const edge = ConnectionHandler.createEdge(store, friends, user, 'UserEdge');
 
 // No cursor provided, append the edge at the end.
-RelayConnectionHandler.insertEdgeAfter(friends, edge);
+ConnectionHandler.insertEdgeAfter(friends, edge);
 
 // No cursor provided, Insert the edge at the front:
-RelayConnectionHandler.insertEdgeBefore(friends, edge);
+ConnectionHandler.insertEdgeBefore(friends, edge);
 ```
 
 ### `deleteNode(connection: RecordProxy, nodeID: string): void`
@@ -505,6 +505,6 @@ Given a connection, deletes any edges whose id matches the given id.
 
 ```
 const user = store.get(userID);
-const friends = RelayConnectionHandler.getConnection(user, 'friends');
-RelayConnectionHandler.deleteNode(friends, idToDelete);
+const friends = ConnectionHandler.getConnection(user, 'friends');
+ConnectionHandler.deleteNode(friends, idToDelete);
 ```

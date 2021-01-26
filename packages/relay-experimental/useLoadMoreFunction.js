@@ -13,23 +13,19 @@
 
 'use strict';
 
-// flowlint untyped-import:off
-const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
-
 const getPaginationVariables = require('./getPaginationVariables');
 const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
+const useIsOperationNodeActive = require('./useIsOperationNodeActive');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
 
 const {useCallback, useEffect, useState} = require('react');
 const {
   ConnectionInterface,
-  __internal: {fetchQuery, hasRequestInFlight},
+  __internal: {fetchQuery},
   createOperationDescriptor,
   getSelector,
 } = require('relay-runtime');
@@ -39,17 +35,19 @@ import type {
   Disposable,
   GraphQLResponse,
   Observer,
+  OperationType,
   ReaderFragment,
   ReaderPaginationMetadata,
-  RequestDescriptor,
+  VariablesOf,
 } from 'relay-runtime';
 
 export type Direction = 'forward' | 'backward';
 
-export type LoadMoreFn = (
+export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {|
     onComplete?: (Error | null) => void,
+    UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
   |},
 ) => Disposable;
 
@@ -60,7 +58,7 @@ export type UseLoadMoreFunctionArgs = {|
   fragmentIdentifier: string,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -68,9 +66,9 @@ export type UseLoadMoreFunctionArgs = {|
   onReset: () => void,
 |};
 
-function useLoadMoreFunction(
+function useLoadMoreFunction<TQuery: OperationType>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn, boolean, () => void] {
+): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {
     direction,
     fragmentNode,
@@ -78,12 +76,12 @@ function useLoadMoreFunction(
     fragmentIdentifier,
     fragmentData,
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
     paginationRequest,
     paginationMetadata,
     componentDisplayName,
     observer,
     onReset,
+    identifierField,
   } = args;
   const environment = useRelayEnvironment();
   const {
@@ -92,12 +90,21 @@ function useLoadMoreFunction(
     disposeFetch,
     completeFetch,
   } = useFetchTrackingRef();
-  // $FlowFixMe
-  const dataID = fragmentData?.id;
+  const identifierValue =
+    identifierField != null &&
+    fragmentData != null &&
+    typeof fragmentData === 'object'
+      ? fragmentData[identifierField]
+      : null;
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
   const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] = useState(
     fragmentIdentifier,
+  );
+
+  const isParentQueryActive = useIsOperationNodeActive(
+    fragmentNode,
+    fragmentRef,
   );
 
   const shouldReset =
@@ -127,7 +134,6 @@ function useLoadMoreFunction(
   const loadMore = useCallback(
     (count, options) => {
       // TODO(T41131846): Fetch/Caching policies for loadMore
-      // TODO(T41140071): Handle loadMore while refetch is in flight and vice-versa
 
       const onComplete = options?.onComplete;
       if (isMountedRef.current !== true) {
@@ -147,14 +153,10 @@ function useLoadMoreFunction(
       }
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-      const isParentQueryInFlight =
-        fragmentSelector != null &&
-        fragmentSelector.kind !== 'PluralReaderSelector' &&
-        hasRequestInFlight(environment, fragmentSelector.owner);
       if (
         isFetchingRef.current === true ||
         fragmentData == null ||
-        isParentQueryInFlight
+        isParentQueryActive
       ) {
         if (fragmentSelector == null) {
           warning(
@@ -170,9 +172,7 @@ function useLoadMoreFunction(
         }
 
         if (onComplete) {
-          // We make sure to always call onComplete asynchronously to prevent
-          // accidental loops in product code.
-          Scheduler.unstable_next(() => onComplete(null));
+          onComplete(null);
         }
         return {dispose: () => {}};
       }
@@ -189,11 +189,9 @@ function useLoadMoreFunction(
 
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
+      const extraVariables = options?.UNSTABLE_extraVariables;
       const baseVariables = {
         ...parentVariables,
-        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-         * Flow v0.111.0 was deployed. To see the error, delete this comment
-         * and run Flow. */
         ...fragmentVariables,
       };
       const paginationVariables = getPaginationVariables(
@@ -201,33 +199,34 @@ function useLoadMoreFunction(
         count,
         cursor,
         baseVariables,
+        {...extraVariables},
         paginationMetadata,
       );
 
-      // TODO (T40777961): Tweak output of @refetchable transform to more
-      // easily tell if we need an $id in the refetch vars
-      if (fragmentRefPathInResponse.includes('node')) {
+      // If the query needs an identifier value ('id' or similar) and one
+      // was not explicitly provided, read it from the fragment data.
+      if (identifierField != null) {
         // @refetchable fragments are guaranteed to have an `id` selection
-        // if the type is Node or implements Node. Double-check that there
-        // actually is a value at runtime.
-        if (typeof dataID !== 'string') {
+        // if the type is Node, implements Node, or is @fetchable. Double-check
+        // that there actually is a value at runtime.
+        if (typeof identifierValue !== 'string') {
           warning(
             false,
             'Relay: Expected result to have a string  ' +
-              '`id` in order to refetch/paginate, got `%s`.',
-            dataID,
+              '`%s` in order to refetch, got `%s`.',
+            identifierField,
+            identifierValue,
           );
         }
-        paginationVariables.id = dataID;
+        paginationVariables.id = identifierValue;
       }
 
       const paginationQuery = createOperationDescriptor(
         paginationRequest,
         paginationVariables,
+        {force: true},
       );
-      fetchQuery(environment, paginationQuery, {
-        networkCacheConfig: {force: true},
-      }).subscribe({
+      fetchQuery(environment, paginationQuery).subscribe({
         ...observer,
         start: subscription => {
           startFetch(subscription);
@@ -251,13 +250,14 @@ function useLoadMoreFunction(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       environment,
-      dataID,
+      identifierValue,
       direction,
       cursor,
       startFetch,
       disposeFetch,
       completeFetch,
       isFetchingRef,
+      isParentQueryActive,
       fragmentData,
       fragmentNode.name,
       fragmentRef,

@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`\`development\` option does not test the hash when \`development\` is not set 1`] = `
+"import _TestFrag from './__generated__/TestFrag.graphql';
+_TestFrag;
+"
+`;
+
+exports[`\`development\` option tests the hash when \`development\` is set 1`] = `
+"import _TestFrag from './__generated__/TestFrag.graphql';
+_TestFrag.hash &&
+  _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+  console.error(
+    \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+  ),
+  _TestFrag;
+"
+`;
+
+exports[`\`development\` option tests the hash when \`isDevVariable\` is set 1`] = `
+"import _TestFrag from './__generated__/TestFrag.graphql';
+IS_DEV
+  ? (_TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag)
+  : _TestFrag;
+"
+`;
+
+exports[`\`development\` option uses a custom build command in message 1`] = `
+"import _TestFrag from './__generated__/TestFrag.graphql';
+_TestFrag.hash &&
+  _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+  console.error(
+    \\"The definition of 'TestFrag' appears to have changed. Run \`relay-build\` to update the generated files to receive the expected data.\\",
+  ),
+  _TestFrag;
+"
+`;

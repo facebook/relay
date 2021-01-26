@@ -1,0 +1,55 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery($id: ID!) {
+  node(id: $id) {
+    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+  }
+}
+
+query connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery(
+  $id: ID!
+  $count: Int!
+  $cursor: ID!
+) {
+  node(id: $id) {
+    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+      @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Feedback
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 2}
+    cursor: {type: "ID"}
+  ) {
+  id
+  comments(after: $cursor, first: $count, orderby: "date")
+    @connection(
+      key: "FeedbackFragment_comments"
+      dynamicKey_UNSTABLE: $commentsKey
+      filters: ["orderby"]
+    ) {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery' references undefined variable: '$commentsKey'.
+
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
+   27 │       key: "FeedbackFragment_comments"
+   28 │       dynamicKey_UNSTABLE: $commentsKey
+      │                            ^^^^^^^^^^^^
+   29 │       filters: ["orderby"]
+
+
+✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery' references undefined variable: '$commentsKey'.
+
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
+   27 │       key: "FeedbackFragment_comments"
+   28 │       dynamicKey_UNSTABLE: $commentsKey
+      │                            ^^^^^^^^^^^^
+   29 │       filters: ["orderby"]

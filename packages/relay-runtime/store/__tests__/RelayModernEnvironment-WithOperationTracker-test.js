@@ -27,13 +27,18 @@ const {
 } = require('relay-test-utils');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let tracker;
   let environment;
   let QueryOperation1;
   let QueryOperation2;
   let MutationOperation;
-  let operationLoader;
+  let operationLoader: {|
+    +get: (reference: mixed) => ?NormalizationRootNode,
+    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+  |};
 
   beforeEach(() => {
     const {Query1, Query2, Mutation1} = generateAndCompile(`
@@ -401,7 +406,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
               ...MarkdownUserNameRenderer_name
                 @module(name: "MarkdownUserNameRenderer.react")
             }
-            plainNameRenderer: nameRenderer @match {
+            plainNameRenderer: nameRenderer @match(key: "FeedbackFragment_plainNameRenderer") {
               ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
             }
           }
@@ -478,9 +483,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
               },
               plainNameRenderer: {
                 __typename: 'PlainUserNameRenderer',
-                __module_component_FeedbackFragment:
+                __module_component_FeedbackFragment_plainNameRenderer:
                   '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                __module_operation_FeedbackFragment:
+                __module_operation_FeedbackFragment_plainNameRenderer:
                   '<mock-value-for-field-"__module_operation_FeedbackFragment">',
               },
               id: '<User-mock-id-1>',
@@ -532,9 +537,9 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
                 },
                 plainNameRenderer: {
                   __typename: 'PlainUserNameRenderer',
-                  __module_component_FeedbackFragment:
+                  __module_component_FeedbackFragment_plainNameRenderer:
                     '<mock-value-for-field-"__module_component_FeedbackFragment">',
-                  __module_operation_FeedbackFragment:
+                  __module_operation_FeedbackFragment_plainNameRenderer:
                     '<mock-value-for-field-"__module_operation_FeedbackFragment">',
                 },
                 id: '<User-mock-id-1>',

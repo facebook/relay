@@ -15,10 +15,11 @@
 
 const {useEffect, useRef} = require('react');
 
-function useIsMountedRef(): {current: ?boolean, ...} {
+function useIsMountedRef(): {|current: boolean|} {
   const isMountedRef = useRef(true);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
     };

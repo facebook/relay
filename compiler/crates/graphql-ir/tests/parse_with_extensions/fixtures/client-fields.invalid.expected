@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeWithInvalidClientTypeSpread($id: ID!) {
+  node(id: $id) {
+    ... on Node {
+      ...FooFragment
+    }
+  }
+}
+
+fragment FooFragment on Foo {
+  id
+}
+
+# %extensions%
+
+type Foo {
+  id: ID!
+}
+==================================== ERROR ====================================
+✖︎ Invalid fragment spread 'FooFragment', the type of this fragment ('Foo') can never occur for parent type 'Node'
+
+  client-fields.invalid.graphql:5:7
+    4 │     ... on Node {
+    5 │       ...FooFragment
+      │       ^^^^^^^^^^^^^^
+    6 │     }

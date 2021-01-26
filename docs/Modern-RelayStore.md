@@ -22,6 +22,7 @@ interface RecordSourceSelectorProxy {
   getRoot(): RecordProxy;
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
+  invalidateStore(): void;
 }
 ```
 
@@ -107,6 +108,21 @@ Usage:
 const nodes = store.getPluralRootField('nodes');
 ```
 
+### `invalidateStore(): void`
+
+Globally invalidates the Relay store. This will cause any data that was written to the store before invalidation occurred to be considered stale, and will be considered to require refetch the next time a query is checked with `environment.check()`.
+
+#### Example
+
+```javascript
+store.invalidateStore();
+```
+
+After global invalidation, any query that is checked before refetching it will be considered stale:
+```javascript
+environment.check(query) === 'stale'
+```
+
 ## RecordProxy
 
 The `RecordProxy` serves as an interface to mutate records:
@@ -135,12 +151,13 @@ interface RecordProxy {
     arguments?: ?Object,
   ): RecordProxy;
   setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy;
+  invalidateRecord(): void;
 }
 ```
 
 ### `getDataID(): string`
 
-Returns the dataID of the current record.
+Returns the `dataID` of the current record.
 
 #### Example
 ```javascript
@@ -270,12 +287,12 @@ rootField {
 Usage:
 ```javascript
 const rootField = store.getRootField('rootField');
-const viewer = rootField.getLinkedRecord('viewer', {count: 10});
+const nodes = rootField.getLinkedRecords('nodes', {count: 10});
 ```
 
 ### `getOrCreateLinkedRecord(name: string, typeName: string, arguments?: ?Object)`
 
-Retrieves the a record associated with the current record given the field name, as defined by the GraphQL document. If the linked record does not exist, it will be created given the type name. Returns a `RecordProxy`.
+Retrieves a record associated with the current record given the field name, as defined by the GraphQL document. If the linked record does not exist, it will be created given the type name. Returns a `RecordProxy`.
 
 #### Example
 
@@ -332,7 +349,7 @@ record.copyFieldsFrom(otherRecord); // Mutates `record`
 
 ### `setLinkedRecord(record: RecordProxy, name: string, arguments?: ?Object)`
 
-Mutates the current record by setting a new linked record on the given the field name.
+Mutates the current record by setting a new linked record on the given field name.
 
 #### Example
 
@@ -348,15 +365,15 @@ rootField {
 Usage:
 ```javascript
 const rootField = store.getRootField('rootField');
-const newViewer = store.create(/* ... */)''
-rootField.setLinkedRecord(newViewer, 'viewer'); //
+const newViewer = store.create(/* ... */);
+rootField.setLinkedRecord(newViewer, 'viewer');
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
 
 ### `setLinkedRecords(records: Array<RecordProxy>, name: string, variables?: ?Object)`
 
-Mutates the current record by setting a new set of linked records on the given the field name.
+Mutates the current record by setting a new set of linked records on the given field name.
 
 #### Example
 
@@ -374,10 +391,27 @@ Usage:
 const rootField = store.getRootField('rootField');
 const newNode = store.create(/* ... */);
 const newNodes = [...rootField.getLinkedRecords('nodes'), newNode];
-rootField.setLinkedRecords(newNodes, 'nodes'); //
+rootField.setLinkedRecords(newNodes, 'nodes');
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
+
+
+### `invalidateRecord(): void`
+
+Invalidates the record. This will cause any query that references this record to be considered stale until the next time it is refetched, and will be considered to require a refetch the next time such a query is checked with `environment.check()`.
+
+#### Example
+
+```javascript
+const record = store.get('4');
+record.invalidateRecord();
+```
+
+After invalidating a record, any query that references the invalidated record and that is checked before refetching it will be considered stale:
+```javascript
+environment.check(query) === 'stale'
+```
 
 ## ConnectionHandler
 
@@ -428,14 +462,14 @@ fragment FriendsFragment on User {
 }
 ```
 
-Accessing a plain connection field like this is the same as other regular field:
+Accessing a plain connection field like this is the same as other regular fields:
 ```javascript
 // The `friends` connection record can be accessed with:
 const user = store.get(userID);
-const friends = user && user.getLinkedRecord(user, 'friends');
+const friends = user && user.getLinkedRecord('friends');
 
 // Access fields on the connection:
-const edges = friends.getLinkedRecords('edges');
+const edges = friends && friends.getLinkedRecords('edges');
 ```
 
 In a [pagination container](./pagination-container.html), we usually annotate the actual connection field with `@connection` to tell Relay which part needs to be paginated:
@@ -461,7 +495,7 @@ import {ConnectionHandler} from 'relay-runtime';
 const user = store.get(userID);
 const friends = ConnectionHandler.getConnection(
  user,                        // parent record
- 'FriendsFragment_friends'    // connection key
+ 'FriendsFragment_friends',   // connection key
  {orderby: 'firstname'}       // 'filters' that is used to identify the connection
 );
 // Access fields on the connection:
@@ -472,7 +506,7 @@ const edges = friends.getLinkedRecords('edges');
 
 #### `createEdge(store: RecordSourceProxy, connection: RecordProxy, node: RecordProxy, edgeType: string)`
 
-Creates an edge given a [`store`](#recordsourceselectorproxy), a connection, the edge type, and a record that holds that connection.
+Creates an edge given a [`store`](#recordsourceselectorproxy), a connection, the edge node, and the edge type.
 
 #### `insertEdgeBefore(connection: RecordProxy, newEdge: RecordProxy, cursor?: ?string)`
 
@@ -486,24 +520,25 @@ Given a connection, inserts the edge at the end of the connection, or after the 
 
 ```
 const user = store.get(userID);
-const friends = ConnectionHandler.getConnection(user, 'friends');
-const edge = ConnectionHandler.createEdge(store, friends, user, 'UserEdge');
+const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
+const newFriend = store.get(newFriendId);
+const edge = ConnectionHandler.createEdge(store, friends, newFriend, 'UserEdge');
 
 // No cursor provided, append the edge at the end.
 ConnectionHandler.insertEdgeAfter(friends, edge);
 
-// No cursor provided, Insert the edge at the front:
+// No cursor provided, insert the edge at the front:
 ConnectionHandler.insertEdgeBefore(friends, edge);
 ```
 
 ### `deleteNode(connection: RecordProxy, nodeID: string): void`
 
-Given a connection, deletes any edges whose id matches the given id.
+Given a connection, deletes any edges whose node id matches the given id.
 
 #### Example
 
 ```
 const user = store.get(userID);
-const friends = ConnectionHandler.getConnection(user, 'friends');
+const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
 ConnectionHandler.deleteNode(friends, idToDelete);
 ```

@@ -1,0 +1,229 @@
+==================================== INPUT ====================================
+query clientFragmentSpreadsInQuery_FooQuery($id: ID!) {
+  node(id: $id) {
+    ...clientFragmentSpreadsInQuery_Foo_user
+  }
+}
+
+fragment clientFragmentSpreadsInQuery_Foo_user on User {
+  id
+  foo {
+    ...clientFragmentSpreadsInQuery_ClientTypeFragment
+  }
+}
+
+fragment clientFragmentSpreadsInQuery_ClientTypeFragment on ClientType {
+  client_field
+}
+
+# %extensions%
+
+extend type User {
+  foo: ClientType
+}
+
+type ClientType {
+  client_field: String
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFragmentSpreadsInQuery_FooQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "clientFragmentSpreadsInQuery_Foo_user"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "clientFragmentSpreadsInQuery_FooQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "ClientType",
+                    "kind": "LinkedField",
+                    "name": "foo",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "client_field",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "clientFragmentSpreadsInQuery_FooQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query clientFragmentSpreadsInQuery_FooQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...clientFragmentSpreadsInQuery_Foo_user
+    id
+  }
+}
+
+fragment clientFragmentSpreadsInQuery_Foo_user on User {
+  id
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientFragmentSpreadsInQuery_ClientTypeFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientType",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientFragmentSpreadsInQuery_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "foo",
+          "plural": false,
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "clientFragmentSpreadsInQuery_ClientTypeFragment"
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

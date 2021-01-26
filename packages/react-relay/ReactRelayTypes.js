@@ -61,8 +61,6 @@ export type RefetchOptions = {|
   +metadata?: {[key: string]: mixed, ...},
 |};
 
-export type FetchPolicy = 'store-and-network' | 'network-only';
-
 /**
  * A utility type which takes the type of a fragment's data (typically found in
  * a relay generated file) and returns a fragment reference type. This is used

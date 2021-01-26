@@ -19,9 +19,9 @@ const Profiler = require('../core/GraphQLCompilerProfiler');
 const RelayParser = require('../core/RelayParser');
 
 const compileRelayArtifacts = require('./compileRelayArtifacts');
-const crypto = require('crypto');
 const graphql = require('graphql');
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 const nullthrows = require('nullthrows');
 const path = require('path');
 const writeRelayGeneratedFile = require('./writeRelayGeneratedFile');
@@ -35,6 +35,7 @@ const {Map: ImmutableMap} = require('immutable');
 import type {Schema} from '../core/Schema';
 import type {
   FormatModule,
+  PluginInterface,
   TypeGenerator,
 } from '../language/RelayLanguagePluginInterface';
 import type {ScalarTypeMapping} from '../language/javascript/RelayFlowTypeTransformers';
@@ -63,7 +64,6 @@ export type WriterConfig = {
   outputDir?: ?string,
   generatedDirectories?: $ReadOnlyArray<string>,
   persistQuery?: ?(text: string) => Promise<string>,
-  platform?: string,
   schemaExtensions: $ReadOnlyArray<string>,
   noFutureProofEnums: boolean,
   useHaste: boolean,
@@ -142,19 +142,22 @@ function writeAll({
   schema,
   reporter,
   sourceControl,
+  languagePlugin,
 }: {|
   config: WriterConfig,
   onlyValidate: boolean,
+  // $FlowFixMe[value-as-type]
   baseDocuments: ImmutableMap<string, DocumentNode>,
+  // $FlowFixMe[value-as-type]
   documents: ImmutableMap<string, DocumentNode>,
   schema: Schema,
   reporter: Reporter,
   sourceControl: ?SourceControl,
+  languagePlugin?: ?PluginInterface,
 |}): Promise<Map<string, CodegenDirectory>> {
   return Profiler.asyncContext('RelayFileWriter.writeAll', async () => {
     const {
       artifacts: artifactsWithBase,
-      definitions,
       transformedTypeContext,
       transformedQueryContext,
     } = compileAll({
@@ -190,10 +193,6 @@ function writeAll({
       ]),
     );
 
-    const existingFragmentNames = new Set(
-      definitions.map(definition => definition.name),
-    );
-
     const definitionsMeta = new Map();
     const getDefinitionMeta = (definitionName: string) => {
       const artifact = nullthrows(artifactMap.get(definitionName));
@@ -215,12 +214,6 @@ function writeAll({
           });
         }
       });
-    });
-
-    // TODO(T22651734): improve this to correctly account for fragments that
-    // have generated flow types.
-    baseDefinitionNames.forEach(baseDefinitionName => {
-      existingFragmentNames.delete(baseDefinitionName);
     });
 
     const allOutputDirectories: Map<string, CodegenDirectory> = new Map();
@@ -287,7 +280,6 @@ function writeAll({
                 {
                   customScalars: writerConfig.customScalars,
                   enumsHasteModule: writerConfig.enumsHasteModule,
-                  existingFragmentNames,
                   optionalInputFields: writerConfig.optionalInputFieldsForFlow,
                   useHaste: writerConfig.useHaste,
                   useSingleArtifactDirectory: !!writerConfig.outputDir,
@@ -310,12 +302,12 @@ function writeAll({
             formatModule,
             typeText,
             persistQuery,
-            writerConfig.platform,
             sourceHash,
             writerConfig.extension,
             writerConfig.printModuleDependency,
             writerConfig.repersist ?? false,
             writerConfig.writeQueryParameters ?? function noop() {},
+            languagePlugin,
           );
         }),
       );
@@ -345,7 +337,7 @@ function writeAll({
       }
 
       allOutputDirectories.forEach(dir => {
-        dir.deleteExtraFiles();
+        dir.deleteExtraFiles(languagePlugin?.keepExtraFile);
       });
       if (sourceControl && !onlyValidate) {
         await CodegenDirectory.sourceControlAddRemove(
@@ -368,13 +360,6 @@ function writeAll({
 
     return allOutputDirectories;
   });
-}
-
-function md5(x: string): string {
-  return crypto
-    .createHash('md5')
-    .update(x, 'utf8')
-    .digest('hex');
 }
 
 module.exports = {

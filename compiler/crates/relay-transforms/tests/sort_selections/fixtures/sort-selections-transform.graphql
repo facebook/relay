@@ -1,0 +1,43 @@
+fragment UserFragment on User {
+  name
+  address {
+    city
+  }
+  ...NestedFragment
+  ... on User {
+    name
+    address {
+      street
+    }
+    ...NestedFragment4
+    ...NestedFragment2
+    ...NestedFragment3
+  }
+}
+
+fragment NestedFragment on User
+  @argumentDefinitions(zuck: {type: "String"}, id: {type: "ID"}) {
+  profile_picture {
+    uri
+  }
+  name
+  zuck: name
+  body {
+    text
+  }
+}
+
+fragment NestedFragment4 on User {
+  name
+  canViewerLike
+}
+
+fragment NestedFragment2 on User {
+  name
+  canViewerLike
+}
+
+fragment NestedFragment3 on User {
+  name
+  canViewerLike
+}

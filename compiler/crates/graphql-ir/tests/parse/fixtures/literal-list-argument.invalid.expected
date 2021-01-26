@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query LiteralListArgumentQuery1 {
+  route(
+    waypoints: [
+      {
+        lat: 0.0 # error: float not string
+        lon: "0.0"
+      }
+    ]
+  ) {
+    steps {
+      note
+    }
+  }
+}
+
+query LiteralListArgumentQuery2 {
+  route(waypoints: ["waypoint"]) {
+    # error: string not input object
+    steps {
+      note
+    }
+  }
+}
+
+query LiteralListArgumentQuery3 {
+  route(waypoints: "waypoint") {
+    # error: string not list
+    steps {
+      note
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'String'
+
+  literal-list-argument.invalid.graphql:6:14
+    5 │       {
+    6 │         lat: 0.0 # error: float not string
+      │              ^^^
+    7 │         lon: "0.0"
+
+
+✖︎ Expected a value of type 'WayPoint'
+
+  literal-list-argument.invalid.graphql:18:21
+   17 │ query LiteralListArgumentQuery2 {
+   18 │   route(waypoints: ["waypoint"]) {
+      │                     ^^^^^^^^^^
+   19 │     # error: string not input object
+
+
+✖︎ Expected a value of type 'WayPoint'
+
+  literal-list-argument.invalid.graphql:27:20
+   26 │ query LiteralListArgumentQuery3 {
+   27 │   route(waypoints: "waypoint") {
+      │                    ^^^^^^^^^^
+   28 │     # error: string not list

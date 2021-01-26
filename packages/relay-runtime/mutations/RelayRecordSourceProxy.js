@@ -14,10 +14,8 @@
 
 const RelayModernRecord = require('../store/RelayModernRecord');
 const RelayRecordProxy = require('./RelayRecordProxy');
-const RelayRecordSourceSelectorProxy = require('./RelayRecordSourceSelectorProxy');
 
 const invariant = require('invariant');
-const normalizeRelayPayload = require('../store/normalizeRelayPayload');
 
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
@@ -29,8 +27,6 @@ import type {
   RecordSource,
   RecordProxy,
   RecordSourceProxy,
-  RecordSourceSelectorProxy,
-  OperationDescriptor,
 } from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
@@ -45,6 +41,8 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   __mutator: RelayRecordSourceMutator;
   _proxies: {[dataID: DataID]: ?RelayRecordProxy, ...};
   _getDataID: GetDataID;
+  _invalidatedStore: boolean;
+  _idsMarkedForInvalidation: Set<DataID>;
 
   constructor(
     mutator: RelayRecordSourceMutator,
@@ -55,6 +53,8 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._handlerProvider = handlerProvider || null;
     this._proxies = {};
     this._getDataID = getDataID;
+    this._invalidatedStore = false;
+    this._idsMarkedForInvalidation = new Set();
   }
 
   publishSource(
@@ -136,9 +136,28 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     invariant(
       root && root.getType() === ROOT_TYPE,
       'RelayRecordSourceProxy#getRoot(): Expected the source to contain a ' +
-        'root record.',
+        'root record, %s.',
+      root == null
+        ? 'no root record found'
+        : `found a root record of type \`${root.getType()}\``,
     );
     return root;
+  }
+
+  invalidateStore(): void {
+    this._invalidatedStore = true;
+  }
+
+  isStoreMarkedForInvalidation(): boolean {
+    return this._invalidatedStore;
+  }
+
+  markIDForInvalidation(dataID: DataID): void {
+    this._idsMarkedForInvalidation.add(dataID);
+  }
+
+  getIDsMarkedForInvalidation(): Set<DataID> {
+    return this._idsMarkedForInvalidation;
   }
 }
 

@@ -1,0 +1,26 @@
+query unmaskedFragmentSpreadsRecursive_TestQuery(
+  $ProfilePicture_SIZE: [Int]
+  $isRelative: Boolean
+  $showFirstName: Boolean
+) {
+  me {
+    ...unmaskedFragmentSpreadsRecursive_UserProfile_user
+  }
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserProfile_user on User {
+  firstName(if: $showFirstName)
+  ...unmaskedFragmentSpreadsRecursive_UserUtil_user @relay(mask: false)
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserUtil_user on User {
+  profilePicture(size: $ProfilePicture_SIZE) {
+    width
+    height
+  }
+  ...unmaskedFragmentSpreadsRecursive_UserUtil2_user @relay(mask: false)
+}
+
+fragment unmaskedFragmentSpreadsRecursive_UserUtil2_user on User {
+  url(relative: $isRelative)
+}

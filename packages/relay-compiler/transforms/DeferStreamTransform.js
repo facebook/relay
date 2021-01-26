@@ -14,15 +14,14 @@
 
 const IRTransformer = require('../core/IRTransformer');
 
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
 const murmurHash = require('../util/murmurHash');
 
 const {createUserError} = require('../core/CompilerError');
-const {ConnectionInterface} = require('relay-runtime');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
-  Connection,
   Defer,
   Directive,
   FragmentSpread,
@@ -45,7 +44,6 @@ function deferStreamTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(
     context,
     {
-      Connection: visitConnection,
       // TODO: type IRTransformer to allow changing result type
       FragmentSpread: (visitFragmentSpread: $FlowFixMe),
       // TODO: type IRTransformer to allow changing result type
@@ -88,67 +86,6 @@ function deferStreamTransform(context: CompilerContext): CompilerContext {
   );
 }
 
-function visitConnection(connection: Connection, state: State): Connection {
-  const transformed: Connection = this.traverse(connection, state);
-  const stream = transformed.stream;
-  if (stream == null) {
-    return transformed;
-  }
-  const {EDGES, PAGE_INFO} = ConnectionInterface.get();
-  const edges = transformed.selections.find(
-    selection => selection.kind === 'LinkedField' && selection.name === EDGES,
-  );
-  const pageInfo = transformed.selections.find(
-    selection =>
-      selection.kind === 'LinkedField' && selection.name === PAGE_INFO,
-  );
-  if (edges == null || pageInfo == null) {
-    throw createUserError(
-      `Invalid connection, expected the '${EDGES}' and '${PAGE_INFO}' fields ` +
-        'to exist.',
-      [transformed.loc],
-    );
-  }
-  const derivedLocation = {kind: 'Derived', source: transformed.loc};
-  const streamLabel = transformLabel(
-    state.documentName,
-    'stream',
-    transformed.label,
-  );
-  const deferLabel = transformLabel(
-    state.documentName,
-    'defer',
-    transformed.label,
-  );
-  return {
-    ...connection,
-    selections: [
-      {
-        kind: 'Stream',
-        loc: derivedLocation,
-        metadata: null,
-        selections: [edges],
-        label: streamLabel,
-        if: stream.if,
-        initialCount: stream.initialCount,
-      },
-      {
-        kind: 'Defer',
-        loc: derivedLocation,
-        metadata: null,
-        selections: [pageInfo],
-        label: deferLabel,
-        if: stream.if,
-      },
-    ],
-    stream: {
-      ...stream,
-      streamLabel,
-      deferLabel,
-    },
-  };
-}
-
 function visitLinkedField(
   field: LinkedField,
   state: State,
@@ -189,6 +126,10 @@ function visitLinkedField(
       [streamDirective.loc],
     );
   }
+  const useCustomizedBatch = streamDirective.args.find(
+    arg => arg.name === 'use_customized_batch',
+  );
+
   const label =
     getLiteralStringArgument(streamDirective, 'label') ?? field.alias;
   const transformedLabel = transformLabel(state.documentName, 'stream', label);
@@ -196,6 +137,7 @@ function visitLinkedField(
   return {
     if: ifArg?.value ?? null,
     initialCount: initialCount.value,
+    useCustomizedBatch: useCustomizedBatch?.value ?? null,
     kind: 'Stream',
     label: transformedLabel,
     loc: {kind: 'Derived', source: streamDirective.loc},
@@ -264,7 +206,6 @@ function visitFragmentSpread(
     kind: 'Defer',
     label: transformedLabel,
     loc: {kind: 'Derived', source: deferDirective.loc},
-    metadata: null,
     selections: [transformedSpread],
   };
 }
@@ -280,9 +221,7 @@ function getLiteralStringArgument(
   const value = arg.value.kind === 'Literal' ? arg.value.value : null;
   if (value == null || typeof value !== 'string') {
     throw createUserError(
-      `Expected the '${argName}' value to @${
-        directive.name
-      } to be a string literal if provided.`,
+      `Expected the '${argName}' value to @${directive.name} to be a string literal if provided.`,
       [arg.value.loc],
     );
   }
@@ -307,9 +246,16 @@ function getFragmentSpreadName(fragmentSpread: FragmentSpread): string {
   if (fragmentSpread.args.length === 0) {
     return fragmentSpread.name;
   }
-  const sortedArgs = [...fragmentSpread.args].sort((a, b) => {
-    return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
-  });
+  const sortedArgs = [...fragmentSpread.args]
+    .sort((a, b) => {
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    })
+    .map(argument => {
+      return {
+        name: argument.name,
+        value: getIdentifierForArgumentValue(argument.value),
+      };
+    });
   const hash = murmurHash(JSON.stringify(sortedArgs));
   return `${fragmentSpread.name}_${hash}`;
 }

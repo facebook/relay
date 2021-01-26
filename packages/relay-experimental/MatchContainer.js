@@ -37,10 +37,10 @@ const {useMemo} = React;
  * ```
  * // Media.react.js
  *
- * // Define a React component that uses <MatchContainer> to render the
+ * // Define a React component that uses <MatchContainer /> to render the
  * // results of a @module selection
  * function Media(props) {
- *   const {media, ...restPropsj} = props;
+ *   const {media, ...restProps} = props;
  *
  *   const loader = moduleReference => {
  *      // given the data returned by your server for the @module directive,
@@ -48,7 +48,11 @@ const {useMemo} = React;
  *      // it is loading asynchronously).
  *      todo_returnModuleOrThrowPromise(moduleReference);
  *   };
- *   return <MatchContainer match={media.mediaAttachment} props={restProps} />;
+ *   return <MatchContainer
+ *     loader={loader}
+ *     match={media.mediaAttachment}
+ *     props={restProps}
+ *   />;
  * }
  *
  * module.exports = createSuspenseFragmentContainer(
@@ -82,6 +86,7 @@ const {useMemo} = React;
 
 // Note: this type is intentionally non-exact, it is expected that the
 // object may contain sibling fields.
+type TypenameOnlyPointer = {|+__typename: string|};
 export type MatchPointer = {
   +__fragmentPropName?: ?string,
   +__module_component?: mixed,
@@ -92,7 +97,7 @@ export type MatchPointer = {
 export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {|
   +fallback?: ?TFallback,
   +loader: (module: mixed) => React.AbstractComponent<TProps>,
-  +match: ?MatchPointer,
+  +match: ?MatchPointer | ?TypenameOnlyPointer,
   +props?: TProps,
 |};
 
@@ -112,7 +117,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
   }
   // NOTE: the MatchPointer type has a $fragmentRefs field to ensure that only
   // an object that contains a FragmentSpread can be passed. If the fragment
-  // spread matches, then the metadata fields below (__id, __fragments, etc)
+  // spread matches, then the metadata fields below (__id, __fragments, etc.)
   // will be present. But they can be missing if all the fragment spreads use
   // @module and none of the types matched. The cast here is necessary because
   // fragment Flow types don't describe metadata fields, only the actual schema
@@ -151,9 +156,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
   }, [__id, __fragments, __fragmentOwner, __fragmentPropName]);
 
   if (LoadedContainer != null && fragmentProps != null) {
-    /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-     * v0.111.0 was deployed. To see the error, delete this comment and run
-     * Flow. */
+    // $FlowFixMe[incompatible-type]
     return <LoadedContainer {...props} {...fragmentProps} />;
   } else {
     return fallback ?? null;

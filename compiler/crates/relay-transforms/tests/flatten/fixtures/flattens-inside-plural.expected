@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  flattened: usernames(names: []) {
+    ... on Actor {
+      name
+    }
+  }
+  notFlattened: usernames(names: []) {
+    ... on User {
+      lastName
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+) {
+  flattened: usernames(names: []) {
+    name
+  }
+  notFlattened: usernames(names: []) {
+    ... on User {
+      lastName
+    }
+  }
+}

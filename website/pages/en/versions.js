@@ -39,9 +39,7 @@ class Versions extends React.Component {
                   <th>next</th>
                   <td>
                     <a
-                      href={`${
-                        siteConfig.baseUrl
-                      }docs/en/next/introduction-to-relay`}>
+                      href={`${siteConfig.baseUrl}docs/en/next/introduction-to-relay`}>
                       Documentation
                     </a>
                   </td>
@@ -60,9 +58,7 @@ class Versions extends React.Component {
                   <th>{latestVersion}</th>
                   <td>
                     <a
-                      href={`${
-                        siteConfig.baseUrl
-                      }docs/en/introduction-to-relay`}>
+                      href={`${siteConfig.baseUrl}docs/en/introduction-to-relay`}>
                       Documentation
                     </a>
                   </td>
@@ -86,9 +82,7 @@ class Versions extends React.Component {
                         <th>{version}</th>
                         <td>
                           <a
-                            href={`${
-                              siteConfig.baseUrl
-                            }docs/en/${version}/step-by-step`}>
+                            href={`${siteConfig.baseUrl}docs/en/${version}/step-by-step`}>
                             Documentation
                           </a>
                         </td>
@@ -115,12 +109,8 @@ class Versions extends React.Component {
                           <a
                             href={
                               version === 'classic'
-                                ? `${
-                                    siteConfig.baseUrl
-                                  }docs/en/${version}/classic-guides-containers`
-                                : `${
-                                    siteConfig.baseUrl
-                                  }docs/en/${version}/introduction-to-relay`
+                                ? `${siteConfig.baseUrl}docs/en/${version}/classic-guides-containers`
+                                : `${siteConfig.baseUrl}docs/en/${version}/introduction-to-relay`
                             }>
                             Documentation
                           </a>

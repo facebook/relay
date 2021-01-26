@@ -1,0 +1,92 @@
+==================================== INPUT ====================================
+fragment Test on User {
+    user {
+    }
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:43,
+    definitions: [
+        FragmentDefinition {
+            location: empty-linked-field.graphql:0:42,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:42,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    LinkedField {
+                        span: 28:40,
+                        alias: None,
+                        name: Identifier {
+                            span: 28:32,
+                            token: Token {
+                                span: 28:32,
+                                kind: Identifier,
+                            },
+                            value: "user",
+                        },
+                        arguments: None,
+                        directives: [],
+                        selections: List {
+                            span: 33:40,
+                            start: Token {
+                                span: 33:34,
+                                kind: OpenBrace,
+                            },
+                            items: [],
+                            end: Token {
+                                span: 39:40,
+                                kind: CloseBrace,
+                            },
+                        },
+                    },
+                ],
+                end: Token {
+                    span: 41:42,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected the list to be non-empty
+
+  empty-linked-field.graphql:2:10
+    1 │ fragment Test on User {
+    2 │     user {
+      │          ^
+    3 │     }
+      │ ^^^^^
+    4 │ }

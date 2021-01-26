@@ -1,0 +1,73 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  id
+  checkins(environments: [WEB]) {
+    query
+  }
+  nakedEnum: checkins(environments: WEB) {
+    query
+  }
+  multipleEnum: checkins(environments: [WEB, MOBILE]) {
+    query
+  }
+  friends(after: $after, first: $first, traits: [HELPFUL]) {
+    count
+  }
+  secondFriends: friends(first: 10) {
+    count
+  }
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3)
+  thumbnail: profilePicture2(
+    size: 32
+    cropPosition: CENTER
+    fileExtension: PNG
+    options: {newName: null}
+  ) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+    height
+    width
+    src: uri
+  }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User {
+  id
+  checkins(environments: [WEB]) {
+    query
+  }
+  nakedEnum: checkins(environments: WEB) {
+    query
+  }
+  multipleEnum: checkins(environments: [WEB, MOBILE]) {
+    query
+  }
+  friends(after: $after, first: $first, traits: [HELPFUL]) {
+    count
+  }
+  secondFriends: friends(first: 10) {
+    count
+  }
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3)
+  thumbnail: profilePicture2(size: 32, cropPosition: CENTER, fileExtension: PNG, options: {newName: null}) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) @include(if: $cond) @skip(if: $foo) {
+    height
+    width
+    src: uri
+  }
+  storySearch(query: {type: DIRECTED}) {
+    id
+  }
+}

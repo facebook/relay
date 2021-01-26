@@ -1,0 +1,7 @@
+fragment EnabledFoo on Node {
+  ... on Actor {
+    address {
+      city @required(action: LOG)
+    }
+  }
+}

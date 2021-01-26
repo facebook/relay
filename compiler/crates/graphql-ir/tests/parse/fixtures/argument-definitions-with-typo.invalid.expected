@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+  ) {
+  ...Foo @arguments(size: $size)
+}
+==================================== ERROR ====================================
+✖︎ Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got 'defaultValu'
+
+  argument-definitions-with-typo.invalid.graphql:5:11
+    4 │     id: {type: "ID"}
+    5 │     size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+      │           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   ) {

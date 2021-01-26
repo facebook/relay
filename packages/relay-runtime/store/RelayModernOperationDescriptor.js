@@ -23,7 +23,7 @@ const {
 const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {Variables} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 
 /**
@@ -35,13 +35,15 @@ import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 function createOperationDescriptor(
   request: ConcreteRequest,
   variables: Variables,
+  cacheConfig?: ?CacheConfig,
+  dataID?: DataID = ROOT_ID,
 ): OperationDescriptor {
   const operation = request.operation;
   const operationVariables = getOperationVariables(operation, variables);
-  const dataID = ROOT_ID;
   const requestDescriptor = createRequestDescriptor(
     request,
     operationVariables,
+    cacheConfig,
   );
   const operationDescriptor = {
     fragment: createReaderSelector(
@@ -68,11 +70,13 @@ function createOperationDescriptor(
 function createRequestDescriptor(
   request: ConcreteRequest,
   variables: Variables,
+  cacheConfig?: ?CacheConfig,
 ): RequestDescriptor {
   const requestDescriptor = {
     identifier: getRequestIdentifier(request.params, variables),
     node: request,
     variables: variables,
+    cacheConfig: cacheConfig,
   };
   if (__DEV__) {
     deepFreeze(variables);

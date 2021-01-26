@@ -13,19 +13,21 @@
 'use strict';
 
 const IRTransformer = require('../core/IRTransformer');
-const SchemaUtils = require('../core/SchemaUtils');
 
+const {generateIDField} = require('../core/SchemaUtils');
 const {hasUnaliasedSelection} = require('./TransformUtils');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
-const {generateIDField} = SchemaUtils;
 
 const ID = 'id';
 const NODE_TYPE = 'Node';
 
-type State = {idField: ScalarField, ...};
+type State = {|
+  idFieldForType: CompositeTypeID => ScalarField,
+  idFragmentForType: CompositeTypeID => InlineFragment,
+|};
 
 /**
  * A transform that adds an `id` field on any type that has an id field but
@@ -33,10 +35,37 @@ type State = {idField: ScalarField, ...};
  */
 function generateIDFieldTransform(context: CompilerContext): CompilerContext {
   const schema = context.getSchema();
-  const idType = schema.expectIdType();
-  const idField = generateIDField(idType);
+
+  const typeToIDField = new Map();
+  function idFieldForType(type: CompositeTypeID): ScalarField {
+    let idField = typeToIDField.get(type);
+    if (idField == null) {
+      idField = generateIDField(schema, type);
+      typeToIDField.set(type, idField);
+    }
+    return idField;
+  }
+
+  const typeToIDFragment = new Map();
+  function idFragmentForType(type: CompositeTypeID): InlineFragment {
+    let fragment = typeToIDFragment.get(type);
+    if (fragment == null) {
+      fragment = {
+        kind: 'InlineFragment',
+        directives: [],
+        loc: {kind: 'Generated'},
+        metadata: null,
+        selections: [idFieldForType(type)],
+        typeCondition: type,
+      };
+      typeToIDFragment.set(type, fragment);
+    }
+    return fragment;
+  }
+
   const state = {
-    idField,
+    idFieldForType,
+    idFragmentForType,
   };
   return IRTransformer.transform(
     context,
@@ -68,7 +97,10 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
   ) {
     return {
       ...transformedNode,
-      selections: [...transformedNode.selections, state.idField],
+      selections: [
+        ...transformedNode.selections,
+        state.idFieldForType(unmodifiedType),
+      ],
     };
   }
 
@@ -86,20 +118,25 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
   if (schema.isAbstractType(unmodifiedType)) {
     const selections = [...transformedNode.selections];
     if (schema.mayImplement(unmodifiedType, nodeInterface)) {
-      selections.push(buildIDFragment(nodeInterface, state.idField));
+      selections.push(state.idFragmentForType(nodeInterface));
     }
-    schema
-      .getPossibleTypes(schema.assertAbstractType(unmodifiedType))
-      .forEach(possibleType => {
-        if (
+    Array.from(
+      schema
+        .getPossibleTypes(schema.assertAbstractType(unmodifiedType))
+        .values(),
+    )
+      .filter(
+        concreteType =>
           !schema.implementsInterface(
-            schema.assertCompositeType(possibleType),
+            schema.assertCompositeType(concreteType),
             nodeInterface,
-          ) &&
-          schema.hasId(possibleType)
-        ) {
-          selections.push(buildIDFragment(possibleType, state.idField));
-        }
+          ) && schema.hasId(concreteType),
+      )
+      .sort((a, b) =>
+        schema.getTypeString(a) < schema.getTypeString(b) ? -1 : 1,
+      )
+      .forEach(concreteType => {
+        selections.push(state.idFragmentForType(concreteType));
       });
     return {
       ...transformedNode,
@@ -108,25 +145,6 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
   }
 
   return transformedNode;
-}
-
-/**
- * @internal
- *
- * Returns IR for `... on FRAGMENT_TYPE { id }`
- */
-function buildIDFragment(
-  fragmentType: CompositeTypeID,
-  idField: ScalarField,
-): InlineFragment {
-  return {
-    kind: 'InlineFragment',
-    directives: [],
-    loc: {kind: 'Generated'},
-    metadata: null,
-    selections: [idField],
-    typeCondition: fragmentType,
-  };
 }
 
 module.exports = {

@@ -32,28 +32,26 @@ import type {
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 
-export type FlattenOptions = {flattenAbstractTypes?: boolean, ...};
+export type FlattenOptions = {|+isForCodegen?: boolean|};
 
-type State = {
-  flattenAbstractTypes: boolean,
+type State = {|
+  +isForCodegen: boolean,
   parentType: ?TypeID,
-  ...
-};
+|};
 
 /**
  * Transform that flattens inline fragments, fragment spreads, and conditionals.
  *
  * Inline fragments are inlined (replaced with their selections) when:
- * - The fragment type matches the type of its parent.
- * - The fragment has an abstract type and the `flattenAbstractTypes` option has
- *   been set.
+ * - The fragment type matches the type of its parent, and its `isForCodegen`,
+ *   or if it's for printing, there is no directive on the inline fragment.
  */
 function flattenTransformImpl(
   context: CompilerContext,
   options?: FlattenOptions,
 ): CompilerContext {
   const state = {
-    flattenAbstractTypes: !!(options && options.flattenAbstractTypes),
+    isForCodegen: !!(options && options.isForCodegen),
     parentType: null,
   };
   const visitorFn = memoizedFlattenSelection(new Map());
@@ -61,13 +59,12 @@ function flattenTransformImpl(
     context,
     {
       Condition: visitorFn,
-      Connection: visitorFn,
-      ConnectionField: visitorFn,
       Defer: visitorFn,
       Fragment: visitorFn,
-      InlineFragment: visitorFn,
       InlineDataFragmentSpread: visitorFn,
+      InlineFragment: visitorFn,
       LinkedField: visitorFn,
+      ModuleImport: visitorFn,
       Root: visitorFn,
       SplitOperation: visitorFn,
     },
@@ -75,7 +72,7 @@ function flattenTransformImpl(
   );
 }
 
-function memoizedFlattenSelection(cache) {
+function memoizedFlattenSelection(cache: Map<Node, Map<?TypeID, any>>) {
   return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
     const context: CompilerContext = this.getContext();
     let nodeCache = cache.get(node);
@@ -165,9 +162,7 @@ function flattenSelectionsInto(
     if (flattenedSelection.kind === 'InlineFragment') {
       if (selection.kind !== 'InlineFragment') {
         throw createCompilerError(
-          `FlattenTransform: Expected an InlineFragment, got a '${
-            selection.kind
-          }'`,
+          `FlattenTransform: Expected an InlineFragment, got a '${selection.kind}'`,
           [selection.loc],
         );
       }
@@ -201,9 +196,7 @@ function flattenSelectionsInto(
     } else if (flattenedSelection.kind === 'ClientExtension') {
       if (selection.kind !== 'ClientExtension') {
         throw createCompilerError(
-          `FlattenTransform: Expected a ClientExtension, got a '${
-            selection.kind
-          }'`,
+          `FlattenTransform: Expected a ClientExtension, got a '${selection.kind}'`,
           [selection.loc],
         );
       }
@@ -222,16 +215,14 @@ function flattenSelectionsInto(
     } else if (flattenedSelection.kind === 'ModuleImport') {
       if (selection.kind !== 'ModuleImport') {
         throw createCompilerError(
-          `FlattenTransform: Expected a ModuleImport, got a '${
-            selection.kind
-          }'`,
+          `FlattenTransform: Expected a ModuleImport, got a '${selection.kind}'`,
           [selection.loc],
         );
       }
       if (
         selection.name !== flattenedSelection.name ||
         selection.module !== flattenedSelection.module ||
-        selection.documentName !== flattenedSelection.documentName
+        selection.key !== flattenedSelection.key
       ) {
         throw createUserError(
           'Found conflicting @module selections: use a unique alias on the ' +
@@ -328,34 +319,6 @@ function flattenSelectionsInto(
           handles: mergeHandles(selection, flattenedSelection),
         });
       }
-    } else if (flattenedSelection.kind === 'ConnectionField') {
-      if (selection.kind !== 'ConnectionField') {
-        throw createCompilerError(
-          `FlattenTransform: Expected a ConnectionField, got a '${
-            selection.kind
-          }'`,
-          [selection.loc],
-        );
-      }
-      assertUniqueArgsForAlias(selection, flattenedSelection);
-      // NOTE: not using object spread here as this code is pretty hot
-      flattenedSelections.set(nodeIdentifier, {
-        kind: 'ConnectionField',
-        alias: flattenedSelection.alias,
-        args: flattenedSelection.args,
-        directives: flattenedSelection.directives,
-        loc: flattenedSelection.loc,
-        metadata: flattenedSelection.metadata,
-        name: flattenedSelection.name,
-        selections: mergeSelections(
-          schema,
-          flattenedSelection,
-          selection,
-          state,
-          selection.type,
-        ),
-        type: flattenedSelection.type,
-      });
     } else if (flattenedSelection.kind === 'InlineDataFragmentSpread') {
       throw createCompilerError(
         'FlattenTransform: did not expect an InlineDataFragmentSpread node. ' +
@@ -363,24 +326,6 @@ function flattenSelectionsInto(
           'transform to run only on normalization ASTs.',
         [selection.loc],
       );
-    } else if (flattenedSelection.kind === 'Connection') {
-      if (selection.kind !== 'Connection') {
-        throw createCompilerError(
-          `FlattenTransform: Expected a Connection, got a '${selection.kind}'`,
-          [selection.loc],
-        );
-      }
-      flattenedSelections.set(nodeIdentifier, {
-        kind: 'Connection',
-        ...flattenedSelection,
-        selections: mergeSelections(
-          schema,
-          flattenedSelection,
-          selection,
-          state,
-          selection.type,
-        ),
-      });
     } else {
       (flattenedSelection.kind: empty);
       throw createCompilerError(
@@ -432,9 +377,8 @@ function shouldFlattenInlineFragment(
   type: TypeID,
 ): boolean {
   return (
-    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) ||
-    (state.flattenAbstractTypes &&
-      schema.isAbstractType(fragment.typeCondition))
+    schema.areEqualTypes(fragment.typeCondition, schema.getRawType(type)) &&
+    (state.isForCodegen || fragment.directives.length === 0)
   );
 }
 

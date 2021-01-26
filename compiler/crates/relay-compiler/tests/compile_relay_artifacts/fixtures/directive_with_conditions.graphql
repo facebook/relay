@@ -1,0 +1,14 @@
+query directiveWithConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
+  viewer {
+    account_user {
+      alternate_name
+        @skip(if: $bar)
+        @include(if: $foo)
+        @customDirective(level: 1)
+      canViewerComment
+        @include(if: $foo)
+        @customDirective(level: 2)
+        @skip(if: $bar)
+    }
+  }
+}

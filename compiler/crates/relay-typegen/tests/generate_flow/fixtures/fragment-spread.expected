@@ -1,0 +1,191 @@
+==================================== INPUT ====================================
+fragment FragmentSpread on Node {
+  id
+  ...OtherFragment
+  justFrag: profilePicture {
+    ...PictureFragment
+  }
+  fragAndField: profilePicture {
+    uri
+    ...PictureFragment
+  }
+  ... on User {
+    ...UserFrag1
+    ...UserFrag2
+  }
+}
+
+fragment ConcreateTypes on Viewer {
+  actor {
+    __typename
+    ... on Page {
+      id
+      ...PageFragment
+    }
+    ... on User {
+      name
+    }
+  }
+}
+
+fragment PictureFragment on Image {
+  __typename
+}
+
+fragment OtherFragment on Node {
+  __typename
+}
+
+fragment PageFragment on Page {
+  __typename
+}
+
+fragment UserFrag1 on User {
+  __typename
+}
+
+fragment UserFrag2 on User {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { PageFragment$ref } from "PageFragment.graphql";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type ConcreateTypes$ref: FragmentReference;
+declare export opaque type ConcreateTypes$fragmentType: ConcreateTypes$ref;
+export type ConcreateTypes = {|
+  +actor: ?({|
+    +__typename: "Page",
+    +id: string,
+    +$fragmentRefs: PageFragment$ref,
+  |} | {|
+    +__typename: "User",
+    +name: ?string,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other"
+  |}),
+  +$refType: ConcreateTypes$ref,
+|};
+export type ConcreateTypes$data = ConcreateTypes;
+export type ConcreateTypes$key = {
+  +$data?: ConcreateTypes$data,
+  +$fragmentRefs: ConcreateTypes$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { OtherFragment$ref } from "OtherFragment.graphql";
+import type { PictureFragment$ref } from "PictureFragment.graphql";
+import type { UserFrag1$ref } from "UserFrag1.graphql";
+import type { UserFrag2$ref } from "UserFrag2.graphql";
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type FragmentSpread$ref: FragmentReference;
+declare export opaque type FragmentSpread$fragmentType: FragmentSpread$ref;
+export type FragmentSpread = {|
+  +id: string,
+  +justFrag: ?{|
+    +$fragmentRefs: PictureFragment$ref
+  |},
+  +fragAndField: ?{|
+    +uri: ?string,
+    +$fragmentRefs: PictureFragment$ref,
+  |},
+  +$fragmentRefs: OtherFragment$ref & UserFrag1$ref & UserFrag2$ref,
+  +$refType: FragmentSpread$ref,
+|};
+export type FragmentSpread$data = FragmentSpread;
+export type FragmentSpread$key = {
+  +$data?: FragmentSpread$data,
+  +$fragmentRefs: FragmentSpread$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type OtherFragment$ref: FragmentReference;
+declare export opaque type OtherFragment$fragmentType: OtherFragment$ref;
+export type OtherFragment = {|
+  +__typename: string,
+  +$refType: OtherFragment$ref,
+|};
+export type OtherFragment$data = OtherFragment;
+export type OtherFragment$key = {
+  +$data?: OtherFragment$data,
+  +$fragmentRefs: OtherFragment$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type PageFragment$ref: FragmentReference;
+declare export opaque type PageFragment$fragmentType: PageFragment$ref;
+export type PageFragment = {|
+  +__typename: "Page",
+  +$refType: PageFragment$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: PageFragment$ref,
+|};
+export type PageFragment$data = PageFragment;
+export type PageFragment$key = {
+  +$data?: PageFragment$data,
+  +$fragmentRefs: PageFragment$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type PictureFragment$ref: FragmentReference;
+declare export opaque type PictureFragment$fragmentType: PictureFragment$ref;
+export type PictureFragment = {|
+  +__typename: "Image",
+  +$refType: PictureFragment$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: PictureFragment$ref,
+|};
+export type PictureFragment$data = PictureFragment;
+export type PictureFragment$key = {
+  +$data?: PictureFragment$data,
+  +$fragmentRefs: PictureFragment$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type UserFrag1$ref: FragmentReference;
+declare export opaque type UserFrag1$fragmentType: UserFrag1$ref;
+export type UserFrag1 = {|
+  +__typename: "User",
+  +$refType: UserFrag1$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: UserFrag1$ref,
+|};
+export type UserFrag1$data = UserFrag1;
+export type UserFrag1$key = {
+  +$data?: UserFrag1$data,
+  +$fragmentRefs: UserFrag1$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type UserFrag2$ref: FragmentReference;
+declare export opaque type UserFrag2$fragmentType: UserFrag2$ref;
+export type UserFrag2 = {|
+  +__typename: "User",
+  +$refType: UserFrag2$ref,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
+  +$refType: UserFrag2$ref,
+|};
+export type UserFrag2$data = UserFrag2;
+export type UserFrag2$key = {
+  +$data?: UserFrag2$data,
+  +$fragmentRefs: UserFrag2$ref,
+  ...
+};

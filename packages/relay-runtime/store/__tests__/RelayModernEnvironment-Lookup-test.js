@@ -96,7 +96,7 @@ describe('lookup()', () => {
         __fragmentOwner: owner.request,
       },
     });
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-use]
     expect(snapshot.data?.me?.__fragmentOwner).toBe(owner.request);
   });
 

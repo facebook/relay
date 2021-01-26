@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment inlineDataFragmentGlobalVarsFragment on Query {
+  me {
+    ...inlineDataFragmentGlobalVarsProfile
+  }
+}
+
+fragment inlineDataFragmentGlobalVarsProfile on User @inline {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-global-vars.graphql:8:10
+    7 │ 
+    8 │ fragment inlineDataFragmentGlobalVarsProfile on User @inline {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │   profilePicture(size: $pictureSize) {
+
+  ℹ︎ Variable used:
+
+  inline-data-fragment-global-vars.graphql:9:24
+    8 │ fragment inlineDataFragmentGlobalVarsProfile on User @inline {
+    9 │   profilePicture(size: $pictureSize) {
+      │                        ^^^^^^^^^^^^
+   10 │     uri

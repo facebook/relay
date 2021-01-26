@@ -1,0 +1,79 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    __typename
+    type: __typename
+    ... on Node {
+      id
+      __typename
+      typeName: __typename
+    }
+    ... on User {
+      ... on Node {
+        id
+      }
+      firstName
+      surname: lastName
+      friends(first: 10) {
+        edges {
+          node {
+            id
+            firstName
+          }
+        }
+      }
+      ... on User {
+        firstName
+        lastName
+        friends(first: 10) {
+          edges {
+            cursor
+            node {
+              id
+              lastName
+            }
+          }
+        }
+      }
+      firstName @customDirective(level: 1)
+      lastName @customDirective(level: 3)
+      ... on User {
+        firstName @customDirective(level: 2)
+        lastName @customDirective(level: 3)
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    id
+    __typename
+    type: __typename
+    typeName: __typename
+    ... on User {
+      ... on Node {
+        id
+      }
+      firstName
+      surname: lastName
+      friends(first: 10) {
+        edges {
+          node {
+            id
+            firstName
+            lastName
+          }
+          cursor
+        }
+      }
+      lastName
+      firstName @customDirective(level: 1)
+      lastName @customDirective(level: 3)
+      firstName @customDirective(level: 2)
+    }
+  }
+}

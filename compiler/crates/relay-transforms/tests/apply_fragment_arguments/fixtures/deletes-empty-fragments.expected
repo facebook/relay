@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+query TestQuery {
+  node(id: "test") {
+    __typename
+    ...Profile @arguments(enabled: false)
+  }
+}
+
+fragment Profile on User @argumentDefinitions(enabled: {type: "Boolean!"}) {
+  name @include(if: $enabled)
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  node(id: "test") {
+    __typename
+  }
+}

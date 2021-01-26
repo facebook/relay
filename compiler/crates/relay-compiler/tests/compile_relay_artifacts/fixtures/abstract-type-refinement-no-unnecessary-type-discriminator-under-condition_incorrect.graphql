@@ -1,0 +1,22 @@
+mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncorrect_ChangeNameMutation($input: ActorNameChangeInput!, $myVar: Boolean!) {
+  actorNameChange(input: $input) {
+    actor {
+      ... @include(if: $myVar) {
+        ... on Page {
+          username
+        }
+      }
+      ... @skip(if: $myVar) {
+        ... on Page {
+          canViewerLike
+        }
+      }
+      ... {
+        ... on Page {
+          canViewerLike
+        }
+        lastName
+      }
+    }
+  }
+}

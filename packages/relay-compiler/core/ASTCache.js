@@ -14,7 +14,7 @@
 
 const Profiler = require('./GraphQLCompilerProfiler');
 
-// $FlowFixMe: Immutable is not typed
+// $FlowFixMe[untyped-import] : Immutable is not typed
 const {Map: ImmutableMap} = require('immutable');
 
 import type {File} from '../codegen/CodegenTypes';
@@ -35,6 +35,7 @@ class ASTCache {
   }
 
   // Short-term: we don't do subscriptions/delta updates, instead always use all definitions
+  // $FlowFixMe[value-as-type]
   documents(): ImmutableMap<string, DocumentNode> {
     return ImmutableMap(this._documents);
   }

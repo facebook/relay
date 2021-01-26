@@ -18,7 +18,14 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {isClientID} = require('./ClientID');
-const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = require('./RelayStoreUtils');
+const {
+  ID_KEY,
+  REF_KEY,
+  REFS_KEY,
+  TYPENAME_KEY,
+  INVALIDATED_AT_KEY,
+  ROOT_ID,
+} = require('./RelayStoreUtils');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from './RelayStoreTypes';
@@ -202,6 +209,25 @@ function getLinkedRecordIDs(
 /**
  * @public
  *
+ * Returns the epoch at which the record was invalidated, if it
+ * ever was; otherwise returns null;
+ */
+function getInvalidationEpoch(record: ?Record): ?number {
+  if (record == null) {
+    return null;
+  }
+
+  const invalidatedAt = record[INVALIDATED_AT_KEY];
+  if (typeof invalidatedAt !== 'number') {
+    // If the record has never been invalidated, it isn't stale.
+    return null;
+  }
+  return invalidatedAt;
+}
+
+/**
+ * @public
+ *
  * Compares the fields of a previous and new record, returning either the
  * previous record if all fields are equal or a new record (with merged fields)
  * if any fields have changed.
@@ -221,7 +247,7 @@ function update(prevRecord: Record, nextRecord: Record): Record {
     const prevType = getType(prevRecord) ?? null;
     const nextType = getType(nextRecord) ?? null;
     warning(
-      isClientID(nextID) || prevType === nextType,
+      (isClientID(nextID) && nextID !== ROOT_ID) || prevType === nextType,
       'RelayModernRecord: Invalid record update, expected both versions of ' +
         'record `%s` to have the same `%s` but got conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -265,7 +291,7 @@ function merge(record1: Record, record2: Record): Record {
     const prevType = getType(record1) ?? null;
     const nextType = getType(record2) ?? null;
     warning(
-      isClientID(nextID) || prevType === nextType,
+      (isClientID(nextID) && nextID !== ROOT_ID) || prevType === nextType,
       'RelayModernRecord: Invalid record merge, expected both versions of ' +
         'record `%s` to have the same `%s` but got conflicting types `%s` ' +
         'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -310,7 +336,8 @@ function setValue(record: Record, storageKey: string, value: mixed): void {
       const prevType = getType(record) ?? null;
       const nextType = value ?? null;
       warning(
-        isClientID(getDataID(record)) || prevType === nextType,
+        (isClientID(getDataID(record)) && getDataID(record) !== ROOT_ID) ||
+          prevType === nextType,
         'RelayModernRecord: Invalid field update, expected both versions of ' +
           'record `%s` to have the same `%s` but got conflicting types `%s` ' +
           'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -363,6 +390,7 @@ module.exports = {
   create,
   freeze,
   getDataID,
+  getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
   getType,

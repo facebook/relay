@@ -13,7 +13,7 @@
 
 'use strict';
 
-const RelayConnectionHandler = require('../../handlers/connection/RelayConnectionHandler');
+const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -81,16 +81,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
             }
           }
         }
-
-        fragment FeedEdgeFragment on NewsFeedEdge {
-          cursor
-          node {
-            id
-            feedback {
-              id
-            }
-          }
-        }
       `));
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
@@ -133,7 +123,7 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           case 'name_handler':
             return NameHandler;
           case 'connection':
-            return RelayConnectionHandler;
+            return ConnectionHandler;
         }
       },
     });

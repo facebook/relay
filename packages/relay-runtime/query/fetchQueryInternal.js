@@ -24,7 +24,6 @@ import type {
   OperationDescriptor,
   RequestDescriptor,
 } from '../store/RelayStoreTypes';
-import type {CacheConfig} from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 type RequestCacheEntry = {|
@@ -34,7 +33,11 @@ type RequestCacheEntry = {|
   +subscription: Subscription,
 |};
 
-const requestCachesByEnvironment = new Map();
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+
+const requestCachesByEnvironment = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
 
 /**
  * Fetches the given query and variables on the provided environment,
@@ -102,14 +105,10 @@ const requestCachesByEnvironment = new Map();
 function fetchQuery(
   environment: IEnvironment,
   operation: OperationDescriptor,
-  options?: {|
-    networkCacheConfig?: CacheConfig,
-  |},
 ): Observable<GraphQLResponse> {
-  return fetchQueryDeduped(environment, operation.request, () =>
+  return fetchQueryDeduped(environment, operation.request.identifier, () =>
     environment.execute({
       operation,
-      cacheConfig: options?.networkCacheConfig,
     }),
   );
 }
@@ -123,12 +122,11 @@ function fetchQuery(
  */
 function fetchQueryDeduped(
   environment: IEnvironment,
-  request: RequestDescriptor,
+  identifier: RequestIdentifier,
   fetchFn: () => Observable<GraphQLResponse>,
 ): Observable<GraphQLResponse> {
   return Observable.create(sink => {
     const requestCache = getRequestCache(environment);
-    const identifier = request.identifier;
     let cachedRequest = requestCache.get(identifier);
 
     if (!cachedRequest) {
@@ -208,18 +206,23 @@ function getObservableForCachedRequest(
 /**
  * @private
  */
-function getInFlightStatusObservableForCachedRequest(
+function getActiveStatusObservableForCachedRequest(
+  environment: IEnvironment,
   requestCache: Map<RequestIdentifier, RequestCacheEntry>,
   cachedRequest: RequestCacheEntry,
-): Observable<GraphQLResponse> {
+): Observable<void> {
   return Observable.create(sink => {
     const subscription = cachedRequest.subjectForInFlightStatus.subscribe({
       error: sink.error,
-      next: sink.next,
-      complete: sink.complete,
-      unsubscribe() {
-        sink.complete();
+      next: response => {
+        if (!environment.isRequestActive(cachedRequest.identifier)) {
+          sink.complete();
+          return;
+        }
+        sink.next();
       },
+      complete: sink.complete,
+      unsubscribe: sink.complete,
     });
 
     return () => {
@@ -229,24 +232,29 @@ function getInFlightStatusObservableForCachedRequest(
 }
 
 /**
- * If a request is in flight for the given query, variables and environment,
+ * If a request is active for the given query, variables and environment,
  * this function will return a Promise that will resolve when that request has
- * completed and the data has been saved to the store.
- * If no request is in flight, null will be returned
+ * stops being active (receives a final payload), and the data has been saved
+ * to the store.
+ * If no request is active, null will be returned
  */
-function getPromiseForRequestInFlight(
+function getPromiseForActiveRequest(
   environment: IEnvironment,
   request: RequestDescriptor,
-): Promise<?GraphQLResponse> | null {
+): Promise<void> | null {
   const requestCache = getRequestCache(environment);
   const cachedRequest = requestCache.get(request.identifier);
   if (!cachedRequest) {
     return null;
   }
+  if (!environment.isRequestActive(cachedRequest.identifier)) {
+    return null;
+  }
 
   return new Promise((resolve, reject) => {
     let resolveOnNext = false;
-    getInFlightStatusObservableForCachedRequest(
+    getActiveStatusObservableForCachedRequest(
+      environment,
       requestCache,
       cachedRequest,
     ).subscribe({
@@ -274,28 +282,24 @@ function getPromiseForRequestInFlight(
  * no pending request. This is similar to fetchQuery() except that it will not
  * issue a fetch if there isn't already one pending.
  */
-function getObservableForRequestInFlight(
+function getObservableForActiveRequest(
   environment: IEnvironment,
   request: RequestDescriptor,
-): Observable<GraphQLResponse> | null {
+): Observable<void> | null {
   const requestCache = getRequestCache(environment);
   const cachedRequest = requestCache.get(request.identifier);
   if (!cachedRequest) {
     return null;
   }
+  if (!environment.isRequestActive(cachedRequest.identifier)) {
+    return null;
+  }
 
-  return getInFlightStatusObservableForCachedRequest(
+  return getActiveStatusObservableForCachedRequest(
+    environment,
     requestCache,
     cachedRequest,
   );
-}
-
-function hasRequestInFlight(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): boolean {
-  const requestCache = getRequestCache(environment);
-  return requestCache.has(request.identifier);
 }
 
 /**
@@ -334,7 +338,6 @@ function getCachedRequest(
 module.exports = {
   fetchQuery,
   fetchQueryDeduped,
-  getPromiseForRequestInFlight,
-  getObservableForRequestInFlight,
-  hasRequestInFlight,
+  getPromiseForActiveRequest,
+  getObservableForActiveRequest,
 };

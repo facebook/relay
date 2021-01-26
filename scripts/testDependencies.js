@@ -68,12 +68,16 @@ function testPackageDependencies(topLevelPackagePath, packagePath) {
     `${packageName} should have no bundled dependencies.`,
   );
 
-  expectEqual(
-    errors,
-    packageJson.devDependencies,
-    undefined,
-    `${packageName} should have no dev dependencies.`,
-  );
+  // `babel-plugin-relay` requires its devDependencies to be declared because it is
+  // integrated into two workspaces at Facebook.
+  if (packageJson.name !== 'babel-plugin-relay') {
+    expectEqual(
+      errors,
+      packageJson.devDependencies,
+      undefined,
+      `${packageName} should have no dev dependencies.`,
+    );
+  }
 
   const requiredRepoPackages = new Set([
     'relay-compiler',

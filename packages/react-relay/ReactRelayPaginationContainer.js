@@ -692,9 +692,6 @@ function createContainerWithFragments<
       fragmentVariables = getVariablesFromObject(fragments, restProps);
       fragmentVariables = {
         ...rootVariables,
-        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-         * Flow v0.111.0 was deployed. To see the error, delete this comment
-         * and run Flow. */
         ...fragmentVariables,
         ...this._refetchVariables,
       };
@@ -715,9 +712,6 @@ function createContainerWithFragments<
       );
       fetchVariables = {
         ...fetchVariables,
-        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-         * Flow v0.111.0 was deployed. To see the error, delete this comment
-         * and run Flow. */
         ...this._refetchVariables,
       };
       fragmentVariables = {
@@ -732,7 +726,11 @@ function createContainerWithFragments<
         cacheConfig.metadata = options?.metadata;
       }
       const request = getRequest(connectionConfig.query);
-      const operation = createOperationDescriptor(request, fetchVariables);
+      const operation = createOperationDescriptor(
+        request,
+        fetchVariables,
+        cacheConfig,
+      );
 
       let refetchSubscription = null;
 
@@ -788,7 +786,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           preservePreviousReferences: true,
         })
         .mergeMap(payload =>
@@ -858,6 +855,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
 > {
+  // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

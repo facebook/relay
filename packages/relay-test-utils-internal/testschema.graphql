@@ -19,7 +19,10 @@ directive @stream(
   label: String!
   initial_count: Int!
   if: Boolean = true
+  use_customized_batch: Boolean = false
 ) on FIELD
+
+directive @fetchable(field_name: String!) on OBJECT
 
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
@@ -42,7 +45,13 @@ type Query {
   viewer: Viewer
   _mutation: Mutation
   relay_early_flush(query_name: String): [JSDependency!]!
+  fetch__User(id: ID!): User
+  fetch__NonNodeStory(input_fetch_id: ID!): NonNodeStory
+  nonNodeStory(id: ID!): NonNodeStory
+  userOrPage(id: ID!): UserOrPage
 }
+
+union UserOrPage = User | Page
 
 interface MaybeNodeInterface {
   name: String
@@ -51,6 +60,10 @@ interface MaybeNodeInterface {
 scalar JSON
 
 union MaybeNode = Story | FakeNode | NonNode
+
+interface AllConcreteTypesImplementNode {
+  count: Int
+}
 
 type FakeNode {
   id: ID!
@@ -93,8 +106,13 @@ type Mutation {
     input: ApplicationRequestDeleteAllInput
   ): ApplicationRequestDeleteAllResponsePayload
   commentCreate(input: CommentCreateInput): CommentCreateResponsePayload
+  commentsCreate(input: CommentsCreateInput): CommentsCreateResponsePayload
   commentDelete(input: CommentDeleteInput): CommentDeleteResponsePayload
+  commentsDelete(input: CommentsDeleteInput): CommentsDeleteResponsePayload
   feedbackLike(input: FeedbackLikeInput): FeedbackLikeResponsePayload
+  feedbackLikeStrict(
+    input: FeedbackLikeInputStrict!
+  ): FeedbackLikeResponsePayload
   feedbackLikeSubscribe(input: FeedbackLikeInput): FeedbackLikeResponsePayload
   nodeSavedState(input: NodeSaveStateInput): NodeSavedStateResponsePayload
   unfriend(input: UnfriendInput): UnfriendResponsePayload
@@ -102,6 +120,7 @@ type Mutation {
     input: UpdateAllSeenStateInput
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
+  storyUpdate(input: StoryUpdateInput): StoryUpdateResponsePayload
 }
 
 type Subscription {
@@ -132,6 +151,12 @@ input CommentCreateInput {
   feedback: CommentfeedbackFeedback
 }
 
+input CommentsCreateInput {
+  clientMutationId: String
+  feedbackId: ID
+  feedback: [CommentfeedbackFeedback]
+}
+
 input CommentfeedbackFeedback {
   comment: FeedbackcommentComment
 }
@@ -151,9 +176,21 @@ input CommentDeleteInput {
   commentId: ID
 }
 
+input CommentsDeleteInput {
+  clientMutationId: String
+  commentIds: [ID]
+}
+
 input FeedbackLikeInput {
   clientMutationId: String
   feedbackId: ID
+}
+
+input FeedbackLikeInputStrict {
+  userID: ID!
+  clientMutationId: ID!
+  feedbackId: ID!
+  description: String
 }
 
 input NodeSaveStateInput {
@@ -198,6 +235,11 @@ type CheckinSearchResult {
 input CheckinSearchInput {
   query: String
   inputs: [CheckinSearchInput]
+}
+
+input StoryUpdateInput {
+  clientMutationId: String
+  body: Text
 }
 
 type PlainCommentBody {
@@ -283,10 +325,29 @@ type CommentCreateResponsePayload {
   viewer: Viewer
 }
 
+type CommentsCreateResponsePayload {
+  clientMutationId: String
+  comments: [Comment]
+  feedback: [Feedback]
+  feedbackCommentEdges: [CommentsEdge]
+  viewer: Viewer
+}
+
 type CommentDeleteResponsePayload {
   clientMutationId: String
   deletedCommentId: ID
   feedback: Feedback
+}
+
+type CommentsDeleteResponsePayload {
+  clientMutationId: String
+  deletedCommentIds: [ID]
+  feedback: Feedback
+}
+
+type StoryUpdateResponsePayload {
+  clientMutationId: String
+  story: Story
 }
 
 type CommentsConnection {
@@ -333,7 +394,8 @@ type Date {
   year: Int
 }
 
-type Feedback implements Node {
+type Feedback implements Node & HasJsField {
+  js(module: String!, id: String): JSDependency
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -448,6 +510,10 @@ interface Named {
   name: String
 }
 
+interface Entity {
+  url(relative: Boolean, site: String): String
+}
+
 type SimpleNamed implements Named {
   name: String
 }
@@ -556,7 +622,7 @@ type NodeSavedStateResponsePayload {
   node: Node
 }
 
-type Page implements Node & Actor {
+type Page implements Node & Actor & Entity {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -660,13 +726,21 @@ type SegmentsEdge {
   node: String
 }
 
-type NonNodeStory implements FeedUnit {
+type NonNodeStory implements FeedUnit @fetchable(field_name: "fetch_id") {
   actor: Actor
   actorCount: Int
   feedback: Feedback
   id: ID!
+  fetch_id: ID!
   message: Text
   tracking: String
+  comments(
+    after: ID
+    before: ID
+    first: Int
+    last: Int
+    orderby: String
+  ): CommentsConnection
 }
 
 type PhotoStory implements FeedUnit & Node {
@@ -792,6 +866,7 @@ type Story implements FeedUnit & Node & MaybeNodeInterface {
   websites: [String]
   username: String
   viewerSavedState: String
+  flight(component: String, props: ReactFlightProps): ReactFlightComponent
 }
 
 type StoryAttachment {
@@ -901,7 +976,7 @@ input ProfilePictureOptions {
   newName: String
 }
 
-type User implements Named & Node & Actor & HasJsField {
+type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTypesImplementNode {
   actor: Actor
   actors: [Actor]
   actorCount: Int
@@ -948,7 +1023,9 @@ type User implements Named & Node & Actor & HasJsField {
   likeSentence: Text
   message: Text
   name: String
+  alternate_name: String
   nameRenderable(supported: [String!]): UserNameRenderable
+  nameRendererNoSupportedArg: UserNameRenderer
   nameRenderer(supported: [String!]): UserNameRenderer
   nameRendererForContext(
     context: NameRendererContext
@@ -979,6 +1056,9 @@ type User implements Named & Node & Actor & HasJsField {
     additionalParameters: JSON
     options: ProfilePictureOptions
   ): Image
+  neighbors: [User!]
+  nearest_neighbor: User!
+  parents: [User!]!
 }
 
 enum NameRendererContext {
@@ -1010,6 +1090,7 @@ input ItemFilterInput {
 type Viewer {
   configs(named: [String]): ConfigsConnection
   actor: Actor
+  account_user: User
   allTimezones: [TimezoneInfo]
   isFbEmployee: Boolean
   newsFeed(after: ID, first: Int, find: ID): NewsFeedConnection
@@ -1099,3 +1180,41 @@ type Settings {
   notificationSounds: Boolean
   notifications(environment: Environment): Boolean
 }
+
+type IDFieldTests {
+  id_non_null: IDFieldIsIDNonNull
+  id: IDFieldIsID
+  list_of_id: IDFieldIsListOfID
+  string_non_null: IDFieldIsStringNonNull
+  string: IDFieldIsString
+  int_non_null: IDFieldIsIntNonNull
+  int: IDFieldIsInt
+  object: IDFieldIsObject
+}
+type IDFieldIsIDNonNull {
+  id: ID!
+}
+type IDFieldIsID {
+  id: ID
+}
+type IDFieldIsListOfID {
+  id: [ID]
+}
+type IDFieldIsStringNonNull {
+  id: String!
+}
+type IDFieldIsString {
+  id: String
+}
+type IDFieldIsIntNonNull {
+  id: Int!
+}
+type IDFieldIsInt {
+  id: Int
+}
+type IDFieldIsObject {
+  id: Node
+}
+
+scalar ReactFlightComponent
+scalar ReactFlightProps

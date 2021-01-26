@@ -15,19 +15,48 @@
 /**
  * @private
  */
-function createError(type: string, name: string, message: string): Error {
-  const error = new Error(message);
-  error.name = name;
-  (error: any).type = type;
-  (error: any).framesToPop = 2;
+function createError(
+  type: 'fatal' | 'error' | 'warn' | 'info',
+  name: string,
+  messageFormat: string,
+  ...messageParams: Array<string | number | boolean>
+): Error {
+  let index = 0;
+  const message = messageFormat.replace(/%s/g, () =>
+    String(messageParams[index++]),
+  );
+  const err = new Error(message);
+  const error = Object.assign((err: any), {
+    name,
+    messageFormat,
+    messageParams,
+    type,
+    taalOpcodes: [2, 2], // skip frame (code=2) twice
+  });
+  // In V8, Error objects keep the closure scope chain alive until the
+  // err.stack property is accessed.
+  if (error.stack === undefined) {
+    // IE sets the stack only if error is thrown
+    try {
+      throw error;
+    } catch {}
+  }
   return error;
 }
 
 module.exports = {
-  create(name: string, message: string): Error {
-    return createError('mustfix', name, message);
+  create(
+    name: string,
+    messageFormat: string,
+    ...messageParams: Array<string | number | boolean>
+  ): Error {
+    return createError('error', name, messageFormat, ...messageParams);
   },
-  createWarning(name: string, message: string): Error {
-    return createError('warn', name, message);
+  createWarning(
+    name: string,
+    messageFormat: string,
+    ...messageParams: Array<string | number | boolean>
+  ): Error {
+    return createError('warn', name, messageFormat, ...messageParams);
   },
 };

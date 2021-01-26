@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query QueryWithAnotherNameQuery {
+    me {
+        name
+    }
+}
+==================================== ERROR ====================================
+✖︎ Queries in graphql tags must start with the module name ('QueryWithInvalidName') and end with 'Query'. Got 'QueryWithAnotherNameQuery' instead.
+
+  QueryWithInvalidName.invalid.graphql:2:7
+    1 │ #expected-to-throw
+    2 │ query QueryWithAnotherNameQuery {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │     me {

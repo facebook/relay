@@ -12,9 +12,11 @@
 
 'use strict';
 
-const yargs = require('yargs');
+const _yargs = require('yargs');
 
 const {main} = require('./RelayCompilerMain');
+
+import type {Config} from './RelayCompilerMain';
 
 let RelayConfig;
 try {
@@ -96,6 +98,11 @@ const options = {
     type: 'string',
     array: false,
   },
+  repersist: {
+    describe: 'Run the persist function even if the query has not changed.',
+    type: 'boolean',
+    default: false,
+  },
   noFutureProofEnums: {
     describe:
       'This option controls whether or not a catch-all entry is added to enum type definitions ' +
@@ -126,25 +133,34 @@ const options = {
       'Mappings from custom scalars in your schema to built-in GraphQL ' +
       'types, for type emission purposes. (Uses yargs dot-notation, e.g. ' +
       '--customScalars.URL=String)',
-    type: 'object',
+    type: ('object': $FlowFixMe),
+  },
+  eagerESModules: {
+    describe: 'This option enables emitting es modules artifacts.',
+    type: 'boolean',
+    default: false,
   },
 };
 
-// Load external config
-const config = RelayConfig && RelayConfig.loadConfig();
-
 // Parse CLI args
-const argv = yargs
+let yargs = _yargs
   .usage(
     'Create Relay generated files\n\n' +
       '$0 --schema <path> --src <path> [--watch]',
   )
-  // $FlowFixMe - TODO @alloy (OSS): Fix non-existent 'object' type for parsing customScalars config
   .options(options)
+  .strict();
+
+// Load external config
+const config = RelayConfig && RelayConfig.loadConfig();
+if (config) {
   // Apply externally loaded config through the yargs API so that we can leverage yargs' defaults and have them show up
-  // in the help banner.
-  .config(config)
-  .help().argv;
+  // in the help banner. We add it conditionally otherwise yargs would add new option `--config` which is confusing for
+  // Relay users (it's not Relay Config file).
+  yargs = yargs.config(config);
+}
+
+const argv: Config = (yargs.help().argv: $FlowFixMe);
 
 // Start the application
 main(argv).catch(error => {

@@ -1,0 +1,15 @@
+# expected-to-throw
+query MatchWithVariableName($key: String) {
+  me {
+    nameRenderer @match(key: $key) {
+      ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}

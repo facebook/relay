@@ -19,13 +19,14 @@
  */
 function simpleClone<T>(value: T): T {
   if (Array.isArray(value)) {
+    // $FlowFixMe[incompatible-return]
     return value.map(simpleClone);
   } else if (value != null && typeof value === 'object') {
     const result = {};
     for (const key in value) {
       result[key] = simpleClone(value[key]);
     }
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-return]
     return result;
   } else {
     return value;

@@ -1,0 +1,14 @@
+# expected-to-throw
+query missingArgumentOnLinkedFieldInInlineFragmentViewerQuery {
+  node {
+    ... on Comment {
+      commentBody {
+        ... on PlainCommentBody {
+          text {
+            text
+          }
+        }
+      }
+    }
+  }
+}

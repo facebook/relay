@@ -316,9 +316,6 @@ function createContainerWithFragments<
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
           : refetchVariables;
-      /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when Flow
-       * v0.111.0 was deployed. To see the error, delete this comment and run
-       * Flow. */
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
         ? {...fetchVariables, ...renderVariables}
@@ -342,7 +339,11 @@ function createContainerWithFragments<
           : observerOrCallback || ({}: any);
 
       const query = getRequest(taggedNode);
-      const operation = createOperationDescriptor(query, fetchVariables);
+      const operation = createOperationDescriptor(
+        query,
+        fetchVariables,
+        cacheConfig,
+      );
 
       // TODO: T26288752 find a better way
       /* eslint-disable lint/react-state-props-mutation */
@@ -387,7 +388,6 @@ function createContainerWithFragments<
         .execute({
           environment,
           operation,
-          cacheConfig,
           // TODO (T26430099): Cleanup old references
           preservePreviousReferences: true,
         })
@@ -471,6 +471,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
 ): React.ComponentType<
   $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
 > {
+  // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

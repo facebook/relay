@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+fragment NullableIDFirstFragment on Query {
+  ...NullableIDFragment @relay(mask: false)
+  ...NonNullIDFragment @relay(mask: false)
+}
+
+fragment NonNullableIDFirstFragment on Query {
+  ...NonNullIDFragment @relay(mask: false)
+  ...NullableIDFragment @relay(mask: false)
+}
+
+fragment NullableIDFragment on Query {
+  node(id: $id) {
+    id
+  }
+}
+
+fragment NonNullIDFragment on Query {
+  node_id_required(id: $id) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+OK

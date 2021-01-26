@@ -13,7 +13,6 @@
 
 'use strict';
 
-const ExecutionEnvironment = require('fbjs/lib/ExecutionEnvironment');
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
@@ -24,12 +23,11 @@ const CACHE_CAPACITY = 1000;
 
 const DEFAULT_FETCH_POLICY = 'store-or-network';
 
-const DATA_RETENTION_TIMEOUT = 30 * 1000;
+const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
 
 import type {
   Disposable,
   FetchPolicy,
-  FragmentPointer,
   GraphQLResponse,
   IEnvironment,
   Observable,
@@ -46,6 +44,7 @@ export type QueryResource = QueryResourceImpl;
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
+  +id: number,
   +cacheKey: string,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
@@ -57,14 +56,20 @@ type QueryResourceCacheEntry = {|
 |};
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
-  fragmentRef: FragmentPointer,
+  fragmentRef: mixed,
   ...
 } = {|
   cacheKey: string,
   fragmentNode: ReaderFragment,
-  fragmentRef: FragmentPointer,
+  fragmentRef: mixed,
   operation: OperationDescriptor,
 |};
+
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+interface IMap<K, V> {
+  get(key: K): V | void;
+  set(key: K, value: V): IMap<K, V>;
+}
 
 function getQueryCacheKey(
   operation: OperationDescriptor,
@@ -92,6 +97,8 @@ function getQueryResult(
     operation,
   };
 }
+
+let nextID = 200000;
 
 function createCacheEntry(
   cacheKey: string,
@@ -131,6 +138,7 @@ function createCacheEntry(
 
   const cacheEntry = {
     cacheKey,
+    id: nextID++,
     getValue() {
       return currentValue;
     },
@@ -152,7 +160,7 @@ function createCacheEntry(
     temporaryRetain(environment: IEnvironment): Disposable {
       // NOTE: If we're executing in a server environment, there's no need
       // to create temporary retains, since the component will never commit.
-      if (!ExecutionEnvironment.canUseDOM) {
+      if (environment.isServer()) {
         return {dispose: () => {}};
       }
 
@@ -173,6 +181,12 @@ function createCacheEntry(
         releaseQueryTimeout = null;
         releaseTemporaryRetain = null;
         disposable.dispose();
+        // Normally if this entry never commits, the request would've ended by the
+        // time this timeout expires and the temporary retain is released. However,
+        // we need to do this for live queries which remain open indefinitely.
+        if (retainCount <= 0 && currentNetworkSubscription != null) {
+          currentNetworkSubscription.unsubscribe();
+        }
       };
       releaseQueryTimeout = setTimeout(
         localReleaseTemporaryRetain,
@@ -242,8 +256,9 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     maybeFetchPolicy: ?FetchPolicy,
     maybeRenderPolicy: ?RenderPolicy,
-    observer?: Observer<Snapshot>,
+    observer: ?Observer<Snapshot>,
     cacheKeyBuster: ?string | ?number,
+    profilerContext: mixed,
   ): QueryResult {
     const environment = this._environment;
     const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
@@ -268,6 +283,7 @@ class QueryResourceImpl {
         fetchObservable,
         fetchPolicy,
         renderPolicy,
+        profilerContext,
         {
           ...observer,
           unsubscribe(subscription) {
@@ -305,7 +321,7 @@ class QueryResourceImpl {
    * (e.g. inside useEffect), in order to retain the operation in the Relay store
    * and transfer ownership of the operation to the component lifecycle.
    */
-  retain(queryResult: QueryResult): Disposable {
+  retain(queryResult: QueryResult, profilerContext: mixed): Disposable {
     const environment = this._environment;
     const {cacheKey, operation} = queryResult;
     const cacheEntry = this._getOrCreateCacheEntry(
@@ -315,6 +331,11 @@ class QueryResourceImpl {
       null,
     );
     const disposable = cacheEntry.permanentRetain(environment);
+    environment.__log({
+      name: 'queryresource.retain',
+      profilerContext,
+      resourceID: cacheEntry.id,
+    });
 
     return {
       dispose: () => {
@@ -367,7 +388,8 @@ class QueryResourceImpl {
     fetchObservable: Observable<GraphQLResponse>,
     fetchPolicy: FetchPolicy,
     renderPolicy: RenderPolicy,
-    observer?: Observer<Snapshot>,
+    profilerContext: mixed,
+    observer: Observer<Snapshot>,
   ): QueryResourceCacheEntry {
     const environment = this._environment;
 
@@ -376,10 +398,10 @@ class QueryResourceImpl {
     // We run it here first to make the handlers get a chance to populate
     // missing data.
     const queryAvailability = environment.check(operation);
-    const hasFullQuery = queryAvailability === 'available';
+    const queryStatus = queryAvailability.status;
+    const hasFullQuery = queryStatus === 'available';
     const canPartialRender =
-      hasFullQuery ||
-      (renderPolicy === 'partial' && queryAvailability !== 'stale');
+      hasFullQuery || (renderPolicy === 'partial' && queryStatus !== 'stale');
 
     let shouldFetch;
     let shouldAllowRender;
@@ -423,15 +445,6 @@ class QueryResourceImpl {
       );
       this._cache.set(cacheKey, cacheEntry);
     }
-
-    environment.__log({
-      name: 'queryresource.fetch',
-      operation,
-      fetchPolicy,
-      renderPolicy,
-      queryAvailability,
-      shouldFetch,
-    });
 
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheKey);
@@ -496,7 +509,7 @@ class QueryResourceImpl {
           resolveNetworkPromise = resolve;
         });
 
-        // $FlowExpectedError Expando to annotate Promises.
+        // $FlowExpectedError[prop-missing] Expando to annotate Promises.
         networkPromise.displayName =
           'Relay(' + operation.fragment.node.name + ')';
 
@@ -519,6 +532,16 @@ class QueryResourceImpl {
       'Relay: Expected to have cached a result when attempting to fetch query.' +
         "If you're seeing this, this is likely a bug in Relay.",
     );
+    environment.__log({
+      name: 'queryresource.fetch',
+      resourceID: cacheEntry.id,
+      operation,
+      profilerContext,
+      fetchPolicy,
+      renderPolicy,
+      queryAvailability,
+      shouldFetch,
+    });
     return cacheEntry;
   }
 }
@@ -527,7 +550,10 @@ function createQueryResource(environment: IEnvironment): QueryResource {
   return new QueryResourceImpl(environment);
 }
 
-const dataResources: Map<IEnvironment, QueryResource> = new Map();
+const dataResources: IMap<IEnvironment, QueryResource> = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
+
 function getQueryResourceForEnvironment(
   environment: IEnvironment,
 ): QueryResourceImpl {

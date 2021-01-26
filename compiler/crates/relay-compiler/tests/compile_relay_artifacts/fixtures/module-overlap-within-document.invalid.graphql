@@ -1,0 +1,41 @@
+# expected-to-throw
+query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...moduleOverlapWithinDocument_FooNameRendererFragment
+    ...moduleOverlapWithinDocument_BarNameRendererFragment
+  }
+}
+
+fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      @module(name: "FooMarkdownUserNameRenderer.react")
+    ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
+      @module(name: "FooPlainUserNameRenderer.react")
+  }
+}
+
+fragment moduleOverlapWithinDocument_BarNameRendererFragment on User {
+  # same field alias as above and using standalone @module, so this should
+  # flatten with the above selections even though the supported types are
+  # different
+  nameRenderer {
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      @module(name: "BarMarkdownUserNameRenderer.react")
+  }
+}
+
+fragment moduleOverlapWithinDocument_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

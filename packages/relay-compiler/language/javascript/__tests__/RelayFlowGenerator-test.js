@@ -17,6 +17,7 @@ const CompilerContext = require('../../../core/CompilerContext');
 const RelayFlowGenerator = require('../RelayFlowGenerator');
 const RelayIRTransforms = require('../../../core/RelayIRTransforms');
 
+const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,
   generateTestsFromFixtures,
@@ -47,11 +48,16 @@ function generate(text, options: TypeGeneratorOptions, context?) {
       doc =>
         `// ${doc.name}.graphql\n${RelayFlowGenerator.generate(
           extendedSchema,
-          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          /* $FlowFixMe[incompatible-call] - `SplitOperation` is incompatible
+           * with union type. */
           doc,
-          // $FlowFixMe - `SplitOperation` is incompatible with union type.
+          // $FlowFixMe[prop-missing] - `SplitOperation` is incompatible with union type.
           {
             ...options,
+            /* $FlowFixMe[incompatible-call] - `SplitOperation` is incompatible
+             * with union type. */
+            /* $FlowFixMe[prop-missing] - `SplitOperation` is incompatible with
+             * union type. */
             normalizationIR: context ? context.get(doc.name) : undefined,
           },
         )}`,
@@ -60,6 +66,13 @@ function generate(text, options: TypeGeneratorOptions, context?) {
 }
 
 describe('Snapshot tests', () => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
+  });
   function generateContext(text) {
     const relaySchema = TestSchema.extend(RelayIRTransforms.schemaExtensions);
     const {definitions, schema: extendedSchema} = parseGraphQLText(
@@ -83,7 +96,6 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: true,
             useSingleArtifactDirectory: false,
@@ -103,7 +115,6 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: false,
             useSingleArtifactDirectory: true,
@@ -123,7 +134,6 @@ describe('Snapshot tests', () => {
           text,
           {
             customScalars: {},
-            existingFragmentNames: new Set(['PhotoFragment']),
             optionalInputFields: [],
             useHaste: false,
             useSingleArtifactDirectory: false,
@@ -144,7 +154,6 @@ it('does not add `%future added values` when the noFutureProofEnums option is se
   `;
   const types = generate(text, {
     customScalars: {},
-    existingFragmentNames: new Set(['PhotoFragment']),
     optionalInputFields: [],
     useHaste: true,
     useSingleArtifactDirectory: false,
@@ -166,7 +175,6 @@ test('import enum definitions from single module', () => {
   const types = generate(text, {
     customScalars: {},
     enumsHasteModule: 'MyGraphQLEnums',
-    existingFragmentNames: new Set([]),
     optionalInputFields: [],
     useHaste: true,
     noFutureProofEnums: false,
@@ -186,7 +194,6 @@ test('import enum definitions from enum specific module', () => {
   const types = generate(text, {
     customScalars: {},
     enumsHasteModule: (enumName: string) => `${enumName}.graphqlenum`,
-    existingFragmentNames: new Set([]),
     optionalInputFields: [],
     useHaste: true,
     noFutureProofEnums: false,
@@ -206,7 +213,6 @@ describe('custom scalars', () => {
   `;
   const generateWithMapping = mapping =>
     generate(text, {
-      existingFragmentNames: new Set([]),
       optionalInputFields: [],
       useHaste: false,
       customScalars: mapping,
@@ -253,7 +259,6 @@ it('imports fragment refs from siblings in a single artifact dir', () => {
   `;
   const types = generate(text, {
     customScalars: {},
-    existingFragmentNames: new Set(['PhotoFragment']),
     optionalInputFields: [],
     // This is what's different from the tests above.
     useHaste: false,

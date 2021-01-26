@@ -1,0 +1,34 @@
+query MyQuery($id: ID) {
+  node(id: $id) {
+    ...ActorFragment
+    ...UserFragment
+  }
+}
+
+query AnotherQuery($id: ID) {
+  node(id: $id) {
+    ...NestedUserFragment
+    ...NestedActorFragment
+  }
+}
+
+fragment UserFragment on User {
+  name
+  likers(first: 5) {
+    count
+  }
+  ...NestedUserFragment
+}
+
+fragment ActorFragment on Actor {
+  id
+  ...NestedActorFragment
+}
+
+fragment NestedUserFragment on User {
+  username
+}
+
+fragment NestedActorFragment on Actor {
+  name
+}

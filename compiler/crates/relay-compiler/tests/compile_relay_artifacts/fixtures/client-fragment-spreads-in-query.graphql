@@ -1,0 +1,26 @@
+query clientFragmentSpreadsInQuery_FooQuery($id: ID!) {
+  node(id: $id) {
+    ...clientFragmentSpreadsInQuery_Foo_user
+  }
+}
+
+fragment clientFragmentSpreadsInQuery_Foo_user on User {
+  id
+  foo {
+    ...clientFragmentSpreadsInQuery_ClientTypeFragment
+  }
+}
+
+fragment clientFragmentSpreadsInQuery_ClientTypeFragment on ClientType {
+  client_field
+}
+
+# %extensions%
+
+extend type User {
+  foo: ClientType
+}
+
+type ClientType {
+  client_field: String
+}

@@ -1,0 +1,37 @@
+query kitchenSink_NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
+  node(id: $id) {
+    id
+    ... on User @include(if: $cond) {
+      name
+    }
+    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize)
+  }
+}
+
+fragment kitchenSink_UserFragment on User
+  @argumentDefinitions(
+    after: {type: "ID"}
+    cond: {type: "Boolean!", defaultValue: false}
+    first: {type: "Int", defaultValue: 5}
+    size: {type: "[Int]"}
+  ) {
+  id
+  __typename
+  friends(after: $after, first: $first) {
+    count
+  }
+  name @include(if: $cond)
+  thumbnail: profilePicture(size: 32) {
+    height
+    width
+    src: uri
+  }
+  profilePicture(size: $size) {
+    height
+    width
+    src: uri
+  }
+  scaled: profilePicture(size: $PictureSize) {
+    uri
+  }
+}

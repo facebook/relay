@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments") {
+        commentEdges: edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, null, null, false]]) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection") {
+        commentEdges: edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
+        edges {
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

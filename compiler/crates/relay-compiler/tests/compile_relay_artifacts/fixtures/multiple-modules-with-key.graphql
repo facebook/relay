@@ -1,0 +1,30 @@
+query multipleModulesWithKey_MatchQuery {
+  node(id: "<user-id>") {
+    ... on Actor {
+      nameRenderer @match(key: "multipleModulesWithKey_MatchQuery_nameRenderer") {
+        ...multipleModulesWithKey_PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+      }
+    }
+    ... on User {
+      nameRenderable {
+        ...multipleModulesWithKey_MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment multipleModulesWithKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

@@ -27,8 +27,16 @@ const {
 const {getSingularSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 describe('execute() a query with @module', () => {
-  let callbacks;
+  let callbacks: {|
+    +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+    +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
+    +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+    +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+    +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+  |};
   let complete;
   let dataSource;
   let environment;
@@ -36,10 +44,14 @@ describe('execute() a query with @module', () => {
   let fetch;
   let markdownRendererFragment;
   let markdownRendererNormalizationFragment;
+  let MarkupHandler;
   let next;
   let operation;
   let operationCallback;
-  let operationLoader;
+  let operationLoader: {|
+    +get: (reference: mixed) => ?NormalizationRootNode,
+    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+  |};
   let query;
   let resolveFragment;
   let source;
@@ -85,7 +97,7 @@ describe('execute() a query with @module', () => {
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
-    const MarkupHandler = {
+    MarkupHandler = {
       update(storeProxy, payload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
@@ -259,7 +271,7 @@ describe('execute() a query with @module', () => {
     });
   });
 
-  it('synchronously normalizes/publishes the field payload if @match fragment is available synchronously', () => {
+  it('synchronously normalizes/publishes the field payload if @module fragment is available synchronously', () => {
     environment.execute({operation}).subscribe(callbacks);
     jest
       .spyOn(operationLoader, 'get')
@@ -277,6 +289,7 @@ describe('execute() a query with @module', () => {
               'MarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'markup-data-id-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -566,5 +579,112 @@ describe('execute() a query with @module', () => {
     expect(next).toBeCalledTimes(0);
     expect(operationCallback).toBeCalledTimes(0); // operation result shouldn't change
     expect(matchCallback).toBeCalledTimes(0); // match results don't change
+  });
+
+  describe('when using a scheduler', () => {
+    let taskID;
+    let tasks;
+    let scheduler;
+    let runTask;
+
+    beforeEach(() => {
+      taskID = 0;
+      tasks = new Map();
+      scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        scheduler,
+        store,
+        operationLoader,
+        handlerProvider: name => {
+          switch (name) {
+            case 'markup_handler':
+              return MarkupHandler;
+          }
+        },
+      });
+    });
+
+    it('synchronously normalizes/publishes the field payload in a single scheduler step if @module fragment is available synchronously', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      jest
+        .spyOn(operationLoader, 'get')
+        .mockImplementationOnce(() => markdownRendererNormalizationFragment);
+
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              id: 'nameRenderer-1',
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
+              __module_operation_UserQuery:
+                'MarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                id: 'markup-data-id-1',
+                // NOTE: should be uppercased when normalized (by MarkupHandler)
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+
+      // Run scheduler task to process @module
+      expect(tasks.size).toBe(1);
+      runTask();
+
+      expect(next).toBeCalledTimes(1);
+      next.mockClear();
+
+      // A new task should not have been scheduled to process the
+      // @module data, it should've be processed synchronously
+      // in the same tasks
+      expect(tasks.size).toBe(0);
+
+      expect(operationCallback).toBeCalledTimes(1); // initial results tested above
+      const operationSnapshot = operationCallback.mock.calls[0][0];
+      operationCallback.mockClear();
+
+      const matchSelector = nullthrows(
+        getSingularSelector(
+          markdownRendererFragment,
+          (operationSnapshot.data?.node: any)?.nameRenderer,
+        ),
+      );
+
+      // At this point the matchSnapshot should contain all the data,
+      // since it should've been normalized synchronously
+      const matchSnapshot = environment.lookup(matchSelector);
+      expect(matchSnapshot.isMissingData).toBe(false);
+      expect(matchSnapshot.data).toEqual({
+        __typename: 'MarkdownUserNameRenderer',
+        data: {
+          // NOTE: should be uppercased by the MarkupHandler
+          markup: '<MARKUP/>',
+        },
+        markdown: 'markdown payload',
+      });
+    });
   });
 });

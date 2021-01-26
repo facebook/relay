@@ -1,0 +1,167 @@
+==================================== INPUT ====================================
+query abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    # After inlining even though `id` will be skipped:
+    #  - Printed query should still select __isNode and __isActor
+    #  - Normalization ast should include inline fragments with abstractKeys for Node and Actor
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment
+  }
+}
+
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment on Actor {
+  username
+  ... on Node {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "4"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "username",
+                "storageKey": null
+              },
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              }
+            ],
+            "type": "Actor",
+            "abstractKey": "__isActor"
+          }
+        ],
+        "storageKey": "node(id:\"4\")"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery {
+  node(id: "4") {
+    __typename
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment
+    id
+  }
+}
+
+fragment abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment on Actor {
+  __isActor: __typename
+  username
+  ... on Node {
+    __isNode: __typename
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "username",
+      "storageKey": null
+    },
+    {
+      "kind": "InlineFragment",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "type": "Node",
+      "abstractKey": "__isNode"
+    }
+  ],
+  "type": "Actor",
+  "abstractKey": "__isActor"
+}

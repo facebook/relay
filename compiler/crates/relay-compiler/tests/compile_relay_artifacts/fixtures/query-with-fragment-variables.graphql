@@ -1,0 +1,23 @@
+query queryWithFragmentVariables_TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
+  node(id: $id) {
+    id
+    ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize)
+    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond)
+  }
+}
+
+fragment queryWithFragmentVariables_ProfileFriends on User {
+  friends(first: 10) {
+    edges {
+      node {
+        ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize)
+      }
+    }
+  }
+}
+
+fragment queryWithFragmentVariables_Profile on User @argumentDefinitions(pictureSize: {type: "[Int]"}) {
+  profilePicture(size: $pictureSize) {
+    uri
+  }
+}

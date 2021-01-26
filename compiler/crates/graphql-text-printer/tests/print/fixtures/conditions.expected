@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+fragment UserFragment on User {
+  name @include(if: $condition)
+  ... @skip(if: $condition) {
+    id
+    __typename
+  }
+  ... @include(if: $conditional) {
+    ...NestedFragment
+  }
+  ...NestedFragment2 @include(if: $conditional)
+  ...NestedFragment3 @include(if: $conditional)
+  ...NestedFragment3 @skip(if: $conditional)
+}
+
+fragment NestedFragment on User {
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+}
+
+fragment NestedFragment3 on User {
+  name
+}
+
+fragment NestedFragment4 on User {
+  name
+}
+==================================== OUTPUT ===================================
+fragment UserFragment on User {
+  name @include(if: $condition)
+  ... @skip(if: $condition) {
+    id
+    __typename
+  }
+  ... @include(if: $conditional) {
+    ...NestedFragment
+  }
+  ...NestedFragment2 @include(if: $conditional)
+  ...NestedFragment3 @include(if: $conditional)
+  ...NestedFragment3 @skip(if: $conditional)
+}
+
+fragment NestedFragment on User {
+  name
+}
+
+fragment NestedFragment2 on User {
+  name
+}
+
+fragment NestedFragment3 on User {
+  name
+}
+
+fragment NestedFragment4 on User {
+  name
+}

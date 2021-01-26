@@ -13,6 +13,12 @@
 
 'use strict';
 
+const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
+const RelayModernStore = require('../../store/RelayModernStore');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
+const RelayRecordSource = require('../../store/RelayRecordSource');
+
 const requestSubscription = require('../requestSubscription');
 
 const {
@@ -187,6 +193,73 @@ describe('requestSubscription-test', () => {
           },
         },
       },
+    });
+  });
+
+  describe('requestSubscription() cacheConfig', () => {
+    let cacheMetadata;
+    let environment;
+    let CommentCreateSubscription;
+    const feedbackId = 'foo';
+    const secondCommentBody = 'second comment';
+    const metadata = {
+      text: 'Gave Relay',
+    };
+    const variables = {
+      feedbackId,
+      text: secondCommentBody,
+      clientSubscriptionId: '0',
+    };
+
+    beforeEach(() => {
+      ({CommentCreateSubscription} = generateAndCompile(`
+      subscription CommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput
+      ) {
+        commentCreateSubscribe(input: $input) {
+          feedbackCommentEdge {
+            node {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+      }
+    `));
+
+      cacheMetadata = undefined;
+      const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+        cacheMetadata = _cacheConfig.metadata;
+        return RelayObservable.create(() => {});
+      });
+      const source = RelayRecordSource.create({});
+      const store = new RelayModernStore(source);
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch, fetch),
+        store,
+      });
+    });
+    it('with cacheConfig', () => {
+      requestSubscription(environment, {
+        subscription: CommentCreateSubscription,
+        variables,
+        cacheConfig: {
+          metadata,
+        },
+      });
+
+      expect(cacheMetadata).toEqual(metadata);
+    });
+
+    it('without cacheConfig', () => {
+      requestSubscription(environment, {
+        subscription: CommentCreateSubscription,
+        variables,
+      });
+
+      expect(cacheMetadata).toEqual(undefined);
     });
   });
 });

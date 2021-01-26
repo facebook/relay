@@ -1,0 +1,58 @@
+directive @source(schema: String!, name: String!) on ENUM | INPUT_OBJECT | INTERFACE | OBJECT | SCALAR | UNION
+
+schema {
+  query: Query
+}
+
+type Query {
+  node(id: ID!): Node
+  nodes(ids: [ID!]!): [Node!]!
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}
+
+type Page {
+  id: ID
+  type: PageType
+}
+
+enum PageType {
+  DEAULT @deprecated(reason: "No longer supported")
+  PUBLIC
+  PRIVATE
+}
+
+union Actor = User | Page
+
+scalar URL @source(schema: "facebook", name: "ID")
+
+input Location @source(schema: "facebook", name: "Location") {
+  lat: Float!
+  lon: Float!
+  city: String
+  zip: Int
+  previous_cities: [String!]
+}
+
+scalar Float
+
+scalar Int
+
+scalar String
+
+# %extensions%
+
+type ClientType {
+  clientName: String
+}
+extend type User {
+  nickname: String
+  client: ClientType
+}

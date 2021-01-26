@@ -76,12 +76,11 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   function useBlockingPaginationFragment(fragmentNode, fragmentRef) {
-    /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-     * when Flow v0.108.0 was deployed. To see the error delete this comment
-     * and run Flow. */
+    // $FlowFixMe[incompatible-call]
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[prop-missing]
       fragmentRef,
     );
     loadNext = result.loadNext;
@@ -130,9 +129,6 @@ describe('useBlockingPaginationFragment', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-      canUseDOM: () => true,
-    }));
     renderSpy = jest.fn();
 
     ({
@@ -155,6 +151,7 @@ describe('useBlockingPaginationFragment', () => {
         @argumentDefinitions(
           isViewerFriendLocal: {type: "Boolean", defaultValue: false}
           orderby: {type: "[String]"}
+          scale: {type: "Float"}
         ) {
           id
           name
@@ -165,7 +162,8 @@ describe('useBlockingPaginationFragment', () => {
             last: $last,
             orderby: $orderby,
             isViewerFriend: $isViewerFriendLocal
-          ) @connection(key: "UserFragment_friends") {
+            scale: $scale
+          ) @connection(key: "UserFragment_friends", filters: ["orderby", "isViewerFriend"]) {
             edges {
               node {
                 id
@@ -383,9 +381,8 @@ describe('useBlockingPaginationFragment', () => {
       setOwner = _setOwner;
       forceUpdate = _setCount;
 
-      /* $FlowFixMe(>=0.108.0 site=www,mobile,react_native_fb,oss) This comment suppresses an error found
-       * when Flow v0.108.0 was deployed. To see the error delete this comment
-       * and run Flow. */
+      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[prop-missing]
       const {data: userData} = useBlockingPaginationFragment(fragment, userRef);
       return <Renderer user={userData} />;
     };
@@ -421,6 +418,7 @@ describe('useBlockingPaginationFragment', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       });
@@ -458,7 +456,7 @@ describe('useBlockingPaginationFragment', () => {
   });
 
   describe('initial render', () => {
-    // The bulk of initial render behavior is covered in useFragmentNodes-test,
+    // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
@@ -658,7 +656,7 @@ describe('useBlockingPaginationFragment', () => {
       jest
         .spyOn(
           require('relay-runtime').__internal,
-          'getPromiseForRequestInFlight',
+          'getPromiseForActiveRequest',
         )
         .mockImplementationOnce(() => Promise.resolve());
 
@@ -681,22 +679,10 @@ describe('useBlockingPaginationFragment', () => {
   });
 
   describe('pagination', () => {
-    let runScheduledCallback = () => {};
     let release;
 
     beforeEach(() => {
       jest.resetModules();
-      jest.doMock('scheduler', () => {
-        const original = jest.requireActual('scheduler/unstable_mock');
-        return {
-          ...original,
-          unstable_next: cb => {
-            runScheduledCallback = () => {
-              original.unstable_next(cb);
-            };
-          },
-        };
-      });
 
       release = jest.fn();
       environment.retain.mockImplementation((...args) => {
@@ -704,10 +690,6 @@ describe('useBlockingPaginationFragment', () => {
           dispose: release,
         };
       });
-    });
-
-    afterEach(() => {
-      jest.dontMock('scheduler');
     });
 
     function expectRequestIsInFlight(expected) {
@@ -762,8 +744,9 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
 
-        renderer.unmount();
-
+        TestRenderer.act(() => {
+          renderer.unmount();
+        });
         TestRenderer.act(() => {
           loadNext(1);
         });
@@ -823,6 +806,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -832,21 +816,28 @@ describe('useBlockingPaginationFragment', () => {
           gqlPaginationQuery,
         });
 
+        expect(callback).toBeCalledTimes(0);
+
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+
         expect(environment.execute).toBeCalledTimes(1);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 
-      it('does not load more if parent query is already in flight (i.e. during streaming)', () => {
+      it('does not load more if parent query is already active (i.e. during streaming)', () => {
         // This prevents console.error output in the test, which is expected
         jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-        jest
-          .spyOn(require('relay-runtime').__internal, 'hasRequestInFlight')
-          .mockImplementationOnce(() => true);
+        const {
+          __internal: {fetchQuery},
+        } = require('relay-runtime');
+
+        fetchQuery(environment, query).subscribe({});
+
         const callback = jest.fn();
+        environment.execute.mockClear();
         renderFragment();
 
         expectFragmentResults([
@@ -860,7 +851,7 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         expect(environment.execute).toBeCalledTimes(0);
-        expect(callback).toBeCalledTimes(0);
+        expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
       });
 
@@ -920,6 +911,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -995,6 +987,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1034,14 +1027,15 @@ describe('useBlockingPaginationFragment', () => {
           );
         });
 
-        // $FlowFixMe
-        const calls = warning.mock.calls.filter(call => call[0] === false);
+        // $FlowFixMe[prop-missing]
+        const calls = warning.mock.calls.filter(
+          call =>
+            call[0] === false &&
+            call[1].includes(
+              'Relay: Unexpected call to `%s` at a priority higher than expected',
+            ),
+        );
         expect(calls.length).toEqual(1);
-        expect(
-          calls[0][1].includes(
-            'Relay: Unexpected call to `%s` at a priority higher than expected',
-          ),
-        ).toEqual(true);
         expect(calls[0][2]).toEqual('loadNext');
         expect(environment.execute).toHaveBeenCalledTimes(1);
       });
@@ -1104,6 +1098,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1165,6 +1160,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1286,6 +1282,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: true,
           orderby: ['name'],
+          scale: null,
         };
         expect(paginationVariables.isViewerFriendLocal).not.toBe(
           variables.isViewerFriend,
@@ -1392,6 +1389,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1572,7 +1570,9 @@ describe('useBlockingPaginationFragment', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
-      it('does not suspend if pagination update is interruped before it commits (unsuspends)', () => {
+      // TODO(T64875643): Re-enable after next React sync to fbsource
+      // eslint-disable-next-line jest/no-disabled-tests
+      it.skip('does not suspend if pagination update is interruped before it commits (unsuspends)', () => {
         const callback = jest.fn();
         const renderer = renderFragment({isConcurrent: true});
         expectFragmentResults([
@@ -1596,6 +1596,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1617,17 +1618,12 @@ describe('useBlockingPaginationFragment', () => {
 
         Scheduler.unstable_flushAll();
 
-        // Assert high-pri update is rendered when initial update
+        // Assert high-pri update when initial update
         // that suspended hasn't committed
-        // Assert that the avoided Suspense fallback isn't rendered
-        expect(renderer.toJSON()).toEqual(null);
-        expectFragmentResults([
-          {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-          },
-        ]);
+        // Assert fallback is still rendered despite high-pri update
+        // as per React's expected behavior
+        expect(renderSpy).toBeCalledTimes(0);
+        expect(renderer.toJSON()).toEqual('Fallback');
 
         // Assert list is updated after pagination request completes
         environment.mock.resolve(gqlPaginationQuery, {
@@ -1704,7 +1700,7 @@ describe('useBlockingPaginationFragment', () => {
       it('updates are ignored while loading more (i.e. while suspended)', () => {
         jest.doMock('../useLoadMoreFunction');
         const useLoadMoreFunction = require('../useLoadMoreFunction');
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         useLoadMoreFunction.mockImplementation((...args) =>
           jest.requireActual('../useLoadMoreFunction')(...args),
         );
@@ -1730,6 +1726,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1739,7 +1736,7 @@ describe('useBlockingPaginationFragment', () => {
           gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
-        // $FlowFixMe
+        // $FlowFixMe[prop-missing]
         useLoadMoreFunction.mockClear();
 
         environment.commitPayload(query, {
@@ -1780,6 +1777,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -1897,6 +1895,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -2080,6 +2079,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: expectedUser,
@@ -2246,6 +2246,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -2350,6 +2351,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -2392,6 +2394,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -2488,6 +2491,226 @@ describe('useBlockingPaginationFragment', () => {
         expect(callback).toBeCalledTimes(1);
       });
 
+      describe('extra variables', () => {
+        it('loads and renders the next items in the connection when passing extra variables', () => {
+          const callback = jest.fn();
+          const renderer = renderFragment();
+          expectFragmentResults([
+            {
+              data: initialUser,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+
+          TestRenderer.act(() => {
+            loadNext(1, {
+              onComplete: callback,
+              // Pass extra variables that are different from original request
+              UNSTABLE_extraVariables: {scale: 2.0},
+            });
+          });
+          const paginationVariables = {
+            id: '1',
+            after: 'cursor:1',
+            first: 1,
+            before: null,
+            last: null,
+            isViewerFriendLocal: false,
+            orderby: ['name'],
+            // Assert that value from extra variables is used
+            scale: 2.0,
+          };
+          expectFragmentIsLoadingMore(renderer, direction, {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            paginationVariables,
+            gqlPaginationQuery,
+          });
+          expect(callback).toBeCalledTimes(0);
+
+          environment.mock.resolve(gqlPaginationQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice',
+                friends: {
+                  edges: [
+                    {
+                      cursor: 'cursor:2',
+                      node: {
+                        __typename: 'User',
+                        id: 'node:2',
+                        name: 'name:node:2',
+                        username: 'username:node:2',
+                      },
+                    },
+                  ],
+                  pageInfo: {
+                    startCursor: 'cursor:2',
+                    endCursor: 'cursor:2',
+                    hasNextPage: true,
+                    hasPreviousPage: true,
+                  },
+                },
+              },
+            },
+          });
+
+          const expectedUser = {
+            ...initialUser,
+            friends: {
+              ...initialUser.friends,
+              edges: [
+                {
+                  cursor: 'cursor:1',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:1',
+                    name: 'name:node:1',
+                    ...createFragmentRef('node:1', query),
+                  },
+                },
+                {
+                  cursor: 'cursor:2',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:2',
+                    name: 'name:node:2',
+                    ...createFragmentRef('node:2', query),
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:2',
+                hasNextPage: true,
+                hasPreviousPage: false,
+                startCursor: 'cursor:1',
+              },
+            },
+          };
+          expectFragmentResults([
+            {
+              data: expectedUser,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+          expect(callback).toBeCalledTimes(1);
+        });
+
+        it('loads the next items in the connection and ignores any pagination vars passed as extra vars', () => {
+          const callback = jest.fn();
+          const renderer = renderFragment();
+          expectFragmentResults([
+            {
+              data: initialUser,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+
+          TestRenderer.act(() => {
+            loadNext(1, {
+              onComplete: callback,
+              // Pass pagination vars as extra variables
+              UNSTABLE_extraVariables: {first: 100, after: 'foo'},
+            });
+          });
+          const paginationVariables = {
+            id: '1',
+            // Assert that pagination vars from extra variables are ignored
+            after: 'cursor:1',
+            first: 1,
+            before: null,
+            last: null,
+            isViewerFriendLocal: false,
+            orderby: ['name'],
+            scale: null,
+          };
+          expectFragmentIsLoadingMore(renderer, direction, {
+            data: initialUser,
+            hasNext: true,
+            hasPrevious: false,
+            paginationVariables,
+            gqlPaginationQuery,
+          });
+          expect(callback).toBeCalledTimes(0);
+
+          environment.mock.resolve(gqlPaginationQuery, {
+            data: {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice',
+                friends: {
+                  edges: [
+                    {
+                      cursor: 'cursor:2',
+                      node: {
+                        __typename: 'User',
+                        id: 'node:2',
+                        name: 'name:node:2',
+                        username: 'username:node:2',
+                      },
+                    },
+                  ],
+                  pageInfo: {
+                    startCursor: 'cursor:2',
+                    endCursor: 'cursor:2',
+                    hasNextPage: true,
+                    hasPreviousPage: true,
+                  },
+                },
+              },
+            },
+          });
+
+          const expectedUser = {
+            ...initialUser,
+            friends: {
+              ...initialUser.friends,
+              edges: [
+                {
+                  cursor: 'cursor:1',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:1',
+                    name: 'name:node:1',
+                    ...createFragmentRef('node:1', query),
+                  },
+                },
+                {
+                  cursor: 'cursor:2',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:2',
+                    name: 'name:node:2',
+                    ...createFragmentRef('node:2', query),
+                  },
+                },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:2',
+                hasNextPage: true,
+                hasPreviousPage: false,
+                startCursor: 'cursor:1',
+              },
+            },
+          };
+          expectFragmentResults([
+            {
+              data: expectedUser,
+              hasNext: true,
+              hasPrevious: false,
+            },
+          ]);
+          expect(callback).toBeCalledTimes(1);
+        });
+      });
+
       describe('disposing', () => {
         let unsubscribe;
         beforeEach(() => {
@@ -2553,6 +2776,7 @@ describe('useBlockingPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2651,6 +2875,7 @@ describe('useBlockingPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2760,6 +2985,7 @@ describe('useBlockingPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2769,8 +2995,9 @@ describe('useBlockingPaginationFragment', () => {
             gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
-
-          renderer.unmount();
+          TestRenderer.act(() => {
+            renderer.unmount();
+          });
 
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);
@@ -2807,6 +3034,7 @@ describe('useBlockingPaginationFragment', () => {
             last: null,
             isViewerFriendLocal: false,
             orderby: ['name'],
+            scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
@@ -2817,7 +3045,7 @@ describe('useBlockingPaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-use]
           disposable.dispose();
 
           // Assert request was canceled
@@ -3176,6 +3404,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -3281,6 +3510,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
@@ -3434,10 +3664,12 @@ describe('useBlockingPaginationFragment', () => {
           id: '4',
           isViewerFriendLocal: false,
           orderby: ['name'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3544,10 +3776,12 @@ describe('useBlockingPaginationFragment', () => {
           id: '1',
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3716,10 +3950,12 @@ describe('useBlockingPaginationFragment', () => {
           id: '1',
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3826,10 +4062,12 @@ describe('useBlockingPaginationFragment', () => {
           id: '1',
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         paginationQuery = createOperationDescriptor(
           gqlPaginationQuery,
           refetchVariables,
+          {force: true},
         );
         expectFragmentIsRefetching(renderer, {
           data: initialUser,
@@ -3924,6 +4162,7 @@ describe('useBlockingPaginationFragment', () => {
           last: null,
           isViewerFriendLocal: true,
           orderby: ['lastname'],
+          scale: null,
         };
         expectFragmentIsLoadingMore(renderer, 'forward', {
           data: expectedUser,

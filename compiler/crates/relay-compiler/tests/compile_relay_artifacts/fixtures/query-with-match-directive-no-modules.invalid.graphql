@@ -1,0 +1,13 @@
+# expected-to-throw
+query queryWithMatchDirectiveNoModules_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...queryWithMatchDirectiveNoModules_NameRendererFragment
+  }
+}
+
+fragment queryWithMatchDirectiveNoModules_NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    __typename
+  }
+}

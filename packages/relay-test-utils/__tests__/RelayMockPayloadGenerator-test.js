@@ -61,6 +61,34 @@ test('generate mock for simple fragment', () => {
   }`);
 });
 
+test('generate mock with abstract inline fragment', () => {
+  testGeneratedData(`
+    query TestQuery {
+      viewer {
+        actor {
+          # abstract fragment spread
+          ...TestFragment
+        }
+      }
+    }
+
+    fragment TestFragment on Actor {
+      id
+      # abstract inline fragment
+      ... on Named {
+        name
+      }
+      ... on User {
+        firstName
+        lastName
+      }
+      ... on Page {
+        websites
+      }
+    }
+  `);
+});
+
 test('generate mock with inline fragment', () => {
   testGeneratedData(`
     query TestQuery ($condition: Boolean) {
@@ -373,18 +401,18 @@ test('check context in the mock resolver', () => {
     },
   );
   expect(checkContext).toMatchInlineSnapshot(`
-Object {
-  "alias": null,
-  "args": Object {},
-  "name": "profile_picture",
-  "parentType": null,
-  "path": Array [
-    "viewer",
-    "actor",
-    "profile_picture",
-  ],
-}
-`);
+    Object {
+      "alias": null,
+      "args": Object {},
+      "name": "profile_picture",
+      "parentType": null,
+      "path": Array [
+        "viewer",
+        "actor",
+        "profile_picture",
+      ],
+    }
+  `);
 });
 
 test('generate mock with manual mock for objects', () => {

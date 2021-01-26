@@ -19,7 +19,6 @@ const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
 
 import type CompilerContext from '../core/CompilerContext';
 import type {
-  Connection,
   Directive,
   Field,
   Fragment,
@@ -41,7 +40,6 @@ function validateRequiredArguments(context: CompilerContext): CompilerContext {
     context,
     {
       Directive: visitDirective,
-      ConnectionField: visitField,
       InlineFragment: visitInlineFragment,
       LinkedField: visitField,
       ScalarField: visitField,
@@ -104,7 +102,7 @@ function visitField(node: Field, {parentType, rootNode}: State): void {
 
 function validateRequiredArgumentsOnNode(
   schema: Schema,
-  node: Connection | Directive | Field,
+  node: Directive | Field,
   definitionArgs: $ReadOnlyArray<Argument>,
   rootNode: Fragment | Root | SplitOperation,
 ): void {

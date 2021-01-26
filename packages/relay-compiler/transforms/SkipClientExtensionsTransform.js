@@ -15,13 +15,14 @@
 const IRTransformer = require('../core/IRTransformer');
 
 import type CompilerContext from '../core/CompilerContext';
-import type {ClientExtension, Fragment} from '../core/IR';
+import type {ClientExtension, Fragment, FragmentSpread} from '../core/IR';
 
 function skipClientExtensionTransform(
   context: CompilerContext,
 ): CompilerContext {
   return IRTransformer.transform(context, {
     Fragment: visitFragment,
+    FragmentSpread: vistFragmentSpread,
     ClientExtension: visitClientExtension,
   });
 }
@@ -32,6 +33,13 @@ function visitFragment(node: Fragment): ?Fragment {
     return this.traverse(node);
   }
   return null;
+}
+
+function vistFragmentSpread(node: FragmentSpread): ?FragmentSpread {
+  const context: CompilerContext = this.getContext();
+  const fragment = context.getFragment(node.name, node.loc);
+  const isServer = context.getSchema().isServerType(fragment.type);
+  return isServer ? node : null;
 }
 
 function visitClientExtension(

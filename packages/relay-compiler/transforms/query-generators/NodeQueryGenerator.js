@@ -14,6 +14,8 @@
 
 const SchemaUtils = require('../../core/SchemaUtils');
 
+const nullthrows = require('nullthrows');
+
 const {createUserError} = require('../../core/CompilerError');
 const {
   buildFragmentSpread,
@@ -133,6 +135,7 @@ function buildRefetchOperation(
     },
   ];
   return {
+    identifierField: 'id',
     path: [NODE_FIELD_NAME],
     node: {
       argumentDefinitions: argumentDefinitionsWithId,
@@ -190,12 +193,23 @@ function enforceIDField(schema: Schema, fragment: Fragment): Fragment {
   if (idSelection) {
     return fragment;
   }
+  const idField = schema.getFieldByName(fragment.type, 'id');
+  const nodeType = schema.assertCompositeType(
+    nullthrows(schema.getTypeFromString(NODE_TYPE_NAME)),
+  );
+  const generatedIDSelection = idField
+    ? SchemaUtils.generateIDField(schema, fragment.type)
+    : {
+        kind: 'InlineFragment',
+        directives: [],
+        loc: {kind: 'Generated'},
+        metadata: null,
+        selections: [SchemaUtils.generateIDField(schema, nodeType)],
+        typeCondition: nodeType,
+      };
   return {
     ...fragment,
-    selections: [
-      ...fragment.selections,
-      SchemaUtils.generateIDField(schema.expectIdType()),
-    ],
+    selections: [...fragment.selections, generatedIDSelection],
   };
 }
 

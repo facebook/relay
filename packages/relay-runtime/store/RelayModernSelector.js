@@ -21,6 +21,7 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
 } = require('./RelayStoreUtils');
 
 import type {NormalizationSelectableNode} from '../util/NormalizationNode';
@@ -77,6 +78,8 @@ function getSingularSelector(
   const dataID = item[ID_KEY];
   const fragments = item[FRAGMENTS_KEY];
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
+  const isWithinUnmatchedTypeRefinement =
+    item[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] === true;
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -94,7 +97,13 @@ function getSingularSelector(
       owner.variables,
       argumentVariables,
     );
-    return createReaderSelector(fragment, dataID, fragmentVariables, owner);
+    return createReaderSelector(
+      fragment,
+      dataID,
+      fragmentVariables,
+      owner,
+      isWithinUnmatchedTypeRefinement,
+    );
   }
 
   if (__DEV__) {
@@ -291,9 +300,11 @@ function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
     false,
     'RelayModernSelector: Expected object to contain data for fragment `%s`, got ' +
       '`%s`. Make sure that the parent operation/fragment included fragment ' +
-      '`...%s` without `@relay(mask: false)`.',
+      '`...%s` without `@relay(mask: false)`, or `null` is passed as the fragment ' +
+      "reference for `%s` if it's conditonally included and the condition isn't met.",
     fragment.name,
     JSON.stringify(item),
+    fragment.name,
     fragment.name,
   );
   return null;
@@ -407,10 +418,12 @@ function createReaderSelector(
   dataID: DataID,
   variables: Variables,
   request: RequestDescriptor,
+  isWithinUnmatchedTypeRefinement: boolean = false,
 ): SingularReaderSelector {
   return {
     kind: 'SingularReaderSelector',
     dataID,
+    isWithinUnmatchedTypeRefinement,
     node: fragment,
     variables,
     owner: request,

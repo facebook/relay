@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment inlineDataFragmentLocalArgsFragment on Query {
+  usingLiteralPassedValue: me {
+    ...inlineDataFragmentLocalArgsProfile @arguments(sizeArg: [100])
+  }
+  usingGlobalPassedValue: me {
+    ...inlineDataFragmentLocalArgsProfile @arguments(sizeArg: $globalSizeVar)
+  }
+  usingDefaultValue: me {
+    ...inlineDataFragmentLocalArgsProfile
+  }
+}
+
+fragment inlineDataFragmentLocalArgsProfile on User
+  @inline
+  @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+  profilePicture(size: $sizeArg) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-local-args.graphql:14:10
+   13 │ 
+   14 │ fragment inlineDataFragmentLocalArgsProfile on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │   @inline
+
+  ℹ︎ Variable used:
+
+  inline-data-fragment-local-args.graphql:16:24
+   15 │   @inline
+   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+      │                        ^^^^^^^
+   17 │   profilePicture(size: $sizeArg) {
+
+
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-local-args.graphql:14:10
+   13 │ 
+   14 │ fragment inlineDataFragmentLocalArgsProfile on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │   @inline
+
+  ℹ︎ Variable used:
+
+  inline-data-fragment-local-args.graphql:16:24
+   15 │   @inline
+   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+      │                        ^^^^^^^
+   17 │   profilePicture(size: $sizeArg) {
+
+
+✖︎ Variables are not yet supported inside @inline fragments.
+
+  inline-data-fragment-local-args.graphql:14:10
+   13 │ 
+   14 │ fragment inlineDataFragmentLocalArgsProfile on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │   @inline
+
+  ℹ︎ Variable used:
+
+  inline-data-fragment-local-args.graphql:16:24
+   15 │   @inline
+   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
+      │                        ^^^^^^^
+   17 │   profilePicture(size: $sizeArg) {

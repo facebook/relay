@@ -22,8 +22,6 @@ import type {
   ClientExtension,
   Condition,
   Defer,
-  Connection,
-  ConnectionField,
   Directive,
   Fragment,
   FragmentSpread,
@@ -31,9 +29,12 @@ import type {
   InlineFragment,
   IR,
   LinkedField,
+  ListValue,
   Literal,
   LocalArgumentDefinition,
   ModuleImport,
+  ObjectFieldValue,
+  ObjectValue,
   Request,
   Root,
   RootArgumentDefinition,
@@ -48,16 +49,17 @@ type NodeVisitor<S> = {|
   ClientExtension?: NodeVisitorFunction<ClientExtension, S>,
   Condition?: NodeVisitorFunction<Condition, S>,
   Defer?: NodeVisitorFunction<Defer, S>,
-  Connection?: NodeVisitorFunction<Connection, S>,
-  ConnectionField?: NodeVisitorFunction<ConnectionField, S>,
   Directive?: NodeVisitorFunction<Directive, S>,
   Fragment?: NodeVisitorFunction<Fragment, S>,
   FragmentSpread?: NodeVisitorFunction<FragmentSpread, S>,
   InlineFragment?: NodeVisitorFunction<InlineFragment, S>,
   LinkedField?: NodeVisitorFunction<LinkedField, S>,
+  ListValue?: NodeVisitorFunction<ListValue, S>,
   Literal?: NodeVisitorFunction<Literal, S>,
   LocalArgumentDefinition?: NodeVisitorFunction<LocalArgumentDefinition, S>,
   ModuleImport?: NodeVisitorFunction<ModuleImport, S>,
+  ObjectFieldValue?: NodeVisitorFunction<ObjectFieldValue, S>,
+  ObjectValue?: NodeVisitorFunction<ObjectValue, S>,
   Request?: NodeVisitorFunction<Request, S>,
   Root?: NodeVisitorFunction<Root, S>,
   InlineDataFragmentSpread?: NodeVisitorFunction<InlineDataFragmentSpread, S>,
@@ -173,12 +175,17 @@ class Validator<S> {
       case 'InlineDataFragmentSpread':
         this._traverseChildren(prevNode, ['selections']);
         break;
-      case 'ConnectionField':
       case 'LinkedField':
         this._traverseChildren(prevNode, ['args', 'directives', 'selections']);
         break;
-      case 'Connection':
-        this._traverseChildren(prevNode, ['args', 'selections']);
+      case 'ListValue':
+        this._traverseChildren(prevNode, ['items']);
+        break;
+      case 'ObjectFieldValue':
+        this._traverseChildren(prevNode, null, ['value']);
+        break;
+      case 'ObjectValue':
+        this._traverseChildren(prevNode, ['fields']);
         break;
       case 'Condition':
         this._traverseChildren(

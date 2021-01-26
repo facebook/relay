@@ -104,6 +104,10 @@ type InputBaseType = InputObjectType | ScalarType | EnumType;
 type InputTypeList = List<InputTypeID>;
 type InputTypeNonNull = NonNull<InputBaseType | InputTypeList>;
 
+type Fetchable = $ReadOnly<{|
+  field_name: string,
+|}>;
+
 export opaque type FieldID = Field;
 
 export type Argument = $ReadOnly<{|
@@ -129,8 +133,19 @@ type InternalArgumentStruct = $ReadOnly<{|
 
 type FieldDefinition = {|
   +arguments: $ReadOnlyArray<InternalArgumentStruct>,
+  +directives: ?$ReadOnlyArray<DirectiveInvocation>,
   +type: TypeNode,
   +isClient: boolean,
+|};
+
+type DirectiveInvocation = {|
+  +name: string,
+  +args: $ReadOnlyArray<ArgumentValue>,
+|};
+
+type ArgumentValue = {|
+  +name: string,
+  +value: ValueNode,
 |};
 
 type InternalDirectiveMap = Map<string, InternalDirectiveStruct>;
@@ -145,7 +160,7 @@ type InternalDirectiveStruct = $ReadOnly<{|
 export type {Schema};
 
 type FieldsMap = Map<string, Field>;
-type TypeMapKey = string | Symbol;
+type TypeMapKey = string | symbol;
 
 /**
  * @private
@@ -247,6 +262,7 @@ class NonNull<+T> {
  */
 class Field {
   +args: $ReadOnlyMap<string, Argument>;
+  +directives: ?$ReadOnlyArray<DirectiveInvocation>;
   +belongsTo: CompositeType | InputObjectType;
   +name: string;
   +type: TypeID;
@@ -258,6 +274,7 @@ class Field {
     type: TypeID,
     belongsTo: CompositeType | InputObjectType,
     args: $ReadOnlyArray<InternalArgumentStruct>,
+    directives: ?$ReadOnlyArray<DirectiveInvocation>,
     isClient: boolean,
   ) {
     this.name = name;
@@ -265,6 +282,7 @@ class Field {
     this.belongsTo = belongsTo;
     this.isClient = isClient;
     this.args = parseInputArgumentDefinitionsMap(schema, args);
+    this.directives = directives;
   }
 }
 
@@ -524,6 +542,21 @@ class Schema {
     return type;
   }
 
+  mapListItemType(type: TypeID, mapper: (inner: TypeID) => TypeID): TypeID {
+    if (!(type instanceof List)) {
+      throw createCompilerError('Expected List type');
+    }
+    const innerType = mapper(type.ofType);
+    const cacheKey = `[${this.getTypeString(innerType)}]`;
+    let newType = this._typeWrappersMap.get(cacheKey);
+    if (newType) {
+      return newType;
+    }
+    newType = new List(innerType);
+    this._typeWrappersMap.set(cacheKey, newType);
+    return newType;
+  }
+
   areEqualTypes(typeA: TypeID, typeB: TypeID): boolean {
     if (typeA === typeB) {
       return true;
@@ -728,7 +761,9 @@ class Schema {
   assertScalarType(type: TypeID): ScalarTypeID {
     if (!isScalar(type)) {
       throw createCompilerError(
-        `Expected ${this.getTypeString(type)} to be a scalar type.`,
+        `Expected ${this.getTypeString(
+          type,
+        )} to be a scalar type, got ${this.getTypeString(type)}.`,
       );
     }
     return type;
@@ -748,6 +783,13 @@ class Schema {
       throw createCompilerError(
         `Expected ${this.getTypeString(type)} to be an input type.`,
       );
+    }
+    return type;
+  }
+
+  asInputObjectType(type: TypeID): ?InputObjectTypeID {
+    if (!isInputObject(type)) {
+      return null;
     }
     return type;
   }
@@ -1060,6 +1102,7 @@ class Schema {
               fieldType,
               this.assertCompositeType(type),
               fieldDefinition.arguments,
+              fieldDefinition.directives,
               fieldDefinition.isClient,
             ),
           );
@@ -1072,7 +1115,7 @@ class Schema {
           const fieldType = this.expectTypeFromAST(typeNode);
           fieldsMap.set(
             fieldName,
-            new Field(this, fieldName, fieldType, type, [], false),
+            new Field(this, fieldName, fieldType, type, [], null, false),
           );
         }
       }
@@ -1105,6 +1148,7 @@ class Schema {
           this.getNonNullType(this.expectStringType()),
           type,
           [],
+          null,
           false, // isClient === false
         );
         this._typeNameMap.set(type, typename);
@@ -1121,6 +1165,7 @@ class Schema {
           this.getNonNullType(this.expectIdType()),
           type,
           [],
+          null,
           true, // isClient === true
         );
         this._clientIdMap.set(type, clientId);
@@ -1204,6 +1249,10 @@ class Schema {
     return this._typeMap.getPossibleTypeSet(type);
   }
 
+  getFetchableFieldName(type: ObjectTypeID): ?string {
+    return this._typeMap.getFetchableFieldName(type);
+  }
+
   parseLiteral(type: ScalarTypeID | EnumTypeID, valueNode: ValueNode): mixed {
     if (type instanceof EnumType && valueNode.kind === 'EnumValue') {
       return this.parseValue(type, valueNode.value);
@@ -1279,12 +1328,8 @@ class Schema {
   }
 
   isServerType(type: TypeID): boolean {
-    if (isObject(type)) {
-      return type.isClient === false;
-    } else if (isEnum(type)) {
-      return type.isClient === false;
-    }
-    return true;
+    const unwrapped = unwrap(type);
+    return unwrapped.isClient === false;
   }
 
   isServerField(field: FieldID): boolean {
@@ -1328,18 +1373,19 @@ class Schema {
 }
 
 class TypeMap {
-  +_source: Source;
+  _mutationTypeName: string;
+  _queryTypeName: string;
+  _subscriptionTypeName: string;
+  +_directives: InternalDirectiveMap;
   +_extensions: $ReadOnlyArray<ExtensionNode>;
-  +_types: Map<string, BaseType>;
-  +_typeInterfaces: Map<TypeID, $ReadOnlyArray<InterfaceType>>;
-  +_unionTypes: Map<TypeID, Set<ObjectType>>;
-  +_interfaceImplementations: Map<InterfaceType, Set<ObjectType>>;
+  +_fetchable: Map<TypeID, Fetchable>;
   +_fields: Map<InterfaceType | ObjectType, Map<string, FieldDefinition>>;
   +_inputFields: Map<InputObjectType, Map<string, TypeNode>>;
-  +_directives: InternalDirectiveMap;
-  _queryTypeName: string;
-  _mutationTypeName: string;
-  _subscriptionTypeName: string;
+  +_interfaceImplementations: Map<InterfaceType, Set<ObjectType>>;
+  +_source: Source;
+  +_typeInterfaces: Map<TypeID, $ReadOnlyArray<InterfaceType>>;
+  +_types: Map<string, BaseType>;
+  +_unionTypes: Map<TypeID, Set<ObjectType>>;
 
   constructor(source: Source, extensions: $ReadOnlyArray<ExtensionNode>) {
     this._types = new Map([
@@ -1409,6 +1455,7 @@ class TypeMap {
     this._subscriptionTypeName = 'Subscription';
     this._source = source;
     this._extensions = extensions;
+    this._fetchable = new Map();
     this._parse(source);
     this._extend(extensions);
   }
@@ -1540,8 +1587,28 @@ class TypeMap {
         this._interfaceImplementations.set(interfaceType, implementations);
         typeInterfaces.push(interfaceType);
       });
+    let fetchable = null;
+    node.directives &&
+      node.directives.forEach(directiveNode => {
+        if (directiveNode.name.value === 'fetchable') {
+          const field_name_arg =
+            directiveNode.arguments &&
+            directiveNode.arguments.find(
+              arg => arg.name.value === 'field_name',
+            );
+          if (
+            field_name_arg != null &&
+            field_name_arg.value.kind === 'StringValue'
+          ) {
+            fetchable = {field_name: field_name_arg.value.value};
+          }
+        }
+      });
     this._typeInterfaces.set(type, typeInterfaces);
     this._types.set(name, type);
+    if (fetchable != null) {
+      this._fetchable.set(type, fetchable);
+    }
     node.fields && this._handleTypeFieldsStrict(type, node.fields, isClient);
   }
 
@@ -1657,6 +1724,21 @@ class TypeMap {
               };
             })
           : [],
+        directives: fieldNode.directives
+          ? fieldNode.directives.map(directive => {
+              return {
+                name: directive.name.value,
+                args: directive.arguments
+                  ? directive.arguments.map(arg => {
+                      return {
+                        name: arg.name.value,
+                        value: arg.value,
+                      };
+                    })
+                  : [],
+              };
+            })
+          : null,
         type: fieldNode.type,
         isClient: isClient,
       });
@@ -1732,9 +1814,7 @@ class TypeMap {
     const type = this._types.get(node.name.value);
     if (!(type instanceof ObjectType)) {
       throw createCompilerError(
-        `_parseObjectTypeExtension: Expected to find type with the name '${
-          node.name.value
-        }'`,
+        `_parseObjectTypeExtension: Expected to find type with the name '${node.name.value}'`,
         null,
         [node],
       );
@@ -1810,6 +1890,10 @@ class TypeMap {
       );
     }
     return set;
+  }
+
+  getFetchableFieldName(type: ObjectTypeID): ?string {
+    return this._fetchable.get(type)?.field_name ?? null;
   }
 
   getQueryType(): ?BaseType {

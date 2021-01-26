@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID!"}
+    size: {type: "[Int]", defaultValue: [100]}
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+  withDefaultArg: profilePicture(size: $size) {
+    uri
+  }
+  ...Foo @arguments(localId: $id)
+}
+
+fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"}) {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive
+
+  fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql:16:37
+   15 │ 
+   16 │ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"}) {
+      │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   17 │   id
+
+  ℹ︎ variables are previously defined here
+
+  fragment-with-variable-definitions-syntax-and-argdefs.invalid.graphql:16:13
+   15 │ 
+   16 │ fragment Foo($localId: ID!) on User @argumentDefinitions(localId: {type: "ID!"}) {
+      │             ^^^^^^^^^^^^^^^
+   17 │   id

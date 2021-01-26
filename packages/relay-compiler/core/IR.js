@@ -55,7 +55,7 @@ export type ArgumentDefinition =
   | LocalArgumentDefinition
   | RootArgumentDefinition;
 
-export type ArgumentValue = Literal | Variable;
+export type ArgumentValue = ListValue | Literal | ObjectValue | Variable;
 
 export type Condition = {|
   +kind: 'Condition',
@@ -72,7 +72,7 @@ export type Directive = {|
   +name: string,
 |};
 
-export type Field = LinkedField | ScalarField | ConnectionField;
+export type Field = LinkedField | ScalarField;
 
 export type Fragment = {|
   +argumentDefinitions: $ReadOnlyArray<ArgumentDefinition>,
@@ -97,9 +97,6 @@ export type FragmentSpread = {|
 export type Defer = {|
   +kind: 'Defer',
   +loc: Location,
-  +metadata: ?{|
-    +fragmentTypeCondition: CompositeTypeID,
-  |},
   +selections: $ReadOnlyArray<Selection>,
   +label: string,
   +if: ArgumentValue | null,
@@ -113,6 +110,7 @@ export type Stream = {|
   +label: string,
   +if: ArgumentValue | null,
   +initialCount: ArgumentValue,
+  +useCustomizedBatch: ArgumentValue | null,
 |};
 
 export type InlineDataFragmentSpread = {|
@@ -127,8 +125,6 @@ export type IR =
   | Argument
   | ClientExtension
   | Condition
-  | Connection
-  | ConnectionField
   | Defer
   | Directive
   | Fragment
@@ -136,9 +132,12 @@ export type IR =
   | InlineDataFragmentSpread
   | InlineFragment
   | LinkedField
+  | ListValue
   | Literal
   | LocalArgumentDefinition
   | ModuleImport
+  | ObjectFieldValue
+  | ObjectValue
   | Request
   | Root
   | RootArgumentDefinition
@@ -146,6 +145,19 @@ export type IR =
   | SplitOperation
   | Stream
   | Variable;
+
+export type ObjectFieldValue = {|
+  +kind: 'ObjectFieldValue',
+  +loc: Location,
+  +name: string,
+  +value: ArgumentValue,
+|};
+
+export type ObjectValue = {|
+  +kind: 'ObjectValue',
+  +fields: $ReadOnlyArray<ObjectFieldValue>,
+  +loc: Location,
+|};
 
 export type RootArgumentDefinition = {|
   +kind: 'RootArgumentDefinition',
@@ -166,9 +178,9 @@ export type InlineFragment = {|
 export type Handle = {|
   +name: string,
   +key: string,
-  // T45504512: new connection model
   +dynamicKey: Variable | null,
   +filters: ?$ReadOnlyArray<string>,
+  +handleArgs?: $ReadOnlyArray<Argument>,
 |};
 
 export type ClientExtension = {|
@@ -176,22 +188,6 @@ export type ClientExtension = {|
   +loc: Location,
   +metadata: Metadata,
   +selections: $ReadOnlyArray<Selection>,
-|};
-
-export type Connection = {|
-  +args: $ReadOnlyArray<Argument>,
-  +kind: 'Connection',
-  +label: string,
-  +loc: Location,
-  +name: string,
-  +selections: $ReadOnlyArray<Selection>,
-  +stream: {|
-    +deferLabel: string,
-    +if: ArgumentValue | null,
-    +initialCount: ArgumentValue,
-    +streamLabel: string,
-  |} | null,
-  +type: LinkedFieldTypeID,
 |};
 
 export type LinkedField = {|
@@ -208,16 +204,10 @@ export type LinkedField = {|
   +type: LinkedFieldTypeID,
 |};
 
-export type ConnectionField = {|
-  +alias: string,
-  +args: $ReadOnlyArray<Argument>,
-  +directives: $ReadOnlyArray<Directive>,
-  +kind: 'ConnectionField',
+export type ListValue = {|
+  +kind: 'ListValue',
+  +items: $ReadOnlyArray<ArgumentValue>,
   +loc: Location,
-  +metadata: Metadata,
-  +name: string,
-  +selections: $ReadOnlyArray<Selection>,
-  +type: LinkedFieldTypeID,
 |};
 
 export type Literal = {|
@@ -237,10 +227,13 @@ export type LocalArgumentDefinition = {|
 export type ModuleImport = {|
   +kind: 'ModuleImport',
   +loc: Location,
-  // the name of the document in which the @module was defined, used to
-  // namespace the result and avoid collisions between modules selected by
-  // different consumers on the same record
-  +documentName: string,
+  // a key used as part of the storage key for fields relating to this @module
+  // instance. by default the key is the name of the document where the @module
+  // was defined, but can be overridden with the 'key' argument.
+  +key: string,
+  // the name of the document where the module was defined, used for attributing
+  // the generated SplitOperations to the module that caused their creation.
+  +sourceDocument: string,
   // the name of the module to require
   +module: string,
   // a value that uniquely identifies this @module position in the codebase:
@@ -255,8 +248,6 @@ export type ModuleImport = {|
 export type Node =
   | ClientExtension
   | Condition
-  | Connection
-  | ConnectionField
   | Defer
   | Fragment
   | InlineDataFragmentSpread
@@ -305,8 +296,6 @@ export type ScalarField = {|
 export type Selection =
   | ClientExtension
   | Condition
-  | Connection
-  | ConnectionField
   | Defer
   | FragmentSpread
   | InlineDataFragmentSpread

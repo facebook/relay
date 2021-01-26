@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends") {
+    count
+  }
+  ... on User {
+    # should be de-duped
+    friends(first: 10) @__clientField(handle: "clientFriends") {
+      count
+    }
+    ... on User {
+      friends(first: 10) @__clientField(handle: "recentFriends") {
+        count
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment LinkedHandleField on User {
+  friends(first: 10) @__clientField(handle: "clientFriends") @__clientField(handle: "recentFriends") {
+    count
+  }
+}

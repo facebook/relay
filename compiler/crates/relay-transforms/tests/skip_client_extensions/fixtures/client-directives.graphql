@@ -1,0 +1,24 @@
+query SampleQuery($gk: Boolean!, $id: ID!, $count: Int, $cursor: ID) {
+  node(id: $id) {
+    ... on User {
+      # The @exampleFilteredDirective directive is defined as an extension, so
+      # will get stripped.
+      id @exampleFilteredDirective
+
+      # The @include directive is defined in the base schema, so survives.
+      name @include(if: $gk)
+
+      friends(first: $count, after: $cursor)
+        @connection(key: "SampleQuery_friends") {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+
+# %extensions%
+directive @exampleFilteredDirective on FIELD

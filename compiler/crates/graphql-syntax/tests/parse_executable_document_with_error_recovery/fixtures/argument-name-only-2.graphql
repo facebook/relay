@@ -1,0 +1,6 @@
+fragment Test on User {
+  photo(
+    s
+    size: $size
+  )
+}

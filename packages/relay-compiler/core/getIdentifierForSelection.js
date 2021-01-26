@@ -25,16 +25,10 @@ import type {Schema} from './Schema';
  * variable and passing value for conditions.
  */
 function getIdentifierForSelection(schema: Schema, node: Selection): string {
-  if (
-    node.kind === 'LinkedField' ||
-    node.kind === 'ScalarField' ||
-    node.kind === 'ConnectionField'
-  ) {
+  if (node.kind === 'LinkedField' || node.kind === 'ScalarField') {
     return 'Field: ' + node.directives.length === 0
       ? node.alias
       : node.alias + printDirectives(schema, node.directives);
-  } else if (node.kind === 'Connection') {
-    return 'Connection:' + node.label;
   } else if (node.kind === 'FragmentSpread') {
     return 'FragmentSpread:' + node.args.length === 0
       ? node.name
@@ -46,7 +40,11 @@ function getIdentifierForSelection(schema: Schema, node: Selection): string {
   } else if (node.kind === 'Stream') {
     return 'Stream:' + node.label;
   } else if (node.kind === 'InlineFragment') {
-    return 'InlineFragment:' + schema.getTypeString(node.typeCondition);
+    return (
+      'InlineFragment:' +
+      schema.getTypeString(node.typeCondition) +
+      printDirectives(schema, node.directives)
+    );
   } else if (node.kind === 'ClientExtension') {
     return 'ClientExtension:';
   } else if (node.kind === 'InlineDataFragmentSpread') {

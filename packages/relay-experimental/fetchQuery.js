@@ -19,14 +19,18 @@ const {
   __internal: RelayRuntimeInternal,
   createOperationDescriptor,
   getRequest,
+  Observable,
+  reportMissingRequiredFields,
 } = require('relay-runtime');
 
 import type {
   CacheConfig,
+  FetchQueryFetchPolicy,
   GraphQLTaggedNode,
   IEnvironment,
-  Observable,
+  OperationDescriptor,
   OperationType,
+  VariablesOf,
 } from 'relay-runtime';
 
 /**
@@ -65,7 +69,7 @@ import type {
  * from the server.
  *
  * ```
- * fetchQuery(environment, query, variables).then((data) => {
+ * fetchQuery(environment, query, variables).toPromise().then((data) => {
  *   // ...
  * });
  * ```
@@ -109,19 +113,59 @@ import type {
 function fetchQuery<TQuery: OperationType>(
   environment: IEnvironment,
   query: GraphQLTaggedNode,
-  variables: $ElementType<TQuery, 'variables'>,
-  options?: {|
+  variables: VariablesOf<TQuery>,
+  options?: $ReadOnly<{|
+    fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
-  |},
+  |}>,
 ): Observable<$ElementType<TQuery, 'response'>> {
   const queryNode = getRequest(query);
   invariant(
     queryNode.params.operationKind === 'query',
     'fetchQuery: Expected query operation',
   );
-  const operation = createOperationDescriptor(queryNode, variables);
-  return RelayRuntimeInternal.fetchQuery(environment, operation, options).map(
-    () => environment.lookup(operation.fragment).data,
+  const networkCacheConfig = {
+    force: true,
+    ...options?.networkCacheConfig,
+  };
+  const operation = createOperationDescriptor(
+    queryNode,
+    variables,
+    networkCacheConfig,
+  );
+  const fetchPolicy = options?.fetchPolicy ?? 'network-only';
+
+  function readData(snapshot) {
+    if (snapshot.missingRequiredFields != null) {
+      reportMissingRequiredFields(environment, snapshot.missingRequiredFields);
+    }
+    return snapshot.data;
+  }
+
+  switch (fetchPolicy) {
+    case 'network-only': {
+      return getNetworkObservable(environment, operation).map(readData);
+    }
+    case 'store-or-network': {
+      if (environment.check(operation).status === 'available') {
+        return Observable.from(environment.lookup(operation.fragment)).map(
+          readData,
+        );
+      }
+      return getNetworkObservable(environment, operation).map(readData);
+    }
+    default:
+      (fetchPolicy: void);
+      throw new Error('fetchQuery: Invalid fetchPolicy ' + fetchPolicy);
+  }
+}
+
+function getNetworkObservable<TQuery: OperationType>(
+  environment: IEnvironment,
+  operation: OperationDescriptor,
+): Observable<$ElementType<TQuery, 'response'>> {
+  return RelayRuntimeInternal.fetchQuery(environment, operation).map(() =>
+    environment.lookup(operation.fragment),
   );
 }
 

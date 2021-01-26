@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query missingArgumentOnLinkedFieldInInlineFragmentViewerQuery {
+  node {
+    ... on Comment {
+      commentBody {
+        ... on PlainCommentBody {
+          text {
+            text
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Missing required argument: `supported`
+
+  missing-argument-on-linked-field-in-inline-fragment.invalid.graphql:5:7
+    4 │     ... on Comment {
+    5 │       commentBody {
+      │       ^^^^^^^^^^^
+    6 │         ... on PlainCommentBody {

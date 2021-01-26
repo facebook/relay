@@ -25,6 +25,8 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {generateAndCompile} = require('relay-test-utils-internal');
 
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 function createOperationLoader() {
   const cache = new Map();
   const resolve = operation => {
@@ -74,7 +76,10 @@ describe('execute() a query with @defer', () => {
   let fragment;
   let next;
   let operation;
-  let operationLoader;
+  let operationLoader: {|
+    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+  |};
   let query;
   let resolveFragment;
   let source;
@@ -105,7 +110,7 @@ describe('execute() a query with @defer', () => {
           ...User_user @module(name: "User.react")
         }
         viewer {
-          actor {
+          actor @match(key: "UserQuery_actor") {
             ...Actor_actor @module(name: "Actor.react")
           }
         }
@@ -182,8 +187,9 @@ describe('execute() a query with @defer', () => {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery: 'Actor.react',
-            __module_operation_UserQuery: 'Actor_actor$normalization.graphql',
+            __module_component_UserQuery_actor: 'Actor.react',
+            __module_operation_UserQuery_actor:
+              'Actor_actor$normalization.graphql',
           },
         },
       },
@@ -232,8 +238,9 @@ describe('execute() a query with @defer', () => {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery: 'Actor.react',
-            __module_operation_UserQuery: 'Actor_actor$normalization.graphql',
+            __module_component_UserQuery_actor: 'Actor.react',
+            __module_operation_UserQuery_actor:
+              'Actor_actor$normalization.graphql',
           },
         },
       },
@@ -309,8 +316,9 @@ describe('execute() a query with @defer', () => {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery: 'Actor.react',
-            __module_operation_UserQuery: 'Actor_actor$normalization.graphql',
+            __module_component_UserQuery_actor: 'Actor.react',
+            __module_operation_UserQuery_actor:
+              'Actor_actor$normalization.graphql',
           },
         },
       },
@@ -382,6 +390,147 @@ describe('execute() a query with @defer', () => {
     expect(actorSnapshot.data).toEqual({
       id: '2',
       name: 'Bob',
+    });
+  });
+
+  describe('when using a scheduler', () => {
+    let taskID;
+    let tasks;
+    let scheduler;
+    let runTask;
+
+    beforeEach(() => {
+      taskID = 0;
+      tasks = new Map();
+      scheduler = {
+        cancel: id => {
+          tasks.delete(id);
+        },
+        schedule: task => {
+          const id = String(taskID++);
+          tasks.set(id, task);
+          return id;
+        },
+      };
+      runTask = () => {
+        for (const [id, task] of tasks) {
+          tasks.delete(id);
+          task();
+          break;
+        }
+      };
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        operationLoader,
+        scheduler,
+        store,
+      });
+    });
+    it('processes deferred payloads that had arrived before parent @module in a single scheduler step', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            __module_component_UserQuery: 'User.react',
+            __module_operation_UserQuery: 'User_user$normalization.graphql',
+          },
+          viewer: {
+            actor: {
+              id: '2',
+              __typename: 'User',
+              __module_component_UserQuery_actor: 'Actor.react',
+              __module_operation_UserQuery_actor:
+                'Actor_actor$normalization.graphql',
+            },
+          },
+        },
+      });
+      jest.runAllTimers();
+
+      expect(tasks.size).toBe(1);
+      runTask();
+
+      next.mockClear();
+      userCallback.mockClear();
+      actorCallback.mockClear();
+
+      dataSource.next({
+        data: {
+          id: '1',
+          __typename: 'User',
+          name: 'Alice',
+        },
+        label: 'User_user$defer$UserFragment',
+        path: ['node'],
+      });
+      dataSource.next({
+        data: {
+          id: '2',
+          __typename: 'User',
+          name: 'Bob',
+        },
+        label: 'User_user$defer$UserFragment',
+        path: ['viewer', 'actor'],
+      });
+      jest.runAllTimers();
+
+      expect(tasks.size).toBe(2);
+      runTask();
+      runTask();
+
+      expect(userCallback).toBeCalledTimes(0);
+      expect(actorCallback).toBeCalledTimes(0);
+      expect(complete).toBeCalledTimes(0);
+      expect(error.mock.calls.map(call => call[0])).toEqual([]);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(2);
+
+      resolveFragment(userNormalizationFragment);
+      jest.runAllTimers();
+
+      // Run scheduler task to process @module
+      expect(tasks.size).toBe(1);
+      runTask();
+
+      // A new task should not have been scheduled to process the
+      // deferred payloads, it should've be processed synchronously
+      // in the same tasks
+      expect(tasks.size).toBe(0);
+
+      expect(error.mock.calls.map(call => call[0])).toEqual([]);
+      expect(userCallback).toBeCalledTimes(1);
+      const userSnapshot = userCallback.mock.calls[0][0];
+      expect(userSnapshot.isMissingData).toBe(false);
+      expect(userSnapshot.data).toEqual({
+        id: '1',
+        name: 'Alice',
+      });
+      expect(actorCallback).toBeCalledTimes(0);
+      userCallback.mockClear();
+
+      resolveFragment(actorNormalizationFragment);
+      jest.runAllTimers();
+
+      // Run scheduler task to process @module
+      expect(tasks.size).toBe(1);
+      runTask();
+
+      // A new task should not have been scheduled to process the
+      // deferred payloads, it should've be processed synchronously
+      // in the same tasks
+      expect(tasks.size).toBe(0);
+
+      expect(error.mock.calls.map(call => call[0])).toEqual([]);
+      expect(userCallback).toBeCalledTimes(0);
+      expect(actorCallback).toBeCalledTimes(1);
+      const actorSnapshot = actorCallback.mock.calls[0][0];
+      expect(actorSnapshot.isMissingData).toBe(false);
+      expect(actorSnapshot.data).toEqual({
+        id: '2',
+        name: 'Bob',
+      });
     });
   });
 });

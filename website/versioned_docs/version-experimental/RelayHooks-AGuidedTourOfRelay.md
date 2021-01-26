@@ -217,7 +217,7 @@ type Props = {|
 function UserComponent(props: Props) {
   const userData = useFragment(
     graphql`
-      fragment UserComponent_user on User {
+      fragment UserComponent_user on User(id: $ID!) {
         name
         profile_picture(scale: 2) {
           uri
@@ -428,7 +428,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
   );
 
   return (
@@ -505,7 +505,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
   );
 
   return (
@@ -520,7 +520,7 @@ function App() {
 
 Note that:
 
-* The ***fragment reference*** that `UserComponent` expects is is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
+* The ***fragment reference*** that `UserComponent` expects is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `useLazyLoadQuery` also serves as the fragment reference for any child fragments included in that query.
 * As mentioned previously, ***all fragments must belong to a query when they are rendered,*** which means that all fragment components *must* be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `useLazyLoadQuery`.
 
 ### Variables
@@ -743,7 +743,7 @@ Relay currently does not expose the resolved variables (i.e. after applying argu
 
 As you may have noticed, we mentioned that using `useLazyLoadQuery` will ***fetch*** a query from the server, but we didn't elaborate on how to render a loading UI while the query is being loaded. We will cover that in this section.
 
-To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or *"suspend"* rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't *"ready"* to be rendered yet, and wont be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
+To render loading states while a query is being fetched, we rely on [React Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html). Suspense is a new feature in React that allows components to interrupt or *"suspend"* rendering in order to wait for some asynchronous resource (such as code, images or data) to be loaded; when a component "suspends", it indicates to React that the component isn't *"ready"* to be rendered yet, and won't be until the asynchronous resource it's waiting for is loaded. When the resource finally loads, React will try to render the component again.
 
 This capability is useful for components to express asynchronous dependencies like data, code, or images that they require in order to render, and lets React coordinate rendering the loading states across a component tree as these asynchronous resources become available. More generally, the use of Suspense give us better control to implement more deliberately designed loading states when our app is loading for the first time or when it's transitioning to different states, and helps prevent accidental flickering of loading elements (such as spinners), which can commonly occur when loading sequences aren't explicitly designed and coordinated.
 
@@ -870,7 +870,10 @@ function App() {
 Whenever we're going to make a transition that might cause new content to suspend, we should use the [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to schedule the update for  transition:
 
 ```javascript
-const {useTransition} = require('React');
+const {
+  useState,
+  useTransition,
+} = require('React');
 
 function TabSwitcher() {
   // We use startTransition to schedule the update
@@ -908,7 +911,10 @@ The ***pending*** stage is the first state in a transition, and is usually rende
 By default, when a suspense transition occurs, if the new content suspends, React will automatically transition to the loading state and show the fallbacks from any `Suspense` boundaries that are in place for the new content.  However, if we want to delay showing the loading state, and show a *pending* state instead, we can also use [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to do so:
 
 ```javascript
-const {useTransition} = require('React');
+const {
+  useState,
+  useTransition,
+} = require('React');
 
 const SUSPENSE_CONFIG = {
   // timeoutMs allows us to delay showing the "loading" state for a while
@@ -949,7 +955,7 @@ function TabSwitcher() {
 Let's take a look at what's happening here:
 
 * In this case, we're passing the **`SUSPENSE_CONFIG`** config object to `useTransition` in order to configure how we want this transition to behave. Specifically, we can pass a **`timeoutMs`** property in the config, which will dictate how long React should wait before transitioning to the *"loading"* state (i.e. transition to showing the fallbacks from the `Suspense` boundaries), in favor of showing a ***pending*** state controlled locally by the component during that time.
-* `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` ***immediately*** when the transition starts, and will become `false` when the transition reaches the fully *"completed"* stage, that is, when all the new content has been fully loaded. As mentioned above, the pending state should be used to give immediate post to the user that they're action has been received, and we can do so by using the `isPending` value to control what we render; for example, we can use that value to render a spinner next to the button, or in this case, disable the button immediately after it is clicked.
+* `useTransition` will also return a **`isPending`** boolean value, which captures the pending state. That is, this value will become `true` ***immediately*** when the transition starts, and will become `false` when the transition reaches the fully *"completed"* stage, that is, when all the new content has been fully loaded. As mentioned above, the pending state should be used to give immediate post to the user that the action has been received, and we can do so by using the `isPending` value to control what we render; for example, we can use that value to render a spinner next to the button, or in this case, disable the button immediately after it is clicked.
 
 For more details, check out the [React docs on Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html).
 
@@ -1053,7 +1059,7 @@ const SecondaryContent = require('./SecondaryContent.react');
 function App() {
   return (
     // Render an ErrorSection if an error occurs within
-    // MainContent or Secondary Content
+    // MainContent or SecondaryContent
     <ErrorBoundary fallback={error => <ErrorUI error={error} />}>
       <MainContent />
       <SecondaryContent />
@@ -1123,7 +1129,7 @@ function App() {
           <ErrorUI error={error} />
           {/* Render a button to retry; this will attempt to re-render the
             content inside the boundary, i.e. the query component */}
-          <Button onPress={retry}>Retry</Button>
+          <Button onClick={retry}>Retry</Button>
         </>
       }>
       <MainContent />
@@ -1219,7 +1225,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
     {fetchPolicy: 'store-or-network'},
   );
 
@@ -1229,38 +1235,70 @@ function App() {
 }
 ```
 
-The provided `fetchPolicy` will determine *when* the query should be fulfilled from the local cache, and when a network request should be made to fetch the query from the server.
+The provided `fetchPolicy` will determine:
+* *if* the query should be fulfilled from the local cache, and
+* *if* a network request should be made to fetch the query from the server, depending on the [availablity of the data for that query in the store](#availability-of-cached-data).
 
-By default, Relay will try to read the query from the local cache; if any piece of data is missing for the query, it will fetch the entire query from the network. This default `fetchPolicy` is called "***store-or-network".***
+By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](#presence-of-data) or [stale](#staleness-of-data), it will fetch the entire query from the network. This default `fetchPolicy` is called "***store-or-network".***
 
 Specifically, `fetchPolicy` can be any of the following options:
 
-* **"store-or-network"**: *(default)* ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is missing. If the query is fully cached, a network request will ***not*** be made.
-* **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was missing from the local cache or not.
-* **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
+* **"store-or-network"**: *(default)* ***will*** reuse locally cached data and will ***only*** send a network request if any data for the query is [missing](#presence-of-data) or [stale](#staleness-of-data). If the query is fully cached, a network request will ***not*** be made.
+* **"store-and-network"**: ***will*** reuse locally cached data and will ***always*** send a network request, regardless of whether any data was [missing](#presence-of-data) or [stale](#staleness-of-data) in the store.
+* **"network-only"**: ***will not*** reuse locally cached data, and will ***always*** send a network request to fetch the query, ignoring any data that might be locally cached and whether it's [missing](#presence-of-data) or [stale](#staleness-of-data).
 * **"store-only"**: ***will only*** reuse locally cached data, and will ***never*** send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](#local-data-updates).
 
 Note that the `refetch` function discussed in the [Fetching More Data and Rendering Different Data](#fetching-and-rendering-different-data) section  also takes a `fetchPolicy`.
 
-### Garbage Collection in Relay
+### Availability of Cached Data
 
-An important thing to keep in mind when attempting to reuse data cached in the Relay store is garbage collection. Relay runs garbage collection on the local in-memory store to prevent memory from growing unboundedly, by deleting any data that is no longer being referenced by any component in the app. However, this may prevent us from reusing cached data if the cached data is deleted too soon, before we try to reuse it for in different components.
+The behavior of the fetch policies described in the [previous section](#fetch-policies) will depend on the availability of the data in the Relay store at the moment we attempt to evaluate a query.
 
-Usually, you shouldn't need to worry about garbage collection and data retention, as this should be configured by  the app infrastructure at the RelayEnvironment level. However, for reference and completeness, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
+There are 2 main aspects that determine the availability of data, which we will go over in this section:
 
-#### Query Retention
+* [Presence of data](#presence-of-data)
+* [Staleness of data](#staleness-of-data)
 
-Retaining a query is an operation that indicates to Relay that the data for that query shouldn't be deleted (i.e. garbage collected). Multiple callers might retain a single query, and as long as there is at least one caller retaining a query, it won't be deleted from the store.
+### Presence of Data
 
-By default, any query components using `useLazyLoadQuery` will retain the query for as long as they are mounted. After they unmount, they will release the query, which means that the query might be deleted at any point in the future after that occurs.
+An important thing to keep in mind when attempting to reuse data that is cached in the Relay store is to understand the lifetime of that data; that is, if it is present in the store, and for how long it will be.
 
-If you need to retain a specific query outside of the component's lifecycle, you can use the **`retain`** operation described in our [Retaining Queries](#retaining-queries) section. As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
+Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we’ve never fetched data for a specific query, then it will be missing from the store.
 
-#### Controlling Relay's Garbage Collection Policy
+However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using:
+
+#### Garbage Collection in Relay
+
+Specifically, Relay runs garbage collection on the local in-memory store by deleting any data that is no longer being referenced by any component in the app.
+
+However, this can be at odds with reusing cached data; if the data is deleted too soon, before we try to reuse it again later, that will prevent us from reusing that data to render a screen without having to wait on a network request. To address this, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
+
+
+##### Query Retention
+
+Retaining a query indicates to Relay that the data for that query and variables shouldn't be deleted (i.e. garbage collected). Multiple callers might retain a single query, and as long as there is at least one caller retaining a query, it won't be deleted from the store.
+
+By default, any query components using useLazyLoadQuery or our other APIs will retain the query for as long as they are mounted. After they unmount, they will release the query, which means that the query might be deleted at any point in the future after that occurs.
+
+If you need to retain a specific query outside of the components lifecycle, you can use the [**`retain`**](#retaining-queries) operation:
+
+```javascript
+// Retain query; this will prevent the data for this query and
+// variables from being garbage collected by Relay
+const disposable = environment.retain(queryDescriptor);
+
+// Disposing of the disposable will release the data for this query
+// and variables, meaning that it can be deleted at any moment
+// by Relay's garbage collection if it hasn't been retained elsewhere
+disposable.dispose();
+```
+* As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
+
+##### Controlling Relay's Garbage Collection Policy
 
 There are currently 2 options you can provide to your Relay Store in to control the behavior of garbage collection:
 
-##### GC Scheduler
+###### GC Scheduler
 
 The **`gcScheduler`** is a function you can provide to the Relay Store which will determine when a GC execution should be scheduled to run:
 
@@ -1277,17 +1315,96 @@ const store = new Store(source, {gcScheduler});
 * By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
 * You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
-##### GC Release Buffer Size
+###### GC Release Buffer Size
 
 The Relay Store internally holds a release buffer to keep a specific (configurable) number of queries temporarily retained even after they have been released by their original owner  (i.e., usually when a component rendering that query unmounts). This makes it possible (and more likely) to reuse data when navigating back to a page, tab or piece of content that has been visited before.
 
-In order to configure the size of the release buffer, we can you can **`gcReleaseBufferSize`** option to the Relay Store:
+In order to configure the size of the release buffer, you can provide a **`gcReleaseBufferSize`** option to the Relay Store:
 
 ```javascript
 const store = new Store(source, {gcReleaseBufferSize: 10});
 ```
 
 * Note that having a buffer size of 0 is equivalent to not having the release buffer, which means that queries will be immediately released and collected.
+
+
+### Staleness of Data
+
+Assuming our data is [present in the store](#presence-of-data), we still need to consider the staleness of such data.
+
+By default, Relay will never consider data in the store to be stale (regardless of how long it has been cached for), unless it’s explicitly marked as stale using our data invalidation apis.
+
+Marking data as stale is useful for cases when we explicitly know that some data is no longer fresh (for example after executing a [Mutation](#graphql-mutations)), and we want to make sure it get’s refetched with the latest value from the server. Specifically, when data has been marked as stale, if any query references the stale data, that means the query will also be considered stale, and it will need to be fetched again the next time it is evaluated, given the provided [Fetch Policy](#fetch-policies).
+
+Relay exposes the following APIs to mark data as stale within an update to the store:
+
+#### Globally Invalidating the Relay Store
+
+The coarsest type of data invalidation we can perform is invalidating the whole store, meaning that all currently cached data will be considered stale after invalidation.
+
+To invalidate the store, we can call **`invalidateStore()`** within an [updater](#updater-functions) function:
+
+```javascript
+function updater(store) {
+  store.invalidateStore();
+}
+```
+* Calling `invalidateStore()` will cause ***all*** data that was written to the store before invalidation occurred to be considered stale, and will require any query to be refetched again the next time it’s evaluated.
+* Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
+
+#### Invalidating Specific Data in the Store
+
+We can also be more granular about which data we invalidate and only invalidate *specific records* in the store; compared to global invalidation, only queries that reference the invalidated records will be considered stale after invalidation.
+
+To invalidate a record, we can call **`invalidateRecord()`** within an [updater](#updater-functions) function:
+
+```javascript
+function updater(store) {
+  const user = store.get('<id>');
+  if (user != null) {
+    user.invalidateRecord();
+  }
+}
+```
+* Calling `invalidateRecord()` on the user record will mark *that* specific user in the store as stale. That means that any query that is cached and references that invalidated user will now be considered stale, and will require to be refetched again the next time it’s evaluated.
+* Note that an updater function can be specified as part of a [mutation](#graphql-mutations), [subscription](#graphql-subscriptions) or just a [local store update](#local-data-updates).
+
+#### Subscribing to Data Invalidation
+
+Just marking the store or records as stale will cause queries to be refetched the next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
+
+This is useful for a lot of use cases, but there are some times when we’d like to immediately refetch some data upon invalidation, for example:
+
+* When invalidating data that is already visible in the current page. Since no navigation is occurring, we won’t re-revaluate the queries for the current page, so even if some data is stale, it won't be immediately refetched and we will be showing stale data.
+* When invalidating data that is rendered on a previous view that was never unmounted; since the view wasn't unmounted, if we navigate back, the queries for that view wont be re-evaluated, meaning that even if some is stale, it won't be refetched and we will be showing stale data.
+
+
+To support these use cases, Relay exposes the **`useSubscribeToInvalidationState`** hook:
+
+```javascript
+function ProfilePage(props) {
+  // Example of querying data for the current page for a given user
+  const data = usePreloadedQuery(
+    graphql`...`,
+    props.preloadedQuery,
+  )
+
+  // Here we subscribe to changes in invalidation state for the given user ID.
+  // Whenever the user whith that ID is marked as stale, the provided callback will
+  // be executed*
+  useSubscribeToInvalidationState([props.userID], () => {
+    // Here we can do things like:
+    // - re-evaluate the query by passing a new preloadedQuery to usePreloadedQuery.
+    // - imperitavely refetch any data
+    // - render a loading spinner or gray out the page to indicate that refetch
+    //   is happening.
+  })
+
+  return (...);
+}
+```
+* `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
+* Inside the callback, we can react accordingly and refetch and/or update any current views that are rendering stale data. As an example, we could re-execute the top-level `usePreloadedQuery` by keeping the `preloadedQuery` in state and setting a new one here; since that query is stale at that point, the query will be refetched even if the data is cached in the store.
 
 ### Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]
 
@@ -1358,7 +1475,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
     {fetchPolicy: 'store-or-network'},
   );
 
@@ -1406,7 +1523,7 @@ function App() {
         }
       }
     `,
-    variables: {id: '4'},
+    {id: '4'},
     {fetchPolicy: 'store-or-network'},
   );
 
@@ -1430,7 +1547,7 @@ function App() {
 
 The process that we described above works the same way for nested fragments (i.e. fragments that include other fragments). This means that if the data required to render a fragment is locally cached, the fragment component will be able to render, regardless of whether data for any of its child or descendant fragments is missing. If data for a child fragment is missing, we can wrap it in a `Suspense` component to allow other fragments and parts of the app to continue rendering.
 
-### Missing Data Handlers
+### Filling in Missing Data (Missing Data Handlers)
 
 In the previous section we covered how to reuse data that is fully or partially cached, however there are cases in which Relay can't automatically tell that it can reuse some of its local data to fulfill a query. Specifically, Relay knows how to reuse data that is cached for the *same* query; that is, if you fetch the exact same query twice, Relay will know that it has the data cached for that query the second time.
 
@@ -1846,7 +1963,7 @@ Let's distill what's happening in this example:
 
 ## Rendering List Data and Pagination
 
-There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we wont want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
+There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we won't want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
 
 ### Connections
 
@@ -1938,7 +2055,7 @@ module.exports = FriendsListComponent;
 * `usePaginationFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), so our list of friends is available under **`data.friends.edges.node`**, as declared by the fragment. However, it also has a few additions:
   * It expects a fragment that is a connection field annotated with the `@connection` directive
   * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
-  * It takes to Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
+  * It takes two Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 * Note that we're using `[SuspenseList](https://reactjs.org/docs/concurrent-mode-patterns.html#suspenselist)` to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
 
 ### Pagination
@@ -2377,7 +2494,7 @@ Let's distill what's going on here:
   * In our case, we need to pass the count we want to fetch as the `first` variable, and we can pass different values for our filters, like `orderBy` or `searchTerm`.
 * This will re-render your component and may cause it to suspend (as explained in [Transitions And Updates That Suspend](#transitions-and-updates-that-suspend)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
   * Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
-* Conceptually, when we call refetch, we're fetching the connection *from scratch*. It other words, we're fetching it again from the *beginning* and ***"resetting"*** our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
+* Conceptually, when we call refetch, we're fetching the connection *from scratch*. In other words, we're fetching it again from the *beginning* and ***"resetting"*** our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
 
 ### Adding and Removing Items From a Connection
 
@@ -2985,79 +3102,113 @@ const likeMutation = graphql`
 
 * Note that mutations can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
 
-In order to *execute* a mutation against the server in Relay, we can use the **`commitMutation`** API:
+In order to *execute* a mutation against the server in Relay, we can use the **`useMutation`** hook.
 
 ```javascript
-import type {Environment} from 'react-relay';
 import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
-const {commitMutation, graphql} = require('react-relay');
+const {graphql, useMutation} = require('react-relay/hooks');
 
-function commitLikePostMutation(
-  environment: Environment,
-  input: LikePostData,
-) {
-  return commitMutation<LikePostMutation>(environment, {
-    mutation: graphql`
-      mutation LikePostMutation($input: LikePostData!) {
-        like_post(data: $input) {
-          post {
-            id
-            viewer_does_like
-            like_count
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+function LikeButton(props: Props) {
+  const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
+    mutation LikePostMutation($input: LikePostData!)
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `,
-    variables: {input},
-    onCompleted: response => {} /* Mutation completed */,
-    onError: error => {} /* Mutation errored */,
-  });
+    }
+  `);
+
+  const mutationConfig = {
+    variables: {
+      input: props.likePostData,
+    },
+  };
+
+  return (
+    <Button disabled={isInFlight} onClick={() => commit(mutationConfig)}>
+      Like
+    </Button>
+  );
 }
 
-module.exports = {commit: commitLikePostMutation};
+module.exports = LikeButton;
 ```
 
 Let's distill what's happening here:
 
-* `commitMutation` takes an environment, the `graphql` tagged  mutation, and the variables to use for sending the mutation request to the server.
-* Note that the `input` for the mutation can be Flow typed with the autogenerated type available from the *`LikePostMutation.graphql`* module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `<mutation_name>.graphql.js`.
-* Note that the `variables`, `response` in `onComplete` and `optimisticResponse` in `commitMutation` will be typed altogether by providing the autogenerated type `LikePostMutation` from the *`LikePostMutation.graphql`* module. To include the type for the `optimisticResponse`, a `@raw_response_type` directive should be added to the mutation query root.
-* `commitMutation` also takes an `onCompleted` and `onError` callbacks, which will respectively be called when the request completes successfully or when an error occurs.
-* When the mutation response is received, ***if the objects in the mutation response have IDs, the records in the local store will *automatically* be updated with the new field values from the response.*** In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
-* Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
-
-However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an **`updater`** function to `commitMutation` for full control over how to update the store:
+* `useMutation` takes a mutation `GraphQLTaggedNode` (the result of using the `graphql` template tag), and an optional `commitMutationFn`.
+* `useMutation` returns `[commit, isInFlight]: [(UseMutationConfig<TMutation>) => Disposable, boolean]`.
+* `isInFlight` will be true if any mutation triggered by calling `commit` is still in flight. If you call `commit` multiple times, there can be multiple mutations in flight at once.
+* `commit` is a function that accepts a `UseMutationConfig`. The type of `UseMutationConfig` is as follows:
 
 ```javascript
-import type {Environment} from 'react-relay';
-import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
+type UseMutationConfig<TMutation: MutationParameters> = {|
+  configs?: Array<DeclarativeMutationConfig>,
+  onError?: ?(error: Error) => void,
+  onCompleted?: ?(
+    response: $ElementType<TMutation, 'response'>,
+    errors: ?Array<PayloadError>,
+  ) => void,
+  onUnsubscribe?: ?() => void,
+  optimisticResponse?: $ElementType<
+    {
+      +rawResponse?: {...},
+      ...TMutation,
+      ...
+    },
+    'rawResponse',
+  >,
+  optimisticUpdater?: ?SelectorStoreUpdater,
+  updater?: ?SelectorStoreUpdater,
+  uploadables?: UploadableMap,
+  variables: $ElementType<TMutation, 'variables'>,
+|};
+```
 
-const {commitMutation, graphql} = require('react-relay');
+* The only required property in the `UseMutationConfig` object is `variables`, which is an object containing the parameters to the mutation.
+* You can also include `onCompleted` and `onError` callbacks, which are called when the mutation completes or errors out, respectively.
+* Note that the input for the mutation can be Flow typed with the autogenerated type available from the `LikePostMutation.graphql` module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `<mutation_name>.graphql.js`.
+* Note that `variables` and `response` in `onComplete` will be typed altogether by providing the autogenerated type `LikePostMutation` to `useMutation` from the `LikePostMutation.graphql` module.
+* When the mutation response is received, ***if the objects in the mutation response have IDs, the records in the local store will automatically be updated with the new field values from the response***. In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
+* Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
+* Calling `commit` results in a call to `commitMutation`, which you can learn about [here](https://relay.dev/docs/en/experimental/api-reference#commitMutation).
 
-function commitCommentCreateMutation(
-  environment: Environment,
-  postID: string,
-  input: CommentCreateData,
-) {
-  return commitMutation<CreateCommentMutation>(environment, {
-    mutation: graphql`
-      mutation CreateCommentMutation($input: CommentCreateData!) {
-        comment_create(input: $input) {
-          comment_edge {
-            cursor
-            node {
-              body {
-                text
-              }
-            }
-          }
+#### Updater functions
+
+However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an **`updater`** function to `commit` for full control over how to update the store:
+
+```javascript
+import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
+
+const {graphql, useMutation} = require('react-relay/hooks');
+
+type Props = {|
+  likePostData: LikePostData,
+|};
+function LikeButton(props: Props) {
+  const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
+    mutation LikePostMutation($input: LikePostData!) {
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `,
-    variables: {input},
-    onCompleted: () => {},
-    onError: error => {},
+    }
+  `);
+
+  const mutationConfig = {
+    variables: {
+      input: props.likePostData,
+    },
     updater: store => {
       const postRecord = store.get(postID);
 
@@ -3086,10 +3237,16 @@ function commitCommentCreateMutation(
         newEdge,
       );
     },
-  });
+  };
+
+  return (
+    <Button disabled={isInFlight} onClick={() => commit(mutationConfig)}>
+      Like
+    </Button>
+  );
 }
 
-module.exports = {commit: commitCommentCreateMutation};
+module.exports = LikeButton;
 ```
 
 Let's distill this example:
@@ -3098,8 +3255,6 @@ Let's distill this example:
 * In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
 * Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
 * Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
-
-
 
 #### Optimistic updates
 
@@ -3114,29 +3269,31 @@ _**Optimistic Response**_
 When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an **`optimisticResponse`** to `commitMutation`:
 
 ```javascript
-import type {Environment} from 'react-relay';
 import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
-const {commitMutation, graphql} = require('react-relay');
+const {graphql, useMutation} = require('react-relay/hooks');
 
-function commitLikePostMutation(
-  environment: Environment,
-  postID: string,
-  input: LikePostData,
-) {
-  return commitMutation<LikePostMutation>(environment, {
-    mutation: graphql`
-      mutation LikePostMutation($input: LikePostData!)
-        @raw_response_type {
-        like_post(data: $input) {
-          post {
-            id
-            viewer_does_like
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+function LikeButton(props: Props) {
+  const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
+    mutation LikePostMutation($input: LikePostData!)
+      @raw_response_type {
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `,
-    variables: {input},
+    }
+  `);
+
+  const mutationConfig = {
+    variables: {
+      input: props.likePostData,
+    },
     optimisticResponse: {
       like_post: {
         post: {
@@ -3145,12 +3302,18 @@ function commitLikePostMutation(
         },
       },
     },
-    onCompleted: () => {} /* Mutation completed */,
+    onCompleted: response => {} /* Mutation completed */,
     onError: error => {} /* Mutation errored */,
-  });
+  };
+
+  return (
+    <Button disabled={isInFlight} onClick={() => commit(mutationConfig)}>
+      Like
+    </Button>
+  );
 }
 
-module.exports = {commit: commitLikePostMutation};
+module.exports = LikeButton;
 ```
 
 Let's see what's happening in this example.
@@ -3161,36 +3324,35 @@ Let's see what's happening in this example.
 * If the mutation *fails*, ***the optimistic update will be rolled back,*** and the error will be communicated via the `onError` callback.
 * Note that by adding `@raw_response_type` directive,  the type for `optimisticResponse` is generated , and the flow type is applied by: `commitMutation<LikePostMutation>`.
 
-
-
 _**Optimistic Updater**_
 
 However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection). In these cases we can provide an **`optimisticUpdater`** function to `commitMutation`. For example, we can rewrite the above example using an `optimisticUpdater` instead of an `optimisticResponse`:
 
 ```javascript
-import type {Environment} from 'react-relay';
-import type {LikePostData} from 'LikePostMutation.graphql';
+import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
-const {commitMutation, graphql} = require('react-relay');
+const {graphql, useMutation} = require('react-relay/hooks');
 
-function commitLikePostMutation(
-  environment: Environment,
-  postID: string,
-  input: LikePostData,
-) {
-  return commitMutation(environment, {
-    mutation: graphql`
-      mutation LikePostMutation($input: LikePostData!) {
-        like_post(data: $input) {
-          post {
-            id
-            like_count
-            viewer_does_like
-          }
+type Props = {|
+  likePostData: LikePostData,
+|};
+function LikeButton(props: Props) {
+  const [commit, isInFlight] = useMutation<LikePostMutation>(graphql`
+    mutation LikePostMutation($input: LikePostData!) {
+      like_post(data: $input) {
+        post {
+          id
+          viewer_does_like
+          like_count
         }
       }
-    `,
-    variables: {input},
+    }
+  `);
+
+  const mutationConfig = {
+    variables: {
+      input: props.likePostData,
+    },
     optimisticUpdater: store => {
       // Get the record for the Post object
       const postRecord = store.get(postID);
@@ -3204,28 +3366,31 @@ function commitLikePostMutation(
       // Optimistically set viewer_does_like to true
       postRecord.setValue(true, 'viewer_does_like');
     },
-    onCompleted: () => {} /* Mutation completed */,
-    onError: error => {} /* Mutation errored */,
-  });
+  };
+
+  return (
+    <Button disabled={isInFlight} onClick={() => commit(mutationConfig)}>
+      Like
+    </Button>
+  );
 }
 
-module.exports = {commit: commitLikePostMutation};
+module.exports = LikeButton;
 ```
 
 Let's see what's happening here:
 
 * The `optimisticUpdater` has the same signature and behaves the same way as the regular `updater` function, the main difference being that it will be executed immediately, before the mutation response completes.
 * If the mutation succeeds, ***the optimistic update will be rolled back,*** and the server response will be applied.
-  * Note that if we used an `optimisticResponse`, we wouldn't able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
+  * Note that if we used an `optimisticResponse`, we wouldn't be able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
   * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might've incremented by more than 1.
 * If the mutation *fails*, ***the optimistic update will be rolled back,*** and the error will be communicated via the `onError` callback.
 * Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Post` object).
 
-
 > **NOTE:** Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
 
 
-* * *
+#### Order of Execution of Updater Functions
 
 In general, execution of the `updater` and optimistic updates will occur in the following order:
 
@@ -3243,21 +3408,19 @@ In general, execution of the `updater` and optimistic updates will occur in the 
 
 _**Full Example**_
 
-This means that in more complicated scenarios you can still provide all 3 options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
+This means that in more complicated scenarios you can still provide all 3 options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could be like something like the following (for full details on updating connections, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) guide):
 
 ```javascript
-import type {Environment} from 'react-relay';
 import type {CommentCreateData, CreateCommentMutation} from 'CreateCommentMutation.graphql';
 
-const {commitMutation, graphql} = require('react-relay');
+const {graphql, useMutation} = require('react-relay/hooks');
 
-function commitCommentCreateMutation(
-  environment: Environment,
+type Props = {|
+  commentCreateData: CommentCreateData,
   postID: string,
-  input: CommentCreateData,
-) {
-  return commitMutation<CreateCommentMutation>(environment, {
-    mutation: graphql`
+|};
+function CreateCommentButton(props: Props) {
+  const [commit, isInFlight] = useMutation<CreateCommentMutation>(graphql`
       mutation CreateCommentMutation($input: CommentCreateData!) {
         comment_create(input: $input) {
           post {
@@ -3274,24 +3437,24 @@ function commitCommentCreateMutation(
           }
         }
       }
-    `,
-    variables: {input},
-    onCompleted: () => {},
-    onError: error => {},
+    `);
 
+  const mutationConfig = {
+    variables: {
+      input: props.commentCreateData,
+    },
     // Optimistically set the value for `viewer_has_commented`
     optimisticResponse: {
       post: {
-        id: postID,
+        id: props.postID,
         viewer_has_commented: true,
       },
     },
-
     // Optimistically add a new comment to the comments connection
     optimisticUpdater: store => {
       const postRecord = store.get(postID);
       const connectionRecord = ConnectionHandler.getConnection(
-        userRecord,
+        postRecord,
         'CommentsComponent_comments_connection',
       );
 
@@ -3315,7 +3478,7 @@ function commitCommentCreateMutation(
     updater: store => {
       const postRecord = store.get(postID);
       const connectionRecord = ConnectionHandler.getConnection(
-        userRecord,
+        postRecord,
         'CommentsComponent_comments_connection',
       );
 
@@ -3328,20 +3491,31 @@ function commitCommentCreateMutation(
       // Add edge to the end of the connection
       ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
     },
-  });
+  };
+
+  return <Button onClick={() => commit(mutationConfig)}>Create Comment</Button>;
 }
 
-module.exports = {commit: commitCommentCreateMutation};
+module.exports = CreateCommentButton;
 ```
 
 Let's distill this example, according to the execution order of the updaters:
 
 * Given that an `optimisticResponse` was provided, it will be executed *first*. This will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
-* Given that an `optimisticResponse` was provided, it will be executed next. Our `optimisticUpdater` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
+* Given that an `optimisticUpdater` was provided, it will be executed next. Our `optimisticUpdater` will create new comment and edge records from scratch, simulating what the new edge in the server response would look like, and then add the new edge to the connection.
 * When the optimistic updates conclude, components subscribed to this data will be notified.
 * When the mutation succeeds, all of our optimistic updates will be rolled back.
 * The server response will be processed by Relay, and this will cause the new value of `viewer_has_commented` to be merged into the existing `Post` object, setting it to `true`.
 * Finally, the `updater` function we provided will be executed. The `updater` function is very similar to the `optimisticUpdater` function, however, instead of creating the new data from scratch, it reads it from the mutation payload and adds the new edge to the connection.
+
+
+#### Invalidating Data during a Mutation
+
+The recommended approach when executing a mutation is to request ***all*** the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
+
+However, often times it can be unfeasible to know and specify all the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
+
+For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation apis documented in our [Staleness of Data section](#staleness-of-data).
 
 
 #### Mutation Queueing
@@ -3404,20 +3578,32 @@ const postLikeSubscription = graphql`
 * Note that subscriptions can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
 
 
-In order to *execute* a subscription against the server in Relay, we can use the **`requestSubscription`** API:
+In order to *execute* a subscription against the server in Relay, we can use the **`useSubscription`** hook:
 
 ```javascript
-import type {Environment} from 'react-relay';
 import type {LikePostSubscribeData} from 'LikePostSubscription.graphql';
 
-const {graphql, requestSubscription} = require('react-relay');
+const React = require('react');
 
-function postLikeSubscribe(
-  environment: Environment,
-  postID: string,
-  input: LikePostSubscribeData,
-) {
-  return requestSubscription(environment, {
+const {graphql, useSubscription, useFragment} = require('react-relay');
+
+type Props = {|
+  likePostSubscribeData: LikePostSubscribeData,
+  postId: string,
+|};
+function LikeCount() {
+  const data = useFragment(
+    graphql`
+      query LikeCount_likes($id: ID!) {
+        post(id: $id) {
+          id
+          like_count
+        }
+      }
+    `,
+    {id: props.postId},
+  );
+  const subscriptionConfig = useMemo(() => ({
     subscription: graphql`
       subscription LikePostSubscription(
         $input: LikePostSubscribeData!
@@ -3430,40 +3616,45 @@ function postLikeSubscribe(
         }
       }
     `,
-    variables: {input},
+    variables: {input: props.likePostSubscribeData},
     onCompleted: () => {} /* Subscription established */,
     onError: error => {} /* Subscription errored */,
-    onNext: response => {} /* Subscription payload received */
-  });
+    onNext: response => {} /* Subscription payload received */,
+  }));
+
+  useSubscription(subscriptionConfig);
+
+  return (
+    <div>
+      This post has been liked {data?.post?.like_count ?? "an unknown number of"} times.
+    </div>
+  );
 }
 
-module.exports = {subscribe: postLikeSubscribe};
+module.exports = LikeCount;
 ```
 
 Let's distill what's happening here:
 
-* `requestSubscription` takes an environment, the `graphql` tagged subscription, and the variables to use.
-* Note that the `input` for the subscription can be Flow typed with the autogenerated type available from the *`LikePostSubscription.graphql`* module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: `<subscription_name>.graphql.js`.
-* `requestSubscription` also takes an `onCompleted` and `onError` callbacks, which will respectively be called when the subscription is successfully established, or when an error occurs.
-* `requestSubscription` also takes an `onNext` callback, which will be called whenever a subscription payload is received.
+* `useSubscription` takes a config object containing the subscription and the variables that the GraphQL query expects.
+* Note that the `input` for the subscription can be Flow typed with the autogenerated type available from the `LikePostSubscription.graphql` module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: `<subscription_name>.graphql.js`.
+* `useSubscription` also take `onCompleted` and `onError` callbacks, which will be called respectively when the subscription is successfully established, or when an error occurs.
+* `useSubscription` also takes an `onNext` callback, which will be called whenever a subscription payload is received.
 * When the subscription payload is received, ***if the objects in the subscription payload have IDs, the records in the local store will *automatically* be updated with the new field values from the payload.*** In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for the `like_count` field.
 * Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-
-However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an `**updater**` function to **`requestSubscription`** for full control over how to update the store:
+However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an `**updater**` function to **`useSubscription`** for full control over how to update the store:
 
 ```javascript
 import type {Environment} from 'react-relay';
 import type {CommentCreateSubscribeData} from 'CommentCreateSubscription.graphql';
 
-const {graphql, requestSubscription} = require('react-relay');
+const {graphql, useSubscription} = require('react-relay');
 
-function commentCreateSubscribe(
-  environment: Environment,
-  postID: string,
+function useCommentCreateSubscription(
   input: CommentCreateSubscribeData,
 ) {
-  return requestSubscription(environment, {
+  const subscriptionConfig = useMemo(() => ({
     subscription: graphql`
       subscription CommentCreateSubscription(
         $input: CommentCreateSubscribeData!
@@ -3506,13 +3697,11 @@ function commentCreateSubscribe(
       // Add edge to the end of the connection
       ConnectionHandler.insertEdgeAfter(connectionRecord, newEdge);
     },
-    onCompleted: () => {} /* Subscription established */,
-    onError: error => {} /* Subscription errored */,
-    onNext: response => {} /* Subscription payload received */,
-  });
+  }));
+  useSubscription(subscriptionConfig);
 }
 
-module.exports = {subscribe: commentCreateSubscribe};
+module.exports = useCommentCreateSubscription;
 ```
 
 Let's distill this example:
@@ -3544,7 +3733,7 @@ function commitCommentCreateLocally(
   return commitLocalUpdate(environment, store => {
     const postRecord = store.get(postID);
     const connectionRecord = ConnectionHandler.getConnection(
-      userRecord,
+      postRecord,
       'CommentsComponent_comments_connection',
     );
 
@@ -3575,7 +3764,7 @@ module.exports = {commit: commitCommentCreateLocally};
 * In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection) section.
 * Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-#### CommitPayload
+#### commitPayload
 
 **`commitPayload`** takes an `OperationDescriptor` and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query.
 
@@ -3655,7 +3844,7 @@ extend type Item {
 
 #### Reading Client-Only Data
 
-We can read client-only data be selecting it inside[fragments](#fragments) or [queries](#queries) as normal:
+We can read client-only data by selecting it inside [fragments](#fragments) or [queries](#queries) as normal:
 
 ```javascript
 const data = *useFragment*(
@@ -3749,7 +3938,7 @@ fetchQuery<AppQuery>(
 ```
 
 * The returned Promise that resolves to the query data, read out from the store when the first network response is received from the server. If the request fails, the promise will reject
-* Note that we specify the `AppQuery` Flow type; this ensures that the type of the data the the promise will resolve to matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
+* Note that we specify the `AppQuery` Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
 
 > See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
 

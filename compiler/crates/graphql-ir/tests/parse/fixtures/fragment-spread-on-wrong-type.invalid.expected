@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Image {
+  uri
+}
+
+query myQuery {
+  node(id: "<my-id>") {
+    ...Foo
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid fragment spread 'Foo', the type of this fragment ('Image') can never occur for parent type 'Node'
+
+  fragment-spread-on-wrong-type.invalid.graphql:8:5
+    7 │   node(id: "<my-id>") {
+    8 │     ...Foo
+      │     ^^^^^^
+    9 │   }

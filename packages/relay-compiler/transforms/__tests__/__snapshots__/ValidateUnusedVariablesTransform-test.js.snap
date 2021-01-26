@@ -67,14 +67,14 @@ query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error.'No unused variables found in the query 'QueryWithId'
-
-Source: GraphQL request (2:28)
-1: # expected-to-throw
-2: query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
-                              ^
-3:   node(id: $id) {
-
+- Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error.'No unused variables found in the query 'QueryWithId'
+  
+  Source: GraphQL request (2:28)
+  1: # expected-to-throw
+  2: query QueryWithId($id: ID) @DEPRECATED__relay_ignore_unused_variables_error {
+                                ^
+  3:   node(id: $id) {
+  
 `;
 
 exports[`matches expected output: query-with-unused-root-variable-shadowed-by-local.invalid.graphql 1`] = `
@@ -99,14 +99,14 @@ fragment User_data_with_args on User
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Variable '$foo' is never used in operation 'QueryWithId'.
-
-Source: GraphQL request (2:28)
-1: # expected-to-throw
-2: query QueryWithId($id: ID, $foo: Boolean!) {
-                              ^
-3:   node(id: $id) {
-
+- Variable '$foo' is never used in operation 'QueryWithId'.
+  
+  Source: GraphQL request (2:28)
+  1: # expected-to-throw
+  2: query QueryWithId($id: ID, $foo: Boolean!) {
+                                ^
+  3:   node(id: $id) {
+  
 `;
 
 exports[`matches expected output: query-with-unused-variable.invalid.graphql 1`] = `
@@ -199,9 +199,8 @@ User_data_with_args: NO ERRORS.
 AnotherUser_data: NO ERRORS.
 `;
 
-exports[`matches expected output: variable-in-the-complex-object-list.invalid.graphql 1`] = `
+exports[`matches expected output: variable-in-the-complex-object-list.graphql 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-#expected-to-throw
 query Q1($arg: String) {
   items(filter: {date: $arg}) {
     date
@@ -219,23 +218,6 @@ query Q2($size: Int) {
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-THROWN EXCEPTION:
-
-Encountered 2 errors:
-- Complex argument values (Lists or InputObjects with nested variables) are not supported.
-  
-  GraphQL request (3:24)
-  2: query Q1($arg: String) {
-  3:   items(filter: {date: $arg}) {
-                            ^
-  4:     date
-  
-- Complex argument values (Lists or InputObjects with nested variables) are not supported.
-  
-  GraphQL request (11:29)
-  10:     ... on User {
-  11:       profilePicture(size: [$size]) {
-                                  ^
-  12:         uri
-  
+Q1: NO ERRORS.
+Q2: NO ERRORS.
 `;

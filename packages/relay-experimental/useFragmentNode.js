@@ -139,7 +139,13 @@ function useFragmentNode<TFragmentData: mixed>(
   }, [mustResubscribeGenerationRef.current]);
 
   if (__DEV__) {
-    if (fragmentRef != null && fragmentResult.data == null) {
+    if (
+      fragmentRef != null &&
+      (fragmentResult.data === undefined ||
+        (Array.isArray(fragmentResult.data) &&
+          fragmentResult.data.length > 0 &&
+          fragmentResult.data.every(data => data === undefined)))
+    ) {
       warning(
         false,
         'Relay: Expected to have been able to read non-null data for ' +
@@ -156,7 +162,7 @@ function useFragmentNode<TFragmentData: mixed>(
   }
 
   return {
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-return]
     data: fragmentResult.data,
     disableStoreUpdates,
     enableStoreUpdates,

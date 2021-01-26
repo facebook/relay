@@ -13,10 +13,8 @@
 
 'use strict';
 
-// flowlint untyped-import:off
+// flowlint-next-line untyped-import:off
 const Scheduler = require('scheduler');
-
-// flowlint untyped-import:error
 
 const getPaginationMetadata = require('./getPaginationMetadata');
 const invariant = require('invariant');
@@ -31,6 +29,7 @@ const {getFragment, getFragmentIdentifier} = require('relay-runtime');
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
+  FragmentReference,
   GraphQLResponse,
   GraphQLTaggedNode,
   Observer,
@@ -39,8 +38,8 @@ import type {
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   data: TFragmentData,
-  loadNext: LoadMoreFn,
-  loadPrevious: LoadMoreFn,
+  loadNext: LoadMoreFn<TQuery>,
+  loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: RefetchFnDynamic<TQuery, TKey>,
@@ -48,7 +47,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
 
 function useBlockingPaginationFragment<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   parentFragmentRef: TKey,
@@ -74,7 +73,7 @@ function useBlockingPaginationFragment<
 
   const {
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
+    identifierField,
     paginationRequest,
     paginationMetadata,
     stream,
@@ -99,35 +98,37 @@ function useBlockingPaginationFragment<
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
   // Backward pagination
-  const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore({
-    direction: 'backward',
-    fragmentNode,
-    fragmentRef,
-    fragmentIdentifier,
-    fragmentData,
-    connectionPathInFragmentData,
-    fragmentRefPathInResponse,
-    paginationRequest,
-    paginationMetadata,
-    disableStoreUpdates,
-    enableStoreUpdates,
-    componentDisplayName,
-  });
+  const [loadPrevious, hasPrevious, disposeFetchPrevious] = useLoadMore<TQuery>(
+    {
+      componentDisplayName,
+      connectionPathInFragmentData,
+      direction: 'backward',
+      disableStoreUpdates,
+      enableStoreUpdates,
+      fragmentData,
+      fragmentIdentifier,
+      fragmentNode,
+      fragmentRef,
+      identifierField,
+      paginationMetadata,
+      paginationRequest,
+    },
+  );
 
   // Forward pagination
-  const [loadNext, hasNext, disposeFetchNext] = useLoadMore({
-    direction: 'forward',
-    fragmentNode,
-    fragmentRef,
-    fragmentIdentifier,
-    fragmentData,
+  const [loadNext, hasNext, disposeFetchNext] = useLoadMore<TQuery>({
+    componentDisplayName,
     connectionPathInFragmentData,
-    fragmentRefPathInResponse,
-    paginationRequest,
-    paginationMetadata,
+    direction: 'forward',
     disableStoreUpdates,
     enableStoreUpdates,
-    componentDisplayName,
+    fragmentData,
+    fragmentIdentifier,
+    fragmentNode,
+    fragmentRef,
+    identifierField,
+    paginationMetadata,
+    paginationRequest,
   });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
@@ -149,7 +150,7 @@ function useBlockingPaginationFragment<
   };
 }
 
-function useLoadMore(args: {|
+function useLoadMore<TQuery: OperationType>(args: {|
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<
@@ -162,7 +163,7 @@ function useLoadMore(args: {|
       },
     >,
   >,
-|}): [LoadMoreFn, boolean, () => void] {
+|}): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
   const [requestPromise, setRequestPromise] = useState(null);
   const requestPromiseRef = useRef(null);
@@ -211,7 +212,7 @@ function useLoadMore(args: {|
     // and blow away the whole list of items.
     error: promiseResolve,
   };
-  const [_loadMore, hasMore, disposeFetch] = useLoadMoreFunction({
+  const [_loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
     ...loadMoreArgs,
     observer,
     onReset: handleReset,

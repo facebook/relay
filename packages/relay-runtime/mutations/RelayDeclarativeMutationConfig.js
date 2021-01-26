@@ -12,7 +12,7 @@
 
 'use strict';
 
-const RelayConnectionHandler = require('../handlers/connection/RelayConnectionHandler');
+const ConnectionHandler = require('../handlers/connection/ConnectionHandler');
 
 const warning = require('warning');
 
@@ -193,7 +193,7 @@ function rangeAdd(
       if (!serverEdge) {
         continue;
       }
-      const connection = RelayConnectionHandler.getConnection(
+      const connection = ConnectionHandler.getConnection(
         parent,
         info.key,
         info.filters,
@@ -201,7 +201,7 @@ function rangeAdd(
       if (!connection) {
         continue;
       }
-      const clientEdge = RelayConnectionHandler.buildConnectionEdge(
+      const clientEdge = ConnectionHandler.buildConnectionEdge(
         store,
         connection,
         serverEdge,
@@ -211,10 +211,10 @@ function rangeAdd(
       }
       switch (info.rangeBehavior) {
         case 'append':
-          RelayConnectionHandler.insertEdgeAfter(connection, clientEdge);
+          ConnectionHandler.insertEdgeAfter(connection, clientEdge);
           break;
         case 'prepend':
-          RelayConnectionHandler.insertEdgeBefore(connection, clientEdge);
+          ConnectionHandler.insertEdgeBefore(connection, clientEdge);
           break;
         default:
           warning(
@@ -348,14 +348,14 @@ function deleteNode(
     return;
   }
   for (const key of connectionKeys) {
-    const connection = RelayConnectionHandler.getConnection(
+    const connection = ConnectionHandler.getConnection(
       recordProxy,
       key.key,
       key.filters,
     );
     if (connection) {
       deleteIDs.forEach(deleteID => {
-        RelayConnectionHandler.deleteNode(connection, deleteID);
+        ConnectionHandler.deleteNode(connection, deleteID);
       });
     }
   }

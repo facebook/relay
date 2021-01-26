@@ -1,0 +1,46 @@
+directive @fetchable(field_name: String) on OBJECT
+
+interface Hominid {
+  pet: Pet
+}
+
+interface Canine {
+  owner: Human
+}
+
+type Pet implements Canine @fetchable(field_name: "id") {
+  id: ID
+  owner: Human
+  type: PetType
+}
+
+type Human implements Hominid @fetchable(field_name: "id") {
+  id: ID
+  pet: Pet
+  friends(location: Location): [Human]
+}
+
+type Query {
+  fetch__Human(id: ID!): Human
+  user: Human
+}
+
+enum PetType {
+  DOG
+  CAT
+}
+
+input Location {
+  lat: String
+  lon: String
+}
+
+input EmptyLocation
+
+input InvalidLocation {
+  address: Address
+}
+
+type Address {
+  city: String
+}

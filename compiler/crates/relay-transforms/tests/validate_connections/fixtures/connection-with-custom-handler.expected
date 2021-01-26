@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+        @connection(key: "NodeQuery_comments", handler: "my_comments_handler") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10)
+                @connection(
+                  key: "NodeQuery_friends"
+                  handler: "my_friends_handler"
+                ) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+OK

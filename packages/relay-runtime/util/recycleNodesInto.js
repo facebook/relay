@@ -12,6 +12,9 @@
 
 'use strict';
 
+const hasWeakSetDefined = typeof WeakSet !== 'undefined';
+const hasWeakMapDefined = typeof WeakMap !== 'undefined';
+
 /**
  * Recycles subtrees from `prevData` by replacing equal subtrees in `nextData`.
  */
@@ -19,8 +22,16 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
   if (
     prevData === nextData ||
     typeof prevData !== 'object' ||
+    prevData instanceof Set ||
+    prevData instanceof Map ||
+    (hasWeakSetDefined && prevData instanceof WeakSet) ||
+    (hasWeakMapDefined && prevData instanceof WeakMap) ||
     !prevData ||
     typeof nextData !== 'object' ||
+    nextData instanceof Set ||
+    nextData instanceof Map ||
+    (hasWeakSetDefined && nextData instanceof WeakSet) ||
+    (hasWeakMapDefined && nextData instanceof WeakMap) ||
     !nextData
   ) {
     return nextData;
@@ -59,15 +70,11 @@ function recycleNodesInto<T>(prevData: T, nextData: T): T {
         if (nextValue !== nextObject[key]) {
           if (__DEV__) {
             if (!Object.isFrozen(nextObject)) {
-              /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This
-               * comment suppresses an error found when Flow v0.98 was deployed.
-               * To see the error delete this comment and run Flow. */
+              // $FlowFixMe[cannot-write]
               nextObject[key] = nextValue;
             }
           } else {
-            /* $FlowFixMe(>=0.98.0 site=www,mobile,react_native_fb,oss) This comment
-             * suppresses an error found when Flow v0.98 was deployed. To see
-             * the error delete this comment and run Flow. */
+            // $FlowFixMe[cannot-write]
             nextObject[key] = nextValue;
           }
         }

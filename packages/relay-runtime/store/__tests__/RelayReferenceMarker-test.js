@@ -13,16 +13,13 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayRecordSource = require('../RelayRecordSource');
 
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');
-
-function getEmptyConnectionEvents() {
-  return null;
-}
 
 describe('RelayReferenceMarker', () => {
   const {generateAndCompile} = RelayModernTestUtils;
@@ -131,8 +128,6 @@ describe('RelayReferenceMarker', () => {
         size: 32,
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -221,8 +216,6 @@ describe('RelayReferenceMarker', () => {
       source,
       createNormalizationSelector(UserProfile.operation, ROOT_ID, {id: '1'}),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -330,8 +323,6 @@ describe('RelayReferenceMarker', () => {
         orderby: ['first name'],
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -352,8 +343,6 @@ describe('RelayReferenceMarker', () => {
         orderby: ['last name'],
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -472,8 +461,6 @@ describe('RelayReferenceMarker', () => {
         size: 32,
       }),
       references,
-      new Set(),
-      getEmptyConnectionEvents,
     );
     expect(Array.from(references).sort()).toEqual([
       '1',
@@ -575,8 +562,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -628,8 +613,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -674,8 +657,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         // Return null to indicate the fragment is not loaded yet
         {
           get: _ => null,
@@ -730,8 +711,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -775,8 +754,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -817,8 +794,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -850,8 +825,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
@@ -878,8 +851,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
@@ -972,8 +943,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1023,8 +992,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1067,8 +1034,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         // Return null to indicate the fragment is not loaded yet
         {
           get: _ => null,
@@ -1121,8 +1086,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1164,8 +1127,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1204,8 +1165,6 @@ describe('RelayReferenceMarker', () => {
           id: '1',
         }),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
         loader,
       );
       expect(Array.from(references).sort()).toEqual([
@@ -1213,6 +1172,54 @@ describe('RelayReferenceMarker', () => {
         'client:1:nameRenderer',
         'client:root',
       ]);
+    });
+
+    it('throws if no operation loader is provided', () => {
+      const storeData = {
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          nameRenderer: {
+            __ref: 'client:1:nameRenderer',
+          },
+        },
+        'client:1:nameRenderer': {
+          __id: 'client:1:nameRenderer',
+          __typename: 'PlainUserNameRenderer',
+          __module_component_BarFragment: 'PlainUserNameRenderer.react',
+          __module_operation_BarFragment:
+            'PlainUserNameRenderer_name$normalization.graphql',
+          plaintext: 'plain name',
+          data: {__ref: 'data'},
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+        data: {
+          __id: 'data',
+          __typename: 'PlainUserNameData',
+          text: 'text',
+        },
+      };
+      source = RelayRecordSource.create(storeData);
+      const references = new Set();
+      expect(() =>
+        mark(
+          source,
+          createNormalizationSelector(BarQuery.operation, 'client:root', {
+            id: '1',
+          }),
+          references,
+          null, // operationLoader
+        ),
+      ).toThrow(
+        'RelayReferenceMarker: Expected an operationLoader to be configured when ' +
+          'using `@module`. Could not load fragment `PlainUserNameRenderer_name` ' +
+          'in operation `BarQuery`.',
+      );
     });
   });
 
@@ -1264,8 +1271,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
     });
@@ -1290,8 +1295,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
     });
@@ -1345,8 +1348,6 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', '2', 'client:root']);
     });
@@ -1371,10 +1372,285 @@ describe('RelayReferenceMarker', () => {
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
         references,
-        new Set(),
-        getEmptyConnectionEvents,
       );
       expect(Array.from(references).sort()).toEqual(['1', 'client:root']);
+    });
+  });
+
+  describe('with feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
+    let FlightQuery;
+    let InnerQuery;
+    let operationLoader;
+
+    const readRoot = () => {
+      return {
+        $$typeof: Symbol.for('react.element'),
+        type: 'div',
+        key: null,
+        ref: null,
+        props: {foo: 1},
+      };
+    };
+
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
+
+      ({FlightQuery, InnerQuery} = generateAndCompile(
+        `
+        query FlightQuery($id: ID!, $count: Int!) {
+          node(id: $id) {
+            ... on Story {
+              flightComponent(condition: true, count: $count, id: $id)
+            }
+          }
+        }
+
+        query InnerQuery($id: ID!) {
+          node(id: $id) {
+            ... on User {
+              name
+            }
+          }
+        }
+
+        extend type Story {
+          flightComponent(
+            condition: Boolean!
+            count: Int!
+            id: ID!
+          ): ReactFlightComponent
+            @react_flight_component(name: "FlightComponent.server")
+        }
+        `,
+      ));
+
+      operationLoader = {
+        get: jest.fn(() => InnerQuery),
+        load: jest.fn(() => Promise.resolve(InnerQuery)),
+      };
+    });
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
+    });
+
+    it('marks references when Flight fields are fetched', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        '2': {
+          __id: '2',
+          __typename: 'User',
+          id: '2',
+          name: 'Lauren',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+          __id:
+            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          __typename: 'ReactFlightComponent',
+          queries: [
+            {
+              module: {
+                __dr: 'RelayFlightExampleQuery.graphql',
+              },
+              variables: {
+                id: '2',
+              },
+            },
+          ],
+          tree: {
+            readRoot,
+          },
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+          'node(id:"2")': {
+            __ref: '2',
+          },
+        },
+      };
+      const recordSource = RelayRecordSource.create(data);
+      const references = new Set();
+      mark(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, 'client:root', {
+          count: 10,
+          id: '1',
+        }),
+        references,
+        operationLoader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        '2',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
+      ]);
+    });
+
+    it('marks references when the Flight field exists but has not been processed', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+          __id:
+            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          __typename: 'ReactFlightComponent',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const recordSource = RelayRecordSource.create(data);
+      const references = new Set();
+      mark(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, 'client:root', {
+          count: 10,
+          id: '1',
+        }),
+        references,
+        operationLoader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
+      ]);
+    });
+
+    it('marks references when the Flight field is null', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const recordSource = RelayRecordSource.create(data);
+      const references = new Set();
+      mark(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, 'client:root', {
+          count: 10,
+          id: '1',
+        }),
+        references,
+        operationLoader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
+      ]);
+    });
+
+    it('marks references when the Flight field is undefined', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const recordSource = RelayRecordSource.create(data);
+      const references = new Set();
+      mark(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, 'client:root', {
+          count: 10,
+          id: '1',
+        }),
+        references,
+        operationLoader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
+      ]);
+    });
+
+    it('marks references when the linked ReactFlightClientResponseRecord is missing', () => {
+      const data = {
+        '1': {
+          __id: '1',
+          __typename: 'Story',
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
+            __ref:
+              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+          },
+          id: '1',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {
+            __ref: '1',
+          },
+        },
+      };
+      const recordSource = RelayRecordSource.create(data);
+      const references = new Set();
+      mark(
+        recordSource,
+        createNormalizationSelector(FlightQuery.operation, 'client:root', {
+          count: 10,
+          id: '1',
+        }),
+        references,
+        operationLoader,
+      );
+      expect(Array.from(references).sort()).toEqual([
+        '1',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
+      ]);
     });
   });
 });

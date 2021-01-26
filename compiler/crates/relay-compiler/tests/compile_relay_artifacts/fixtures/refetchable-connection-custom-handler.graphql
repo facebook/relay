@@ -1,0 +1,17 @@
+fragment refetchableConnectionCustomHandler_RefetchableConnection_feedback on Feedback
+  @refetchable(queryName: "RefetchableConnectionQuery") {
+  id
+  comments(first: $count, after: $cursor)
+    @connection(key: "RefetchableConnection_comments", handler: "custom") {
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+  }
+}

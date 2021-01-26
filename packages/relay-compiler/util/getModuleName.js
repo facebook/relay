@@ -20,15 +20,12 @@ function getModuleName(filePath: string): string {
   let filename = path.basename(filePath, path.extname(filePath));
 
   // index.js -> index (when extension has multiple segments)
-  filename = filename.replace(/(?:\.\w+)+/, '');
+  // index.react -> index (when extension has multiple segments)
+  filename = filename.replace(/(\.(?!ios|android)[_a-zA-Z0-9\\-]+)+/g, '');
 
   // /path/to/button/index.js -> button
   let moduleName =
     filename === 'index' ? path.basename(path.dirname(filePath)) : filename;
-
-  // Example.ios -> Example
-  // Example.product.android -> Example
-  moduleName = moduleName.replace(/(?:\.\w+)+/, '');
 
   // foo-bar -> fooBar
   // Relay compatibility mode splits on _, so we can't use that here.

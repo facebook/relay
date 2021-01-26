@@ -1,0 +1,146 @@
+==================================== INPUT ====================================
+query unmaskedFragmentSpreadsOnQuery_TestQuery($isRelative: Boolean) {
+  me {
+    ...unmaskedFragmentSpreadsOnQuery_UserUtil_user @relay(mask: false)
+  }
+}
+
+fragment unmaskedFragmentSpreadsOnQuery_UserUtil_user on User {
+  url(relative: $isRelative)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "isRelative"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "unmaskedFragmentSpreadsOnQuery_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "url",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "isRelative"
+      }
+    ],
+    "kind": "Operation",
+    "name": "unmaskedFragmentSpreadsOnQuery_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "url",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "unmaskedFragmentSpreadsOnQuery_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query unmaskedFragmentSpreadsOnQuery_TestQuery(
+  $isRelative: Boolean
+) {
+  me {
+    url(relative: $isRelative)
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "isRelative"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unmaskedFragmentSpreadsOnQuery_UserUtil_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

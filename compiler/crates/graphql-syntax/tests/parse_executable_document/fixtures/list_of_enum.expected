@@ -1,0 +1,124 @@
+==================================== INPUT ====================================
+fragment TestFrag on MyType {
+  issues(orderby: [LAST_UPDATED])
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:66,
+    definitions: [
+        FragmentDefinition {
+            location: list_of_enum.graphql:0:65,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:17,
+                token: Token {
+                    span: 9:17,
+                    kind: Identifier,
+                },
+                value: "TestFrag",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 18:27,
+                on: Token {
+                    span: 18:20,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 21:27,
+                    token: Token {
+                        span: 21:27,
+                        kind: Identifier,
+                    },
+                    value: "MyType",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 28:65,
+                start: Token {
+                    span: 28:29,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 32:63,
+                        alias: None,
+                        name: Identifier {
+                            span: 32:38,
+                            token: Token {
+                                span: 32:38,
+                                kind: Identifier,
+                            },
+                            value: "issues",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 38:63,
+                                start: Token {
+                                    span: 38:39,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 39:62,
+                                        name: Identifier {
+                                            span: 39:46,
+                                            token: Token {
+                                                span: 39:46,
+                                                kind: Identifier,
+                                            },
+                                            value: "orderby",
+                                        },
+                                        colon: Token {
+                                            span: 46:47,
+                                            kind: Colon,
+                                        },
+                                        value: Constant(
+                                            List(
+                                                List {
+                                                    span: 48:62,
+                                                    start: Token {
+                                                        span: 48:49,
+                                                        kind: OpenBracket,
+                                                    },
+                                                    items: [
+                                                        Enum(
+                                                            EnumNode {
+                                                                token: Token {
+                                                                    span: 49:61,
+                                                                    kind: Identifier,
+                                                                },
+                                                                value: "LAST_UPDATED",
+                                                            },
+                                                        ),
+                                                    ],
+                                                    end: Token {
+                                                        span: 61:62,
+                                                        kind: CloseBracket,
+                                                    },
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 62:63,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 64:65,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}

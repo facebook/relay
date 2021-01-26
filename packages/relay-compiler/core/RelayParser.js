@@ -256,7 +256,6 @@ class RelayParser {
       );
     }
     const variableDirective = variableDirectives[0];
-    // $FlowIssue: refining directly on `variableDirective.arguments` doesn't
     // work, below accesses all report arguments could still be null/undefined.
     const args = variableDirective.arguments;
     if (variableDirective == null || !Array.isArray(args)) {
@@ -325,9 +324,7 @@ class RelayParser {
       const type = this._schema.asInputType(typeFromAST);
       if (type == null) {
         throw createUserError(
-          `Expected type "${typeString}" to be an input type in the "${
-            arg.name.value
-          }" argument definitions.`,
+          `Expected type "${typeString}" to be an input type in the "${arg.name.value}" argument definitions.`,
           null,
           [arg.value],
         );
@@ -345,7 +342,6 @@ class RelayParser {
                   [variableAst],
                 );
               },
-              {nonStrictEnums: true},
             )
           : null;
       if (defaultValue != null && defaultValue.kind !== 'Literal') {
@@ -671,7 +667,7 @@ class GraphQLDefinitionParser {
       name: getName(fragment),
       selections,
       type,
-      // $FlowFixMe - could be null
+      // $FlowFixMe[incompatible-return] - could be null
       argumentDefinitions,
     };
   }
@@ -788,7 +784,7 @@ class GraphQLDefinitionParser {
       const [conditions, directives] = this._splitConditions(node.directives);
       const conditionalNodes = applyConditions(
         conditions,
-        // $FlowFixMe(>=0.28.0)
+        // $FlowFixMe[incompatible-call]
         [{...node, directives}],
       );
       if (conditionalNodes.length !== 1) {
@@ -1129,7 +1125,7 @@ class GraphQLDefinitionParser {
               [filtersArgument.value],
             );
           }
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-cast]
           filters = (maybeFilters: Array<string>);
         }
         const dynamicKeyArgument = (clientFieldDirective.arguments || []).find(
@@ -1236,9 +1232,7 @@ class GraphQLDefinitionParser {
       }
       if (!(arg.value.kind === 'Variable' || arg.value.kind === 'Literal')) {
         throw createUserError(
-          `Expected the 'if' argument to @${
-            directive.name
-          } to be a variable or literal.`,
+          `Expected the 'if' argument to @${directive.name} to be a variable or literal.`,
           [directive.loc],
         );
       }
@@ -1303,7 +1297,6 @@ function transformValue(
     variableAst: VariableNode,
     variableType: InputTypeID,
   ) => ArgumentValue,
-  options: {|+nonStrictEnums: boolean|} = {nonStrictEnums: false},
 ): ArgumentValue {
   if (ast.kind === 'Variable') {
     // Special case variables since there is no value to parse
@@ -1323,13 +1316,7 @@ function transformValue(
       value: null,
     };
   } else {
-    return transformNonNullLiteral(
-      schema,
-      ast,
-      type,
-      transformVariable,
-      options,
-    );
+    return transformNonNullLiteral(schema, ast, type, transformVariable);
   }
 }
 
@@ -1345,7 +1332,6 @@ function transformNonNullLiteral(
     variableAst: VariableNode,
     variableType: InputTypeID,
   ) => ArgumentValue,
-  options: {|+nonStrictEnums: boolean|},
 ): ArgumentValue {
   // Transform the value based on the type without a non-null wrapper.
   // Note that error messages should still use the original `type`
@@ -1371,36 +1357,40 @@ function transformNonNullLiteral(
         ast,
         schema.assertInputType(schema.getListItemType(nullableType)),
         transformVariable,
-        options,
       );
     }
     const itemType = schema.assertInputType(
       schema.getListItemType(nullableType),
     );
     const literalList = [];
+    const items = [];
+    let areAllItemsScalar = true;
     ast.values.forEach(item => {
       const itemValue = transformValue(
         schema,
         item,
         itemType,
         transformVariable,
-        options,
       );
       if (itemValue.kind === 'Literal') {
         literalList.push(itemValue.value);
-      } else if (itemValue.kind === 'Variable') {
-        throw createUserError(
-          'Complex argument values (Lists or InputObjects with nested variables) are not supported.',
-          null,
-          [item],
-        );
       }
+      items.push(itemValue);
+      areAllItemsScalar = areAllItemsScalar && itemValue.kind === 'Literal';
     });
-    return {
-      kind: 'Literal',
-      loc: buildLocation(ast.loc),
-      value: literalList,
-    };
+    if (areAllItemsScalar) {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        value: literalList,
+      };
+    } else {
+      return {
+        kind: 'ListValue',
+        loc: buildLocation(ast.loc),
+        items,
+      };
+    }
   } else if (schema.isInputObject(nullableType)) {
     if (ast.kind !== 'ObjectValue') {
       throw createUserError(
@@ -1410,9 +1400,29 @@ function transformNonNullLiteral(
       );
     }
     const literalObject = {};
+    const fields = [];
+    let areAllFieldsScalar = true;
     const inputType = schema.assertInputObjectType(nullableType);
+    const requiredFieldNames = new Set(
+      schema
+        .getFields(inputType)
+        .filter(field => {
+          return schema.isNonNull(schema.getFieldType(field));
+        })
+        .map(field => schema.getFieldName(field)),
+    );
+
+    const seenFields = new Map();
     ast.fields.forEach(field => {
       const fieldName = getName(field);
+      const seenField = seenFields.get(fieldName);
+      if (seenField) {
+        throw createUserError(
+          `Duplicated field name '${fieldName}' in the input object.`,
+          null,
+          [field, seenField],
+        );
+      }
       const fieldID = schema.getFieldByName(inputType, fieldName);
       if (!fieldID) {
         throw createUserError(
@@ -1430,23 +1440,47 @@ function transformNonNullLiteral(
         field.value,
         fieldType,
         transformVariable,
-        options,
       );
       if (fieldValue.kind === 'Literal') {
         literalObject[field.name.value] = fieldValue.value;
-      } else if (fieldValue.kind === 'Variable') {
-        throw createUserError(
-          'Complex argument values (Lists or InputObjects with nested variables) are not supported.',
-          null,
-          [field.value],
-        );
       }
+      fields.push({
+        kind: 'ObjectFieldValue',
+        loc: buildLocation(field.loc),
+        name: fieldName,
+        value: fieldValue,
+      });
+      seenFields.set(fieldName, field);
+      requiredFieldNames.delete(fieldName);
+      areAllFieldsScalar = areAllFieldsScalar && fieldValue.kind === 'Literal';
     });
-    return {
-      kind: 'Literal',
-      loc: buildLocation(ast.loc),
-      value: literalObject,
-    };
+    if (requiredFieldNames.size > 0) {
+      const requiredFieldStr = Array.from(requiredFieldNames)
+        .map(item => `'${item}'`)
+        .join(', ');
+      throw createUserError(
+        `Missing non-optional field${
+          requiredFieldNames.size > 1 ? 's:' : ''
+        } ${requiredFieldStr} for input type '${schema.getTypeString(
+          inputType,
+        )}'.`,
+        null,
+        [ast],
+      );
+    }
+    if (areAllFieldsScalar) {
+      return {
+        kind: 'Literal',
+        loc: buildLocation(ast.loc),
+        value: literalObject,
+      };
+    } else {
+      return {
+        kind: 'ObjectValue',
+        loc: buildLocation(ast.loc),
+        fields,
+      };
+    }
   } else if (schema.isId(nullableType)) {
     // GraphQLID's parseLiteral() always returns the string value. However
     // the int/string distinction may be important at runtime, so this
@@ -1476,21 +1510,6 @@ function transformNonNullLiteral(
     const enumType = schema.assertEnumType(nullableType);
     const value = schema.parseLiteral(enumType, ast);
     if (value == null) {
-      if (options.nonStrictEnums) {
-        if (ast.kind === 'StringValue' || ast.kind === 'EnumValue') {
-          const alternateValue =
-            schema.parseValue(enumType, ast.value.toUpperCase()) ??
-            schema.parseValue(enumType, ast.value.toLowerCase());
-          if (alternateValue != null) {
-            // Use the original raw value
-            return {
-              kind: 'Literal',
-              loc: buildLocation(ast.loc),
-              value: ast.value,
-            };
-          }
-        }
-      }
       const suggestions = schema.getEnumValues(enumType);
 
       // parseLiteral() should return a non-null JavaScript value

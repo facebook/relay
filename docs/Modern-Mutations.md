@@ -20,13 +20,14 @@ commitMutation(
   environment: Environment,
   config: {
     mutation: GraphQLTaggedNode,
-    variables: {[name: string]: any},
-    onCompleted?: ?(response: ?Object, errors: ?Array<Error>) => void,
+    variables: {[name: string]: mixed},
+    onCompleted?: ?(response: ?Object, errors: ?Array<PayloadError>) => void,
     onError?: ?(error: Error) => void,
     optimisticResponse?: Object,
     optimisticUpdater?: ?(store: RecordSourceSelectorProxy) => void,
     updater?: ?(store: RecordSourceSelectorProxy, data: SelectorData) => void,
     configs?: Array<DeclarativeMutationConfig>,
+    cacheConfig?: CacheConfig,
   },
 );
 ```
@@ -37,7 +38,7 @@ commitMutation(
 * `config`:
   * `mutation`: The `graphql` tagged mutation query.
   * `variables`: Object containing the variables needed for the mutation. For example, if the mutation defines an `$input` variable, this object should contain an `input` key, whose shape must match the shape of the data expected by the mutation as defined by the GraphQL schema.
-  * `onCompleted`: Callback function executed when the request is completed and the in-memory Relay store is updated with the `updater` function. Takes a `response` object, which is the "raw" server response, and `errors`, an array containing any errors from the server. .
+  * `onCompleted`: Callback function executed when the request is completed and the in-memory Relay store is updated with the `updater` function. Takes a `response` object, which is the updated response from the store, and `errors`, an array containing any errors from the server.
   * `onError`: Callback function executed if Relay encounters an error during the request.
   * `optimisticResponse`: Object containing the data to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. This object must have the same shape as the mutation's response type, as defined by the GraphQL schema. If provided, Relay will use the `optimisticResponse` data to update the fields on the relevant records in the local data store, *before* `optimisticUpdater` is executed. If an error occurs during the mutation request, the optimistic update will be rolled back.
   * `optimisticUpdater`: Function used to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. If an error occurs during the mutation request, the optimistic update will be rolled back.
@@ -49,6 +50,7 @@ commitMutation(
   When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and will then execute `updater`.
   This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store.html). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store.html).
   * `configs`:  Array containing objects describing `optimisticUpdater`/`updater` configurations. `configs` provides a convenient way to specify the `updater` behavior without having to write an `updater` function. See our section on [Updater Configs](#updater-configs) for more details.
+  * `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Simple Example
 
@@ -59,9 +61,9 @@ import {commitMutation, graphql} from 'react-relay';
 
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationInput!
+    $storyID: ID!
   ) {
-    markReadNotification(data: $input) {
+    markReadNotification(id: $storyID) {
       notification {
         seenState
       }
@@ -69,12 +71,9 @@ const mutation = graphql`
   }
 `;
 
-function markNotificationAsRead(environment, source, storyID) {
+function markNotificationAsRead(environment, storyID) {
   const variables = {
-    input: {
-      source,
-      storyID,
-    },
+    storyID,
   };
 
   commitMutation(
@@ -98,9 +97,9 @@ To improve perceived responsiveness, you may wish to perform an "optimistic upda
 ```javascript
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
-    $input: MarkReadNotificationInput!
+    $storyID: ID!
   ) {
-    markReadNotification(data: $input) {
+    markReadNotification(id: $storyID) {
       notification {
         seenState
       }
@@ -133,7 +132,7 @@ Another way to enable optimistic updates is via the `optimisticUpdater`, which c
 We can give Relay instructions in the form of a `configs` array on how to use the response from each mutation to update the client-side store. We do this by configuring the mutation with one or more of the following config types:
 
 ### NODE_DELETE
-Given a deletedIDFieldName, Relay will remove the node(s) from the store.
+Given a `deletedIDFieldName`, Relay will remove the node(s) from the store.
 
 **Note**: this will not remove it from any connection it might be in. If you want to remove a node from a connection, take a look at [RANGE_DELETE](#RANGE_DELETE).
 
@@ -143,8 +142,8 @@ Given a deletedIDFieldName, Relay will remove the node(s) from the store.
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation DestroyShipMutation($input: DestroyShipInput!) {
-    destroyShip(input: $input) {
+  mutation DestroyShipMutation($target: ID!) {
+    destroyShip(target: $target) {
       destroyedShipId
       faction {
         ships {
@@ -162,7 +161,7 @@ const configs = [{
 ```
 
 ### RANGE_ADD
-Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the connectionInfo.
+Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the `connectionInfo`.
 
 #### Arguments
 * `parentID: string`: The DataID of the parent node that contains the
@@ -176,8 +175,8 @@ containing optional filters, and a range behavior depending on what behavior we 
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation AddShipMutation($input: AddShipInput!) {
-    addShip(input: $input) {
+  mutation AddShipMutation($factionID: ID!, $name: String!) {
+    addShip(factionID: $factionID, name: $name) {
       shipEdge {
         node {
           name
@@ -187,15 +186,16 @@ const mutation = graphql`
   }
 `;
 
-function commit(environment, factionId, name) {
+function commit(environment, factionID, name) {
   return commitMutation(environment, {
     mutation,
     variables: {
-      input: { factionId, name },
+      factionID,
+      name,
     },
     configs: [{
       type: 'RANGE_ADD',
-      parentID: factionId,
+      parentID: factionID,
       connectionInfo: [{
         key: 'AddShip_ships',
         rangeBehavior: 'append',
@@ -207,7 +207,7 @@ function commit(environment, factionId, name) {
 ```
 
 ### RANGE_DELETE
-Given a parent, connectionKeys, one or more DataIDs in the response payload, and
+Given a parent, `connectionKeys`, one or more DataIDs in the response payload, and
 a path between the parent and the connection, Relay will remove the node(s)
 from the connection but leave the associated record(s) in the store.
 
@@ -223,27 +223,28 @@ objects containing a connection key and optionally filters.
 #### Example
 ```javascript
 const mutation = graphql`
-  mutation RemoveTagMutation($input: RemoveTagInput!) {
-    removeTag(input: $input) {
-      removedTagId
+  mutation RemoveTagMutation($todoID: ID!, $tagID: ID!) {
+    removeTag(todo: $todoID, tag: $tagID) {
+      removedTagID
     }
   }
 `;
 
-function commit(environment, todoId, tagId) {
+function commit(environment, todoID, tagID) {
   return commitMutation(environment, {
     mutation,
     variables: {
-      input: { todoId, tagId },
+      todoID,
+      tagID,
     },
     configs: [{
       type: 'RANGE_DELETE',
-      parentID: todoId,
+      parentID: todoID,
       connectionKeys: [{
         key: 'RemoveTags_tags',
       }],
       pathToConnection: ['todo', 'tags'],
-      deletedIDFieldName: 'removedTagId',
+      deletedIDFieldName: 'removedTagID',
     }],
   });
 }
@@ -261,7 +262,7 @@ When you provide these functions, this is roughly what happens during the mutati
 - Relay will then automatically update the fields under the record corresponding to the ids in the response payload.
 - If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
 
-Here are a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
+Here's a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
 
 ```javascript
 // AddTodoMutation.js
@@ -269,8 +270,8 @@ import {commitMutation, graphql} from 'react-relay';
 import {ConnectionHandler} from 'relay-runtime';
 
 const mutation = graphql`
-  mutation AddTodoMutation($input: AddTodoInput!) {
-    addTodo(input: $input) {
+  mutation AddTodoMutation($text: String!) {
+    addTodo(text: $text) {
       todoEdge {
         cursor
         node {
@@ -308,10 +309,7 @@ function commit(environment, text, user) {
   return commitMutation(environment, {
     mutation,
     variables: {
-      input: {
-        text,
-        clientMutationId: tempID++,
-      },
+      text,
     },
     updater: (store) => {
       // Get the payload returned from the server

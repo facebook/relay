@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+fragment RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+  fragAndField: profilePicture {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragmentQueryVariables = {
+  id: string
+};
+export type RefetchableFragmentQueryResponse = {
+  readonly node: {
+    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">
+  } | null
+};
+export type RefetchableFragmentQuery = {
+  variables: RefetchableFragmentQueryVariables,
+  response: RefetchableFragmentQueryResponse,
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableFragment = {
+  readonly id: string,
+  readonly fragAndField: {
+    readonly uri: string | null
+  } | null,
+  readonly " $refType": FragmentRefs<"RefetchableFragment">,
+};
+export type RefetchableFragment$data = RefetchableFragment;
+export type RefetchableFragment$key = {
+  readonly " $data"?: RefetchableFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
+};

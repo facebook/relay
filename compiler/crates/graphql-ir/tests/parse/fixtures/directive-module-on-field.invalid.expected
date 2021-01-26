@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Example on User {
+  friends {
+    edges {
+      node {
+        profilePicture @module(preset: $preset) {
+          uri
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Directive 'module' not supported in this location
+
+  directive-module-on-field.invalid.graphql:6:25
+    5 │       node {
+    6 │         profilePicture @module(preset: $preset) {
+      │                         ^^^^^^
+    7 │           uri

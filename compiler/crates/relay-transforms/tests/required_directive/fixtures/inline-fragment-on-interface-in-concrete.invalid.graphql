@@ -1,0 +1,11 @@
+# expected-to-throw
+fragment EnabledFoo on Node {
+  ... on User {
+    ... on Actor {
+      # Theoretically this _could_ be okay becuase User implements Actor,
+      # But there is no reason to write something like this, so it should
+      # be fine to just not allow it.
+      name @required(action: LOG)
+    }
+  }
+}

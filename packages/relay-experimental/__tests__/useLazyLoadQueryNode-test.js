@@ -17,9 +17,12 @@ const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
+const useFragmentNode = require('../useFragmentNode');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 
-const {createOperationDescriptor} = require('relay-runtime');
+const {createOperationDescriptor, getFragment} = require('relay-runtime');
+
+import type {FetchPolicy} from 'relay-runtime';
 
 const defaultFetchPolicy = 'network-only';
 
@@ -44,13 +47,11 @@ function expectToHaveFetched(environment, query) {
     },
   });
   expect(
-    environment.mock.isLoading(query.request.node, query.request.variables, {
-      force: true,
-    }),
+    environment.mock.isLoading(query.request.node, query.request.variables),
   ).toEqual(true);
 }
 
-type Props = {variables: Object, ...};
+type Props = {|variables: {...}, fetchPolicy?: FetchPolicy|};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -64,13 +65,11 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
+  let logs;
 
   beforeEach(() => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    jest.mock('fbjs/lib/ExecutionEnvironment', () => ({
-      canUseDOM: () => true,
-    }));
 
     ({
       createMockEnvironment,
@@ -92,13 +91,10 @@ describe('useLazyLoadQueryNode', () => {
       }
     }
 
-    const Renderer = props => {
+    const Renderer = (props: Props) => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const data = useLazyLoadQueryNode<_>({
         query: _query,
-        /* $FlowFixMe(>=0.111.0) This comment suppresses an error found when
-         * Flow v0.111.0 was deployed. To see the error, delete this comment
-         * and run Flow. */
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',
       });
@@ -124,10 +120,15 @@ describe('useLazyLoadQueryNode', () => {
       );
     };
 
-    environment = createMockEnvironment();
+    logs = [];
+    environment = createMockEnvironment({
+      log: event => {
+        logs.push(event);
+      },
+    });
     release = jest.fn();
     const originalRetain = environment.retain.bind(environment);
-    // $FlowFixMe
+    // $FlowFixMe[cannot-write]
     environment.retain = jest.fn((...args) => {
       const originalDisposable = originalRetain(...args);
       return {
@@ -149,6 +150,18 @@ describe('useLazyLoadQueryNode', () => {
           name
           ...UserFragment
         }
+      }
+
+      fragment RootFragment on Query {
+        node(id: $id) {
+          id
+          name
+          ...UserFragment
+        }
+      }
+
+      query OnlyFragmentsQuery($id: ID) {
+        ...RootFragment
       }
     `);
     gqlQuery = generated.UserQuery;
@@ -182,6 +195,50 @@ describe('useLazyLoadQueryNode', () => {
 
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
+  });
+
+  it('subscribes to query fragment results and preserves object identity', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+
+    environment.mock.resolve(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    ReactTestRenderer.act(() => {
+      jest.runAllImmediates();
+    });
+    expect(renderFn).toBeCalledTimes(1);
+    const prevData = renderFn.mock.calls[0][0];
+    expect(prevData.node.name).toBe('Alice');
+    renderFn.mockClear();
+    ReactTestRenderer.act(() => {
+      jest.runAllImmediates();
+    });
+
+    environment.commitUpdate(store => {
+      const alice = store.get('1');
+      if (alice != null) {
+        alice.setValue('ALICE', 'name');
+      }
+    });
+    expect(renderFn).toBeCalledTimes(1);
+    const nextData = renderFn.mock.calls[0][0];
+    expect(nextData.node.name).toBe('ALICE');
+    renderFn.mockClear();
+
+    // object identity is preserved for unchanged data such as fragment references
+    expect(nextData.node.__fragments).toBe(prevData.node.__fragments);
   });
 
   it('fetches and renders correctly even if fetched query data still has missing data', () => {
@@ -267,7 +324,7 @@ describe('useLazyLoadQueryNode', () => {
     expectToBeRendered(renderFn, data);
   });
 
-  it('fetches and renders correctly if the same query was unsubscribed before', () => {
+  it('fetches and renders correctly when switching between queries', () => {
     // Render the component
     const initialQuery = createOperationDescriptor(gqlQuery, {
       id: 'first-render',
@@ -299,7 +356,7 @@ describe('useLazyLoadQueryNode', () => {
     environment.retain.mockClear();
     environment.execute.mockClear();
 
-    // Switch to the second query to cancel the first query
+    // Switch to the second query
     const nextVariables = {id: '2'};
     const nextQuery = createOperationDescriptor(gqlQuery, nextVariables);
     ReactTestRenderer.act(() => {
@@ -314,15 +371,15 @@ describe('useLazyLoadQueryNode', () => {
     environment.retain.mockClear();
     environment.execute.mockClear();
 
-    // Switch back to the first query and it should request again
+    // Switch back to the first query, it shouldn't request again
     ReactTestRenderer.act(() => {
       setProps({variables});
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToHaveFetched(environment, query);
+    expect(environment.execute).toBeCalledTimes(0);
     expect(renderFn).not.toBeCalled();
-    expect(environment.retain).toHaveBeenCalledTimes(1);
+    expect(environment.retain).toHaveBeenCalledTimes(0);
 
     const payload = {
       data: {
@@ -360,7 +417,6 @@ describe('useLazyLoadQueryNode', () => {
 
     expect(instance.toJSON()).toEqual('Bob');
     renderFn.mockClear();
-    environment.retain.mockClear();
     environment.execute.mockClear();
 
     // Suspend on the first query
@@ -371,11 +427,10 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
-    expect(environment.retain).toHaveBeenCalledTimes(1);
+    expect(environment.retain).toHaveBeenCalledTimes(2);
     renderFn.mockClear();
     environment.retain.mockClear();
     environment.execute.mockClear();
-    release.mockClear();
 
     ReactTestRenderer.act(() => {
       instance.unmount();
@@ -383,10 +438,11 @@ describe('useLazyLoadQueryNode', () => {
 
     // Assert data is released
     expect(release).toBeCalledTimes(2);
+
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
   });
 
   it('disposes ongoing network request when component unmounts after committing', () => {
@@ -419,8 +475,287 @@ describe('useLazyLoadQueryNode', () => {
     // Assert data is released
     expect(release).toBeCalledTimes(1);
     // Assert request in flight is cancelled
-    expect(environment.mock.isLoading(query.request.node, variables)).toEqual(
-      false,
-    );
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
+  });
+
+  it('cancels network request when temporarily retained component that never commits is disposed of after timeout', () => {
+    const instance = render(environment, <Container variables={variables} />);
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    ReactTestRenderer.act(() => {
+      instance.unmount();
+    });
+    // Resolve a payload but don't complete the network request
+    environment.mock.nextValue(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: variables.id,
+          name: 'Alice',
+        },
+      },
+    });
+
+    // Trigger releasing of the temporary retain
+    jest.runAllTimers();
+    // Assert data is released
+    expect(release).toBeCalledTimes(1);
+    // Assert request in flight is cancelled
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {force: true}),
+    ).toEqual(false);
+  });
+
+  describe('partial rendering', () => {
+    it('does not suspend at the root if query does not have direct data dependencies', () => {
+      const generated = generateAndCompile(`
+      fragment RootFragment on Query {
+        node(id: $id) {
+          id
+          name
+        }
+      }
+
+      query OnlyFragmentsQuery($id: ID) {
+        ...RootFragment
+      }
+    `);
+      const gqlOnlyFragmentsQuery = generated.OnlyFragmentsQuery;
+      const gqlFragment = generated.RootFragment;
+      const onlyFragsQuery = createOperationDescriptor(
+        gqlOnlyFragmentsQuery,
+        variables,
+      );
+
+      function FragmentComponent(props) {
+        const fragment = getFragment(gqlFragment);
+        const result: $FlowFixMe = useFragmentNode(
+          fragment,
+          props.query,
+          'TestUseFragment',
+        );
+        renderFn(result.data);
+        return null;
+      }
+
+      const Renderer = props => {
+        const _query = createOperationDescriptor(
+          gqlOnlyFragmentsQuery,
+          props.variables,
+        );
+        const data = useLazyLoadQueryNode<_>({
+          componentDisplayName: 'TestDisplayName',
+          fetchPolicy: 'store-or-network',
+          query: _query,
+          renderPolicy: 'partial',
+        });
+        return (
+          <React.Suspense fallback="Fallback around fragment">
+            <FragmentComponent query={data} />
+          </React.Suspense>
+        );
+      };
+
+      const instance = render(environment, <Renderer variables={variables} />);
+
+      // Assert that we suspended at the fragment level and not at the root
+      expect(instance.toJSON()).toEqual('Fallback around fragment');
+      expectToHaveFetched(environment, onlyFragsQuery);
+      expect(renderFn).not.toBeCalled();
+      expect(environment.retain).toHaveBeenCalledTimes(1);
+
+      environment.mock.resolve(gqlOnlyFragmentsQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Alice',
+          },
+        },
+      });
+
+      expectToBeRendered(renderFn, {
+        node: {
+          id: variables.id,
+          name: 'Alice',
+        },
+      });
+    });
+  });
+
+  describe('logging', () => {
+    test('simple fetch', () => {
+      render(environment, <Container variables={variables} />);
+
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Alice',
+          },
+        },
+      });
+
+      ReactTestRenderer.act(() => {
+        jest.runAllImmediates();
+      });
+
+      expect(logs).toMatchObject([
+        {
+          name: 'network.start',
+          transactionID: 100000,
+        },
+        {
+          name: 'queryresource.fetch',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+        },
+        {
+          name: 'network.next',
+          transactionID: 100000,
+        },
+        {
+          name: 'network.complete',
+          transactionID: 100000,
+        },
+        {
+          name: 'queryresource.retain',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+        },
+      ]);
+    });
+
+    test('log when switching queries', () => {
+      const initialVariables = {id: 'first-render'};
+      const variablesOne = {id: '1'};
+      const variablesTwo = {id: '2'};
+
+      // Render the component
+      const initialQuery = createOperationDescriptor(gqlQuery, {
+        id: 'first-render',
+      });
+      environment.commitPayload(initialQuery, {
+        node: {
+          __typename: 'User',
+          id: 'first-render',
+          name: 'Bob',
+        },
+      });
+
+      render(
+        environment,
+        <Container variables={initialVariables} fetchPolicy="store-only" />,
+      );
+
+      // Suspend on the first query
+      ReactTestRenderer.act(() => {
+        setProps({variables: variablesOne});
+      });
+
+      // Switch to the second query
+      ReactTestRenderer.act(() => {
+        setProps({variables: variablesTwo});
+      });
+
+      // Switch back to the first query and it should not request again
+      ReactTestRenderer.act(() => {
+        setProps({variables: variablesOne});
+      });
+
+      ReactTestRenderer.act(() => {
+        const queryOne = createOperationDescriptor(gqlQuery, variablesOne);
+        const payload = {
+          data: {
+            node: {
+              __typename: 'User',
+              id: variablesOne.id,
+              name: 'Alice',
+            },
+          },
+        };
+        environment.mock.resolve(queryOne, payload);
+        jest.runAllImmediates();
+      });
+
+      expect(logs).toMatchObject([
+        {
+          // initial fetch
+          name: 'queryresource.fetch',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: false,
+          operation: {
+            request: {
+              variables: initialVariables,
+            },
+          },
+        },
+        {
+          // initial fetch completes, since it was fulfilled from cache
+          name: 'queryresource.retain',
+          resourceID: 200000,
+          profilerContext: expect.objectContaining({}),
+        },
+        {
+          // request for variables one starts
+          name: 'network.start',
+          transactionID: 100000,
+          variables: variablesOne,
+        },
+        {
+          // fetch event for variables one
+          name: 'queryresource.fetch',
+          resourceID: 200001,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: true,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+        },
+        {
+          // request for variables two starts
+          name: 'network.start',
+          transactionID: 100001,
+          variables: variablesTwo,
+        },
+        {
+          // fetch event for variables two
+          name: 'queryresource.fetch',
+          resourceID: 200002,
+          profilerContext: expect.objectContaining({}),
+          shouldFetch: true,
+          operation: {
+            request: {
+              variables: variablesTwo,
+            },
+          },
+        },
+        // fetch event for variables one is skipped
+        // since it's already cached and reused
+        {
+          name: 'network.next',
+          transactionID: 100000,
+        },
+        {
+          name: 'network.complete',
+          transactionID: 100000,
+        },
+        // retain event for variables one
+        {
+          name: 'queryresource.retain',
+          resourceID: 200001,
+          profilerContext: expect.objectContaining({}),
+        },
+      ]);
+    });
   });
 });

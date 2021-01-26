@@ -13,18 +13,20 @@
 'use strict';
 
 const CodeMarker = require('../util/CodeMarker');
-const Profiler = require('../core/GraphQLCompilerProfiler');
 
 const createPrintRequireModuleDependency = require('./createPrintRequireModuleDependency');
-const crypto = require('crypto');
 const dedupeJSONStringify = require('../util/dedupeJSONStringify');
 const invariant = require('invariant');
+const md5 = require('../util/md5');
 
 const {RelayConcreteNode} = require('relay-runtime');
 
 import type {GeneratedDefinition} from '../core/IR';
 import type {Schema} from '../core/Schema';
-import type {FormatModule} from '../language/RelayLanguagePluginInterface';
+import type {
+  FormatModule,
+  PluginInterface,
+} from '../language/RelayLanguagePluginInterface';
 import type CodegenDirectory from './CodegenDirectory';
 import type {GeneratedNode, RequestParameters} from 'relay-runtime';
 
@@ -44,7 +46,7 @@ function getConcreteType(node: GeneratedNode): string {
   }
 }
 
-async function writeRelayGeneratedFile(
+function writeRelayGeneratedFile(
   schema: Schema,
   codegenDir: CodegenDirectory,
   definition: GeneratedDefinition,
@@ -52,7 +54,6 @@ async function writeRelayGeneratedFile(
   formatModule: FormatModule,
   typeText: string,
   _persistQuery: ?(text: string) => Promise<string>,
-  platform: ?string,
   sourceHash: string,
   extension: string,
   printModuleDependency: (
@@ -65,142 +66,134 @@ async function writeRelayGeneratedFile(
     moduleName: string,
     params: RequestParameters,
   ) => void,
+  languagePlugin: ?PluginInterface,
 ): Promise<?GeneratedNode> {
-  let generatedNode = _generatedNode;
+  let generatedNode: GeneratedNode = _generatedNode;
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
-  const moduleName =
-    (generatedNode.kind === 'Request'
+  const operationName =
+    generatedNode.kind === 'Request'
       ? generatedNode.params.name
-      : generatedNode.name) + '.graphql';
-  const platformName =
-    platform != null && platform.length > 0
-      ? moduleName + '.' + platform
-      : moduleName;
+      : generatedNode.name;
+  const moduleName = languagePlugin?.getModuleName
+    ? languagePlugin.getModuleName(operationName)
+    : operationName + '.graphql';
 
-  const filename = platformName + '.' + extension;
+  const filename = moduleName + '.' + extension;
   const queryParametersFilename =
     generatedNode.kind === 'Request'
-      ? generatedNode.params.name +
-        '$Parameters' +
-        (platform != null ? '.' + platform : '') +
-        `.${extension}`
+      ? `${generatedNode.params.name}$Parameters.${extension}`
       : null;
 
   const typeName = getConcreteType(generatedNode);
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    docText = generatedNode.params.text;
+    docText =
+      generatedNode.params.text != null ? generatedNode.params.text : null;
   }
 
-  let hash = null;
-  if (generatedNode.kind === RelayConcreteNode.REQUEST) {
-    let oldContent;
-    const oldHash = Profiler.run('RelayFileWriter:compareHash', () => {
-      oldContent = codegenDir.read(filename);
-      // Hash the concrete node including the query text.
-      const hasher = crypto.createHash('md5');
-      hasher.update('cache-breaker-9');
-      hasher.update(JSON.stringify(generatedNode));
-      hasher.update(sourceHash);
-      if (typeText) {
-        hasher.update(typeText);
-      }
-      if (persistQuery) {
-        hasher.update('persisted');
-      }
-      hash = hasher.digest('hex');
-      return extractHash(oldContent);
-    });
-    const oldRequestParameters = extractRelayRequestParams(oldContent);
+  // Use `Promise.resolve` to work around a Babel 7.8/7.9 issue.
+  return Promise.resolve().then(async () => {
+    let hash = null;
+    if (generatedNode.kind === RelayConcreteNode.REQUEST) {
+      invariant(
+        docText != null,
+        'writeRelayGeneratedFile: Expected `text` for operations to be set.',
+      );
 
-    if (!shouldRepersist && hash === oldHash) {
-      codegenDir.markUnchanged(filename);
-      if (
-        writeQueryParameters &&
-        oldRequestParameters &&
-        queryParametersFilename != null &&
-        generatedNode.kind === RelayConcreteNode.REQUEST &&
-        generatedNode.params.operationKind === 'query'
-      ) {
-        writeQueryParameters(
-          codegenDir,
-          queryParametersFilename,
-          moduleName,
-          oldRequestParameters,
-        );
-      }
-      return oldRequestParameters
-        ? {
-            ...generatedNode,
-            params: oldRequestParameters,
+      const {
+        isRefetchableQuery: _ignored,
+        derivedFrom: _ignored2,
+        ...nextMetadata
+      } = generatedNode.params.metadata;
+
+      let nextRequestParams;
+      if (persistQuery != null) {
+        hash = md5(docText);
+
+        let id = null;
+        if (!shouldRepersist) {
+          // Unless we `shouldRepersist` the query, check if the @relayHash matches
+          // the operation text of the current text and re-use the persisted
+          // operation id.
+          const oldContent = codegenDir.read(filename);
+          const oldHash = extractHash(oldContent);
+          const oldRequestID = extractRelayRequestID(oldContent);
+          if (hash === oldHash && oldRequestID != null) {
+            id = oldRequestID;
           }
-        : null;
-    }
-    if (codegenDir.onlyValidate) {
-      codegenDir.markUpdated(filename);
-      return null;
-    }
-    if (persistQuery) {
-      switch (generatedNode.kind) {
-        case RelayConcreteNode.REQUEST:
-          const {text} = generatedNode.params;
-          invariant(
-            text != null,
-            'writeRelayGeneratedFile: Expected `text` in order to persist query',
-          );
-          generatedNode = {
-            ...generatedNode,
-            params: {
-              operationKind: generatedNode.params.operationKind,
-              name: generatedNode.params.name,
-              id: await persistQuery(text),
-              text: null,
-              metadata: generatedNode.params.metadata,
-            },
-          };
-          break;
-        case RelayConcreteNode.FRAGMENT:
-          // Do not persist fragments.
-          break;
-        default:
-          (generatedNode.kind: empty);
+        }
+        if (id == null) {
+          id = await persistQuery(docText);
+        }
+        nextRequestParams = {
+          id,
+          metadata: nextMetadata,
+          name: generatedNode.params.name,
+          operationKind: generatedNode.params.operationKind,
+          text: null,
+        };
+      } else {
+        nextRequestParams = {
+          cacheID: md5(docText),
+          id: null,
+          metadata: nextMetadata,
+          name: generatedNode.params.name,
+          operationKind: generatedNode.params.operationKind,
+          text: docText,
+        };
       }
+      generatedNode = {
+        ...generatedNode,
+        params: nextRequestParams,
+      };
     }
-  }
 
-  const moduleText = formatModule({
-    moduleName,
-    documentType: typeName,
-    definition,
-    kind: generatedNode.kind,
-    docText,
-    typeText,
-    hash: hash ? `@relayHash ${hash}` : null,
-    concreteText: CodeMarker.postProcess(
-      dedupeJSONStringify(generatedNode),
-      printModuleDependency,
-    ),
-    sourceHash,
-    node: generatedNode,
-    schema,
-  });
-  codegenDir.writeFile(filename, moduleText, shouldRepersist);
-  if (
-    writeQueryParameters &&
-    queryParametersFilename != null &&
-    generatedNode.kind === RelayConcreteNode.REQUEST &&
-    generatedNode.params.operationKind === 'query'
-  ) {
-    writeQueryParameters(
-      codegenDir,
-      queryParametersFilename,
+    // Strip metadata only used within the compiler
+    if (
+      generatedNode.kind === RelayConcreteNode.SPLIT_OPERATION &&
+      generatedNode.metadata?.derivedFrom != null
+    ) {
+      const {derivedFrom: _ignored, ...metadata} = generatedNode.metadata;
+      generatedNode = {
+        ...generatedNode,
+        metadata,
+      };
+    }
+
+    const moduleText = formatModule({
       moduleName,
-      generatedNode.params,
-    );
-  }
-  return generatedNode;
+      documentType: typeName,
+      definition,
+      kind: generatedNode.kind,
+      docText,
+      typeText,
+      hash: hash != null ? `@relayHash ${hash}` : null,
+      concreteText: CodeMarker.postProcess(
+        dedupeJSONStringify(generatedNode),
+        printModuleDependency,
+      ),
+      sourceHash,
+      node: generatedNode,
+      schema,
+    });
+    codegenDir.writeFile(filename, moduleText, shouldRepersist);
+    if (
+      writeQueryParameters &&
+      queryParametersFilename != null &&
+      generatedNode.kind === RelayConcreteNode.REQUEST &&
+      generatedNode.params.operationKind === 'query'
+    ) {
+      writeQueryParameters(
+        codegenDir,
+        queryParametersFilename,
+        moduleName,
+        generatedNode.params,
+      );
+    }
+    return generatedNode;
+  });
 }
 
 function extractHash(text: ?string): ?string {
@@ -215,7 +208,7 @@ function extractHash(text: ?string): ?string {
   return match && match[1];
 }
 
-function extractRelayRequestParams(text: ?string): ?RequestParameters {
+function extractRelayRequestID(text: ?string): ?string {
   if (text == null || text.length === 0) {
     return null;
   }
@@ -223,12 +216,8 @@ function extractRelayRequestParams(text: ?string): ?RequestParameters {
     // looks like a merge conflict
     return null;
   }
-  const match = text.match(/@relayRequestParams (.+)/);
-  let requestParams;
-  try {
-    requestParams = JSON.parse(match?.[1] ?? '');
-  } catch {}
-  return requestParams;
+  const match = text.match(/@relayRequestID (.+)/);
+  return match ? match[1] : null;
 }
 
 module.exports = writeRelayGeneratedFile;

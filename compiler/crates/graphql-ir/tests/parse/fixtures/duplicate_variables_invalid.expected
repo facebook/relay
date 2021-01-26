@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query Test($id: ID!, $id: ID) {
+  user(id: $id) {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Duplicate variable `id`
+
+  duplicate_variables_invalid.graphql:2:22
+    1 │ # expected-to-throw
+    2 │ query Test($id: ID!, $id: ID) {
+      │                      ^^^^^^^
+    3 │   user(id: $id) {
+
+  ℹ︎ conflicts with
+
+  duplicate_variables_invalid.graphql:2:12
+    1 │ # expected-to-throw
+    2 │ query Test($id: ID!, $id: ID) {
+      │            ^^^^^^^^
+    3 │   user(id: $id) {

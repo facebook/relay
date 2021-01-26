@@ -28,7 +28,7 @@ import type {
   Argument,
   ArgumentValue,
   Condition,
-  Connection,
+  Defer,
   Directive,
   Field,
   Fragment,
@@ -36,6 +36,7 @@ import type {
   IR,
   Node,
   Selection,
+  Stream,
 } from '../core/IR';
 import type {Scope} from '../core/RelayCompilerScope';
 
@@ -76,6 +77,9 @@ function applyFragmentArgumentTransform(
       const scope = getRootScope(node.argumentDefinitions);
       return transformNode(context, fragments, scope, node, [node]);
     },
+    SplitOperation: node => {
+      return transformNode(context, fragments, {}, node, [node]);
+    },
     // Fragments are included below where referenced.
     // Unreferenced fragments are not included.
     Fragment: () => null,
@@ -112,7 +116,6 @@ function transformNode<T: Node>(
       (node: $FlowIssue).directives,
       errorContext,
     );
-    // $FlowIssue: this is a valid `Node`:
     return ({
       ...node,
       directives,
@@ -123,6 +126,51 @@ function transformNode<T: Node>(
     ...node,
     selections,
   }: $FlowIssue);
+}
+
+function transformDeferStreamNode<T: Defer | Stream>(
+  context: CompilerContext,
+  fragments: Map<string, PendingFragment>,
+  scope: Scope,
+  node: T,
+  errorContext: $ReadOnlyArray<IR>,
+): ?Selection {
+  const nextNode = transformNode(context, fragments, scope, node, errorContext);
+  if (!nextNode) {
+    return null;
+  }
+  (nextNode: T);
+  if (nextNode.if) {
+    const ifVal = transformValue(scope, nextNode.if, errorContext);
+    if (
+      ifVal.kind === 'Literal' &&
+      ifVal.value === false &&
+      node.selections &&
+      node.selections.length === 1
+    ) {
+      // Skip Defer/Stream wrapper with literal if: false
+      return node.selections[0];
+    }
+    // $FlowFixMe[cannot-write] nextNode is uniquely owned
+    nextNode.if = ifVal;
+  }
+  if (nextNode.useCustomizedBatch) {
+    // $FlowFixMe[cannot-write] nextNode is uniquely owned
+    nextNode.useCustomizedBatch = transformValue(
+      scope,
+      nextNode.useCustomizedBatch,
+      errorContext,
+    );
+  }
+  if (nextNode.initialCount) {
+    // $FlowFixMe[cannot-write] nextNode is uniquely owned
+    nextNode.initialCount = transformValue(
+      scope,
+      nextNode.initialCount,
+      errorContext,
+    );
+  }
+  return nextNode;
 }
 
 function transformFragmentSpread(
@@ -167,7 +215,7 @@ function transformField<T: Field>(
 ): ?T {
   const args = transformArguments(scope, field.args, errorContext);
   const directives = transformDirectives(scope, field.directives, errorContext);
-  if (field.kind === 'LinkedField' || field.kind === 'ConnectionField') {
+  if (field.kind === 'LinkedField') {
     const selections = transformSelections(
       context,
       fragments,
@@ -191,43 +239,6 @@ function transformField<T: Field>(
       directives,
     };
   }
-}
-
-function transformConnection(
-  context: CompilerContext,
-  fragments: Map<string, PendingFragment>,
-  scope: Scope,
-  connection: Connection,
-  errorContext: $ReadOnlyArray<IR>,
-): ?Connection {
-  const args = transformArguments(scope, connection.args, errorContext);
-  let stream = connection.stream;
-  if (stream != null) {
-    stream = {
-      ...stream,
-      if:
-        stream.if != null
-          ? transformValue(scope, stream.if, errorContext)
-          : null,
-      initialCount: transformValue(scope, stream.initialCount, errorContext),
-    };
-  }
-  const selections = transformSelections(
-    context,
-    fragments,
-    scope,
-    connection.selections,
-    errorContext,
-  );
-  if (!selections) {
-    return null;
-  }
-  return ({
-    ...connection,
-    args,
-    selections,
-    stream,
-  }: Connection);
 }
 
 function transformCondition(
@@ -290,11 +301,17 @@ function transformSelections(
       selection.kind === 'ClientExtension' ||
       selection.kind === 'InlineDataFragmentSpread' ||
       selection.kind === 'InlineFragment' ||
-      selection.kind === 'ModuleImport' ||
-      selection.kind === 'Defer' ||
-      selection.kind === 'Stream'
+      selection.kind === 'ModuleImport'
     ) {
       nextSelection = transformNode(
+        context,
+        fragments,
+        scope,
+        selection,
+        errorContext,
+      );
+    } else if (selection.kind === 'Defer' || selection.kind === 'Stream') {
+      nextSelection = transformDeferStreamNode(
         context,
         fragments,
         scope,
@@ -321,18 +338,9 @@ function transformSelections(
         nextSelections = nextSelections || [];
         nextSelections.push(...conditionSelections);
       }
-    } else if (selection.kind === 'Connection') {
-      nextSelection = transformConnection(
-        context,
-        fragments,
-        scope,
-        selection,
-        errorContext,
-      );
     } else if (
       selection.kind === 'LinkedField' ||
-      selection.kind === 'ScalarField' ||
-      selection.kind === 'ConnectionField'
+      selection.kind === 'ScalarField'
     ) {
       nextSelection = transformField(
         context,
@@ -398,6 +406,19 @@ function transformValue(
       );
     }
     return scopeValue;
+  } else if (value.kind === 'ObjectValue') {
+    return {
+      ...value,
+      fields: value.fields.map(field => ({
+        ...field,
+        value: transformValue(scope, field.value, errorContext),
+      })),
+    };
+  } else if (value.kind === 'ListValue') {
+    return {
+      ...value,
+      items: value.items.map(item => transformValue(scope, item, errorContext)),
+    };
   }
   return value;
 }

@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment idAsAlias_User_fragment on User {
+  id: name
+}
+
+fragment idAsAlias_ProfilePicture on User {
+  profilePicture(size: $size) {
+    id: uri
+  }
+}

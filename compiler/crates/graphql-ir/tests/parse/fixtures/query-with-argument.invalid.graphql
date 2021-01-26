@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery @argumentDefinitions(id: {type: "ID!"}) {
+  task(number: 123) {
+    __typename
+  }
+}

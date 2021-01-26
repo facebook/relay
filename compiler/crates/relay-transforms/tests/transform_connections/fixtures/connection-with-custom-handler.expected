@@ -1,0 +1,79 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10)
+        @connection(key: "NodeQuery_comments", handler: "my_comments_handler") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10)
+                @connection(
+                  key: "NodeQuery_friends"
+                  handler: "my_friends_handler"
+                ) {
+                edges {
+                  node {
+                    name
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+) @__connectionMetadata(__connectionMetadataArgument: [[null, "forward", null, null, null, null, false], [["node", "comments"], "forward", null, null, null, null, false]]) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "my_comments_handler") {
+        edges {
+          node {
+            actor {
+              name
+              friends(first: 10) @__clientField(key: "NodeQuery_friends", handle: "my_friends_handler") {
+                edges {
+                  node {
+                    name
+                  }
+                  ... on FriendsEdge {
+                    cursor
+                    node {
+                      __typename
+                    }
+                  }
+                }
+                pageInfo {
+                  ... on PageInfo {
+                    endCursor
+                    hasNextPage
+                  }
+                }
+              }
+            }
+          }
+          ... on CommentsEdge {
+            cursor
+            node {
+              __typename
+            }
+          }
+        }
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,10 +1,11 @@
-Relay Global Object Identification Specification
+GraphQL Global Object Identification Specification
 ------------------------------------------------
 
-Relay's support for object identification relies on the GraphQL server exposing
-object identifiers in a standardized way. In the query, the schema should
-provide a standard mechanism for asking for an object by ID. In the response,
-the schema provides a standard way of providing these IDs.
+To provide options for GraphQL clients to elegantly handle for caching and data 
+refetching GraphQL servers need to expose object identifiers in a standardized 
+way. In the query, the schema should provide a standard mechanism for asking 
+for an object by ID. In the response, the schema provides a standard way of 
+providing these IDs.
 
 We refer to objects with identifiers as "nodes".
 
@@ -28,9 +29,9 @@ refetching.
 
 # Reserved Types
 
-A GraphQL Relay server must reserve certain types and type names
-to support the object identification model used by Relay. In particular, this
-spec creates guidelines for the following types:
+A GraphQL server compatible with this spec must reserve certain types and type names
+to support the consistent object identification model. In particular, this spec creates 
+guidelines for the following types:
 
  - An interface named `Node`.
  - The `node` field on the root query type.
@@ -294,7 +295,7 @@ might return:
 }
 ```
 
-For Relay to be able to link the usernames to the responses, it needs to
+For clients to be able to link the usernames to the responses, it needs to
 know that the array in the response will be the same size as the array
 passed as an argument, and that the order in the response will match the
 order in the argument. We call these *plural identifying root fields*, and
@@ -302,13 +303,13 @@ their requirements are described below.
 
 ## Fields
 
-A Relay-compliant server may expose root fields that accept a list of input
-arguments, and returns a list of responses. For Relay to use these fields,
+A server compliant with this spec may expose root fields that accept a list of input
+arguments, and returns a list of responses. For spec-compliant clients to use these fields,
 these fields must be *plural identifying root fields*, and obey the following
 requirements.
 
-NOTE Relay-compliant servers may expose root fields that are not *plural
-identifying root fields*; the Relay client will just be unable to use those
+NOTE Spec-compliant servers may expose root fields that are not *plural
+identifying root fields*; the spec-compliant client will just be unable to use those
 fields as root fields in its queries.
 
 *Plural identifying root fields* must have a single argument. The type of that

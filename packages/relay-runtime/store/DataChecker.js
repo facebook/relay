@@ -14,20 +14,25 @@
 'use strict';
 
 const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayConnection = require('./RelayConnection');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
+const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
+const {generateTypeID} = require('./TypeID');
 
 import type {
-  NormalizationConnection,
   NormalizationField,
+  NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
   NormalizationNode,
@@ -35,22 +40,27 @@ import type {
   NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {GetConnectionEvents} from './RelayConnection';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   MissingFieldHandler,
   MutableRecordSource,
   NormalizationSelector,
   OperationLoader,
+  ReactFlightReachableQuery,
   Record,
   RecordSource,
 } from './RelayStoreTypes';
+
+export type Availability = {|
+  +status: 'available' | 'missing',
+  +mostRecentlyInvalidatedAt: ?number,
+|};
 
 const {
   CONDITION,
   CLIENT_EXTENSION,
   DEFER,
-  CONNECTION,
+  FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
@@ -59,8 +69,10 @@ const {
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
+  TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
 const {
+  ROOT_ID,
   getModuleOperationKey,
   getStorageKey,
   getArgumentValues,
@@ -83,8 +95,7 @@ function check(
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
-  getConnectionEvents: GetConnectionEvents,
-): boolean {
+): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     source,
@@ -93,7 +104,6 @@ function check(
     handlers,
     operationLoader,
     getDataID,
-    getConnectionEvents,
   );
   return checker.check(node, dataID);
 }
@@ -102,12 +112,13 @@ function check(
  * @private
  */
 class DataChecker {
-  _getConnectionEvents: GetConnectionEvents;
-  _operationLoader: OperationLoader | null;
   _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
-  _recordWasMissing: boolean;
+  _operationLoader: OperationLoader | null;
+  _operationLastWrittenAt: ?number;
   _recordSourceProxy: RelayRecordSourceProxy;
+  _recordWasMissing: boolean;
   _source: RecordSource;
   _variables: Variables;
 
@@ -118,15 +129,9 @@ class DataChecker {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
-    getConnectionEvents: GetConnectionEvents,
   ) {
-    const newConnectionEvents = [];
-    const mutator = new RelayRecordSourceMutator(
-      source,
-      target,
-      newConnectionEvents,
-    );
-    this._getConnectionEvents = getConnectionEvents;
+    const mutator = new RelayRecordSourceMutator(source, target);
+    this._mostRecentlyInvalidatedAt = null;
     this._handlers = handlers;
     this._mutator = mutator;
     this._operationLoader = operationLoader ?? null;
@@ -136,9 +141,18 @@ class DataChecker {
     this._variables = variables;
   }
 
-  check(node: NormalizationNode, dataID: DataID): boolean {
+  check(node: NormalizationNode, dataID: DataID): Availability {
     this._traverse(node, dataID);
-    return !this._recordWasMissing;
+
+    return this._recordWasMissing === true
+      ? {
+          status: 'missing',
+          mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+        }
+      : {
+          status: 'available',
+          mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+        };
   }
 
   _getVariableValue(name: string): mixed {
@@ -212,8 +226,8 @@ class DataChecker {
           this._recordSourceProxy,
         );
         if (
-          newValue != null &&
-          this._mutator.getStatus(newValue) === EXISTENT
+          newValue !== undefined &&
+          (newValue === null || this._mutator.getStatus(newValue) === EXISTENT)
         ) {
           return newValue;
         }
@@ -244,6 +258,8 @@ class DataChecker {
           if (allItemsKnown) {
             return newValue;
           }
+        } else if (newValue === null) {
+          return null;
         }
       }
     }
@@ -255,7 +271,17 @@ class DataChecker {
     if (status === UNKNOWN) {
       this._handleMissing();
     }
+
     if (status === EXISTENT) {
+      const record = this._source.get(dataID);
+      const invalidatedAt = RelayModernRecord.getInvalidationEpoch(record);
+      if (invalidatedAt != null) {
+        this._mostRecentlyInvalidatedAt =
+          this._mostRecentlyInvalidatedAt != null
+            ? Math.max(this._mostRecentlyInvalidatedAt, invalidatedAt)
+            : invalidatedAt;
+      }
+
       this._traverseSelections(node.selections, dataID);
     }
   }
@@ -282,13 +308,48 @@ class DataChecker {
             this._traverseSelections(selection.selections, dataID);
           }
           break;
-        case INLINE_FRAGMENT:
-          const typeName = this._mutator.getType(dataID);
-          if (typeName != null && typeName === selection.type) {
+        case INLINE_FRAGMENT: {
+          const {abstractKey} = selection;
+          if (abstractKey == null) {
+            // concrete type refinement: only check data if the type exactly matches
+            const typeName = this._mutator.getType(dataID);
+            if (typeName === selection.type) {
+              this._traverseSelections(selection.selections, dataID);
+            }
+          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            // Abstract refinement: check data depending on whether the type
+            // conforms to the interface/union or not:
+            // - Type known to _not_ implement the interface: don't check the selections.
+            // - Type is known _to_ implement the interface: check selections.
+            // - Unknown whether the type implements the interface: don't check the selections
+            //   and treat the data as missing; we do this because the Relay Compiler
+            //   guarantees that the type discriminator will always be fetched.
+            const recordType = this._mutator.getType(dataID);
+            invariant(
+              recordType != null,
+              'DataChecker: Expected record `%s` to have a known type',
+              dataID,
+            );
+            const typeID = generateTypeID(recordType);
+            const implementsInterface = this._mutator.getValue(
+              typeID,
+              abstractKey,
+            );
+            if (implementsInterface === true) {
+              this._traverseSelections(selection.selections, dataID);
+            } else if (implementsInterface == null) {
+              // unsure if the type implements the interface: data is
+              // missing so don't bother reading the fragment
+              this._handleMissing();
+            } // else false: known to not implement the interface
+          } else {
+            // legacy behavior for abstract refinements: always check even
+            // if the type doesn't conform
             this._traverseSelections(selection.selections, dataID);
           }
           break;
-        case LINKED_HANDLE:
+        }
+        case LINKED_HANDLE: {
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
           const handleField = cloneRelayHandleSourceField(
@@ -302,6 +363,17 @@ class DataChecker {
             this._checkLink(handleField, dataID);
           }
           break;
+        }
+        case SCALAR_HANDLE: {
+          const handleField = cloneRelayScalarHandleSourceField(
+            selection,
+            selections,
+            this._variables,
+          );
+
+          this._checkScalar(handleField, dataID);
+          break;
+        }
         case MODULE_IMPORT:
           this._checkModuleImport(selection, dataID);
           break;
@@ -309,22 +381,47 @@ class DataChecker {
         case STREAM:
           this._traverseSelections(selection.selections, dataID);
           break;
-        case SCALAR_HANDLE:
+        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
           invariant(
             false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',
             selection.kind,
           );
-          // $FlowExpectedError - we need the break; for OSS linter
+          // $FlowExpectedError[unreachable-code] - we need the break; for OSS linter
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
           break;
-        case CONNECTION:
-          this._checkConnection(selection, dataID);
+        case TYPE_DISCRIMINATOR:
+          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+            const {abstractKey} = selection;
+            const recordType = this._mutator.getType(dataID);
+            invariant(
+              recordType != null,
+              'DataChecker: Expected record `%s` to have a known type',
+              dataID,
+            );
+            const typeID = generateTypeID(recordType);
+            const implementsInterface = this._mutator.getValue(
+              typeID,
+              abstractKey,
+            );
+            if (implementsInterface == null) {
+              // unsure if the type implements the interface: data is
+              // missing
+              this._handleMissing();
+            } // else: if it does or doesn't implement, we don't need to check or skip anything else
+          }
+          break;
+        case FLIGHT_FIELD:
+          if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            this._checkFlightField(selection, dataID);
+          } else {
+            throw new Error('Flight fields are not yet supported.');
+          }
           break;
         default:
           (selection: empty);
@@ -354,47 +451,15 @@ class DataChecker {
       }
       return;
     }
-    const operation = operationLoader.get(operationReference);
-    if (operation != null) {
+    const normalizationRootNode = operationLoader.get(operationReference);
+    if (normalizationRootNode != null) {
+      const operation = getOperation(normalizationRootNode);
       this._traverse(operation, dataID);
     } else {
       // If the fragment is not available, we assume that the data cannot have been
       // processed yet and must therefore be missing.
       this._handleMissing();
     }
-  }
-
-  _checkConnection(connection: NormalizationConnection, dataID: DataID): void {
-    const connectionID = RelayConnection.createConnectionID(
-      dataID,
-      connection.label,
-    );
-    const connectionEvents = this._getConnectionEvents(connectionID);
-    if (connectionEvents == null || connectionEvents.length === 0) {
-      return;
-    }
-    connectionEvents.forEach(event => {
-      if (event.kind === 'fetch') {
-        event.edgeIDs.forEach(edgeID => {
-          if (edgeID != null) {
-            this._traverse(connection.edges, edgeID);
-          }
-        });
-      } else if (event.kind === 'insert') {
-        this._traverse(connection.edges, event.edgeID);
-      } else if (event.kind === 'stream.edge') {
-        this._traverse(connection.edges, event.edgeID);
-      } else if (event.kind === 'stream.pageInfo') {
-        // no-op
-      } else {
-        (event: empty);
-        invariant(
-          false,
-          'DataChecker: Unexpected connection event kind `%s`.',
-          event.kind,
-        );
-      }
-    });
   }
 
   _checkScalar(field: NormalizationScalarField, dataID: DataID): void {
@@ -416,6 +481,8 @@ class DataChecker {
       linkedID = this._handleMissingLinkField(field, dataID);
       if (linkedID != null) {
         this._mutator.setLinkedRecordID(dataID, storageKey, linkedID);
+      } else if (linkedID === null) {
+        this._mutator.setValue(dataID, storageKey, null);
       }
     }
     if (linkedID != null) {
@@ -431,6 +498,8 @@ class DataChecker {
       linkedIDs = this._handleMissingPluralLinkField(field, dataID);
       if (linkedIDs != null) {
         this._mutator.setLinkedRecordIDs(dataID, storageKey, linkedIDs);
+      } else if (linkedIDs === null) {
+        this._mutator.setValue(dataID, storageKey, null);
       }
     }
     if (linkedIDs) {
@@ -440,6 +509,57 @@ class DataChecker {
         }
       });
     }
+  }
+
+  _checkFlightField(field: NormalizationFlightField, dataID: DataID): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const linkedID = this._mutator.getLinkedRecordID(dataID, storageKey);
+
+    if (linkedID == null) {
+      if (linkedID === undefined) {
+        this._handleMissing();
+        return;
+      }
+      return;
+    }
+
+    const tree = this._mutator.getValue(
+      linkedID,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
+    );
+    const reachableQueries = this._mutator.getValue(
+      linkedID,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+    );
+
+    if (tree == null || !Array.isArray(reachableQueries)) {
+      this._handleMissing();
+      return;
+    }
+
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader !== null,
+      'DataChecker: Expected an operationLoader to be configured when using ' +
+        'React Flight.',
+    );
+    // In Flight, the variables that are in scope for reachable queries aren't
+    // the same as what's in scope for the outer query.
+    const prevVariables = this._variables;
+    // $FlowFixMe[incompatible-cast]
+    for (const query of (reachableQueries: Array<ReactFlightReachableQuery>)) {
+      this._variables = query.variables;
+      const normalizationRootNode = operationLoader.get(query.module);
+      if (normalizationRootNode != null) {
+        const operation = getOperation(normalizationRootNode);
+        this._traverseSelections(operation.selections, ROOT_ID);
+      } else {
+        // If the fragment is not available, we assume that the data cannot have
+        // been processed yet and must therefore be missing.
+        this._handleMissing();
+      }
+    }
+    this._variables = prevVariables;
   }
 }
 

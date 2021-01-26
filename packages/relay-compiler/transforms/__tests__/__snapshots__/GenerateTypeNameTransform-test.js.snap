@@ -189,7 +189,7 @@ Root {
                       },
                       metadata: null,
                       name: "__typename",
-                      type: "String",
+                      type: "String!",
                     },
                     ScalarField {
                       alias: "id",
@@ -257,6 +257,19 @@ Root {
                       ],
                       type: "Text",
                     },
+                    ScalarField {
+                      alias: "__isFeedUnit",
+                      args: [],
+                      directives: [],
+                      handles: null,
+                      loc: Generated {
+                      },
+                      metadata: {
+                        "abstractKey": "__isFeedUnit",
+                      },
+                      name: "__typename",
+                      type: "String!",
+                    },
                     LinkedField {
                       alias: "actor",
                       args: [],
@@ -287,7 +300,7 @@ Root {
                           },
                           metadata: null,
                           name: "__typename",
-                          type: "String",
+                          type: "String!",
                         },
                         ScalarField {
                           alias: "name",
@@ -409,7 +422,7 @@ Root {
           },
           metadata: null,
           name: "__typename",
-          type: "String",
+          type: "String!",
         },
         LinkedField {
           alias: "comments",
@@ -859,6 +872,19 @@ Root {
                       ],
                       type: "Text",
                     },
+                    ScalarField {
+                      alias: "__isFeedUnit",
+                      args: [],
+                      directives: [],
+                      handles: null,
+                      loc: Generated {
+                      },
+                      metadata: {
+                        "abstractKey": "__isFeedUnit",
+                      },
+                      name: "__typename",
+                      type: "String!",
+                    },
                     LinkedField {
                       alias: "actor",
                       args: [],
@@ -1021,7 +1047,7 @@ Root {
           },
           metadata: null,
           name: "__typename",
-          type: "String",
+          type: "String!",
         },
         LinkedField {
           alias: "comments",

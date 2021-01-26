@@ -1,0 +1,36 @@
+query clientFieldsOnRoots_FooQuery($id: ID!) {
+  client_root_field
+
+  node(id: $id) {
+    id
+  }
+}
+
+mutation clientFieldsOnRoots_FooMutation($input: UnfriendInput) {
+  client_root_field
+  unfriend(input: $input) {
+    clientMutationId
+  }
+}
+
+# not working with generate_subscription_name_metadata
+# subscription FooSubscription($input: FeedbackLikeInput) {
+#   client_root_field
+#   feedbackLikeSubscribe(input: $input) {
+#     clientSubscriptionId
+#   }
+# }
+
+# %extensions%
+
+extend type Query {
+  client_root_field: String
+}
+
+extend type Mutation {
+  client_root_field: String
+}
+
+# extend type Subscription {
+#   client_root_field: String
+# }

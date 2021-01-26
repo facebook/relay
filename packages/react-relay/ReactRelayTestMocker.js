@@ -25,7 +25,7 @@ const {
 import type {
   CacheConfig,
   ConcreteRequest,
-  GraphQLResponse,
+  GraphQLSingularResponse,
   IEnvironment,
   PayloadError,
   RequestParameters,
@@ -35,14 +35,14 @@ import type {
 export type DataWriteConfig = {
   query: ConcreteRequest,
   variables: Variables,
-  payload: GraphQLResponse,
+  payload: GraphQLSingularResponse,
   ...
 };
 
 export type NetworkWriteConfig = {
   query: ConcreteRequest,
   variables?: Variables,
-  payload: GraphQLResponse | (Variables => GraphQLResponse),
+  payload: GraphQLSingularResponse | (Variables => GraphQLSingularResponse),
   ...
 };
 
@@ -174,7 +174,7 @@ class ReactRelayTestMocker {
 
     const resolveRawQuery = (
       toResolve: PendingFetch,
-      payload: GraphQLResponse,
+      payload: GraphQLSingularResponse,
     ): void => {
       this._pendingFetches = this._pendingFetches.filter(
         pending => pending !== toResolve,

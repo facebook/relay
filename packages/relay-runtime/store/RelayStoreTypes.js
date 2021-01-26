@@ -17,14 +17,15 @@ import type {
   INetwork,
   PayloadData,
   PayloadError,
+  ReactFlightServerTree,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {
   NormalizationLinkedField,
+  NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
-  NormalizationSplitOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -39,13 +40,7 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
-import type {
-  ConnectionID,
-  ConnectionInternalEvent,
-  ConnectionReference,
-  ConnectionResolver,
-  ConnectionSnapshot,
-} from './RelayConnection';
+import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
 
@@ -72,6 +67,7 @@ export type SelectorData = {[key: string]: mixed, ...};
 export type SingularReaderSelector = {|
   +kind: 'SingularReaderSelector',
   +dataID: DataID,
+  +isWithinUnmatchedTypeRefinement: boolean,
   +node: ReaderFragment,
   +owner: RequestDescriptor,
   +variables: Variables,
@@ -88,6 +84,7 @@ export type RequestDescriptor = {|
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
   +variables: Variables,
+  +cacheConfig: ?CacheConfig,
 |};
 
 /**
@@ -100,16 +97,25 @@ export type NormalizationSelector = {|
   +variables: Variables,
 |};
 
+type MissingRequiredField = {|
+  path: string,
+  owner: string,
+|};
+
+export type MissingRequiredFields =
+  | {|action: 'THROW', field: MissingRequiredField|}
+  | {|action: 'LOG', fields: Array<MissingRequiredField>|};
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type TypedSnapshot<TData> = {|
-  +data: TData,
+export type Snapshot = {|
+  +data: ?SelectorData,
   +isMissingData: boolean,
   +seenRecords: RecordMap,
   +selector: SingularReaderSelector,
+  +missingRequiredFields: ?MissingRequiredFields,
 |};
-export type Snapshot = TypedSnapshot<?SelectorData>;
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation
@@ -226,7 +232,12 @@ export type CheckOptions = {|
   handlers: $ReadOnlyArray<MissingFieldHandler>,
 |};
 
-export type OperationAvailability = 'available' | 'stale' | 'missing';
+export type OperationAvailability =
+  | {|status: 'available', fetchTime: ?number|}
+  | {|status: 'stale'|}
+  | {|status: 'missing'|};
+
+export type {InvalidationState} from './RelayModernStore';
 
 /**
  * An interface for keeping multiple views of data consistent across an
@@ -249,8 +260,6 @@ export interface Store {
 
   /**
    * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
    */
   lookup(selector: SingularReaderSelector): Snapshot;
 
@@ -260,10 +269,11 @@ export interface Store {
    * Optionally provide an OperationDescriptor indicating the source operation
    * that was being processed to produce this run.
    *
-   * This method should return an array of the affected fragment owners
+   * This method should return an array of the affected fragment owners.
    */
   notify(
     sourceOperation?: OperationDescriptor,
+    invalidateStore?: boolean,
   ): $ReadOnlyArray<RequestDescriptor>;
 
   /**
@@ -271,19 +281,14 @@ export interface Store {
    * internal record source. Subscribers are not immediately notified - this
    * occurs when `notify()` is called.
    */
-  publish(source: RecordSource): void;
+  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void;
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
-   * retained in-memory. The records will not be eligible for garbage collection
+   * retained in memory. The records will not be eligible for garbage collection
    * until the returned reference is disposed.
    */
   retain(operation: OperationDescriptor): Disposable;
-
-  /**
-   * Globally invalidates the store.
-   */
-  invalidate(): void;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called
@@ -302,25 +307,8 @@ export interface Store {
   holdGC(): Disposable;
 
   /**
-   * Publish connection events, updating the store's list of events. As with
-   * publish(), subscribers are only notified after notify() is called.
-   */
-  publishConnectionEvents_UNSTABLE(
-    events: Array<ConnectionInternalEvent>,
-    final: boolean,
-  ): void;
-
-  /**
-   * Get a read-only view of the store's internal connection events for a given
-   * connection.
-   */
-  getConnectionEvents_UNSTABLE(
-    connectionID: ConnectionID,
-  ): ?$ReadOnlyArray<ConnectionInternalEvent>;
-
-  /**
    * Record a backup/snapshot of the current state of the store, including
-   * records and derived data such as fragment and connection subscriptions.
+   * records and derived data such as fragment subscriptions.
    * This state can be restored with restore().
    */
   snapshot(): void;
@@ -330,16 +318,66 @@ export interface Store {
    */
   restore(): void;
 
-  lookupConnection_UNSTABLE<TEdge, TState>(
-    connectionReference: ConnectionReference<TEdge>,
-    resolver: ConnectionResolver<TEdge, TState>,
-  ): ConnectionSnapshot<TEdge, TState>;
+  /**
+   * Will return an opaque snapshot of the current invalidation state of
+   * the data ids that were provided.
+   */
+  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState;
 
-  subscribeConnection_UNSTABLE<TEdge, TState>(
-    snapshot: ConnectionSnapshot<TEdge, TState>,
-    resolver: ConnectionResolver<TEdge, TState>,
-    callback: (snapshot: ConnectionSnapshot<TEdge, TState>) => void,
+  /**
+   * Given the previous invalidation state for those
+   * ids, this function will return:
+   *   - false, if the invalidation state for those ids is the same, meaning
+   *     **it has not changed**
+   *   - true, if the invalidation state for the given ids has changed
+   */
+  checkInvalidationState(previousInvalidationState: InvalidationState): boolean;
+
+  /**
+   * Will subscribe the provided callback to the invalidation state of the
+   * given data ids. Whenever the invalidation state for any of the provided
+   * ids changes, the callback will be called, and provide the latest
+   * invalidation state.
+   * Disposing of the returned disposable will remove the subscription.
+   */
+  subscribeToInvalidationState(
+    invalidationState: InvalidationState,
+    callback: () => void,
   ): Disposable;
+}
+
+export interface StoreSubscriptions {
+  /**
+   * Subscribe to changes to the results of a selector. The callback is called
+   * when `updateSubscriptions()` is called *and* records have been published that affect the
+   * selector results relative to the last update.
+   */
+  subscribe(
+    snapshot: Snapshot,
+    callback: (snapshot: Snapshot) => void,
+  ): Disposable;
+
+  /**
+   * Record a backup/snapshot of the current state of the subscriptions.
+   * This state can be restored with restore().
+   */
+  snapshotSubscriptions(source: RecordSource): void;
+
+  /**
+   * Reset the state of the subscriptions to the point that snapshot() was last called.
+   */
+  restoreSubscriptions(): void;
+
+  /**
+   * Notifies each subscription if the snapshot for the subscription selector has changed.
+   * Mutates the updatedOwners array with any owners (RequestDescriptors) associated
+   * with the subscriptions that were notifed; i.e. the owners affected by the changes.
+   */
+  updateSubscriptions(
+    source: RecordSource,
+    updatedRecordIDs: UpdatedRecords,
+    updatedOwners: Array<RequestDescriptor>,
+  ): void;
 }
 
 /**
@@ -377,6 +415,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   setValue(value: mixed, name: string, args?: ?Variables): RecordProxy;
+  invalidateRecord(): void;
 }
 
 export interface ReadOnlyRecordProxy {
@@ -398,6 +437,7 @@ export interface RecordSourceProxy {
   delete(dataID: DataID): void;
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
+  invalidateStore(): void;
 }
 
 export interface ReadOnlyRecordSourceProxy {
@@ -412,17 +452,18 @@ export interface ReadOnlyRecordSourceProxy {
 export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   getRootField(fieldName: string): ?RecordProxy;
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
-  insertConnectionEdge_UNSTABLE(
-    connectionID: ConnectionID,
-    args: Variables,
-    edge: RecordProxy,
-  ): void;
+  invalidateStore(): void;
 }
 
 export type LogEvent =
   | {|
       +name: 'queryresource.fetch',
+      // ID of this query resource request and will be the same
+      // if there is an associated queryresource.retain event.
+      +resourceID: number,
       +operation: OperationDescriptor,
+      // value from ProfilerContext
+      +profilerContext: mixed,
       // FetchPolicy from relay-experimental
       +fetchPolicy: string,
       // RenderPolicy from relay-experimental
@@ -431,34 +472,69 @@ export type LogEvent =
       +shouldFetch: boolean,
     |}
   | {|
-      +name: 'execute.info',
+      +name: 'queryresource.retain',
+      +resourceID: number,
+      // value from ProfilerContext
+      +profilerContext: mixed,
+    |}
+  | {|
+      +name: 'network.info',
       +transactionID: number,
       +info: mixed,
     |}
   | {|
-      +name: 'execute.start',
+      +name: 'network.start',
       +transactionID: number,
       +params: RequestParameters,
       +variables: Variables,
     |}
   | {|
-      +name: 'execute.next',
+      +name: 'network.next',
       +transactionID: number,
       +response: GraphQLResponse,
     |}
   | {|
-      +name: 'execute.error',
+      +name: 'network.error',
       +transactionID: number,
       +error: Error,
     |}
   | {|
-      +name: 'execute.complete',
+      +name: 'network.complete',
       +transactionID: number,
     |}
   | {|
-      +name: 'execute.unsubscribe',
+      +name: 'network.unsubscribe',
       +transactionID: number,
+    |}
+  | {|
+      +name: 'store.publish',
+      +source: RecordSource,
+      +optimistic: boolean,
+    |}
+  | {|
+      +name: 'store.snapshot',
+    |}
+  | {|
+      +name: 'store.restore',
+    |}
+  | {|
+      +name: 'store.gc',
+      +references: Set<DataID>,
+    |}
+  | {|
+      +name: 'store.notify.start',
+    |}
+  | {|
+      +name: 'store.notify.complete',
+      +updatedRecordIDs: UpdatedRecords,
+      +invalidatedRecordIDs: Set<DataID>,
+    |}
+  | {|
+      +name: 'entrypoint.root.consume',
+      +profilerContext: mixed,
+      +rootModuleID: string,
     |};
+
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;
 
@@ -549,14 +625,12 @@ export interface IEnvironment {
   /**
    * EXPERIMENTAL
    * Returns the default render policy to use when rendering a query
-   * that uses Relay Hooks
+   * that uses Relay Hooks.
    */
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy;
 
   /**
    * Read the results of a selector from in-memory records in the store.
-   * Optionally takes an owner, corresponding to the operation that
-   * owns this selector (fragment).
    */
   lookup(selector: SingularReaderSelector): Snapshot;
 
@@ -573,7 +647,6 @@ export interface IEnvironment {
    */
   execute(config: {|
     operation: OperationDescriptor,
-    cacheConfig?: ?CacheConfig,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse>;
 
@@ -608,18 +681,29 @@ export interface IEnvironment {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse>;
-}
 
-/**
- * The results of reading data for a fragment. This is similar to a `Selector`,
- * but references the (fragment) node by name rather than by value.
- */
-export type FragmentPointer = {
-  __id: DataID,
-  __fragments: {[fragmentName: string]: Variables, ...},
-  __fragmentOwner: RequestDescriptor,
-  ...
-};
+  /**
+   * Returns true if a request is currently "active", meaning it's currently
+   * actively receiving payloads or downloading modules, and has not received
+   * a final payload yet. Note that a request might still be pending (or "in flight")
+   * without actively receiving payload, for example a live query or an
+   * active GraphQL subscription
+   */
+  isRequestActive(requestIdentifier: string): boolean;
+
+  /**
+   * Returns true if the environment is for use during server side rendering.
+   * functions like getQueryResource key off of this in order to determine
+   * whether we need to set up certain caches and timeout's.
+   */
+  isServer(): boolean;
+
+  /**
+   * Called by Relay when it encounters a missing field that has been annotated
+   * with `@required(action: LOG)`.
+   */
+  requiredFieldLogger: RequiredFieldLogger;
+}
 
 /**
  * The partial shape of an object with a '...Fragment @module(name: "...")'
@@ -662,11 +746,15 @@ export type HandleFieldPayload = {|
   // The (storage) key at which the handle's data should be written by the
   // handler.
   +handleKey: string,
+  // The arguments applied to the handle
+  +handleArgs: Variables,
 |};
 
 /**
  * A payload that represents data necessary to process the results of an object
- * with a `@module` fragment spread:
+ * with a `@module` fragment spread, or a Flight field's:
+ *
+ * ## @module Fragment Spread
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
  * - operationReference: A reference to a generated module containing the
@@ -677,6 +765,21 @@ export type HandleFieldPayload = {|
  * The dataID, variables, and fragmentName can be used to create a Selector
  * which can in turn be used to normalize and publish the data. The dataID and
  * typeName can also be used to construct a root record for normalization.
+ *
+ * ## Flight fields
+ * In Flight, data for additional components rendered by the requested server
+ * component are included in the response returned by a Flight compliant server.
+ *
+ * - data: Data used by additional components rendered by the server component
+ *     being requested.
+ * - dataID: For Flight fields, this should always be ROOT_ID. This is because
+ *     the query data isn't relative to the parent record–it's root data.
+ * - operationReference: The query's module that will be later used by an
+ *     operation loader.
+ * - variables: The query's variables.
+ * - typeName: For Flight fields, this should always be ROOT_TYPE. This is
+ *     because the query data isn't relative to the parent record–it's
+ *     root data.
  */
 export type ModuleImportPayload = {|
   +data: PayloadData,
@@ -708,49 +811,25 @@ export type StreamPlaceholder = {|
   +node: NormalizationSelectableNode,
   +variables: Variables,
 |};
-export type ConnectionEdgePlaceholder = {|
-  +kind: 'connection_edge',
-  +args: Variables,
-  +label: string,
-  +path: $ReadOnlyArray<string>,
-  +parentID: DataID,
-  +node: NormalizationLinkedField,
-  +variables: Variables,
-  +connectionID: ConnectionID,
-|};
-export type ConnectionPageInfoPlaceholder = {|
-  +kind: 'connection_page_info',
-  +args: Variables,
-  +data: PayloadData,
-  +label: string,
-  +path: $ReadOnlyArray<string>,
-  +selector: NormalizationSelector,
-  +typeName: string,
-  +connectionID: ConnectionID,
-|};
-export type IncrementalDataPlaceholder =
-  | DeferPlaceholder
-  | StreamPlaceholder
-  | ConnectionEdgePlaceholder
-  | ConnectionPageInfoPlaceholder;
+export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 
 /**
- * A user-supplied object to load a generated operation (SplitOperation) AST
- * by a module reference. The exact format of a module reference is left to
- * the application, but it must be a plain JavaScript value (string, number,
- * or object/array of same).
+ * A user-supplied object to load a generated operation (SplitOperation or
+ * ConcreteRequest) AST by a module reference. The exact format of a module
+ * reference is left to the application, but it must be a plain JavaScript value
+ * (string, number, or object/array of same).
  */
 export type OperationLoader = {|
   /**
    * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
    */
-  get(reference: mixed): ?NormalizationSplitOperation,
+  get(reference: mixed): ?NormalizationRootNode,
 
   /**
    * Asynchronously load an operation.
    */
-  load(reference: mixed): Promise<?NormalizationSplitOperation>,
+  load(reference: mixed): Promise<?NormalizationRootNode>,
 |};
 
 /**
@@ -800,7 +879,7 @@ export type OptimisticResponseConfig = {|
  * fields when reading a selector from a source.
  */
 export type MissingFieldHandler =
-  | {
+  | {|
       kind: 'scalar',
       handle: (
         field: NormalizationScalarField,
@@ -808,9 +887,8 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => mixed,
-      ...
-    }
-  | {
+    |}
+  | {|
       kind: 'linked',
       handle: (
         field: NormalizationLinkedField,
@@ -818,9 +896,8 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
-      ...
-    }
-  | {
+    |}
+  | {|
       kind: 'pluralLinked',
       handle: (
         field: NormalizationLinkedField,
@@ -828,19 +905,35 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
-      ...
-    };
+    |};
+
+/**
+ * A handler for events related to @required fields. Currently reports missing
+ * fields with either `action: LOG` or `action: THROW`.
+ */
+export type RequiredFieldLogger = (
+  | {|
+      +kind: 'missing_field.log',
+      +owner: string,
+      +fieldPath: string,
+    |}
+  | {|
+      +kind: 'missing_field.throw',
+      +owner: string,
+      +fieldPath: string,
+    |},
+) => void;
 
 /**
  * The results of normalizing a query.
  */
 export type RelayResponsePayload = {|
-  +connectionEvents: ?Array<ConnectionInternalEvent>,
   +errors: ?Array<PayloadError>,
   +fieldPayloads: ?Array<HandleFieldPayload>,
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
   +moduleImportPayloads: ?Array<ModuleImportPayload>,
   +source: MutableRecordSource,
+  +isFinal: boolean,
 |};
 
 /**
@@ -891,3 +984,22 @@ export interface PublishQueue {
    */
   run(sourceOperation?: OperationDescriptor): $ReadOnlyArray<RequestDescriptor>;
 }
+
+/**
+ * ReactFlightDOMRelayClient processes a ReactFlightServerTree into a
+ * ReactFlightClientResponse object. readRoot() can suspend.
+ */
+export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
+
+export type ReactFlightReachableQuery = {|
+  +module: mixed,
+  +variables: Variables,
+|};
+
+/**
+ * A user-supplied function that takes a ReactFlightServerTree, and deserializes
+ * it into a ReactFlightClientResponse object.
+ */
+export type ReactFlightPayloadDeserializer = (
+  tree: ReactFlightServerTree,
+) => ReactFlightClientResponse;

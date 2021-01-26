@@ -1,0 +1,61 @@
+==================================== INPUT ====================================
+fragment PaginationFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+  ) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+      @stream_connection(key: "PaginationFragment_friends", initial_count: 1) {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query RefetchableFragmentQuery(
+  $count: Int = 10
+  $cursor: ID
+  $id: ID!
+) @__refetchableQueryMetadata(__refetchableQueryMetadata: "PaginationFragment") {
+  node(id: $id) {
+    ...PaginationFragment @arguments(count: $count, cursor: $cursor)
+  }
+}
+
+fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragmentQuery") @argumentDefinitions(
+  count: {type: "Int", defaultValue: 10}
+  cursor: {type: "ID"}
+) @__connectionMetadata(__connectionMetadataArgument: [[["friends"], "forward", "count", null, "cursor", null, true]]) @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["node"], "id"]) {
+  id
+  ... on User {
+    name
+    friends(after: $cursor, first: $count) @__clientField(key: "PaginationFragment_friends", handle: "connection") {
+      edges @stream(label: "PaginationFragment_friends", initial_count: 1) {
+        node {
+          id
+        }
+        ... on FriendsEdge {
+          cursor
+          node {
+            __typename
+          }
+        }
+      }
+      ... @defer(label: "PaginationFragment$defer$PaginationFragment_friends$pageInfo") {
+        pageInfo {
+          ... on PageInfo {
+            endCursor
+            hasNextPage
+          }
+        }
+      }
+    }
+  }
+}

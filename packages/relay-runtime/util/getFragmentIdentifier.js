@@ -13,6 +13,9 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('./RelayFeatureFlags');
+
+const isEmptyObject = require('./isEmptyObject');
 const stableCopy = require('./stableCopy');
 
 const {
@@ -38,15 +41,36 @@ function getFragmentIdentifier(
         ']';
   const fragmentVariables = getVariablesFromFragment(fragmentNode, fragmentRef);
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
-  return (
-    fragmentOwnerIdentifier +
-    '/' +
-    fragmentNode.name +
-    '/' +
-    JSON.stringify(stableCopy(fragmentVariables)) +
-    '/' +
-    (JSON.stringify(dataIDs) ?? 'missing')
-  );
+
+  if (RelayFeatureFlags.ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION) {
+    return (
+      fragmentOwnerIdentifier +
+      '/' +
+      fragmentNode.name +
+      '/' +
+      (fragmentVariables == null || isEmptyObject(fragmentVariables)
+        ? '{}'
+        : JSON.stringify(stableCopy(fragmentVariables))) +
+      '/' +
+      (typeof dataIDs === 'undefined'
+        ? 'missing'
+        : dataIDs == null
+        ? 'null'
+        : Array.isArray(dataIDs)
+        ? '[' + dataIDs.join(',') + ']'
+        : dataIDs)
+    );
+  } else {
+    return (
+      fragmentOwnerIdentifier +
+      '/' +
+      fragmentNode.name +
+      '/' +
+      JSON.stringify(stableCopy(fragmentVariables)) +
+      '/' +
+      (JSON.stringify(dataIDs) ?? 'missing')
+    );
+  }
 }
 
 module.exports = getFragmentIdentifier;

@@ -1,0 +1,7 @@
+query scalarHandleField_ScalarHandleFieldQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      name @__clientField(handle: "clientName")
+    }
+  }
+}

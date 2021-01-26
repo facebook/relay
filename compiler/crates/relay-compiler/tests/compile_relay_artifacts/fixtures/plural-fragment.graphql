@@ -1,0 +1,3 @@
+fragment pluralFragment_PluralFragment on User @relay(plural: true) {
+  name
+}

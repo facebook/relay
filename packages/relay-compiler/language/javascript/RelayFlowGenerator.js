@@ -12,7 +12,6 @@
 
 'use strict';
 
-const ConnectionFieldTransform = require('../../transforms/ConnectionFieldTransform');
 const FlattenTransform = require('../../transforms/FlattenTransform');
 const IRVisitor = require('../../core/IRVisitor');
 const MaskTransform = require('../../transforms/MaskTransform');
@@ -20,8 +19,11 @@ const MatchTransform = require('../../transforms/MatchTransform');
 const Profiler = require('../../core/GraphQLCompilerProfiler');
 const RefetchableFragmentTransform = require('../../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../../transforms/RelayDirectiveTransform');
+const RequiredFieldTransform = require('../../transforms/RequiredFieldTransform');
 
-const {createUserError} = require('../../core/CompilerError');
+const generateAbstractTypeRefinementKey = require('../../util/generateAbstractTypeRefinementKey');
+const partitionArray = require('../../util/partitionArray');
+
 const {
   anyTypeAlias,
   declareExportOpaqueType,
@@ -40,7 +42,6 @@ const {
   transformInputType,
   transformScalarType,
 } = require('./RelayFlowTypeTransformers');
-const {ConnectionInterface} = require('relay-runtime');
 
 import type {IRTransform} from '../../core/CompilerContext';
 import type {
@@ -49,8 +50,11 @@ import type {
   Directive,
   Metadata,
   ModuleImport,
+  Selection as IRSelection,
 } from '../../core/IR';
+import type {NodeVisitor} from '../../core/IRVisitor';
 import type {Schema, TypeID, EnumTypeID} from '../../core/Schema';
+import type {RequiredDirectiveMetadata} from '../../transforms/RequiredFieldTransform';
 import type {TypeGeneratorOptions} from '../RelayLanguagePluginInterface';
 
 const babelGenerator = require('@babel/generator').default;
@@ -62,7 +66,6 @@ export type State = {|
   ...TypeGeneratorOptions,
   +generatedFragments: Set<string>,
   +generatedInputObjectTypes: {[name: string]: TypeID | 'pending', ...},
-  hasConnectionResolver: boolean,
   +usedEnums: {[name: string]: EnumTypeID, ...},
   +usedFragments: Set<string>,
   +matchFields: Map<string, mixed>,
@@ -203,17 +206,18 @@ function selectionsToBabel(
         ),
       );
     }
-    const selectionMapValues = groupRefs(Array.from(selectionMap.values())).map(
-      sel =>
-        isTypenameSelection(sel) && sel.concreteType
-          ? makeProp(
-              schema,
-              {...sel, conditional: false},
-              state,
-              unmasked,
-              sel.concreteType,
-            )
-          : makeProp(schema, sel, state, unmasked),
+    const selectionMapValues = groupRefs(
+      Array.from(selectionMap.values()),
+    ).map(sel =>
+      isTypenameSelection(sel) && sel.concreteType
+        ? makeProp(
+            schema,
+            {...sel, conditional: false},
+            state,
+            unmasked,
+            sel.concreteType,
+          )
+        : makeProp(schema, sel, state, unmasked),
     );
     types.push(selectionMapValues);
   }
@@ -281,14 +285,15 @@ function isPlural(node: Fragment): boolean {
   return Boolean(node.metadata && node.metadata.plural);
 }
 
-function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
+function createVisitor(
+  schema: Schema,
+  options: TypeGeneratorOptions,
+): NodeVisitor {
   const state = {
     customScalars: options.customScalars,
     enumsHasteModule: options.enumsHasteModule,
-    existingFragmentNames: options.existingFragmentNames,
     generatedFragments: new Set(),
     generatedInputObjectTypes: {},
-    hasConnectionResolver: false,
     optionalInputFields: options.optionalInputFields,
     usedEnums: {},
     usedFragments: new Set(),
@@ -300,22 +305,31 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
   };
   return {
     leave: {
-      Root(node) {
+      Root(node: Root) {
         const inputVariablesType = generateInputVariablesType(
           schema,
           node,
           state,
         );
         const inputObjectTypes = generateInputObjectTypes(state);
+
+        let responseTypeDefinition = selectionsToBabel(
+          schema,
+          /* $FlowFixMe: selections have already been transformed */
+          (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
+          state,
+          false,
+        );
+
+        if (node.metadata?.childrenCanBubbleNull === true) {
+          responseTypeDefinition = t.nullableTypeAnnotation(
+            responseTypeDefinition,
+          );
+        }
+
         const responseType = exportType(
           `${node.name}Response`,
-          selectionsToBabel(
-            schema,
-            /* $FlowFixMe: selections have already been transformed */
-            (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
-            state,
-            false,
-          ),
+          responseTypeDefinition,
         );
 
         const operationTypes = [
@@ -345,9 +359,6 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           state,
           node.metadata,
         );
-        if (state.hasConnectionResolver) {
-          state.runtimeImports.add('ConnectionReference');
-        }
         if (refetchableFragmentName != null) {
           state.runtimeImports.add('FragmentReference');
         }
@@ -391,7 +402,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       },
       Fragment(node) {
         let selections = flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         );
         const numConecreteSelections = selections.filter(s => s.concreteType)
@@ -446,13 +457,13 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
           unmasked,
           unmasked ? undefined : getOldFragmentTypeName(node.name),
         );
-        const type = isPluralFragment
-          ? readOnlyArrayOfType(baseType)
-          : baseType;
-        state.runtimeImports.add('FragmentReference');
-        if (state.hasConnectionResolver) {
-          state.runtimeImports.add('ConnectionReference');
+        let type = isPluralFragment ? readOnlyArrayOfType(baseType) : baseType;
+
+        if (node.metadata?.childrenCanBubbleNull === true) {
+          type = t.nullableTypeAnnotation(type);
         }
+
+        state.runtimeImports.add('FragmentReference');
 
         return t.program([
           ...getFragmentImports(state),
@@ -469,7 +480,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       },
       InlineFragment(node) {
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(typeSelection => {
           return schema.isAbstractType(node.typeCondition)
@@ -485,7 +496,7 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       },
       Condition(node) {
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(selection => {
           return {
@@ -497,11 +508,9 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
       ScalarField(node) {
         return visitScalarField(schema, node, state);
       },
-      Connection(node) {
-        return visitConnection(schema, node, state);
+      LinkedField(node) {
+        return visitLinkedField(schema, node);
       },
-      ConnectionField: visitLinkedField,
-      LinkedField: visitLinkedField,
       ModuleImport(node) {
         return [
           {
@@ -543,75 +552,63 @@ function createVisitor(schema: Schema, options: TypeGeneratorOptions) {
 
 function visitNodeWithSelectionsOnly(node) {
   return flattenArray(
-    /* $FlowFixMe: selections have already been transformed */
+    // $FlowFixMe[incompatible-cast] : selections have already been transformed
     (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
   );
 }
 
-function visitScalarField(schema, node, state) {
+function visitScalarField(schema: Schema, node, state: State) {
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+  const nodeType =
+    requiredMetadata != null ? schema.getNonNullType(node.type) : node.type;
   return [
     {
       key: node.alias,
       schemaName: node.name,
-      value: transformScalarType(schema, node.type, state),
+      value: transformScalarType(schema, nodeType, state),
     },
   ];
 }
 
-function visitConnection(schema, node, state) {
-  const {EDGES} = ConnectionInterface.get();
-  state.hasConnectionResolver = true;
-  const edgesSelection = node.selections.find(selections => {
-    const mixedSelections = ((selections: $FlowFixMe): mixed);
-    return (
-      Array.isArray(mixedSelections) &&
-      mixedSelections.some(
-        selection =>
-          selection != null &&
-          typeof selection === 'object' &&
-          selection.key === EDGES &&
-          selection.schemaName === EDGES,
-      )
-    );
-  });
-  const edgesItem = Array.isArray(edgesSelection) ? edgesSelection[0] : null;
-  const nodeSelections =
-    edgesItem != null &&
-    typeof edgesItem === 'object' &&
-    edgesItem.nodeSelections instanceof Map
-      ? edgesItem.nodeSelections
-      : null;
-  if (nodeSelections == null) {
-    throw createUserError(
-      'Cannot generate flow types for connection field, expected an edges ' +
-        'selection.',
-      [node.loc],
-    );
+function getLinkedFieldNodeType(schema: Schema, node) {
+  const requiredMetadata: ?RequiredDirectiveMetadata = (node.metadata
+    ?.required: $FlowFixMe);
+
+  if (requiredMetadata != null) {
+    return schema.getNonNullType(node.type);
   }
-  const edgesFields = Array.from(nodeSelections.values());
-  const edgesType = selectionsToBabel(schema, [edgesFields], state, false);
-
-  return [
-    {
-      key: '__connection',
-      conditional: true,
-      value: t.genericTypeAnnotation(
-        t.identifier('ConnectionReference'),
-        t.typeParameterInstantiation([edgesType]),
-      ),
-    },
-  ];
+  if (node.metadata?.childrenCanBubbleNull === true) {
+    if (schema.isList(node.type)) {
+      // In a plural field, nulls bubble up to the item, resulting in a list of nullable items.
+      return schema.mapListItemType(node.type, inner =>
+        schema.getNullableType(inner),
+      );
+    } else if (schema.isNonNull(node.type)) {
+      const nullable = schema.getNullableType(node.type);
+      if (schema.isList(nullable)) {
+        return schema.getNonNullType(
+          schema.mapListItemType(nullable, inner =>
+            schema.getNullableType(inner),
+          ),
+        );
+      }
+      return nullable;
+    }
+    return node.type;
+  }
+  return node.type;
 }
 
-function visitLinkedField(node) {
+function visitLinkedField(schema: Schema, node) {
   return [
     {
       key: node.alias,
       schemaName: node.name,
-      nodeType: node.type,
+      nodeType: getLinkedFieldNodeType(schema, node),
       nodeSelections: selectionsToMap(
         flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ),
         /*
@@ -736,7 +733,7 @@ function appendLocal3DPayload(
       t.genericTypeAnnotation(
         t.identifier('Local3DPayload'),
         t.typeParameterInstantiation([
-          t.stringLiteralTypeAnnotation(moduleImport.documentName),
+          t.stringLiteralTypeAnnotation(nullthrows(moduleImport.documentName)),
           exactObjectTypeAnnotation(
             selections
               .filter(sel => sel.schemaName !== 'js')
@@ -752,14 +749,14 @@ function appendLocal3DPayload(
 
 // Visitor for generating raw response type
 function createRawResponseTypeVisitor(schema: Schema, state: State) {
-  const visitor = {
+  return {
     leave: {
       Root(node) {
         return exportType(
           `${node.name}RawResponse`,
           selectionsToRawResponseBabel(
             schema,
-            /* $FlowFixMe: selections have already been transformed */
+            // $FlowFixMe[incompatible-cast] : selections have already been transformed
             (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
             state,
             null,
@@ -769,7 +766,7 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       InlineFragment(node) {
         const typeCondition = node.typeCondition;
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(typeSelection => {
           return schema.isAbstractType(typeCondition)
@@ -783,20 +780,18 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       ScalarField(node) {
         return visitScalarField(schema, node, state);
       },
-      Connection(node) {
-        return visitConnection(schema, node, state);
-      },
       ClientExtension(node) {
         return flattenArray(
-          /* $FlowFixMe: selections have already been transformed */
+          // $FlowFixMe[incompatible-cast] : selections have already been transformed
           (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>),
         ).map(sel => ({
           ...sel,
           conditional: true,
         }));
       },
-      ConnectionField: visitLinkedField,
-      LinkedField: visitLinkedField,
+      LinkedField(node) {
+        return visitLinkedField(schema, node);
+      },
       Condition: visitNodeWithSelectionsOnly,
       Defer: visitNodeWithSelectionsOnly,
       Stream: visitNodeWithSelectionsOnly,
@@ -812,7 +807,6 @@ function createRawResponseTypeVisitor(schema: Schema, state: State) {
       },
     },
   };
-  return visitor;
 }
 
 // Dedupe the generated type of module selections to reduce file size
@@ -824,14 +818,14 @@ function visitRawResposneModuleImport(
   const {selections, name: key} = node;
   const moduleSelections = selections
     .filter(
-      // $FlowFixMe selections have already been transformed
+      // $FlowFixMe[prop-missing] selections have already been transformed
       sel => sel.length && sel[0].schemaName === 'js',
     )
     .map(arr => arr[0]);
   if (!state.matchFields.has(key)) {
     const ast = selectionsToRawResponseBabel(
       schema,
-      /* $FlowFixMe: selections have already been transformed */
+      // $FlowFixMe[incompatible-cast] : selections have already been transformed
       (node.selections: $ReadOnlyArray<$ReadOnlyArray<Selection>>).filter(
         sel => sel.length > 1 || sel[0].schemaName !== 'js',
       ),
@@ -845,7 +839,7 @@ function visitRawResposneModuleImport(
     {
       key,
       kind: 'ModuleImport',
-      documentName: node.documentName,
+      documentName: node.key,
     },
   ];
 }
@@ -941,16 +935,13 @@ function getFragmentImports(state: State) {
     for (const usedFragment of usedFragments) {
       const fragmentTypeName = getOldFragmentTypeName(usedFragment);
       if (!state.generatedFragments.has(usedFragment)) {
-        if (state.useHaste && state.existingFragmentNames.has(usedFragment)) {
+        if (state.useHaste) {
           // TODO(T22653277) support non-haste environments when importing
           // fragments
           imports.push(
             importTypes([fragmentTypeName], usedFragment + '.graphql'),
           );
-        } else if (
-          state.useSingleArtifactDirectory &&
-          state.existingFragmentNames.has(usedFragment)
-        ) {
+        } else if (state.useSingleArtifactDirectory) {
           imports.push(
             importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
           );
@@ -1089,8 +1080,8 @@ function getDataTypeName(name: string): string {
 const FLOW_TRANSFORMS: $ReadOnlyArray<IRTransform> = [
   RelayDirectiveTransform.transform,
   MaskTransform.transform,
-  ConnectionFieldTransform.transform,
   MatchTransform.transform,
+  RequiredFieldTransform.transform,
   FlattenTransform.transformWithOptions({}),
   RefetchableFragmentTransform.transform,
 ];

@@ -1,4 +1,4 @@
-# [Relay](https://relay.dev) [![Build Status](https://travis-ci.org/facebook/relay.svg?branch=master)](https://travis-ci.org/facebook/relay) [![npm version](https://badge.fury.io/js/react-relay.svg)](http://badge.fury.io/js/react-relay)
+# [Relay](https://relay.dev) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/relay/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/react-relay.svg??style=flat)](https://www.npmjs.com/package/react-relay)
 
 Relay is a JavaScript framework for building data-driven React applications.
 
@@ -6,7 +6,7 @@ Relay is a JavaScript framework for building data-driven React applications.
 * **Colocation:** Queries live next to the views that rely on them, so you can easily reason about your app. Relay aggregates queries into efficient network requests to fetch only what you need.
 * **Mutations:** Relay lets you mutate data on the client and server using GraphQL mutations, and offers automatic data consistency, optimistic updates, and error handling.
 
-[See how to use Relay in your own project](https://relay.dev/docs/en/introduction-to-relay) or check out the community-driven tutorial at [Learn Relay](https://www.learnrelay.org).
+[See how to use Relay in your own project](https://relay.dev/docs/en/introduction-to-relay).
 
 ## Example
 

@@ -1,0 +1,83 @@
+==================================== INPUT ====================================
+fragment clientFragmentSpreads_Foo_user on User {
+  id
+  foo {
+    ...clientFragmentSpreads_ClientTypeFragment # include fragment on client-only type
+  }
+}
+
+fragment clientFragmentSpreads_ClientTypeFragment on ClientType {
+  client_field
+}
+
+# %extensions%
+
+extend type User {
+  foo: ClientType
+}
+
+type ClientType {
+  client_field: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientFragmentSpreads_ClientTypeFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientType",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientFragmentSpreads_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientType",
+          "kind": "LinkedField",
+          "name": "foo",
+          "plural": false,
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "clientFragmentSpreads_ClientTypeFragment"
+            }
+          ],
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

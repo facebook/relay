@@ -128,8 +128,8 @@ function useFragmentNode<TFragmentData: mixed>(
     return () => {
       // When unmounting or resubscribing to new data, clean up current
       // subscription. This will also make sure fragment data is no longer
-      // cached for the so next time it its read, it will be read fresh from the
-      // Relay store
+      // cached so that next time it its read, it will be freshly read from
+      // the Relay store
       isMountedRef.current = false;
       disposable.dispose();
     };

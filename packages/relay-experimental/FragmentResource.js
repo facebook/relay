@@ -115,7 +115,7 @@ class FragmentResourceImpl {
   }
 
   /**
-   * Like `read`, but with pre-computed fragmentIdentifier that should be
+   * Like `read`, but with a pre-computed fragmentIdentifier that should be
    * equal to `getFragmentIdentifier(fragmentNode, fragmentRef)` from the
    * arguments.
    */
@@ -129,14 +129,14 @@ class FragmentResourceImpl {
     const environment = this._environment;
 
     // If fragmentRef is null or undefined, pass it directly through.
-    // This is a convenience when consuming fragments via a HOC api, when the
+    // This is a convenience when consuming fragments via a HOC API, when the
     // prop corresponding to the fragment ref might be passed as null.
     if (fragmentRef == null) {
       return {cacheKey: fragmentIdentifier, data: null, snapshot: null};
     }
 
     // If fragmentRef is plural, ensure that it is an array.
-    // If it's empty, return the empty array direclty before doing any more work.
+    // If it's empty, return the empty array directly before doing any more work.
     if (fragmentNode?.metadata?.plural === true) {
       invariant(
         Array.isArray(fragmentRef),
@@ -222,7 +222,7 @@ class FragmentResourceImpl {
       throw networkPromise;
     }
 
-    // 5. If a cached value still isn't available, raise a warning.
+    // 4. If a cached value still isn't available, raise a warning.
     // This means that we're trying to read a fragment that isn't available
     // and isn't being fetched at all.
     warning(
@@ -301,7 +301,7 @@ class FragmentResourceImpl {
     );
 
     // 2. If an update was missed, notify the component so it updates with
-    // latest data.
+    // the latest data.
     if (didMissUpdates) {
       callback();
     }

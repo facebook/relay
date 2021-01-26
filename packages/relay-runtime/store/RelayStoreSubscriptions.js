@@ -65,7 +65,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       //   but its base has changed (we just applied a final payload): recompute
       //   a backup so that we can later restore to the state the subscription
       //   should be in.
-      // - stale=false: This subscription was restored to the same value than
+      // - stale=false: This subscription was restored to the same value as
       //   `snapshot`. That means this subscription does *not* have changes relative
       //   to its base, so the current `snapshot` is valid to use as a backup.
       if (!subscription.stale) {

@@ -275,8 +275,8 @@ class QueryResourceImpl {
     let temporaryRetainDisposable: ?Disposable = null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
-      // fetchAndSaveQuery will update the cache with either a Promise or
-      // an Error to throw, or a FragmentResource to return.
+      // _fetchAndSaveQuery will update the cache with either a Promise or
+      // an Error to throw, or a QueryResult to return.
       cacheEntry = this._fetchAndSaveQuery(
         cacheKey,
         operation,
@@ -289,7 +289,7 @@ class QueryResourceImpl {
           unsubscribe(subscription) {
             // 4. If the request is cancelled, make sure to dispose
             // of the temporary retain; this will ensure that a promise
-            // doesn't remain unnecessarilly cached until the temporary retain
+            // doesn't remain unnecessarily cached until the temporary retain
             // expires. Not clearing the temporary retain might cause the
             // query to incorrectly re-suspend.
             if (temporaryRetainDisposable != null) {
@@ -302,11 +302,11 @@ class QueryResourceImpl {
       );
     }
 
-    // 3. Temporarily retain here in render phase. When the Component reading
+    // 3. Temporarily retain here in render phase. When the component reading
     // the operation is committed, we will transfer ownership of data retention
     // to the component.
     // In case the component never commits (mounts or updates) from this render,
-    // this data retention hold will auto-release itself afer a timeout.
+    // this data retention hold will auto-release itself after a timeout.
     temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
@@ -317,7 +317,7 @@ class QueryResourceImpl {
   }
 
   /**
-   * This function should be called during a Component's commit phase
+   * This function should be called during a component's commit phase
    * (e.g. inside useEffect), in order to retain the operation in the Relay store
    * and transfer ownership of the operation to the component lifecycle.
    */

@@ -346,3 +346,38 @@ fn argument_value_between_names() {
     );
     assert_labels(items.unwrap(), vec!["$pictureSize", "$pictureSize2"]);
 }
+
+#[test]
+fn empty_directive() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+        fragment Test on User {
+            profile_picture @| {
+                uri
+            }
+        }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "prependEdge",
+            "deleteRecord",
+            "appendNode",
+            "deleteEdge",
+            "__clientField",
+            "appendEdge",
+            "required",
+            "stream_connection",
+            "match",
+            "customDirective",
+            "prependNode",
+            "fixme_fat_interface",
+            "stream",
+            "include",
+            "connection",
+            "skip",
+        ],
+    );
+}

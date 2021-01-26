@@ -481,7 +481,8 @@ impl CompletionRequestBuilder {
                     None
                 }
             } else {
-                None
+                // The directive doesn't have a name `@|`
+                Some(self.new_request(CompletionKind::DirectiveName { location }, type_path))
             };
         }
         None

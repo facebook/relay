@@ -1067,7 +1067,7 @@ impl<'a> Parser<'a> {
     fn parse_directive(&mut self) -> ParseResult<Directive> {
         let start = self.index();
         let at = self.parse_kind(TokenKind::At)?;
-        let name = self.parse_identifier()?;
+        let name = self.parse_identifier_with_error_recovery();
         let arguments = self.parse_optional_arguments()?;
         let span = Span::new(start, self.end_index);
         Ok(Directive {
@@ -1682,6 +1682,34 @@ impl<'a> Parser<'a> {
                 );
                 self.record_error(error);
                 Err(())
+            }
+        }
+    }
+
+    fn parse_identifier_with_error_recovery(&mut self) -> Identifier {
+        match self.peek_token_kind() {
+            TokenKind::Identifier => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let span = token.span;
+                Identifier {
+                    span,
+                    token,
+                    value: source.intern(),
+                }
+            }
+            _ => {
+                let token = self.empty_token();
+                let error = Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::Identifier),
+                    Location::new(self.source_location, token.span),
+                );
+                self.record_error(error);
+                Identifier {
+                    span: token.span,
+                    token,
+                    value: "".intern(),
+                }
             }
         }
     }

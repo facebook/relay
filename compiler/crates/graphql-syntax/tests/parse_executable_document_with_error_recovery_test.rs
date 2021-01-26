@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f8c96f2f57f7a98f0ad6fc3b6c1ed4c>>
+ * @generated SignedSource<<aa9b1896b37361df8252ebd29516695d>>
  */
 
 mod parse_executable_document_with_error_recovery;
@@ -80,6 +80,13 @@ fn arugment_without_closing_paren() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/arugment-without-closing-paren.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/arugment-without-closing-paren.expected");
     test_fixture(transform_fixture, "arugment-without-closing-paren.graphql", "parse_executable_document_with_error_recovery/fixtures/arugment-without-closing-paren.expected", input, expected);
+}
+
+#[test]
+fn directive_without_name() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/directive-without-name.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/directive-without-name.expected");
+    test_fixture(transform_fixture, "directive-without-name.graphql", "parse_executable_document_with_error_recovery/fixtures/directive-without-name.expected", input, expected);
 }
 
 #[test]

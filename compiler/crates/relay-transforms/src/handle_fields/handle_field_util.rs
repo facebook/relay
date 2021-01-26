@@ -17,7 +17,7 @@ lazy_static! {
     pub static ref FILTERS_ARG_NAME: StringKey = "filters".intern();
     pub static ref KEY_ARG_NAME: StringKey = "key".intern();
     pub static ref DYNAMIC_KEY_ARG_NAME: StringKey = "dynamicKey_UNSTABLE".intern();
-    pub static ref HANLDE_ARGS_NAME: StringKey = "handleArgs".intern();
+    static ref HANLDE_ARGS_NAME: StringKey = "handleArgs".intern();
 }
 
 pub struct HandleFieldDirectiveArgs<'s> {

@@ -16,10 +16,10 @@ use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
-    pub static ref LIVE_METADATA_KEY: StringKey = "live".intern();
-    pub static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
-    pub static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
+    static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
+    static ref LIVE_METADATA_KEY: StringKey = "live".intern();
+    static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
+    static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {

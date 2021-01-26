@@ -6,18 +6,22 @@
  */
 
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     sync::{Arc, RwLock},
 };
 
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
-use graphql_syntax::parse_executable_with_error_recovery;
-use interner::Intern;
+use graphql_ir::{build, Program};
+use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
+use interner::{Intern, StringKey};
 use lsp_types::CompletionItem;
 use relay_test_schema::get_test_schema;
 
-fn parse_and_resolve_completion_items(source: &str) -> Option<Vec<CompletionItem>> {
+fn parse_and_resolve_completion_items(
+    source: &str,
+    source_programs: Option<Arc<RwLock<HashMap<StringKey, Program>>>>,
+) -> Option<Vec<CompletionItem>> {
     let pos = source.find('|').unwrap() - 1;
     let next_source = source.replace("|", "");
     let document = parse_executable_with_error_recovery(
@@ -33,14 +37,22 @@ fn parse_and_resolve_completion_items(source: &str) -> Option<Vec<CompletionItem
         end: pos as u32,
     };
 
-    let source_programs = Arc::new(RwLock::new(Default::default()));
     resolve_completion_items(
         document,
         position_span,
         "test_project".intern(),
         &get_test_schema(),
-        &source_programs,
+        &source_programs.unwrap_or_else(Default::default),
     )
+}
+
+fn build_source_programs(source: &str) -> Arc<RwLock<HashMap<StringKey, Program>>> {
+    let document = parse_executable(source, SourceLocationKey::Generated).unwrap();
+    let ir = build(&get_test_schema(), &document.definitions).unwrap();
+    let program = Program::from_definitions(get_test_schema(), ir);
+    let mut source_programs_map = HashMap::new();
+    source_programs_map.insert("test_project".intern(), program);
+    Arc::new(RwLock::new(source_programs_map))
 }
 
 fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
@@ -65,6 +77,7 @@ fn scalar_field() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
 }
@@ -80,6 +93,7 @@ fn linked_field() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(items.unwrap(), vec!["location", "categories"]);
 }
@@ -95,6 +109,7 @@ fn whitespace_in_linked_field() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
 }
@@ -107,6 +122,7 @@ fn whitespace_in_fragment() {
                 |
             }
         "#,
+        None,
     );
     assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
 }
@@ -121,6 +137,7 @@ fn whitespace_in_inline_fragment() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
 }
@@ -133,6 +150,7 @@ fn inline_fragment() {
                 ... on a|
             }
         "#,
+        None,
     );
     assert_labels(items.unwrap(), vec!["Viewer"]);
 }
@@ -147,6 +165,7 @@ fn directive() {
             }
         }
         "#,
+        None,
     );
     assert_labels(
         items.unwrap(),
@@ -181,6 +200,7 @@ fn empty_argument_list() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(
         items.unwrap(),
@@ -198,6 +218,7 @@ fn argument_name_without_value() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(
         items.unwrap(),
@@ -218,9 +239,110 @@ fn argument_name_with_existing_name() {
                 }
             }
         "#,
+        None,
     );
     assert_labels(
         items.unwrap(),
         vec!["label", "initial_count", "use_customized_batch"],
     );
+}
+
+#[test]
+fn fragment_spread_on_the_same_type() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Viewer {
+               ...T|
+            }
+        "#,
+        Some(build_source_programs(
+            r#"
+        fragment TestFragment on Viewer {
+           __typename
+        }
+
+        fragment TestFragment2 on Viewer {
+            __typename
+         }
+    "#,
+        )),
+    );
+    assert_labels(items.unwrap(), vec!["TestFragment", "TestFragment2"]);
+}
+
+#[test]
+fn fragment_spread_on_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Actor {
+               ...T|
+            }
+        "#,
+        Some(build_source_programs(
+            r#"
+        fragment TestFragment on Page {
+           __typename
+        }
+
+        fragment TestFragment2 on Node {
+            __typename
+        }
+    "#,
+        )),
+    );
+    assert_labels(items.unwrap(), vec!["TestFragment", "TestFragment2"]);
+}
+
+#[test]
+fn argument_value() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on User {
+                profilePicture(size:|) {
+                    uri
+                }
+            }
+        "#,
+        Some(build_source_programs(
+            r#"
+            fragment Test on User
+                @argumentDefinitions(
+                    pictureSize: {type: "[Int]"},
+                    pictureSize2: {type: "[Int]"}
+                ) {
+                profilePicture(size: $pictureSize) {
+                    uri
+                }
+            }
+        "#,
+        )),
+    );
+    assert_labels(items.unwrap(), vec!["$pictureSize", "$pictureSize2"]);
+}
+
+#[test]
+fn argument_value_between_names() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on User {
+                profilePicture(size: |, preset: SMALL) {
+                    uri
+                }
+            }
+        "#,
+        Some(build_source_programs(
+            r#"
+            fragment Test on User
+                @argumentDefinitions(
+                    pictureSize: {type: "[Int]"},
+                    pictureSize2: {type: "[Int]"}
+                ) {
+                profilePicture(size: $pictureSize) {
+                    uri
+                }
+            }
+        "#,
+        )),
+    );
+    assert_labels(items.unwrap(), vec!["$pictureSize", "$pictureSize2"]);
 }

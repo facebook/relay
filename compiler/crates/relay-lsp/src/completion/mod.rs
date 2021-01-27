@@ -22,7 +22,7 @@ use graphql_syntax::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use log::info;
+use log::debug;
 use lsp_types::request::{Completion, Request};
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
@@ -152,7 +152,7 @@ impl CompletionRequestBuilder {
                         let (_, kind) = operation.operation.clone()?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 
-                        info!(
+                        debug!(
                             "Completion request is within operation: {:?}",
                             operation.name
                         );
@@ -518,7 +518,7 @@ fn completion_items_for_request(
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let project_name = request.project_name;
-    info!("completion_items_for_request: {:?}", kind);
+    debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
@@ -529,7 +529,7 @@ fn completion_items_for_request(
                 )
                 .get(&project_name)
             {
-                info!("has source program");
+                debug!("has source program");
                 let items =
                     resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
                 Some(items)
@@ -909,7 +909,7 @@ fn resolve_completion_items_for_fragment_spread(
             }
         }
     }
-    info!("get_valid_fragments_for_type {:#?}", valid_fragments);
+    debug!("get_valid_fragments_for_type {:#?}", valid_fragments);
     valid_fragments
 }
 

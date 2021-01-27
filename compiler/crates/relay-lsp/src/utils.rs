@@ -13,7 +13,7 @@ use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
 use interner::StringKey;
-use log::info;
+use log::debug;
 use lsp_types::{Position, TextDocumentIdentifier, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler_state::SourceSet, FileCategorizer, FileGroup};
 
@@ -126,7 +126,7 @@ pub fn extract_executable_document_from_text(
 
     // Now we need to take the `Position` and map that to an offset relative
     // to this GraphQL document, as the `Span`s in the document are relative.
-    info!("Successfully parsed the definitions for a target GraphQL source");
+    debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
     let position_span =
         position_to_span(position, &graphql_source, index_offset).ok_or_else(|| {
@@ -137,7 +137,7 @@ pub fn extract_executable_document_from_text(
     // we find the position within the document. Note that the GraphQLSource will
     // already be updated *with the characters that triggered the completion request*
     // since the change event fires before completion.
-    info!("position_span: {:?}", position_span);
+    debug!("position_span: {:?}", position_span);
 
     Ok((document, position_span, project_name))
 }

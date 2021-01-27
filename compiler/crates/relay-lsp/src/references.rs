@@ -70,7 +70,7 @@ fn transform_reference_locations_to_lsp_locations(
 
     let range_offset =
         span_to_range_offset(*location.span(), &contents).ok_or(LSPRuntimeError::ExpectedError)?;
-    log::info!("range offset {:?}", range_offset);
+    log::debug!("range offset {:?}", range_offset);
 
     lsp_location.range = Range {
         start: lsp_location.range.start + range_offset.start,

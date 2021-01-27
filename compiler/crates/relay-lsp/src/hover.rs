@@ -284,7 +284,7 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
     let node_resolution_info = state.resolve_node(params)?;
 
-    log::info!("Hovering over {:?}", node_resolution_info);
+    log::debug!("Hovering over {:?}", node_resolution_info);
     if let Some(schemas) = state
         .get_schemas()
         .read()

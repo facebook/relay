@@ -26,7 +26,7 @@ use crate::{
 };
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::{SendError, Sender};
-use log::info;
+use log::debug;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
     notification::{
@@ -83,7 +83,7 @@ pub async fn run<TPerfLogger: PerfLogger + 'static>(
 where
     TPerfLogger: PerfLogger + 'static,
 {
-    info!(
+    debug!(
         "Running language server with config root {:?}",
         config.root_dir
     );
@@ -108,7 +108,7 @@ where
     set_actual_server_status(&connection.sender, &lsp_state.get_errors());
 
     for msg in connection.receiver {
-        info!("LSP message received {:?}", msg);
+        debug!("LSP message received {:?}", msg);
         match msg {
             Message::Request(req) => {
                 handle_request(&mut lsp_state, req, &connection.sender, &perf_logger)
@@ -232,7 +232,7 @@ fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
         .notification();
 
     // If we have gotten here, we have not handled the notification
-    info!(
+    debug!(
         "Error: no handler registered for notification '{}'",
         notification.method
     );

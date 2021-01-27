@@ -26,7 +26,7 @@ mod text_documents;
 mod utils;
 pub use crate::server::LSPExtraDataProvider;
 use common::PerfLogger;
-use log::info;
+use log::debug;
 use lsp_process_error::LSPProcessResult;
 use lsp_server::Connection;
 use relay_compiler::config::Config;
@@ -44,9 +44,9 @@ where
     TPerfLogger: PerfLogger + 'static,
 {
     let (connection, io_handles) = Connection::stdio();
-    info!("Initialized stdio transport layer");
+    debug!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
-    info!("JSON-RPC handshake completed");
+    debug!("JSON-RPC handshake completed");
     server::run(connection, config, params, perf_logger, extra_data_provider).await?;
     io_handles.join()?;
     Ok(())

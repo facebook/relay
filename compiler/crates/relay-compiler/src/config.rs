@@ -53,7 +53,7 @@ pub struct Config {
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
-    pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
+    pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
 
@@ -209,7 +209,7 @@ impl Config {
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
-            generate_extra_operation_artifacts: None,
+            generate_extra_artifacts: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
@@ -344,7 +344,7 @@ impl fmt::Debug for Config {
             header,
             codegen_command,
             load_saved_state_file,
-            generate_extra_operation_artifacts,
+            generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
             connection_interface,
@@ -376,8 +376,8 @@ impl fmt::Debug for Config {
                 &option_fn_to_string(operation_persister),
             )
             .field(
-                "generate_extra_operation_artifacts",
-                &option_fn_to_string(generate_extra_operation_artifacts),
+                "generate_extra_artifacts",
+                &option_fn_to_string(generate_extra_artifacts),
             )
             .field(
                 "saved_state_loader",

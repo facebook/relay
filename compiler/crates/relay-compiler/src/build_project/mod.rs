@@ -223,15 +223,14 @@ pub async fn commit_project(
     }
 
     // In some cases we need to create additional (platform specific) artifacts
-    // For that, we will use `generate_extra_operation_artifacts` from the configs
-    if let Some(generate_extra_operation_artifacts_fn) = &config.generate_extra_operation_artifacts
-    {
-        log_event.time("generate_extra_operation_artifacts_time", || {
+    // For that, we will use `generate_extra_artifacts` from the configs
+    if let Some(generate_extra_artifacts_fn) = &config.generate_extra_artifacts {
+        log_event.time("generate_extra_artifacts_time", || {
             generate_extra_artifacts(
                 schema,
                 project_config,
                 &mut artifacts,
-                generate_extra_operation_artifacts_fn,
+                generate_extra_artifacts_fn,
             )
         });
     }

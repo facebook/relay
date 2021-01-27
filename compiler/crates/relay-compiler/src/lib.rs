@@ -26,7 +26,7 @@ pub use build_project::{
     add_to_mercurial, apply_transforms,
     artifact_writer::{ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter},
     build_schema, create_path_for_artifact, generate_artifacts,
-    generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
+    generate_extra_artifacts::GenerateExtraArtifactsFn,
     is_operation_preloadable, validate, Artifact, ArtifactContent, Programs, SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};

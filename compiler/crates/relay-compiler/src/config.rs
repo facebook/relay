@@ -16,6 +16,9 @@ use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
+use common::SourceLocationKey;
+use fmt::Debug;
+use interner::StringKey;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -178,6 +181,7 @@ impl Config {
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
                     feature_flags: config_file_project.feature_flags,
+                    filename_for_artifact: None,
                     rollout: config_file_project.rollout,
                 };
                 Ok((project_name, project_config))
@@ -390,7 +394,6 @@ impl fmt::Debug for Config {
     }
 }
 
-#[derive(Debug)]
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
@@ -407,7 +410,59 @@ pub struct ProjectConfig {
     pub variable_names_comment: bool,
     pub extra: Option<HashMap<String, String>>,
     pub feature_flags: Option<FeatureFlags>,
+    pub filename_for_artifact:
+        Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
     pub rollout: Rollout,
+}
+
+impl Debug for ProjectConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let ProjectConfig {
+            name,
+            base,
+            output,
+            extra_artifacts_output,
+            shard_output,
+            shard_strip_regex,
+            extensions,
+            enabled,
+            schema_location,
+            schema_name,
+            typegen_config,
+            persist,
+            variable_names_comment,
+            extra,
+            feature_flags,
+            filename_for_artifact,
+            rollout,
+        } = self;
+        f.debug_struct("ProjectConfig")
+            .field("name", name)
+            .field("base", base)
+            .field("output", output)
+            .field("extra_artifacts_output", extra_artifacts_output)
+            .field("shard_output", shard_output)
+            .field("shard_strip_regex", shard_strip_regex)
+            .field("extensions", extensions)
+            .field("enabled", enabled)
+            .field("schema_location", schema_location)
+            .field("schema_name", schema_name)
+            .field("typegen_config", typegen_config)
+            .field("persist", persist)
+            .field("variable_names_comment", variable_names_comment)
+            .field("extra", extra)
+            .field("feature_flags", feature_flags)
+            .field(
+                "filename_for_artifact",
+                &if filename_for_artifact.is_some() {
+                    "Some<Fn>"
+                } else {
+                    "None"
+                },
+            )
+            .field("rollout", rollout)
+            .finish()
+    }
 }
 
 #[derive(Clone, Debug)]

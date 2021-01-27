@@ -212,12 +212,13 @@ fn path_for_artifact(
     source_file: SourceLocationKey,
     definition_name: StringKey,
 ) -> PathBuf {
-    create_path_for_artifact(
-        project_config,
-        source_file,
+    let filename = if let Some(filename_for_artifact) = &project_config.filename_for_artifact {
+        filename_for_artifact(source_file, definition_name)
+    } else {
         match &project_config.typegen_config.language {
             TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
             TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
-        },
-    )
+        }
+    };
+    create_path_for_artifact(project_config, source_file, filename)
 }

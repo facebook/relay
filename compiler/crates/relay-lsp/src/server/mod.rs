@@ -64,8 +64,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
     server_capabilities.hover_provider = Some(true);
     server_capabilities.definition_provider = Some(true);
     server_capabilities.references_provider = Some(true);
-    let _code_action_provider = Some(CodeActionProviderCapability::Simple(true));
-    server_capabilities.code_action_provider = None;
+    server_capabilities.code_action_provider = Some(CodeActionProviderCapability::Simple(true));
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;

@@ -33,17 +33,26 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
         handler: fn(&mut TState, TRequest::Params) -> LSPRuntimeResult<TRequest::Result>,
     ) -> Result<Self, ServerResponse> {
         if self.request.method == TRequest::METHOD {
-            let (request_id, params) = extract_request_params::<TRequest>(self.request);
-            let response = handler(self.state, params).and_then(|handler_result| {
-                serde_json::to_value(handler_result).map_err(|_err| {
-                    LSPRuntimeError::UnexpectedError(
-                        "Unable to serialize request response".to_string(),
-                    )
-                })
-            });
-            let server_response = convert_to_lsp_response(request_id, response);
+            match extract_request_params::<TRequest>(self.request) {
+                Ok((request_id, params)) => {
+                    let response = handler(self.state, params).and_then(|handler_result| {
+                        serde_json::to_value(handler_result).map_err(|_err| {
+                            LSPRuntimeError::UnexpectedError(
+                                "Unable to serialize request response".to_string(),
+                            )
+                        })
+                    });
+                    let server_response = convert_to_lsp_response(request_id, response);
 
-            return Err(server_response);
+                    return Err(server_response);
+                }
+                Err(error) => {
+                    return Err(convert_to_lsp_response(
+                        ServerRequestId::from("default-relay-lsp-id".to_string()),
+                        Err(error),
+                    ));
+                }
+            }
         }
 
         Ok(self)
@@ -80,12 +89,20 @@ fn convert_to_lsp_response(
     }
 }
 
-fn extract_request_params<R>(req: ServerRequest) -> (ServerRequestId, R::Params)
+fn extract_request_params<R>(req: ServerRequest) -> LSPRuntimeResult<(ServerRequestId, R::Params)>
 where
     R: Request,
 {
-    req.extract(R::METHOD)
-        .expect("extract_request_params: could not extract request params")
+    std::panic::catch_unwind(|| {
+        req.extract(R::METHOD)
+            .expect("extract_request_params: could not extract request params")
+    })
+    .map_err(|err| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "panic in the `extract_request_params`: {:?}",
+            err
+        ))
+    })
 }
 
 #[cfg(test)]
@@ -145,5 +162,27 @@ mod test {
     ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
         *state = 2;
         Ok(None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lsp_types::request::CodeActionRequest;
+    use serde_json::json;
+
+    #[test]
+    fn test_extract_request_params_error() {
+        let request_id = ServerRequestId::from("test-id".to_string());
+        let request = ServerRequest {
+            id: request_id,
+            method: "textDocument/codeAction".to_string(),
+            params: json!({
+                "invalid_key": "invalid_value",
+            }),
+        };
+        let result = extract_request_params::<CodeActionRequest>(request);
+        // it returns an error, but not panic
+        assert!(result.is_err());
     }
 }

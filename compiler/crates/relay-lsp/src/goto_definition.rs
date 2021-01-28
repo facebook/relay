@@ -11,8 +11,11 @@ use crate::{
     location::to_lsp_location_of_graphql_literal,
     lsp::GotoDefinitionResponse,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    node_resolution_info::NodeKind,
-    node_resolution_info::NodeResolutionInfo,
+    resolution_path::utils::find_selection_parent_type,
+    resolution_path::{
+        IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
+        SelectionParent, TypeConditionPath,
+    },
     server::LSPState,
     LSPExtraDataProvider,
 };
@@ -31,23 +34,28 @@ use std::{
     sync::{Arc, RwLock},
 };
 
-fn get_goto_definition_response(
-    node_resolution_info: NodeResolutionInfo,
+fn get_goto_definition_response<'a>(
+    node_path: ResolutionPath<'a>,
+    project_name: StringKey,
     source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
     // https://github.com/rust-lang/rust-clippy/issues/3971
     #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    match node_resolution_info.kind {
-        NodeKind::FragmentSpread(fragment_name) => {
-            let project_name = node_resolution_info.project_name;
+    match node_path {
+        ResolutionPath::Ident(IdentPath {
+            inner: fragment_name,
+            parent: IdentParent::FragmentSpreadName(_),
+        }) => {
             if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
-                let fragment = source_program.fragment(fragment_name).ok_or_else(|| {
-                    LSPRuntimeError::UnexpectedError(format!(
-                        "Could not find fragment with name {}",
-                        fragment_name
-                    ))
-                })?;
+                let fragment = source_program
+                    .fragment(fragment_name.value)
+                    .ok_or_else(|| {
+                        LSPRuntimeError::UnexpectedError(format!(
+                            "Could not find fragment with name {}",
+                            fragment_name
+                        ))
+                    })?;
 
                 Ok(GotoDefinitionResponse::Scalar(
                     to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
@@ -59,45 +67,49 @@ fn get_goto_definition_response(
                 )))
             }
         }
-        NodeKind::FieldName => {
-            let project_name = node_resolution_info.project_name;
-            let programs = source_programs.read().unwrap();
-            let source_program = programs.get(&project_name).ok_or_else(|| {
-                LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
-            })?;
-            let field = node_resolution_info
-                .type_path
-                .resolve_current_field(&source_program.schema)
-                .ok_or_else(|| {
-                    LSPRuntimeError::UnexpectedError("Could not resolve field".to_string())
-                })?;
-            let parent_name = source_program
-                .schema
-                .get_type_name(field.parent_type.unwrap());
-
+        ResolutionPath::Ident(IdentPath {
+            inner: field_name,
+            parent:
+                IdentParent::LinkedFieldName(LinkedFieldPath {
+                    inner: _,
+                    parent: selection_path,
+                }),
+        }) => resolve_field(
+            field_name.value.to_string(),
+            selection_path.parent,
+            project_name,
+            source_programs,
+            root_dir,
+            extra_data_provider,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: field_name,
+            parent:
+                IdentParent::ScalarFieldName(ScalarFieldPath {
+                    inner: _,
+                    parent: selection_path,
+                }),
+        }) => resolve_field(
+            field_name.value.to_string(),
+            selection_path.parent,
+            project_name,
+            source_programs,
+            root_dir,
+            extra_data_provider,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::TypeConditionType(TypeConditionPath {
+                    inner: type_condition,
+                    parent: _,
+                }),
+        }) => {
             let provider_response = extra_data_provider
                 .resolve_field_definition(
                     project_name.to_string(),
                     root_dir,
-                    parent_name.to_string(),
-                    Some(field.name.to_string()),
-                )
-                .ok_or(LSPRuntimeError::ExpectedError)?;
-            let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "Error resolving field definition location: {}",
-                    e
-                ))
-            })?;
-            Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
-        }
-        NodeKind::TypeCondition(type_name) => {
-            let project_name = node_resolution_info.project_name;
-            let provider_response = extra_data_provider
-                .resolve_field_definition(
-                    project_name.to_string(),
-                    root_dir,
-                    type_name.to_string(),
+                    type_condition.type_.value.to_string(),
                     None,
                 )
                 .ok_or(LSPRuntimeError::ExpectedError)?;
@@ -113,14 +125,53 @@ fn get_goto_definition_response(
     }
 }
 
+fn resolve_field<'a>(
+    field_name: String,
+    selection_parent: SelectionParent<'a>,
+    project_name: StringKey,
+    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    root_dir: &PathBuf,
+    // https://github.com/rust-lang/rust-clippy/issues/3971
+    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let programs = source_programs.read().unwrap();
+    let source_program = programs.get(&project_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
+    })?;
+
+    let parent_type = find_selection_parent_type(selection_parent, &source_program.schema)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let parent_name = source_program.schema.get_type_name(parent_type);
+
+    let provider_response = extra_data_provider
+        .resolve_field_definition(
+            project_name.to_string(),
+            root_dir,
+            parent_name.to_string(),
+            Some(field_name),
+        )
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+    let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Error resolving field definition location: {}",
+            e
+        ))
+    })?;
+    Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
+}
+
 pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
     state: &mut LSPState<TPerfLogger>,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let node_resolution_info = state.resolve_node(params)?;
+    let (document, position_span, project_name) =
+        state.extract_executable_document_from_text(params, 1)?;
+    let path = document.resolve((), position_span);
 
     let goto_definition_response = get_goto_definition_response(
-        node_resolution_info,
+        path,
+        project_name,
         state.get_source_programs_ref(),
         state.root_dir(),
         &state.extra_data_provider,

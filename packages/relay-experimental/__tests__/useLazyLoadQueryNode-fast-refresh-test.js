@@ -19,7 +19,10 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 
-const {createOperationDescriptor} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  __internal: {fetchQuery},
+} = require('relay-runtime');
 
 function expectToBeRendered(renderFn, readyState) {
   // Ensure useEffect is called before other timers
@@ -103,6 +106,7 @@ describe('useLazyLoadQueryNode', () => {
       const result = useLazyLoadQueryNode<_>({
         query: _query,
         fetchPolicy: 'network-only',
+        fetchObservable: fetchQuery(environment, _query),
         componentDisplayName: 'TestDisplayName',
       });
       return renderFn(result);
@@ -144,6 +148,7 @@ describe('useLazyLoadQueryNode', () => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
+        fetchObservable: fetchQuery(environment, _query),
         fetchPolicy: 'network-only',
         componentDisplayName: 'TestDisplayName',
       });

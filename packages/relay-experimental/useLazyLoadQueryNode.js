@@ -21,9 +21,6 @@ const useFragmentNode = require('./useFragmentNode');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
 const {getQueryResourceForEnvironment} = require('./QueryResource');
-const {
-  __internal: {fetchQuery},
-} = require('relay-runtime');
 
 import type {
   FetchPolicy,
@@ -36,10 +33,17 @@ import type {
 
 const {useContext, useEffect, useState, useRef} = React;
 
-function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
+function useLazyLoadQueryNode<TQuery: OperationType>({
+  query,
+  componentDisplayName,
+  fetchObservable,
+  fetchPolicy,
+  fetchKey,
+  renderPolicy,
+}: {|
   query: OperationDescriptor,
   componentDisplayName: string,
-  fetchObservable?: ?Observable<GraphQLResponse>,
+  fetchObservable: Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
@@ -48,15 +52,6 @@ function useLazyLoadQueryNode<TQuery: OperationType>(args: {|
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
 
-  const {
-    query,
-    componentDisplayName,
-    fetchKey,
-    fetchPolicy,
-    renderPolicy,
-  } = args;
-  const fetchObservable =
-    args.fetchObservable ?? fetchQuery(environment, query);
   const {startFetch, completeFetch} = useFetchTrackingRef();
 
   const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {

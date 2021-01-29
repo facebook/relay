@@ -22,7 +22,7 @@ const warning = require('warning');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {useDebugValue} = require('react');
 const {
-  __internal: {fetchQueryDeduped},
+  __internal: {fetchQueryDeduped, fetchQuery},
 } = require('relay-runtime');
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
@@ -84,11 +84,7 @@ function usePreloadedQuery<TQuery: OperationType>(
         'store. In the future, this will become a hard error.',
     );
 
-    const fallbackFetchObservable = fetchQueryDeduped(
-      environment,
-      operation.request.identifier,
-      () => environment.execute({operation}),
-    );
+    const fallbackFetchObservable = fetchQuery(environment, operation);
     let fetchObservable;
     if (source != null && environment === preloadedQuery.environment) {
       // If the source observable exists and the environments match, reuse

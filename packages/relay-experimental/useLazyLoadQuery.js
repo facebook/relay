@@ -13,10 +13,14 @@
 
 'use strict';
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
+const useRelayEnvironment = require('./useRelayEnvironment');
 
-const {useTrackLoadQueryInRender} = require('./loadQuery');
+const {
+  __internal: {fetchQuery},
+} = require('relay-runtime');
 
 import type {
   CacheConfig,
@@ -41,6 +45,8 @@ function useLazyLoadQuery<TQuery: OperationType>(
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
+  const environment = useRelayEnvironment();
+
   const query = useMemoOperationDescriptor(
     gqlQuery,
     variables,
@@ -51,6 +57,7 @@ function useLazyLoadQuery<TQuery: OperationType>(
   const data = useLazyLoadQueryNode({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
+    fetchObservable: fetchQuery(environment, query),
     fetchPolicy: options?.fetchPolicy,
     query,
     renderPolicy: options?.UNSTABLE_renderPolicy,

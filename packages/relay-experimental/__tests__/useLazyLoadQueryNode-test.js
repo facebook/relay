@@ -20,7 +20,11 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 
-const {createOperationDescriptor, getFragment} = require('relay-runtime');
+const {
+  createOperationDescriptor,
+  getFragment,
+  __internal,
+} = require('relay-runtime');
 
 import type {FetchPolicy} from 'relay-runtime';
 
@@ -95,6 +99,7 @@ describe('useLazyLoadQueryNode', () => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const data = useLazyLoadQueryNode<_>({
         query: _query,
+        fetchObservable: __internal.fetchQuery(environment, _query),
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
         componentDisplayName: 'TestDisplayName',
       });
@@ -550,6 +555,7 @@ describe('useLazyLoadQueryNode', () => {
         );
         const data = useLazyLoadQueryNode<_>({
           componentDisplayName: 'TestDisplayName',
+          fetchObservable: __internal.fetchQuery(environment, _query),
           fetchPolicy: 'store-or-network',
           query: _query,
           renderPolicy: 'partial',

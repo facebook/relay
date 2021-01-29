@@ -19,10 +19,12 @@ use crate::{
     references::on_references,
     shutdown::{on_exit, on_shutdown},
     status_reporting::LSPStatusReporter,
+    status_reporting::StatusReportingArtifactWriter,
     text_documents::on_did_save_text_document,
     text_documents::{
         on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
     },
+    ExtensionConfig,
 };
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::{SendError, Sender};
@@ -35,7 +37,7 @@ use lsp_types::{
     request::{CodeActionRequest, Completion, References, Shutdown},
     CodeActionProviderCapability,
 };
-use relay_compiler::config::Config;
+use relay_compiler::{config::Config, NoopArtifactWriter};
 use std::sync::{Arc, RwLock};
 mod lsp_request_dispatch;
 use lsp_request_dispatch::LSPRequestDispatch;
@@ -76,6 +78,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 pub async fn run<TPerfLogger: PerfLogger + 'static>(
     connection: Connection,
     mut config: Config,
+    extension_config: ExtensionConfig,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
@@ -91,6 +94,14 @@ where
 
     let lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>> = Default::default();
 
+    config.artifact_writer = if extension_config.no_artifacts {
+        Box::new(NoopArtifactWriter)
+    } else {
+        Box::new(StatusReportingArtifactWriter::new(
+            connection.sender.clone(),
+            config.artifact_writer,
+        ))
+    };
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),

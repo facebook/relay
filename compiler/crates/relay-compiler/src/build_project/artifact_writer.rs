@@ -8,15 +8,18 @@
 use crate::errors::BuildProjectError;
 use log::info;
 use serde::{Serialize, Serializer};
-use std::fs::{create_dir_all, File};
-use std::io;
 use std::io::prelude::*;
+use std::{
+    fs::{create_dir_all, File},
+    io,
+};
 use std::{path::PathBuf, sync::Mutex};
 
 type BuildProjectResult = Result<(), BuildProjectError>;
 
 pub trait ArtifactWriter {
-    fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
+    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError>;
+    fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult;
     fn remove(&self, path: PathBuf) -> BuildProjectResult;
     fn finalize(&self) -> crate::errors::Result<()>;
 }
@@ -53,12 +56,7 @@ impl ArtifactFileWriter {
 
     fn write_file(&self, path: &PathBuf, content: &[u8]) -> io::Result<()> {
         let mut should_add = false;
-        if path.exists() {
-            let existing_content = std::fs::read(path)?;
-            if existing_content == content {
-                return Ok(());
-            }
-        } else {
+        if !path.exists() {
             should_add = true;
             ensure_file_directory_exists(path)?;
         }
@@ -72,7 +70,14 @@ impl ArtifactFileWriter {
     }
 }
 impl ArtifactWriter for ArtifactFileWriter {
-    fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
+        content_is_different(path, &content).map_err(|error| BuildProjectError::WriteFileError {
+            file: path.clone(),
+            source: error,
+        })
+    }
+
+    fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
         self.write_file(&path, &content)
             .map_err(|error| BuildProjectError::WriteFileError {
                 file: path,
@@ -147,24 +152,25 @@ impl ArtifactDifferenceWriter {
 }
 
 impl ArtifactWriter for ArtifactDifferenceWriter {
-    fn write_if_changed(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        let should_include_artifact_in_codegen = !self.verify_changes_against_filesystem
-            || !content_is_same(&path, &content).map_err(|error| {
+    fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
+        Ok(!self.verify_changes_against_filesystem
+            || content_is_different(path, content).map_err(|error| {
                 BuildProjectError::WriteFileError {
                     file: path.clone(),
                     source: error,
                 }
-            })?;
-        if should_include_artifact_in_codegen {
-            self.codegen_records
-                .lock()
-                .unwrap()
-                .changed
-                .push(ArtifactUpdateRecord {
-                    path,
-                    data: content,
-                });
-        }
+            })?)
+    }
+
+    fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
+        self.codegen_records
+            .lock()
+            .unwrap()
+            .changed
+            .push(ArtifactUpdateRecord {
+                path,
+                data: content,
+            });
         Ok(())
     }
 
@@ -201,11 +207,28 @@ fn ensure_file_directory_exists(file_path: &PathBuf) -> io::Result<()> {
     Ok(())
 }
 
-fn content_is_same(path: &PathBuf, content: &Vec<u8>) -> io::Result<bool> {
+fn content_is_different(path: &PathBuf, content: &[u8]) -> io::Result<bool> {
     if path.exists() {
         let existing_content = std::fs::read(path)?;
-        Ok(&existing_content == content)
+        Ok(&existing_content != content)
     } else {
+        Ok(true)
+    }
+}
+
+pub struct NoopArtifactWriter;
+impl ArtifactWriter for NoopArtifactWriter {
+    fn should_write(&self, _: &PathBuf, _: &[u8]) -> Result<bool, BuildProjectError> {
         Ok(false)
+    }
+
+    fn write(&self, _: PathBuf, _: Vec<u8>) -> Result<(), BuildProjectError> {
+        Ok(())
+    }
+    fn remove(&self, _: PathBuf) -> Result<(), BuildProjectError> {
+        Ok(())
+    }
+    fn finalize(&self) -> crate::errors::Result<()> {
+        Ok(())
     }
 }

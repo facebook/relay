@@ -260,7 +260,9 @@ pub async fn commit_project(
                         artifact
                             .content
                             .as_bytes(config, project_config, &mut printer, schema);
-                    config.artifact_writer.write_if_changed(path, content)?;
+                    if config.artifact_writer.should_write(&path, &content)? {
+                        config.artifact_writer.write(path, content)?;
+                    }
                 }
                 Ok(())
             })?;
@@ -288,7 +290,9 @@ pub async fn commit_project(
                         artifact
                             .content
                             .as_bytes(config, project_config, &mut printer, schema);
-                    config.artifact_writer.write_if_changed(path, content)?;
+                    if config.artifact_writer.should_write(&path, &content)? {
+                        config.artifact_writer.write(path, content)?;
+                    }
                     current_paths_map.insert(artifact);
                 }
                 Ok(())

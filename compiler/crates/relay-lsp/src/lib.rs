@@ -10,6 +10,7 @@
 mod client;
 mod code_action;
 mod completion;
+mod extension_config;
 mod goto_definition;
 mod hover;
 mod location;
@@ -24,6 +25,7 @@ mod shutdown;
 mod status_reporting;
 mod text_documents;
 mod utils;
+pub use crate::extension_config::ExtensionConfig;
 pub use crate::server::LSPExtraDataProvider;
 use common::PerfLogger;
 use log::debug;
@@ -37,6 +39,7 @@ extern crate assert_matches;
 
 pub async fn start_language_server<TPerfLogger>(
     config: Config,
+    extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
 ) -> LSPProcessResult<()>
@@ -47,7 +50,15 @@ where
     debug!("Initialized stdio transport layer");
     let params = server::initialize(&connection)?;
     debug!("JSON-RPC handshake completed");
-    server::run(connection, config, params, perf_logger, extra_data_provider).await?;
+    server::run(
+        connection,
+        config,
+        extension_config,
+        params,
+        perf_logger,
+        extra_data_provider,
+    )
+    .await?;
     io_handles.join()?;
     Ok(())
 }

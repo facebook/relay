@@ -52,6 +52,12 @@ class Footer extends React.Component {
             <a href="https://opensource.facebook.com/legal/privacy">
               Privacy Policy
             </a>
+            <a href="https://opensource.facebook.com/legal/data-policy/">
+              Data Policy
+            </a>
+            <a href="https://opensource.facebook.com/legal/cookie-policy/">
+              Cookie Policy
+            </a>
           </div>
         </section>
 

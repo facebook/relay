@@ -38,7 +38,7 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
-use log::info;
+use log::{debug, info};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
@@ -98,7 +98,8 @@ fn build_programs(
         Program::from_definitions(schema, ir)
     });
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 
@@ -154,7 +155,8 @@ pub fn build_project(
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
         })?;
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 
@@ -169,7 +171,8 @@ pub fn build_project(
         Arc::clone(&perf_logger),
     )?;
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 

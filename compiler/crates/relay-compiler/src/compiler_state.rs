@@ -21,6 +21,7 @@ use rayon::prelude::*;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     fmt,
     fs::File,
@@ -192,6 +193,8 @@ pub struct CompilerState {
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
+    #[serde(skip)]
+    pub source_control_update_in_progress: Arc<AtomicBool>,
 }
 
 impl CompilerState {
@@ -215,6 +218,7 @@ impl CompilerState {
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
+            source_control_update_in_progress: Arc::new(AtomicBool::new(false)),
         };
 
         for (category, files) in categorized {
@@ -589,5 +593,16 @@ impl CompilerState {
             }
         };
         Ok(())
+    }
+
+    pub fn is_source_control_update_in_progress(&self) -> bool {
+        self.source_control_update_in_progress
+            .load(Ordering::Relaxed)
+    }
+
+    /// Over the course of the build, we may need to stop current progress
+    /// as there maybe incoming file change or source control update in progress
+    pub fn should_cancel_current_build(&self) -> bool {
+        self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
     }
 }

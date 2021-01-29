@@ -22,6 +22,13 @@ pub struct FileSource<'config> {
 }
 
 #[derive(Debug)]
+pub enum FileSourceSubscriptionNextChange {
+    Result(FileSourceResult),
+    SourceControlUpdate,
+    None,
+}
+
+#[derive(Debug)]
 pub struct FileSourceResult {
     pub files: Vec<WatchmanFile>,
     pub resolved_root: ResolvedRoot,
@@ -152,6 +159,7 @@ impl<'config> FileSource<'config> {
                 SubscribeRequest {
                     expression: Some(expression),
                     since: Some(file_source_result.clock.clone()),
+                    defer: vec!["hg.update", "hg.transaction"],
                     ..Default::default()
                 },
             )
@@ -282,18 +290,26 @@ pub struct FileSourceSubscription {
 impl FileSourceSubscription {
     /// Awaits changes from Watchman and provides the next set of changes
     /// if there were any changes to files
-    pub async fn next_change(&mut self) -> Result<Option<FileSourceResult>> {
-        let update = self.subscription.next().await?;
-        if let SubscriptionData::FilesChanged(changes) = update {
-            if let Some(files) = changes.files {
-                return Ok(Some(FileSourceResult {
-                    files,
-                    resolved_root: self.resolved_root.clone(),
-                    clock: changes.clock,
-                    saved_state_info: None,
-                }));
+    pub async fn next_change(&mut self) -> Result<FileSourceSubscriptionNextChange> {
+        match self.subscription.next().await? {
+            SubscriptionData::FilesChanged(changes) => {
+                if let Some(files) = changes.files {
+                    return Ok(FileSourceSubscriptionNextChange::Result(FileSourceResult {
+                        files,
+                        resolved_root: self.resolved_root.clone(),
+                        clock: changes.clock,
+                        saved_state_info: None,
+                    }));
+                }
             }
+            SubscriptionData::StateEnter { state_name, .. } => {
+                if state_name == "hg.update" || state_name == "hg.transition" {
+                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdate);
+                }
+            }
+            SubscriptionData::StateLeave { .. } => {}
+            SubscriptionData::Canceled => {}
         }
-        Ok(None)
+        Ok(FileSourceSubscriptionNextChange::None)
     }
 }

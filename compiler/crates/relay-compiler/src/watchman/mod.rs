@@ -17,6 +17,8 @@ pub use self::extract_graphql::{
 };
 pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
-pub use file_source::{FileSource, FileSourceResult, FileSourceSubscription};
+pub use file_source::{
+    FileSource, FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
+};
 pub use watchman_client::prelude::Clock;
 pub use watchman_file::{read_to_string, WatchmanFile};

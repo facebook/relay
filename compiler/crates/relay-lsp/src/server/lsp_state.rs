@@ -18,7 +18,7 @@ use interner::StringKey;
 use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{
     compiler::Compiler, compiler_state::CompilerState, config::Config, FileCategorizer, FileSource,
-    FileSourceSubscription,
+    FileSourceSubscription, FileSourceSubscriptionNextChange,
 };
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
@@ -161,7 +161,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         tokio::spawn(async move {
             loop {
-                if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
+                if let Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) =
+                    subscription.next_change().await
+                {
                     let log_event = perf_logger.create_event("lsp_state_watchman_event");
                     let log_time = log_event.start("lsp_state_watchman_event_time");
 

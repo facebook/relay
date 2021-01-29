@@ -33,5 +33,5 @@ pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;
 pub use watchman::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
-    FileSourceSubscription, FsSourceReader, SourceReader,
+    FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader, SourceReader,
 };

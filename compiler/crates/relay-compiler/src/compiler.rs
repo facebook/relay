@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
@@ -17,13 +16,17 @@ use crate::{
     },
     errors::BuildProjectError,
 };
+use crate::{
+    compiler_state::{ArtifactMapKind, CompilerState, ProjectName},
+    watchman::FileSourceSubscriptionNextChange,
+};
 use common::{Diagnostic, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
 use graphql_ir::Program;
-use log::info;
+use log::{debug, error, info};
 use rayon::prelude::*;
 use schema::SDLSchema;
-use std::{collections::HashMap, collections::HashSet, sync::Arc};
+use std::{collections::HashMap, collections::HashSet, sync::atomic::Ordering, sync::Arc};
 use tokio::{sync::Notify, task};
 
 pub struct Compiler<TPerfLogger>
@@ -168,16 +171,29 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         info!("Waiting for changes...");
 
         let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
+        let source_control_update_in_progress =
+            compiler_state.source_control_update_in_progress.clone();
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
         task::spawn(async move {
             loop {
-                if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
-                    pending_file_source_changes
-                        .write()
-                        .unwrap()
-                        .push(file_source_changes);
-                    notify_sender.notify_one();
+                let next_change = subscription.next_change().await;
+                match next_change {
+                    Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
+                        source_control_update_in_progress.store(false, Ordering::Relaxed);
+                        pending_file_source_changes
+                            .write()
+                            .unwrap()
+                            .push(file_source_changes);
+                        notify_sender.notify_one();
+                    }
+                    Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
+                        source_control_update_in_progress.store(true, Ordering::Relaxed);
+                    }
+                    Ok(FileSourceSubscriptionNextChange::None) => {}
+                    Err(err) => {
+                        error!("Watchman subscription error: {}", err);
+                    }
                 }
             }
         });
@@ -187,7 +203,9 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             // Single change to file sometimes produces 2 watchman change events for the same file
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
-            if compiler_state.has_pending_file_source_changes() {
+            if compiler_state.has_pending_file_source_changes()
+                && !compiler_state.is_source_control_update_in_progress()
+            {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
@@ -276,7 +294,8 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         )
     })?;
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(Error::Cancelled);
     }
 
@@ -315,6 +334,11 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     }
 
     if errors.is_empty() {
+        if compiler_state.should_cancel_current_build() {
+            debug!("Build is cancelled: updates in source code/or new file changes are pending.");
+            return Err(Error::Cancelled);
+        }
+
         let mut handles = Vec::new();
         for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);

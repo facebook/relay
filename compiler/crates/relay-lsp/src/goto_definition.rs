@@ -47,7 +47,11 @@ fn get_goto_definition_response<'a>(
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => {
-            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+            if let Some(source_program) = source_programs
+                .read()
+                .expect("get_goto_definition_response: expect to acquire a read lock on programs")
+                .get(&project_name)
+            {
                 let fragment = source_program
                     .fragment(fragment_name.value)
                     .ok_or_else(|| {
@@ -134,7 +138,9 @@ fn resolve_field<'a>(
     // https://github.com/rust-lang/rust-clippy/issues/3971
     #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    let programs = source_programs.read().unwrap();
+    let programs = source_programs
+        .read()
+        .expect("get_goto_definition_response: expect to acquire a read lock on programs");
     let source_program = programs.get(&project_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
     })?;

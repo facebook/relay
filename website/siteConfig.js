@@ -190,6 +190,7 @@ const siteConfig = {
   ],
   footerIcon: 'img/relay.svg',
   favicon: 'img/favicon.png',
+  gaTrackingId: 'UA-44373548-50',
   twitterImage: 'img/relay.png',
   ogImage: 'img/relay.png',
   colors: {

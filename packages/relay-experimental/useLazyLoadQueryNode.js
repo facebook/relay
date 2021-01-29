@@ -52,7 +52,9 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
 
+  const [, forceUpdate] = useState(0);
   const {startFetch, completeFetch} = useFetchTrackingRef();
+  const cacheBreaker = String(fetchKey ?? '');
 
   const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {
     return QueryResource.prepare(
@@ -61,39 +63,40 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
       fetchPolicy,
       renderPolicy,
       {start: startFetch, complete: completeFetch, error: completeFetch},
-      fetchKey,
+      cacheBreaker,
       profilerContext,
     );
   });
 
-  let _forceUpdate;
-  let _maybeFastRefresh;
-  if (__DEV__) {
-    /* eslint-disable react-hooks/rules-of-hooks */
-    [, _forceUpdate] = useState(0);
-    _maybeFastRefresh = useRef(false);
-    useEffect(() => {
-      return () => {
-        // Detect fast refresh, only runs multiple times in fast refresh
-        _maybeFastRefresh.current = true;
-      };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-    /* eslint-enable react-hooks/rules-of-hooks */
-  }
+  const maybeHiddenOrFastRefresh = useRef(false);
+  useEffect(() => {
+    return () => {
+      // Attempt to detect if the component was
+      // hidden (by Offscreen API), or fast refresh occured;
+      // Only in these situations would the effect cleanup
+      // for "unmounting" run multiple times, so if
+      // we are ever able to read this ref with a value
+      // of true, it means that one of these cases
+      // has happened.
+      maybeHiddenOrFastRefresh.current = true;
+    };
+  }, []);
 
   useEffect(() => {
-    if (__DEV__) {
-      if (_maybeFastRefresh && _maybeFastRefresh.current) {
-        /**
-         * This block only runs during fast refresh, as the current resource and
-         * its cache are disposed in the previous cleanup. Stop retaining and
-         * force a re-render to restart fetchObservable and retain correctly.
-         */
-        _maybeFastRefresh.current = false;
-        _forceUpdate && _forceUpdate(n => n + 1);
-        return;
-      }
+    if (maybeHiddenOrFastRefresh.current === true) {
+      // This block only runs if the component has previously "unmounted"
+      // due to it being hidden by the Offscreen API, or during fast refresh.
+      // At this point, the current cached resource will have been disposed
+      // by the previous cleanup, so instead of attempting to
+      // do our regular commit setup, which would incorrectly attempt to
+      // retain a cached query resource that was disposed, we need to force
+      // a re-render so that the cache entry for this query is re-intiliazed and
+      // and re-evaluated (and potentially cause a refetch).
+      maybeHiddenOrFastRefresh.current = false;
+      forceUpdate(n => n + 1);
+      return;
     }
+
     const disposable = QueryResource.retain(
       preparedQueryResult,
       profilerContext,

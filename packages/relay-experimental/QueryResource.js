@@ -257,7 +257,7 @@ class QueryResourceImpl {
     maybeFetchPolicy: ?FetchPolicy,
     maybeRenderPolicy: ?RenderPolicy,
     observer: ?Observer<Snapshot>,
-    cacheKeyBuster: ?string | ?number,
+    cacheBreaker: ?string | ?number,
     profilerContext: mixed,
   ): QueryResult {
     const environment = this._environment;
@@ -265,8 +265,8 @@ class QueryResourceImpl {
     const renderPolicy =
       maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
     let cacheKey = getQueryCacheKey(operation, fetchPolicy, renderPolicy);
-    if (cacheKeyBuster != null) {
-      cacheKey += `-${cacheKeyBuster}`;
+    if (cacheBreaker != null) {
+      cacheKey += `-${cacheBreaker}`;
     }
 
     // 1. Check if there's a cached value for this operation, and reuse it if

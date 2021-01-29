@@ -53,7 +53,7 @@ function expectToHaveFetched(environment, query, cacheConfig) {
   ).toEqual(true);
 }
 
-describe('useLazyLoadQueryNode', () => {
+describe('useLazyLoadQueryNode-fast-refresh', () => {
   let environment;
   let gqlQuery;
   let renderFn;
@@ -126,7 +126,6 @@ describe('useLazyLoadQueryNode', () => {
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
-    expect(environment.execute).toBeCalledTimes(1);
     ReactTestRenderer.act(() =>
       environment.mock.resolve(gqlQuery, {
         data: {

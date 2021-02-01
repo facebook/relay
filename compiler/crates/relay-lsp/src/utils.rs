@@ -56,7 +56,7 @@ fn get_graphql_source_from_text_document_position<'a>(
 }
 
 pub fn extract_executable_definitions_from_text(
-    text_document_position: TextDocumentPositionParams,
+    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
 ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
     let graphql_sources = get_all_graphql_sources_from_text_document(

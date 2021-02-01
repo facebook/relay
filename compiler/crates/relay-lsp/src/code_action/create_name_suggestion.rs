@@ -12,14 +12,13 @@ use std::{collections::HashSet, fmt};
 
 #[derive(Clone, Copy, Debug)]
 pub enum DefinitionNameSuffix {
-    Fragment,
     Query,
     Mutation,
     Subscription,
 }
 
-impl From<OperationKind> for DefinitionNameSuffix {
-    fn from(kind: OperationKind) -> Self {
+impl From<&OperationKind> for DefinitionNameSuffix {
+    fn from(kind: &OperationKind) -> Self {
         match kind {
             OperationKind::Query => DefinitionNameSuffix::Query,
             OperationKind::Subscription => DefinitionNameSuffix::Subscription,

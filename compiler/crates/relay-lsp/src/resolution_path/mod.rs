@@ -36,7 +36,7 @@ pub mod utils;
 /// parent in multiple different fields. For example, an `Identifier` might
 /// appear as either the name _or_ the alias of a `ScalarField`. In this case
 /// the `IdentParent` enum should include two variants for `ScalarField`, one
-/// for name and one for alais. This allows consumers to undersand exactly where
+/// for name and one for alias. This allows consumers to understand exactly where
 /// the AST this `Identifier` appears.
 ///
 /// ## Implementation Details
@@ -58,13 +58,13 @@ pub mod utils;
 /// assume that _it itself_ is the leaf node and return its own variant of
 /// `ResolutionPath`.
 ///
-/// This approach is not ideal becase there is an implicit (not enforced by the
+/// This approach is not ideal because there is an implicit (not enforced by the
 /// compiler) contract that each parent node must check the result of
 /// `.contains()` on a child before calling that child's `.resolve()` method.
 /// Ideally `.resolve()` could return an `Option`, however calling `.resolve()`
 /// moves the parent into child's method which means we need to convince the
 /// compiler that we are only ever going to return the result of one child's
-/// `.resolve()`. This pattern of `.contains()` followed by uncontionally
+/// `.resolve()`. This pattern of `.contains()` followed by unconditionally
 /// returning the result of the child's `.resolve()` allows us to prove this to
 /// the compiler.
 

@@ -254,7 +254,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn resolve_executable_definitions(
         &self,
-        params: TextDocumentPositionParams,
+        params: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
         extract_executable_definitions_from_text(params, &self.synced_graphql_documents)
     }

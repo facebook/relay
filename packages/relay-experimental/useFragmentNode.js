@@ -45,7 +45,6 @@ function useFragmentNode<TFragmentData: mixed>(
   // under their respective conditions. This allows us to use the counters as
   // memoization values to indicate if computations for useMemo or useEffect
   // should be re-executed.
-  const mustResubscribeGenerationRef = useRef(0);
   const shouldUpdateGenerationRef = useRef(0);
 
   const environmentChanged = useHasChanged(environment);
@@ -54,7 +53,7 @@ function useFragmentNode<TFragmentData: mixed>(
   // If the fragment identifier changes, it means that the variables on the
   // fragment owner changed, or the fragment ref points to different records.
   // In this case, we need to resubscribe to the Relay store.
-  const mustResubscribe = environmentChanged || fragmentIdentifierChanged;
+  const shouldUpdate = environmentChanged || fragmentIdentifierChanged;
 
   // We only want to update the component consuming this fragment under the
   // following circumstances:
@@ -69,10 +68,8 @@ function useFragmentNode<TFragmentData: mixed>(
   // with the same props, which is a common case when the parent updates due
   // to change in the data /it/ is subscribed to, but which doesn't affect the
   // child.
-
-  if (mustResubscribe) {
+  if (shouldUpdate) {
     shouldUpdateGenerationRef.current++;
-    mustResubscribeGenerationRef.current++;
   }
 
   // Read fragment data; this might suspend.
@@ -133,10 +130,10 @@ function useFragmentNode<TFragmentData: mixed>(
       isMountedRef.current = false;
       disposable.dispose();
     };
-    // NOTE: We disable react-hooks-deps warning because mustResubscribeGenerationRef
+    // NOTE: We disable react-hooks-deps warning because environment and fragmentIdentifier
     // is capturing all information about whether the effect should be re-ran.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mustResubscribeGenerationRef.current]);
+  }, [environment, fragmentIdentifier]);
 
   if (__DEV__) {
     if (

@@ -217,7 +217,7 @@ const siteConfig = {
   enableUpdateTime: true,
   enableUpdateBy: true,
   docsSideNavCollapsible: true,
-  scripts: ['/js/redirect.js'],
+  scripts: ['/js/redirect.js', '/js/docsRating.js'],
   onPageNav: 'separate',
 };
 

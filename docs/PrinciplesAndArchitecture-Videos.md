@@ -24,3 +24,23 @@ title: Videos
 
 <iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/ww5UQ50oHok" frameborder="0" allowfullscreen></iframe>
 
+## [Hasura relay sketch](https://hasura.io/)
+
+### Deep dive on Relay GraphQL client for React
+
+<iframe width="640" height="360" src="https://www.youtube.com/embed/xnvzz7Z658I" frameborder="0" allowfullscreen></iframe>
+
+## [Facebook F8 2019](https://developers.facebook.com/)
+
+### Building the New Facebook.com with React, GraphQL and Relay
+
+<iframe width="640" height="360" src="https://www.youtube.com/embed/WxPtYJRjLL0" frameborder="0" allowfullscreen></iframe>
+
+## [GraphQLConf 2019](https://www.prisma.io/)
+
+### GraphQL before GraphQL — Dan Schafer
+
+<iframe width="640" height="360" src="https://www.youtube.com/embed/gb1R-fWP1Yw" frameborder="0" allowfullscreen></iframe>
+
+
+

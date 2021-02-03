@@ -1444,27 +1444,6 @@ describe('RelayObservable', () => {
       expect(list).toEqual(['error', error]);
     });
 
-    it('Converts an AsyncGenerator to an Observable', done => {
-      const value = {key: 'value'};
-
-      async function* generate() {
-        yield value;
-      }
-
-      // Something else will "run" this before, like the fetchFn
-      const result = generate();
-      const obs = RelayObservable.from(result);
-
-      expect.assertions(1);
-      obs.subscribe({
-        next: val => {
-          expect(val).toEqual(value);
-        },
-        error: err => done(err),
-        complete: () => done(),
-      });
-    });
-
     it('Error in next handler is unhandled', async () => {
       const list = [];
       const error = new Error();
@@ -1570,6 +1549,73 @@ describe('RelayObservable', () => {
       });
 
       expect(list).toEqual(['next', error, 'complete']);
+    });
+
+    describe('isAsyncIterator', () => {
+      it('Converts an AsyncGenerator to an Observable', done => {
+        const value = {key: 'value'};
+  
+        async function* generate() {
+          yield value;
+        }
+  
+        // Something else will "run" this before, like the fetchFn
+        const result = generate();
+        const obs = RelayObservable.from(result);
+  
+        expect.assertions(1);
+        obs.subscribe({
+          next: val => {
+            expect(val).toEqual(value);
+          },
+          error: err => done(err),
+          complete: () => done(),
+        });
+      });
+
+      it('Cleans up when unsubscribed', async done => {
+        const values = [{key: 'a'}, {key: 'b'}];
+        const calls = [];
+        const final_call = jest.fn();
+        let resolve; let reject;
+
+        
+let promise = new Promise((rs, rj) => {
+          resolve = rs;
+          reject = rj;
+        });
+
+        async function* generate() {
+          for (const item of values) {
+            calls.push(item);
+            yield item;
+          }
+          final_call();
+        }
+
+        const result = generate();
+        const obs = RelayObservable.from(result);
+
+        expect.assertions(3);
+
+        const sub = obs.subscribe({
+          next: val => {
+            expect(val).toEqual({key: 'a'});
+            sub.unsubscribe();
+            // Seeing as there is no "trigger" for when an observable was unsubbed we resolve a promise here. 
+            resolve();
+          },
+          error: err => done(err),
+        });
+
+        await promise;
+
+        expect(calls).toEqual([{key: 'a'}]);
+        // This test works because if the generator ran through completion then final_call would have been called.
+        expect(final_call).toBeCalledTimes(0);
+
+        done();
+      });
     });
   });
 

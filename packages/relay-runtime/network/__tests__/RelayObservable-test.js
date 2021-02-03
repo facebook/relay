@@ -1577,10 +1577,9 @@ describe('RelayObservable', () => {
         const values = [{key: 'a'}, {key: 'b'}];
         const calls = [];
         const final_call = jest.fn();
-        let resolve; let reject;
 
-        
-let promise = new Promise((rs, rj) => {
+        let resolve; let reject;
+        let promise = new Promise((rs, rj) => {
           resolve = rs;
           reject = rj;
         });

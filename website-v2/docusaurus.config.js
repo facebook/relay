@@ -15,7 +15,7 @@ module.exports = {
   url: 'https://relay.dev',
   baseUrl: '/',
   projectName: 'relay',
-  scripts: ['/js/redirect.js', '/js/docsRating.js'],
+  scripts: ['/js/redirect.js'],
   favicon: 'img/favicon.png',
   customFields: {
     users: [

@@ -336,7 +336,49 @@ module.exports = {
     },
     image: 'img/relay.png',
     footer: {
-      links: [],
+      links: [
+        {
+          title: 'Docs',
+          items: [
+            {
+              label: 'Introduction',
+              href: '/docs',
+              target: '_self',
+            },
+          ],
+        },
+        {
+          title: 'Community',
+          items: [
+            {
+              label: 'User Showcase',
+              href: '/users',
+              target: '_self',
+            },
+          ],
+        },
+        {
+          title: 'Legal',
+          items: [
+            {
+              label: 'Privacy',
+              href: 'https://opensource.facebook.com/legal/privacy/',
+            },
+            {
+              label: 'Terms',
+              href: 'https://opensource.facebook.com/legal/terms/',
+            },
+            {
+              label: 'Data Policy',
+              href: 'https://opensource.facebook.com/legal/data-policy/',
+            },
+            {
+              label: 'Cookie Policy',
+              href: 'https://opensource.facebook.com/legal/cookie-policy/',
+            },
+          ],
+        },
+      ],
       logo: {
         src: 'img/relay.svg',
       },

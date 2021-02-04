@@ -38,7 +38,7 @@ Now let's take a closer look at the `config`:
     the server, with the raw GraphQL response payload.
 -   `updater`: an optional function that can supply custom logic for updating the
     in-memory Relay store based on the server response.
--   `configs`: an array containing the updater configurations. It is the same as [`configs`](https://facebook.github.io/relay/docs/mutations.html#configs) in `commitMutation`.
+-   `configs`: an array containing the updater configurations. It is the same as [`configs`](./mutations#configs) in `commitMutation`.
 
 ## Example
 

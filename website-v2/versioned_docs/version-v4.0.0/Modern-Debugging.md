@@ -11,7 +11,7 @@ If you're new to Relay, we provide some basic debugging strategies that should s
 
 **A few questions to ask yourself:**
 
--   _Is my [compilation](https://facebook.github.io/relay/docs/en/installation-and-setup.html#set-up-relay-compiler) up-to-date?_
+-   _Is my [compilation](./installation-and-setup#set-up-relay-compiler) up-to-date?_
 -   _Is my query valid?_ You can test this on your GraphiQL endpoint.
 
 **If so:**

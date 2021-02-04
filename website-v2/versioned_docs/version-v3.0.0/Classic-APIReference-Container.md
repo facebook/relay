@@ -621,7 +621,7 @@ Relay.createContainer(Child, {
 
 ```
 
-In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be [_masked_](http://facebook.github.io/relay/docs/thinking-in-relay.html#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `photo(size: 64)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {size: 64}`.
+In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be [_masked_](./thinking-in-relay#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `photo(size: 64)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {size: 64}`.
 
 #### Overriding Fragment Variables
 

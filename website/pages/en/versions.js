@@ -9,9 +9,8 @@
 
 'use strict';
 
-const CompLibrary = require('../../core/CompLibrary');
+const Container = require(process.cwd() + '/core/AltContainer');
 const React = require('react');
-const Container = CompLibrary.Container;
 
 const CWD = process.cwd();
 

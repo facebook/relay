@@ -10,8 +10,8 @@
 const CompLibrary = require('../../core/CompLibrary.js');
 const React = require('react');
 const Code = require(process.cwd() + '/core/Code.js');
-const Container = CompLibrary.Container;
 const GridBlock = CompLibrary.GridBlock;
+const Container = require(process.cwd() + '/core/AltContainer');
 
 const siteConfig = require(process.cwd() + '/siteConfig.js');
 

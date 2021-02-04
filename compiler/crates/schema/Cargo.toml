@@ -19,9 +19,9 @@ common = { path = "../common" }
 graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
 flatbuffers = "0.6"
+fnv = "1.0"
 thiserror = "1.0"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
-schema-print = { path = "../schema-print" }

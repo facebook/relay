@@ -6,6 +6,7 @@
  */
 
 mod graphqlschema_generated;
+mod serialize;
 
 use crate::definitions::{Argument, Directive, *};
 use common::Span;
@@ -17,6 +18,7 @@ use graphql_syntax::{
 pub use graphqlschema_generated::graphqlschema;
 use graphqlschema_generated::graphqlschema::*;
 use interner::{Intern, StringKey};
+pub use serialize::serialize_as_fb;
 use std::convert::TryInto;
 
 #[derive(Debug)]

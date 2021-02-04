@@ -8,10 +8,15 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
+use super::graphqlschema_generated::graphqlschema::*;
+use crate::{
+    sdl::SDLSchema, Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue,
+    EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID, Schema, Type,
+    TypeReference, UnionID,
+};
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
-use graphql_syntax::{ConstantArgument, ConstantValue, List};
-use schema::*;
+use graphql_syntax::{ConstantArgument, ConstantValue, DirectiveLocation, List};
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 

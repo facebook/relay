@@ -24,13 +24,14 @@ pub use definitions::{
     ObjectID, Scalar, ScalarID, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
-pub use flatbuffer::graphqlschema::*;
 use flatbuffer::FlatBufferSchema;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
 pub use sdl::SDLSchema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
+
+pub use flatbuffer::serialize_as_fb;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[sdl], &[])

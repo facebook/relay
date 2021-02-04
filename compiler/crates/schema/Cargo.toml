@@ -10,16 +10,15 @@ include = ["src/**/*.graphql", "src/**/*.rs", "tests/**/*.rs", "tests/**/fixture
 [lib]
 path = "src/lib.rs"
 
-[[test]]
-name = "schema_test"
-path = "tests/build_schema_test.rs"
-
 [dependencies]
 common = { path = "../common" }
 graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
 flatbuffers = "0.6"
 thiserror = "1.0"
+ouroboros = "0.8.0"
+dashmap = "4.0.2"
+fnv = "1.0.7"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

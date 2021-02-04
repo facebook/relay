@@ -12,7 +12,7 @@ fragment TestFragment on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(6),
             directives: [],
             selections: [
                 ScalarField {
@@ -20,7 +20,7 @@ fragment TestFragment on User {
                     definition: WithLocation {
                         location: simple-fragment.graphql:34:36,
                         item: FieldID(
-                            460,
+                            339,
                         ),
                     },
                     arguments: [],

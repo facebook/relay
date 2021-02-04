@@ -14,7 +14,7 @@ query Test {
                 location: fixme_fat_interface_on_union.graphql:6:10,
                 item: "Test",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [],
             directives: [],
             selections: [
@@ -23,7 +23,7 @@ query Test {
                     definition: WithLocation {
                         location: fixme_fat_interface_on_union.graphql:35:44,
                         item: FieldID(
-                            5,
+                            490,
                         ),
                     },
                     arguments: [],
@@ -34,7 +34,7 @@ query Test {
                             definition: WithLocation {
                                 location: fixme_fat_interface_on_union.graphql:51:53,
                                 item: FieldID(
-                                    380,
+                                    268,
                                 ),
                             },
                             arguments: [],

@@ -27,14 +27,14 @@ fragment Foo on User {
                     },
                     type_: NonNull(
                         Named(
-                            Scalar(3),
+                            Scalar(1),
                         ),
                     ),
                     default_value: None,
                     directives: [],
                 },
             ],
-            type_condition: Object(67),
+            type_condition: Object(6),
             directives: [],
             selections: [
                 Condition {
@@ -44,7 +44,7 @@ fragment Foo on User {
                             definition: WithLocation {
                                 location: directive-include.graphql:34:36,
                                 item: FieldID(
-                                    460,
+                                    339,
                                 ),
                             },
                             arguments: [],
@@ -59,7 +59,7 @@ fragment Foo on User {
                             },
                             type_: NonNull(
                                 Named(
-                                    Scalar(3),
+                                    Scalar(1),
                                 ),
                             ),
                         },
@@ -70,7 +70,7 @@ fragment Foo on User {
                     selections: [
                         InlineFragment {
                             type_condition: Some(
-                                Object(67),
+                                Object(6),
                             ),
                             directives: [],
                             selections: [
@@ -79,7 +79,7 @@ fragment Foo on User {
                                     definition: WithLocation {
                                         location: directive-include.graphql:97:106,
                                         item: FieldID(
-                                            457,
+                                            336,
                                         ),
                                     },
                                     arguments: [],
@@ -96,7 +96,7 @@ fragment Foo on User {
                             },
                             type_: NonNull(
                                 Named(
-                                    Scalar(3),
+                                    Scalar(1),
                                 ),
                             ),
                         },
@@ -122,7 +122,7 @@ fragment Foo on User {
                             },
                             type_: NonNull(
                                 Named(
-                                    Scalar(3),
+                                    Scalar(1),
                                 ),
                             ),
                         },
@@ -140,7 +140,7 @@ fragment Foo on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(6),
             directives: [],
             selections: [
                 ScalarField {
@@ -148,7 +148,7 @@ fragment Foo on User {
                     definition: WithLocation {
                         location: directive-include.graphql:168:170,
                         item: FieldID(
-                            460,
+                            339,
                         ),
                     },
                     arguments: [],

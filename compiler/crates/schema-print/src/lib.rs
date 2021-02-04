@@ -9,8 +9,6 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod print_fb_schema;
 mod print_schema;
 
-pub use print_fb_schema::*;
 pub use print_schema::*;

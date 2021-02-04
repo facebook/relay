@@ -13,7 +13,7 @@ query NullValuesQuery {
                 location: null-values.graphql:6:21,
                 item: "NullValuesQuery",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [],
             directives: [],
             selections: [
@@ -22,7 +22,7 @@ query NullValuesQuery {
                     definition: WithLocation {
                         location: null-values.graphql:26:31,
                         item: FieldID(
-                            3,
+                            488,
                         ),
                     },
                     arguments: [
@@ -59,7 +59,7 @@ query NullValuesQuery {
                             definition: WithLocation {
                                 location: null-values.graphql:60:64,
                                 item: FieldID(
-                                    492,
+                                    455,
                                 ),
                             },
                             arguments: [],

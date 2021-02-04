@@ -15,7 +15,7 @@ query LiteralListArgumentQuery {
                 location: literal-list-argument.graphql:6:30,
                 item: "LiteralListArgumentQuery",
             },
-            type_: Object(0),
+            type_: Object(68),
             variable_definitions: [],
             directives: [],
             selections: [
@@ -24,7 +24,7 @@ query LiteralListArgumentQuery {
                     definition: WithLocation {
                         location: literal-list-argument.graphql:35:40,
                         item: FieldID(
-                            2,
+                            487,
                         ),
                     },
                     arguments: [
@@ -79,7 +79,7 @@ query LiteralListArgumentQuery {
                             definition: WithLocation {
                                 location: literal-list-argument.graphql:86:91,
                                 item: FieldID(
-                                    30,
+                                    486,
                                 ),
                             },
                             arguments: [],
@@ -90,7 +90,7 @@ query LiteralListArgumentQuery {
                                     definition: WithLocation {
                                         location: literal-list-argument.graphql:100:104,
                                         item: FieldID(
-                                            33,
+                                            485,
                                         ),
                                     },
                                     arguments: [],

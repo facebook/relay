@@ -100,7 +100,7 @@ Given the plain React component and a GraphQL fragment, we can now define a Frag
 // TodoItem.js
 import {createFragmentContainer, graphql} from 'react-relay';
 
-class TodoItem extends React.Component {/* as above */}
+class TodoItem extends React.Component // as above
 
 // Export a *new* React component that wraps the original `<TodoItem>`.
 export default createFragmentContainer(TodoItem, {
@@ -167,9 +167,9 @@ class TodoList extends React.Component {
     // Expects a `list` with a string `title`, as well as the information
     // for the `<TodoItem>`s (we'll get that next).
     const list = this.props.list;
+    // It works just like a React component, because it is one!
     return (
       <View>
-        {/* It works just like a React component, because it is one! */}
         <Text>{list.title}</Text>
         {list.todoItems.map(item => <TodoItem item={item} />)}
       </View>
@@ -183,7 +183,7 @@ class TodoList extends React.Component {
 Fragment composition works similarly &mdash; a parent container's fragment composes the fragment for each of its children. In this case, `<TodoList />` needs to fetch information about the `Todo`s that are required by `<TodoItem />`.
 
 ```javascript
-class TodoList extends React.Component {/* as above */}
+class TodoList extends React.Component // as above
 
 export default createFragmentContainer(
   TodoList,

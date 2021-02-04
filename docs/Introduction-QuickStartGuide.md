@@ -347,7 +347,7 @@ class TodoList extends React.Component<Props> {
           {todos.edges.map(edge =>
             <Todo
               key={edge.node.id}
-              {/*We pass the data required by Todo here*/}
+              // We pass the data required by Todo here
               todo={edge.node}
             />
           )}

@@ -105,7 +105,7 @@ Now, let's see what it would take to create a component that fetches and renders
 import React from 'react';
 import {graphql, QueryRenderer} from 'react-relay';
 
-const environment = /* defined or imported above... */;
+const environment = // defined or imported above...
 
 export default class App extends React.Component {
   render() {
@@ -167,7 +167,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
 
-const environment = /* defined or imported above... */;
+const environment = // defined or imported above...
 
 type Props = {
   userID: string,
@@ -346,7 +346,7 @@ class TodoList extends React.Component<Props> {
           {todos.edges.map(edge =>
             <Todo
               key={edge.node.id}
-              {/*We pass the data required by Todo here*/}
+              // We pass the data required by Todo here
               todo={edge.node}
             />
           )}
@@ -398,7 +398,7 @@ import PropTypes from 'prop-types';
 import {graphql, QueryRenderer} from 'react-relay';
 import TodoList from './TodoList'
 
-const environment = /* defined or imported above... */;
+const environment = // defined or imported above...
 
 export default class ViewerTodoList extends React.Component {
   render() {

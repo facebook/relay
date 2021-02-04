@@ -342,6 +342,7 @@ function UserComponent(props: Props) {
     props.user,
   );
 
+  // Render child component by passing the _fragment reference_ to <UsernameSection>
   return (
     <>
       <h1>{user.name}</h1>
@@ -349,7 +350,6 @@ function UserComponent(props: Props) {
         <img src={user.profile_picture?.uri} />
         {user.age}
 
-        {/* Render child component, passing the _fragment reference_: */}
         <UsernameSection user={user}/>
       </div>
     </>
@@ -508,10 +508,10 @@ function App() {
     {id: '4'},
   );
 
+  // Render child component by passing the fragment reference to <UserComponent>:
   return (
     <>
       <h1>{data.user?.name}</h1>
-      {/* Render child component, passing the fragment reference: */}
       <UserComponent user={data.user} />
     </>
   );
@@ -786,7 +786,9 @@ function App() {
   return (
     // LoadingSpinner is rendered via the Suspense fallback
     <Suspense fallback={<LoadingSpinner />}>
-      <MainContent /> {/* MainContent may suspend */}
+      <MainContent
+        // MainContent may suspend
+      />
     </Suspense>
   );
 }
@@ -815,7 +817,9 @@ function App() {
     // A LoadingSpinner for *_all_* content is rendered via the Suspense fallback
     <Suspense fallback={<LoadingSpinner />}>
       <MainContent />
-      <SecondaryContent />  *{/* SecondaryContent can also suspend */}*
+      <SecondaryContent
+        // SecondaryContent can also suspend
+      />
     </Suspense>
   );
 }
@@ -843,13 +847,17 @@ const SecondaryContent = require('./SecondaryContent.react');
 function App() {
   return (
     <>
-      {/* Show a separate loading UI for the LeftHandColumn */}
-      <Suspense fallback={<LeftColumnPlaceholder />}>
+      <Suspense
+        // Show a separate loading UI for the LeftHandColumn
+        fallback={<LeftColumnPlaceholder />}
+      >
         <LeftColumn />
       </Suspense>
 
-      {/* Show a separate loading UI for both the Main and Secondary content */}
-      <Suspense fallback={<LoadingSpinner />}>
+      <Suspense
+        // Show a separate loading UI for both the Main and Secondary content
+        fallback={<LoadingSpinner />}
+      >
         <MainContent />
         <SecondaryContent />
       </Suspense>
@@ -1005,7 +1013,9 @@ function App() {
   return (
     // LoadingSpinner is rendered via the Suspense fallback
     <Suspense fallback={<LoadingSpinner />}>
-      <MainContent /> {/* MainContent may suspend */}
+      <MainContent
+        // MainContent may suspend
+      />
     </Suspense>
   );
 }
@@ -1129,9 +1139,11 @@ function App() {
       fallback={(error, retry) =>
         <>
           <ErrorUI error={error} />
-          {/* Render a button to retry; this will attempt to re-render the
-            content inside the boundary, i.e. the query component */}
-          <Button onClick={retry}>Retry</Button>
+          <Button
+            // Render a button to retry; this will attempt to re-render the
+            // content inside the boundary, i.e. the query component
+            onClick={retry}
+          >Retry</Button>
         </>
       }>
       <MainContent />
@@ -1535,11 +1547,11 @@ function App() {
     <>
       <h1>{data.user?.name}</h1>
 
-      {/*
-        Wrap the UserComponent in Suspense to allow other parts of the
-        App to be rendered even if the username is missing.
-    */}
-      <Suspense fallback={<LoadingSpinner label="Fetching username" />}>
+      <Suspense
+        // Wrap the UserComponent in Suspense to allow other parts of the
+        // App to be rendered even if the username is missing.
+        fallback={<LoadingSpinner label="Fetching username" />}
+      >
         <UsernameComponent user={data.user} />
       </Suspense>
     </>
@@ -1612,7 +1624,10 @@ const missingFieldHandlers = [
   },
 ];
 
-const environment = new Environment({/*...*/, missingFieldHandlers});
+const environment = new Environment({
+  // and other fields
+  missingFieldHandlers,
+});
 ```
 
 * `missingFieldHandlers` is an array of *handlers*. Each handler must specify a `handle` function, and the kind of missing fields it knows how to handle. The 2 main types of fields that you'd want to handle are:
@@ -2039,15 +2054,17 @@ function FriendsListComponent(props: Props) {
     <>
       <h1>Friends of {data.name}:</h1>
       <SuspenseList revealOrder="forwards">
-        {/* Extract each friend from the resulting data */}
-        {(data.friends?.edges ?? []).map(edge => {
-          const node = edge.node;
-          return (
-            <Suspense fallback={<Glimmer />}>
-              <FriendComponent user={node} />
-            </Suspense>
-          );
-        })}
+        {
+          // Extract each friend from the resulting data
+          (data.friends?.edges ?? []).map(edge => {
+            const node = edge.node;
+            return (
+              <Suspense fallback={<Glimmer />}>
+                <FriendComponent user={node} />
+              </Suspense>
+            );
+          })
+        }
       </SuspenseList>
     </>
   );
@@ -2190,17 +2207,18 @@ function FriendsListComponent(props: Props) {
         })}
       </SuspenseList>
 
-      {/* Only render button if there are more friends to load in the list */}
-      {hasNext ? (
-        <Button
-          onClick={() => {
-            startTransition(() => {
-              loadNext(10)
-            });
-          }}>
-          Load more friends
-        </Button>
-      ) : null}
+      {
+        // Only render button if there are more friends to load in the list
+        hasNext ? (
+          <Button
+            onClick={() => {
+              startTransition(() => {
+                loadNext(10)
+              });
+            }}>
+            Load more friends
+          </Button>
+        ) : null}
     </>
   );
 }
@@ -2285,12 +2303,14 @@ function FriendsListComponent(props: Props) {
         })}
       </SuspenseList>
 
-      {/* Render a Spinner next to the button immediately, while transition is pending */}
-      {isPending ? <Spinner /> : null}
+      {
+        // Render a Spinner next to the button immediately, while transition is pending
+        isPending ? <Spinner /> : null
+      }
 
       {hasNext ? (
         <Button
-          {/* Disbale the button immediately, while transition is pending */}
+          // Disable the button immediately, while transition is pending
           disabled={isPending}
           onClick={() => {
             startTransition(() => {
@@ -2475,8 +2495,8 @@ function FriendsListComponent(props: Props) {
     <>
       <h1>Friends of {data.name}:</h1>
 
-      {/* When the button is clicked, refetch the connection but sorted differently */}
       <Button
+        // When the button is clicked, refetch the connection but sorted differently
         onClick={() =>
           startTransition(() => {
             refetch({first: 10, orderBy: 'DATE_ADDED'});
@@ -2972,8 +2992,8 @@ function FriendsListComponent(props: Props) {
         </Button>
       ) : null}
 
-      {/* Forward pagination controls can go simultaneously here */}
     </>
+    // Forward pagination controls can also be included
   );
 }
 

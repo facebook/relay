@@ -63,7 +63,7 @@ Relay.QL`
 Given the plain React component and a GraphQL fragment, we can now define a `Container` to tell Relay about this component's data requirements. Let's look at the code first and then see what's happening:
 
 ```
-class ProfilePicture extends React.Component {/* as above */}
+class ProfilePicture extends React.Component // as above
 
 // Export a *new* React component that wraps the original `<ProfilePicture>`.
 module.exports = Relay.createContainer(ProfilePicture, {
@@ -161,7 +161,7 @@ class Profile extends React.Component {
     var user = this.props.user;
     return (
       <View>
-        {/* It works just like a React component, because it is one! */}
+        // It works just like a React component, because it is one!
         <ProfilePicture user={user} />
         <Text>{user.name}</Text>
       </View>
@@ -177,7 +177,7 @@ Fragment composition works similarly — a parent container's fragment composes 
 Relay containers provide a static `getFragment()` method that returns a reference to that component's fragment:
 
 ```{15}
-class Profile extends React.Component {/* as above */}
+class Profile extends React.Component // as above
 
 module.exports = Relay.createContainer(Profile, {
   fragments: {

@@ -237,12 +237,16 @@ A standard response is to "just use immutable data structures" — but let's see
 
 ```
 ImmutableMap {
-  1: ImmutableMap {/* same as before */}
+  1: ImmutableMap {
+    // same as before
+  }
   2: ImmutableMap {
     ... // other fields unchanged
     photo: 'http://.../photo2.jpg',
   },
-  3: ImmutableMap {/* same as before */}
+  3: ImmutableMap {
+    // same as before
+  }
 }
 ```
 

@@ -200,7 +200,7 @@ const siteConfig = {
     lightGrayColor: '#f7f7f7',
     darkGrayColor: '#959595',
   },
-  // See https://docusaurus.io/docs/search for more information about Aloglia
+  // See https://docusaurus.io/docs/search for more information about Algolia
   // search
   algolia: {
     apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

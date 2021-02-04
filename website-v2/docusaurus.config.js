@@ -9,6 +9,7 @@
 
 'use strict';
 
+const versions = require('./versions.json');
 const {fbContent} = require('internaldocs-fb-helpers');
 
 module.exports = {
@@ -199,6 +200,10 @@ module.exports = {
           editUrl: 'https://github.com/facebook/relay/edit/master/docs-2/',
           path: '../docs-2',
           sidebarPath: './sidebars.json',
+          lastVersion: fbContent({
+            internal: 'current',
+            external: versions[0],
+          }),
         },
         blog: {},
         theme: {

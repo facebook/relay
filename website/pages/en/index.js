@@ -547,8 +547,8 @@ export default createFragmentContainer(ArtistHeader, {
                       <p>
                         Relay requires a bit more up-front setup and tools, in
                         favour of supporting an architecture of isolated
-                        components which <a href="#">can scale</a> with your
-                        team and app complexity.
+                        components which can scale with your team and app
+                        complexity.
                       </p>
                       <p>
                         Learn these principles once, then spend more time

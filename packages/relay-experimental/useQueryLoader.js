@@ -105,52 +105,7 @@ function useQueryLoader<TQuery: OperationType>(
       undisposedQueryReferencesRef.current.add(initialNullQueryReferenceState);
       setQueryReference(initialNullQueryReferenceState);
     }
-  }, [setQueryReference, isMountedRef]);
-
-  useEffect(
-    function ensureQueryReferenceDisposal() {
-      // We are relying on the fact that sets iterate in insertion order, and we
-      // can remove items from a set as we iterate over it (i.e. no iterator
-      // invalidation issues.) Thus, it is safe to loop through
-      // undisposedQueryReferences until we find queryReference, and
-      // remove and dispose all previous references.
-      //
-      // We are guaranteed to find queryReference in the set, because if a
-      // state change results in a commit, no state changes initiated prior to that
-      // one will be committed, and we are disposing and removing references
-      // associated with commits that were initiated prior to the currently
-      // committing state change. (A useEffect callback is called during the commit
-      // phase.)
-      const undisposedQueryReferences = undisposedQueryReferencesRef.current;
-
-      if (isMountedRef.current) {
-        for (const undisposedQueryReference of undisposedQueryReferences) {
-          if (undisposedQueryReference === queryReference) {
-            break;
-          }
-
-          undisposedQueryReferences.delete(undisposedQueryReference);
-          if (undisposedQueryReference.kind !== 'NullQueryReference') {
-            undisposedQueryReference.dispose &&
-              undisposedQueryReference.dispose();
-          }
-        }
-      }
-    },
-    [queryReference, isMountedRef],
-  );
-
-  useEffect(() => {
-    return function disposeAllRemainingQueryReferences() {
-      // undisposedQueryReferences.current is never reassigned
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
-        if (unhandledStateChange.kind !== 'NullQueryReference') {
-          unhandledStateChange.dispose && unhandledStateChange.dispose();
-        }
-      }
-    };
-  }, []);
+  }, [isMountedRef]);
 
   const queryLoaderCallback = useCallback(
     (
@@ -170,6 +125,89 @@ function useQueryLoader<TQuery: OperationType>(
     },
     [environment, preloadableRequest, setQueryReference, isMountedRef],
   );
+
+  const maybeHiddenOrFastRefresh = useRef(false);
+  useEffect(() => {
+    return () => {
+      // Attempt to detect if the component was
+      // hidden (by Offscreen API), or fast refresh occured;
+      // Only in these situations would the effect cleanup
+      // for "unmounting" run multiple times, so if
+      // we are ever able to read this ref with a value
+      // of true, it means that one of these cases
+      // has happened.
+      maybeHiddenOrFastRefresh.current = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (maybeHiddenOrFastRefresh.current === true) {
+      // This block only runs if the component has previously "unmounted"
+      // due to it being hidden by the Offscreen API, or during fast refresh.
+      // At this point, the current queryReference will have been disposed
+      // by the previous cleanup, so instead of attempting to
+      // do our regular commit setup, which would incorrectly leave our
+      // current queryReference disposed, we need to load the query again
+      // and force a re-render by calling queryLoaderCallback again,
+      // so that the queryReference is correctly re-retained, and
+      // potentially refetched if necessary.
+      maybeHiddenOrFastRefresh.current = false;
+      if (queryReference.kind !== 'NullQueryReference') {
+        queryLoaderCallback(queryReference.variables, {
+          fetchPolicy: queryReference.fetchPolicy,
+          networkCacheConfig: queryReference.networkCacheConfig,
+        });
+      }
+      return;
+    }
+
+    // When a new queryReference is committed, we iterate over all
+    // query references in undisposedQueryReferences and dispose all of
+    // the refs that aren't the currently committed one. This ensures
+    // that we don't leave any dangling query references for the
+    // case that loadQuery is called multiple times before commit; when
+    // this happens, multiple state updates will be scheduled, but only one
+    // will commit, meaning that we need to keep track of and dispose any
+    // query references that don't end up committing.
+    // - We are relying on the fact that sets iterate in insertion order, and we
+    // can remove items from a set as we iterate over it (i.e. no iterator
+    // invalidation issues.) Thus, it is safe to loop through
+    // undisposedQueryReferences until we find queryReference, and
+    // remove and dispose all previous references.
+    // - We are guaranteed to find queryReference in the set, because if a
+    // state update results in a commit, no state updates initiated prior to that
+    // one will be committed, and we are disposing and removing references
+    // associated with updates that were scheduled prior to the currently
+    // committing state change. (A useEffect callback is called during the commit
+    // phase.)
+    const undisposedQueryReferences = undisposedQueryReferencesRef.current;
+
+    if (isMountedRef.current) {
+      for (const undisposedQueryReference of undisposedQueryReferences) {
+        if (undisposedQueryReference === queryReference) {
+          break;
+        }
+
+        undisposedQueryReferences.delete(undisposedQueryReference);
+        if (undisposedQueryReference.kind !== 'NullQueryReference') {
+          undisposedQueryReference.dispose &&
+            undisposedQueryReference.dispose();
+        }
+      }
+    }
+  }, [queryReference, isMountedRef, queryLoaderCallback]);
+
+  useEffect(() => {
+    return function disposeAllRemainingQueryReferences() {
+      // undisposedQueryReferences.current is never reassigned
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
+        if (unhandledStateChange.kind !== 'NullQueryReference') {
+          unhandledStateChange.dispose && unhandledStateChange.dispose();
+        }
+      }
+    };
+  }, []);
 
   return [
     queryReference.kind === 'NullQueryReference' ? null : queryReference,

@@ -231,11 +231,13 @@ describe('useLazyLoadQueryNode', () => {
       jest.runAllImmediates();
     });
 
-    environment.commitUpdate(store => {
-      const alice = store.get('1');
-      if (alice != null) {
-        alice.setValue('ALICE', 'name');
-      }
+    ReactTestRenderer.act(() => {
+      environment.commitUpdate(store => {
+        const alice = store.get('1');
+        if (alice != null) {
+          alice.setValue('ALICE', 'name');
+        }
+      });
     });
     expect(renderFn).toBeCalledTimes(1);
     const nextData = renderFn.mock.calls[0][0];
@@ -257,14 +259,16 @@ describe('useLazyLoadQueryNode', () => {
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
-    environment.mock.resolve(gqlQuery, {
-      data: {
-        node: {
-          __typename: 'User',
-          id: variables.id,
-          // name is missing in response
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            // name is missing in response
+          },
         },
-      },
+      });
     });
 
     const data = environment.lookup(query.fragment).data;

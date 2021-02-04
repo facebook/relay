@@ -174,7 +174,10 @@ describe('when passed a PreloadableConcreteRequest', () => {
           },
         );
         expect(fetch).not.toHaveBeenCalled();
+        expect(environment.executeWithSource).not.toHaveBeenCalled();
         expect(source).toEqual(undefined);
+        // Query should still be retained even if we don't fetch
+        expect(environment.retain).toHaveBeenCalled();
       });
 
       describe('when the query cannot be fulfilled by the store', () => {
@@ -421,6 +424,9 @@ describe('when passed a query AST', () => {
         fetchPolicy: 'store-or-network',
       });
       expect(fetch).not.toHaveBeenCalled();
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+      // Query should still be retained even if we don't fetch
+      expect(environment.retain).toHaveBeenCalled();
     });
 
     describe("when fetchPolicy === 'network-only'", () => {

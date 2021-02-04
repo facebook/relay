@@ -71,11 +71,15 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     'Relay: `loadQuery` (or `loadEntryPoint`) should not be called inside a React render function.',
   );
 
-  // Every time you call loadQuery we will generate a new fetchKey. This will ensure that every query
-  // reference that is created and passed to usePreloadedQuery is properly evaluated, even if they are
-  // for the same query/variables. Specifically, we want to avoid a case where we try to refetch a
-  // query by calling loadQuery a second time, and have the Suspense cache in usePreloadedQuery reuse
-  // the cached result instead of the new result it would get from evaluating the new query ref.
+  // Every time you call loadQuery, we will generate a new fetchKey.
+  // This will ensure that every query reference that is created and
+  // passed to usePreloadedQuery is independently evaluated,
+  // even if they are for the same query/variables.
+  // Specifically, we want to avoid a case where we try to refetch a
+  // query by calling loadQuery a second time, and have the Suspense
+  // cache in usePreloadedQuery reuse the cached result instead of
+  // re-evaluating the new query ref and triggering a refetch if
+  // necessary.
   fetchKey++;
 
   const fetchPolicy = options?.fetchPolicy ?? 'store-or-network';
@@ -94,7 +98,6 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     networkObservable: Observable<GraphQLResponse>,
   ): Observable<GraphQLResponse> => {
     didExecuteNetworkSource = true;
-    retainReference = environment.retain(operation);
     return environment.executeWithSource({
       operation,
       source: networkObservable,
@@ -232,6 +235,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 
   const checkAvailabilityAndExecute = concreteRequest => {
     const operation = createOperationDescriptor(concreteRequest, variables);
+    retainReference = environment.retain(operation);
 
     // N.B. If the fetch policy allows fulfillment from the store but the
     // environment already has the data for that operation cached in the store,
@@ -256,19 +260,19 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 
   let params;
   let cancelOnLoadCallback;
-  let moduleId;
+  let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
     ({params} = preloadableConcreteRequest);
 
-    ({id: moduleId} = params);
+    ({id: queryId} = params);
     invariant(
-      moduleId !== null,
+      queryId !== null,
       'Relay: `loadQuery` requires that preloadable query `%s` has a persisted query id',
       params.name,
     );
 
-    const module = PreloadableQueryRegistry.get(moduleId);
+    const module = PreloadableQueryRegistry.get(queryId);
 
     if (module != null) {
       checkAvailabilityAndExecute(module);
@@ -281,13 +285,14 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       // store in the first place, so it couldn't have been cached.
       const networkObservable = makeNetworkRequest(params);
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
-        moduleId,
+        queryId,
         preloadedModule => {
           cancelOnLoadCallback();
           const operation = createOperationDescriptor(
             preloadedModule,
             variables,
           );
+          retainReference = environment.retain(operation);
           executeDeduped(operation, () =>
             executeWithNetworkSource(operation, networkObservable),
           );
@@ -298,6 +303,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
+    queryId = params.cacheID != null ? params.cacheID : params.id;
     checkAvailabilityAndExecute(request);
   }
 
@@ -320,7 +326,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       isDisposed = true;
     },
     fetchKey,
-    id: moduleId,
+    id: queryId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed;

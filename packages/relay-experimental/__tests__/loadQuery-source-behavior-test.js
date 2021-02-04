@@ -200,6 +200,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(res1.source).toBeDefined();
       expect(res2.source).toBeDefined();
+      // Each query reference should retain the query even
+      // if we made a single request.
+      expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
     it('should pass network errors onto source', () => {
@@ -243,6 +246,11 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       expect(res1.source).toBeDefined();
       expect(res2.source).toBeDefined();
+
+      // When the query ast becomes available we each query reference
+      // should retain the query even if we made a single request.
+      PreloadableQueryRegistry.set(ID, query);
+      expect(environment.retain).toHaveBeenCalledTimes(2);
     });
     it('should dedupe operation execution if called multiple times', () => {
       const res1 = callLoadQuery(preloadableConcreteRequest);
@@ -254,6 +262,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(environment.executeWithSource).toBeCalledTimes(1);
       expect(res1.source).toBeDefined();
       expect(res2.source).toBeDefined();
+      // Each query reference should retain the query even
+      // if we made a single request.
+      expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
     describe('when the query AST is available before the network response', () => {

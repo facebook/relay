@@ -7,15 +7,13 @@
  * @format
  */
 
-const Container = require(process.cwd() + '/core/AltContainer');
-const React = require('react');
-
-const CWD = process.cwd();
-
-const siteConfig = require(CWD + '/siteConfig.js');
-const versions = require(CWD + '/versions.json');
-
-const Layout = require('@theme/Layout');
+/* eslint-disable lint/no-value-import */
+import siteConfig from '../../docusaurus.config';
+import versions from '../../versions.json';
+import Container from '../core/Container';
+import Layout from '@theme/Layout';
+import * as React from 'react';
+/* eslint-enable lint/no-value-import */
 
 class Versions extends React.Component {
   render() {

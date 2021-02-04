@@ -7,11 +7,12 @@
  * @format
  */
 
-const React = require('react');
-const Container = require(process.cwd() + '/core/AltContainer');
-const GridBlock = require(process.cwd() + '/core/AltGridBlock');
-
-const Layout = require('@theme/Layout');
+/* eslint-disable lint/no-value-import */
+import Container from '../core/Container';
+import GridBlock from '../core/GridBlock';
+import Layout from '@theme/Layout';
+import * as React from 'react';
+/* eslint-enable lint/no-value-import */
 
 class Help extends React.Component {
   render() {

@@ -7,12 +7,12 @@
  * @format
  */
 
-const Container = require(process.cwd() + '/core/AltContainer');
-const React = require('react');
-
-const siteConfig = require(process.cwd() + '/siteConfig.js');
-
-const Layout = require('@theme/Layout');
+/* eslint-disable lint/no-value-import */
+import siteConfig from '../../docusaurus.config';
+import Container from '../core/Container';
+import Layout from '@theme/Layout';
+import * as React from 'react';
+/* eslint-enable lint/no-value-import */
 
 class Users extends React.Component {
   render() {

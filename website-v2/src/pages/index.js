@@ -7,14 +7,14 @@
  * @format
  */
 
-const React = require('react');
-const Code = require(process.cwd() + '/core/Code.js');
-const Container = require(process.cwd() + '/core/AltContainer');
-const GridBlock = require(process.cwd() + '/core/AltGridBlock');
-
-const siteConfig = require(process.cwd() + '/siteConfig.js');
-
-const Layout = require('@theme/Layout');
+/* eslint-disable lint/no-value-import */
+import siteConfig from '../../docusaurus.config';
+import Code from '../core/Code.js';
+import Container from '../core/Container';
+import GridBlock from '../core/GridBlock';
+import Layout from '@theme/Layout';
+import * as React from 'react';
+/* eslint-enable lint/no-value-import */
 
 class Button extends React.Component {
   render() {

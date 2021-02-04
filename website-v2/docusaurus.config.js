@@ -188,8 +188,8 @@ module.exports = {
         docs: {
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
-          editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
-          path: '../docs',
+          editUrl: 'https://github.com/facebook/relay/edit/master/docs-2/',
+          path: '../docs-2',
           sidebarPath: '../website/sidebars.json',
         },
         blog: {},

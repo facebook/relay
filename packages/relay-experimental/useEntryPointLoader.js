@@ -69,6 +69,14 @@ function useLoadEntryPoint<
 >(
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
+  options?: ?{|
+    // TODO(T83890478): Remove once Offscreen API lands in xplat
+    // and we can use it in tests
+    TEST_ONLY__initialEntryPointData?: ?{|
+      entryPointReference: ?PreloadedEntryPoint<TEntryPointComponent>,
+      entryPointParams: ?TEntryPointParams,
+    |},
+  |},
 ): UseLoadEntryPointHookType<
   TEntryPointParams,
   TPreloadedQueries,
@@ -99,14 +107,24 @@ function useLoadEntryPoint<
 
   useTrackLoadQueryInRender();
 
+  const initialEntryPointReferenceInternal =
+    options?.TEST_ONLY__initialEntryPointData?.entryPointReference ??
+    initialNullEntryPointReferenceState;
+  const initialEntryPointParamsInternal =
+    options?.TEST_ONLY__initialEntryPointData?.entryPointParams ?? null;
+
   const isMountedRef = useIsMountedRef();
   const undisposedEntryPointReferencesRef = useRef<
     Set<PreloadedEntryPoint<TEntryPointComponent> | NullEntryPointReference>,
-  >(new Set([initialNullEntryPointReferenceState]));
+  >(new Set([initialEntryPointReferenceInternal]));
 
   const [entryPointReference, setEntryPointReference] = useState<
     PreloadedEntryPoint<TEntryPointComponent> | NullEntryPointReference,
-  >(initialNullEntryPointReferenceState);
+  >(initialEntryPointReferenceInternal);
+  const [
+    entryPointParams,
+    setEntryPointParams,
+  ] = useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {
@@ -117,53 +135,6 @@ function useLoadEntryPoint<
       setEntryPointReference(nullEntryPointReference);
     }
   }, [setEntryPointReference, isMountedRef]);
-
-  useEffect(
-    function disposePriorEntryPointReferences() {
-      // We are relying on the fact that sets iterate in insertion order, and we
-      // can remove items from a set as we iterate over it (i.e. no iterator
-      // invalidation issues.) Thus, it is safe to loop through
-      // undisposedEntryPointReferences until we find entryPointReference, and
-      // remove and dispose all previous references.
-      //
-      // We are guaranteed to find entryPointReference in the set, because if a
-      // state change results in a commit, no state changes initiated prior to that
-      // one will be committed, and we are disposing and removing references
-      // associated with commits that were initiated prior to the currently
-      // committing state change. (A useEffect callback is called during the commit
-      // phase.)
-      const undisposedEntryPointReferences =
-        undisposedEntryPointReferencesRef.current;
-
-      if (isMountedRef.current) {
-        for (const undisposedEntryPointReference of undisposedEntryPointReferences) {
-          if (undisposedEntryPointReference === entryPointReference) {
-            break;
-          }
-
-          undisposedEntryPointReferences.delete(undisposedEntryPointReference);
-          if (
-            undisposedEntryPointReference.kind !== 'NullEntryPointReference'
-          ) {
-            undisposedEntryPointReference.dispose();
-          }
-        }
-      }
-    },
-    [entryPointReference, isMountedRef],
-  );
-
-  useEffect(() => {
-    return function disposeAllRemainingEntryPointReferences() {
-      // undisposedEntryPointReferences.current is never reassigned
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      for (const unhandledStateChange of undisposedEntryPointReferencesRef.current) {
-        if (unhandledStateChange.kind !== 'NullEntryPointReference') {
-          unhandledStateChange.dispose();
-        }
-      }
-    };
-  }, []);
 
   const entryPointLoaderCallback = useCallback(
     (params: TEntryPointParams) => {
@@ -177,10 +148,99 @@ function useLoadEntryPoint<
           updatedEntryPointReference,
         );
         setEntryPointReference(updatedEntryPointReference);
+        setEntryPointParams(params);
       }
     },
     [environmentProvider, entryPoint, setEntryPointReference, isMountedRef],
   );
+
+  const maybeHiddenOrFastRefresh = useRef(false);
+  useEffect(() => {
+    return () => {
+      // Attempt to detect if the component was
+      // hidden (by Offscreen API), or fast refresh occured;
+      // Only in these situations would the effect cleanup
+      // for "unmounting" run multiple times, so if
+      // we are ever able to read this ref with a value
+      // of true, it means that one of these cases
+      // has happened.
+      maybeHiddenOrFastRefresh.current = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (maybeHiddenOrFastRefresh.current === true) {
+      // This block only runs if the component has previously "unmounted"
+      // due to it being hidden by the Offscreen API, or during fast refresh.
+      // At this point, the current entryPointReference will have been disposed
+      // by the previous cleanup, so instead of attempting to
+      // do our regular commit setup, which would incorrectly leave our
+      // current entryPointReference disposed, we need to load the entryPoint again
+      // and force a re-render by calling entryPointLoaderCallback again,
+      // so that the entryPointReference's queries are correctly re-retained, and
+      // potentially refetched if necessary.
+      maybeHiddenOrFastRefresh.current = false;
+      if (
+        entryPointReference.kind !== 'NullEntryPointReference' &&
+        entryPointParams != null
+      ) {
+        entryPointLoaderCallback(entryPointParams);
+      }
+      return;
+    }
+
+    // When a new entryPointReference is committed, we iterate over all
+    // entrypoint refs in undisposedEntryPointReferences and dispose all of
+    // the refs that aren't the currently committed one. This ensures
+    // that we don't leave any dangling entrypoint references for the
+    // case that loadEntryPoint is called multiple times before commit; when
+    // this happens, multiple state updates will be scheduled, but only one
+    // will commit, meaning that we need to keep track of and dispose any
+    // query references that don't end up committing.
+    // - We are relying on the fact that sets iterate in insertion order, and we
+    // can remove items from a set as we iterate over it (i.e. no iterator
+    // invalidation issues.) Thus, it is safe to loop through
+    // undisposedEntryPointReferences until we find entryPointReference, and
+    // remove and dispose all previous references.
+    // - We are guaranteed to find entryPointReference in the set, because if a
+    // state change results in a commit, no state changes initiated prior to that
+    // one will be committed, and we are disposing and removing references
+    // associated with commits that were initiated prior to the currently
+    // committing state change. (A useEffect callback is called during the commit
+    // phase.)
+    const undisposedEntryPointReferences =
+      undisposedEntryPointReferencesRef.current;
+
+    if (isMountedRef.current) {
+      for (const undisposedEntryPointReference of undisposedEntryPointReferences) {
+        if (undisposedEntryPointReference === entryPointReference) {
+          break;
+        }
+
+        undisposedEntryPointReferences.delete(undisposedEntryPointReference);
+        if (undisposedEntryPointReference.kind !== 'NullEntryPointReference') {
+          undisposedEntryPointReference.dispose();
+        }
+      }
+    }
+  }, [
+    entryPointReference,
+    entryPointParams,
+    entryPointLoaderCallback,
+    isMountedRef,
+  ]);
+
+  useEffect(() => {
+    return function disposeAllRemainingEntryPointReferences() {
+      // undisposedEntryPointReferences.current is never reassigned
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      for (const unhandledStateChange of undisposedEntryPointReferencesRef.current) {
+        if (unhandledStateChange.kind !== 'NullEntryPointReference') {
+          unhandledStateChange.dispose();
+        }
+      }
+    };
+  }, []);
 
   return [
     entryPointReference.kind === 'NullEntryPointReference'

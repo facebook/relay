@@ -13,14 +13,15 @@
 
 'use strict';
 
+const EntryPointContainer = require('../EntryPointContainer.react');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
+const loadEntryPoint = require('../loadEntryPoint');
+const useEntryPointLoader = require('../useEntryPointLoader');
 const usePreloadedQuery = require('../usePreloadedQuery');
-const useQueryLoader = require('../useQueryLoader');
 
-const {loadQuery} = require('../loadQuery');
 const {useEffect} = require('react');
 const {Observable, createOperationDescriptor} = require('relay-runtime');
 
@@ -46,8 +47,11 @@ function expectToHaveFetched(environment, query, cacheConfig) {
 }
 
 // TODO(T83890478): enable once double invoked effects lands in xplat
-describe.skip('useQueryLoader-react-double-effects', () => {
+describe.skip('useEntryPointLoader-react-double-effects', () => {
   let environment;
+  let environmentProvider;
+  let entryPointStoreOrNetwork: $FlowFixMe;
+  let entryPointNetworkOnly: $FlowFixMe;
   let gqlQuery;
   let createMockEnvironment;
   let generateAndCompile;
@@ -58,11 +62,17 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   let render;
   let QueryComponent;
   let LoaderComponent;
+  let MockJSResourceReference;
   let queryRenderLogs;
   let loaderRenderLogs;
 
   beforeEach(() => {
-    jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+    jest.mock('ReactFeatureFlags', () => {
+      return {
+        ...jest.requireActual('ReactFeatureFlags'),
+        enableDoubleInvokingEffects: true,
+      };
+    });
 
     ({
       createMockEnvironment,
@@ -70,6 +80,9 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     } = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
+    environmentProvider = {
+      getEnvironment: () => environment,
+    };
 
     release = jest.fn();
     const originalRetain = environment.retain;
@@ -117,7 +130,10 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     queryRenderLogs = [];
     QueryComponent = function(props) {
-      const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
+      const result = usePreloadedQuery(
+        gqlQuery,
+        (props.queries.TestQuery: $FlowFixMe),
+      );
 
       const name = result?.node?.name ?? 'Empty';
       useEffect(() => {
@@ -133,44 +149,103 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function(props) {
-      const [queryRef, _loadQuery] = useQueryLoader(
-        gqlQuery,
-        props.initialQueryRef,
+      const [entryPointRef, _loadEntryPoint] = useEntryPointLoader(
+        environmentProvider,
+        props.entryPoint,
+        {
+          TEST_ONLY__initialEntryPointData: {
+            entryPointParams:
+              props.initialEntryPointRef != null ? variables : null,
+            entryPointReference: props.initialEntryPointRef,
+          },
+        },
       );
 
-      const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
+      let entryPointRefId;
+      if (entryPointRef == null) {
+        entryPointRefId = 'null';
+      } else {
+        entryPointRefId = entryPointRef.queries.TestQuery?.id ?? 'Unknown';
+      }
       useEffect(() => {
-        loaderRenderLogs.push(`commit: ${queryRefId}`);
+        loaderRenderLogs.push(`commit: ${entryPointRefId}`);
         return () => {
-          loaderRenderLogs.push(`cleanup: ${queryRefId}`);
+          loaderRenderLogs.push(`cleanup: ${entryPointRefId}`);
         };
-      }, [queryRefId]);
+      }, [entryPointRefId]);
 
-      loaderRenderLogs.push(`render: ${queryRefId}`);
+      loaderRenderLogs.push(`render: ${entryPointRefId}`);
 
-      if (queryRef == null) {
-        return 'No query loaded';
+      if (entryPointRef == null) {
+        return 'No EntryPoint loaded';
       }
       if (props.suspendWholeTree === true) {
-        return <QueryComponent queryRef={queryRef} />;
+        return (
+          <EntryPointContainer entryPointReference={entryPointRef} props={{}} />
+        );
       }
       return (
         <React.Suspense fallback="Loading preloaded query...">
-          <QueryComponent queryRef={queryRef} />
+          <EntryPointContainer entryPointReference={entryPointRef} props={{}} />
         </React.Suspense>
       );
     };
 
-    render = function(initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
+    MockJSResourceReference = () => ({
+      getModuleId() {
+        return 'TestQuery';
+      },
+      getModuleIfRequired() {
+        return QueryComponent;
+      },
+      load() {
+        return null;
+      },
+    });
+    entryPointStoreOrNetwork = {
+      getPreloadProps: ({id}) => ({
+        queries: {
+          TestQuery: {
+            options: {
+              fetchPolicy: 'store-or-network',
+            },
+            parameters: gqlQuery,
+            variables: {id},
+          },
+        },
+      }),
+      root: MockJSResourceReference(),
+    };
+    entryPointNetworkOnly = {
+      getPreloadProps: ({id}) => ({
+        queries: {
+          TestQuery: {
+            options: {
+              fetchPolicy: 'networkOnly',
+            },
+            parameters: gqlQuery,
+            variables: {id},
+          },
+        },
+      }),
+      root: MockJSResourceReference(),
+    };
+
+    render = function(
+      entryPoint,
+      initialEntryPointRef,
+      {suspendWholeTree} = {},
+    ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           // Using StrictMode will trigger double invoke effect behavior
           <React.StrictMode>
             <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Outer Fallback">
+              <React.Suspense fallback="Fallback">
                 <LoaderComponent
-                  initialQueryRef={initialQueryRef}
+                  entryPoint={entryPoint}
+                  initialEntryPointRef={initialEntryPointRef}
                   suspendWholeTree={suspendWholeTree}
                 />
               </React.Suspense>
@@ -189,14 +264,14 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     jest.clearAllTimers();
   });
 
-  describe('when there is no committed query reference', () => {
+  describe('when there is no committed entrypoint reference', () => {
     it('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       // When the component mounts, React double invoke effects
       // will be triggered, simulating what would happen if the
       // component was hidden and then re-shown, in this case
       // without an actively committed query reference.
-      const instance = render();
-      expect(instance.toJSON()).toEqual('No query loaded');
+      const instance = render(entryPointStoreOrNetwork);
+      expect(instance.toJSON()).toEqual('No EntryPoint loaded');
 
       expect(environment.execute).toHaveBeenCalledTimes(0);
       expect(environment.retain).toHaveBeenCalledTimes(0);
@@ -212,19 +287,22 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     });
   });
 
+  // TODO(T83890478): Test using Offscreen API once it lands in xplat
   // To simulate the case where the component is hidden and then re-shown
-  // with an active query reference, i.e. after loadQuery has been called,
-  // we need to pass in an initial query reference, because we have no way to
+  // with an active query reference, i.e. after loadEntryPoint has been called,
+  // we need to pass in an initial entry point reference, because we have no way to
   // actually trigger "hiding" and "showing" the component after it has
   // committed (since the Offscreen API hasn't been released yet).
-  // Instead, we assert that the query ref passed as input is correctly handled
+  // Instead, we assert that the entrypoint ref passed as input is correctly handled
   // when double invoke effects are triggered on mount.
-  describe('when there is a committed query reference when effects are double invoked (i.e. component is hidden/re-shown)', () => {
+  describe('when there is a committed query reference', () => {
     describe('when network request is in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'network-only',
-        });
+        const initialEntryPointRef = loadEntryPoint(
+          environmentProvider,
+          entryPointNetworkOnly,
+          variables,
+        );
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         expect(environment.retain).toHaveBeenCalledTimes(1);
         environment.executeWithSource.mockClear();
@@ -233,18 +311,18 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // When the component mounts, React double invoke effects
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
-        // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        // with an actively committed entry point reference.
+        const instance = render(entryPointNetworkOnly, initialEntryPointRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed, meaning that
+        // that the current entrypoint ref is disposed, meaning that
         // the request is canceled and the query is released when
         // the query reference is disposed.
         expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
         expect(release).toHaveBeenCalledTimes(1);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain the query ref:
+        // a re-render is triggered to refetch, re-retain the entrypoint ref's queries:
 
         // Assert that query was refetched
         expectToHaveFetched(environment, query, {force: true});
@@ -256,7 +334,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Retain is called 3 times here because the component consuming
         // the query is also temporarily retains the query while suspended:
         // - suspended component temporary retains
-        // - loadQuery re-retains
+        // - loadEntryPoint re-retains
         // - suspended component temporary retains
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
@@ -275,7 +353,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
           'cleanup: TestQuery',
           'commit: TestQuery',
 
-          // Assert final re-render triggered by new call to loadQuery.
+          // Assert final re-render triggered by new call to loadEntryPoint.
           // It does not trigger a commit since the queryRef ID hasn't changed
           'render: TestQuery',
         ]);
@@ -327,9 +405,11 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       });
 
       it('forces a re-render and refetches when policy is store-or-network', () => {
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'store-or-network',
-        });
+        const initialEntryPointRef = loadEntryPoint(
+          environmentProvider,
+          entryPointStoreOrNetwork,
+          variables,
+        );
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
         expect(environment.retain).toHaveBeenCalledTimes(1);
         environment.executeWithSource.mockClear();
@@ -339,17 +419,17 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = render(entryPointStoreOrNetwork, initialEntryPointRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed, meaning that
+        // that the current entrypoint ref is disposed, meaning that
         // the request is canceled and the query is released when
         // the query reference is disposed.
         expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
         expect(release).toHaveBeenCalledTimes(1);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain the query ref:
+        // a re-render is triggered to refetch, re-retain the entrypoint ref:
 
         // Assert that query was refetched
         expectToHaveFetched(environment, query, {force: true});
@@ -361,7 +441,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Retain is called 3 times here because the component consuming
         // the query is also temporarily retains the query while suspended:
         // - suspended component temporary retains
-        // - loadQuery re-retains
+        // - loadEntryPoint re-retains
         // - suspended component temporary retains
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
@@ -380,7 +460,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
           'cleanup: TestQuery',
           'commit: TestQuery',
 
-          // Assert final re-render triggered by new call to loadQuery.
+          // Assert final re-render triggered by new call to loadEntryPoint.
           // It does not trigger a commit since the queryRef ID hasn't changed
           'render: TestQuery',
         ]);
@@ -434,10 +514,12 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     describe('when network request is NOT in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
-        // Initialize and complete the query ref
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'network-only',
-        });
+        // Initialize and complete the entrypoint ref
+        const initialEntryPointRef = loadEntryPoint(
+          environmentProvider,
+          entryPointNetworkOnly,
+          variables,
+        );
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
             data: {
@@ -459,18 +541,18 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = render(entryPointNetworkOnly, initialEntryPointRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed. In this case
+        // that the current entrypoint ref is disposed. In this case
         // no request is cancelled since it wasn't in flight, and,
-        // the query is released by both the query ref /and/ the
+        // the query is released by both the entrypoint ref /and/ the
         // component that was consuming the query.
         expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(2);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch and re-retain the query ref:
+        // a re-render is triggered to refetch and re-retain the entrypoint ref:
 
         // Assert that query was refetched
         expectToHaveFetched(environment, query, {force: true});
@@ -481,7 +563,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
         // the query is also temporarily retains the query while suspended:
-        // - loadQuery re-retains
+        // - loadEntryPoint re-retains
         // - suspended component temporary retains
         // - suspended component temporary retains
         expect(environment.retain).toHaveBeenCalledTimes(3);
@@ -503,7 +585,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
           'cleanup: TestQuery',
           'commit: TestQuery',
 
-          // Assert final re-render triggered by new call to loadQuery.
+          // Assert final re-render triggered by new call to loadEntryPoint.
           // It does not trigger a commit since the queryRef ID hasn't changed
           'render: TestQuery',
         ]);
@@ -552,10 +634,12 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       });
 
       it('forces a re-render and does not refetch when policy is store-or-network', () => {
-        // Initialize and complete the query ref
-        const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-          fetchPolicy: 'store-or-network',
-        });
+        // Initialize and complete the entrypoint ref
+        const initialEntryPointRef = loadEntryPoint(
+          environmentProvider,
+          entryPointStoreOrNetwork,
+          variables,
+        );
         ReactTestRenderer.act(() => {
           environment.mock.resolve(gqlQuery, {
             data: {
@@ -577,18 +661,19 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = render(entryPointStoreOrNetwork, initialEntryPointRef);
 
         // The effect cleanup will execute, so we assert
-        // that the current query ref is disposed. In this case
+        // that the current entrypoint ref is disposed. In this case
         // no request is cancelled since it wasn't in flight, and,
-        // the query is released by both the query ref /and/ the
+        // the query is released by both the entrypoint ref /and/ the
         // component that was consuming the query.
         expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(2);
+        release.mockClear();
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to re-retain the query ref:
+        // a re-render is triggered to re-retain the entrypoint ref's queries:
 
         // Assert that query was not refetched
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
@@ -600,7 +685,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Retain is called 2 times here because the component consuming
         // the query will also retain it:
         // - query component temporary retains
-        // - loadQuery re-retains
+        // - loadEntryPoint re-retains
         // - query component temporary retains
         expect(environment.retain).toHaveBeenCalledTimes(3);
 
@@ -622,7 +707,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
           'cleanup: TestQuery',
           'commit: TestQuery',
 
-          // Assert final re-render triggered by new call to loadQuery.
+          // Assert final re-render triggered by new call to loadEntryPoint.
           // It does not trigger a commit since the queryRef ID hasn't changed
           'render: TestQuery',
         ]);
@@ -632,22 +717,26 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         ReactTestRenderer.act(() => {
           jest.runAllTimers();
         });
-        expect(release).toHaveBeenCalledTimes(2);
-        expect(environment.retain).toHaveBeenCalledTimes(3);
+        expect(release).toHaveBeenCalledTimes(0);
+        expect(environment.retain).toHaveBeenCalledTimes(2);
       });
     });
   });
 
   describe('when whole tree suspends on query reference', () => {
     it('forces a re-render and refetches when policy is network-only', () => {
-      const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-        fetchPolicy: 'network-only',
-      });
+      const initialEntryPointRef = loadEntryPoint(
+        environmentProvider,
+        entryPointNetworkOnly,
+        variables,
+      );
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       expect(environment.retain).toHaveBeenCalledTimes(1);
       environment.executeWithSource.mockClear();
 
-      const instance = render(initialQueryRef, {suspendWholeTree: true});
+      const instance = render(entryPointNetworkOnly, initialEntryPointRef, {
+        suspendWholeTree: true,
+      });
 
       // Assert that whole tree is suspended:
       expect(loaderRenderLogs).toEqual(['render: TestQuery']);
@@ -685,7 +774,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       // The effect setup will re-execute, so we assert that
       // a re-render is triggered to refetch and re-retain the query ref:
 
-      // Assert that query was refetched once by useQueryLoader
+      // Assert that query was refetched once by useEntryPointLoader
       // and the tree re-suspends
       expectToHaveFetched(environment, query, {force: true});
       expect(instance.toJSON()).toEqual('Outer Fallback');
@@ -764,14 +853,18 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     });
 
     it('forces a re-render and refetches when policy is store-or-network', () => {
-      const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
-        fetchPolicy: 'store-or-network',
-      });
+      const initialEntryPointRef = loadEntryPoint(
+        environmentProvider,
+        entryPointStoreOrNetwork,
+        variables,
+      );
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
       expect(environment.retain).toHaveBeenCalledTimes(1);
       environment.executeWithSource.mockClear();
 
-      const instance = render(initialQueryRef, {suspendWholeTree: true});
+      const instance = render(entryPointNetworkOnly, initialEntryPointRef, {
+        suspendWholeTree: true,
+      });
 
       // Assert that whole tree is suspended:
       expect(loaderRenderLogs).toEqual(['render: TestQuery']);

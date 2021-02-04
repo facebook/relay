@@ -28,6 +28,7 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  __internal: {fetchQuery},
 } = require('relay-runtime');
 
 describe('useRefetchableFragmentNode', () => {
@@ -114,12 +115,9 @@ describe('useRefetchableFragmentNode', () => {
 
   beforeEach(() => {
     // Set up mocks
-    jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    jest.mock('scheduler', () => {
-      return jest.requireActual('scheduler/unstable_mock');
-    });
+    jest.mock('scheduler', () => jest.requireActual('scheduler/unstable_mock'));
     renderSpy = jest.fn();
 
     fetchPolicy = 'store-or-network';
@@ -423,12 +421,6 @@ describe('useRefetchableFragmentNode', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      jest
-        .spyOn(
-          require('relay-runtime').__internal,
-          'getPromiseForActiveRequest',
-        )
-        .mockImplementationOnce(() => Promise.resolve());
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
@@ -444,6 +436,8 @@ describe('useRefetchableFragmentNode', () => {
           },
         });
       });
+
+      fetchQuery(environment, missingDataQuery).subscribe({});
 
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');

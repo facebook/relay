@@ -198,7 +198,7 @@ module.exports = {
           }),
           editUrl: 'https://github.com/facebook/relay/edit/master/docs-2/',
           path: '../docs-2',
-          sidebarPath: '../website/sidebars.json',
+          sidebarPath: './sidebars.json',
         },
         blog: {},
         theme: {

@@ -20,7 +20,10 @@ const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useFragmentNode = require('./useFragmentNode');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
-const {getQueryResourceForEnvironment} = require('./QueryResource');
+const {
+  getQueryResourceForEnvironment,
+  getQueryCacheIdentifier,
+} = require('./QueryResource');
 
 import type {
   FetchPolicy,
@@ -52,18 +55,25 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
 
-  const [, forceUpdate] = useState(0);
+  const [forceUpdateKey, forceUpdate] = useState(0);
   const {startFetch, completeFetch} = useFetchTrackingRef();
-  const cacheBreaker = String(fetchKey ?? '');
+  const cacheBreaker = `${forceUpdateKey}-${fetchKey ?? ''}`;
+  const cacheIdentifier = getQueryCacheIdentifier(
+    environment,
+    query,
+    fetchPolicy,
+    renderPolicy,
+    cacheBreaker,
+  );
 
   const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {
-    return QueryResource.prepare(
+    return QueryResource.prepareWithIdentifier(
+      cacheIdentifier,
       query,
       fetchObservable,
       fetchPolicy,
       renderPolicy,
       {start: startFetch, complete: completeFetch, error: completeFetch},
-      cacheBreaker,
       profilerContext,
     );
   });
@@ -105,10 +115,10 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
       disposable.dispose();
     };
     // NOTE: We disable react-hooks-deps warning because the `environment`
-    // and `query` identities are capturing all information about whether
-    // the effect should be re-ran and the query re-retained.
+    // and `cacheIdentifier` identities are capturing all information about whether
+    // the effect should be re-executed and the query re-retained.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environment, query]);
+  }, [environment, cacheIdentifier]);
 
   const {fragmentNode, fragmentRef} = preparedQueryResult;
   const {data} = useFragmentNode(

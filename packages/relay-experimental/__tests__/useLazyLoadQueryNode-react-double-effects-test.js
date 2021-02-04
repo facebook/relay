@@ -102,13 +102,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
   it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
     let renderLogs = [];
-    const QueryComponent = function(props) {
-      const _query = createOperationDescriptor(gqlQuery, props.variables);
+    const QueryComponent = function() {
       const result = useLazyLoadQueryNode<_>({
         componentDisplayName: 'TestDisplayName',
-        fetchObservable: fetchQuery(environment, _query),
+        fetchObservable: fetchQuery(environment, query),
         fetchPolicy: 'network-only',
-        query: _query,
+        query,
       });
 
       const name = result?.node?.name ?? 'Empty';
@@ -163,12 +162,16 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       jest.runAllImmediates();
     });
 
-    // After query resolves, assert that double invoked effect triggers:
+    // After the query resolves, the component will mount, and
+    // React double invoke effects will be triggered, simulating what would
+    // happen if the component was hidden and re-shown:
 
-    // Assert query is disposed:
+    // The effect cleanup will execute, so we assert that
+    // the query is disposed:
     expect(release).toHaveBeenCalledTimes(1);
 
-    // Assert re-render is triggered to refetch, re-retain, and
+    // The effect setup will re-execute, so we assert that
+    // a re-render is triggered to refetch, re-retain, and
     // re-suspend:
     expectToHaveFetched(environment, query, {});
     expect(environment.retain).toHaveBeenCalledTimes(2);
@@ -190,7 +193,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // Resolve second network response
     renderLogs = [];
     environment.execute.mockClear();
-    // environment.retain.mockClear();
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
         data: {
@@ -215,17 +217,24 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       'commit: Alice 2',
     ]);
     expect(instance.toJSON()).toEqual('Alice 2');
+
+    // Assert that query was correctly permanently retained,
+    // and not released after a timeout
+    ReactTestRenderer.act(() => {
+      jest.runAllTimers();
+    });
+    expect(release).toHaveBeenCalledTimes(1);
+    expect(environment.retain).toHaveBeenCalledTimes(2);
   });
 
   it('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', () => {
     const renderLogs = [];
-    const QueryComponent = function(props) {
-      const _query = createOperationDescriptor(gqlQuery, props.variables);
+    const QueryComponent = function() {
       const result = useLazyLoadQueryNode<_>({
         componentDisplayName: 'TestDisplayName',
-        fetchObservable: fetchQuery(environment, _query),
+        fetchObservable: fetchQuery(environment, query),
         fetchPolicy: 'store-or-network',
-        query: _query,
+        query,
       });
 
       const name = result?.node?.name ?? 'Empty';
@@ -280,16 +289,21 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       jest.runAllImmediates();
     });
 
-    // After query resolves, assert that double invoked effect triggers:
+    // After the query resolves, the component will mount, and
+    // React double invoke effects will be triggered, simulating what would
+    // happen if the component was hidden and re-shown:
 
-    // Assert query is disposed:
+    // The effect cleanup will execute, so we assert that
+    // the query is disposed:
     expect(release).toHaveBeenCalledTimes(1);
 
-    // Assert re-render is triggered to re-retain but does not re-fetch:
+    // The effect setup will re-execute, so we assert that
+    // a re-render is triggered to re-retain, but it does not
+    // refetch:
     expect(environment.execute).toHaveBeenCalledTimes(0);
     expect(environment.retain).toHaveBeenCalledTimes(2);
 
-    // Assert render state of component after re-rendering:
+    // Assert render state of component using the query after re-rendering:
     expect(renderLogs).toEqual([
       // Assert component rendered and committed when network resolved:
       'render: Alice 1',
@@ -306,5 +320,13 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       'render: Alice 1',
     ]);
     expect(instance.toJSON()).toEqual('Alice 1');
+
+    // Assert that query was correctly permanently retained,
+    // and not released after a timeout
+    ReactTestRenderer.act(() => {
+      jest.runAllTimers();
+    });
+    expect(release).toHaveBeenCalledTimes(1);
+    expect(environment.retain).toHaveBeenCalledTimes(2);
   });
 });

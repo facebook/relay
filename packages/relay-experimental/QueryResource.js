@@ -45,7 +45,7 @@ export type QueryResource = QueryResourceImpl;
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +id: number,
-  +cacheKey: string,
+  +cacheIdentifier: string,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
   setNetworkSubscription(?Subscription): void,
@@ -59,7 +59,7 @@ opaque type QueryResult: {
   fragmentRef: mixed,
   ...
 } = {|
-  cacheKey: string,
+  cacheIdentifier: string,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   operation: OperationDescriptor,
@@ -71,17 +71,26 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-function getQueryCacheKey(
+function getQueryCacheIdentifier(
+  environment: IEnvironment,
   operation: OperationDescriptor,
-  fetchPolicy: FetchPolicy,
-  renderPolicy: RenderPolicy,
+  maybeFetchPolicy: ?FetchPolicy,
+  maybeRenderPolicy: ?RenderPolicy,
+  cacheBreaker?: ?string | ?number,
 ): string {
-  return `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}`;
+  const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
+  const renderPolicy =
+    maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
+  const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}`;
+  if (cacheBreaker != null) {
+    return `${cacheIdentifier}-${cacheBreaker}`;
+  }
+  return cacheIdentifier;
 }
 
 function getQueryResult(
   operation: OperationDescriptor,
-  cacheKey: string,
+  cacheIdentifier: string,
 ): QueryResult {
   const rootFragmentRef = {
     __id: operation.fragment.dataID,
@@ -91,7 +100,7 @@ function getQueryResult(
     __fragmentOwner: operation.request,
   };
   return {
-    cacheKey,
+    cacheIdentifier,
     fragmentNode: operation.request.node.fragment,
     fragmentRef: rootFragmentRef,
     operation,
@@ -101,7 +110,7 @@ function getQueryResult(
 let nextID = 200000;
 
 function createCacheEntry(
-  cacheKey: string,
+  cacheIdentifier: string,
   operation: OperationDescriptor,
   value: Error | Promise<void> | QueryResult,
   networkSubscription: ?Subscription,
@@ -137,7 +146,7 @@ function createCacheEntry(
   };
 
   const cacheEntry = {
-    cacheKey,
+    cacheIdentifier,
     id: nextID++,
     getValue() {
       return currentValue;
@@ -246,11 +255,6 @@ class QueryResourceImpl {
     this._cache = LRUCache.create(CACHE_CAPACITY);
   }
 
-  /**
-   * This function should be called during a Component's render function,
-   * to either read an existing cached value for the query, or fetch the query
-   * and suspend.
-   */
   prepare(
     operation: OperationDescriptor,
     fetchObservable: Observable<GraphQLResponse>,
@@ -260,25 +264,53 @@ class QueryResourceImpl {
     cacheBreaker: ?string | ?number,
     profilerContext: mixed,
   ): QueryResult {
+    const cacheIdentifier = getQueryCacheIdentifier(
+      this._environment,
+      operation,
+      maybeFetchPolicy,
+      maybeRenderPolicy,
+      cacheBreaker,
+    );
+    return this.prepareWithIdentifier(
+      cacheIdentifier,
+      operation,
+      fetchObservable,
+      maybeFetchPolicy,
+      maybeRenderPolicy,
+      observer,
+      profilerContext,
+    );
+  }
+
+  /**
+   * This function should be called during a Component's render function,
+   * to either read an existing cached value for the query, or fetch the query
+   * and suspend.
+   */
+  prepareWithIdentifier(
+    cacheIdentifier: string,
+    operation: OperationDescriptor,
+    fetchObservable: Observable<GraphQLResponse>,
+    maybeFetchPolicy: ?FetchPolicy,
+    maybeRenderPolicy: ?RenderPolicy,
+    observer: ?Observer<Snapshot>,
+    profilerContext: mixed,
+  ): QueryResult {
     const environment = this._environment;
     const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
     const renderPolicy =
       maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
-    let cacheKey = getQueryCacheKey(operation, fetchPolicy, renderPolicy);
-    if (cacheBreaker != null) {
-      cacheKey += `-${cacheBreaker}`;
-    }
 
     // 1. Check if there's a cached value for this operation, and reuse it if
     // it's available
-    let cacheEntry = this._cache.get(cacheKey);
+    let cacheEntry = this._cache.get(cacheIdentifier);
     let temporaryRetainDisposable: ?Disposable = null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
       // _fetchAndSaveQuery will update the cache with either a Promise or
       // an Error to throw, or a QueryResult to return.
       cacheEntry = this._fetchAndSaveQuery(
-        cacheKey,
+        cacheIdentifier,
         operation,
         fetchObservable,
         fetchPolicy,
@@ -323,9 +355,9 @@ class QueryResourceImpl {
    */
   retain(queryResult: QueryResult, profilerContext: mixed): Disposable {
     const environment = this._environment;
-    const {cacheKey, operation} = queryResult;
+    const {cacheIdentifier, operation} = queryResult;
     const cacheEntry = this._getOrCreateCacheEntry(
-      cacheKey,
+      cacheIdentifier,
       operation,
       queryResult,
       null,
@@ -344,46 +376,51 @@ class QueryResourceImpl {
     };
   }
 
-  getCacheEntry(
+  TESTS_ONLY__getCacheEntry(
     operation: OperationDescriptor,
-    fetchPolicy: FetchPolicy,
-    maybeRenderPolicy?: RenderPolicy,
+    maybeFetchPolicy?: ?FetchPolicy,
+    maybeRenderPolicy?: ?RenderPolicy,
+    cacheBreaker?: ?string,
   ): ?QueryResourceCacheEntry {
     const environment = this._environment;
-    const renderPolicy =
-      maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
-    const cacheKey = getQueryCacheKey(operation, fetchPolicy, renderPolicy);
-    return this._cache.get(cacheKey);
+    const cacheIdentifier = getQueryCacheIdentifier(
+      environment,
+      operation,
+      maybeFetchPolicy,
+      maybeRenderPolicy,
+      cacheBreaker,
+    );
+    return this._cache.get(cacheIdentifier);
   }
 
   _clearCacheEntry = (cacheEntry: QueryResourceCacheEntry): void => {
     if (cacheEntry.getRetainCount() <= 0) {
-      this._cache.delete(cacheEntry.cacheKey);
+      this._cache.delete(cacheEntry.cacheIdentifier);
     }
   };
 
   _getOrCreateCacheEntry(
-    cacheKey: string,
+    cacheIdentifier: string,
     operation: OperationDescriptor,
     value: Error | Promise<void> | QueryResult,
     networkSubscription: ?Subscription,
   ): QueryResourceCacheEntry {
-    let cacheEntry = this._cache.get(cacheKey);
+    let cacheEntry = this._cache.get(cacheIdentifier);
     if (cacheEntry == null) {
       cacheEntry = createCacheEntry(
-        cacheKey,
+        cacheIdentifier,
         operation,
         value,
         networkSubscription,
         this._clearCacheEntry,
       );
-      this._cache.set(cacheKey, cacheEntry);
+      this._cache.set(cacheIdentifier, cacheEntry);
     }
     return cacheEntry;
   }
 
   _fetchAndSaveQuery(
-    cacheKey: string,
+    cacheIdentifier: string,
     operation: OperationDescriptor,
     fetchObservable: Observable<GraphQLResponse>,
     fetchPolicy: FetchPolicy,
@@ -435,24 +472,24 @@ class QueryResourceImpl {
     // If it's true, we will cache the query resource and allow rendering to
     // continue.
     if (shouldAllowRender) {
-      const queryResult = getQueryResult(operation, cacheKey);
+      const queryResult = getQueryResult(operation, cacheIdentifier);
       const cacheEntry = createCacheEntry(
-        cacheKey,
+        cacheIdentifier,
         operation,
         queryResult,
         null,
         this._clearCacheEntry,
       );
-      this._cache.set(cacheKey, cacheEntry);
+      this._cache.set(cacheIdentifier, cacheEntry);
     }
 
     if (shouldFetch) {
-      const queryResult = getQueryResult(operation, cacheKey);
+      const queryResult = getQueryResult(operation, cacheIdentifier);
       let networkSubscription;
       fetchObservable.subscribe({
         start: subscription => {
           networkSubscription = subscription;
-          const cacheEntry = this._cache.get(cacheKey);
+          const cacheEntry = this._cache.get(cacheIdentifier);
           if (cacheEntry) {
             cacheEntry.setNetworkSubscription(networkSubscription);
           }
@@ -463,7 +500,7 @@ class QueryResourceImpl {
         next: () => {
           const snapshot = environment.lookup(operation.fragment);
           const cacheEntry = this._getOrCreateCacheEntry(
-            cacheKey,
+            cacheIdentifier,
             operation,
             queryResult,
             networkSubscription,
@@ -476,7 +513,7 @@ class QueryResourceImpl {
         },
         error: error => {
           const cacheEntry = this._getOrCreateCacheEntry(
-            cacheKey,
+            cacheIdentifier,
             operation,
             error,
             networkSubscription,
@@ -493,7 +530,7 @@ class QueryResourceImpl {
           resolveNetworkPromise();
 
           networkSubscription = null;
-          const cacheEntry = this._cache.get(cacheKey);
+          const cacheEntry = this._cache.get(cacheIdentifier);
           if (cacheEntry) {
             cacheEntry.setNetworkSubscription(null);
           }
@@ -503,7 +540,7 @@ class QueryResourceImpl {
         unsubscribe: observer?.unsubscribe,
       });
 
-      let cacheEntry = this._cache.get(cacheKey);
+      let cacheEntry = this._cache.get(cacheIdentifier);
       if (!cacheEntry) {
         const networkPromise = new Promise(resolve => {
           resolveNetworkPromise = resolve;
@@ -514,19 +551,19 @@ class QueryResourceImpl {
           'Relay(' + operation.fragment.node.name + ')';
 
         cacheEntry = createCacheEntry(
-          cacheKey,
+          cacheIdentifier,
           operation,
           networkPromise,
           networkSubscription,
           this._clearCacheEntry,
         );
-        this._cache.set(cacheKey, cacheEntry);
+        this._cache.set(cacheIdentifier, cacheEntry);
       }
     } else {
       const observerComplete = observer?.complete;
       observerComplete && observerComplete();
     }
-    const cacheEntry = this._cache.get(cacheKey);
+    const cacheEntry = this._cache.get(cacheIdentifier);
     invariant(
       cacheEntry != null,
       'Relay: Expected to have cached a result when attempting to fetch query.' +
@@ -569,4 +606,5 @@ function getQueryResourceForEnvironment(
 module.exports = {
   createQueryResource,
   getQueryResourceForEnvironment,
+  getQueryCacheIdentifier,
 };

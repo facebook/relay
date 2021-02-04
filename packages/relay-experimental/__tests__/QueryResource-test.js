@@ -121,7 +121,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -153,7 +153,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -225,7 +225,7 @@ describe('QueryResource', () => {
           expect(environment.retain).toBeCalledTimes(1);
 
           const expected = {
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -314,7 +314,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -399,7 +399,7 @@ describe('QueryResource', () => {
               renderPolicy,
             );
             expect(result).toEqual({
-              cacheKey: expect.any(String),
+              cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
                 __id: ROOT_ID,
@@ -454,7 +454,7 @@ describe('QueryResource', () => {
               renderPolicy,
             );
             expect(result).toEqual({
-              cacheKey: expect.any(String),
+              cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
                 __id: ROOT_ID,
@@ -552,7 +552,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -719,7 +719,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -791,7 +791,7 @@ describe('QueryResource', () => {
 
           // Assert cache is cleared
           expect(
-            QueryResource.getCacheEntry(
+            QueryResource.TESTS_ONLY__getCacheEntry(
               queryMissingData,
               fetchPolicy,
               renderPolicy,
@@ -852,7 +852,7 @@ describe('QueryResource', () => {
               renderPolicy,
             );
             expect(result).toEqual({
-              cacheKey: expect.any(String),
+              cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
                 __id: ROOT_ID,
@@ -995,7 +995,7 @@ describe('QueryResource', () => {
               renderPolicy,
             );
             const expectedResult = {
-              cacheKey: expect.any(String),
+              cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
                 __id: ROOT_ID,
@@ -1069,7 +1069,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1101,7 +1101,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1163,7 +1163,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           const expected = {
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1252,7 +1252,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1320,7 +1320,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1485,7 +1485,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1693,7 +1693,7 @@ describe('QueryResource', () => {
           );
 
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1868,7 +1868,7 @@ describe('QueryResource', () => {
           );
 
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1943,7 +1943,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -1975,7 +1975,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -2008,7 +2008,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -2047,7 +2047,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -2079,7 +2079,7 @@ describe('QueryResource', () => {
             renderPolicy,
           );
           expect(result).toEqual({
-            cacheKey: expect.any(String),
+            cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
               __id: ROOT_ID,
@@ -2132,7 +2132,7 @@ describe('QueryResource', () => {
       expect(release).toBeCalledTimes(0);
       // Should not clear the cache entry
       expect(
-        QueryResource.getCacheEntry(
+        QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2164,7 +2164,7 @@ describe('QueryResource', () => {
 
       // Cache entry should be removed
       expect(
-        QueryResource.getCacheEntry(
+        QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2262,7 +2262,7 @@ describe('QueryResource', () => {
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
-        const cacheEntry = QueryResource.getCacheEntry(
+        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2314,7 +2314,7 @@ describe('QueryResource', () => {
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
-        const cacheEntry = QueryResource.getCacheEntry(
+        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2374,7 +2374,7 @@ describe('QueryResource', () => {
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
-        const cacheEntry = QueryResource.getCacheEntry(
+        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2450,7 +2450,7 @@ describe('QueryResource', () => {
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
-        const cacheEntry = QueryResource.getCacheEntry(
+        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2494,7 +2494,7 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
         expect(
-          QueryResource.getCacheEntry(
+          QueryResource.TESTS_ONLY__getCacheEntry(
             queryMissingData,
             fetchPolicy,
             renderPolicy,
@@ -2515,7 +2515,7 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);
         expect(
-          QueryResource.getCacheEntry(
+          QueryResource.TESTS_ONLY__getCacheEntry(
             queryMissingData,
             fetchPolicy,
             renderPolicy,
@@ -2558,7 +2558,7 @@ describe('QueryResource', () => {
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
-        const cacheEntry = QueryResource.getCacheEntry(
+        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2610,7 +2610,7 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
         expect(
-          QueryResource.getCacheEntry(
+          QueryResource.TESTS_ONLY__getCacheEntry(
             queryMissingData,
             fetchPolicy,
             renderPolicy,
@@ -2631,7 +2631,7 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);
         expect(
-          QueryResource.getCacheEntry(
+          QueryResource.TESTS_ONLY__getCacheEntry(
             queryMissingData,
             fetchPolicy,
             renderPolicy,
@@ -2662,7 +2662,7 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is 1
-        let cacheEntry = QueryResource.getCacheEntry(
+        let cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2711,7 +2711,7 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(2);
         // Assert that retain count is now 1
-        cacheEntry = QueryResource.getCacheEntry(
+        cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2796,7 +2796,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
         renderPolicy,
       );
       expect(result).toEqual({
-        cacheKey: expect.any(String),
+        cacheIdentifier: expect.any(String),
         fragmentNode: query.fragment.node,
         fragmentRef: {
           __id: ROOT_ID,

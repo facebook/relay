@@ -72,14 +72,15 @@ function mockDisposableMethod(object: $FlowFixMe, key: string) {
 
 function mockObservableMethod(object: $FlowFixMe, key: string) {
   const fn = object[key].bind(object);
+  const subscriptions = [];
   object[key] = jest.fn((...args) =>
     fn(...args).do({
       start: subscription => {
-        object[key].mock.subscriptions.push(subscription);
+        subscriptions.push(subscription);
       },
     }),
   );
-  object[key].mock.subscriptions = [];
+  object[key].mock.subscriptions = subscriptions;
   const mockClear = object[key].mockClear.bind(object[key]);
   object[key].mockClear = () => {
     mockClear();

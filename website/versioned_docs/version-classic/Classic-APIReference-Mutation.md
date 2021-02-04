@@ -300,9 +300,11 @@ class DestroyShipMutation extends Relay.Mutation {
 }
 ```
 
-> Warning
->
-> The term ‘variables’ here refers to the input to the server-side mutation, **not** to the variables made available to this mutation's fragment builders.
+<blockquote>
+Warning
+
+The term 'variables' here refers to the input to the server-side mutation, <strong>not</strong> to the variables made available to this mutation's fragment builders.
+</blockquote>
 
 ### getFragment (static method)
 
@@ -355,9 +357,11 @@ class Movie extends React.Component {
 }
 ```
 
-> Hint
->
-> In that last example, think of `$format` and `variables.format` as the same value.
+<blockquote>
+Hint
+
+In that last example, think of <code>$format</code> and <code>variables.format</code> as the same value.
+</blockquote>
 
 ### getCollisionKey
 

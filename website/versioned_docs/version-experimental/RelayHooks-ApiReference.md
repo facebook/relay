@@ -612,7 +612,9 @@ Object containing the following properties:
 
 * * *
 
-> WIP
+<blockquote>
+WIP
+</blockquote>
 
 
 In the meantime, see our **[Blocking ("all-at-once") Pagination Guide](a-guided-tour-of-relay#blocking-all-at-once-pagination)**.

@@ -4,7 +4,9 @@ title: Upgrading setVariables
 original_id: upgrading-setvariables
 ---
 
-> Examples on how to migrate `this.props.setVariables` calls from the old API.
+<blockquote>
+Examples on how to migrate <code>this.props.setVariables</code> calls from the old API.
+</blockquote>
 
 `this.props.setVariables` from the old API does not have a direct equivalent in the new API. A big reason for this change is that the new core no longer tracks how to refetch any specific sub-tree from the query. This makes the new core a lot faster, but requires explicit queries for how to fetch new data. Check out these four different scenarios:
 

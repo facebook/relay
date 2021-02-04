@@ -950,7 +950,9 @@ function TabSwitcher() {
 }
 ```
 
-> **NOTE:** Providing a Suspense config to `useTransition` will only work as expected in ***_React Concurrent Mode_***
+<blockquote>
+<strong>NOTE:</strong> Providing a Suspense config to <code>useTransition</code> will only work as expected in <strong><em>React Concurrent Mode</strong></em>.
+</blockquote>
 
 Let's take a look at what's happening here:
 
@@ -1408,7 +1410,9 @@ function ProfilePage(props) {
 
 ### Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]
 
-> **NOTE:** Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing `{UNSTABLE_renderPolicy: "partial"}` as an option to `useLazyLoadQuery`.
+<blockquote>
+<strong>NOTE:</strong> Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing <pre>{'{UNSTABLE_renderPolicy: "partial"}'}</pre> as an option to <pre>useLazyLoadQuery</pre>.
+</blockquote>
 
 Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 
@@ -2682,7 +2686,9 @@ function updater(store: RecordSourceSelectorProxy) {
 * In this case `ConnectionHandler.deleteNode` will remove an edge given a ***`node`** ID*. This means it will look up which edge in the connection contains a node with the provided ID, and remove that edge.
 * Note that this API will *mutate* the connection in-place.
 
-> **Remember:** When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.
+<blockquote>
+<strong>Remember:</strong> When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.
+</blockquote>
 
 
 You can also check out our complete Relay Store APIs [here](https://relay.dev/docs/en/relay-store.html)
@@ -2828,7 +2834,9 @@ const storyFragment = graphql`
 
 2) An easier API alternative to manage multiple connections with multiple filter values is still pending
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 ### Advanced Pagination Use Cases
 
@@ -2986,19 +2994,27 @@ However, it is possible that you'd need different behavior for how to merge and 
 
 To address these more complex use cases, Relay is still working on a solution:
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 #### Refreshing connections
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 #### Prefetching Pages of a Connection
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 #### Rendering One Page of Items at a Time
 
-> **TODO**
+<blockquote>
+<strong>TODO</strong>
+</blockquote>
 
 ## Advanced Data Fetching
 
@@ -3006,7 +3022,9 @@ To address these more complex use cases, Relay is still working on a solution:
 
 #### Preloading Data for Initial Load (Server Preloading)
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 #### Preloading Data for Transitions, in Parallel With Code (Client Preloading)
 
@@ -3023,11 +3041,15 @@ In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for
 
 ### Incremental Data Delivery
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 ### Data-driven Dependencies
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 ### Image Prefetching
 
@@ -3035,7 +3057,9 @@ The standard approach to loading images with Relay is to first request image URI
 
 #### Usage
 
-> OSS TODO
+<blockquote>
+OSS TODO
+</blockquote>
 
 #### When To Use Image Prefetching
 
@@ -3387,7 +3411,9 @@ Let's see what's happening here:
 * If the mutation *fails*, ***the optimistic update will be rolled back,*** and the error will be communicated via the `onError` callback.
 * Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Post` object).
 
-> **NOTE:** Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
+<blockquote>
+<strong>NOTE:</strong> Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
+</blockquote>
 
 
 #### Order of Execution of Updater Functions
@@ -3520,7 +3546,9 @@ For these types of mutations, it’s often more straightforward to explicitly ma
 
 #### Mutation Queueing
 
-> **TODO:** Left to be implemented in user space
+<blockquote>
+**TODO:** Left to be implemented in user space
+</blockquote>
 
 
 
@@ -3869,7 +3897,9 @@ In order to update client-only data, you can do so regularly inside [mutation](#
 
 ## Local Application State Management
 
-> **TODO**
+<blockquote>
+**TODO**
+</blockquote>
 
 Roughly, at a high level:
 
@@ -3940,25 +3970,35 @@ fetchQuery<AppQuery>(
 * The returned Promise that resolves to the query data, read out from the store when the first network response is received from the server. If the request fails, the promise will reject
 * Note that we specify the `AppQuery` Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
 
-> See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
+<blockquote>
+See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
+</blockquote>
 
 ### Prefetching Queries
 
 This section covers prefetching queries from the client (if you're interested in preloading for initial load or transitions,  see our [Preloading Data](#preloading-data) section). Prefetching queries can be useful to anticipate user actions and increase the likelihood of data being immediately available when the user requests it.
 
-> **TODO**
+<blockquote>
+**TODO**
+</blockquote>
 
 ### Subscribing to Queries
 
-> **TODO**
+<blockquote>
+**TODO**
+</blockquote>
 
 ### Reading Queries from Local Cache
 
-> **TODO**
+<blockquote>
+**TODO**
+</blockquote>
 
 ### Reading Fragments from Local Cache
 
-> **TODO**
+<blockquote>
+**TODO**
+</blockquote>
 
 ### Retaining Queries
 

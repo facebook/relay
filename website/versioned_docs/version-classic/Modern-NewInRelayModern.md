@@ -4,7 +4,9 @@ title: New in Relay Modern
 original_id: new-in-relay-modern
 ---
 
-> A summary of the improvements and new features in Relay Modern.
+<blockquote>
+A summary of the improvements and new features in Relay Modern.
+</blockquote>
 
 ## Modern API
 

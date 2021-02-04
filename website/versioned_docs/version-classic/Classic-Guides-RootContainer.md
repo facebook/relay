@@ -77,9 +77,11 @@ This snippet configures **Relay.RootContainer** to render `ProfilePicture` withi
 
 The `renderFetched` callback is always called with a `data` argument, which is an object mapping from `propName` to query data. It is expected that the `renderFetched` callback renders the supplied `Component` with them (e.g. using the [JSX spread attributes feature](https://facebook.github.io/react/docs/jsx-spread.html)).
 
-> Note
->
-> Even though we have access to the `data` object in `renderFetched`, the actual data is intentionally opaque. This prevents the `renderFetched` from creating an implicit dependency on the fragments declared by `Component`.
+<blockquote>
+Note
+
+Even though we have access to the `data` object in `renderFetched`, the actual data is intentionally opaque. This prevents the `renderFetched` from creating an implicit dependency on the fragments declared by `Component`.
+</blockquote>
 
 ### `renderFailure`
 

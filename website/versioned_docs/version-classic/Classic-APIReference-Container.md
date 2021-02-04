@@ -266,9 +266,11 @@ module.exports = Relay.createContainer(ProfilePicture, {
 ```
 In this example, the `width` of the rendered image will always correspond to the `$size` variable used to fetch the current version of `profilePicture.uri`.
 
-> Note
->
-> Never mutate `this.props.relay.variables` directly as it will not trigger data to be fetched properly. Treat `this.props.relay.variables` as if it were immutable, just like props.
+<blockquote>
+Note
+
+Never mutate <code>this.props.relay.variables</code> directly as it will not trigger data to be fetched properly. Treat <code>this.props.relay.variables</code> as if it were immutable, just like props.
+</blockquote>
 
 ### pendingVariables
 
@@ -380,9 +382,11 @@ module.exports = Relay.createContainer(Feed, {
 });
 ```
 
-> Note
->
-> `setVariables` does not immediately mutate `variables`, but creates a  pending state transition. `variables` will continue returning the previous values until `this.props` has been populated with data that fulfills the new variable values.
+<blockquote>
+Note
+
+<code>setVariables</code> does not immediately mutate <code>variables</code>, but creates a  pending state transition. <code>variables</code> will continue returning the previous values until <code>this.props</code> has been populated with data that fulfills the new variable values.
+</blockquote>
 
 See also: [Containers > Requesting Different Data](guides-containers.html#requesting-different-data), [Ready State](guides-ready-state.html)
 
@@ -398,9 +402,11 @@ The two methods differ in that instead of sending a query that includes only fie
 
 An optional `onReadyStateChange` callback can be supplied to respond to the events involved with the data fulfillment.
 
-> Note
->
-> `forceFetch` can be called with an empty set of partial variables, meaning it can trigger a refresh of the currently rendered set of data.
+<blockquote>
+Note
+
+`forceFetch` can be called with an empty set of partial variables, meaning it can trigger a refresh of the currently rendered set of data.
+</blockquote>
 
 See also: [Ready State](guides-ready-state.html)
 

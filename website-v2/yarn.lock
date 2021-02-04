@@ -3767,10 +3767,10 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docusaurus-plugin-internaldocs-fb@^0.5.6:
-  version "0.5.6"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-internaldocs-fb/-/docusaurus-plugin-internaldocs-fb-0.5.6.tgz#1110c53c181c7593ad130627827b80d7a2f4e91b"
-  integrity sha512-rt9ddfYte4EFa5Cs5eOligulaHgcrwHWfhoY2QM384dbQMYmSdM5gGuwN3kVnmyCbVPwMK6RI66i50j/VbbuuA==
+docusaurus-plugin-internaldocs-fb@^0.5.7:
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-internaldocs-fb/-/docusaurus-plugin-internaldocs-fb-0.5.7.tgz#7f2a1b1bbbe1edd22d817001edc2c3a5c1e8d988"
+  integrity sha512-FIDNifFK3jB10NlEaiunMV3JdcDgOvCPgxFKFPzf8oe7W5fVSeY4stIcepnXbo5umpyKFMRtLT8Bw6loJkJF3Q==
   dependencies:
     internaldocs-fb-helpers "^1.1.0"
     remark-code-snippets "^0.1.1"

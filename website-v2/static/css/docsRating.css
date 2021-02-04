@@ -1,0 +1,57 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/* Docs Rating Box */
+#docsRating {
+    display: block;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.6);
+    flex-direction: column;
+    margin-bottom: 20px;
+    min-height: 32px;
+}
+
+#docsRating svg {
+    display: inline;
+    height: 1.5em;
+    width: 1.5em;
+    margin: 0 6px 0 6px;
+}
+
+#docsRating svg:hover, #docsRating svg:focus {
+    cursor: pointer;
+    fill: var(--ifm-color-primary);
+}
+
+#docsRating .i_thumbsup {
+    fill: #56a211;
+    transform: translateY(0.25em);
+    margin-left: 12px;
+}
+
+#docsRating .i_thumbsdown {
+    fill: #e9430f;
+    transform: scale(-1, -1) translateY(-0.25em);
+}
+
+@media only screen and (min-width: 736px) {
+    #docsRating {
+        padding-left: 20px;
+    }
+
+    .left-column {
+        flex-direction: column;
+    }
+
+    .nav-footer .sitemap .left-column .nav-home {
+        display: inline;
+    }
+
+    .nav-footer .sitemap .left-column .links-column {
+        display: inline-block;
+    }
+}

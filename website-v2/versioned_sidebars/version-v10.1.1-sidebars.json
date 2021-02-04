@@ -1,0 +1,150 @@
+{
+  "version-v10.1.1/docs": [
+    {
+      "type": "category",
+      "label": "Introduction",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/introduction-to-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/prerequisites"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/installation-and-setup"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/quick-start-guide"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API Reference",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/graphql-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/relay-environment"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/network-layer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/query-renderer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/fragment-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/refetch-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/pagination-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/mutations"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/subscriptions"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/relay-store"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/fetch-query"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/routing"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/relay-debugging"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/graphql-server-specification"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/persisted-queries"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/type-emission"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/testing-relay-components"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/local-state-management"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Principles & Architecture",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/thinking-in-graphql"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/thinking-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/architecture-overview"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/compiler-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/runtime-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/videos"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Community",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v10.1.1/community-learning-resources"
+        }
+      ]
+    }
+  ]
+}

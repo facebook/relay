@@ -1,0 +1,162 @@
+{
+  "version-v1.6.2/docs": [
+    {
+      "type": "category",
+      "label": "Introduction",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/introduction-to-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/prerequisites"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/installation-and-setup"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/quick-start-guide"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API Reference",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/graphql-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/relay-environment"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/network-layer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/query-renderer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/fragment-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/refetch-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/pagination-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/mutations"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/subscriptions"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/relay-store"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/routing"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/relay-debugging"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/graphql-server-specification"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Migration Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/new-in-relay-modern"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/relay-compat"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/migration-setup"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/conversion-playbook"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/conversion-scripts"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/upgrading-setvariables"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/converting-mutations"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/compatibility-cheatsheet"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/api-cheatsheet"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Principles & Architecture",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/thinking-in-graphql"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/thinking-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/architecture-overview"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/compiler-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/runtime-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.6.2/videos"
+        }
+      ]
+    }
+  ]
+}

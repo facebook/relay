@@ -2,7 +2,6 @@
 id: routing
 title: Routing
 ---
-
 Historically, Relay started out internally at Facebook as a routing framework. However, Relay no longer makes any assumptions about routing, and works with a variety of routing options.
 
 ## No Routing

@@ -11,6 +11,7 @@
 import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
@@ -39,7 +40,7 @@ const HomeSplash = () => {
       <div className="homeContainer">
         <div className="homeSplashFade">
           <div className="logo">
-            <img src={siteConfig.baseUrl + 'img/relay-white.svg'} />
+            <img src={useBaseUrl('img/relay-white.svg')} />
           </div>
           <div className="wrapper homeWrapper">
             <h2 className="projectTitle">
@@ -326,7 +327,7 @@ export default createFragmentContainer(ArtistHeader, {
                     </p>
                     <p>
                       See the{' '}
-                      <a href={siteConfig.baseUrl + 'docs/fragment-container'}>
+                      <a href={useBaseUrl('docs/fragment-container')}>
                         Fragment Container docs
                       </a>
                     </p>
@@ -359,10 +360,9 @@ export default createFragmentContainer(ArtistHeader, {
                     <p>
                       See the{' '}
                       <a
-                        href={
-                          siteConfig.baseUrl +
-                          'docs/graphql-server-specification#connections'
-                        }>
+                        href={useBaseUrl(
+                          'docs/graphql-server-specification#connections',
+                        )}>
                         Connections
                       </a>{' '}
                       docs
@@ -391,10 +391,9 @@ export default createFragmentContainer(ArtistHeader, {
                     </p>
                     <p>
                       <a
-                        href={
-                          siteConfig.baseUrl +
-                          'docs/graphql-server-specification#object-identification'
-                        }>
+                        href={useBaseUrl(
+                          'docs/graphql-server-specification#object-identification',
+                        )}>
                         See the Object Identification docs
                       </a>
                     </p>
@@ -589,7 +588,7 @@ export default createFragmentContainer(ArtistHeader, {
             <div className="logosHomepage">{showcase}</div>
           </div>
           <div className="more-users">
-            <a className="button" href={siteConfig.baseUrl + 'users'}>
+            <a className="button" href={useBaseUrl('users')}>
               More Relay Users
             </a>
           </div>

@@ -12,9 +12,7 @@ The shape of the variables object used for query, mutation, or subscription oper
 
 In this example the emitted type-information would require the variables object to contain a `page` key with a non-null string.
 
-DOCUSAURUS_CODE_TABS
-
-Flow
+#### Flow
 
 ```javascript
 
@@ -42,7 +40,7 @@ const variables: ExampleQueryVariables = {
 
 ```
 
-TypeScript
+#### TypeScript
 
 ```javascript
 
@@ -71,17 +69,13 @@ import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
-
 ### Operation/Fragment selection-set data
 
 The shape of the data selected in a operation or fragment, following the [data-masking] rules. That is, excluding any data selected by fragment spreads, unless the `@relay(mask: false)` directive is used.
 
 In this example the emitted type-information describes the response data available to the operation’s render function.
 
-DOCUSAURUS_CODE_TABS
-
-Flow
+#### Flow
 
 ```javascript
 
@@ -112,7 +106,7 @@ import type { ExampleQueryResponse } from "__generated__/ExampleQuery.graphql"
 
 ```
 
-TypeScript
+#### TypeScript
 
 ```javascript
 
@@ -146,13 +140,9 @@ import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
-
 Similarly, in this example the emitted type-information describes the prop data that the container expects to receive.
 
-DOCUSAURUS_CODE_TABS
-
-Flow
+#### Flow
 
 ```javascript
 
@@ -178,7 +168,7 @@ export const ExampleFragment = createFragmentContainer(
 
 ```
 
-TypeScript
+#### TypeScript
 
 ```javascript
 
@@ -204,8 +194,6 @@ export const ExampleFragment = createFragmentContainer(
 
 ```
 
-END_DOCUSAURUS_CODE_TABS
-
 ### Fragment references
 
 The opaque identifier described in [data-masking] that a child container expects to receive from its parent, which represents the child container’s fragment spread inside the parent’s fragment.
@@ -214,9 +202,7 @@ _Please read [this important caveat](#single-artifact-directory) about actually 
 
 Consider a component that composes the above fragment container example. In this example, the emitted type-information of the child container receives a unique opaque identifier type, called a fragment reference, which the type-information emitted for the parent’s fragment references in the location where the child’s fragment is spread. Thus ensuring that the child’s fragment is spread into the parent’s fragment _and_ the correct fragment reference is passed to the child container at runtime.
 
-DOCUSAURUS_CODE_TABS
-
-Flow
+#### Flow
 
 ```javascript
 
@@ -260,7 +246,7 @@ import type { ExampleQueryResponse } from "__generated__/ExampleQuery.graphql"
 
 ```
 
-TypeScript
+#### TypeScript
 
 ```javascript
 
@@ -306,8 +292,6 @@ import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 />
 
 ```
-
-END_DOCUSAURUS_CODE_TABS
 
 ## Single artifact directory
 

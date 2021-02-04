@@ -354,40 +354,166 @@ directives: [
     },
 ]
 enums: []
-fields: []
+fields: [
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "thumbnail",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+]
 input_objects: []
 interfaces: [
     Interface {
         name: "BaseNode",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(0),
+        ],
         directives: [],
         interfaces: [],
     },
     Interface {
-        name: "BaseNode",
+        name: "Image",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(1),
+            FieldID(2),
+            FieldID(3),
+        ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(2),
+            InterfaceID(3),
+        ],
     },
     Interface {
-        name: "BaseNode",
+        name: "Node",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(7),
+        ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(0),
+        ],
     },
     Interface {
-        name: "BaseNode",
+        name: "Resource",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(4),
+            FieldID(5),
+            FieldID(6),
+        ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(3),
+        ],
     },
 ]
 objects: []

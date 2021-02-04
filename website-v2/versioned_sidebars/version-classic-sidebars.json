@@ -6,6 +6,10 @@
       "items": [
         {
           "type": "doc",
+          "id": "version-classic/introduction-to-relay"
+        },
+        {
+          "type": "doc",
           "id": "version-classic/classic-guides-containers"
         },
         {

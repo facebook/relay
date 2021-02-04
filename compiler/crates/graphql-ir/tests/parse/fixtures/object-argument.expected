@@ -35,9 +35,7 @@ query ObjectArgument($text: String!) {
                     alias: None,
                     definition: WithLocation {
                         location: object-argument.graphql:41:59,
-                        item: FieldID(
-                            0,
-                        ),
+                        item: FieldID(0),
                     },
                     arguments: [
                         Argument {
@@ -80,9 +78,7 @@ query ObjectArgument($text: String!) {
                             alias: None,
                             definition: WithLocation {
                                 location: object-argument.graphql:89:94,
-                                item: FieldID(
-                                    57,
-                                ),
+                                item: FieldID(57),
                             },
                             arguments: [],
                             directives: [],

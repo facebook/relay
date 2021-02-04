@@ -17,11 +17,17 @@ pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
 macro_rules! type_id {
     ($name:ident, $type:ident) => {
-        #[derive(Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+        #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
         pub struct $name(pub $type);
         impl $name {
             pub(crate) fn as_usize(&self) -> usize {
                 self.0 as usize
+            }
+        }
+
+        impl fmt::Debug for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, "{}({})", stringify!($name), self.0)
             }
         }
     };

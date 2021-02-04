@@ -230,9 +230,7 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                0,
-            ),
+            FieldID(0),
         ],
         directives: [],
         interfaces: [],
@@ -242,15 +240,11 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                1,
-            ),
+            FieldID(1),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
+            InterfaceID(0),
         ],
     },
     Interface {
@@ -258,21 +252,13 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                2,
-            ),
-            FieldID(
-                3,
-            ),
-            FieldID(
-                4,
-            ),
+            FieldID(2),
+            FieldID(3),
+            FieldID(4),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(
-                1,
-            ),
+            InterfaceID(1),
         ],
     },
     Interface {
@@ -280,24 +266,14 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                5,
-            ),
-            FieldID(
-                6,
-            ),
-            FieldID(
-                7,
-            ),
+            FieldID(5),
+            FieldID(6),
+            FieldID(7),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                1,
-            ),
+            InterfaceID(2),
+            InterfaceID(1),
         ],
     },
 ]

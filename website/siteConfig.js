@@ -176,7 +176,7 @@ const siteConfig = {
   baseUrl: '/',
   projectName: 'relay',
   cname: 'relay.dev',
-  users,
+  customFields: {users},
   editUrl: 'https://github.com/facebook/relay/edit/master/docs/',
   headerLinks: [
     {doc: 'introduction-to-relay', label: 'Docs'},

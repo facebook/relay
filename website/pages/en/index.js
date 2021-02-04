@@ -57,7 +57,7 @@ class HomeSplash extends React.Component {
 class Index extends React.Component {
   render() {
     let language = this.props.language || 'en';
-    const showcase = siteConfig.users
+    const showcase = siteConfig.customFields.users
       .filter(user => {
         return user.pinned;
       })

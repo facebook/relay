@@ -3019,7 +3019,7 @@ This not only applies to transitions to other pages, but also for displaying ele
 
 The problem with this naive approach is that we have to wait for a significant amount of time before we can actually start fetching the data we need. Ideally, by the time a user interaction occurs, we'd already know what data we will need in order to fulfill that interaction, and we could start *preloading* it from the client immediately, ***in parallel*** with loading the JS code that we're going to need; by doing so, we can significantly speed up the amount of time it takes to show content to users after an interaction.
 
-In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for efficiently loading both the code and data dependencies of *any* view in parallel. Check out our api reference for Entry Points: <TODO>
+In order to do so, we can use **Relay EntryPoints**, which are a set of APIs for efficiently loading both the code and data dependencies of *any* view in parallel. Check out our api reference for Entry Points: (TODO)
 
 ### Incremental Data Delivery
 

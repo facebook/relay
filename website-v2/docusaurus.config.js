@@ -183,7 +183,7 @@ module.exports = {
   onBrokenMarkdownLinks: 'log',
   presets: [
     [
-      '@docusaurus/preset-classic',
+      require.resolve('docusaurus-plugin-internaldocs-fb/docusaurus-preset'),
       {
         docs: {
           showLastUpdateAuthor: true,

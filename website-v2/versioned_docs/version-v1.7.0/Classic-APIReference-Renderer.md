@@ -149,4 +149,4 @@ onReadyStateChange(
 
 This callback prop is called as the various events of data resolution occur.
 
-See also: [Ready State](guides-ready-state.html)
+See also: [Ready State](./guides-ready-state)

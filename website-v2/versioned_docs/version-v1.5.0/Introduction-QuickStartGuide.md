@@ -19,7 +19,7 @@ Table of Contents:
 
 ## Setup
 
-Before starting, make sure to check out our [Prerequisites](./prerequisites.html) and [Installation and Setup](./installation-and-setup.html) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
+Before starting, make sure to check out our [Prerequisites](./prerequisites) and [Installation and Setup](./installation-and-setup) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
 
 Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a  [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and schema [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
 
@@ -44,7 +44,7 @@ Additionally, we will be using [Flow](https://flow.org/) inside our JavaScript c
 
 ## Relay Environment
 
-Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Envionment](./relay-environment.html). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
+Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Envionment](./relay-environment). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
 
 For the purposes of our example, we are simply going to configure our environment to communicate with our existing GraphQL server:
 
@@ -84,7 +84,7 @@ export default environment;
 
 ```
 
-A Relay Environment requires at least a [Store](./relay-store.html) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
+A Relay Environment requires at least a [Store](./relay-store) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
 
 Usually we'd want a single environment in our app, so you could export this environment as a singleton instance from a module to make it accessible across your app.
 
@@ -146,7 +146,7 @@ export default App extends React.Component {
 Our app is rendering a `QueryRenderer` in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:
 
 -   We're passing the `environment` we defined earlier.
--   We're using using the [`graphql`](./graphql-in-relay.html) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay.html#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay.html) docs.
+-   We're using using the [`graphql`](./graphql-in-relay) function to define our GraphQL query. `graphql` is a template tag that is never executed at runtime, but rather used by the [Relay Compiler](./graphql-in-relay#relay-compiler) to generate the runtime artifacts that Relay requires to operate. We don't need to worry about this right now; for more details check out our [GraphQL in Relay](./graphql-in-relay) docs.
 -   We're passing an empty set of `variables`. We'll look into how to use variables in the next section.
 -   We're passing a `render` function; as you can tell from the code, Relay gives us some information about wether an error occurred, or if we're still fetching the query. If everything succeeds, the data we requested will be available inside `props`, with the same shape as the one specified in the query.
 
@@ -603,9 +603,9 @@ In the simplest case above, we just need to pass an `optimisticResponse` option,
 
 By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case, and in some cases updating the local data isn't as simple as just updating the fields in a record.
 
-For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios, Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations.html#configs), and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
+For instance, we might be updating a collection of items, or we might be deleting a record entirely. For these more advanced scenarios, Relay allows us to pass a set of options for us to control how we update the local data from a server response, including a set of [`configs`](./mutations#configs), and an [`updater`](https://facebook.github.io/relay/docs/en/mutations.html#updating-the-store-programatically-advanced) function for full control over the update.
 
-For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations.html) docs.
+For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations) docs.
 
 ## Next Steps
 

@@ -147,7 +147,7 @@ export default App;
 
 ## Step 3: When To Use Relay
 
-At this point we can fetch data with GraphQL and render it with React. This is a reasonable solution that can be sufficient for many apps. However, this approach doesn't necessarily scale. As our app grows in size and complexity, or the number of people working on the app grows, a simple approach like this can become limiting. Relay provides a number of features designed to help keep applications fast and reliable even as they grow in size and complexity: colocating data dependencies in components with GraphQL fragments, data consistency, mutations, etc. Check out [Thinking in GraphQL](/docs/en/thinking-in-graphql.html) and [Thinking in Relay](/docs/en/thinking-in-relay.html) for an overview of how Relay makes it easier to work with GraphQL.
+At this point we can fetch data with GraphQL and render it with React. This is a reasonable solution that can be sufficient for many apps. However, this approach doesn't necessarily scale. As our app grows in size and complexity, or the number of people working on the app grows, a simple approach like this can become limiting. Relay provides a number of features designed to help keep applications fast and reliable even as they grow in size and complexity: colocating data dependencies in components with GraphQL fragments, data consistency, mutations, etc. Check out [Thinking in GraphQL](.//docs/en/thinking-in-graphql) and [Thinking in Relay](.//docs/en/thinking-in-relay) for an overview of how Relay makes it easier to work with GraphQL.
 
 ## Step 4: Adding Relay To Our Project
 
@@ -317,6 +317,6 @@ Note that you'll have to restart the app - `yarn start` - so that Relay compiler
 
 At this point we have an app configured to use Relay. We recommend checking out the following for information and ideas about where to go next:
 
--   The [Guided Tour](a-guided-tour-of-relay.html) describes how to implement many common use-cases.
--   The [API Reference](api-reference.html) has full details on the Relay Hooks APIs.
+-   The [Guided Tour](./a-guided-tour-of-relay) describes how to implement many common use-cases.
+-   The [API Reference](./api-reference) has full details on the Relay Hooks APIs.
 -   The [Example App](https://github.com/relayjs/relay-examples/tree/master/issue-tracker) is a more sophisticated version of what we've started building here. It includes routing integration and uses React Concurrent Mode and Suspense for smooth transitions between pages.

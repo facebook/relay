@@ -3,7 +3,7 @@ id: pagination-container
 title: Pagination Container
 original_id: pagination-container
 ---
-Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container.html), that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
+Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container), that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
 
 Table of Contents:
 
@@ -149,7 +149,7 @@ type Props = {
 ```
 
 -   `relay`:
-    -   `environment`: The current [Relay Environment](./relay-environment.html)
+    -   `environment`: The current [Relay Environment](./relay-environment)
     -   `hasMore`: See `hasMore` [docs](#hasmore)
     -   `isLoading`: See `isLoading` [docs](#isloading)
     -   `loadMore`: See `loadMore` [docs](#loadmore)

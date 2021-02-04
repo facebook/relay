@@ -35,7 +35,7 @@ commitMutation(
 
 ### Arguments
 
--   `environment`: The [Relay Environment](./relay-environment.html). **Note:** To ensure the mutation is performed on the correct `environment`, it's recommended to use the environment available within components (from `this.props.relay.environment`), instead of referencing a global environment.
+-   `environment`: The [Relay Environment](./relay-environment). **Note:** To ensure the mutation is performed on the correct `environment`, it's recommended to use the environment available within components (from `this.props.relay.environment`), instead of referencing a global environment.
 -   `config`:
     -   `mutation`: The `graphql` tagged mutation query.
     -   `variables`: Object containing the variables needed for the mutation. For example, if the mutation defines an `$input` variable, this object should contain an `input` key, whose shape must match the shape of the data expected by the mutation as defined by the GraphQL schema.
@@ -43,13 +43,13 @@ commitMutation(
     -   `onError`: Callback function executed if Relay encounters an error during the request.
     -   `optimisticResponse`: Object containing the data to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. This object must have the same shape as the mutation's response type, as defined by the GraphQL schema. If provided, Relay will use the `optimisticResponse` data to update the fields on the relevant records in the local data store, _before_ `optimisticUpdater` is executed. If an error occurs during the mutation request, the optimistic update will be rolled back.
     -   `optimisticUpdater`: Function used to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. If an error occurs during the mutation request, the optimistic update will be rolled back.
-        This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store.html). In this function, the client defines 'how to' update the local data via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store.html).
+        This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store). In this function, the client defines 'how to' update the local data via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store).
         **Please note:**
         -   It is usually preferable to just pass an `optimisticResponse` option instead of an `optimisticUpdater`, unless you need to perform updates on the local records that are more complicated than just updating fields (e.g. deleting records or adding items to collections).
         -   If you do decide to use an `optimisticUpdater`, often times it can be the same function as `updater`.
     -   `updater`: Function used to update the local in-memory store based on the **real** server response from the mutation. If `updater` is not provided, by default, Relay will know to automatically update the fields on the records referenced in the mutation response; however, you should pass an `updater` if you need to make more complicated updates than just updating fields (e.g. deleting records or adding items to collections).
         When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and will then execute `updater`.
-        This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store.html). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store.html).
+        This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store).
     -   `configs`:  Array containing objects describing `optimisticUpdater`/`updater` configurations. `configs` provides a convenient way to specify the `updater` behavior without having to write an `updater` function. See our section on [Updater Configs](#updater-configs) for more details.
 
 ## Simple Example

@@ -52,11 +52,11 @@ This is no longer needed in Compatibility Mode for neither environments. Simply 
 
 ### RANGE_ADD
 
-`RANGE_ADD` needs one additional property in the config named `connectionInfo` to work with the new environment. Learn more about `connectionInfo` [Mutation/RANGE_ADD](mutations.html#range-add)
+`RANGE_ADD` needs one additional property in the config named `connectionInfo` to work with the new environment. Learn more about `connectionInfo` [Mutation/RANGE_ADD](./mutations#range-add)
 
 ### RANGE_DELETE
 
-`RANGE_DELETE` needs one additional property in the config named `connectionKeys` to work with the new environment. Learn more about `connectionKeys` [Mutation/RANGE_DELETE](mutations.html#range-delete)
+`RANGE_DELETE` needs one additional property in the config named `connectionKeys` to work with the new environment. Learn more about `connectionKeys` [Mutation/RANGE_DELETE](./mutations#range-delete)
 
 ### NODE_DELETE
 
@@ -181,4 +181,4 @@ function commit(environment: CompatEnvironment, args) {
 
 ```
 
-See [Mutation](mutations.html) for additional options on `commitMutation` for more complex mutations.
+See [Mutation](./mutations) for additional options on `commitMutation` for more complex mutations.

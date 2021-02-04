@@ -3,7 +3,7 @@ id: architecture-overview
 title: Architecture Overview
 original_id: architecture-overview
 ---
-This document, together with [Runtime Architecture](runtime-architecture.html) and [Compiler Architecture](compiler-architecture.html), describes the high-level architecture of Relay "Modern". The intended audience includes developers interested in contributing to Relay, developers hoping to utilize the building blocks of Relay to create higher-level APIs, and anyone interested in understanding more about Relay internals. For developers wanting to learn more about _using_ Relay to build products, the other sections might be more helpful.
+This document, together with [Runtime Architecture](./runtime-architecture) and [Compiler Architecture](./compiler-architecture), describes the high-level architecture of Relay "Modern". The intended audience includes developers interested in contributing to Relay, developers hoping to utilize the building blocks of Relay to create higher-level APIs, and anyone interested in understanding more about Relay internals. For developers wanting to learn more about _using_ Relay to build products, the other sections might be more helpful.
 
 ## Core Modules
 

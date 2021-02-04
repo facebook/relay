@@ -32,7 +32,7 @@ createFragmentContainer(
     -   A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
         If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
     -   An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop in the resulting Component.
-    -   **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+    -   **Note:** To enable [compatibility mode](./relay-compat), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 
 ### Available Props
 
@@ -50,7 +50,7 @@ type Props = {
 ```
 
 -   `relay`:
-    -   `environment`: The current [Relay Environment](./relay-environment.html)
+    -   `environment`: The current [Relay Environment](./relay-environment)
 
 ## Example
 
@@ -226,7 +226,7 @@ Note that when composing fragments, the type of the composed fragment must match
 
 #### `@argumentDefinitions`
 
-When defining a fragment, you can use the [`@argumentDefinitions`](./graphql-in-relay.html#argumentdefinitions) directive to specify any arguments, with potentially default values, that the fragment expects.
+When defining a fragment, you can use the [`@argumentDefinitions`](./graphql-in-relay#argumentdefinitions) directive to specify any arguments, with potentially default values, that the fragment expects.
 
 For example, let's redefine our `TodoList_list` fragment to take some arguments using `@argumentDefinitions`:
 
@@ -248,7 +248,7 @@ Any arguments defined inside `@argumentDefinitions` will be local variables avai
 
 #### `@arguments`
 
-In order to pass arguments to a fragment that has `@argumentDefinitions`, you need to use the [`@arguments`](./graphql-in-relay.html#arguments) directive.
+In order to pass arguments to a fragment that has `@argumentDefinitions`, you need to use the [`@arguments`](./graphql-in-relay#arguments) directive.
 
 Following our `TodoList_list` example, we would pass arguments to the fragment like so:
 
@@ -317,4 +317,4 @@ export default createFragmentContainer(
 
 ## Rendering Containers
 
-As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a `QueryRenderer` component to render a root query and any fragment containers included within. Please refer to our [`QueryRenderer`](./query-renderer.html) docs for more details.
+As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a `QueryRenderer` component to render a root query and any fragment containers included within. Please refer to our [`QueryRenderer`](./query-renderer) docs for more details.

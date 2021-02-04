@@ -137,7 +137,7 @@ module.exports = Relay.createContainer(StarWarsShip, {
 
 In this example, the fields associated with the `ship` fragment will be made available on `this.props.ship`.
 
-See also: [Containers &gt; Relay Containers](guides-containers.html#relay-containers)
+See also: [Containers &gt; Relay Containers](./guides-containers#relay-containers)
 
 ### initialVariables
 
@@ -250,7 +250,7 @@ if (name === 'SuperAwesomeRoute') {
 
 ```
 
-See also: [Routes](guides-routes.html)
+See also: [Routes](./guides-routes)
 
 ### variables
 
@@ -423,7 +423,7 @@ Note
 
 </blockquote>
 
-See also: [Containers &gt; Requesting Different Data](guides-containers.html#requesting-different-data), [Ready State](guides-ready-state.html)
+See also: [Containers &gt; Requesting Different Data](./guides-containers#requesting-different-data), [Ready State](./guides-ready-state)
 
 ### forceFetch
 
@@ -446,7 +446,7 @@ Note
 
 </blockquote>
 
-See also: [Ready State](guides-ready-state.html)
+See also: [Ready State](./guides-ready-state)
 
 ### hasOptimisticUpdate
 
@@ -514,7 +514,7 @@ module.exports = Relay.createContainer(Feed, {
 
 ```
 
-See also: [Mutations &gt; Optimistic Updates](guides-mutations.html#optimistic-updates)
+See also: [Mutations &gt; Optimistic Updates](./guides-mutations#optimistic-updates)
 
 ### getPendingTransactions
 

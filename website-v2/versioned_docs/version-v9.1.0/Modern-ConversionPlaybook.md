@@ -7,7 +7,7 @@ Incrementally modernize your Relay Classic app in these steps:
 
 ## Step 0: Install and configure your environment
 
-Follow the steps outlined in the [Migration Setup](./migration-setup.html) guide.
+Follow the steps outlined in the [Migration Setup](./migration-setup) guide.
 
 ## Step 1: Incrementally convert to Relay Compat
 

@@ -182,7 +182,7 @@ const mutation = new Relay.GraphQLMutation(
 
 ```
 
-See also: [Relay.Mutation::getCollisionKey()](api-reference-relay-mutation.html#getcollisionkey)
+See also: [Relay.Mutation::getCollisionKey()](./api-reference-relay-mutation#getcollisionkey)
 
 ### applyOptimistic
 
@@ -232,7 +232,7 @@ const transaction = mutation.applyOptimistic(
 
 ```
 
-See also: [Relay.Mutation::getConfigs()](api-reference-relay-mutation.html#getconfigs-abstract-method)
+See also: [Relay.Mutation::getConfigs()](./api-reference-relay-mutation#getconfigs-abstract-method)
 
 ### commit
 
@@ -268,7 +268,7 @@ const transaction = mutation.commit(configs);
 
 ```
 
-See also: [Relay.Mutation::getConfigs()](api-reference-relay-mutation.html#getconfigs-abstract-method)
+See also: [Relay.Mutation::getConfigs()](./api-reference-relay-mutation#getconfigs-abstract-method)
 
 ### rollback
 

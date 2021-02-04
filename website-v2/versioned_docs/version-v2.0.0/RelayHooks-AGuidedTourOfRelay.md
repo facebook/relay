@@ -5,7 +5,7 @@ original_id: a-guided-tour-of-relay
 ---
 [Relay](https://relay.dev/) is a framework for managing and declaratively fetching GraphQL data. Specifically, it provides a set of APIs to fetch and declare data dependencies for React components, in colocation with component definitions themselves.
 
-In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](api-reference.html) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](graphql-server-specification.html)
+In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [API Reference](./api-reference) page. Before getting started, bear in mind that we assume some level of familiarity with JavaScript, [React](https://reactjs.org/docs/getting-started.html), [GraphQL](https://graphql.org/learn/), and assume that you have set up a GraphQL Server that adheres to the [Relay specification](./graphql-server-specification)
 
 ## Example App
 
@@ -63,7 +63,7 @@ If you need to configure `babel-plugin-relay` further, you can do so by [specify
 
 ### Relay Compiler
 
-Whenever you're developing Relay components, for example by writing [Fragments](#fragments) or [Queries](#queries), you will need to run the [Relay Compiler](./graphql-in-relay.html#relay-compiler). The Relay Compiler will read and analyze any `graphql` inside your JavaScript code, and produce a set of artifacts that will be used by Relay at runtime (i.e. when the application is running on the browser).
+Whenever you're developing Relay components, for example by writing [Fragments](#fragments) or [Queries](#queries), you will need to run the [Relay Compiler](./graphql-in-relay#relay-compiler). The Relay Compiler will read and analyze any `graphql` inside your JavaScript code, and produce a set of artifacts that will be used by Relay at runtime (i.e. when the application is running on the browser).
 
 To install the compiler, you can use `yarn` or `npm`:
 
@@ -3777,7 +3777,7 @@ If desired, you can convert the request into a Promise using **``**:
 -   Note that we specify the `` Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the `` passed as input to `` match the type of the variables expected by the query.
 
 
-See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
+See also our API Reference for [fetchQuery](./api-reference#fetchquery).
 
 
 ### Prefetching Queries

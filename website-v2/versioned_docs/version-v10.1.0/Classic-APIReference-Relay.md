@@ -89,31 +89,31 @@ _Methods_
 
 ### DefaultNetworkLayer (static property)
 
-See the [Network Layer Guide](guides-network-layer.html).
+See the [Network Layer Guide](./guides-network-layer).
 
 ### Mutation
 
-See the [Mutations Guide](guides-mutations.html).
+See the [Mutations Guide](./guides-mutations).
 
 ### QL
 
-See the [Relay.QL API reference](api-reference-relay-ql.html).
+See the [Relay.QL API reference](./api-reference-relay-ql).
 
 ### PropTypes
 
-See the [PropTypes API reference](api-reference-relay-proptypes.html).
+See the [PropTypes API reference](./api-reference-relay-proptypes).
 
 ### RootContainer
 
-See the [RootContainer Guide](guides-root-container.html).
+See the [RootContainer Guide](./guides-root-container).
 
 ### Route
 
-See the [Routes Guide](guides-routes.html).
+See the [Routes Guide](./guides-routes).
 
 ### Store
 
-See the [Store API reference](api-reference-relay-store.html).
+See the [Store API reference](./api-reference-relay-store).
 
 ## Methods
 
@@ -129,7 +129,7 @@ var Container = Relay.createContainer(Component, {
 
 ```
 
-Creates a new Relay Container - see the [Container Guide](guides-containers.html) for more details and examples.
+Creates a new Relay Container - see the [Container Guide](./guides-containers) for more details and examples.
 
 ### injectNetworkLayer (static method)
 

@@ -153,4 +153,4 @@ When `forceFetch` is true and `renderFetched` is called as a result of available
 
 **Relay.RootContainer** also supports the `onReadyStateChange` prop which lets us receive fine-grained events as they occur while fulfilling the data requirements.
 
-Learn how to use `onReadyStateChange` in our next guide, [Ready State](guides-ready-state.html).
+Learn how to use `onReadyStateChange` in our next guide, [Ready State](./guides-ready-state).

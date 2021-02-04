@@ -129,8 +129,8 @@ class LikeStoryMutation extends Relay.Mutation {
 ```
 
 See also:
-[Mutations &gt; Fragment variables](guides-mutations.html#fragment-variables) and
-[Mutations &gt; Optimistic updates](guides-mutations.html#optimistic-updates)
+[Mutations &gt; Fragment variables](./guides-mutations#fragment-variables) and
+[Mutations &gt; Optimistic updates](./guides-mutations#optimistic-updates)
 
 ### initialVariables (static property)
 
@@ -160,7 +160,7 @@ class ChangeTodoStatusMutation extends Relay.Mutation {
 ```
 
 See also:
-[Mutations &gt; Fragment variables](guides-mutations.html#fragment-variables)
+[Mutations &gt; Fragment variables](./guides-mutations#fragment-variables)
 
 ### prepareVariables (static property)
 
@@ -200,7 +200,7 @@ class BuySongMutation extends Relay.Mutation {
 ```
 
 See also:
-[Mutations &gt; Fragment variables](guides-mutations.html#fragment-variables)
+[Mutations &gt; Fragment variables](./guides-mutations#fragment-variables)
 
 ## Methods
 
@@ -244,7 +244,7 @@ class LikeStoryMutation extends Relay.Mutation {
 
 ```
 
-See also: [Mutations &gt; Mutator configuration](guides-mutations.html#mutator-configuration)
+See also: [Mutations &gt; Mutator configuration](./guides-mutations#mutator-configuration)
 
 ### getFatQuery (abstract method)
 
@@ -277,7 +277,7 @@ class BuySongMutation extends Relay.Mutation {
 ```
 
 See also:
-[Mutations &gt; The fat query](guides-mutations.html#the-fat-query)
+[Mutations &gt; The fat query](./guides-mutations#the-fat-query)
 
 ### getMutation (abstract method)
 
@@ -500,4 +500,4 @@ class LikeStoryMutation extends Relay.Mutation {
 
 ```
 
-See also: [Mutations &gt; Optimistic updates](guides-mutations.html#optimistic-updates)
+See also: [Mutations &gt; Optimistic updates](./guides-mutations#optimistic-updates)

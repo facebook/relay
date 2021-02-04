@@ -78,6 +78,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     errors: Arc<RwLock<Vec<LSPStateError>>>,
+    perf_logger: Arc<TPerfLogger>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
@@ -86,6 +87,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
+        perf_logger: Arc<TPerfLogger>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
@@ -99,6 +101,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             source_programs: Default::default(),
             synced_graphql_documents: Default::default(),
             errors: lsp_state_errors,
+            perf_logger,
         }
     }
 
@@ -111,38 +114,39 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         perf_logger: Arc<TPerfLogger>,
     ) -> LSPProcessResult<Self> {
-        let mut lsp_state = Self::new(config, extra_data_provider, lsp_state_errors);
+        let mut lsp_state = Self::new(config, extra_data_provider, lsp_state_errors, perf_logger);
 
-        let setup_event = perf_logger.create_event("lsp_state_initialize_resources");
+        let setup_event = lsp_state
+            .perf_logger
+            .create_event("lsp_state_initialize_resources");
         let log_time = setup_event.start("lsp_state_initialize_resources_time");
 
         let file_source = FileSource::connect(&lsp_state.config, &setup_event)
             .await
             .map_err(LSPProcessError::CompilerError)?;
         let (mut compiler_state, file_source_subscription) = file_source
-            .subscribe(&setup_event, perf_logger.as_ref())
+            .subscribe(&setup_event, lsp_state.perf_logger.as_ref())
             .await
             .map_err(LSPProcessError::CompilerError)?;
 
-        lsp_state.initial_build(&mut compiler_state, &setup_event, Arc::clone(&perf_logger))?;
+        lsp_state.initial_build(&mut compiler_state, &setup_event)?;
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
 
         // Finally, start a dedicated watchman subscription, just for LSP to update schemas/programs in lsp_state
-        lsp_state.watch_and_update_schemas(
-            compiler_state,
-            file_source_subscription,
-            Arc::clone(&perf_logger),
-        );
+        lsp_state.watch_and_update_schemas(compiler_state, file_source_subscription);
 
         // This is an instance of a regular Relay compiler that we will run in
         // watch mode in a separate future (it will report errors)
         setup_event.stop(log_time);
-        perf_logger.complete_event(setup_event);
-        perf_logger.flush();
+        lsp_state.perf_logger.complete_event(setup_event);
+        lsp_state.perf_logger.flush();
 
-        lsp_state.compiler = Some(Compiler::new(Arc::clone(&lsp_state.config), perf_logger));
+        lsp_state.compiler = Some(Compiler::new(
+            Arc::clone(&lsp_state.config),
+            Arc::clone(&lsp_state.perf_logger),
+        ));
 
         Ok(lsp_state)
     }
@@ -151,13 +155,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         &mut self,
         mut compiler_state: CompilerState,
         mut subscription: FileSourceSubscription,
-        perf_logger: Arc<TPerfLogger>,
     ) {
         let config = Arc::clone(&self.config);
-        let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
+        let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&self.perf_logger));
         let source_programs = Arc::clone(&self.source_programs);
         let schemas = self.get_schemas();
         let errors = Arc::clone(&self.errors);
+        let perf_logger = Arc::clone(&self.perf_logger);
 
         tokio::spawn(async move {
             loop {
@@ -300,14 +304,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         &mut self,
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
-        perf_logger: Arc<TPerfLogger>,
     ) -> LSPProcessResult<()> {
-        let compiler = Compiler::new(Arc::clone(&self.config), Arc::clone(&perf_logger));
+        let compiler = Compiler::new(Arc::clone(&self.config), Arc::clone(&self.perf_logger));
 
         let (schemas, build_schema_errors) = compiler.build_schemas(&compiler_state, setup_event);
 
         if !build_schema_errors.is_empty() {
-            Self::log_errors(&perf_logger, &build_schema_errors);
+            Self::log_errors(&self.perf_logger, &build_schema_errors);
             self.errors
                 .write()
                 .unwrap()
@@ -320,7 +323,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             compiler.build_raw_programs(&compiler_state, &schemas, None, setup_event)?;
 
         if !build_raw_program_errors.is_empty() {
-            Self::log_errors(&perf_logger, &build_raw_program_errors);
+            Self::log_errors(&self.perf_logger, &build_raw_program_errors);
             self.errors
                 .write()
                 .unwrap()

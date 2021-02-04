@@ -121,9 +121,7 @@ fragment F2 on Query @argumentDefinitions(
                     alias: None,
                     definition: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:303:319,
-                        item: FieldID(
-                            10,
-                        ),
+                        item: FieldID(10),
                     },
                     arguments: [
                         Argument {
@@ -155,9 +153,7 @@ fragment F2 on Query @argumentDefinitions(
                             alias: None,
                             definition: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:342:352,
-                                item: FieldID(
-                                    514,
-                                ),
+                                item: FieldID(514),
                             },
                             arguments: [],
                             directives: [],

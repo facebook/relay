@@ -189,7 +189,6 @@ module.exports = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          homePageId: 'introduction-to-relay',
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: 'https://github.com/facebook/relay/edit/master/docs/',

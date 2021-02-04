@@ -120,7 +120,8 @@
 <h2><a class="anchor" aria-hidden="true" id="mock-payload-generator-and-relay_test_operation-directive"></a><a href="#mock-payload-generator-and-relay_test_operation-directive" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mock Payload Generator and <code>@relay_test_operation</code> Directive</h2>
 <p><code>MockPayloadGenerator</code> may drastically simplify the process of creating and maintaining mock data for your tests. <code>MockPayloadGenerator</code> is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc), and values are functions that will return the default data for the type.</p>
 <p>Example of a simple Mock Resolver:</p>
-<pre><code class="hljs css language-javascript">{
+<pre><code class="hljs css language-javascript">
+{
   <span class="hljs-function"><span class="hljs-title">ID</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-comment">// Return mock value for a scalar filed with type ID</span>
     <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;my-id&#x27;</span>;
@@ -130,9 +131,11 @@
     <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Lorem Ipsum&quot;</span>
   }
 }
+
 </code></pre>
 <p>It is possible to define more resolvers for Object types:</p>
-<pre><code class="hljs css language-javascript">{
+<pre><code class="hljs css language-javascript">
+{
   <span class="hljs-comment">// This will be the default values for User object in the query response</span>
   <span class="hljs-function"><span class="hljs-title">User</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> {
@@ -144,10 +147,12 @@
     };
   },
 }
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="mock-resolver-context"></a><a href="#mock-resolver-context" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mock Resolver Context</h3>
 <p>The first argument of the MockResolver is the object that contains Mock Resolver Context. It is possible to return dynamic values from mock resolvers based on the context - for instance, name or alias of the field, a path in the selection, arguments, or parent type.</p>
-<pre><code class="hljs css language-javascript">{
+<pre><code class="hljs css language-javascript">
+{
   <span class="hljs-function"><span class="hljs-title">String</span>(<span class="hljs-params">context</span>)</span> {
     <span class="hljs-keyword">if</span> (context.name === <span class="hljs-string">&#x27;zip&#x27;</span>) {
       <span class="hljs-keyword">return</span> <span class="hljs-string">&#x27;94025&#x27;</span>;
@@ -160,20 +165,24 @@
     }
   }
 }
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="id-generation"></a><a href="#id-generation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>ID Generation</h3>
 <p>The second argument of the Mock Resolver its a function that will generate a sequence of integers, useful to generate unique IDs in the tests:</p>
-<pre><code class="hljs css language-javascript">{
+<pre><code class="hljs css language-javascript">
+{
   <span class="hljs-comment">// will generate strings &quot;my-id-1&quot;, &quot;my-id-2&quot;, etc.</span>
   <span class="hljs-function"><span class="hljs-title">ID</span>(<span class="hljs-params">_, generateId</span>)</span> {
      <span class="hljs-keyword">return</span> <span class="hljs-string">`my-id-<span class="hljs-subst">${generateId()}</span>`</span>;
   },
 }
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="relay_test_operation"></a><a href="#relay_test_operation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>@relay_test_operation</code></h3>
 <p>Most of GraphQL type information for a specific field in the selection is not available during Relay runtime. By default, Relay, cannot get type information for a scalar field in the selection, or an interface type of the object.</p>
 <p>Operations with the <code>@relay_test_operation</code> directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:</p>
-<pre><code class="hljs css language-javascript">{
+<pre><code class="hljs css language-javascript">
+{
   <span class="hljs-function"><span class="hljs-title">Float</span>(<span class="hljs-params"></span>)</span> {
     <span class="hljs-keyword">return</span> <span class="hljs-number">123.456</span>;
   },
@@ -190,11 +199,13 @@
     };
   }
 }
+
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="examples"></a><a href="#examples" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Examples</h2>
 <h3><a class="anchor" aria-hidden="true" id="relay-component-test"></a><a href="#relay-component-test" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Relay Component Test</h3>
 <p>Using <code>createMockEnvironment</code> and <code>MockPayloadGenerator</code> allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from <code>relay-test-utils</code>.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
+<pre><code class="hljs css language-javascript">
+<span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
 <span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;MyAwesomeViewRoot&#x27;</span>);
 <span class="hljs-keyword">const</span> {
   createMockEnvironment,
@@ -246,10 +257,12 @@ test(<span class="hljs-string">&#x27;Error State&#x27;</span>, <span class="hljs
     renderer.root.find(<span class="hljs-function"><span class="hljs-params">item</span> =&gt;</span> (item.props.testID = <span class="hljs-string">&#x27;errorMessage&#x27;</span>)),
   ).toBeDefined();
 });
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="fragment-container-tests"></a><a href="#fragment-container-tests" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Fragment Container Tests</h3>
 <p>Essentially, in the example above, <code>resolveMostRecentOperation</code> will generate data for all child fragment containers (pagination, refetch). Usually, the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap your fragment container with the QueryRenderer that renders a Query that's spreads fragments from your fragment container.</p>
-<pre><code class="hljs css language-javascript">test(<span class="hljs-string">&#x27;Fragment Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+<pre><code class="hljs css language-javascript">
+test(<span class="hljs-string">&#x27;Fragment Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function">() =&gt;</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
@@ -279,10 +292,12 @@ test(<span class="hljs-string">&#x27;Error State&#x27;</span>, <span class="hljs
 
   expect(renderer).toMatchSnapshot();
 });
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="pagination-container-test"></a><a href="#pagination-container-test" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Pagination Container Test</h3>
 <p>Essentially, tests for Pagination container are not different from Fragment Container tests. We can also do more here. We can actually see how the pagination works by asserting the behavior of our components when performing pagination (load more, refetch).</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Pagination Example</span>
+<pre><code class="hljs css language-javascript">
+<span class="hljs-comment">// Pagination Example</span>
 test(<span class="hljs-string">&#x27;Pagination Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function">() =&gt;</span> (
@@ -347,10 +362,12 @@ test(<span class="hljs-string">&#x27;Pagination Container&#x27;</span>, <span cl
   expect(loadMore.props.disabled).toBe(<span class="hljs-literal">true</span>);
 });
 
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="refetch-container"></a><a href="#refetch-container" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refetch Container</h3>
 <p>We can use similar approach here with wrapping container with Query Renderer. And for the sake of completeness, we will add example here:</p>
-<pre><code class="hljs css language-javascript">test(<span class="hljs-string">&#x27;Refetch Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+<pre><code class="hljs css language-javascript">
+test(<span class="hljs-string">&#x27;Refetch Container&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
   <span class="hljs-keyword">const</span> environment = createMockEnvironment();
   <span class="hljs-keyword">const</span> TestRenderer = <span class="hljs-function">() =&gt;</span> (
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">QueryRenderer</span>
@@ -391,10 +408,12 @@ test(<span class="hljs-string">&#x27;Pagination Container&#x27;</span>, <span cl
   );
   <span class="hljs-comment">// expect(renderer).toMatchSnapshot();</span>
 });
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="mutations"></a><a href="#mutations" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mutations</h3>
 <p>Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say, you have a mutation function</span>
+<pre><code class="hljs css language-javascript">
+<span class="hljs-comment">// Say, you have a mutation function</span>
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sendMutation</span>(<span class="hljs-params">environment, onCompleted, onError, variables</span>)
   <span class="hljs-title">commitMutation</span>(<span class="hljs-params">environment, {
     mutation: graphql<span class="hljs-string">`...`</span>,
@@ -416,10 +435,12 @@ test(<span class="hljs-string">&#x27;it should send mutation&#x27;</span>, <span
   );
   expect(onCompleted).toBeCalled();
 });
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="subscription"></a><a href="#subscription" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Subscription</h3>
 <p>We can test subscription in a similar way we test mutations</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Example subscribe function</span>
+<pre><code class="hljs css language-javascript">
+<span class="hljs-comment">// Example subscribe function</span>
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">subscribe</span>(<span class="hljs-params">environment, onNext, onError, variables</span>)
   <span class="hljs-title">requestSubscription</span>(<span class="hljs-params">environment, {
     subscription: graphql<span class="hljs-string">`...`</span>,
@@ -441,10 +462,12 @@ test(<span class="hljs-string">&#x27;it should subscribe&#x27;</span>, <span cla
   );
   expect(onNext).toBeCalled();
 });
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="example-with-queueoperationresolver"></a><a href="#example-with-queueoperationresolver" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example with <code>queueOperationResolver</code></h3>
 <p>With <code>queueOpeararionResolver</code>, it possible to define responses for operations that will be executed on the environment</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
+<pre><code class="hljs css language-javascript">
+<span class="hljs-comment">// Say you have a component with the QueryRenderer</span>
 <span class="hljs-keyword">const</span> MyAwesomeViewRoot = <span class="hljs-built_in">require</span>(<span class="hljs-string">&#x27;MyAwesomeViewRoot&#x27;</span>);
 <span class="hljs-keyword">const</span> {
   createMockEnvironment,
@@ -482,8 +505,9 @@ test(<span class="hljs-string">&#x27;Error State&#x27;</span>, <span class="hljs
   ).toBeDefined();
 });
 
+
 </code></pre>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 12/17/2020 by Reece Dunham</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/next/type-emission"><span class="arrow-prev">← </span><span>Type Emission</span></a><a class="docs-next button" href="/docs/en/next/local-state-management"><span>Local State Management</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#testing-with-relay">Testing with Relay</a></li><li><a href="#relaymockenvironment-api-overview"><code>RelayMockEnvironment</code> API Overview</a></li><li><a href="#mock-payload-generator-and-relay_test_operation-directive">Mock Payload Generator and <code>@relay_test_operation</code> Directive</a><ul class="toc-headings"><li><a href="#mock-resolver-context">Mock Resolver Context</a></li><li><a href="#id-generation">ID Generation</a></li><li><a href="#relay_test_operation"><code>@relay_test_operation</code></a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#relay-component-test">Relay Component Test</a></li><li><a href="#fragment-container-tests">Fragment Container Tests</a></li><li><a href="#pagination-container-test">Pagination Container Test</a></li><li><a href="#refetch-container">Refetch Container</a></li><li><a href="#mutations">Mutations</a></li><li><a href="#subscription">Subscription</a></li><li><a href="#example-with-queueoperationresolver">Example with <code>queueOperationResolver</code></a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="left-column"><div class="docsRating" id="docsRating">Is this page useful?<svg class="i_thumbsup" alt="Like" id="docsRating-like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg><svg class="i_thumbsdown" alt="Dislike" id="docsRating-dislike" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg></div><div><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div class="links-column"><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div></div></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a><a href="https://opensource.facebook.com/legal/data-policy/">Data Policy</a><a href="https://opensource.facebook.com/legal/cookie-policy/">Cookie Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2/4/2021 by Robert Balicki</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/next/type-emission"><span class="arrow-prev">← </span><span>Type Emission</span></a><a class="docs-next button" href="/docs/en/next/local-state-management"><span>Local State Management</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#testing-with-relay">Testing with Relay</a></li><li><a href="#relaymockenvironment-api-overview"><code>RelayMockEnvironment</code> API Overview</a></li><li><a href="#mock-payload-generator-and-relay_test_operation-directive">Mock Payload Generator and <code>@relay_test_operation</code> Directive</a><ul class="toc-headings"><li><a href="#mock-resolver-context">Mock Resolver Context</a></li><li><a href="#id-generation">ID Generation</a></li><li><a href="#relay_test_operation"><code>@relay_test_operation</code></a></li></ul></li><li><a href="#examples">Examples</a><ul class="toc-headings"><li><a href="#relay-component-test">Relay Component Test</a></li><li><a href="#fragment-container-tests">Fragment Container Tests</a></li><li><a href="#pagination-container-test">Pagination Container Test</a></li><li><a href="#refetch-container">Refetch Container</a></li><li><a href="#mutations">Mutations</a></li><li><a href="#subscription">Subscription</a></li><li><a href="#example-with-queueoperationresolver">Example with <code>queueOperationResolver</code></a></li></ul></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="left-column"><div class="docsRating" id="docsRating">Is this page useful?<svg class="i_thumbsup" alt="Like" id="docsRating-like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg><svg class="i_thumbsdown" alt="Dislike" id="docsRating-dislike" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg></div><div><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div class="links-column"><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div></div></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a><a href="https://opensource.facebook.com/legal/data-policy/">Data Policy</a><a href="https://opensource.facebook.com/legal/cookie-policy/">Cookie Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

@@ -79,7 +79,8 @@
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="commitmutation"></a><a href="#commitmutation" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a><code>commitMutation</code></h2>
 <p>Use <code>commitMutation</code> to create and execute mutations. <code>commitMutation</code> has the following signature:</p>
-<pre><code class="hljs css language-javascript">commitMutation(
+<pre><code class="hljs css language-javascript">
+commitMutation(
   environment: Environment,
   <span class="hljs-attr">config</span>: {
     <span class="hljs-attr">mutation</span>: GraphQLTaggedNode,
@@ -93,6 +94,7 @@
     cacheConfig?: CacheConfig,
   },
 );
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="arguments"></a><a href="#arguments" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Arguments</h3>
 <ul>
@@ -120,7 +122,8 @@ This function takes a <code>store</code>, which is a proxy of the in-memory <a h
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="simple-example"></a><a href="#simple-example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Simple Example</h2>
 <p>Example of a simple mutation:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
+<pre><code class="hljs css language-javascript">
+<span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 
 <span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation MarkReadNotificationMutation(
@@ -151,10 +154,12 @@ This function takes a <code>store</code>, which is a proxy of the in-memory <a h
     },
   );
 }
+
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="optimistic-updates"></a><a href="#optimistic-updates" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Optimistic Updates</h2>
 <p>To improve perceived responsiveness, you may wish to perform an &quot;optimistic update&quot;, in which the client immediately updates to reflect the anticipated new value even before the response from the server has come back. The simplest way to do this is by providing an <code>optimisticResponse</code> and adding it to the <code>config</code> that we pass into <code>commitMutation</code>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript">
+<span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation MarkReadNotificationMutation(
     $storyID: ID!
   ) {
@@ -182,6 +187,7 @@ commitMutation(
     variables,
   },
 );
+
 </code></pre>
 <p>Another way to enable optimistic updates is via the <code>optimisticUpdater</code>, which can be used for more complicated update scenarios. Using <code>optimisticUpdater</code> is covered in the section <a href="#using-updater-and-optimisticupdater">below</a>.</p>
 <h2><a class="anchor" aria-hidden="true" id="updater-configs"></a><a href="#updater-configs" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Updater Configs</h2>
@@ -194,7 +200,8 @@ commitMutation(
 <li><code>deletedIDFieldName: string</code>: The field name in the response that contains the DataID or DataIDs of the deleted node or nodes</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example"></a><a href="#example" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript">
+<span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation DestroyShipMutation($target: ID!) {
     destroyShip(target: $target) {
       destroyedShipId
@@ -211,6 +218,7 @@ commitMutation(
   <span class="hljs-attr">type</span>: <span class="hljs-string">&#x27;NODE_DELETE&#x27;</span>,
   <span class="hljs-attr">deletedIDFieldName</span>: <span class="hljs-string">&#x27;destroyedShipId&#x27;</span>,
 }];
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="range_add"></a><a href="#range_add" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_ADD</h3>
 <p>Given a parent, information about the connection, and the name of the newly created edge in the response payload Relay will add the node to the store and attach it to the connection according to the range behavior(s) specified in the <code>connectionInfo</code>.</p>
@@ -226,7 +234,8 @@ containing optional filters, and a range behavior depending on what behavior we 
 <li><code>edgeName: string</code>: The field name in the response that represents the newly created edge</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example-1"></a><a href="#example-1" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript">
+<span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation AddShipMutation($factionID: ID!, $name: String!) {
     addShip(factionID: $factionID, name: $name) {
       shipEdge {
@@ -256,6 +265,7 @@ containing optional filters, and a range behavior depending on what behavior we 
     }],
   });
 }
+
 </code></pre>
 <h3><a class="anchor" aria-hidden="true" id="range_delete"></a><a href="#range_delete" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>RANGE_DELETE</h3>
 <p>Given a parent, <code>connectionKeys</code>, one or more DataIDs in the response payload, and
@@ -274,7 +284,8 @@ objects containing a connection key and optionally filters.
 <li><code>deletedIDFieldName: string | Array&lt;string&gt;</code>: The field name in the response that contains the DataID or DataIDs of the removed node or nodes, or the path to the node or nodes removed from the connection</li>
 </ul>
 <h4><a class="anchor" aria-hidden="true" id="example-2"></a><a href="#example-2" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example</h4>
-<pre><code class="hljs css language-javascript"><span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
+<pre><code class="hljs css language-javascript">
+<span class="hljs-keyword">const</span> mutation = graphql<span class="hljs-string">`
   mutation RemoveTagMutation($todoID: ID!, $tagID: ID!) {
     removeTag(todo: $todoID, tag: $tagID) {
       removedTagID
@@ -300,6 +311,7 @@ objects containing a connection key and optionally filters.
     }],
   });
 }
+
 </code></pre>
 <h2><a class="anchor" aria-hidden="true" id="using-updater-and-optimisticupdater"></a><a href="#using-updater-and-optimisticupdater" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Using updater and optimisticUpdater</h2>
 <p><code>updater</code> and <code>optimisticUpdater</code> are functions that you can pass to a <code>commitMutation</code> call when you need full control over how to update the local data store, either optimistically, or based on a server response. Often times, both of these can be the same function.</p>
@@ -312,7 +324,8 @@ objects containing a connection key and optionally filters.
 <li>If an <code>updater</code> was provided, Relay will execute it and update the store accordingly. The server payload will be available to the <code>updater</code> as a root field in the store.</li>
 </ul>
 <p>Here's a quick example of adding a todo item to a Todo list using this <a href="https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36">example schema</a>:</p>
-<pre><code class="hljs css language-javascript"><span class="hljs-comment">// AddTodoMutation.js</span>
+<pre><code class="hljs css language-javascript">
+<span class="hljs-comment">// AddTodoMutation.js</span>
 <span class="hljs-keyword">import</span> {commitMutation, graphql} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;react-relay&#x27;</span>;
 <span class="hljs-keyword">import</span> {ConnectionHandler} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;relay-runtime&#x27;</span>;
 
@@ -395,11 +408,12 @@ objects containing a connection key and optionally filters.
     },
   });
 }
+
 </code></pre>
 <p>For details on how to interact with the Relay Store, please refer to our Relay Store <a href="./relay-store">docs</a>.</p>
 <h2><a class="anchor" aria-hidden="true" id="committing-local-updates"></a><a href="#committing-local-updates" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Committing Local Updates</h2>
 <p>Use <code>commitLocalUpdate</code> when you need to update the local store without necessarily executing a mutation (such as in the case of debounced operations). The function takes in a Relay <code>environment</code> and an <code>updater</code> function.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 1/21/2021 by Yaroslav Kukytsyak</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/next/pagination-container"><span class="arrow-prev">← </span><span>Pagination Container</span></a><a class="docs-next button" href="/docs/en/next/subscriptions"><span>Subscriptions</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#commitmutation"><code>commitMutation</code></a><ul class="toc-headings"><li><a href="#arguments">Arguments</a></li></ul></li><li><a href="#simple-example">Simple Example</a></li><li><a href="#optimistic-updates">Optimistic Updates</a></li><li><a href="#updater-configs">Updater Configs</a><ul class="toc-headings"><li><a href="#node_delete">NODE_DELETE</a></li><li><a href="#range_add">RANGE_ADD</a></li><li><a href="#range_delete">RANGE_DELETE</a></li></ul></li><li><a href="#using-updater-and-optimisticupdater">Using updater and optimisticUpdater</a></li><li><a href="#committing-local-updates">Committing Local Updates</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="left-column"><div class="docsRating" id="docsRating">Is this page useful?<svg class="i_thumbsup" alt="Like" id="docsRating-like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg><svg class="i_thumbsdown" alt="Dislike" id="docsRating-dislike" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg></div><div><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div class="links-column"><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div></div></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a><a href="https://opensource.facebook.com/legal/data-policy/">Data Policy</a><a href="https://opensource.facebook.com/legal/cookie-policy/">Cookie Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2/4/2021 by Robert Balicki</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/next/pagination-container"><span class="arrow-prev">← </span><span>Pagination Container</span></a><a class="docs-next button" href="/docs/en/next/subscriptions"><span>Subscriptions</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#commitmutation"><code>commitMutation</code></a><ul class="toc-headings"><li><a href="#arguments">Arguments</a></li></ul></li><li><a href="#simple-example">Simple Example</a></li><li><a href="#optimistic-updates">Optimistic Updates</a></li><li><a href="#updater-configs">Updater Configs</a><ul class="toc-headings"><li><a href="#node_delete">NODE_DELETE</a></li><li><a href="#range_add">RANGE_ADD</a></li><li><a href="#range_delete">RANGE_DELETE</a></li></ul></li><li><a href="#using-updater-and-optimisticupdater">Using updater and optimisticUpdater</a></li><li><a href="#committing-local-updates">Committing Local Updates</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="left-column"><div class="docsRating" id="docsRating">Is this page useful?<svg class="i_thumbsup" alt="Like" id="docsRating-like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg><svg class="i_thumbsdown" alt="Dislike" id="docsRating-dislike" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg></div><div><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div class="links-column"><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div></div></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a><a href="https://opensource.facebook.com/legal/data-policy/">Data Policy</a><a href="https://opensource.facebook.com/legal/cookie-policy/">Cookie Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

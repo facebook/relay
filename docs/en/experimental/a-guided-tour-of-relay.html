@@ -338,6 +338,7 @@ type Props = {|
     props.user,
   );
 
+  <span class="hljs-comment">// Render child component by passing the _fragment reference_ to &lt;UsernameSection&gt;</span>
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{user.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
@@ -345,7 +346,6 @@ type Props = {|
         <span class="hljs-tag">&lt;<span class="hljs-name">img</span> <span class="hljs-attr">src</span>=<span class="hljs-string">{user.profile_picture?.uri}</span> /&gt;</span>
         {user.age}
 
-        {/* Render child component, passing the _fragment reference_: */}
         <span class="hljs-tag">&lt;<span class="hljs-name">UsernameSection</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{user}/</span>&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">div</span>&gt;</span>
     <span class="hljs-tag">&lt;/&gt;</span></span>
@@ -490,10 +490,10 @@ type Props = {|
     {<span class="hljs-attr">id</span>: <span class="hljs-string">&#x27;4&#x27;</span>},
   );
 
+  <span class="hljs-comment">// Render child component by passing the fragment reference to &lt;UserComponent&gt;:</span>
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
-      {/* Render child component, passing the fragment reference: */}
       <span class="hljs-tag">&lt;<span class="hljs-name">UserComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{data.user}</span> /&gt;</span>
     <span class="hljs-tag">&lt;/&gt;</span></span>
   );
@@ -726,7 +726,9 @@ query ViewerQuery($<span class="hljs-built_in">scale</span>: <span class="hljs-b
   <span class="hljs-keyword">return</span> (
     <span class="hljs-comment">// LoadingSpinner is rendered via the Suspense fallback</span>
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> /&gt;</span>}&gt;
-      <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span> {/* MainContent may suspend */}
+      <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span>
+        // <span class="hljs-attr">MainContent</span> <span class="hljs-attr">may</span> <span class="hljs-attr">suspend</span>
+      /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span></span>
   );
 }
@@ -752,7 +754,9 @@ query ViewerQuery($<span class="hljs-built_in">scale</span>: <span class="hljs-b
     <span class="hljs-comment">// A LoadingSpinner for *_all_* content is rendered via the Suspense fallback</span>
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> /&gt;</span>}&gt;
       <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span>
-      <span class="hljs-tag">&lt;<span class="hljs-name">SecondaryContent</span> /&gt;</span>  *{/* SecondaryContent can also suspend */}*
+      <span class="hljs-tag">&lt;<span class="hljs-name">SecondaryContent</span>
+        // <span class="hljs-attr">SecondaryContent</span> <span class="hljs-attr">can</span> <span class="hljs-attr">also</span> <span class="hljs-attr">suspend</span>
+      /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span></span>
   );
 }
@@ -778,13 +782,17 @@ query ViewerQuery($<span class="hljs-built_in">scale</span>: <span class="hljs-b
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">App</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> (
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
-      {/* Show a separate loading UI for the LeftHandColumn */}
-      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LeftColumnPlaceholder</span> /&gt;</span>}&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span>
+        // <span class="hljs-attr">Show</span> <span class="hljs-attr">a</span> <span class="hljs-attr">separate</span> <span class="hljs-attr">loading</span> <span class="hljs-attr">UI</span> <span class="hljs-attr">for</span> <span class="hljs-attr">the</span> <span class="hljs-attr">LeftHandColumn</span>
+        <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LeftColumnPlaceholder</span> /&gt;</span>}
+      &gt;
         <span class="hljs-tag">&lt;<span class="hljs-name">LeftColumn</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
 
-      {/* Show a separate loading UI for both the Main and Secondary content */}
-      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> /&gt;</span>}&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span>
+        // <span class="hljs-attr">Show</span> <span class="hljs-attr">a</span> <span class="hljs-attr">separate</span> <span class="hljs-attr">loading</span> <span class="hljs-attr">UI</span> <span class="hljs-attr">for</span> <span class="hljs-attr">both</span> <span class="hljs-attr">the</span> <span class="hljs-attr">Main</span> <span class="hljs-attr">and</span> <span class="hljs-attr">Secondary</span> <span class="hljs-attr">content</span>
+        <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> /&gt;</span>}
+      &gt;
         <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span>
         <span class="hljs-tag">&lt;<span class="hljs-name">SecondaryContent</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
@@ -878,7 +886,7 @@ query ViewerQuery($<span class="hljs-built_in">scale</span>: <span class="hljs-b
 }
 </code></pre>
 <blockquote>
-<p><strong>NOTE:</strong> Providing a Suspense config to <code>useTransition</code> will only work as expected in <strong><em><em>React Concurrent Mode</em></em></strong></p>
+<strong>NOTE:</strong> Providing a Suspense config to <code>useTransition</code> will only work as expected in <strong><em>React Concurrent Mode</strong></em>.
 </blockquote>
 <p>Let's take a look at what's happening here:</p>
 <ul>
@@ -923,7 +931,9 @@ query ViewerQuery($<span class="hljs-built_in">scale</span>: <span class="hljs-b
   <span class="hljs-keyword">return</span> (
     <span class="hljs-comment">// LoadingSpinner is rendered via the Suspense fallback</span>
     <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> /&gt;</span>}&gt;
-      <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span> {/* MainContent may suspend */}
+      <span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span>
+        // <span class="hljs-attr">MainContent</span> <span class="hljs-attr">may</span> <span class="hljs-attr">suspend</span>
+      /&gt;</span>
     <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span></span>
   );
 }
@@ -1029,9 +1039,11 @@ type State = {|error: ?<span class="hljs-built_in">Error</span>|};
       <span class="hljs-attr">fallback</span>=<span class="hljs-string">{(error,</span> <span class="hljs-attr">retry</span>) =&gt;</span>
         <span class="hljs-tag">&lt;&gt;</span>
           <span class="hljs-tag">&lt;<span class="hljs-name">ErrorUI</span> <span class="hljs-attr">error</span>=<span class="hljs-string">{error}</span> /&gt;</span>
-          {/* Render a button to retry; this will attempt to re-render the
-            content inside the boundary, i.e. the query component */}
-          <span class="hljs-tag">&lt;<span class="hljs-name">Button</span> <span class="hljs-attr">onClick</span>=<span class="hljs-string">{retry}</span>&gt;</span>Retry<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+            // <span class="hljs-attr">Render</span> <span class="hljs-attr">a</span> <span class="hljs-attr">button</span> <span class="hljs-attr">to</span> <span class="hljs-attr">retry</span>; <span class="hljs-attr">this</span> <span class="hljs-attr">will</span> <span class="hljs-attr">attempt</span> <span class="hljs-attr">to</span> <span class="hljs-attr">re-render</span> <span class="hljs-attr">the</span>
+            // <span class="hljs-attr">content</span> <span class="hljs-attr">inside</span> <span class="hljs-attr">the</span> <span class="hljs-attr">boundary</span>, <span class="hljs-attr">i.e.</span> <span class="hljs-attr">the</span> <span class="hljs-attr">query</span> <span class="hljs-attr">component</span>
+            <span class="hljs-attr">onClick</span>=<span class="hljs-string">{retry}</span>
+          &gt;</span>Retry<span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
         <span class="hljs-tag">&lt;/&gt;</span></span>
       }&gt;
       <span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">MainContent</span> /&gt;</span></span>
@@ -1253,7 +1265,7 @@ disposable.dispose();
 </ul>
 <h3><a class="anchor" aria-hidden="true" id="rendering-partially-cached-data-highly-experimental"></a><a href="#rendering-partially-cached-data-highly-experimental" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</h3>
 <blockquote>
-<p><strong>NOTE:</strong> Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing <code>{UNSTABLE_renderPolicy: &quot;partial&quot;}</code> as an option to <code>useLazyLoadQuery</code>.</p>
+<strong>NOTE:</strong> Partial rendering behavior is still highly experimental and likely to change, and only enabled under an experimental option. If you still wish to use it, you can enable it by passing <pre>{'{UNSTABLE_renderPolicy: "partial"}'}</pre> as an option to <pre>useLazyLoadQuery</pre>.
 </blockquote>
 <p>Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define <em>&quot;partial rendering&quot;</em> as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.</p>
 <p>This can be useful in scenarios where we want to render a screen or a page as fast as possible, and we know that some of the data for that page is already cached, so we can skip a loading state. For example, imagine a user profile page: it is very likely that the user's name has already been cached at some point during usage of the app, so when visiting a profile page, if the name of the user is cached, we'd like to render immediately, even if the rest of the data for the profile page isn't available yet.</p>
@@ -1362,11 +1374,11 @@ type Props = {|
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{data.user?.name}<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 
-      {/*
-        Wrap the UserComponent in Suspense to allow other parts of the
-        App to be rendered even if the username is missing.
-    */}
-      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> <span class="hljs-attr">label</span>=<span class="hljs-string">&quot;Fetching username&quot;</span> /&gt;</span>}&gt;
+      <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span>
+        // <span class="hljs-attr">Wrap</span> <span class="hljs-attr">the</span> <span class="hljs-attr">UserComponent</span> <span class="hljs-attr">in</span> <span class="hljs-attr">Suspense</span> <span class="hljs-attr">to</span> <span class="hljs-attr">allow</span> <span class="hljs-attr">other</span> <span class="hljs-attr">parts</span> <span class="hljs-attr">of</span> <span class="hljs-attr">the</span>
+        // <span class="hljs-attr">App</span> <span class="hljs-attr">to</span> <span class="hljs-attr">be</span> <span class="hljs-attr">rendered</span> <span class="hljs-attr">even</span> <span class="hljs-attr">if</span> <span class="hljs-attr">the</span> <span class="hljs-attr">username</span> <span class="hljs-attr">is</span> <span class="hljs-attr">missing.</span>
+        <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">LoadingSpinner</span> <span class="hljs-attr">label</span>=<span class="hljs-string">&quot;Fetching username&quot;</span> /&gt;</span>}
+      &gt;
         <span class="hljs-tag">&lt;<span class="hljs-name">UsernameComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{data.user}</span> /&gt;</span>
       <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
     <span class="hljs-tag">&lt;/&gt;</span></span>
@@ -1426,7 +1438,10 @@ query NodeQuery {
   },
 ];
 
-<span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({<span class="hljs-comment">/*...*/</span>, missingFieldHandlers});
+<span class="hljs-keyword">const</span> environment = <span class="hljs-keyword">new</span> Environment({
+  <span class="hljs-comment">// and other fields</span>
+  missingFieldHandlers,
+});
 </code></pre>
 <ul>
 <li><code>missingFieldHandlers</code> is an array of <em>handlers</em>. Each handler must specify a <code>handle</code> function, and the kind of missing fields it knows how to handle. The 2 main types of fields that you'd want to handle are:
@@ -1826,15 +1841,17 @@ type Props = {|
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">SuspenseList</span> <span class="hljs-attr">revealOrder</span>=<span class="hljs-string">&quot;forwards&quot;</span>&gt;</span>
-        {/* Extract each friend from the resulting data */}
-        {(data.friends?.edges ?? []).map(edge =&gt; {
-          const node = edge.node;
-          return (
-            <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Glimmer</span> /&gt;</span>}&gt;
-              <span class="hljs-tag">&lt;<span class="hljs-name">FriendComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{node}</span> /&gt;</span>
-            <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
-          );
-        })}
+        {
+          // Extract each friend from the resulting data
+          (data.friends?.edges ?? []).map(edge =&gt; {
+            const node = edge.node;
+            return (
+              <span class="hljs-tag">&lt;<span class="hljs-name">Suspense</span> <span class="hljs-attr">fallback</span>=<span class="hljs-string">{</span>&lt;<span class="hljs-attr">Glimmer</span> /&gt;</span>}&gt;
+                <span class="hljs-tag">&lt;<span class="hljs-name">FriendComponent</span> <span class="hljs-attr">user</span>=<span class="hljs-string">{node}</span> /&gt;</span>
+              <span class="hljs-tag">&lt;/<span class="hljs-name">Suspense</span>&gt;</span>
+            );
+          })
+        }
       <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
     <span class="hljs-tag">&lt;/&gt;</span></span>
   );
@@ -1975,17 +1992,18 @@ type Props = {|
         })}
       <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
 
-      {/* Only render button if there are more friends to load in the list */}
-      {hasNext ? (
-        <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
-          <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
-            startTransition(() =&gt; {
-              loadNext(10)
-            });
-          }}&gt;
-          Load more friends
-        <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
-      ) : null}
+      {
+        // Only render button if there are more friends to load in the list
+        hasNext ? (
+          <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+            <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
+              startTransition(() =&gt; {
+                loadNext(10)
+              });
+            }}&gt;
+            Load more friends
+          <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
+        ) : null}
     <span class="hljs-tag">&lt;/&gt;</span></span>
   );
 }
@@ -2065,12 +2083,14 @@ type Props = {|
         })}
       <span class="hljs-tag">&lt;/<span class="hljs-name">SuspenseList</span>&gt;</span>
 
-      {/* Render a Spinner next to the button immediately, while transition is pending */}
-      {isPending ? <span class="hljs-tag">&lt;<span class="hljs-name">Spinner</span> /&gt;</span> : null}
+      {
+        // Render a Spinner next to the button immediately, while transition is pending
+        isPending ? <span class="hljs-tag">&lt;<span class="hljs-name">Spinner</span> /&gt;</span> : null
+      }
 
       {hasNext ? (
         <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
-          {/* <span class="hljs-attr">Disbale</span> <span class="hljs-attr">the</span> <span class="hljs-attr">button</span> <span class="hljs-attr">immediately</span>, <span class="hljs-attr">while</span> <span class="hljs-attr">transition</span> <span class="hljs-attr">is</span> <span class="hljs-attr">pending</span> */}
+          // <span class="hljs-attr">Disable</span> <span class="hljs-attr">the</span> <span class="hljs-attr">button</span> <span class="hljs-attr">immediately</span>, <span class="hljs-attr">while</span> <span class="hljs-attr">transition</span> <span class="hljs-attr">is</span> <span class="hljs-attr">pending</span>
           <span class="hljs-attr">disabled</span>=<span class="hljs-string">{isPending}</span>
           <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span> {
             startTransition(() =&gt; {
@@ -2242,8 +2262,8 @@ type Props = {|
     <span class="xml"><span class="hljs-tag">&lt;&gt;</span>
       <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Friends of {data.name}:<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
 
-      {/* When the button is clicked, refetch the connection but sorted differently */}
       <span class="hljs-tag">&lt;<span class="hljs-name">Button</span>
+        // <span class="hljs-attr">When</span> <span class="hljs-attr">the</span> <span class="hljs-attr">button</span> <span class="hljs-attr">is</span> <span class="hljs-attr">clicked</span>, <span class="hljs-attr">refetch</span> <span class="hljs-attr">the</span> <span class="hljs-attr">connection</span> <span class="hljs-attr">but</span> <span class="hljs-attr">sorted</span> <span class="hljs-attr">differently</span>
         <span class="hljs-attr">onClick</span>=<span class="hljs-string">{()</span> =&gt;</span>
           startTransition(() =&gt; {
             refetch({first: 10, orderBy: &#x27;DATE_ADDED&#x27;});
@@ -2432,7 +2452,7 @@ type Props = {|
 <li>Note that this API will <em>mutate</em> the connection in-place.</li>
 </ul>
 <blockquote>
-<p><strong>Remember:</strong> When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.</p>
+<strong>Remember:</strong> When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.
 </blockquote>
 <p>You can also check out our complete Relay Store APIs <a href="https://relay.dev/docs/en/relay-store.html">here</a></p>
 <h3><a class="anchor" aria-hidden="true" id="connection-identity-with-filters"></a><a href="#connection-identity-with-filters" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Connection Identity With Filters</h3>
@@ -2562,7 +2582,7 @@ type Props = {|
 <li>An easier API alternative to manage multiple connections with multiple filter values is still pending</li>
 </ol>
 <blockquote>
-<p><strong>TODO</strong></p>
+<strong>TODO</strong>
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="advanced-pagination-use-cases"></a><a href="#advanced-pagination-use-cases" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced Pagination Use Cases</h3>
 <p>In this section we're going to cover how to implement more advanced pagination use cases than the default cases covered by <code>usePaginationFragment</code>.</p>
@@ -2687,8 +2707,8 @@ type Props = {|
         <span class="hljs-tag">&lt;/<span class="hljs-name">Button</span>&gt;</span>
       ) : null}
 
-      {/* Forward pagination controls can go simultaneously here */}
     <span class="hljs-tag">&lt;/&gt;</span></span>
+    <span class="hljs-comment">// Forward pagination controls can also be included</span>
   );
 }
 
@@ -2707,25 +2727,25 @@ type Props = {|
 </ul>
 <p>To address these more complex use cases, Relay is still working on a solution:</p>
 <blockquote>
-<p><strong>TODO</strong></p>
+<strong>TODO</strong>
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="refreshing-connections"></a><a href="#refreshing-connections" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Refreshing connections</h4>
 <blockquote>
-<p><strong>TODO</strong></p>
+<strong>TODO</strong>
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="prefetching-pages-of-a-connection"></a><a href="#prefetching-pages-of-a-connection" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefetching Pages of a Connection</h4>
 <blockquote>
-<p><strong>TODO</strong></p>
+<strong>TODO</strong>
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="rendering-one-page-of-items-at-a-time"></a><a href="#rendering-one-page-of-items-at-a-time" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Rendering One Page of Items at a Time</h4>
 <blockquote>
-<p><strong>TODO</strong></p>
+<strong>TODO</strong>
 </blockquote>
 <h2><a class="anchor" aria-hidden="true" id="advanced-data-fetching"></a><a href="#advanced-data-fetching" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Advanced Data Fetching</h2>
 <h3><a class="anchor" aria-hidden="true" id="preloading-data"></a><a href="#preloading-data" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Preloading Data</h3>
 <h4><a class="anchor" aria-hidden="true" id="preloading-data-for-initial-load-server-preloading"></a><a href="#preloading-data-for-initial-load-server-preloading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Preloading Data for Initial Load (Server Preloading)</h4>
 <blockquote>
-<p>OSS TODO</p>
+OSS TODO
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="preloading-data-for-transitions-in-parallel-with-code-client-preloading"></a><a href="#preloading-data-for-transitions-in-parallel-with-code-client-preloading" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Preloading Data for Transitions, in Parallel With Code (Client Preloading)</h4>
 <p>The way navigations or transitions into different pages work by default is the following:</p>
@@ -2735,20 +2755,20 @@ type Props = {|
 </ul>
 <p>This not only applies to transitions to other pages, but also for displaying elements such as dialogs, menus, popovers, or other elements that are hidden behind some user interaction, and which have both code <em>and</em> data dependencies.</p>
 <p>The problem with this naive approach is that we have to wait for a significant amount of time before we can actually start fetching the data we need. Ideally, by the time a user interaction occurs, we'd already know what data we will need in order to fulfill that interaction, and we could start <em>preloading</em> it from the client immediately, <strong><em>in parallel</em></strong> with loading the JS code that we're going to need; by doing so, we can significantly speed up the amount of time it takes to show content to users after an interaction.</p>
-<p>In order to do so, we can use <strong>Relay EntryPoints</strong>, which are a set of APIs for efficiently loading both the code and data dependencies of <em>any</em> view in parallel. Check out our api reference for Entry Points: <TODO></p>
+<p>In order to do so, we can use <strong>Relay EntryPoints</strong>, which are a set of APIs for efficiently loading both the code and data dependencies of <em>any</em> view in parallel. Check out our api reference for Entry Points: (TODO)</p>
 <h3><a class="anchor" aria-hidden="true" id="incremental-data-delivery"></a><a href="#incremental-data-delivery" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Incremental Data Delivery</h3>
 <blockquote>
-<p>OSS TODO</p>
+OSS TODO
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="data-driven-dependencies"></a><a href="#data-driven-dependencies" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Data-driven Dependencies</h3>
 <blockquote>
-<p>OSS TODO</p>
+OSS TODO
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="image-prefetching"></a><a href="#image-prefetching" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Image Prefetching</h3>
 <p>The standard approach to loading images with Relay is to first request image URIs via a Relay fragment, then render an appropriate image component with the resulting URI as the source. With this approach the image is only downloaded if it is actually rendered, which is often a good tradeoff as it avoids fetching images that aren't used. However, there are some cases where a product knows statically that it will render an image, and in this case performance can be improved by downloading the image as early as possible. Relay <strong>image prefetching</strong> allows products to specify that specific image URLs be downloaded as early as possible - as soon as the GraphQL data is fetched - without waiting for the consuming component to actually render.</p>
 <h4><a class="anchor" aria-hidden="true" id="usage"></a><a href="#usage" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Usage</h4>
 <blockquote>
-<p>OSS TODO</p>
+OSS TODO
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="when-to-use-image-prefetching"></a><a href="#when-to-use-image-prefetching" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>When To Use Image Prefetching</h4>
 <p>We recommend only using preloading for images that will be unconditionally rendered to the DOM by your components soon after being fetched, and avoid prefetching images that are hidden behind an interaction.</p>
@@ -3071,7 +3091,7 @@ type Props = {|
 <li>Note that we're not providing an <code>updater</code> function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for <code>like_count</code> and <code>viewer_does_like</code> on the <code>Post</code> object).</li>
 </ul>
 <blockquote>
-<p><strong>NOTE:</strong> Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.</p>
+<strong>NOTE:</strong> Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
 </blockquote>
 <h4><a class="anchor" aria-hidden="true" id="order-of-execution-of-updater-functions"></a><a href="#order-of-execution-of-updater-functions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Order of Execution of Updater Functions</h4>
 <p>In general, execution of the <code>updater</code> and optimistic updates will occur in the following order:</p>
@@ -3194,7 +3214,7 @@ type Props = {|
 <p>For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation apis documented in our <a href="#staleness-of-data">Staleness of Data section</a>.</p>
 <h4><a class="anchor" aria-hidden="true" id="mutation-queueing"></a><a href="#mutation-queueing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Mutation Queueing</h4>
 <blockquote>
-<p><strong>TODO:</strong> Left to be implemented in user space</p>
+**TODO:** Left to be implemented in user space
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="graphql-subscriptions"></a><a href="#graphql-subscriptions" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>GraphQL Subscriptions</h3>
 <p><a href="https://graphql.org/blog/subscriptions-in-graphql-and-relay/">GraphQL Subscriptions</a> (GQLS) are a mechanism which allows clients to subscribe to changes in a piece of data from the server, and get notified whenever that data changes.</p>
@@ -3496,7 +3516,7 @@ environment.commitPayload(operation, payload);
 <p>In order to update client-only data, you can do so regularly inside <a href="#graphql-mutations">mutation</a> or <a href="#graphql-subscriptions">subscription</a> updaters, or by using our primitives for doing <a href="#local-data-updates">local updates</a> to the store.</p>
 <h2><a class="anchor" aria-hidden="true" id="local-application-state-management"></a><a href="#local-application-state-management" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Local Application State Management</h2>
 <blockquote>
-<p><strong>TODO</strong></p>
+**TODO**
 </blockquote>
 <p>Roughly, at a high level:</p>
 <ol>
@@ -3561,24 +3581,24 @@ fetchQuery&lt;AppQuery&gt;(
 <li>Note that we specify the <code>AppQuery</code> Flow type; this ensures that the type of the data the promise will resolve to matches the shape of the query, and enforces that the <code>variables</code> passed as input to <code>fetchQuery</code> match the type of the variables expected by the query.</li>
 </ul>
 <blockquote>
-<p>See also our API Reference for <a href="api-reference.html#fetchquery">fetchQuery</a>.</p>
+See also our API Reference for [fetchQuery](api-reference.html#fetchquery).
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="prefetching-queries"></a><a href="#prefetching-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Prefetching Queries</h3>
 <p>This section covers prefetching queries from the client (if you're interested in preloading for initial load or transitions,  see our <a href="#preloading-data">Preloading Data</a> section). Prefetching queries can be useful to anticipate user actions and increase the likelihood of data being immediately available when the user requests it.</p>
 <blockquote>
-<p><strong>TODO</strong></p>
+**TODO**
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="subscribing-to-queries"></a><a href="#subscribing-to-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Subscribing to Queries</h3>
 <blockquote>
-<p><strong>TODO</strong></p>
+**TODO**
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="reading-queries-from-local-cache"></a><a href="#reading-queries-from-local-cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reading Queries from Local Cache</h3>
 <blockquote>
-<p><strong>TODO</strong></p>
+**TODO**
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="reading-fragments-from-local-cache"></a><a href="#reading-fragments-from-local-cache" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Reading Fragments from Local Cache</h3>
 <blockquote>
-<p><strong>TODO</strong></p>
+**TODO**
 </blockquote>
 <h3><a class="anchor" aria-hidden="true" id="retaining-queries"></a><a href="#retaining-queries" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Retaining Queries</h3>
 <p>In order to manually retain a query so that the data it references isn't garbage collected by Relay, we can use the <strong><code>environment.retain</code></strong> method:</p>
@@ -3612,7 +3632,7 @@ disposable.dispose();
 </ul>
 <h2><a class="anchor" aria-hidden="true" id="testing"></a><a href="#testing" aria-hidden="true" class="hash-link"><svg class="hash-link-icon" aria-hidden="true" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Testing</h2>
 <p>See this guide for <a href="https://relay.dev/docs/en/testing-relay-components">Testing Relay Components</a>, which also applies for any components built using Relay Hooks.</p>
-</span></div></article></div><div class="docLastUpdate"><em>Last updated on 10/30/2020 by Earvin</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/experimental/step-by-step"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/en/experimental/api-reference"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#example-app">Example App</a></li><li><a href="#setup-and-workflow">Setup and Workflow</a><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#babel-plugin">Babel plugin</a></li><li><a href="#relay-compiler">Relay Compiler</a></li><li><a href="#config-file">Config file</a></li></ul></li><li><a href="#rendering-data-basics">Rendering Data Basics</a><ul class="toc-headings"><li><a href="#fragments">Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#queries">Queries</a></li><li><a href="#variables">Variables</a></li><li><a href="#arguments-and-argumentdefinitions"><code>@arguments</code> and <code>@argumentDefinitions</code></a></li><li><a href="#loading-states-with-suspense">Loading States with Suspense</a></li><li><a href="#error-states-with-error-boundaries">Error States with Error Boundaries</a></li><li><a href="#environment">Environment</a></li></ul></li><li><a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a><ul class="toc-headings"><li><a href="#fetch-policies">Fetch Policies</a></li><li><a href="#availability-of-cached-data">Availability of Cached Data</a></li><li><a href="#presence-of-data">Presence of Data</a></li><li><a href="#staleness-of-data">Staleness of Data</a></li><li><a href="#rendering-partially-cached-data-highly-experimental">Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</a></li><li><a href="#filling-in-missing-data-missing-data-handlers">Filling in Missing Data (Missing Data Handlers)</a></li></ul></li><li><a href="#fetching-rendering-different-data">Fetching Rendering <em>Different</em> Data</a><ul class="toc-headings"><li><a href="#refreshing-rendered-data">Refreshing Rendered Data</a></li><li><a href="#re-rendering-with-different-data">Re-rendering with Different Data</a></li></ul></li><li><a href="#rendering-list-data-and-pagination">Rendering List Data and Pagination</a><ul class="toc-headings"><li><a href="#connections">Connections</a></li><li><a href="#rendering-connections">Rendering Connections</a></li><li><a href="#pagination">Pagination</a></li><li><a href="#blocking-all-at-once-pagination">Blocking (&quot;all-at-once&quot;) Pagination</a></li><li><a href="#using-and-changing-filters">Using and Changing Filters</a></li><li><a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a></li><li><a href="#connection-records">Connection Records</a></li><li><a href="#adding-edges">Adding Edges</a></li><li><a href="#removing-edges">Removing Edges</a></li><li><a href="#connection-identity-with-filters">Connection Identity With Filters</a></li><li><a href="#advanced-pagination-use-cases">Advanced Pagination Use Cases</a></li></ul></li><li><a href="#advanced-data-fetching">Advanced Data Fetching</a><ul class="toc-headings"><li><a href="#preloading-data">Preloading Data</a></li><li><a href="#incremental-data-delivery">Incremental Data Delivery</a></li><li><a href="#data-driven-dependencies">Data-driven Dependencies</a></li><li><a href="#image-prefetching">Image Prefetching</a></li></ul></li><li><a href="#updating-data">Updating Data</a><ul class="toc-headings"><li><a href="#graphql-mutations">GraphQL Mutations</a></li><li><a href="#graphql-subscriptions">GraphQL Subscriptions</a></li><li><a href="#local-data-updates">Local Data Updates</a></li><li><a href="#client-only-data-client-schema-extensions">Client-Only Data (Client Schema Extensions)</a></li></ul></li><li><a href="#local-application-state-management">Local Application State Management</a></li><li><a href="#accessing-data-outside-react">Accessing Data Outside React</a><ul class="toc-headings"><li><a href="#fetching-queries">Fetching Queries</a></li><li><a href="#prefetching-queries">Prefetching Queries</a></li><li><a href="#subscribing-to-queries">Subscribing to Queries</a></li><li><a href="#reading-queries-from-local-cache">Reading Queries from Local Cache</a></li><li><a href="#reading-fragments-from-local-cache">Reading Fragments from Local Cache</a></li><li><a href="#retaining-queries">Retaining Queries</a></li></ul></li><li><a href="#testing">Testing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="left-column"><div class="docsRating" id="docsRating">Is this page useful?<svg class="i_thumbsup" alt="Like" id="docsRating-like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg><svg class="i_thumbsdown" alt="Dislike" id="docsRating-dislike" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg></div><div><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div class="links-column"><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div></div></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a><a href="https://opensource.facebook.com/legal/data-policy/">Data Policy</a><a href="https://opensource.facebook.com/legal/cookie-policy/">Cookie Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
+</span></div></article></div><div class="docLastUpdate"><em>Last updated on 2/4/2021 by Robert Balicki</em></div><div class="docs-prevnext"><a class="docs-prev button" href="/docs/en/experimental/step-by-step"><span class="arrow-prev">← </span><span>Previous</span></a><a class="docs-next button" href="/docs/en/experimental/api-reference"><span>Next</span><span class="arrow-next"> →</span></a></div></div></div><nav class="onPageNav"><ul class="toc-headings"><li><a href="#example-app">Example App</a></li><li><a href="#setup-and-workflow">Setup and Workflow</a><ul class="toc-headings"><li><a href="#installation">Installation</a></li><li><a href="#babel-plugin">Babel plugin</a></li><li><a href="#relay-compiler">Relay Compiler</a></li><li><a href="#config-file">Config file</a></li></ul></li><li><a href="#rendering-data-basics">Rendering Data Basics</a><ul class="toc-headings"><li><a href="#fragments">Fragments</a></li><li><a href="#composing-fragments">Composing Fragments</a></li><li><a href="#queries">Queries</a></li><li><a href="#variables">Variables</a></li><li><a href="#arguments-and-argumentdefinitions"><code>@arguments</code> and <code>@argumentDefinitions</code></a></li><li><a href="#loading-states-with-suspense">Loading States with Suspense</a></li><li><a href="#error-states-with-error-boundaries">Error States with Error Boundaries</a></li><li><a href="#environment">Environment</a></li></ul></li><li><a href="#reusing-cached-data-for-render">Reusing Cached Data for Render</a><ul class="toc-headings"><li><a href="#fetch-policies">Fetch Policies</a></li><li><a href="#availability-of-cached-data">Availability of Cached Data</a></li><li><a href="#presence-of-data">Presence of Data</a></li><li><a href="#staleness-of-data">Staleness of Data</a></li><li><a href="#rendering-partially-cached-data-highly-experimental">Rendering Partially Cached Data [HIGHLY EXPERIMENTAL]</a></li><li><a href="#filling-in-missing-data-missing-data-handlers">Filling in Missing Data (Missing Data Handlers)</a></li></ul></li><li><a href="#fetching-rendering-different-data">Fetching Rendering <em>Different</em> Data</a><ul class="toc-headings"><li><a href="#refreshing-rendered-data">Refreshing Rendered Data</a></li><li><a href="#re-rendering-with-different-data">Re-rendering with Different Data</a></li></ul></li><li><a href="#rendering-list-data-and-pagination">Rendering List Data and Pagination</a><ul class="toc-headings"><li><a href="#connections">Connections</a></li><li><a href="#rendering-connections">Rendering Connections</a></li><li><a href="#pagination">Pagination</a></li><li><a href="#blocking-all-at-once-pagination">Blocking (&quot;all-at-once&quot;) Pagination</a></li><li><a href="#using-and-changing-filters">Using and Changing Filters</a></li><li><a href="#adding-and-removing-items-from-a-connection">Adding and Removing Items From a Connection</a></li><li><a href="#connection-records">Connection Records</a></li><li><a href="#adding-edges">Adding Edges</a></li><li><a href="#removing-edges">Removing Edges</a></li><li><a href="#connection-identity-with-filters">Connection Identity With Filters</a></li><li><a href="#advanced-pagination-use-cases">Advanced Pagination Use Cases</a></li></ul></li><li><a href="#advanced-data-fetching">Advanced Data Fetching</a><ul class="toc-headings"><li><a href="#preloading-data">Preloading Data</a></li><li><a href="#incremental-data-delivery">Incremental Data Delivery</a></li><li><a href="#data-driven-dependencies">Data-driven Dependencies</a></li><li><a href="#image-prefetching">Image Prefetching</a></li></ul></li><li><a href="#updating-data">Updating Data</a><ul class="toc-headings"><li><a href="#graphql-mutations">GraphQL Mutations</a></li><li><a href="#graphql-subscriptions">GraphQL Subscriptions</a></li><li><a href="#local-data-updates">Local Data Updates</a></li><li><a href="#client-only-data-client-schema-extensions">Client-Only Data (Client Schema Extensions)</a></li></ul></li><li><a href="#local-application-state-management">Local Application State Management</a></li><li><a href="#accessing-data-outside-react">Accessing Data Outside React</a><ul class="toc-headings"><li><a href="#fetching-queries">Fetching Queries</a></li><li><a href="#prefetching-queries">Prefetching Queries</a></li><li><a href="#subscribing-to-queries">Subscribing to Queries</a></li><li><a href="#reading-queries-from-local-cache">Reading Queries from Local Cache</a></li><li><a href="#reading-fragments-from-local-cache">Reading Fragments from Local Cache</a></li><li><a href="#retaining-queries">Retaining Queries</a></li></ul></li><li><a href="#testing">Testing</a></li></ul></nav></div><footer class="nav-footer" id="footer"><section class="sitemap"><div class="left-column"><div class="docsRating" id="docsRating">Is this page useful?<svg class="i_thumbsup" alt="Like" id="docsRating-like" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg><svg class="i_thumbsdown" alt="Dislike" id="docsRating-dislike" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.13 89.76"><path d="M22.9 6a18.57 18.57 0 002.67 8.4 25.72 25.72 0 008.65 7.66c3.86 2 8.67 7.13 13.51 11 3.86 3.11 8.57 7.11 11.54 8.45s13.59.26 14.64 1.17c1.88 1.63 1.55 9-.11 15.25-1.61 5.86-5.96 10.55-6.48 16.86-.4 4.83-2.7 4.88-10.93 4.88h-1.35c-3.82 0-8.24 2.93-12.92 3.62a68 68 0 01-9.73.5c-3.57 0-7.86-.08-13.25-.08-3.56 0-4.71-1.83-4.71-4.48h8.42a3.51 3.51 0 000-7H12.28a2.89 2.89 0 01-2.88-2.88 1.91 1.91 0 01.77-1.78h16.46a3.51 3.51 0 000-7H12.29c-3.21 0-4.84-1.83-4.84-4a6.41 6.41 0 011.17-3.78h19.06a3.5 3.5 0 100-7H9.75A3.51 3.51 0 016 42.27a3.45 3.45 0 013.75-3.48h13.11c5.61 0 7.71-3 5.71-5.52-4.43-4.74-10.84-12.62-11-18.71-.15-6.51 2.6-7.83 5.36-8.56m0-6a6.18 6.18 0 00-1.53.2c-6.69 1.77-10 6.65-9.82 14.5.08 5.09 2.99 11.18 8.52 18.09H9.74a9.52 9.52 0 00-6.23 16.9 12.52 12.52 0 00-2.07 6.84 9.64 9.64 0 003.65 7.7 7.85 7.85 0 00-1.7 5.13 8.9 8.9 0 005.3 8.13 6 6 0 00-.26 1.76c0 6.37 4.2 10.48 10.71 10.48h13.25a73.75 73.75 0 0010.6-.56 35.89 35.89 0 007.58-2.18 17.83 17.83 0 014.48-1.34h1.35c4.69 0 7.79 0 10.5-1 3.85-1.44 6-4.59 6.41-9.38.2-2.46 1.42-4.85 2.84-7.62a41.3 41.3 0 003.42-8.13 48 48 0 001.59-10.79c.1-5.13-1-8.48-3.35-10.55-2.16-1.87-4.64-1.87-9.6-1.88a46.86 46.86 0 01-6.64-.29c-1.92-.94-5.72-4-8.51-6.3l-1.58-1.28c-1.6-1.3-3.27-2.79-4.87-4.23-3.33-3-6.47-5.79-9.61-7.45a20.2 20.2 0 01-6.43-5.53 12.44 12.44 0 01-1.72-5.36 6 6 0 00-6-5.86z"></path></svg></div><div><a href="/" class="nav-home"><img src="/img/relay.svg" alt="Relay" width="66" height="58"/></a><div class="links-column"><h5>Docs</h5><a href="/docs/en/introduction-to-relay.html">Introduction</a></div></div></div><div><h5>Community</h5><a href="/en/users.html">User Showcase</a></div><div><h5>More</h5><a href="https://github.com/facebook/relay">GitHub</a><a href="https://opensource.facebook.com/legal/terms">Terms of Use</a><a href="https://opensource.facebook.com/legal/privacy">Privacy Policy</a><a href="https://opensource.facebook.com/legal/data-policy/">Data Policy</a><a href="https://opensource.facebook.com/legal/cookie-policy/">Cookie Policy</a></div></section><a href="https://code.facebook.com/projects/" target="_blank" class="fbOpenSource"><img src="/img/oss_logo.png" alt="Facebook Open Source" width="170" height="45"/></a><section class="copyright">Copyright © 2021 Facebook Inc.</section></footer></div><script type="text/javascript" src="https://cdn.jsdelivr.net/docsearch.js/1/docsearch.min.js"></script><script>
                 document.addEventListener('keyup', function(e) {
                   if (e.target !== document.body) {
                     return;

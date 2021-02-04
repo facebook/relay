@@ -10,31 +10,29 @@
 /* Navbar */
 .navigationSlider .slidingNav ul li a {
   font-weight: normal;
-  color: #fff;
 }
 
 /* INDEX PAGE */
-
 /* Home header */
 .homeContainer {
-  background-color: $primaryColor;
   text-align: left;
   overflow: hidden;
   position: relative;
 }
+
 .homeContainer .homeWrapper {
   padding: 10em 1em;
 }
+
 .homeBanner {
-  background-color: black;
-  color: white;
   font-size: 20px;
   text-align: center;
 }
+
 .homeBanner a {
-  color: white;
   text-decoration: underline;
 }
+
 .logo {
   position: absolute;
   opacity: 0.1;
@@ -44,19 +42,22 @@
   max-width: 1400px;
   margin: auto;
 }
+
 .logo img {
   transform: rotate(-26deg);
   width: 100%;
 }
+
 .projectTitle {
   font-size: 4rem;
-  color: #fff;
 }
+
 .projectTitle > small {
   font-size: 2.5rem;
   margin: 1em 0 0.5em 0;
   font-weight: 500;
 }
+
 .projectTitle > small:last-child {
   margin-top: 0;
 }
@@ -71,9 +72,11 @@
 .introSection {
   padding: 3em 0;
 }
+
 .introSection .wrapper {
   padding: 0 1em;
 }
+
 .introSection p {
   font-size: 1.8rem;
   width: 70%;
@@ -82,31 +85,35 @@
 /* Example section */
 .exampleSection .wrapper {
   padding: 0;
-  background: $lightGrayColor;
 }
+
 .exampleSection .wrapperInner {
   display: grid;
   grid-template-columns: 1fr 2fr;
   grid-column-gap: 40px;
 }
+
 .exampleSection .wrapperInner > div {
-  background: #fff;
   padding: 0 1em;
   overflow: auto;
 }
+
 .exampleSection .radiusRight {
   border-radius: 0 60px 0 0;
 }
+
 .exampleSection .radiusLeft {
   border-radius: 60px 0 0 0;
 }
+
 .exampleSection .wrapperInner > div:nth-child(even) pre {
   margin-left: 3em;
 }
+
 .exampleSection p {
-  color: $darkGrayColor;
   padding-right: 2em;
 }
+
 .exampleSection pre {
   margin-top: 15px;
 }
@@ -115,39 +122,44 @@
 .textSection .wrapper {
   padding: 4em 20px;
 }
+
 .textSection h2 {
   margin-top: 0;
   font-size: 2.5rem;
 }
+
 .textSection h3 {
   font-size: 1em;
   margin: 0 0 2.5em 0;
   font-weight: normal;
 }
+
 .textSection .blockElement {
-  margin: 0 55px;
+  margin: 0 30px;
 }
+
 .textSection .gridBlock > .blockElement:first-child {
   margin-left: 0;
 }
+
 .textSection .blockContent h2 {
   font-size: 1.5rem;
 }
 
 /* GraphQL section */
 .graphqlSection .wrapper {
-  background-image: url('../img/ui/bg-graphql-section.png');
   background-position: 43.1% 0;
   background-repeat: no-repeat;
   position: relative;
 }
+
 .graphqlSection:after {
   display: block;
   content: '';
   height: 3rem;
   width: 100%;
-  background: #fff;
 }
+
 .graphqlSection .wrapper:after {
   display: block;
   content: '';
@@ -156,12 +168,10 @@
   width: 2.51rem;
   margin-left: 53%;
   bottom: -48px;
-  background: $lightGrayColor;
 }
 
 /* Declarative section */
 .declarativeSection .wrapper {
-  background-image: url('../img/ui/bg-graphql-section.png');
   background-position: 72.6% 0;
   background-repeat: no-repeat;
   padding-bottom: 8em;
@@ -171,13 +181,13 @@
 .aheadSection {
   position: relative;
 }
+
 .aheadSection .wrapper {
-  background: #fff;
   position: relative;
   z-index: 1;
 }
+
 .aheadSection .wrapper:before {
-  background-image: url('../img/ui/bg-ahead-section-before.png');
   background-repeat: no-repeat;
   content: '';
   display: block;
@@ -187,18 +197,18 @@
   bottom: 0;
   left: 0;
 }
+
 .aheadSection:before {
   display: block;
   position: absolute;
   content: '';
-  background: $lightGrayColor;
   height: 40px;
   width: 50%;
   bottom: 133px;
   left: 0;
 }
+
 .aheadSection .wrapper:after {
-  background-image: url('../img/ui/bg-ahead-section-after.png');
   background-repeat: no-repeat;
   content: '';
   display: block;
@@ -208,16 +218,17 @@
   top: 0;
   right: 0;
 }
+
 .aheadSection:after {
   display: block;
   position: absolute;
   content: '';
-  background: $lightGrayColor;
   height: 40px;
   width: 50%;
   top: 88px;
   right: 0;
 }
+
 .aheadSection .gridBlock {
   position: relative;
 }
@@ -226,26 +237,28 @@
 .relaySection {
   position: relative;
 }
+
 .relaySection:before {
   content: '';
   display: block;
   width: 100%;
   height: 60px;
-  background: $lightGrayColor;
 }
+
 .relaySection .blockElement {
   margin: 0 55px 40px;
 }
+
 .relaySection .blockElement:nth-child(odd) {
   margin-left: 0;
 }
+
 .relaySection .wrapper {
   position: relative;
-  background: #fff;
   z-index: 1;
 }
+
 .relaySection .wrapper:after {
-  background-image: url('../img/ui/bg-ahead-section-after.png');
   background-repeat: no-repeat;
   content: '';
   display: block;
@@ -255,11 +268,11 @@
   top: 0;
   right: 0;
 }
+
 .relaySection:after {
   display: block;
   position: absolute;
   content: '';
-  background: $lightGrayColor;
   height: 40px;
   width: 50%;
   top: 147px;
@@ -273,46 +286,53 @@
   grid-gap: 3em;
   margin-bottom: 2em;
 }
+
 .logosHomepage a {
   display: flex;
-  color: #000;
 }
+
 .logosHomepage img {
   flex: 1;
   max-width: 50px;
   height: 50px;
 }
+
 .logosHomepage a div {
   padding-left: 1em;
 }
+
 .logosHomepage a h6 {
   font-size: 1.25rem;
   margin: 0;
 }
 
-@media only screen and (max-width: 1500px) {
+@media only screen and (max-width: 1499px) {
   .homeContainer .homeWrapper {
     padding: 6em 1em;
   }
+
   .logo {
     top: -350px;
   }
+
   .homeContainer .homeWrapper .projectLogo {
     padding: 2em 0px 4em;
   }
+
   .graphqlSection .wrapper {
     background-position: 39.8% 0;
   }
-  .textSection .blockElement {
-    margin: 0 30px;
-  }
+
+
   .graphqlSection .wrapper:after {
     width: 2.53rem;
     margin-left: 53.55%;
   }
+
   .declarativeSection .wrapper {
     background-position: 81.2% 0;
   }
+
   .aheadSection .wrapper:after {
     width: 181px;
   }
@@ -322,6 +342,7 @@
   .exampleSection .wrapperInner > div:nth-child(odd) {
     width: 298px;
   }
+
   .exampleSection .wrapperInner {
     grid-template-columns: 1fr 3fr;
   }
@@ -331,46 +352,55 @@
   .logo {
     top: -200px;
   }
+
   .graphqlSection .wrapper,
   .declarativeSection .wrapper {
     background: none;
   }
+
   .graphqlSection:after,
   .graphqlSection .wrapper:after {
     display: none;
   }
+
   .relaySection h2 {
     position: relative;
     z-index: 1;
   }
 }
 
-@media only screen and (max-width: 991px) {
+@media only screen and (max-width: 997px) {
   .homeContainer .homeWrapper {
     padding: 4em 1em;
   }
+
   .projectTitle > small {
     font-size: 1.5rem;
   }
+
   .exampleSection .wrapperInner {
     grid-template-columns: 1fr;
   }
+
   .exampleSection .radiusRight,
   .exampleSection .radiusLeft {
     border-radius: 0;
   }
+
   .textSection .wrapper {
     padding: 2em 20px;
   }
+
   .exampleSection pre code {
     font-size: 10px;
   }
+
   .exampleSection .wrapperInner > div:nth-child(even) pre {
     margin-left: 0em;
   }
 }
 
-@media only screen and (max-width: 736px) {
+@media only screen and (max-width: 768px) {
   .textSection .blockElement {
     margin: 20px 0;
   }
@@ -380,16 +410,20 @@
   .logo {
     display: none;
   }
+
   .projectTitle {
     margin-top: 0;
     font-size: 3rem;
   }
+
   .introSection p {
     font-size: 1.2rem;
   }
+
   .textSection h2 {
     font-size: 2rem;
   }
+
   .aheadSection .wrapper:after,
   .aheadSection .wrapper:before,
   .aheadSection:after,
@@ -399,14 +433,28 @@
   .relaySection:after {
     display: none;
   }
+
   .logos {
     grid-template-columns: 1fr;
     grid-gap: 2em;
   }
 }
 
-@media only screen and (max-width: 734px) {
+@media only screen and (max-width: 768px) {
   .logosHomepage {
     grid-template-columns: 1fr;
   }
+}
+
+/* Additional CSS that had to be added to accommodate the transition
+   from docusaurus v1 to v2 */
+
+.exampleSection pre {
+  background-color: white;
+  padding-left: 0.75em;
+}
+
+.more-users a.button {
+  color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
 }

@@ -194,7 +194,12 @@ module.exports = {
         },
         blog: {},
         theme: {
-          customCss: '../src/css/customTheme.css',
+          customCss: [
+            '../src/css/docusaurus-1.css',
+            '../src/css/prism.css',
+            '../src/css/customTheme.css',
+            '../src/css/custom.css',
+          ],
         },
       },
     ],

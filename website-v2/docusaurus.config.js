@@ -9,6 +9,8 @@
 
 'use strict';
 
+const {fbContent} = require('internaldocs-fb-helpers');
+
 module.exports = {
   title: 'Relay',
   tagline: 'The production-ready GraphQL client for React.',
@@ -186,8 +188,14 @@ module.exports = {
       require.resolve('docusaurus-plugin-internaldocs-fb/docusaurus-preset'),
       {
         docs: {
-          showLastUpdateAuthor: true,
-          showLastUpdateTime: true,
+          showLastUpdateAuthor: fbContent({
+            internal: false,
+            external: true,
+          }),
+          showLastUpdateTime: fbContent({
+            internal: false,
+            external: true,
+          }),
           editUrl: 'https://github.com/facebook/relay/edit/master/docs-2/',
           path: '../docs-2',
           sidebarPath: '../website/sidebars.json',

@@ -3760,9 +3760,6 @@ describe('useRefetchableFragmentNode', () => {
           {
             data: refetchedUser,
           },
-          {
-            data: refetchedUser,
-          },
         ]);
 
         // Refetch on another enironment afterwards should work

@@ -168,11 +168,9 @@ function useFragmentNode<TFragmentData: mixed>(
 }
 
 function useHasChanged(value: mixed): boolean {
-  const [mirroredValue, setMirroredValue] = useState(value);
-  const valueChanged = mirroredValue !== value;
-  if (valueChanged) {
-    setMirroredValue(value);
-  }
+  const prev = useRef<mixed>();
+  const valueChanged = prev.current !== value;
+  prev.current = value;
   return valueChanged;
 }
 

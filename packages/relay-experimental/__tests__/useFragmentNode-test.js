@@ -501,10 +501,7 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
     profile_picture: null,
     ...createFragmentRef('1', singularQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser, shouldUpdate: true}]);
 
   TestRenderer.act(() => {
     newEnvironment.commitPayload(singularQuery, {
@@ -568,10 +565,7 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('200', newQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser, shouldUpdate: true}]);
 
   TestRenderer.act(() => {
     environment.commitPayload(newQuery, {
@@ -637,10 +631,7 @@ it('should render correct data when changing fragment refs multiple times', () =
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('200', newQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser, shouldUpdate: true}]);
 
   // Udpate data for ID 1
   environment.commitPayload(singularQuery, {
@@ -666,10 +657,7 @@ it('should render correct data when changing fragment refs multiple times', () =
     // Assert that ref points to original singularQuery owner
     ...createFragmentRef('1', singularQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser, shouldUpdate: true}]);
 
   // Assert it correctly subscribes to new data
   TestRenderer.act(() => {
@@ -858,10 +846,7 @@ it('should re-read and resubscribe to fragment when variables change', () => {
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('1', newQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser, shouldUpdate: true}]);
 
   TestRenderer.act(() => {
     environment.commitPayload(newQuery, {

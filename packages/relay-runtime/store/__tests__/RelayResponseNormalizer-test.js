@@ -3143,55 +3143,58 @@ describe('RelayResponseNormalizer', () => {
       RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
     });
 
-    it('normalizes Flight fields', () => {
-      const payload = {
-        node: {
-          id: '1',
-          __typename: 'Story',
-          flightComponent: {
-            tree: [
-              {
-                type: 'div',
-                key: null,
-                ref: null,
-                props: {foo: 1},
-              },
-            ],
-            queries: [
-              {
-                id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
-                module: {__dr: 'RelayFlightExampleQuery.graphql'},
-                response: {
-                  data: {
-                    story: {
-                      id: '2',
-                      name: 'Lauren',
-                      __typename: 'User',
+    describe('when successful', () => {
+      it('normalizes Flight fields', () => {
+        const payload = {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              status: 'SUCCESS',
+              tree: [
+                {
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                },
+              ],
+              queries: [
+                {
+                  id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                  module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                  response: {
+                    data: {
+                      story: {
+                        id: '2',
+                        name: 'Lauren',
+                        __typename: 'User',
+                      },
                     },
+                    extensions: [],
                   },
-                  extensions: [],
+                  variables: {
+                    id: '2',
+                  },
                 },
-                variables: {
-                  id: '2',
-                },
-              },
-            ],
+              ],
+              errors: [],
+            },
           },
-        },
-      };
-      normalize(
-        recordSource,
-        createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-          count: 10,
-          id: '1',
-        }),
-        payload,
-        {
-          ...defaultOptions,
-          reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
-        },
-      );
-      expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+        };
+        normalize(
+          recordSource,
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
+          payload,
+          {
+            ...defaultOptions,
+            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+          },
+        );
+        expect(recordSource.toJSON()).toMatchInlineSnapshot(`
         Object {
           "1": Object {
             "__id": "1",
@@ -3227,45 +3230,142 @@ describe('RelayResponseNormalizer', () => {
           },
         }
       `);
+      });
+
+      it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
+        const payload = {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              status: 'SUCCESS',
+              tree: [],
+              queries: [],
+              errors: [],
+            },
+          },
+        };
+
+        expect(() => {
+          normalize(
+            recordSource,
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
+            payload,
+            {
+              ...defaultOptions,
+              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+            },
+          );
+        }).not.toThrow();
+        expect(() => {
+          normalize(
+            recordSource,
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
+            payload,
+            defaultOptions,
+          );
+        }).toThrow();
+      });
     });
 
-    it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
-      const payload = {
-        node: {
-          id: '1',
-          __typename: 'Story',
-          flightComponent: {
-            tree: [],
-            queries: [],
-          },
-        },
-      };
+    describe('when server errors are encountered', () => {
+      describe('and ReactFlightServerErrorHandler is specified', () => {
+        const reactFlightServerErrorHandler = jest.fn();
+        it('calls ReactFlightServerErrorHandler', () => {
+          const payload = {
+            node: {
+              id: '1',
+              __typename: 'Story',
+              flightComponent: {
+                status: 'FAIL_JS_ERROR',
+                tree: [],
+                queries: [],
+                errors: [
+                  {
+                    message: 'Something threw an error on the server',
+                    stack: 'Error\n    at <anonymous>:1:1',
+                  },
+                ],
+              },
+            },
+          };
+          normalize(
+            recordSource,
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
+            payload,
+            {
+              ...defaultOptions,
+              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+              reactFlightServerErrorHandler,
+            },
+          );
+          expect(reactFlightServerErrorHandler).toHaveBeenCalledWith(
+            'FAIL_JS_ERROR',
+            expect.arrayContaining([
+              expect.objectContaining({
+                message: 'Something threw an error on the server',
+                stack: 'Error\n    at <anonymous>:1:1',
+              }),
+            ]),
+          );
+        });
+      });
+      describe('and no ReactFlightServerErrorHandler is specified', () => {
+        beforeEach(() => {
+          jest.mock('warning');
+        });
 
-      expect(() => {
-        normalize(
-          recordSource,
-          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-            count: 10,
-            id: '1',
-          }),
-          payload,
-          {
-            ...defaultOptions,
-            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
-          },
-        );
-      }).not.toThrow();
-      expect(() => {
-        normalize(
-          recordSource,
-          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
-            count: 10,
-            id: '1',
-          }),
-          payload,
-          defaultOptions,
-        );
-      }).toThrow();
+        it('warns', () => {
+          const payload = {
+            node: {
+              id: '1',
+              __typename: 'Story',
+              flightComponent: {
+                status: 'FAIL_JS_ERROR',
+                tree: [],
+                queries: [],
+                errors: [
+                  {
+                    message: 'Something threw an error on the server',
+                    stack: 'Error\n    at <anonymous>:1:1',
+                  },
+                ],
+              },
+            },
+          };
+
+          normalize(
+            recordSource,
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
+            payload,
+            {
+              ...defaultOptions,
+              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+            },
+          );
+          expect(warning).toHaveBeenCalledWith(
+            true,
+            expect.stringContaining(
+              'RelayResponseNormalizer: Received server errors for field `%s`.',
+            ),
+            'flightComponent',
+            expect.stringContaining('Something threw an error on the server'),
+            expect.stringContaining('Error\n    at <anonymous>:1:1'),
+          );
+        });
+      });
     });
   });
 });

@@ -18,6 +18,7 @@ import type {
   PayloadData,
   PayloadError,
   ReactFlightServerTree,
+  ReactFlightServerError,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -984,9 +985,19 @@ export type ReactFlightReachableQuery = {|
 |};
 
 /**
- * A user-supplied function that takes a ReactFlightServerTree, and deserializes
- * it into a ReactFlightClientResponse object.
+ * A user-supplied function that takes a ReactFlightServerTree
+ * (after successful execution on the server), and deserializes it into a
+ * ReactFlightClientResponse object.
  */
 export type ReactFlightPayloadDeserializer = (
   tree: ReactFlightServerTree,
 ) => ReactFlightClientResponse;
+
+/**
+ * An optionally user-supplied function that handles errors returned by the
+ * server's JS runtime while executing a React Server Component.
+ */
+export type ReactFlightServerErrorHandler = (
+  status: string,
+  errors: Array<ReactFlightServerError>,
+) => void;

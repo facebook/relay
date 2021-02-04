@@ -132,6 +132,11 @@ export type ReactFlightPayloadQuery = {|
   +response: GraphQLSingularResponse,
   +variables: Variables,
 |};
+export type ReactFlightServerError = {
+  +message: string,
+  +stack: string,
+  ...
+};
 /**
  * Data that is returned by a Flight compliant GraphQL server.
  *
@@ -140,6 +145,8 @@ export type ReactFlightPayloadQuery = {|
  * - queries: an array of queries that the server preloaded for the client.
  */
 export type ReactFlightPayloadData = {|
+  +status: string,
   +tree: Array<ReactFlightServerTree>,
   +queries: Array<ReactFlightPayloadQuery>,
+  +errors: Array<ReactFlightServerError>,
 |};

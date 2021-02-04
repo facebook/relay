@@ -73,6 +73,7 @@ import type {
   NormalizationSelector,
   ReactFlightReachableQuery,
   ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
 } from './RelayStoreTypes';
@@ -87,6 +88,7 @@ export type NormalizationOptions = {|
   +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
 |};
 
 /**
@@ -125,6 +127,7 @@ class RelayResponseNormalizer {
   _recordSource: MutableRecordSource;
   _variables: Variables;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -143,6 +146,7 @@ class RelayResponseNormalizer {
     this._variables = variables;
     this._reactFlightPayloadDeserializer =
       options.reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = options.reactFlightServerErrorHandler;
   }
 
   normalizeResponse(
@@ -533,6 +537,24 @@ class RelayResponseNormalizer {
         'be a function, got `%s`.',
       this._reactFlightPayloadDeserializer,
     );
+
+    if (reactFlightPayload.errors.length > 0) {
+      if (typeof this._reactFlightServerErrorHandler === 'function') {
+        this._reactFlightServerErrorHandler(
+          reactFlightPayload.status,
+          reactFlightPayload.errors,
+        );
+      } else {
+        warning(
+          true,
+          'RelayResponseNormalizer: Received server errors for field `%s`.\n\n' +
+            '%s\n%s',
+          responseKey,
+          reactFlightPayload.errors[0].message,
+          reactFlightPayload.errors[0].stack,
+        );
+      }
+    }
 
     // We store the deserialized reactFlightClientResponse in a separate
     // record and link it to the parent record. This is so we can GC the Flight

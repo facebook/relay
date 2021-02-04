@@ -19,6 +19,8 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const warning = require('warning');
+
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -176,6 +178,7 @@ describe('executeMutation() with Flight field', () => {
           id: storyID,
           __typename: 'Story',
           flightComponent: {
+            status: 'SUCCESS',
             tree: [
               {
                 type: 'div',
@@ -203,6 +206,7 @@ describe('executeMutation() with Flight field', () => {
                 },
               },
             ],
+            errors: [],
           },
         },
       },
@@ -210,94 +214,238 @@ describe('executeMutation() with Flight field', () => {
     jest.runAllTimers();
   });
 
-  it('updates Flight fields that were previously queried for', () => {
-    // precondition - FlightQuery
-    const snapshot = environment.lookup(queryOperation.fragment);
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
-    // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
-    expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
-      {key: null, props: {foo: 1}, ref: null, type: 'div'},
-    ]);
-
-    // precondition - InnerQuery
-    const innerSnapshot = environment.lookup(innerQueryOperation.fragment);
-    const innerCallback = jest.fn();
-    environment.subscribe(innerSnapshot, innerCallback);
-    expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
-
-    environment.executeMutation({operation}).subscribe(callbacks);
-    callback.mockClear();
-    subject.next({
-      data: {
-        storyUpdate: {
-          story: {
-            id: storyID,
-            body: {
-              text: 'Hello world!',
-            },
-            __typename: 'Story',
-            flightComponent: {
-              tree: [
-                {
-                  type: 'div',
-                  key: null,
-                  ref: null,
-                  props: {foo: 2, bar: 'abc', baz: [1, 2, 3]}, // updated
-                },
-              ],
-              queries: [
-                {
-                  id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
-                  module: {__dr: 'RelayFlightExampleQuery.graphql'},
-                  response: {
-                    data: {
-                      node: {
-                        id: '2',
-                        name: 'Lauren Tan',
-                        __typename: 'User',
-                      },
-                    },
-                    extensions: [],
-                  },
-                  variables: {
-                    id: '2',
-                  },
-                },
-              ],
-            },
-          },
-        },
-      },
-    });
-    subject.complete();
-
-    expect(complete).toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(callback).toHaveBeenCalledTimes(1);
-    expect(
+  describe('when successful', () => {
+    it('updates Flight fields that were previously queried for', () => {
+      // precondition - FlightQuery
+      const snapshot = environment.lookup(queryOperation.fragment);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
       // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
-      callback.mock.calls[0][0].data.node.flightComponent.readRoot(),
-    ).toEqual([
-      {
-        key: null,
-        props: {foo: 2, bar: 'abc', baz: [1, 2, 3]},
-        ref: null,
-        type: 'div',
-      },
-    ]);
+      expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
+        {key: null, props: {foo: 1}, ref: null, type: 'div'},
+      ]);
 
-    // This verifies that data for client components included in the payload are
-    // also updated as a result of the mutation.
-    expect(innerCallback).toHaveBeenCalledTimes(1);
-    expect(innerCallback).toHaveBeenLastCalledWith(
-      expect.objectContaining({
+      // precondition - InnerQuery
+      const innerSnapshot = environment.lookup(innerQueryOperation.fragment);
+      const innerCallback = jest.fn();
+      environment.subscribe(innerSnapshot, innerCallback);
+      expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
+
+      environment.executeMutation({operation}).subscribe(callbacks);
+      callback.mockClear();
+      subject.next({
         data: {
-          node: {
-            name: 'Lauren Tan',
+          storyUpdate: {
+            story: {
+              id: storyID,
+              body: {
+                text: 'Hello world!',
+              },
+              __typename: 'Story',
+              flightComponent: {
+                status: 'SUCCESS',
+                tree: [
+                  {
+                    type: 'div',
+                    key: null,
+                    ref: null,
+                    props: {foo: 2, bar: 'abc', baz: [1, 2, 3]}, // updated
+                  },
+                ],
+                queries: [
+                  {
+                    id: 'b0dbe24703062b69e6b1d0c38c4f69d2',
+                    module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                    response: {
+                      data: {
+                        node: {
+                          id: '2',
+                          name: 'Lauren Tan',
+                          __typename: 'User',
+                        },
+                      },
+                      extensions: [],
+                    },
+                    variables: {
+                      id: '2',
+                    },
+                  },
+                ],
+                errors: [],
+              },
+            },
           },
         },
-      }),
-    );
+      });
+      subject.complete();
+
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(
+        // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
+        callback.mock.calls[0][0].data.node.flightComponent.readRoot(),
+      ).toEqual([
+        {
+          key: null,
+          props: {foo: 2, bar: 'abc', baz: [1, 2, 3]},
+          ref: null,
+          type: 'div',
+        },
+      ]);
+
+      // This verifies that data for client components included in the payload are
+      // also updated as a result of the mutation.
+      expect(innerCallback).toHaveBeenCalledTimes(1);
+      expect(innerCallback).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: {
+            node: {
+              name: 'Lauren Tan',
+            },
+          },
+        }),
+      );
+    });
+  });
+
+  describe('when server errors are encountered', () => {
+    describe('and ReactFlightServerErrorHandler is specified', () => {
+      let reactFlightServerErrorHandler;
+      beforeEach(() => {
+        reactFlightServerErrorHandler = jest.fn((status, errors) => {
+          const err = new Error(`${status}: ${errors[0].message}`);
+          err.stack = errors[0].stack;
+          throw err;
+        });
+        environment = new RelayModernEnvironment({
+          network: RelayNetwork.create(fetch),
+          operationLoader,
+          store,
+          reactFlightPayloadDeserializer,
+          reactFlightServerErrorHandler,
+        });
+      });
+      it('calls ReactFlightServerErrorHandler', () => {
+        // precondition - FlightQuery
+        const snapshot = environment.lookup(queryOperation.fragment);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+        // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
+        expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
+          {key: null, props: {foo: 1}, ref: null, type: 'div'},
+        ]);
+
+        // precondition - InnerQuery
+        const innerSnapshot = environment.lookup(innerQueryOperation.fragment);
+        const innerCallback = jest.fn();
+        environment.subscribe(innerSnapshot, innerCallback);
+        expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
+
+        environment.executeMutation({operation}).subscribe(callbacks);
+        callback.mockClear();
+        subject.next({
+          data: {
+            storyUpdate: {
+              story: {
+                id: storyID,
+                body: {
+                  text: 'Hello world!',
+                },
+                __typename: 'Story',
+                flightComponent: {
+                  status: 'FAIL_JS_ERROR',
+                  tree: [],
+                  queries: [],
+                  errors: [
+                    {
+                      message: 'Something threw an error on the server',
+                      stack: 'Error\n    at <anonymous>:1:1',
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        });
+        subject.complete();
+
+        expect(complete).not.toBeCalled();
+        expect(error).toBeCalled();
+        expect(callback).toHaveBeenCalledTimes(0);
+        expect(reactFlightServerErrorHandler).toHaveBeenCalledWith(
+          'FAIL_JS_ERROR',
+          expect.arrayContaining([
+            expect.objectContaining({
+              message: 'Something threw an error on the server',
+              stack: 'Error\n    at <anonymous>:1:1',
+            }),
+          ]),
+        );
+      });
+    });
+    describe('and no ReactFlightServerErrorHandler is specified', () => {
+      beforeEach(() => {
+        jest.mock('warning');
+      });
+
+      it('warns', () => {
+        // precondition - FlightQuery
+        const snapshot = environment.lookup(queryOperation.fragment);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
+        // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
+        expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
+          {key: null, props: {foo: 1}, ref: null, type: 'div'},
+        ]);
+
+        // precondition - InnerQuery
+        const innerSnapshot = environment.lookup(innerQueryOperation.fragment);
+        const innerCallback = jest.fn();
+        environment.subscribe(innerSnapshot, innerCallback);
+        expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
+
+        environment.executeMutation({operation}).subscribe(callbacks);
+        callback.mockClear();
+        subject.next({
+          data: {
+            storyUpdate: {
+              story: {
+                id: storyID,
+                body: {
+                  text: 'Hello world!',
+                },
+                __typename: 'Story',
+                flightComponent: {
+                  status: 'FAIL_JS_ERROR',
+                  tree: [],
+                  queries: [],
+                  errors: [
+                    {
+                      message: 'Something threw an error on the server',
+                      stack: 'Error\n    at <anonymous>:1:1',
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        });
+        subject.complete();
+
+        expect(complete).toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(callback).toHaveBeenCalledTimes(1);
+        expect(warning).toHaveBeenCalledWith(
+          true,
+          expect.stringContaining(
+            'RelayResponseNormalizer: Received server errors for field `%s`.',
+          ),
+          'flightComponent',
+          expect.stringContaining('Something threw an error on the server'),
+          expect.stringContaining('Error\n    at <anonymous>:1:1'),
+        );
+      });
+    });
   });
 });

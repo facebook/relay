@@ -10,7 +10,7 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 
 ## Props
 
--   `environment`: The [Relay Environment](./relay-environment.html)
+-   `environment`: The [Relay Environment](./relay-environment)
 -   `query`: The `graphql` tagged query. **Note:** `relay-compiler` enforces the query to be named as `<FileName>Query`. Optional, if not provided, an empty `props` object is passed to the `render` callback.
 -   `cacheConfig?`: Optional object containing a set of cache configuration options, i.e. `force: true` requires the fetch to be issued regardless of the state of any configured response cache.
 -   `fetchPolicy?`: Optional prop to indicate if data already present in the store should be used to render immediately and updated from the network afterwards using the `store-and-network` key. Using the `network-only` key, which is the default behavior, ignores data already present in the store and waits for the network results to come back.

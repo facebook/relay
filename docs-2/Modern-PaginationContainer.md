@@ -2,7 +2,7 @@
 id: pagination-container
 title: Pagination Container
 ---
-Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container.html), that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://relay.dev/graphql/connections.htm).
+Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container), that is designed to simplify the workflow of loading more items in a list — in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://relay.dev/graphql/connections.htm).
 
 Table of Contents:
 
@@ -148,7 +148,7 @@ type Props = {
 ```
 
 -   `relay`:
-    -   `environment`: The current [Relay Environment](./relay-environment.html)
+    -   `environment`: The current [Relay Environment](./relay-environment)
     -   `hasMore`: See `hasMore` [docs](#hasmore)
     -   `isLoading`: See `isLoading` [docs](#isloading)
     -   `loadMore`: See `loadMore` [docs](#loadmore)
@@ -193,7 +193,7 @@ loadMore(
 -   `pageSize`: The number of **additional** items to fetch (not the total).
 -   `callback`: Function called when the new page has been fetched. If an error occurred during refetch, this function will receive that error as an argument.
 -   `options`: Optional object containing set of options.
-    -   `force`: If the [Network Layer](./network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
+    -   `force`: If the [Network Layer](./network-layer) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
 
 ## `refetchConnection`
 

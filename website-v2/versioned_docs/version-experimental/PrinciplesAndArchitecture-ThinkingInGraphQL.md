@@ -206,7 +206,7 @@ Consider rendering the text and comments of a story along with the corresponding
 ```
 
 query {
-  node(id: "1") {
+  story(id: "1") {
     text,
     author { name, photo },
     comments {

@@ -67,6 +67,9 @@ In React, rendering a view requires two inputs: the _component_ to render, and a
 
 ReactDOM.render(
   <QueryRenderer
+    environment={
+      // defined or imported above...
+    }
     query={graphql`
       query StoryQuery($storyID: ID!) {
         node(id: $storyID) {
@@ -77,7 +80,7 @@ ReactDOM.render(
     variables={{
       storyID: '123',
     }}
-    render={(props, error) {
+    render={(props, error) => {
       if (error) {
         return <ErrorView />;
       } else if (props) {

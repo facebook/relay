@@ -256,10 +256,13 @@ pub async fn commit_project(
                     }
 
                     let path = config.root_dir.join(&artifact.path);
-                    let content =
-                        artifact
-                            .content
-                            .as_bytes(config, project_config, &mut printer, schema);
+                    let content = artifact.content.as_bytes(
+                        config,
+                        project_config,
+                        &mut printer,
+                        schema,
+                        artifact.source_file,
+                    );
                     if config.artifact_writer.should_write(&path, &content)? {
                         config.artifact_writer.write(path, content)?;
                     }
@@ -286,10 +289,13 @@ pub async fn commit_project(
                 // Write or update artifacts
                 for artifact in artifacts {
                     let path = config.root_dir.join(&artifact.path);
-                    let content =
-                        artifact
-                            .content
-                            .as_bytes(config, project_config, &mut printer, schema);
+                    let content = artifact.content.as_bytes(
+                        config,
+                        project_config,
+                        &mut printer,
+                        schema,
+                        artifact.source_file,
+                    );
                     if config.artifact_writer.should_write(&path, &content)? {
                         config.artifact_writer.write(path, content)?;
                     }

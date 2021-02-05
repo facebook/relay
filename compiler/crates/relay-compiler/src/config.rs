@@ -182,6 +182,7 @@ impl Config {
                     extra: config_file_project.extra,
                     feature_flags: config_file_project.feature_flags,
                     filename_for_artifact: None,
+                    skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                 };
                 Ok((project_name, project_config))
@@ -412,6 +413,7 @@ pub struct ProjectConfig {
     pub feature_flags: Option<FeatureFlags>,
     pub filename_for_artifact:
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
+    pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
 }
 
@@ -434,6 +436,7 @@ impl Debug for ProjectConfig {
             extra,
             feature_flags,
             filename_for_artifact,
+            skip_types_for_artifact,
             rollout,
         } = self;
         f.debug_struct("ProjectConfig")
@@ -455,6 +458,14 @@ impl Debug for ProjectConfig {
             .field(
                 "filename_for_artifact",
                 &if filename_for_artifact.is_some() {
+                    "Some<Fn>"
+                } else {
+                    "None"
+                },
+            )
+            .field(
+                "skip_types_for_artifact",
+                &if skip_types_for_artifact.is_some() {
                     "Some<Fn>"
                 } else {
                     "None"

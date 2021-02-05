@@ -182,8 +182,8 @@ module.exports = {
       },
     ],
   },
-  onBrokenLinks: 'log',
-  onBrokenMarkdownLinks: 'log',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
   presets: [
     [
       require.resolve('docusaurus-plugin-internaldocs-fb/docusaurus-preset'),

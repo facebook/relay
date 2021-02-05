@@ -155,26 +155,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .subscribe(&setup_event, self.perf_logger.as_ref())
             .await?;
 
-        let mut red_to_green = RedToGreen::new();
-
-        if self
-            .build_projects(&mut compiler_state, &setup_event)
-            .await
-            .is_err()
-        {
-            // build_projects should have logged already
-            red_to_green.log_error()
-        } else {
-            info!("Compilation completed.");
-        }
-        self.perf_logger.complete_event(setup_event);
-        info!("Waiting for changes...");
-
         let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
         let source_control_update_in_progress =
             compiler_state.source_control_update_in_progress.clone();
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
+
+        // First, set up watchman subscription
         task::spawn(async move {
             loop {
                 let next_change = subscription.next_change().await;
@@ -198,11 +185,26 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             }
         });
 
+        let mut red_to_green = RedToGreen::new();
+        if self
+            .build_projects(&mut compiler_state, &setup_event)
+            .await
+            .is_err()
+        {
+            // build_projects should have logged already
+            red_to_green.log_error()
+        } else {
+            info!("Compilation completed.");
+        }
+        self.perf_logger.complete_event(setup_event);
+
+        info!("Waiting for changes...");
         loop {
             notify_receiver.notified().await;
             // Single change to file sometimes produces 2 watchman change events for the same file
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+
             if compiler_state.has_pending_file_source_changes()
                 && !compiler_state.is_source_control_update_in_progress()
             {

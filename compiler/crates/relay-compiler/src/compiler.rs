@@ -23,7 +23,7 @@ use crate::{
 use common::{Diagnostic, PerfLogEvent, PerfLogger};
 use futures::future::join_all;
 use graphql_ir::Program;
-use log::{debug, error, info};
+use log::{debug, info};
 use rayon::prelude::*;
 use schema::SDLSchema;
 use std::{collections::HashMap, collections::HashSet, sync::atomic::Ordering, sync::Arc};
@@ -184,7 +184,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         }
                         Ok(FileSourceSubscriptionNextChange::None) => {}
                         Err(err) => {
-                            error!("Watchman subscription error: {}", err);
+                            panic!("Watchman subscription error: {}", err);
                         }
                     }
                 }

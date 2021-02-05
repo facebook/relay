@@ -324,7 +324,9 @@ impl FileSourceSubscription {
                     return Ok(FileSourceSubscriptionNextChange::SourceControlUpdate);
                 }
             }
-            SubscriptionData::Canceled => {}
+            SubscriptionData::Canceled => {
+                return Err(Error::WatchmanSubscriptionCanceled);
+            }
         }
         Ok(FileSourceSubscriptionNextChange::None)
     }

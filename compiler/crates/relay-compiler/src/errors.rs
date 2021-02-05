@@ -111,6 +111,9 @@ pub enum Error {
 
     #[error("IO error {0}")]
     IOError(std::io::Error),
+
+    #[error("Watchman subscription canceled")]
+    WatchmanSubscriptionCanceled,
 }
 
 #[derive(Debug, Error)]

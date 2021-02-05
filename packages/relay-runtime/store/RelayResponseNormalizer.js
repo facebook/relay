@@ -546,7 +546,7 @@ class RelayResponseNormalizer {
         );
       } else {
         warning(
-          true,
+          false,
           'RelayResponseNormalizer: Received server errors for field `%s`.\n\n' +
             '%s\n%s',
           responseKey,

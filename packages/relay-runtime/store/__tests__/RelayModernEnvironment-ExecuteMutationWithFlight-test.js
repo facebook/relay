@@ -437,7 +437,7 @@ describe('executeMutation() with Flight field', () => {
         expect(error).not.toBeCalled();
         expect(callback).toHaveBeenCalledTimes(1);
         expect(warning).toHaveBeenCalledWith(
-          true,
+          false,
           expect.stringContaining(
             'RelayResponseNormalizer: Received server errors for field `%s`.',
           ),

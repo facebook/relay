@@ -3356,7 +3356,7 @@ describe('RelayResponseNormalizer', () => {
             },
           );
           expect(warning).toHaveBeenCalledWith(
-            true,
+            false,
             expect.stringContaining(
               'RelayResponseNormalizer: Received server errors for field `%s`.',
             ),

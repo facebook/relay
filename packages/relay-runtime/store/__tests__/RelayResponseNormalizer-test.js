@@ -3367,5 +3367,46 @@ describe('RelayResponseNormalizer', () => {
         });
       });
     });
+
+    describe('when the row protocol is malformed', () => {
+      beforeEach(() => {
+        jest.mock('warning');
+      });
+
+      it('warns if the row protocol is null', () => {
+        const payload = {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              status: 'UNEXPECTED_ERROR',
+              tree: null,
+              queries: [],
+              errors: [],
+            },
+          },
+        };
+
+        normalize(
+          recordSource,
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
+          payload,
+          {
+            ...defaultOptions,
+            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+          },
+        );
+
+        expect(warning).toHaveBeenCalledWith(
+          false,
+          expect.stringContaining(
+            'RelayResponseNormalizer: Expected `tree` not to be null.',
+          ),
+        );
+      });
+    });
   });
 });

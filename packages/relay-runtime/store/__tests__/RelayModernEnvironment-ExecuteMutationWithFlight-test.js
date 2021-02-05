@@ -51,6 +51,8 @@ describe('executeMutation() with Flight field', () => {
   let variables;
 
   beforeEach(() => {
+    jest.mock('warning');
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
     jest.resetModules();
 
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
@@ -212,6 +214,9 @@ describe('executeMutation() with Flight field', () => {
       },
     });
     jest.runAllTimers();
+  });
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
   });
 
   describe('when successful', () => {
@@ -385,10 +390,6 @@ describe('executeMutation() with Flight field', () => {
       });
     });
     describe('and no ReactFlightServerErrorHandler is specified', () => {
-      beforeEach(() => {
-        jest.mock('warning');
-      });
-
       it('warns', () => {
         // precondition - FlightQuery
         const snapshot = environment.lookup(queryOperation.fragment);
@@ -446,6 +447,58 @@ describe('executeMutation() with Flight field', () => {
           expect.stringContaining('Error\n    at <anonymous>:1:1'),
         );
       });
+    });
+  });
+
+  describe('when the row protocol is malformed', () => {
+    it('warns when the row protocol is null', () => {
+      // precondition - FlightQuery
+      const snapshot = environment.lookup(queryOperation.fragment);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+      // $FlowFixMe[incompatible-use] readRoot() to verify that it updated
+      expect(snapshot.data.node.flightComponent.readRoot()).toEqual([
+        {key: null, props: {foo: 1}, ref: null, type: 'div'},
+      ]);
+
+      // precondition - InnerQuery
+      const innerSnapshot = environment.lookup(innerQueryOperation.fragment);
+      const innerCallback = jest.fn();
+      environment.subscribe(innerSnapshot, innerCallback);
+      expect(innerSnapshot.data).toEqual({node: {name: 'Lauren'}});
+
+      environment.executeMutation({operation}).subscribe(callbacks);
+      callback.mockClear();
+      subject.next({
+        data: {
+          storyUpdate: {
+            story: {
+              id: storyID,
+              body: {
+                text: 'Hello world!',
+              },
+              __typename: 'Story',
+              flightComponent: {
+                status: 'UNEXPECTED_ERROR',
+                tree: null,
+                queries: [],
+                errors: [],
+              },
+            },
+          },
+        },
+      });
+      subject.complete();
+
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback).toHaveBeenCalledTimes(0);
+      expect(warning).toHaveBeenCalledWith(
+        false,
+        expect.stringContaining(
+          'RelayResponseNormalizer: Expected `tree` not to be null.',
+        ),
+      );
     });
   });
 });

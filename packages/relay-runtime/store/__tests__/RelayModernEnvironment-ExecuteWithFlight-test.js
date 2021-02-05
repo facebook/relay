@@ -303,6 +303,10 @@ describe('execute() with Flight field', () => {
   });
 
   describe('when server errors are encountered', () => {
+    beforeEach(() => {
+      jest.mock('warning');
+    });
+
     describe('and ReactFlightServerErrorHandler is specified', () => {
       let reactFlightServerErrorHandler;
       beforeEach(() => {
@@ -361,47 +365,44 @@ describe('execute() with Flight field', () => {
     });
 
     describe('no ReactFlightServerErrorHandler is specified', () => {
-      beforeEach(() => {
-        jest.mock('warning');
-      });
-    });
-    it('warns', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      const payload = {
-        data: {
-          node: {
-            id: '1',
-            __typename: 'Story',
-            flightComponent: {
-              status: 'FAIL_JS_ERROR',
-              tree: [],
-              queries: [],
-              errors: [
-                {
-                  message: 'Something threw an error on the server',
-                  stack: 'Error\n    at <anonymous>:1:1',
-                },
-              ],
+      it('warns', () => {
+        environment.execute({operation}).subscribe(callbacks);
+        const payload = {
+          data: {
+            node: {
+              id: '1',
+              __typename: 'Story',
+              flightComponent: {
+                status: 'FAIL_JS_ERROR',
+                tree: [],
+                queries: [],
+                errors: [
+                  {
+                    message: 'Something threw an error on the server',
+                    stack: 'Error\n    at <anonymous>:1:1',
+                  },
+                ],
+              },
             },
           },
-        },
-      };
-      dataSource.next(payload);
-      jest.runAllTimers();
+        };
+        dataSource.next(payload);
+        jest.runAllTimers();
 
-      expect(next).toBeCalledTimes(1);
-      expect(complete).toBeCalledTimes(0);
-      expect(error).toBeCalledTimes(0);
-      expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        expect.stringContaining(
-          'RelayResponseNormalizer: Received server errors for field `%s`.',
-        ),
-        'flightComponent',
-        expect.stringContaining('Something threw an error on the server'),
-        expect.stringContaining('Error\n    at <anonymous>:1:1'),
-      );
+        expect(next).toBeCalledTimes(1);
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
+        expect(warning).toHaveBeenCalledWith(
+          false,
+          expect.stringContaining(
+            'RelayResponseNormalizer: Received server errors for field `%s`.',
+          ),
+          'flightComponent',
+          expect.stringContaining('Something threw an error on the server'),
+          expect.stringContaining('Error\n    at <anonymous>:1:1'),
+        );
+      });
     });
   });
 
@@ -589,6 +590,39 @@ describe('execute() with Flight field', () => {
       expect(environment.check(innerOperation)).toEqual({
         status: 'missing',
       });
+    });
+  });
+
+  describe('when the row protocol is malformed', () => {
+    it('warns if the row protocol is null', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: {
+              status: 'UNEXPECTED_ERROR',
+              tree: null,
+              queries: [],
+              errors: [],
+            },
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(reactFlightPayloadDeserializer).toBeCalledTimes(0);
+      expect(warning).toHaveBeenCalledWith(
+        false,
+        expect.stringContaining(
+          'RelayResponseNormalizer: Expected `tree` not to be null.',
+        ),
+      );
     });
   });
 });

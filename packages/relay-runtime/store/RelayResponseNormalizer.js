@@ -527,8 +527,9 @@ class RelayResponseNormalizer {
 
     invariant(
       reactFlightPayload != null,
-      'RelayResponseNormalizer(): Expected React Flight payload data ' +
-        'to be an object with `tree` and `queries` properties, got `%s`.',
+      'RelayResponseNormalizer: Expected React Flight payload data to be an ' +
+        'object with `status`, tree`, `queries` and `errors` properties, got ' +
+        '`%s`.',
       fieldValue,
     );
     invariant(
@@ -554,6 +555,21 @@ class RelayResponseNormalizer {
           reactFlightPayload.errors[0].stack,
         );
       }
+    }
+
+    // This typically indicates that a fatal server error prevented rows from
+    // being written. When this occurs, we should not continue normalization of
+    // the Flight field because the row response is malformed.
+    //
+    // Receiving empty rows is OK because it can indicate the start of a stream.
+    if (reactFlightPayload.tree == null) {
+      warning(
+        false,
+        'RelayResponseNormalizer: Expected `tree` not to be null. This ' +
+          'typically indicates that a fatal server error prevented any Server ' +
+          'Component rows from being written.',
+      );
+      return;
     }
 
     // We store the deserialized reactFlightClientResponse in a separate

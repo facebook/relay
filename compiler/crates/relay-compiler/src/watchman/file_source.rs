@@ -10,7 +10,7 @@ use super::{Clock, WatchmanFile};
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
-use log::{info, warn};
+use log::{debug, info, warn};
 use serde_bser::value::Value;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
@@ -159,7 +159,7 @@ impl<'config> FileSource<'config> {
                 SubscribeRequest {
                     expression: Some(expression),
                     since: Some(file_source_result.clock.clone()),
-                    defer: vec!["hg.update", "hg.transaction"],
+                    defer: vec!["hg.update"],
                     ..Default::default()
                 },
             )
@@ -294,6 +294,7 @@ impl FileSourceSubscription {
         match self.subscription.next().await? {
             SubscriptionData::FilesChanged(changes) => {
                 if let Some(files) = changes.files {
+                    debug!("number of files in this update: {}", files.len());
                     return Ok(FileSourceSubscriptionNextChange::Result(FileSourceResult {
                         files,
                         resolved_root: self.resolved_root.clone(),
@@ -302,12 +303,27 @@ impl FileSourceSubscription {
                     }));
                 }
             }
-            SubscriptionData::StateEnter { state_name, .. } => {
-                if state_name == "hg.update" || state_name == "hg.transition" {
+            SubscriptionData::StateEnter { .. } => {}
+            SubscriptionData::StateLeave {
+                state_name,
+                metadata,
+            } => {
+                if state_name == "hg.update" {
+                    debug!("hg.update completed");
+                    if let Some(Value::Object(metadata)) = metadata {
+                        if let Some(Value::Integer(value)) = metadata.get("distance") {
+                            if *value == 0 {
+                                debug!("This update has 0 distance, files should not be changed.");
+                                return Ok(FileSourceSubscriptionNextChange::None);
+                            } else {
+                                debug!("Update distance is {}", value);
+                            }
+                        }
+                    }
+
                     return Ok(FileSourceSubscriptionNextChange::SourceControlUpdate);
                 }
             }
-            SubscriptionData::StateLeave { .. } => {}
             SubscriptionData::Canceled => {}
         }
         Ok(FileSourceSubscriptionNextChange::None)

@@ -27,7 +27,10 @@ use log::{debug, error, info};
 use rayon::prelude::*;
 use schema::SDLSchema;
 use std::{collections::HashMap, collections::HashSet, sync::atomic::Ordering, sync::Arc};
-use tokio::{sync::Notify, task};
+use tokio::{
+    sync::Notify,
+    task::{self, JoinHandle},
+};
 
 pub struct Compiler<TPerfLogger>
 where
@@ -147,67 +150,87 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     }
 
     pub async fn watch(&self) -> Result<()> {
-        let setup_event = self.perf_logger.create_event("compiler_setup");
+        loop {
+            let setup_event = self.perf_logger.create_event("compiler_setup");
+            let file_source = FileSource::connect(&self.config, &setup_event).await?;
 
-        let file_source = FileSource::connect(&self.config, &setup_event).await?;
+            let (mut compiler_state, mut subscription) = file_source
+                .subscribe(&setup_event, self.perf_logger.as_ref())
+                .await?;
 
-        let (mut compiler_state, mut subscription) = file_source
-            .subscribe(&setup_event, self.perf_logger.as_ref())
-            .await?;
+            let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
+            let source_control_update_completed =
+                Arc::clone(&compiler_state.source_control_update_completed);
+            let notify_sender = Arc::new(Notify::new());
+            let notify_receiver = notify_sender.clone();
 
-        let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
-        let source_control_update_in_progress =
-            compiler_state.source_control_update_in_progress.clone();
-        let notify_sender = Arc::new(Notify::new());
-        let notify_receiver = notify_sender.clone();
-
-        // First, set up watchman subscription
-        task::spawn(async move {
-            loop {
-                let next_change = subscription.next_change().await;
-                match next_change {
-                    Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
-                        source_control_update_in_progress.store(false, Ordering::Relaxed);
-                        pending_file_source_changes
-                            .write()
-                            .unwrap()
-                            .push(file_source_changes);
-                        notify_sender.notify_one();
-                    }
-                    Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
-                        source_control_update_in_progress.store(true, Ordering::Relaxed);
-                    }
-                    Ok(FileSourceSubscriptionNextChange::None) => {}
-                    Err(err) => {
-                        error!("Watchman subscription error: {}", err);
+            // First, set up watchman subscription
+            let subscription_handle = task::spawn(async move {
+                loop {
+                    let next_change = subscription.next_change().await;
+                    match next_change {
+                        Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
+                            pending_file_source_changes
+                                .write()
+                                .unwrap()
+                                .push(file_source_changes);
+                            notify_sender.notify_one();
+                        }
+                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
+                            debug!("Received update from source control!");
+                            source_control_update_completed.store(true, Ordering::Relaxed);
+                            notify_sender.notify_one();
+                            break;
+                        }
+                        Ok(FileSourceSubscriptionNextChange::None) => {}
+                        Err(err) => {
+                            error!("Watchman subscription error: {}", err);
+                        }
                     }
                 }
+            });
+
+            let mut red_to_green = RedToGreen::new();
+            if self
+                .build_projects(&mut compiler_state, &setup_event)
+                .await
+                .is_err()
+            {
+                // build_projects should have logged already
+                red_to_green.log_error()
+            } else {
+                info!("Compilation completed.");
             }
-        });
+            self.perf_logger.complete_event(setup_event);
 
-        let mut red_to_green = RedToGreen::new();
-        if self
-            .build_projects(&mut compiler_state, &setup_event)
-            .await
-            .is_err()
-        {
-            // build_projects should have logged already
-            red_to_green.log_error()
-        } else {
-            info!("Compilation completed.");
+            info!("Waiting for changes...");
+
+            self.incremental_build_loop(compiler_state, notify_receiver, &subscription_handle)
+                .await?
         }
-        self.perf_logger.complete_event(setup_event);
+    }
 
-        info!("Waiting for changes...");
+    async fn incremental_build_loop(
+        &self,
+        mut compiler_state: CompilerState,
+        notify_receiver: Arc<Notify>,
+        subscription_handle: &JoinHandle<()>,
+    ) -> Result<()> {
+        let mut red_to_green = RedToGreen::new();
+
         loop {
             notify_receiver.notified().await;
+
+            if compiler_state.is_source_control_update_completed() {
+                subscription_handle.abort();
+                return Ok(());
+            }
+
             // Single change to file sometimes produces 2 watchman change events for the same file
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
-            if compiler_state.has_pending_file_source_changes()
-                && !compiler_state.is_source_control_update_in_progress()
-            {
+            if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
@@ -227,7 +250,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         .await
                         .is_err()
                     {
-                        // build_projects should have logged already
                         red_to_green.log_error()
                     } else {
                         info!("Compilation completed.");
@@ -236,6 +258,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     incremental_build_event.stop(incremental_build_time);
                     info!("Waiting for changes...");
                 } else {
+                    debug!("No new changes detected.");
                     incremental_build_event.stop(incremental_build_time);
                 }
                 self.perf_logger.complete_event(incremental_build_event);
@@ -297,7 +320,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     })?;
 
     if compiler_state.should_cancel_current_build() {
-        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
+        debug!("Build is cancelled: new file changes are pending.");
         return Err(Error::Cancelled);
     }
 

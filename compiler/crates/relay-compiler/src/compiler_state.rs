@@ -194,7 +194,7 @@ pub struct CompilerState {
     #[serde(skip)]
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
-    pub source_control_update_in_progress: Arc<AtomicBool>,
+    pub source_control_update_completed: Arc<AtomicBool>,
 }
 
 impl CompilerState {
@@ -218,7 +218,7 @@ impl CompilerState {
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
-            source_control_update_in_progress: Arc::new(AtomicBool::new(false)),
+            source_control_update_completed: Arc::new(AtomicBool::new(false)),
         };
 
         for (category, files) in categorized {
@@ -382,7 +382,6 @@ impl CompilerState {
             let categorized = setup_event.time("categorize_files_time", || {
                 categorize_files(config, &file_source_changes.files)
             });
-
             for (category, files) in categorized {
                 match category {
                     FileGroup::Source { source_set } => {
@@ -394,7 +393,7 @@ impl CompilerState {
                         log_event.string("source_set_name", source_set.to_string());
                         let extract_timer =
                             log_event.start("extract_graphql_strings_from_file_time");
-                        let sources = files
+                        let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
                             .par_iter()
                             .map(|file| {
                                 let graphql_strings = if *file.exists {
@@ -456,6 +455,7 @@ impl CompilerState {
                 }
             }
         }
+
         Ok(has_changed)
     }
 
@@ -595,14 +595,13 @@ impl CompilerState {
         Ok(())
     }
 
-    pub fn is_source_control_update_in_progress(&self) -> bool {
-        self.source_control_update_in_progress
-            .load(Ordering::Relaxed)
+    pub fn is_source_control_update_completed(&self) -> bool {
+        self.source_control_update_completed.load(Ordering::Relaxed)
     }
 
     /// Over the course of the build, we may need to stop current progress
     /// as there maybe incoming file change or source control update in progress
     pub fn should_cancel_current_build(&self) -> bool {
-        self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
+        self.is_source_control_update_completed() || self.has_pending_file_source_changes()
     }
 }

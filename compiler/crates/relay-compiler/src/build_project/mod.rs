@@ -42,12 +42,23 @@ use log::{debug, info};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
-use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
+use std::{
+    collections::hash_map::Entry,
+    path::PathBuf,
+    sync::atomic::{AtomicBool, Ordering},
+    sync::Arc,
+};
 pub use validate::{validate, AdditionalValidations};
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
     Cancelled,
+}
+
+impl From<BuildProjectError> for BuildProjectFailure {
+    fn from(err: BuildProjectError) -> BuildProjectFailure {
+        BuildProjectFailure::Error(err)
+    }
 }
 
 /// This program doesn't have IR transforms applied to it, so it's not optimized.
@@ -204,10 +215,16 @@ pub async fn commit_project(
     removed_definition_names: Vec<StringKey>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
-) -> Result<ArtifactMap, BuildProjectError> {
+    source_control_update_completed: Arc<AtomicBool>,
+) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
+
+    if source_control_update_completed.load(Ordering::Relaxed) {
+        debug!("commit_project cancelled before persisting due to source control updates");
+        return Err(BuildProjectFailure::Cancelled);
+    }
 
     if let Some(ref operation_persister) = config.operation_persister {
         if let Some(ref persist_config) = project_config.persist {
@@ -225,6 +242,13 @@ pub async fn commit_project(
         }
     }
 
+    if source_control_update_completed.load(Ordering::Relaxed) {
+        debug!(
+            "commit_project cancelled before generating extra artifacts due to source control updates"
+        );
+        return Err(BuildProjectFailure::Cancelled);
+    }
+
     // In some cases we need to create additional (platform specific) artifacts
     // For that, we will use `generate_extra_artifacts` from the configs
     if let Some(generate_extra_artifacts_fn) = &config.generate_extra_artifacts {
@@ -238,6 +262,20 @@ pub async fn commit_project(
         });
     }
 
+    if source_control_update_completed.load(Ordering::Relaxed) {
+        debug!("commit_project cancelled before writing artifacts due to source control updates");
+        return Err(BuildProjectFailure::Cancelled);
+    }
+
+    let should_stop_updating_artifacts = || {
+        if source_control_update_completed.load(Ordering::Relaxed) {
+            debug!("artifact_writer updates cancelled due source control updates");
+            true
+        } else {
+            false
+        }
+    };
+
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts or persisting to avoid partial writes in case of
     // errors as much as possible.
@@ -245,64 +283,69 @@ pub async fn commit_project(
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
             let mut printer = Printer::with_dedupe();
-
-            log_event.time("write_artifacts_time", || {
-                for artifact in &artifacts {
-                    if !existing_artifacts.remove(&artifact.path) {
-                        info!(
-                            "[{}] NEW: {:?} -> {:?}",
-                            project_config.name, &artifact.source_definition_names, &artifact.path
-                        );
-                    }
-
-                    let path = config.root_dir.join(&artifact.path);
-                    let content = artifact.content.as_bytes(
-                        config,
-                        project_config,
-                        &mut printer,
-                        schema,
-                        artifact.source_file,
+            let write_artifacts_time = log_event.start("write_artifacts_time");
+            for artifact in &artifacts {
+                if should_stop_updating_artifacts() {
+                    break;
+                }
+                if !existing_artifacts.remove(&artifact.path) {
+                    info!(
+                        "[{}] NEW: {:?} -> {:?}",
+                        project_config.name, &artifact.source_definition_names, &artifact.path
                     );
-                    if config.artifact_writer.should_write(&path, &content)? {
-                        config.artifact_writer.write(path, content)?;
-                    }
                 }
-                Ok(())
-            })?;
 
-            log_event.time("delete_artifacts_time", || {
-                for remaining_artifact in &existing_artifacts {
-                    let path = config.root_dir.join(remaining_artifact);
-                    config.artifact_writer.remove(path)?;
+                let path = config.root_dir.join(&artifact.path);
+                let content = artifact.content.as_bytes(
+                    config,
+                    project_config,
+                    &mut printer,
+                    schema,
+                    artifact.source_file,
+                );
+                if config.artifact_writer.should_write(&path, &content)? {
+                    config.artifact_writer.write(path, content)?;
                 }
-                Ok(())
-            })?;
-
+            }
+            log_event.stop(write_artifacts_time);
+            let delete_artifacts_time = log_event.start("delete_artifacts_time");
+            for remaining_artifact in &existing_artifacts {
+                if should_stop_updating_artifacts() {
+                    break;
+                }
+                let path = config.root_dir.join(remaining_artifact);
+                config.artifact_writer.remove(path)?;
+            }
+            log_event.stop(delete_artifacts_time);
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
             let mut printer = Printer::with_dedupe();
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
+            let write_artifacts_incremental_time =
+                log_event.start("write_artifacts_incremental_time");
 
-            log_event.time("write_artifacts_incremental_time", || {
-                // Write or update artifacts
-                for artifact in artifacts {
-                    let path = config.root_dir.join(&artifact.path);
-                    let content = artifact.content.as_bytes(
-                        config,
-                        project_config,
-                        &mut printer,
-                        schema,
-                        artifact.source_file,
-                    );
-                    if config.artifact_writer.should_write(&path, &content)? {
-                        config.artifact_writer.write(path, content)?;
-                    }
-                    current_paths_map.insert(artifact);
+            // Write or update artifacts
+            for artifact in artifacts {
+                if should_stop_updating_artifacts() {
+                    break;
                 }
-                Ok(())
-            })?;
+                let path = config.root_dir.join(&artifact.path);
+                let content = artifact.content.as_bytes(
+                    config,
+                    project_config,
+                    &mut printer,
+                    schema,
+                    artifact.source_file,
+                );
+                if config.artifact_writer.should_write(&path, &content)? {
+                    config.artifact_writer.write(path, content)?;
+                }
+                current_paths_map.insert(artifact);
+            }
+            log_event.stop(write_artifacts_incremental_time);
+
 
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
@@ -337,18 +380,33 @@ pub async fn commit_project(
                     }
                 }
             });
-
-            log_event.time("delete_artifacts_incremental_time", || {
-                // The remaining dirty artifacts are no longer required
-                for path in artifacts_to_remove {
-                    config.artifact_writer.remove(config.root_dir.join(path))?;
+            let delete_artifacts_incremental_time =
+                log_event.start("delete_artifacts_incremental_time");
+            // The remaining dirty artifacts are no longer required
+            for path in artifacts_to_remove {
+                if should_stop_updating_artifacts() {
+                    break;
                 }
-                Ok(())
-            })?;
+                config.artifact_writer.remove(config.root_dir.join(path))?;
+            }
+            log_event.stop(delete_artifacts_incremental_time);
 
             artifact_map
         }
     };
+
+    if source_control_update_completed.load(Ordering::Relaxed) {
+        log_event.number("update_artifacts_after_source_control_update", 1);
+        debug!(
+            "We just updated artifacts after source control update happened. Most likely we have outdated artifacts now..."
+        );
+    } else {
+        // For now, lets log how often this is happening, so we can decide if we want to
+        // adjust the way we write artifacts. For example, we could write them to the temp
+        // directory first, then move to a correct destination.
+        log_event.number("update_artifacts_after_source_control_update", 0);
+    }
+
 
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",

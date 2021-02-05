@@ -358,13 +358,14 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         }
     }
 
+    let mut build_cancelled_during_commit = false;
     if errors.is_empty() {
         if compiler_state.should_cancel_current_build() {
             debug!("Build is cancelled: updates in source code/or new file changes are pending.");
             return Err(Error::Cancelled);
         }
 
-        let mut handles = Vec::new();
+        let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
         for (project_name, schema, programs, artifacts) in results {
             let config = Arc::clone(&config);
             let perf_logger = Arc::clone(&perf_logger);
@@ -382,6 +383,9 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 .get(&project_name)
                 .cloned()
                 .unwrap_or_default();
+
+            let source_control_update_completed =
+                Arc::clone(&compiler_state.source_control_update_completed);
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
                 Ok((
@@ -396,12 +400,14 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         artifact_map,
                         removed_definition_names,
                         dirty_artifact_paths,
+                        source_control_update_completed,
                     )
                     .await?,
                     schema,
                 ))
             }));
         }
+
         for commit_result in join_all(handles).await {
             let commit_result: std::result::Result<std::result::Result<_, _>, _> = commit_result;
             let inner_result = commit_result.map_err(|e| Error::JoinError {
@@ -415,15 +421,21 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         .insert(project_name, next_artifact_map);
                     compiler_state.schema_cache.insert(project_name, schema);
                 }
-                Err(error) => {
+                Err(BuildProjectFailure::Error(error)) => {
                     errors.push(error);
+                }
+                Err(BuildProjectFailure::Cancelled) => {
+                    build_cancelled_during_commit = true;
                 }
             }
         }
     }
 
     if errors.is_empty() {
-        Ok(())
+        match build_cancelled_during_commit {
+            true => Err(Error::Cancelled),
+            false => Ok(()),
+        }
     } else {
         Err(Error::BuildProjectsErrors { errors })
     }

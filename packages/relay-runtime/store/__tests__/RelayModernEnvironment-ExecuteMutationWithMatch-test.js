@@ -220,7 +220,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 
@@ -313,7 +315,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).not.toBe(null);
   });
 
@@ -393,7 +397,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).not.toBe(null);
   });
 
@@ -436,7 +442,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -454,7 +462,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 
@@ -500,7 +510,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).not.toBe(null);
 
     expect(complete).toBeCalledTimes(0);
@@ -516,7 +528,9 @@ describe('executeMutation() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 

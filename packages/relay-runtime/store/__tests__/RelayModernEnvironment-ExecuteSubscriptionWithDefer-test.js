@@ -170,7 +170,9 @@ describe('executeSubscrption() with @defer', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).not.toBe(null);
   });
 
@@ -231,7 +233,9 @@ describe('executeSubscrption() with @defer', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 
@@ -284,7 +288,9 @@ describe('executeSubscrption() with @defer', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
 
     dataSource.complete();
@@ -299,7 +305,9 @@ describe('executeSubscrption() with @defer', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 
@@ -336,7 +344,9 @@ describe('executeSubscrption() with @defer', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 
@@ -375,7 +385,9 @@ describe('executeSubscrption() with @defer', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPromiseForPendingOperationsAffectingOwner(
+          queryOperation.request.identifier,
+        ),
     ).toBe(null);
   });
 });

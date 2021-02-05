@@ -271,10 +271,15 @@ class SelectorResolver {
       // suspend at specific boundaries depending on whether the boundary
       // can be fulfilled or not.
       const promise =
-        getPromiseForActiveRequest(this._environment, this._selector.owner) ??
+        getPromiseForActiveRequest(
+          this._environment,
+          this._selector.owner.identifier,
+        ) ??
         this._environment
           .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+          .getPromiseForPendingOperationsAffectingOwner(
+            this._selector.owner.identifier,
+          );
       if (promise != null) {
         warning(
           false,

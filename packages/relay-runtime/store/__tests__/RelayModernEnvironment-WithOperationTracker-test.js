@@ -109,12 +109,12 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     invariant(tracker != null, 'Tracker should be defined');
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation2.request,
+        QueryOperation2.request.identifier,
       ),
     ).toBe(null);
   });
@@ -158,7 +158,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
 
@@ -180,7 +180,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBeInstanceOf(Promise);
 
@@ -191,7 +191,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     // after the mutation is completed
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
   });
@@ -225,7 +225,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
 
@@ -247,7 +247,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
   });
@@ -286,7 +286,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       .subscribe({});
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
     environment.mock.nextValue(
@@ -303,7 +303,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       }),
     );
     const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
-      QueryOperation1.request,
+      QueryOperation1.request.identifier,
     );
 
     invariant(promise != null, 'Expected to have promise for operation');
@@ -354,7 +354,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
 
@@ -371,7 +371,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
     );
     expect(
       tracker.getPromiseForPendingOperationsAffectingOwner(
-        QueryOperation1.request,
+        QueryOperation1.request.identifier,
       ),
     ).toBe(null);
   });
@@ -499,7 +499,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       // We still processing follow-up payloads for the initial query
       expect(
         tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
+          QueryOperation1.request.identifier,
         ),
       ).toBeInstanceOf(Promise);
       jest.runAllTimers();
@@ -507,7 +507,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       // All followup completed, operation tracker should be completed
       expect(
         tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
+          QueryOperation1.request.identifier,
         ),
       ).toBe(null);
 
@@ -551,7 +551,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
 
       expect(
         tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
+          QueryOperation1.request.identifier,
         ),
       ).toBeInstanceOf(Promise);
 
@@ -560,7 +560,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
       jest.runAllTimers();
       expect(
         tracker.getPromiseForPendingOperationsAffectingOwner(
-          QueryOperation1.request,
+          QueryOperation1.request.identifier,
         ),
       ).toBe(null);
     });

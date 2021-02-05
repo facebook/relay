@@ -20,37 +20,37 @@ _Properties_
 
 <ul className="apiIndex">
   <li>
-    <a href="guides-network-layer.html">
+    <a href="classic-guides-network-layer">
       <pre>static DefaultNetworkLayer →</pre>
     </a>
   </li>
   <li>
-    <a href="guides-mutations.html">
+    <a href="classic-guides-mutations">
       <pre>static Mutation →</pre>
     </a>
   </li>
   <li>
-    <a href="api-reference-relay-ql.html">
+    <a href="classic-api-reference-relay-ql">
       <pre>static QL →</pre>
     </a>
   </li>
   <li>
-    <a href="api-reference-relay-proptypes.html">
+    <a href="classic-api-reference-relay-proptypes">
       <pre>static PropTypes →</pre>
     </a>
   </li>
   <li>
-    <a href="guides-root-container.html">
+    <a href="classic-guides-root-container">
       <pre>static RootContainer →</pre>
     </a>
   </li>
   <li>
-    <a href="guides-routes.html">
+    <a href="classic-guides-routes">
       <pre>static Route →</pre>
     </a>
   </li>
   <li>
-    <a href="api-reference-relay-store.html">
+    <a href="classic-api-reference-relay-store">
       <pre>static Store →</pre>
     </a>
   </li>
@@ -89,31 +89,31 @@ _Methods_
 
 ### DefaultNetworkLayer (static property)
 
-See the [Network Layer Guide](./guides-network-layer).
+See the [Network Layer Guide](./classic-guides-network-layer).
 
 ### Mutation
 
-See the [Mutations Guide](./guides-mutations).
+See the [Mutations Guide](./classic-guides-mutations).
 
 ### QL
 
-See the [Relay.QL API reference](./api-reference-relay-ql).
+See the [Relay.QL API reference](./classic-api-reference-relay-ql).
 
 ### PropTypes
 
-See the [PropTypes API reference](./api-reference-relay-proptypes).
+See the [PropTypes API reference](./classic-api-reference-relay-proptypes).
 
 ### RootContainer
 
-See the [RootContainer Guide](./guides-root-container).
+See the [RootContainer Guide](./classic-guides-root-container).
 
 ### Route
 
-See the [Routes Guide](./guides-routes).
+See the [Routes Guide](./classic-guides-routes).
 
 ### Store
 
-See the [Store API reference](./api-reference-relay-store).
+See the [Store API reference](./classic-api-reference-relay-store).
 
 ## Methods
 
@@ -129,7 +129,7 @@ var Container = Relay.createContainer(Component, {
 
 ```
 
-Creates a new Relay Container - see the [Container Guide](./guides-containers) for more details and examples.
+Creates a new Relay Container - see the [Container Guide](./classic-guides-containers) for more details and examples.
 
 ### injectNetworkLayer (static method)
 

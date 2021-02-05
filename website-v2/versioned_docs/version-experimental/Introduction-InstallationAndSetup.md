@@ -39,11 +39,9 @@ Please note that the `"relay"` plugin should run before other plugins or
 presets to ensure the `graphql` template literals are correctly transformed. See
 Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#plugin-preset-ordering).
 
-See the [Migration Setup](./migration-setup) guide if upgrading an existing Relay app.
-
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 

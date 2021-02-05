@@ -4,7 +4,7 @@ title: Pagination Container
 original_id: pagination-container
 ---
 
-Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./fragment-container.html), that is designed to simplify the workflow of loading more items in a list &mdash; in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
+Pagination Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html), similar to a [Fragment Container](./classic-fragment-container.html), that is designed to simplify the workflow of loading more items in a list &mdash; in many cases, we don't want to fetch all the data at once but lazily load more data. It relies on a GraphQL server exposing connections in a standardized way. For a detailed spec, please check out [this page](https://facebook.github.io/relay/graphql/connections.htm).
 
 Table of Contents:
 - [`@connection`](#connection)
@@ -115,12 +115,12 @@ type ConnectionData = {
   * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
-  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+  * **Note:** To enable [compatibility mode](./classic-relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 * `connectionConfig`:
-  * `direction`: Either "forward" to indicate forward pagination using after/first, or "backward" to indicate backwards pagination using before/last. If not provided, Relay will infer the direction based on the provided `@connection` directive. **Note:** `direction` is not optional in [compatibility mode](./relay-compat.html).
-  * `getConnectionFromProps`: Function that should indicate which connection to paginate over, given the fragment props (i.e. the props corresponding to the `fragmentSpec`). This is necessary in most cases because the Relay can't automatically tell which connection you mean to paginate over (a container might fetch multiple fragments and connections, but can only paginate one of them). If not provided, Relay will try infer the correct connection to paginate over based on the provided `@connection` directive. See our [example](#pagination-example) for more details. **Note:** `getConnectionFromProps` is not optional in [compatibility mode](./relay-compat.html).
+  * `direction`: Either "forward" to indicate forward pagination using after/first, or "backward" to indicate backwards pagination using before/last. If not provided, Relay will infer the direction based on the provided `@connection` directive. **Note:** `direction` is not optional in [compatibility mode](./classic-relay-compat.html).
+  * `getConnectionFromProps`: Function that should indicate which connection to paginate over, given the fragment props (i.e. the props corresponding to the `fragmentSpec`). This is necessary in most cases because the Relay can't automatically tell which connection you mean to paginate over (a container might fetch multiple fragments and connections, but can only paginate one of them). If not provided, Relay will try infer the correct connection to paginate over based on the provided `@connection` directive. See our [example](#pagination-example) for more details. **Note:** `getConnectionFromProps` is not optional in [compatibility mode](./classic-relay-compat.html).
   * `getFragmentVariables`: Function that should return the bag of variables  to use for reading out the data from the store when re-rendering the component. This function takes the previous set of variables passed to the pagination `query`, and the number of elements that have been fetched in total so far. Specifically, this indicates which variables to use when reading out the data from the
-  local data store *after* the new pagination `query` has been fetched. If not specified, Relay will default to using all of the previous variables and using the total count for the `count` variable. This option is analogous to [`renderVariables`](./refetch-container#refetch) in the Refetch Container. See our [example](#pagination-example) for more details.
+  local data store *after* the new pagination `query` has been fetched. If not specified, Relay will default to using all of the previous variables and using the total count for the `count` variable. This option is analogous to [`renderVariables`](./classic-refetch-container#refetch) in the Refetch Container. See our [example](#pagination-example) for more details.
   * `getVariables`: Function that should return the variables to pass to the pagination `query` when fetching it from the server, given the current `props`, `count` and `cursor`. You may set whatever variables here, as well as modify the defaults to use for after/first/before/last arguments. See our [example](#pagination-example) for more details.
   * `query`: A `graphql` tagged query to be used as the pagination query to fetch more data upon calling [`loadMore`](#loadmore).
 
@@ -142,7 +142,7 @@ type Props = {
 ```
 
 * `relay`:
-  * `environment`: The current [Relay Environment](./relay-environment.html)
+  * `environment`: The current [Relay Environment](./classic-relay-environment.html)
   * `hasMore`: See `hasMore` [docs](#hasmore)
   * `isLoading`: See `isLoading` [docs](#isloading)
   * `loadMore`: See `loadMore` [docs](#loadmore)

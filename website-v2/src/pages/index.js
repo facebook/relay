@@ -325,12 +325,7 @@ export default createFragmentContainer(ArtistHeader, {
                       Relay uses Fragments to declare data requirements for
                       components, and compose data requirements together.
                     </p>
-                    <p>
-                      See the{' '}
-                      <a href={useBaseUrl('docs/fragment-container')}>
-                        Fragment Container docs
-                      </a>
-                    </p>
+                    <p>See the Fragment Container docs</p>
                   </div>
                 ),
               },

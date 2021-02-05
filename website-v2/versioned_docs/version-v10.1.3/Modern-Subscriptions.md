@@ -94,7 +94,7 @@ requestSubscription(
 
 # Configure Network
 
-You will need to Configure your [Network](./networklayer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
+You will need to Configure your [Network](./network-layer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
 
 ```javascript
 

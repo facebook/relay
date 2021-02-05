@@ -147,7 +147,7 @@ export default App;
 
 ## Step 3: When To Use Relay
 
-At this point we can fetch data with GraphQL and render it with React. This is a reasonable solution that can be sufficient for many apps. However, this approach doesn't necessarily scale. As our app grows in size and complexity, or the number of people working on the app grows, a simple approach like this can become limiting. Relay provides a number of features designed to help keep applications fast and reliable even as they grow in size and complexity: colocating data dependencies in components with GraphQL fragments, data consistency, mutations, etc. Check out [Thinking in GraphQL](.//docs/en/thinking-in-graphql) and [Thinking in Relay](.//docs/en/thinking-in-relay) for an overview of how Relay makes it easier to work with GraphQL.
+At this point we can fetch data with GraphQL and render it with React. This is a reasonable solution that can be sufficient for many apps. However, this approach doesn't necessarily scale. As our app grows in size and complexity, or the number of people working on the app grows, a simple approach like this can become limiting. Relay provides a number of features designed to help keep applications fast and reliable even as they grow in size and complexity: colocating data dependencies in components with GraphQL fragments, data consistency, mutations, etc. Check out [Thinking in GraphQL](./thinking-in-graphql) and [Thinking in Relay](./thinking-in-relay) for an overview of how Relay makes it easier to work with GraphQL.
 
 ## Step 4: Adding Relay To Our Project
 
@@ -311,7 +311,7 @@ export default AppRoot;
 
 ```
 
-Note that you'll have to restart the app - `yarn start` - so that Relay compiler can see the new query and generate code for it. See the [Relay Compiler setup docs](/docs/en/installation-and-setup#set-up-relay-compiler) for how to run Relay Compiler in watch mode, to regenerate code as you modify queries.
+Note that you'll have to restart the app - `yarn start` - so that Relay compiler can see the new query and generate code for it. See the [Relay Compiler setup docs](./installation-and-setup#set-up-relay-compiler) for how to run Relay Compiler in watch mode, to regenerate code as you modify queries.
 
 ## Step 6: Explore!
 

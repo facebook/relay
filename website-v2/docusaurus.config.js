@@ -342,7 +342,10 @@ module.exports = {
             },
             {
               label: 'Master/Unreleased',
-              to: 'docs/next/',
+              to: fbContent({
+                internal: 'docs/',
+                external: 'docs/next/',
+              }),
               activeBaseRegex: 'docs/next/(?!support|team|resources)',
             },
           ],

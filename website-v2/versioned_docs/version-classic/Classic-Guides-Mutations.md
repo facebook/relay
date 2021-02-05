@@ -143,7 +143,7 @@ class LikeStoryMutation extends Relay.Mutation {
 
 ## Fragment variables
 
-Like it can be done with [Relay containers](./guides-containers), we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.
+Like it can be done with [Relay containers](./classic-guides-containers), we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.
 
 ```
 

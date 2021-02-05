@@ -3,6 +3,7 @@ id: classic-api-reference-relay-container
 title: RelayContainer
 original_id: classic-api-reference-relay-container
 ---
+
 `RelayContainer` is a higher-order React component that lets a React component encode its data requirements.
 
 -   Relay ensures that this data is available before the component is rendered.
@@ -137,7 +138,7 @@ module.exports = Relay.createContainer(StarWarsShip, {
 
 In this example, the fields associated with the `ship` fragment will be made available on `this.props.ship`.
 
-See also: [Containers &gt; Relay Containers](./guides-containers#relay-containers)
+See also: [Containers &gt; Relay Containers](./classic-guides-containers#relay-containers)
 
 ### initialVariables
 
@@ -250,7 +251,7 @@ if (name === 'SuperAwesomeRoute') {
 
 ```
 
-See also: [Routes](./guides-routes)
+See also: [Routes](./classic-guides-routes)
 
 ### variables
 
@@ -423,7 +424,7 @@ Note
 
 </blockquote>
 
-See also: [Containers &gt; Requesting Different Data](./guides-containers#requesting-different-data), [Ready State](./guides-ready-state)
+See also: [Containers &gt; Requesting Different Data](./classic-guides-containers#requesting-different-data), [Ready State](./classic-guides-ready-state)
 
 ### forceFetch
 
@@ -446,7 +447,7 @@ Note
 
 </blockquote>
 
-See also: [Ready State](./guides-ready-state)
+See also: [Ready State](./classic-guides-ready-state)
 
 ### hasOptimisticUpdate
 
@@ -514,7 +515,7 @@ module.exports = Relay.createContainer(Feed, {
 
 ```
 
-See also: [Mutations &gt; Optimistic Updates](./guides-mutations#optimistic-updates)
+See also: [Mutations &gt; Optimistic Updates](./classic-guides-mutations#optimistic-updates)
 
 ### getPendingTransactions
 

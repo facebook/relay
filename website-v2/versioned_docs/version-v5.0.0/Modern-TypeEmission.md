@@ -361,7 +361,7 @@ By default, Flow types are emitted inside of comments to avoid forcing your proj
 
 If you are looking to create your own language plugin, refer to the `relay-compiler` [language plugin interface][plugin-interface].
 
-[data-masking]: ./thinking-in-relay.html#data-masking
+[data-masking]: ./thinking-in-relay#data-masking
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
 

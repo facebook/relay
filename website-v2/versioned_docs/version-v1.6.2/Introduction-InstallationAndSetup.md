@@ -43,7 +43,7 @@ See the [Migration Setup](./migration-setup) guide if upgrading an existing Rela
 
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 

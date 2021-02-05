@@ -4,7 +4,7 @@ title: Refetch Container
 original_id: refetch-container
 ---
 
-A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](./fragment-container.html), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component the new result.
+A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](./classic-fragment-container.html), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component the new result.
 
 Table of Contents:
 - [`createRefetchContainer`](#createrefetchcontainer)
@@ -30,7 +30,7 @@ createRefetchContainer(
   * A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
   If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
   * An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
-  * **Note:** To enable [compatibility mode](./relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+  * **Note:** To enable [compatibility mode](./classic-relay-compat.html), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 * `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). As with any query, upon fetching this query, its result will be normalized into the store, any relevant subscriptions associated with the changed records will be fired, and subscribed components will re-render.
 
 ### Available Props
@@ -47,7 +47,7 @@ type Props = {
 }
 ```
 * `relay`:
-  * `environment`: The current [Relay Environment](./relay-environment.html)
+  * `environment`: The current [Relay Environment](./classic-relay-environment.html)
   * `refetch`: See `refetch` [docs](#refetch)
 
 ## `refetch`
@@ -84,7 +84,7 @@ refetch(
 local data store *after* the new query has been fetched. If not specified, the `refetchVariables` will be used. This is useful when the data you need to render in your component doesn't necessarily match the data you queried the server for. For example, to implement pagination, you would fetch a page with variables like `{first: 5, after: '<cursor>'}`, but you might want to render the full collection with `{first: 10}`.
 * `callback`: Function to be called after the refetch has completed. If an error occurred during refetch, this function will receive that error as an argument.
 * `options`: Optional object containing set of options.
-  * `force`: If the [Network Layer](./network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
+  * `force`: If the [Network Layer](./classic-network-layer.html) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
 
 ### Return Value
 

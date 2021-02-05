@@ -5,7 +5,7 @@ original_id: classic-api-reference-relay-graphql-mutation
 ---
 `Relay.GraphQLMutation` is a low-level API for modeling a GraphQL mutation.
 
-This is the lowest level of abstraction at which product code may deal with mutations in Relay, and it corresponds to the mutation operation ("a write followed by a fetch") described in [the GraphQL Specification](/graphql/mutations.htm). You specify the mutation, the inputs, and the query.
+This is the lowest level of abstraction at which product code may deal with mutations in Relay, and it corresponds to the mutation operation ("a write followed by a fetch") described in [the GraphQL Specification](https://spec.graphql.org/June2018/#sec-Language.Operations). You specify the mutation, the inputs, and the query.
 
 `Relay.GraphQLMutation` doesn't provide any bells and whistles such as fat queries or tracked queries (that is, automatic synthesis at runtime of the mutation query to be sent to the server), instead having the user define a static and explicit query. Restricting yourself to the low-level API is a useful preparatory step that will help you ready your codebase for migration to the new static Relay core. In the meantime, if you want those dynamic features, you can opt in to the higher-level `Relay.Mutation` API.
 
@@ -182,7 +182,7 @@ const mutation = new Relay.GraphQLMutation(
 
 ```
 
-See also: [Relay.Mutation::getCollisionKey()](./api-reference-relay-mutation#getcollisionkey)
+See also: [Relay.Mutation::getCollisionKey()](./classic-api-reference-relay-mutation#getcollisionkey)
 
 ### applyOptimistic
 
@@ -232,7 +232,7 @@ const transaction = mutation.applyOptimistic(
 
 ```
 
-See also: [Relay.Mutation::getConfigs()](./api-reference-relay-mutation#getconfigs-abstract-method)
+See also: [Relay.Mutation::getConfigs()](./classic-api-reference-relay-mutation#getconfigs-abstract-method)
 
 ### commit
 
@@ -268,7 +268,7 @@ const transaction = mutation.commit(configs);
 
 ```
 
-See also: [Relay.Mutation::getConfigs()](./api-reference-relay-mutation#getconfigs-abstract-method)
+See also: [Relay.Mutation::getConfigs()](./classic-api-reference-relay-mutation#getconfigs-abstract-method)
 
 ### rollback
 

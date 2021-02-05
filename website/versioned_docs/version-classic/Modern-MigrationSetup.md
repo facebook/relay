@@ -6,7 +6,7 @@ original_id: migration-setup
 
 ## Installation
 
-Follow the installation instructions from the [Installation and Setup](./installation-and-setup) guide.
+Follow the installation instructions from the [Installation and Setup](./classic-installation-and-setup) guide.
 
 ## Set up babel-plugin-relay for Relay Classic
 
@@ -21,7 +21,7 @@ Relay Classic `Relay.QL` literals. Most importantly, include a reference to your
 }
 ```
 
-## Set up babel-plugin-relay for "[compatibility mode](./relay-compat.html)"
+## Set up babel-plugin-relay for "[compatibility mode](./classic-relay-compat.html)"
 
 When incrementally converting a Relay Classic app to Relay Modern, `graphql`
 literals can be translated to be usable by *both* runtimes if configured to use

@@ -37,6 +37,7 @@ const query: ConcreteRequest = generateAndCompile(`
 // Only queries with an ID are preloadable
 const ID = '12345';
 (query.params: $FlowFixMe).id = ID;
+(query.params: $FlowFixMe).cacheID = ID;
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',
@@ -201,7 +202,18 @@ describe('when passed a PreloadableConcreteRequest', () => {
           }
           expect(fetch).toHaveBeenCalled();
           expect(source).toBeDefined();
-          expect(environment.executeWithSource).toHaveBeenCalled();
+          expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+          expect(environment.executeWithSource).toHaveBeenCalledWith(
+            expect.objectContaining({
+              operation: expect.objectContaining({
+                request: expect.objectContaining({
+                  identifier: expect.stringContaining(ID),
+                  variables: variables,
+                  cacheConfig: {force: true},
+                }),
+              }),
+            }),
+          );
           expect(environment.retain).toHaveBeenCalled();
 
           PreloadableQueryRegistry.set(ID, query);
@@ -241,6 +253,17 @@ describe('when passed a PreloadableConcreteRequest', () => {
           );
           expect(fetch).toHaveBeenCalled();
           expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+          expect(environment.executeWithSource).toHaveBeenCalledWith(
+            expect.objectContaining({
+              operation: expect.objectContaining({
+                request: expect.objectContaining({
+                  identifier: expect.stringContaining(ID),
+                  variables: variables,
+                  cacheConfig: {force: true},
+                }),
+              }),
+            }),
+          );
           expect(environment.retain).toHaveBeenCalled();
           expect(executeObservable).toBeDefined();
           if (executeObservable != null) {
@@ -303,7 +326,18 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(environment.executeWithSource).not.toHaveBeenCalled();
 
       executeOnloadCallback(query);
-      expect(environment.executeWithSource).toHaveBeenCalled();
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      expect(environment.executeWithSource).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operation: expect.objectContaining({
+            request: expect.objectContaining({
+              identifier: expect.stringContaining(ID),
+              variables: variables,
+              cacheConfig: {force: true},
+            }),
+          }),
+        }),
+      );
       expect(environment.retain).toHaveBeenCalled();
       expect(nextCallback).not.toHaveBeenCalled();
 
@@ -344,6 +378,17 @@ describe('when passed a PreloadableConcreteRequest', () => {
       executeOnloadCallback(query);
 
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      expect(environment.executeWithSource).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operation: expect.objectContaining({
+            request: expect.objectContaining({
+              identifier: expect.stringContaining(ID),
+              variables: variables,
+              cacheConfig: {force: true},
+            }),
+          }),
+        }),
+      );
       expect(environment.retain).toHaveBeenCalled();
       expect(executeObservable).toBeDefined();
       if (executeObservable != null) {
@@ -408,6 +453,17 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(environment.executeWithSource).not.toHaveBeenCalled();
       executeOnloadCallback(query);
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      expect(environment.executeWithSource).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operation: expect.objectContaining({
+            request: expect.objectContaining({
+              identifier: expect.stringContaining(ID),
+              variables: variables,
+              cacheConfig: {force: true},
+            }),
+          }),
+        }),
+      );
       expect(environment.retain).toHaveBeenCalled();
     });
   });
@@ -442,7 +498,18 @@ describe('when passed a query AST', () => {
         }
         expect(fetch).toHaveBeenCalled();
         expect(source).toBeDefined();
-        expect(environment.executeWithSource).toHaveBeenCalled();
+        expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        expect(environment.executeWithSource).toHaveBeenCalledWith(
+          expect.objectContaining({
+            operation: expect.objectContaining({
+              request: expect.objectContaining({
+                identifier: expect.stringContaining(ID),
+                variables: variables,
+                cacheConfig: {force: true},
+              }),
+            }),
+          }),
+        );
         expect(environment.retain).toHaveBeenCalled();
         expect(nextCallback).not.toHaveBeenCalled();
 
@@ -470,6 +537,17 @@ describe('when passed a query AST', () => {
         });
         expect(fetch).toHaveBeenCalled();
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+        expect(environment.executeWithSource).toHaveBeenCalledWith(
+          expect.objectContaining({
+            operation: expect.objectContaining({
+              request: expect.objectContaining({
+                identifier: expect.stringContaining(ID),
+                variables: variables,
+                cacheConfig: {force: true},
+              }),
+            }),
+          }),
+        );
         expect(environment.retain).toHaveBeenCalled();
         expect(executeObservable).toBeDefined();
         if (executeObservable != null) {
@@ -518,7 +596,18 @@ describe('when passed a query AST', () => {
       }
       expect(fetch).toHaveBeenCalled();
       expect(source).toBeDefined();
-      expect(environment.executeWithSource).toHaveBeenCalled();
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
+      expect(environment.executeWithSource).toHaveBeenCalledWith(
+        expect.objectContaining({
+          operation: expect.objectContaining({
+            request: expect.objectContaining({
+              identifier: expect.stringContaining(ID),
+              variables: variables,
+              cacheConfig: {force: true},
+            }),
+          }),
+        }),
+      );
       expect(environment.retain).toHaveBeenCalled();
       expect(nextCallback).not.toHaveBeenCalled();
 

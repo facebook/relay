@@ -234,7 +234,11 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   };
 
   const checkAvailabilityAndExecute = concreteRequest => {
-    const operation = createOperationDescriptor(concreteRequest, variables);
+    const operation = createOperationDescriptor(
+      concreteRequest,
+      variables,
+      networkCacheConfig,
+    );
     retainReference = environment.retain(operation);
 
     // N.B. If the fetch policy allows fulfillment from the store but the
@@ -291,6 +295,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           const operation = createOperationDescriptor(
             preloadedModule,
             variables,
+            networkCacheConfig,
           );
           retainReference = environment.retain(operation);
           executeDeduped(operation, () =>

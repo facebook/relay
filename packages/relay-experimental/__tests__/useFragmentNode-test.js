@@ -14,7 +14,7 @@
 'use strict';
 
 const React = require('react');
-const {useMemo, useRef, useState} = React;
+const {useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
@@ -90,31 +90,23 @@ function useFragmentNode(fragmentNode, fragmentRef) {
     fragmentRef,
     'TestDisplayName',
   );
-  const {data, shouldUpdateGeneration} = result;
+  const {data} = result;
   disableStoreUpdates = result.disableStoreUpdates;
   enableStoreUpdates = result.enableStoreUpdates;
 
-  const prevShouldUpdateGeneration = useRef(null);
-  let shouldUpdate = false;
-  if (prevShouldUpdateGeneration.current !== shouldUpdateGeneration) {
-    shouldUpdate = true;
-    prevShouldUpdateGeneration.current = shouldUpdateGeneration;
-  }
-
-  renderSpy(data, shouldUpdate);
-  return [data, shouldUpdate];
+  renderSpy(data);
+  return [data];
 }
 
 function assertFragmentResults(
-  expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe, shouldUpdate: boolean|}>,
+  expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
 ) {
   // This ensures that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderSpy).toBeCalledTimes(expectedCalls.length);
   expectedCalls.forEach((expected, idx) => {
-    const [actualData, actualShouldUpdate] = renderSpy.mock.calls[idx];
+    const [actualData] = renderSpy.mock.calls[idx];
     expect(actualData).toEqual(expected.data);
-    expect(actualShouldUpdate).toEqual(expected.shouldUpdate);
   });
   renderSpy.mockClear();
 }
@@ -335,7 +327,6 @@ it('should render singular fragment without error when data is available', () =>
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -345,7 +336,6 @@ it('should render singular fragment without error when ref is null', () => {
   assertFragmentResults([
     {
       data: null,
-      shouldUpdate: true,
     },
   ]);
 });
@@ -355,7 +345,6 @@ it('should render singular fragment without error when ref is undefined', () => 
   assertFragmentResults([
     {
       data: null,
-      shouldUpdate: true,
     },
   ]);
 });
@@ -378,7 +367,6 @@ it('should render plural fragment without error when data is available', () => {
           ...createFragmentRef('2', pluralQuery),
         },
       ],
-      shouldUpdate: true,
     },
   ]);
 });
@@ -388,7 +376,6 @@ it('should render plural fragment without error when plural field is empty', () 
   assertFragmentResults([
     {
       data: [],
-      shouldUpdate: true,
     },
   ]);
 });
@@ -403,7 +390,6 @@ it('should update when fragment data changes', () => {
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -426,7 +412,6 @@ it('should update when fragment data changes', () => {
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -477,7 +462,6 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -501,10 +485,7 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
     profile_picture: null,
     ...createFragmentRef('1', singularQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser}]);
 
   TestRenderer.act(() => {
     newEnvironment.commitPayload(singularQuery, {
@@ -525,7 +506,6 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -540,7 +520,6 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -568,10 +547,7 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('200', newQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser}]);
 
   TestRenderer.act(() => {
     environment.commitPayload(newQuery, {
@@ -592,7 +568,6 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
         profile_picture: null,
         ...createFragmentRef('200', newQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -608,7 +583,6 @@ it('should render correct data when changing fragment refs multiple times', () =
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -637,10 +611,7 @@ it('should render correct data when changing fragment refs multiple times', () =
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('200', newQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser}]);
 
   // Udpate data for ID 1
   environment.commitPayload(singularQuery, {
@@ -666,10 +637,7 @@ it('should render correct data when changing fragment refs multiple times', () =
     // Assert that ref points to original singularQuery owner
     ...createFragmentRef('1', singularQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser}]);
 
   // Assert it correctly subscribes to new data
   TestRenderer.act(() => {
@@ -691,7 +659,6 @@ it('should render correct data when changing fragment refs multiple times', () =
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -728,7 +695,6 @@ it('should ignore updates to initially rendered data when fragment pointers chan
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -783,7 +749,6 @@ it('should ignore updates to initially rendered data when fragment pointers chan
           profile_picture: null,
           ...createFragmentRef('200', newQuery),
         },
-        shouldUpdate: true,
       },
     ]);
 
@@ -810,7 +775,6 @@ it('should ignore updates to initially rendered data when fragment pointers chan
           profile_picture: null,
           ...createFragmentRef('200', newQuery),
         },
-        shouldUpdate: true,
       },
     ]);
   });
@@ -826,7 +790,6 @@ it('should re-read and resubscribe to fragment when variables change', () => {
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -858,10 +821,7 @@ it('should re-read and resubscribe to fragment when variables change', () => {
     // Assert that ref now points to newQuery owner
     ...createFragmentRef('1', newQuery),
   };
-  assertFragmentResults([
-    {data: expectedUser, shouldUpdate: true},
-    {data: expectedUser, shouldUpdate: false},
-  ]);
+  assertFragmentResults([{data: expectedUser}]);
 
   TestRenderer.act(() => {
     environment.commitPayload(newQuery, {
@@ -884,7 +844,6 @@ it('should re-read and resubscribe to fragment when variables change', () => {
         },
         ...createFragmentRef('1', newQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -919,7 +878,6 @@ it('should ignore updates to initially rendered data when variables change', () 
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -983,7 +941,6 @@ it('should ignore updates to initially rendered data when variables change', () 
           },
           ...createFragmentRef('1', newQuery),
         },
-        shouldUpdate: true,
       },
     ]);
 
@@ -1012,7 +969,6 @@ it('should ignore updates to initially rendered data when variables change', () 
           },
           ...createFragmentRef('1', newQuery),
         },
-        shouldUpdate: true,
       },
     ]);
   });
@@ -1028,7 +984,6 @@ it('should NOT update if fragment refs dont change', () => {
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -1045,8 +1000,6 @@ it('should NOT update if fragment refs dont change', () => {
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      // Assert that update to consuming component wont be triggered
-      shouldUpdate: false,
     },
   ]);
 });
@@ -1061,7 +1014,6 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -1083,8 +1035,6 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
         profile_picture: null,
         ...createFragmentRef('1', singularQuery),
       },
-      // Assert that update to consuming component wont be triggered
-      shouldUpdate: false,
     },
   ]);
 });
@@ -1228,7 +1178,6 @@ it('should warn if data is missing and there are no pending requests', () => {
         profile_picture: undefined,
         ...createFragmentRef('4', missingDataQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -1265,7 +1214,6 @@ it('should subscribe for updates even if there is missing data', () => {
         profile_picture: undefined,
         ...createFragmentRef('4', missingDataQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 
@@ -1287,7 +1235,6 @@ it('should subscribe for updates even if there is missing data', () => {
         profile_picture: undefined,
         ...createFragmentRef('4', missingDataQuery),
       },
-      shouldUpdate: true,
     },
   ]);
 });
@@ -1328,7 +1275,6 @@ it('should subscribe for updates to plural fragments even if there is missing da
           ...createFragmentRef('4', missingDataQuery),
         },
       ],
-      shouldUpdate: true,
     },
   ]);
 
@@ -1354,7 +1300,6 @@ it('should subscribe for updates to plural fragments even if there is missing da
           ...createFragmentRef('4', missingDataQuery),
         },
       ],
-      shouldUpdate: true,
     },
   ]);
 });
@@ -1370,7 +1315,6 @@ describe('disableStoreUpdates', () => {
           profile_picture: null,
           ...createFragmentRef('1', singularQuery),
         },
-        shouldUpdate: true,
       },
     ]);
 
@@ -1400,7 +1344,6 @@ describe('disableStoreUpdates', () => {
           profile_picture: null,
           ...createFragmentRef('1', singularQuery),
         },
-        shouldUpdate: true,
       },
     ]);
 
@@ -1434,7 +1377,6 @@ describe('disableStoreUpdates', () => {
           profile_picture: null,
           ...createFragmentRef('1', singularQuery),
         },
-        shouldUpdate: true,
       },
     ]);
   });
@@ -1449,7 +1391,6 @@ describe('disableStoreUpdates', () => {
           profile_picture: null,
           ...createFragmentRef('1', singularQuery),
         },
-        shouldUpdate: true,
       },
     ]);
 
@@ -1473,7 +1414,6 @@ describe('disableStoreUpdates', () => {
           profile_picture: null,
           ...createFragmentRef('1', singularQuery),
         },
-        shouldUpdate: true,
       },
     ]);
 

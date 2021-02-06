@@ -26,7 +26,6 @@ type ReturnType<TFragmentData: mixed> = {|
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
-  shouldUpdateGeneration: number | null,
 |};
 
 function useFragmentNode<TFragmentData: mixed>(
@@ -40,37 +39,6 @@ function useFragmentNode<TFragmentData: mixed>(
   const isMountedRef = useRef(false);
   const [, forceUpdate] = useState(0);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
-
-  // The values of these React refs are counters that should be incremented
-  // under their respective conditions. This allows us to use the counters as
-  // memoization values to indicate if computations for useMemo or useEffect
-  // should be re-executed.
-  const shouldUpdateGenerationRef = useRef(0);
-
-  const environmentChanged = useHasChanged(environment);
-  const fragmentIdentifierChanged = useHasChanged(fragmentIdentifier);
-
-  // If the fragment identifier changes, it means that the variables on the
-  // fragment owner changed, or the fragment ref points to different records.
-  // In this case, we need to resubscribe to the Relay store.
-  const shouldUpdate = environmentChanged || fragmentIdentifierChanged;
-
-  // We only want to update the component consuming this fragment under the
-  // following circumstances:
-  // - We receive an update from the Relay store, indicating that the data
-  //   the component is directly subscribed to has changed.
-  // - We need to subscribe and render /different/ data (i.e. the fragment refs
-  //   now point to different records, or the context changed).
-  //   Note that even if identity of the fragment ref objects changes, we
-  //   don't consider them as different unless they point to a different data ID.
-  //
-  // This prevents unnecessary updates when a parent re-renders this component
-  // with the same props, which is a common case when the parent updates due
-  // to change in the data /it/ is subscribed to, but which doesn't affect the
-  // child.
-  if (shouldUpdate) {
-    shouldUpdateGenerationRef.current++;
-  }
 
   // Read fragment data; this might suspend.
   const fragmentResult = FragmentResource.readWithIdentifier(
@@ -103,10 +71,6 @@ function useFragmentNode<TFragmentData: mixed>(
       return;
     }
 
-    // If we receive an update from the Relay store, we need to make sure the
-    // consuming component updates.
-    shouldUpdateGenerationRef.current++;
-
     // React bails out on noop state updates as an optimization.
     // If we want to force an update via setState, we need to pass an value.
     // The actual value can be arbitrary though, e.g. an incremented number.
@@ -115,6 +79,9 @@ function useFragmentNode<TFragmentData: mixed>(
 
   // Establish Relay store subscriptions in the commit phase, only if
   // rendering for the first time, or if we need to subscribe to new data
+  // If the fragment identifier changes, it means that the variables on the
+  // fragment owner changed, or the fragment ref points to different records.
+  // In this case, we need to resubscribe to the Relay store.
   useEffect(() => {
     isMountedRef.current = true;
     const disposable = FragmentResource.subscribe(
@@ -163,17 +130,7 @@ function useFragmentNode<TFragmentData: mixed>(
     data: fragmentResult.data,
     disableStoreUpdates,
     enableStoreUpdates,
-    shouldUpdateGeneration: shouldUpdateGenerationRef.current,
   };
-}
-
-function useHasChanged(value: mixed): boolean {
-  const [mirroredValue, setMirroredValue] = useState(value);
-  const valueChanged = mirroredValue !== value;
-  if (valueChanged) {
-    setMirroredValue(value);
-  }
-  return valueChanged;
 }
 
 module.exports = useFragmentNode;

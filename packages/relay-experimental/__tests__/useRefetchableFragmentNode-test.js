@@ -696,7 +696,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -760,7 +760,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('1', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -847,7 +847,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('1', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -916,7 +916,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('1', refetchQueryWithArgs),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -986,7 +986,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('4', refetchQueryWithArgs),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -1036,7 +1036,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -1110,7 +1110,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -1211,7 +1211,7 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('4', refetchQuery),
       };
-      expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+      expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
@@ -1403,7 +1403,7 @@ describe('useRefetchableFragmentNode', () => {
       const warning = require('warning');
       // $FlowFixMe[prop-missing]
       const warningCalls = warning.mock.calls.filter(call => call[0] === false);
-      expect(warningCalls.length).toEqual(2);
+      expect(warningCalls.length).toEqual(1);
       expect(
         warningCalls[0][1].includes(
           'Relay: Call to `refetch` returned a different id, expected',
@@ -1565,7 +1565,7 @@ describe('useRefetchableFragmentNode', () => {
         };
 
         // Refetch once
-        doAndAssertRefetch([{data: refetchedUser}, {data: refetchedUser}]);
+        doAndAssertRefetch([{data: refetchedUser}]);
 
         // Refetch twice
         doAndAssertRefetch([{data: refetchedUser}]);
@@ -1667,7 +1667,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: {uri: 'scale16'},
           ...createFragmentRef('4', refetchQuery2),
         };
-        expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         expect(fetchSpy).toBeCalledTimes(4);
       });
@@ -1786,7 +1786,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: {uri: 'scale16'},
           ...createFragmentRef('4', refetchQuery2),
         };
-        expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         expect(fetchSpy).toBeCalledTimes(4);
       });
@@ -1895,7 +1895,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: {uri: 'scale16'},
           ...createFragmentRef('1', refetchQuery1),
         };
-        expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         expect(fetchSpy).toBeCalledTimes(5);
       });
@@ -1935,7 +1935,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery1),
         };
-        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
+        expectFragmentResults([{data: refetchingUser}]);
 
         // Call refetch a second time
         environment.executeWithSource.mockClear();
@@ -2011,10 +2011,7 @@ describe('useRefetchableFragmentNode', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchingUser},
-              {data: refetchingUser},
-            ]);
+            expectFragmentResults([{data: refetchingUser}]);
           });
 
           it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
@@ -2076,10 +2073,7 @@ describe('useRefetchableFragmentNode', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchedUser},
-              {data: refetchedUser},
-            ]);
+            expectFragmentResults([{data: refetchedUser}]);
           });
 
           it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
@@ -2123,10 +2117,7 @@ describe('useRefetchableFragmentNode', () => {
               profile_picture: null,
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchingUser},
-              {data: refetchingUser},
-            ]);
+            expectFragmentResults([{data: refetchingUser}]);
           });
         });
 
@@ -2165,10 +2156,7 @@ describe('useRefetchableFragmentNode', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchingUser},
-              {data: refetchingUser},
-            ]);
+            expectFragmentResults([{data: refetchingUser}]);
           });
 
           it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
@@ -2230,10 +2218,7 @@ describe('useRefetchableFragmentNode', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchedUser},
-              {data: refetchedUser},
-            ]);
+            expectFragmentResults([{data: refetchedUser}]);
           });
 
           it("starts network request if refetch query is not fully cached and suspends even if fragment doesn't have missing data", () => {
@@ -2300,10 +2285,7 @@ describe('useRefetchableFragmentNode', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchedUser},
-              {data: refetchedUser},
-            ]);
+            expectFragmentResults([{data: refetchedUser}]);
           });
         });
       });
@@ -2349,10 +2331,7 @@ describe('useRefetchableFragmentNode', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchingUser},
-              {data: refetchingUser},
-            ]);
+            expectFragmentResults([{data: refetchingUser}]);
           });
 
           it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
@@ -2414,10 +2393,7 @@ describe('useRefetchableFragmentNode', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchedUser},
-              {data: refetchedUser},
-            ]);
+            expectFragmentResults([{data: refetchedUser}]);
           });
 
           it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
@@ -2461,10 +2437,7 @@ describe('useRefetchableFragmentNode', () => {
               profile_picture: null,
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchingUser},
-              {data: refetchingUser},
-            ]);
+            expectFragmentResults([{data: refetchingUser}]);
           });
         });
 
@@ -2504,10 +2477,7 @@ describe('useRefetchableFragmentNode', () => {
               profile_picture: null,
               ...createFragmentRef('1', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchingUser},
-              {data: refetchingUser},
-            ]);
+            expectFragmentResults([{data: refetchingUser}]);
           });
 
           it('starts network request if refetch query is not fully cached and suspends if fragment has missing data', () => {
@@ -2569,10 +2539,7 @@ describe('useRefetchableFragmentNode', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchedUser},
-              {data: refetchedUser},
-            ]);
+            expectFragmentResults([{data: refetchedUser}]);
           });
 
           it("starts network request if refetch query is not fully cached and doesn't suspend if fragment doesn't have missing data", () => {
@@ -2633,10 +2600,7 @@ describe('useRefetchableFragmentNode', () => {
               },
               ...createFragmentRef('4', refetchQuery),
             };
-            expectFragmentResults([
-              {data: refetchedUser},
-              {data: refetchedUser},
-            ]);
+            expectFragmentResults([{data: refetchedUser}]);
           });
         });
       });
@@ -2698,7 +2662,7 @@ describe('useRefetchableFragmentNode', () => {
             ...initialUser,
             ...createFragmentRef('1', refetchQuery),
           };
-          expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+          expectFragmentResults([{data: refetchedUser}]);
         });
 
         it('starts network request and suspends if refetch query is not fully cached', () => {
@@ -2760,7 +2724,7 @@ describe('useRefetchableFragmentNode', () => {
             },
             ...createFragmentRef('4', refetchQuery),
           };
-          expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
+          expectFragmentResults([{data: refetchedUser}]);
         });
       });
     });
@@ -2828,7 +2792,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
+        expectFragmentResults([{data: refetchingUser}]);
 
         // Set new environment
         const newEnvironment = createMockEnvironment();
@@ -2898,7 +2862,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
+        expectFragmentResults([{data: refetchingUser}]);
 
         // Pass new parent fragment ref with different variables
         const newVariables = {...variables, scale: 32};
@@ -3012,7 +2976,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
+        expectFragmentResults([{data: refetchingUser}]);
 
         TestRenderer.act(() => {
           renderer.unmount();
@@ -3061,7 +3025,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: null,
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
+        expectFragmentResults([{data: refetchingUser}]);
 
         TestRenderer.act(() => {
           disposable && disposable.dispose();
@@ -3174,14 +3138,7 @@ describe('useRefetchableFragmentNode', () => {
           actor: {name: 'Mark'},
           fetch_id: 'fetch:b',
         };
-        expectFragmentResults([
-          {
-            data: refetchedUser,
-          },
-          {
-            data: refetchedUser,
-          },
-        ]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
@@ -3239,14 +3196,7 @@ describe('useRefetchableFragmentNode', () => {
           actor: {name: 'Alice (updated)'},
           fetch_id: 'fetch:a',
         };
-        expectFragmentResults([
-          {
-            data: refetchedUser,
-          },
-          {
-            data: refetchedUser,
-          },
-        ]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
@@ -3337,14 +3287,7 @@ describe('useRefetchableFragmentNode', () => {
           actor: {name: 'Zuck (updated)'},
           fetch_id: 'fetch:b',
         };
-        expectFragmentResults([
-          {
-            data: refetchedUser,
-          },
-          {
-            data: refetchedUser,
-          },
-        ]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
@@ -3466,14 +3409,7 @@ describe('useRefetchableFragmentNode', () => {
           },
           ...createFragmentRef('4', refetchQuery),
         };
-        expectFragmentResults([
-          {
-            data: refetchedUser,
-          },
-          {
-            data: refetchedUser,
-          },
-        ]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
@@ -3541,14 +3477,7 @@ describe('useRefetchableFragmentNode', () => {
           },
           ...createFragmentRef('1', refetchQuery),
         };
-        expectFragmentResults([
-          {
-            data: refetchedUser,
-          },
-          {
-            data: refetchedUser,
-          },
-        ]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
@@ -3665,14 +3594,7 @@ describe('useRefetchableFragmentNode', () => {
           ...createFragmentRef('1', refetchQuery),
         };
 
-        expectFragmentResults([
-          {
-            data: refetchedUser,
-          },
-          {
-            data: refetchedUser,
-          },
-        ]);
+        expectFragmentResults([{data: refetchedUser}]);
 
         // Refetch on another enironment afterwards should work
         renderSpy.mockClear();

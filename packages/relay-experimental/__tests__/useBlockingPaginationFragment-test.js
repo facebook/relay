@@ -1002,7 +1002,8 @@ describe('useBlockingPaginationFragment', () => {
           refetch({id: '4'});
         });
         expect(unsubscribe).toHaveBeenCalledTimes(1);
-        expect(environment.execute).toBeCalledTimes(2);
+        expect(environment.execute).toBeCalledTimes(1); // loadMore
+        expect(environment.executeWithSource).toBeCalledTimes(1); // refetch
         expect(callback).toBeCalledTimes(0);
         expect(renderSpy).toBeCalledTimes(0);
       });
@@ -3598,7 +3599,9 @@ describe('useBlockingPaginationFragment', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
       function expectRefetchRequestIsInFlight(expected) {
-        expect(environment.execute).toBeCalledTimes(expected.requestCount);
+        expect(environment.executeWithSource).toBeCalledTimes(
+          expected.requestCount,
+        );
         expect(
           environment.mock.isLoading(
             expected.gqlRefetchQuery ?? gqlPaginationQuery,
@@ -3633,8 +3636,9 @@ describe('useBlockingPaginationFragment', () => {
         expect(renderSpy).toBeCalledTimes(0);
         expect(renderer.toJSON()).toEqual('Fallback');
 
-        // Assert query is tentatively retained while component is suspended
-        expect(environment.retain).toBeCalledTimes(1);
+        // Assert query is retained by loadQuery
+        // and tentatively retained while component is suspended
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(
           expected.refetchQuery ?? paginationQuery,
         );
@@ -3746,9 +3750,9 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
 
-        // Assert refetch query was retained
+        // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -3858,9 +3862,9 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
 
-        // Assert refetch query was retained
+        // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -4032,9 +4036,9 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
 
-        // Assert refetch query was retained
+        // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -4144,9 +4148,9 @@ describe('useBlockingPaginationFragment', () => {
           },
         ]);
 
-        // Assert refetch query was retained
+        // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching

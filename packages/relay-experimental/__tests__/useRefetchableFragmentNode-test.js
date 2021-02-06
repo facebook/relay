@@ -28,6 +28,7 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  Observable,
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
@@ -466,7 +467,9 @@ describe('useRefetchableFragmentNode', () => {
       expected,
       requestEnvironment = environment,
     ) {
-      expect(requestEnvironment.execute).toBeCalledTimes(expected.requestCount);
+      expect(requestEnvironment.executeWithSource).toBeCalledTimes(
+        expected.requestCount,
+      );
       expect(
         requestEnvironment.mock.isLoading(
           expected.gqlRefetchQuery ?? gqlRefetchQuery,
@@ -498,8 +501,9 @@ describe('useRefetchableFragmentNode', () => {
       expect(renderSpy).toBeCalledTimes(0);
       expect(renderer.toJSON()).toEqual('Fallback');
 
-      // Assert query is tentatively retained while component is suspended
-      expect(env.retain).toBeCalledTimes(1);
+      // Assert query is retained by loadQuery and
+      // temporarily retained while component is suspended
+      expect(env.retain).toBeCalledTimes(2);
       expect(env.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
       );
@@ -530,7 +534,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` on unmounted component',
         ),
       ).toEqual(true);
-      expect(environment.execute).toHaveBeenCalledTimes(0);
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
     });
 
     it('warns if fragment ref passed to useRefetchableFragmentNode() was null', () => {
@@ -549,7 +553,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` while using a null fragment ref',
         ),
       ).toEqual(true);
-      expect(environment.execute).toHaveBeenCalledTimes(1);
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
     });
 
     it('warns if refetch scheduled at high priority', () => {
@@ -579,7 +583,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` at a priority higher than expected',
         ),
       ).toEqual(true);
-      expect(environment.execute).toHaveBeenCalledTimes(1);
+      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
     });
 
     it('throws error when error occurs during refetch', () => {
@@ -632,8 +636,8 @@ describe('useRefetchableFragmentNode', () => {
       TestRenderer.act(() => {
         jest.runAllTimers();
       });
-      expect(release).toBeCalledTimes(1);
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(release).toBeCalledTimes(2);
+      expect(environment.retain).toBeCalledTimes(2);
     });
 
     it('refetches new variables correctly when refetching new id', () => {
@@ -696,7 +700,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -760,7 +764,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -847,7 +851,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -916,7 +920,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
@@ -986,7 +990,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
@@ -1036,7 +1040,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Update refetched data
@@ -1110,7 +1114,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Set new environment
@@ -1135,15 +1139,11 @@ describe('useRefetchableFragmentNode', () => {
         profile_picture: null,
         ...createFragmentRef('1', query),
       };
-      expectFragmentResults([
-        {data: expectedUser},
-        {data: expectedUser},
-        {data: expectedUser},
-      ]);
+      expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
 
       // Assert refetch query was released
       expect(release).toBeCalledTimes(1);
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
 
       // Update data in new environment
       TestRenderer.act(() => {
@@ -1215,7 +1215,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Pass new parent fragment ref with different variables
@@ -1245,15 +1245,11 @@ describe('useRefetchableFragmentNode', () => {
         },
         ...createFragmentRef('1', newQuery),
       };
-      expectFragmentResults([
-        {data: expectedUser},
-        {data: expectedUser},
-        {data: expectedUser},
-      ]);
+      expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
 
       // Assert refetch query was released
       expect(release).toBeCalledTimes(1);
-      expect(environment.retain).toBeCalledTimes(1);
+      expect(environment.retain).toBeCalledTimes(2);
 
       // Update new parent data
       TestRenderer.act(() => {
@@ -1303,7 +1299,7 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
-      environment.execute.mockClear();
+      environment.executeWithSource.mockClear();
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1371,7 +1367,7 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
-      environment.execute.mockClear();
+      environment.executeWithSource.mockClear();
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1437,7 +1433,7 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
-      environment.execute.mockClear();
+      environment.executeWithSource.mockClear();
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1482,11 +1478,11 @@ describe('useRefetchableFragmentNode', () => {
       beforeEach(() => {
         fetchSpy = jest.fn();
         const internalRuntime = require('relay-runtime').__internal;
-        const originalFetchQuery = internalRuntime.fetchQuery;
+        const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
         jest
-          .spyOn(internalRuntime, 'fetchQuery')
+          .spyOn(internalRuntime, 'fetchQueryDeduped')
           .mockImplementation((...args) => {
-            const originalObservable = originalFetchQuery(...args);
+            const originalObservable = originalFetchQueryDeduped(...args);
             return {
               ...originalObservable,
               subscribe: (...subscribeArgs) => {
@@ -1527,7 +1523,7 @@ describe('useRefetchableFragmentNode', () => {
 
         const doAndAssertRefetch = fragmentResults => {
           renderSpy.mockClear();
-          environment.execute.mockClear();
+          environment.executeWithSource.mockClear();
           environment.retain.mockClear();
 
           TestRenderer.act(() => {
@@ -1564,7 +1560,7 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults(fragmentResults);
 
           // Assert refetch query was retained
-          expect(environment.retain).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(2);
           expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
         };
 
@@ -1601,7 +1597,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
-        environment.execute.mockClear();
+        environment.executeWithSource.mockClear();
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1673,7 +1669,7 @@ describe('useRefetchableFragmentNode', () => {
         };
         expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
 
-        expect(fetchSpy).toBeCalledTimes(2);
+        expect(fetchSpy).toBeCalledTimes(4);
       });
 
       it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
@@ -1701,7 +1697,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
-        environment.execute.mockClear();
+        environment.executeWithSource.mockClear();
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1792,7 +1788,7 @@ describe('useRefetchableFragmentNode', () => {
         };
         expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
 
-        expect(fetchSpy).toBeCalledTimes(2);
+        expect(fetchSpy).toBeCalledTimes(4);
       });
 
       it('refetches correctly when switching between multiple refetches', () => {
@@ -1820,7 +1816,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
-        environment.execute.mockClear();
+        environment.executeWithSource.mockClear();
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1901,7 +1897,7 @@ describe('useRefetchableFragmentNode', () => {
         };
         expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
 
-        expect(fetchSpy).toBeCalledTimes(3);
+        expect(fetchSpy).toBeCalledTimes(5);
       });
 
       it('does not dispose ongoing request if refetch is called again', () => {
@@ -1942,7 +1938,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
 
         // Call refetch a second time
-        environment.execute.mockClear();
+        environment.executeWithSource.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         TestRenderer.act(() => {
           refetch(
@@ -1951,7 +1947,7 @@ describe('useRefetchableFragmentNode', () => {
           );
         });
 
-        // Assert first request is not canceled
+        // Assert first request is not cancelled
         expectRequestIsInFlight({
           inFlight: true,
           requestCount: 1,
@@ -1970,7 +1966,7 @@ describe('useRefetchableFragmentNode', () => {
         expect(renderSpy).toBeCalledTimes(0);
         expect(renderer.toJSON()).toEqual('Fallback');
 
-        expect(fetchSpy).toBeCalledTimes(2);
+        expect(fetchSpy).toBeCalledTimes(4);
       });
     });
 
@@ -2767,83 +2763,12 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults([{data: refetchedUser}, {data: refetchedUser}]);
         });
       });
-
-      describe('store-only', () => {
-        beforeEach(() => {
-          fetchPolicy = 'store-only';
-        });
-
-        it("doesn't start network request if refetch query is fully cached", () => {
-          renderFragment();
-          renderSpy.mockClear();
-          TestRenderer.act(() => {
-            refetch(
-              {id: '1'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
-            );
-          });
-
-          // Assert request is not started
-          const refetchVariables = {...variables};
-          refetchQuery = createOperationDescriptor(
-            gqlRefetchQuery,
-            refetchVariables,
-            {force: true},
-          );
-          expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 0,
-            gqlRefetchQuery,
-            refetchVariables,
-          });
-
-          // Assert component renders immediately since data is cached
-          const refetchingUser = {
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            ...createFragmentRef('1', refetchQuery),
-          };
-          expectFragmentResults([
-            {data: refetchingUser},
-            {data: refetchingUser},
-          ]);
-        });
-
-        it("doesn't start network request if refetch query is not fully cached", () => {
-          renderFragment();
-          renderSpy.mockClear();
-          TestRenderer.act(() => {
-            refetch(
-              {id: '4'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
-            );
-          });
-
-          // Assert request is not started
-          const refetchVariables = {id: '4', scale: 32};
-          refetchQuery = createOperationDescriptor(
-            gqlRefetchQuery,
-            refetchVariables,
-            {force: true},
-          );
-          expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 0,
-            gqlRefetchQuery,
-            refetchVariables,
-          });
-
-          // Assert component renders immediately with empty daa
-          expectFragmentResults([{data: null}, {data: null}]);
-        });
-      });
     });
 
     describe('disposing', () => {
       let unsubscribe;
-      const fetchPolicy = 'store-and-network';
       beforeEach(() => {
+        fetchPolicy = 'store-and-network';
         unsubscribe = jest.fn();
         jest.doMock('relay-runtime', () => {
           const originalRuntime = jest.requireActual('relay-runtime');
@@ -2852,26 +2777,15 @@ describe('useRefetchableFragmentNode', () => {
             ...originalRuntime,
             __internal: {
               ...originalInternal,
-              fetchQuery: (...args) => {
-                const observable = originalInternal.fetchQuery(...args);
-                return {
-                  subscribe: observer => {
-                    return observable.subscribe({
-                      ...observer,
-                      start: originalSubscription => {
-                        const observerStart = observer?.start;
-                        observerStart &&
-                          observerStart({
-                            ...originalSubscription,
-                            unsubscribe: () => {
-                              originalSubscription.unsubscribe();
-                              unsubscribe();
-                            },
-                          });
-                      },
-                    });
-                  },
-                };
+              fetchQueryDeduped: (...args) => {
+                const observable = originalInternal.fetchQueryDeduped(...args);
+                return Observable.create(sink => {
+                  const sub = observable.subscribe(sink);
+                  return () => {
+                    unsubscribe();
+                    sub.unsubscribe();
+                  };
+                });
               },
             },
           };
@@ -2931,8 +2845,10 @@ describe('useRefetchableFragmentNode', () => {
           setEnvironment(newEnvironment);
         });
 
-        // Assert request was canceled
-        expect(unsubscribe).toBeCalledTimes(1);
+        // Assert request was cancelled
+        // Unsubscribe is called twice because loadQuery will dispose
+        // of both the network and execute observables
+        expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
           requestCount: 1,
@@ -2947,11 +2863,7 @@ describe('useRefetchableFragmentNode', () => {
           profile_picture: null,
           ...createFragmentRef('1', query),
         };
-        expectFragmentResults([
-          {data: expectedUser},
-          {data: expectedUser},
-          {data: expectedUser},
-        ]);
+        expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
       it('disposes ongoing request if fragment ref changes', () => {
@@ -3008,8 +2920,10 @@ describe('useRefetchableFragmentNode', () => {
           setOwner(newQuery);
         });
 
-        // Assert request was canceled
-        expect(unsubscribe).toBeCalledTimes(1);
+        // Assert request was cancelled
+        // Unsubscribe is called twice because loadQuery will dispose
+        // of both the network and execute observables
+        expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
           requestCount: 1,
@@ -3026,11 +2940,7 @@ describe('useRefetchableFragmentNode', () => {
           },
           ...createFragmentRef('1', newQuery),
         };
-        expectFragmentResults([
-          {data: expectedUser},
-          {data: expectedUser},
-          {data: expectedUser},
-        ]);
+        expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
       it('disposes of ongoing request on unmount when refetch suspends', () => {
@@ -3060,7 +2970,7 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was canceled
+        // Assert request was cancelled
         expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
@@ -3108,7 +3018,7 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was canceled
+        // Assert request was cancelled
         expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
@@ -3153,10 +3063,15 @@ describe('useRefetchableFragmentNode', () => {
         };
         expectFragmentResults([{data: refetchingUser}, {data: refetchingUser}]);
 
-        disposable && disposable.dispose();
+        TestRenderer.act(() => {
+          disposable && disposable.dispose();
+          jest.runAllImmediates();
+        });
 
-        // Assert request was canceled
-        expect(unsubscribe).toBeCalledTimes(1);
+        // Assert request was cancelled.
+        // Unsubscribe is called twice because loadQuery will dispose
+        // of both the network and execute observables
+        expect(unsubscribe).toBeCalledTimes(2);
         expectRequestIsInFlight({
           inFlight: false,
           requestCount: 1,
@@ -3270,7 +3185,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3335,7 +3250,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3433,7 +3348,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
@@ -3562,7 +3477,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3637,7 +3552,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
-        expect(environment.retain).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
@@ -3729,7 +3644,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(newRelease).not.toBeCalled();
-        expect(newEnvironment.retain).toBeCalledTimes(1);
+        expect(newEnvironment.retain).toBeCalledTimes(2);
         expect(newEnvironment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
         // Should be able to use the new data if switched to new environment
@@ -3761,7 +3676,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Refetch on another enironment afterwards should work
         renderSpy.mockClear();
-        environment.execute.mockClear();
+        environment.executeWithSource.mockClear();
         const anotherNewEnvironment = createMockEnvironment();
         TestRenderer.act(() => jest.runAllImmediates());
 

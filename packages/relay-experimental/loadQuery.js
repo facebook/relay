@@ -38,6 +38,7 @@ import type {
   GraphQLTaggedNode,
   GraphQLResponse,
   RequestIdentifier,
+  RequestParameters,
 } from 'relay-runtime';
 
 let RenderDispatcher = null;
@@ -58,8 +59,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: $ElementType<TQuery, 'variables'>,
-  options?: LoadQueryOptions,
-  environmentProviderOptions?: TEnvironmentProviderOptions,
+  options?: ?LoadQueryOptions,
+  environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
   // This code ensures that we don't call loadQuery during render.
   const CurrentDispatcher =
@@ -125,7 +126,9 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   // subscribed to will replay the network events that have occured so far,
   // as well as subsequent events.
   let didMakeNetworkRequest = false;
-  const makeNetworkRequest = (params): Observable<GraphQLResponse> => {
+  const makeNetworkRequest = (
+    params: RequestParameters,
+  ): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
     // didMakeNetworkRequest is safe to rely on in the returned value
     // Even if the request gets deduped below, we still wan't to return an

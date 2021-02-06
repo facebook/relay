@@ -20,22 +20,15 @@ const Scheduler = require('scheduler');
 const getRefetchMetadata = require('./getRefetchMetadata');
 const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
-const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useFragmentNode = require('./useFragmentNode');
 const useIsMountedRef = require('./useIsMountedRef');
-const useMemoVariables = require('./useMemoVariables');
+const useQueryLoader = require('./useQueryLoader');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const warning = require('warning');
 
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const {getQueryResourceForEnvironment} = require('./QueryResource');
-const {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useReducer,
-} = require('react');
+const {useCallback, useContext, useReducer} = require('react');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,
@@ -43,10 +36,12 @@ const {
   getSelector,
 } = require('relay-runtime');
 
+import type {PreloadFetchPolicy} from './EntryPointTypes.flow';
+import type {LoaderFn} from './useQueryLoader';
 import type {
   Disposable,
-  FetchPolicy,
   IEnvironment,
+  OperationDescriptor,
   OperationType,
   ReaderFragment,
   RenderPolicy,
@@ -88,7 +83,7 @@ export type ReturnType<
 |};
 
 export type Options = {|
-  fetchPolicy?: FetchPolicy,
+  fetchPolicy?: PreloadFetchPolicy,
   onComplete?: (Error | null) => void,
   UNSTABLE_renderPolicy?: RenderPolicy,
 |};
@@ -120,22 +115,21 @@ type Action =
     |}
   | {|
       type: 'refetch',
-      refetchVariables: Variables,
-      fetchPolicy?: FetchPolicy,
+      refetchQuery: OperationDescriptor,
+      fetchPolicy?: PreloadFetchPolicy,
       renderPolicy?: RenderPolicy,
       onComplete?: (Error | null) => void,
-      environment: ?IEnvironment,
+      refetchEnvironment: ?IEnvironment,
     |};
 
 type RefetchState = {|
-  fetchPolicy: FetchPolicy | void,
-  renderPolicy: RenderPolicy | void,
+  fetchPolicy: PreloadFetchPolicy | void,
   mirroredEnvironment: IEnvironment,
   mirroredFragmentIdentifier: string,
   onComplete: ((Error | null) => void) | void,
   refetchEnvironment?: ?IEnvironment,
-  refetchVariables: Variables | null,
-  refetchGeneration: number,
+  refetchQuery: OperationDescriptor | null,
+  renderPolicy: RenderPolicy | void,
 |};
 
 type DebugIDandTypename = {
@@ -149,24 +143,23 @@ function reducer(state: RefetchState, action: Action): RefetchState {
     case 'refetch': {
       return {
         ...state,
-        refetchVariables: action.refetchVariables,
-        refetchGeneration: state.refetchGeneration + 1,
         fetchPolicy: action.fetchPolicy,
-        renderPolicy: action.renderPolicy,
+        mirroredEnvironment:
+          action.refetchEnvironment ?? state.mirroredEnvironment,
         onComplete: action.onComplete,
-        refetchEnvironment: action.environment,
-        mirroredEnvironment: action.environment ?? state.mirroredEnvironment,
+        refetchEnvironment: action.refetchEnvironment,
+        refetchQuery: action.refetchQuery,
+        renderPolicy: action.renderPolicy,
       };
     }
     case 'reset': {
       return {
         fetchPolicy: undefined,
-        renderPolicy: undefined,
-        onComplete: undefined,
-        refetchVariables: null,
-        refetchGeneration: 0,
         mirroredEnvironment: action.environment,
         mirroredFragmentIdentifier: action.fragmentIdentifier,
+        onComplete: undefined,
+        refetchQuery: null,
+        renderPolicy: undefined,
       };
     }
     default: {
@@ -197,45 +190,35 @@ function useRefetchableFragmentNode<
 
   const [refetchState, dispatch] = useReducer(reducer, {
     fetchPolicy: undefined,
-    renderPolicy: undefined,
-    onComplete: undefined,
-    refetchVariables: null,
-    refetchGeneration: 0,
-    refetchEnvironment: null,
     mirroredEnvironment: parentEnvironment,
     mirroredFragmentIdentifier: fragmentIdentifier,
+    onComplete: undefined,
+    refetchEnvironment: null,
+    refetchQuery: null,
+    renderPolicy: undefined,
   });
-  const {startFetch, disposeFetch, completeFetch} = useFetchTrackingRef();
   const {
-    refetchVariables,
-    refetchGeneration,
-    refetchEnvironment,
     fetchPolicy,
-    renderPolicy,
-    onComplete,
     mirroredEnvironment,
     mirroredFragmentIdentifier,
+    onComplete,
+    refetchEnvironment,
+    refetchQuery,
+    renderPolicy,
   } = refetchState;
   const environment = refetchEnvironment ?? parentEnvironment;
 
   const QueryResource = getQueryResourceForEnvironment(environment);
+  const FragmentResource = getFragmentResourceForEnvironment(environment);
   const profilerContext = useContext(ProfilerContext);
 
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
-  const [memoRefetchVariables] = useMemoVariables(refetchVariables);
-  const refetchQuery = useMemo(
-    () =>
-      memoRefetchVariables != null
-        ? createOperationDescriptor(refetchableRequest, memoRefetchVariables, {
-            force: true,
-          })
-        : null,
-    [memoRefetchVariables, refetchableRequest],
+  const [queryRef, loadQuery, disposeQuery] = useQueryLoader<TQuery>(
+    refetchableRequest,
   );
 
-  let refetchedQueryResult;
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
     dispatch({
@@ -243,35 +226,54 @@ function useRefetchableFragmentNode<
       environment,
       fragmentIdentifier,
     });
-  } else if (refetchQuery != null) {
-    // check __typename/id is consistent if refetch existing data on Node
+    disposeQuery();
+  } else if (queryRef != null && refetchQuery != null) {
+    // Record the current ID and typename before refetching
+    // so that, if we are refetching existing data on
+    // a field that implements Node, after refetching we
+    // can validate that the received data is consistent
     let debugPreviousIDAndTypename: ?DebugIDandTypename;
     if (__DEV__) {
       debugPreviousIDAndTypename = debugFunctions.getInitialIDAndType(
-        memoRefetchVariables,
+        refetchQuery.request.variables,
         fragmentRefPathInResponse,
         environment,
       );
     }
 
-    // If refetch has been called, we read/fetch the refetch query here. If
-    // the refetch query hasn't been fetched or isn't cached, we will suspend
-    // at this point.
-    const [queryResult, queryData] = readQuery(
-      environment,
-      refetchQuery,
-      fetchPolicy,
-      renderPolicy,
-      refetchGeneration,
-      componentDisplayName,
-      {
-        start: startFetch,
-        complete: maybeError => {
-          completeFetch();
-          onComplete && onComplete(maybeError ?? null);
-
-          if (__DEV__) {
-            if (!maybeError) {
+    // The queryRef obtained from useQueryLoader will have
+    // an observable we can consume if a network request was
+    // started. Otherwise we fall back to a a new network
+    // observable. Note that if loadQuery did not make a network
+    // request, we don't expect to make one here, i.e. we won't
+    // subscribe to the fallback observable, unless the state of
+    // the cache has changed between the call to refetch and this
+    // render.
+    const fetchObservable =
+      queryRef.source != null
+        ? queryRef.source
+        : fetchQuery(environment, refetchQuery);
+    const handleQueryCompleted = maybeError => {
+      onComplete && onComplete(maybeError ?? null);
+    };
+    // If refetch has been called, we read the refetch
+    // query here using the query reference provided from
+    // useQueryLoader. Note that the network request is
+    // started during the call to refetch, but if the
+    // refetch query is still in flight, we will suspend
+    // at this point:
+    const queryResult = profilerContext.wrapPrepareQueryResource(() => {
+      return QueryResource.prepare(
+        refetchQuery,
+        fetchObservable,
+        fetchPolicy,
+        renderPolicy,
+        {
+          error: handleQueryCompleted,
+          complete: () => {
+            // Validate that the type of the object we got back matches the type
+            // of the object already in the store
+            if (__DEV__) {
               debugFunctions.checkSameTypeAfterRefetch(
                 debugPreviousIDAndTypename,
                 environment,
@@ -279,12 +281,24 @@ function useRefetchableFragmentNode<
                 componentDisplayName,
               );
             }
-          }
+            handleQueryCompleted();
+          },
         },
-      },
-      profilerContext,
+        queryRef.fetchKey,
+        profilerContext,
+      );
+    });
+    const queryData = FragmentResource.read(
+      queryResult.fragmentNode,
+      queryResult.fragmentRef,
+      componentDisplayName,
+    ).data;
+    invariant(
+      queryData != null,
+      'Relay: Expected to be able to read refetch query response. ' +
+        "If you're seeing this, this is likely a bug in Relay.",
     );
-    refetchedQueryResult = queryResult;
+
     // After reading/fetching the refetch query, we extract from the
     // refetch query response the new fragment ref we need to use to read
     // the fragment. The new fragment ref will point to the refetch query
@@ -296,6 +310,10 @@ function useRefetchableFragmentNode<
     fragmentRef = refetchedFragmentRef;
 
     if (__DEV__) {
+      // Validate that the id of the object we got back matches the id
+      // we queried for in the variables.
+      // We do this during render instead of onComplete to make sure we are
+      // only validating the most recent refetch.
       debugFunctions.checkSameIDAfterRefetch(
         debugPreviousIDAndTypename,
         fragmentRef,
@@ -315,35 +333,18 @@ function useRefetchableFragmentNode<
     enableStoreUpdates,
   } = useFragmentNode<mixed>(fragmentNode, fragmentRef, componentDisplayName);
 
-  useEffect(() => {
-    // Retain the refetch query if it was fetched and release it
-    // in the useEffect cleanup.
-    const queryDisposable =
-      refetchedQueryResult != null
-        ? QueryResource.retain(refetchedQueryResult, profilerContext)
-        : null;
-
-    return () => {
-      if (queryDisposable) {
-        queryDisposable.dispose();
-      }
-    };
-    // NOTE: We disable react-hooks-deps warning because
-    // refetchedQueryResult is captured by including refetchQuery, which is
-    // already capturing if the query or variables changed.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [QueryResource, fragmentIdentifier, refetchQuery, refetchGeneration]);
-
   const refetch = useRefetchFunction<TQuery>(
-    fragmentNode,
-    parentFragmentRef,
-    fragmentIdentifier,
-    fragmentRefPathInResponse,
-    fragmentData,
-    dispatch,
-    disposeFetch,
     componentDisplayName,
+    dispatch,
+    disposeQuery,
+    fragmentData,
+    fragmentIdentifier,
+    fragmentNode,
+    fragmentRefPathInResponse,
     identifierField,
+    loadQuery,
+    parentFragmentRef,
+    refetchableRequest,
   );
   return {
     fragmentData,
@@ -355,15 +356,17 @@ function useRefetchableFragmentNode<
 }
 
 function useRefetchFunction<TQuery: OperationType>(
-  fragmentNode,
-  parentFragmentRef,
-  fragmentIdentifier,
-  fragmentRefPathInResponse,
-  fragmentData,
-  dispatch,
-  disposeFetch,
   componentDisplayName,
+  dispatch,
+  disposeQuery,
+  fragmentData,
+  fragmentIdentifier,
+  fragmentNode,
+  fragmentRefPathInResponse,
   identifierField,
+  loadQuery: LoaderFn<TQuery>,
+  parentFragmentRef,
+  refetchableRequest,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
   const identifierValue =
@@ -400,7 +403,7 @@ function useRefetchFunction<TQuery: OperationType>(
             'call `refetch` under a high priority update, but updates that ' +
             'can cause the component to suspend should be scheduled at ' +
             'normal priority. Make sure you are calling `refetch` inside ' +
-            '`startTransition()` from the `useSuspenseTransition()` hook.',
+            '`startTransition()` from the `useTransition()` hook.',
           fragmentNode.name,
           componentDisplayName,
         );
@@ -419,13 +422,13 @@ function useRefetchFunction<TQuery: OperationType>(
         );
       }
 
-      const environment = options?.__environment;
+      const refetchEnvironment = options?.__environment;
       const fetchPolicy = options?.fetchPolicy;
       const renderPolicy = options?.UNSTABLE_renderPolicy;
       const onComplete = options?.onComplete;
       const fragmentSelector = getSelector(fragmentNode, parentFragmentRef);
-      let parentVariables;
-      let fragmentVariables;
+      let parentVariables: Variables;
+      let fragmentVariables: Variables;
       if (fragmentSelector == null) {
         parentVariables = {};
         fragmentVariables = {};
@@ -437,18 +440,12 @@ function useRefetchFunction<TQuery: OperationType>(
         fragmentVariables = fragmentSelector.variables;
       }
 
-      // NOTE: A user of `useRefetchableFragment()` may pass a subset of
+      // A user of `useRefetchableFragment()` may pass a subset of
       // all variables required by the fragment when calling `refetch()`.
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
-      /* $FlowFixMe[cannot-spread-indexer] (>=0.123.0) This comment suppresses
-       * an error found when Flow v0.123.0 was deployed. To see the error
-       * delete this comment and run Flow. */
-      const refetchVariables = {
-        ...parentVariables,
-        /* $FlowFixMe[exponential-spread] (>=0.111.0) This comment suppresses
-         * an error found when Flow v0.111.0 was deployed. To see the error,
-         * delete this comment and run Flow. */
+      const refetchVariables: VariablesOf<TQuery> = {
+        ...(parentVariables: $FlowFixMe),
         ...fragmentVariables,
         ...providedRefetchVariables,
       };
@@ -471,18 +468,32 @@ function useRefetchFunction<TQuery: OperationType>(
             identifierValue,
           );
         }
-        refetchVariables.id = identifierValue;
+        (refetchVariables: $FlowFixMe).id = identifierValue;
       }
+
+      const refetchQuery = createOperationDescriptor(
+        refetchableRequest,
+        refetchVariables,
+        {force: true},
+      );
+      // We call loadQuery with the variables extracted off
+      // the OperationDescriptor so that they have been
+      // filtered out to include only the variables actually
+      // declared in the query.
+      loadQuery(refetchQuery.request.variables, {
+        fetchPolicy,
+        __environment: refetchEnvironment,
+      });
 
       dispatch({
         type: 'refetch',
-        refetchVariables,
         fetchPolicy,
-        renderPolicy,
         onComplete,
-        environment,
+        refetchEnvironment,
+        refetchQuery,
+        renderPolicy,
       });
-      return {dispose: disposeFetch};
+      return {dispose: disposeQuery};
     },
     // NOTE: We disable react-hooks-deps warning because:
     //   - We know fragmentRefPathInResponse is static, so it can be omitted from
@@ -491,51 +502,8 @@ function useRefetchFunction<TQuery: OperationType>(
     //   - fragmentNode and parentFragmentRef are also captured by including
     //     fragmentIdentifier
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fragmentIdentifier, dispatch, disposeFetch, identifierValue],
+    [fragmentIdentifier, dispatch, disposeQuery, identifierValue],
   );
-}
-
-function readQuery(
-  environment,
-  query,
-  fetchPolicy,
-  renderPolicy,
-  refetchGeneration,
-  componentDisplayName,
-  {start, complete},
-  profilerContext,
-) {
-  const QueryResource = getQueryResourceForEnvironment(environment);
-  const FragmentResource = getFragmentResourceForEnvironment(environment);
-  const queryResult = profilerContext.wrapPrepareQueryResource(() => {
-    return QueryResource.prepare(
-      query,
-      fetchQuery(environment, query),
-      fetchPolicy,
-      renderPolicy,
-      {start, error: complete, complete},
-      // NOTE: QueryResource will keep a cache entry for a query for the
-      // entire lifetime of this component. However, every time refetch is
-      // called, we want to make sure we correctly attempt to fetch the query
-      // (taking into account the fetchPolicy), even if we're refetching the exact
-      // same query (e.g. refreshing it).
-      // To do so, we keep track of every time refetch is called with
-      // `refetchGenerationRef`, which we can use as a key for the query in
-      // QueryResource.
-      refetchGeneration,
-    );
-  });
-  const queryData = FragmentResource.read(
-    queryResult.fragmentNode,
-    queryResult.fragmentRef,
-    componentDisplayName,
-  ).data;
-  invariant(
-    queryData != null,
-    'Relay: Expected to be able to read refetch query response. ' +
-      "If you're seeing this, this is likely a bug in Relay.",
-  );
-  return [queryResult, queryData];
 }
 
 let debugFunctions;

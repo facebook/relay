@@ -24,14 +24,25 @@ import type {
   LoadQueryOptions,
   PreloadedQuery,
 } from './EntryPointTypes.flow';
-import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+import type {
+  GraphQLTaggedNode,
+  IEnvironment,
+  OperationType,
+} from 'relay-runtime';
 
-type useQueryLoaderHookType<TQuery: OperationType> = [
+export type LoaderFn<TQuery: OperationType> = (
+  variables: $ElementType<TQuery, 'variables'>,
+  options?: UseQueryLoaderLoadQueryOptions,
+) => void;
+
+type UseQueryLoaderLoadQueryOptions = {|
+  ...LoadQueryOptions,
+  +__environment?: ?IEnvironment,
+|};
+
+type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
   ?PreloadedQuery<TQuery>,
-  (
-    variables: $ElementType<TQuery, 'variables'>,
-    options?: LoadQueryOptions,
-  ) => void,
+  LoaderFn<TQuery>,
   () => void,
 ];
 
@@ -46,7 +57,7 @@ const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
 function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
-): useQueryLoaderHookType<TQuery> {
+): UseQueryLoaderHookReturnType<TQuery> {
   /**
    * We want to always call `queryReference.dispose()` for every call to
    * `setQueryReference(loadQuery(...))` so that no leaks of data in Relay stores
@@ -110,14 +121,21 @@ function useQueryLoader<TQuery: OperationType>(
   const queryLoaderCallback = useCallback(
     (
       variables: $ElementType<TQuery, 'variables'>,
-      options?: LoadQueryOptions,
+      options?: ?UseQueryLoaderLoadQueryOptions,
     ) => {
+      const mergedOptions: ?UseQueryLoaderLoadQueryOptions =
+        options != null && options.hasOwnProperty('__environment')
+          ? {
+              fetchPolicy: options.fetchPolicy,
+              networkCacheConfig: options.networkCacheConfig,
+            }
+          : options;
       if (isMountedRef.current) {
         const updatedQueryReference = loadQuery(
-          environment,
+          options?.__environment ?? environment,
           preloadableRequest,
           variables,
-          options,
+          (mergedOptions: $FlowFixMe),
         );
         undisposedQueryReferencesRef.current.add(updatedQueryReference);
         setQueryReference(updatedQueryReference);

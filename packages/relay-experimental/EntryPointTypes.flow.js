@@ -17,7 +17,6 @@ import type {JSResourceReference} from 'JSResourceReference';
 import type {AbstractComponent, ElementConfig} from 'React';
 import type {
   CacheConfig,
-  ConcreteRequest,
   GraphQLResponse,
   IEnvironment,
   Observable,

@@ -28,6 +28,7 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  Observable,
 } = require('relay-runtime');
 
 const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
@@ -124,7 +125,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       expected,
       requestEnvironment = environment,
     ) {
-      expect(requestEnvironment.execute).toBeCalledTimes(expected.requestCount);
+      expect(requestEnvironment.executeWithSource).toBeCalledTimes(
+        expected.requestCount,
+      );
       expect(
         requestEnvironment.mock.isLoading(
           gqlRefetchQuery,
@@ -153,47 +156,11 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       // Assert refetch query was fetched
       expectRequestIsInFlight({...expected, inFlight: true, requestCount: 1});
 
-      // Assert query is tentatively retained while component is suspended
-      expect(environment.retain).toBeCalledTimes(1);
+      // Assert query is retained by loadQuery and
+      // tentatively retained while component is suspended
+      expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
-      );
-    }
-
-    function expectFragmentSuspendedOnRefetch(
-      renderer,
-      expected: {|
-        data: mixed,
-        refetchVariables: Variables,
-        refetchQuery?: OperationDescriptor,
-        gqlRefetchQuery?: $FlowFixMe,
-      |},
-    ) {
-      assertYieldsWereCleared();
-
-      TestRenderer.act(() => {
-        // Wrap in act to ensure passive effects are run
-        jest.runAllImmediates();
-      });
-
-      // Assert component suspended
-      Scheduler.unstable_flushNumberOfYields(1);
-      const actualYields = Scheduler.unstable_clearYields();
-      expect(actualYields.length).toEqual(1);
-      expect(actualYields[0]).toEqual('Fallback');
-      expect(renderer.toJSON()).toEqual('Fallback');
-
-      // Assert refetch query was fetched
-      expectRequestIsInFlight({
-        ...expected,
-        inFlight: true,
-        requestCount: 1,
-      });
-
-      // Assert query is tentatively retained while component is suspended
-      expect(environment.retain).toBeCalledTimes(1);
-      expect(environment.retain.mock.calls[0][0]).toEqual(
-        expected.refetchQuery,
       );
     }
 
@@ -433,8 +400,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         };
         expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
-        // Assert refetch query was retained
-        expect(environment.retain).toBeCalledTimes(1);
+        // Assert refetch query was retained by loadQuery and the component
+        expect(environment.retain).toBeCalledTimes(2);
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -443,18 +410,18 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         beforeEach(() => {
           fetchSpy = jest.fn();
           const internalRuntime = require('relay-runtime').__internal;
-          const originalFetchQuery = internalRuntime.fetchQuery;
+          const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
           jest
-            .spyOn(internalRuntime, 'fetchQuery')
+            .spyOn(internalRuntime, 'fetchQueryDeduped')
             .mockImplementation((...args) => {
-              const originalObservable = originalFetchQuery(...args);
-              return {
-                ...originalObservable,
-                subscribe: (...subscribeArgs) => {
-                  fetchSpy(...args);
-                  originalObservable.subscribe(...subscribeArgs);
-                },
-              };
+              const originalObservable = originalFetchQueryDeduped(...args);
+              return Observable.create(sink => {
+                fetchSpy(...args);
+                const sub = originalObservable.subscribe(sink);
+                return () => {
+                  sub.unsubscribe();
+                };
+              });
             });
         });
 
@@ -492,7 +459,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
-          environment.execute.mockClear();
+          environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
@@ -585,7 +552,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           };
           expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
-          expect(fetchSpy).toBeCalledTimes(2);
+          expect(fetchSpy).toBeCalledTimes(4);
         });
 
         it('does not re-issue initial refetch request if second refetch is interrupted by high-pri update', () => {
@@ -622,7 +589,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
-          environment.execute.mockClear();
+          environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
@@ -726,7 +693,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           };
           expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
-          expect(fetchSpy).toBeCalledTimes(2);
+          expect(fetchSpy).toBeCalledTimes(4);
         });
 
         it('refetches correctly when switching between multiple refetches', () => {
@@ -763,7 +730,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
-          environment.execute.mockClear();
+          environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
             gqlRefetchQuery,
@@ -798,7 +765,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
           // Switch back to initial refetch, assert network
           // request doesn't fire again
-          environment.execute.mockClear();
+          environment.executeWithSource.mockClear();
           refetch(
             {id: '2'},
             {
@@ -885,7 +852,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           };
           expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
-          expect(fetchSpy).toBeCalledTimes(3);
+          expect(fetchSpy).toBeCalledTimes(5);
         });
       });
     });

@@ -27,7 +27,7 @@ import type {
   PreloadedEntryPoint,
 } from './EntryPointTypes.flow';
 
-type UseLoadEntryPointHookType<
+type UseEntryPointLoaderHookReturnType<
   TEntryPointParams: {...},
   TPreloadedQueries: {...},
   TPreloadedEntryPoints: {...},
@@ -77,7 +77,7 @@ function useLoadEntryPoint<
       entryPointParams: ?TEntryPointParams,
     |},
   |},
-): UseLoadEntryPointHookType<
+): UseEntryPointLoaderHookReturnType<
   TEntryPointParams,
   TPreloadedQueries,
   TPreloadedEntryPoints,

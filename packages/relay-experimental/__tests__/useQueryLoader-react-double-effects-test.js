@@ -763,7 +763,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       expect(release).toHaveBeenCalledTimes(0);
     });
 
-    it('forces a re-render and refetches when policy is store-or-network', () => {
+    it('forces a re-render and does not refetch when policy is store-or-network', () => {
       const initialQueryRef = loadQuery(environment, gqlQuery, variables, {
         fetchPolicy: 'store-or-network',
       });

@@ -670,7 +670,6 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // component that was consuming the query.
         expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
         expect(release).toHaveBeenCalledTimes(2);
-        release.mockClear();
 
         // The effect setup will re-execute, so we assert that
         // a re-render is triggered to re-retain the entrypoint ref's queries:
@@ -717,8 +716,8 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         ReactTestRenderer.act(() => {
           jest.runAllTimers();
         });
-        expect(release).toHaveBeenCalledTimes(0);
-        expect(environment.retain).toHaveBeenCalledTimes(2);
+        expect(release).toHaveBeenCalledTimes(2);
+        expect(environment.retain).toHaveBeenCalledTimes(3);
       });
     });
   });
@@ -852,7 +851,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       expect(release).toHaveBeenCalledTimes(0);
     });
 
-    it('forces a re-render and refetches when policy is store-or-network', () => {
+    it('forces a re-render and does not refetch when policy is store-or-network', () => {
       const initialEntryPointRef = loadEntryPoint(
         environmentProvider,
         entryPointStoreOrNetwork,
@@ -862,7 +861,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       expect(environment.retain).toHaveBeenCalledTimes(1);
       environment.executeWithSource.mockClear();
 
-      const instance = render(entryPointNetworkOnly, initialEntryPointRef, {
+      const instance = render(entryPointStoreOrNetwork, initialEntryPointRef, {
         suspendWholeTree: true,
       });
 

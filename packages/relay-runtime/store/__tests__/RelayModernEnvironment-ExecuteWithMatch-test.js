@@ -358,9 +358,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          operation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -377,9 +375,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          operation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
     ).toBe(null);
   });
 
@@ -421,9 +417,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          operation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
     ).not.toBe(null);
 
     dataSource.complete();
@@ -435,9 +429,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          operation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(operation.request),
     ).toBe(null);
   });
 

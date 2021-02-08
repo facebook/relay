@@ -179,9 +179,7 @@ describe('execute()', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -241,9 +239,7 @@ describe('execute()', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 });

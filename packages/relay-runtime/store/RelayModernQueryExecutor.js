@@ -1266,15 +1266,15 @@ class Executor {
       updatedOwners.length > 0
     ) {
       this._operationTracker.update(
-        this._operation.request.identifier,
-        new Set(updatedOwners.map(owner => owner.identifier)),
+        this._operation.request,
+        new Set(updatedOwners),
       );
     }
   }
 
   _completeOperationTracker() {
     if (this._operationTracker != null) {
-      this._operationTracker.complete(this._operation.request.identifier);
+      this._operationTracker.complete(this._operation.request);
     }
   }
 }

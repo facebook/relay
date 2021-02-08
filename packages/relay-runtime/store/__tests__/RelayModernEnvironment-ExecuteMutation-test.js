@@ -191,9 +191,7 @@ describe('executeMutation()', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -461,9 +459,7 @@ describe('executeMutation()', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 

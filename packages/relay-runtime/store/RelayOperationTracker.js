@@ -14,18 +14,20 @@
 
 const invariant = require('invariant');
 
+import type {RequestDescriptor} from './RelayStoreTypes';
+
 class RelayOperationTracker {
-  _ownersToPendingOperationsIdentifier: Map<string, Set<string>>;
-  _pendingOperationsToOwnersIdentifier: Map<string, Set<string>>;
-  _ownersIdentifierToPromise: Map<
-    string,
+  _ownersToPendingOperations: Map<RequestDescriptor, Set<RequestDescriptor>>;
+  _pendingOperationsToOwners: Map<RequestDescriptor, Set<RequestDescriptor>>;
+  _ownersToPromise: Map<
+    RequestDescriptor,
     {|promise: Promise<void>, resolve: () => void|},
   >;
 
   constructor() {
-    this._ownersToPendingOperationsIdentifier = new Map();
-    this._pendingOperationsToOwnersIdentifier = new Map();
-    this._ownersIdentifierToPromise = new Map();
+    this._ownersToPendingOperations = new Map();
+    this._pendingOperationsToOwners = new Map();
+    this._ownersToPromise = new Map();
   }
 
   /**
@@ -33,54 +35,49 @@ class RelayOperationTracker {
    * affected owners and notify subscribers
    */
   update(
-    pendingOperationIdentifier: string,
-    affectedOwnersIdentifier: Set<string>,
+    pendingOperation: RequestDescriptor,
+    affectedOwners: Set<RequestDescriptor>,
   ): void {
-    if (affectedOwnersIdentifier.size === 0) {
+    if (affectedOwners.size === 0) {
       return;
     }
-    const newlyAffectedOwnersIdentifier = new Set();
-    for (const ownerIdentifier of affectedOwnersIdentifier) {
-      const pendingOperationsAffectingOwner = this._ownersToPendingOperationsIdentifier.get(
-        ownerIdentifier,
+    const newlyAffectedOwners = new Set();
+    for (const owner of affectedOwners) {
+      const pendingOperationsAffectingOwner = this._ownersToPendingOperations.get(
+        owner,
       );
       if (pendingOperationsAffectingOwner != null) {
-        // In this case the `ownerIdentifier` already affected by some operations
+        // In this case the `owner` already affected by some operations
         // We just need to detect, is it the same operation that we already
         // have in the list, or it's a new operation
-        if (!pendingOperationsAffectingOwner.has(pendingOperationIdentifier)) {
-          pendingOperationsAffectingOwner.add(pendingOperationIdentifier);
-          newlyAffectedOwnersIdentifier.add(ownerIdentifier);
+        if (!pendingOperationsAffectingOwner.has(pendingOperation)) {
+          pendingOperationsAffectingOwner.add(pendingOperation);
+          newlyAffectedOwners.add(owner);
         }
       } else {
-        // This is a new `ownerIdentifier` that is affected by the operation
-        this._ownersToPendingOperationsIdentifier.set(
-          ownerIdentifier,
-          new Set([pendingOperationIdentifier]),
-        );
-        newlyAffectedOwnersIdentifier.add(ownerIdentifier);
+        // This is a new `owner` that is affected by the operation
+        this._ownersToPendingOperations.set(owner, new Set([pendingOperation]));
+        newlyAffectedOwners.add(owner);
       }
     }
 
     // No new owners were affected by this operation, we may stop here
-    if (newlyAffectedOwnersIdentifier.size === 0) {
+    if (newlyAffectedOwners.size === 0) {
       return;
     }
 
     // But, if some owners were affected we need to add them to
-    // the `_pendingOperationsToOwnersIdentifier` set
-    const ownersAffectedByOperationIdentifier =
-      this._pendingOperationsToOwnersIdentifier.get(
-        pendingOperationIdentifier,
-      ) || new Set();
+    // the `_pendingOperationsToOwners` set
+    const ownersAffectedByOperation =
+      this._pendingOperationsToOwners.get(pendingOperation) || new Set();
 
-    for (const ownerIdentifier of newlyAffectedOwnersIdentifier) {
-      this._resolveOwnerResolvers(ownerIdentifier);
-      ownersAffectedByOperationIdentifier.add(ownerIdentifier);
+    for (const owner of newlyAffectedOwners) {
+      this._resolveOwnerResolvers(owner);
+      ownersAffectedByOperation.add(owner);
     }
-    this._pendingOperationsToOwnersIdentifier.set(
-      pendingOperationIdentifier,
-      ownersAffectedByOperationIdentifier,
+    this._pendingOperationsToOwners.set(
+      pendingOperation,
+      ownersAffectedByOperation,
     );
   }
 
@@ -88,69 +85,65 @@ class RelayOperationTracker {
    * Once pending operation is completed we need to remove it
    * from all tracking maps
    */
-  complete(pendingOperationIdentifier: string): void {
-    const affectedOwnersIdentifier = this._pendingOperationsToOwnersIdentifier.get(
-      pendingOperationIdentifier,
+  complete(pendingOperation: RequestDescriptor): void {
+    const affectedOwners = this._pendingOperationsToOwners.get(
+      pendingOperation,
     );
-    if (affectedOwnersIdentifier == null) {
+    if (affectedOwners == null) {
       return;
     }
-    // These were the owners affected only by `pendingOperationIdentifier`
-    const completedOwnersIdentifier = new Set();
+    // These were the owners affected only by `pendingOperation`
+    const completedOwners = new Set();
 
-    // These were the owners affected by `pendingOperationIdentifier`
+    // These were the owners affected by `pendingOperation`
     // and some other operations
-    const updatedOwnersIdentifier = new Set();
-    for (const ownerIdentifier of affectedOwnersIdentifier) {
-      const pendingOperationsAffectingOwner = this._ownersToPendingOperationsIdentifier.get(
-        ownerIdentifier,
+    const updatedOwners = new Set();
+    for (const owner of affectedOwners) {
+      const pendingOperationsAffectingOwner = this._ownersToPendingOperations.get(
+        owner,
       );
       if (!pendingOperationsAffectingOwner) {
         continue;
       }
-      pendingOperationsAffectingOwner.delete(pendingOperationIdentifier);
+      pendingOperationsAffectingOwner.delete(pendingOperation);
       if (pendingOperationsAffectingOwner.size > 0) {
-        updatedOwnersIdentifier.add(ownerIdentifier);
+        updatedOwners.add(owner);
       } else {
-        completedOwnersIdentifier.add(ownerIdentifier);
+        completedOwners.add(owner);
       }
     }
 
-    // Complete subscriptions for all owners, affected by `pendingOperationIdentifier`
-    for (const ownerIdentifier of completedOwnersIdentifier) {
-      this._resolveOwnerResolvers(ownerIdentifier);
-      this._ownersToPendingOperationsIdentifier.delete(ownerIdentifier);
+    // Complete subscriptions for all owners, affected by `pendingOperation`
+    for (const owner of completedOwners) {
+      this._resolveOwnerResolvers(owner);
+      this._ownersToPendingOperations.delete(owner);
     }
 
-    // Update all ownerIdentifier that were updated by `pendingOperationIdentifier` but still
+    // Update all owner that were updated by `pendingOperation` but still
     // are affected by other operations
-    for (const ownerIdentifier of updatedOwnersIdentifier) {
-      this._resolveOwnerResolvers(ownerIdentifier);
+    for (const owner of updatedOwners) {
+      this._resolveOwnerResolvers(owner);
     }
 
-    // Finally, remove pending operation identifier
-    this._pendingOperationsToOwnersIdentifier.delete(
-      pendingOperationIdentifier,
-    );
+    // Finally, remove pending operation
+    this._pendingOperationsToOwners.delete(pendingOperation);
   }
 
-  _resolveOwnerResolvers(ownerIdentifier: string): void {
-    const promiseEntry = this._ownersIdentifierToPromise.get(ownerIdentifier);
+  _resolveOwnerResolvers(owner: RequestDescriptor): void {
+    const promiseEntry = this._ownersToPromise.get(owner);
     if (promiseEntry != null) {
       promiseEntry.resolve();
     }
-    this._ownersIdentifierToPromise.delete(ownerIdentifier);
+    this._ownersToPromise.delete(owner);
   }
 
   getPromiseForPendingOperationsAffectingOwner(
-    ownerIdentifier: string,
+    owner: RequestDescriptor,
   ): Promise<void> | null {
-    if (!this._ownersToPendingOperationsIdentifier.has(ownerIdentifier)) {
+    if (!this._ownersToPendingOperations.has(owner)) {
       return null;
     }
-    const cachedPromiseEntry = this._ownersIdentifierToPromise.get(
-      ownerIdentifier,
-    );
+    const cachedPromiseEntry = this._ownersToPromise.get(owner);
     if (cachedPromiseEntry != null) {
       return cachedPromiseEntry.promise;
     }
@@ -163,7 +156,7 @@ class RelayOperationTracker {
       'RelayOperationTracker: Expected resolver to be defined. If you' +
         'are seeing this, it is likely a bug in Relay.',
     );
-    this._ownersIdentifierToPromise.set(ownerIdentifier, {promise, resolve});
+    this._ownersToPromise.set(owner, {promise, resolve});
     return promise;
   }
 }

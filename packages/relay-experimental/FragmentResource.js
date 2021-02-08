@@ -82,7 +82,7 @@ function getPromiseForPendingOperationAffectingOwner(
 ): Promise<void> | null {
   return environment
     .getOperationTracker()
-    .getPromiseForPendingOperationsAffectingOwner(request.identifier);
+    .getPromiseForPendingOperationsAffectingOwner(request);
 }
 
 class FragmentResourceImpl {
@@ -434,7 +434,7 @@ class FragmentResourceImpl {
   ): Promise<void> | null {
     const environment = this._environment;
     const networkPromise =
-      getPromiseForActiveRequest(environment, fragmentOwner.identifier) ??
+      getPromiseForActiveRequest(environment, fragmentOwner) ??
       getPromiseForPendingOperationAffectingOwner(environment, fragmentOwner);
 
     if (!networkPromise) {

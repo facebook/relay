@@ -285,9 +285,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
   });
 
@@ -368,9 +366,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -414,9 +410,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -434,9 +428,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -475,9 +467,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -496,9 +486,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
 
     dataSource.complete();
@@ -510,9 +498,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -551,9 +537,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     const err = new Error('Oops');
@@ -570,9 +554,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(
-          queryOperation.request.identifier,
-        ),
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 });

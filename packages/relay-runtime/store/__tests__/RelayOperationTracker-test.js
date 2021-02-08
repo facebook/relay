@@ -57,16 +57,12 @@ describe('RelayOperationTracker', () => {
       }
     `);
 
-    QueryOperation1 = createOperationDescriptor(Query1, {
-      id: '1',
-    }).request.identifier;
-    QueryOperation2 = createOperationDescriptor(Query2, {
-      id: '2',
-    }).request.identifier;
-    MutationOperation1 = createOperationDescriptor(Mutation1, {id: '1'}).request
-      .identifier;
-    MutationOperation2 = createOperationDescriptor(Mutation2, {id: '2'}).request
-      .identifier;
+    QueryOperation1 = createOperationDescriptor(Query1, {id: '1'}).request;
+    QueryOperation2 = createOperationDescriptor(Query2, {id: '2'}).request;
+    MutationOperation1 = createOperationDescriptor(Mutation1, {id: '1'})
+      .request;
+    MutationOperation2 = createOperationDescriptor(Mutation2, {id: '2'})
+      .request;
   });
 
   it('should not have any pending operations affecting owners', () => {

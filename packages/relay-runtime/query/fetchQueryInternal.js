@@ -240,10 +240,10 @@ function getActiveStatusObservableForCachedRequest(
  */
 function getPromiseForActiveRequest(
   environment: IEnvironment,
-  requestIdentifier: string,
+  request: RequestDescriptor,
 ): Promise<void> | null {
   const requestCache = getRequestCache(environment);
-  const cachedRequest = requestCache.get(requestIdentifier);
+  const cachedRequest = requestCache.get(request.identifier);
   if (!cachedRequest) {
     return null;
   }

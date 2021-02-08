@@ -374,10 +374,7 @@ describe('isRequestActive', () => {
 
 describe('getPromiseForActiveRequest', () => {
   it('returns null if request is not in flight', () => {
-    const promise = getPromiseForActiveRequest(
-      environment,
-      query.request.identifier,
-    );
+    const promise = getPromiseForActiveRequest(environment, query.request);
     expect(promise).toEqual(null);
   });
 
@@ -391,10 +388,7 @@ describe('getPromiseForActiveRequest', () => {
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.nextValue(gqlQuery, response);
 
-    const promise = getPromiseForActiveRequest(
-      environment,
-      query.request.identifier,
-    );
+    const promise = getPromiseForActiveRequest(environment, query.request);
     expect(promise).toEqual(null);
   });
 
@@ -408,10 +402,7 @@ describe('getPromiseForActiveRequest', () => {
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.resolve(gqlQuery, response);
 
-    const promise = getPromiseForActiveRequest(
-      environment,
-      query.request.identifier,
-    );
+    const promise = getPromiseForActiveRequest(environment, query.request);
     expect(promise).toEqual(null);
   });
 
@@ -425,10 +416,7 @@ describe('getPromiseForActiveRequest', () => {
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.reject(gqlQuery, new Error('Oops'));
 
-    const promise = getPromiseForActiveRequest(
-      environment,
-      query.request.identifier,
-    );
+    const promise = getPromiseForActiveRequest(environment, query.request);
     expect(promise).toEqual(null);
   });
 
@@ -442,10 +430,7 @@ describe('getPromiseForActiveRequest', () => {
     const subscription = fetchQuery(environment, query).subscribe(observer);
     subscription.unsubscribe();
 
-    const promise = getPromiseForActiveRequest(
-      environment,
-      query.request.identifier,
-    );
+    const promise = getPromiseForActiveRequest(environment, query.request);
     expect(promise).toEqual(null);
   });
 
@@ -463,10 +448,7 @@ describe('getPromiseForActiveRequest', () => {
     });
     it('returns a promise that rejects when error occurs', () => {
       expect.assertions(5);
-      const promise = getPromiseForActiveRequest(
-        environment,
-        query.request.identifier,
-      );
+      const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
       if (!promise) {
         return;
@@ -491,10 +473,7 @@ describe('getPromiseForActiveRequest', () => {
 
     it('returns a promise that resolves when the request is unsubcribed (canceled)', () => {
       expect.assertions(4);
-      const promise = getPromiseForActiveRequest(
-        environment,
-        query.request.identifier,
-      );
+      const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
       if (!promise) {
         return;
@@ -518,10 +497,7 @@ describe('getPromiseForActiveRequest', () => {
 
     it('calling getPromiseForActiveRequest does not prevent the request from being unsubscribed (canceled)', () => {
       expect.assertions(6);
-      const promise = getPromiseForActiveRequest(
-        environment,
-        query.request.identifier,
-      );
+      const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
       if (!promise) {
         return;
@@ -553,10 +529,7 @@ describe('getPromiseForActiveRequest', () => {
     describe("when `next` hasn't been called", () => {
       it('returns a promise that resolves when the next call to `next` occurs', () => {
         expect.assertions(4);
-        const promise = getPromiseForActiveRequest(
-          environment,
-          query.request.identifier,
-        );
+        const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
         if (!promise) {
           return;
@@ -580,10 +553,7 @@ describe('getPromiseForActiveRequest', () => {
 
       it('returns a promise that resolves when the request completes', () => {
         expect.assertions(4);
-        const promise = getPromiseForActiveRequest(
-          environment,
-          query.request.identifier,
-        );
+        const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
         if (!promise) {
           return;
@@ -618,10 +588,7 @@ describe('getPromiseForActiveRequest', () => {
 
       it('returns a promise that resolves when the next call to `next` occurs', () => {
         expect.assertions(5);
-        const promise = getPromiseForActiveRequest(
-          environment,
-          query.request.identifier,
-        );
+        const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
         if (!promise) {
           return;
@@ -651,10 +618,7 @@ describe('getPromiseForActiveRequest', () => {
         environment.mock.nextValue(gqlQuery, response);
         expect(observer.next).toHaveBeenCalledTimes(2);
 
-        const promise = getPromiseForActiveRequest(
-          environment,
-          query.request.identifier,
-        );
+        const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
         if (!promise) {
           return;
@@ -679,10 +643,7 @@ describe('getPromiseForActiveRequest', () => {
 
       it('returns a promise that resolves when the request completes', () => {
         expect.assertions(5);
-        const promise = getPromiseForActiveRequest(
-          environment,
-          query.request.identifier,
-        );
+        const promise = getPromiseForActiveRequest(environment, query.request);
         expect(promise).not.toEqual(null);
         if (!promise) {
           return;
@@ -768,10 +729,7 @@ describe('getPromiseForActiveRequest', () => {
 
     it('returns null if module loads before final payload', () => {
       expect.assertions(5);
-      const promise = getPromiseForActiveRequest(
-        environment,
-        query.request.identifier,
-      );
+      const promise = getPromiseForActiveRequest(environment, query.request);
       expect(promise).not.toEqual(null);
       if (!promise) {
         return;
@@ -783,7 +741,7 @@ describe('getPromiseForActiveRequest', () => {
       );
 
       expect(
-        getPromiseForActiveRequest(environment, query.request.identifier),
+        getPromiseForActiveRequest(environment, query.request),
       ).not.toEqual(null);
 
       environment.mock.resolve(gqlQuery, {
@@ -806,9 +764,9 @@ describe('getPromiseForActiveRequest', () => {
         extensions: {is_final: true},
       });
 
-      expect(
-        getPromiseForActiveRequest(environment, query.request.identifier),
-      ).toEqual(null);
+      expect(getPromiseForActiveRequest(environment, query.request)).toEqual(
+        null,
+      );
 
       return promise.then(() => {
         expect(observer.next).toHaveBeenCalledTimes(1);
@@ -820,7 +778,7 @@ describe('getPromiseForActiveRequest', () => {
       expect.assertions(8);
       const initialPromise = getPromiseForActiveRequest(
         environment,
-        query.request.identifier,
+        query.request,
       );
       expect(initialPromise).not.toEqual(null);
       if (!initialPromise) {
@@ -849,7 +807,7 @@ describe('getPromiseForActiveRequest', () => {
 
       const intermediatePromise = getPromiseForActiveRequest(
         environment,
-        query.request.identifier,
+        query.request,
       );
       expect(intermediatePromise).not.toEqual(null);
       if (!intermediatePromise) {
@@ -861,7 +819,7 @@ describe('getPromiseForActiveRequest', () => {
 
       const promiseForModule = getPromiseForActiveRequest(
         environment,
-        query.request.identifier,
+        query.request,
       );
       expect(promiseForModule).not.toEqual(null);
       if (!promiseForModule) {
@@ -871,9 +829,9 @@ describe('getPromiseForActiveRequest', () => {
       resolveModule(markdownRendererNormalizationFragment);
       jest.runAllTimers();
 
-      expect(
-        getPromiseForActiveRequest(environment, query.request.identifier),
-      ).toEqual(null);
+      expect(getPromiseForActiveRequest(environment, query.request)).toEqual(
+        null,
+      );
 
       await initialPromise.then(() => {
         expect(observer.next).toHaveBeenCalledTimes(1);

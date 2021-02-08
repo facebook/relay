@@ -242,11 +242,26 @@ module.exports = {
           to: 'docs',
           position: 'right',
           items: [
+            ...fbContent({
+              internal: [
+                {
+                  label: 'Current',
+                  to: 'docs/',
+                  activeBaseRegex: `docs/(?!${versions.join('|')})`,
+                },
+              ],
+              external: [],
+            }),
             {
               label: 'v10.1.3',
-              to: 'docs/',
-              activeBaseRegex:
-                'docs/(?!classic|experimental|v1.4.1|v1.5.0|v1.6.0|v1.6.1|v1.6.2|v1.7.0|v2.0.0|v3.0.0|v4.0.0|v5.0.0|v6.0.0|v7.0.0|v7.1.0|v8.0.0|v9.0.0|v9.1.0|v10.0.0|v10.0.1|v10.1.0|v10.1.1|v10.1.2|v10.1.3|next)',
+              to: fbContent({
+                internal: 'docs/v10.1.3/',
+                external: 'docs/',
+              }),
+              activeBaseRegex: fbContent({
+                internal: undefined,
+                external: `docs/(?!${versions.concat('next').join('|')})`,
+              }),
             },
             {
               label: 'v10.1.2',
@@ -340,14 +355,15 @@ module.exports = {
               label: 'classic',
               to: 'docs/classic/',
             },
-            {
-              label: 'Master/Unreleased',
-              to: fbContent({
-                internal: 'docs/',
-                external: 'docs/next/',
-              }),
-              activeBaseRegex: 'docs/next/(?!support|team|resources)',
-            },
+            ...fbContent({
+              internal: [],
+              external: [
+                {
+                  label: 'Unreleased',
+                  to: 'docs/next/',
+                },
+              ],
+            }),
           ],
         },
       ],

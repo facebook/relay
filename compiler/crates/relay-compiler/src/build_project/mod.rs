@@ -16,6 +16,7 @@ mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod is_operation_preloadable;
+mod log_program_stats;
 mod persist_operations;
 mod source_control;
 mod validate;

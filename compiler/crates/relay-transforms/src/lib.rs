@@ -118,5 +118,7 @@ pub use sort_selections::sort_selections;
 pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
-pub use util::{extract_variable_name, generate_abstract_type_refinement_key, remove_directive};
+pub use util::{
+    extract_variable_name, generate_abstract_type_refinement_key, remove_directive, PointerAddress,
+};
 pub use validations::*;

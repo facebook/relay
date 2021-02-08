@@ -12,6 +12,8 @@ use interner::StringKey;
 use relay_transforms::*;
 use std::sync::Arc;
 
+use super::log_program_stats::print_stats;
+
 #[derive(Debug)]
 pub struct Programs {
     pub source: Arc<Program>,
@@ -258,16 +260,32 @@ fn apply_normalization_transforms(
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
 
+    print_stats("normalization start", &program);
     let program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
+    print_stats("relay_early_flush", &program);
+
     let program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    print_stats("skip_unreachable_node", &program);
+
     let program = log_event.time("inline_fragments", || inline_fragments(&program));
+    print_stats("inline_fragments", &program);
+
     let program = log_event.time("client_extensions", || client_extensions(&program));
+    print_stats("client_extensions", &program);
+
     let program = log_event.time("generate_typename", || generate_typename(&program, true));
+    print_stats("generate_typename", &program);
+
     let program = log_event.time("flatten", || flatten(&program, true))?;
+    print_stats("flatten", &program);
+
     let program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
+    print_stats("skip_redundant_nodes", &program);
+
     let program = log_event.time("generate_test_operation_metadata", || {
         generate_test_operation_metadata(&program)
     });
+    print_stats("generate_test_operation_metadata", &program);
 
     perf_logger.complete_event(log_event);
 

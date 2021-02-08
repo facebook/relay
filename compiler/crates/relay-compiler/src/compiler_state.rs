@@ -194,7 +194,7 @@ pub struct CompilerState {
     #[serde(skip)]
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
-    pub source_control_update_completed: Arc<AtomicBool>,
+    pub source_control_update_in_progress: Arc<AtomicBool>,
 }
 
 impl CompilerState {
@@ -218,7 +218,7 @@ impl CompilerState {
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
-            source_control_update_completed: Arc::new(AtomicBool::new(false)),
+            source_control_update_in_progress: Arc::new(AtomicBool::new(false)),
         };
 
         for (category, files) in categorized {
@@ -595,13 +595,14 @@ impl CompilerState {
         Ok(())
     }
 
-    pub fn is_source_control_update_completed(&self) -> bool {
-        self.source_control_update_completed.load(Ordering::Relaxed)
+    pub fn is_source_control_update_in_progress(&self) -> bool {
+        self.source_control_update_in_progress
+            .load(Ordering::Relaxed)
     }
 
     /// Over the course of the build, we may need to stop current progress
     /// as there maybe incoming file change or source control update in progress
     pub fn should_cancel_current_build(&self) -> bool {
-        self.is_source_control_update_completed() || self.has_pending_file_source_changes()
+        self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
     }
 }

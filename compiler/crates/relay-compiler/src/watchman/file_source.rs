@@ -24,7 +24,8 @@ pub struct FileSource<'config> {
 #[derive(Debug)]
 pub enum FileSourceSubscriptionNextChange {
     Result(FileSourceResult),
-    SourceControlUpdate,
+    SourceControlUpdateEnter,
+    SourceControlUpdateLeave,
     None,
 }
 
@@ -159,7 +160,7 @@ impl<'config> FileSource<'config> {
                 SubscribeRequest {
                     expression: Some(expression),
                     since: Some(file_source_result.clock.clone()),
-                    defer: vec!["hg.update"],
+                    drop: vec!["hg.update"],
                     ..Default::default()
                 },
             )
@@ -303,25 +304,16 @@ impl FileSourceSubscription {
                     }));
                 }
             }
-            SubscriptionData::StateEnter { .. } => {}
-            SubscriptionData::StateLeave {
-                state_name,
-                metadata,
-            } => {
+            SubscriptionData::StateEnter { state_name, .. } => {
+                if state_name == "hg.update" {
+                    debug!("hg.update started");
+                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter);
+                }
+            }
+            SubscriptionData::StateLeave { state_name, .. } => {
                 if state_name == "hg.update" {
                     debug!("hg.update completed");
-                    if let Some(Value::Object(metadata)) = metadata {
-                        if let Some(Value::Integer(value)) = metadata.get("distance") {
-                            if *value == 0 {
-                                debug!("This update has 0 distance, files should not be changed.");
-                                return Ok(FileSourceSubscriptionNextChange::None);
-                            } else {
-                                debug!("Update distance is {}", value);
-                            }
-                        }
-                    }
-
-                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdate);
+                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave);
                 }
             }
             SubscriptionData::Canceled => {

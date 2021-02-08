@@ -26,7 +26,12 @@ use graphql_ir::Program;
 use log::{debug, info};
 use rayon::prelude::*;
 use schema::SDLSchema;
-use std::{collections::HashMap, collections::HashSet, sync::atomic::Ordering, sync::Arc};
+use std::{
+    collections::HashMap,
+    collections::HashSet,
+    sync::atomic::{AtomicBool, Ordering},
+    sync::Arc,
+};
 use tokio::{
     sync::Notify,
     task::{self, JoinHandle},
@@ -159,8 +164,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 .await?;
 
             let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
-            let source_control_update_completed =
-                Arc::clone(&compiler_state.source_control_update_completed);
+            let source_control_update_completed = Arc::new(AtomicBool::new(false));
+            let source_control_update_completed_clone =
+                Arc::clone(&source_control_update_completed);
+            let source_control_update_in_process =
+                Arc::clone(&compiler_state.source_control_update_in_progress);
             let notify_sender = Arc::new(Notify::new());
             let notify_receiver = notify_sender.clone();
 
@@ -170,14 +178,17 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     let next_change = subscription.next_change().await;
                     match next_change {
                         Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
+                            source_control_update_in_process.store(false, Ordering::Relaxed);
                             pending_file_source_changes
                                 .write()
                                 .unwrap()
                                 .push(file_source_changes);
                             notify_sender.notify_one();
                         }
-                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
-                            debug!("Received update from source control!");
+                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
+                            source_control_update_in_process.store(true, Ordering::Relaxed);
+                        }
+                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
                             source_control_update_completed.store(true, Ordering::Relaxed);
                             notify_sender.notify_one();
                             break;
@@ -205,8 +216,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
             info!("Waiting for changes...");
 
-            self.incremental_build_loop(compiler_state, notify_receiver, &subscription_handle)
-                .await?
+            self.incremental_build_loop(
+                compiler_state,
+                notify_receiver,
+                source_control_update_completed_clone,
+                &subscription_handle,
+            )
+            .await?
         }
     }
 
@@ -214,6 +230,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         mut compiler_state: CompilerState,
         notify_receiver: Arc<Notify>,
+        source_control_update_completed: Arc<AtomicBool>,
         subscription_handle: &JoinHandle<()>,
     ) -> Result<()> {
         let mut red_to_green = RedToGreen::new();
@@ -221,7 +238,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         loop {
             notify_receiver.notified().await;
 
-            if compiler_state.is_source_control_update_completed() {
+            if source_control_update_completed.load(Ordering::Relaxed) {
                 subscription_handle.abort();
                 return Ok(());
             }
@@ -230,7 +247,9 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
-            if compiler_state.has_pending_file_source_changes() {
+            if compiler_state.has_pending_file_source_changes()
+                && !compiler_state.is_source_control_update_in_progress()
+            {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
@@ -384,8 +403,8 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 .cloned()
                 .unwrap_or_default();
 
-            let source_control_update_completed =
-                Arc::clone(&compiler_state.source_control_update_completed);
+            let source_control_update_in_progress =
+                Arc::clone(&compiler_state.source_control_update_in_progress);
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
                 Ok((
@@ -400,7 +419,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         artifact_map,
                         removed_definition_names,
                         dirty_artifact_paths,
-                        source_control_update_completed,
+                        source_control_update_in_progress,
                     )
                     .await?,
                     schema,

@@ -20,10 +20,10 @@ const readContext = require('../readContext');
 const {
   createReaderSelector,
   createOperationDescriptor,
+  graphql,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
-  generateAndCompile,
   unwrapContainer,
 } = require('relay-test-utils-internal');
 
@@ -87,31 +87,31 @@ describe('ReactRelayRefetchContainer', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UserQueryWithCond} = generateAndCompile(`
-      query UserQuery(
-        $id: ID!
-      ) {
-        node(id: $id) {
-          ...UserFragment
-        }
+    UserFragment = graphql`
+      fragment ReactRelayRefetchContainerTestUserFragment on User
+        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+        id
+        name @include(if: $cond)
       }
-
-      query UserQueryWithCond(
+    `;
+    UserQueryWithCond = graphql`
+      query ReactRelayRefetchContainerTestUserWithCondQuery(
         $id: ID!
         $condGlobal: Boolean!
       ) {
         node(id: $id) {
-          ...UserFragment @arguments(cond: $condGlobal)
+          ...ReactRelayRefetchContainerTestUserFragment
+            @arguments(cond: $condGlobal)
         }
       }
-
-      fragment UserFragment on User @argumentDefinitions(
-        cond: {type: "Boolean!", defaultValue: true}
-      ) {
-        id
-        name @include(if: $cond)
+    `;
+    UserQuery = graphql`
+      query ReactRelayRefetchContainerTestUserQuery($id: ID!) {
+        node(id: $id) {
+          ...ReactRelayRefetchContainerTestUserFragment
+        }
       }
-    `));
+    `;
 
     function ContextGetter() {
       relayContext = readContext(ReactRelayContext);

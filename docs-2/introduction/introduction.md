@@ -1,5 +1,5 @@
 ---
-id: introduction-to-relay
+id: introduction
 title: Introduction to Relay
 slug: /
 ---

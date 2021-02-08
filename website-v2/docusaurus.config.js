@@ -184,6 +184,7 @@ module.exports = {
   },
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'throw',
+  onDuplicateRoutes: 'throw',
   presets: [
     [
       require.resolve('docusaurus-plugin-internaldocs-fb/docusaurus-preset'),
@@ -199,7 +200,7 @@ module.exports = {
           }),
           editUrl: 'https://github.com/facebook/relay/edit/master/docs-2/',
           path: '../docs-2',
-          sidebarPath: './sidebars.json',
+          sidebarPath: require.resolve('./sidebars.js'),
           lastVersion: fbContent({
             internal: 'current',
             external: versions[0],

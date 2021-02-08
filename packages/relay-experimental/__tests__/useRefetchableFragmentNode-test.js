@@ -546,7 +546,7 @@ describe('useRefetchableFragmentNode', () => {
         refetch({id: '4'});
       });
 
-      expect(warning).toHaveBeenCalledTimes(1);
+      expect(warning).toHaveBeenCalledTimes(2);
       expect(
         // $FlowFixMe[prop-missing]
         warning.mock.calls[0][1].includes(
@@ -576,7 +576,7 @@ describe('useRefetchableFragmentNode', () => {
         );
       });
 
-      expect(warning).toHaveBeenCalledTimes(1);
+      expect(warning).toHaveBeenCalledTimes(2);
       expect(
         // $FlowFixMe[prop-missing]
         warning.mock.calls[0][1].includes(

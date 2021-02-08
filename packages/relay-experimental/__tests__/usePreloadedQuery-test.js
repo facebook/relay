@@ -1015,7 +1015,7 @@ describe('usePreloadedQuery', () => {
         };
 
         render();
-        expect(warning).toBeCalledTimes(1);
+        expect(warning).toBeCalledTimes(2);
         expect(warning).toHaveBeenLastCalledWith(
           true, // invariant holds
           expectWarningMessage,
@@ -1023,7 +1023,7 @@ describe('usePreloadedQuery', () => {
 
         prefetched.dispose();
         render();
-        expect(warning).toBeCalledTimes(2);
+        expect(warning).toBeCalledTimes(3);
         expect(warning).toHaveBeenLastCalledWith(
           false, // invariant broken
           expectWarningMessage,

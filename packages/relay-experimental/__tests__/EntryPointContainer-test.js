@@ -287,7 +287,7 @@ it('warns if the entryPointReference has already been disposed', () => {
   };
 
   render();
-  expect(warning).toBeCalledTimes(1);
+  expect(warning).toBeCalledTimes(2);
   expect(warning).toHaveBeenLastCalledWith(
     true, // invariant holds
     expectWarningMessage,
@@ -295,7 +295,7 @@ it('warns if the entryPointReference has already been disposed', () => {
 
   entryPointReference.dispose();
   render();
-  expect(warning).toBeCalledTimes(2);
+  expect(warning).toBeCalledTimes(3);
   expect(warning).toHaveBeenLastCalledWith(
     false, // invariant broken
     expectWarningMessage,

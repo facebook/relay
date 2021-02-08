@@ -14,6 +14,7 @@
 const React = require('react');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {
   PreloadableQueryRegistry,
@@ -67,7 +68,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     // $FlowFixMe[prop-missing]
     React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
       ?.ReactCurrentDispatcher?.current;
-  invariant(
+  warning(
     RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
     'Relay: `loadQuery` (or `loadEntryPoint`) should not be called inside a React render function.',
   );

@@ -39,38 +39,23 @@ type SeenInlineFragments =
 /// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).
 ///
-pub fn flatten(program: &Program, is_for_codegen: bool) -> DiagnosticsResult<Program> {
-    let next_program = Arc::new(RwLock::new(Program::new(Arc::clone(&program.schema))));
+pub fn flatten(program: &mut Program, is_for_codegen: bool) -> DiagnosticsResult<()> {
     let transform = FlattenTransform::new(program, is_for_codegen);
     let errors = Arc::new(Mutex::new(Vec::new()));
 
-    program.par_operations().for_each(|operation| {
-        let operation = transform.transform_operation(operation);
-        match operation {
-            Err(err) => {
-                errors.lock().extend(err.into_iter());
-            }
-            Ok(operation) => {
-                let mut next_program = next_program.write();
-                next_program.insert_operation(operation);
-            }
+    program.par_operations_mut().for_each(|operation| {
+        if let Err(err) = transform.transform_operation(operation) {
+            errors.lock().extend(err.into_iter());
         }
     });
-    program.par_fragments().for_each(|fragment| {
-        let fragment = transform.transform_fragment(fragment);
-        match fragment {
-            Err(err) => {
-                errors.lock().extend(err.into_iter());
-            }
-            Ok(fragment) => {
-                let mut next_program = next_program.write();
-                next_program.insert_fragment(fragment);
-            }
+    program.par_fragments_mut().for_each(|fragment| {
+        if let Err(err) = transform.transform_fragment(fragment) {
+            errors.lock().extend(err.into_iter());
         }
     });
     let is_errors_empty = { errors.lock().is_empty() };
     if is_errors_empty {
-        Ok(Arc::try_unwrap(next_program).unwrap().into_inner())
+        Ok(())
     } else {
         Err(Arc::try_unwrap(errors).unwrap().into_inner())
     }
@@ -95,43 +80,22 @@ impl FlattenTransform {
 
     fn transform_operation(
         &self,
-        operation: &Arc<OperationDefinition>,
-    ) -> DiagnosticsResult<Arc<OperationDefinition>> {
+        operation: &mut Arc<OperationDefinition>,
+    ) -> DiagnosticsResult<()> {
         let next_selections = self.transform_selections(&operation.selections, operation.type_)?;
-        let next_operation = if let TransformedValue::Replace(next_selections) = next_selections {
-            Arc::new(OperationDefinition {
-                kind: operation.kind,
-                name: operation.name,
-                type_: operation.type_,
-                directives: operation.directives.clone(),
-                variable_definitions: operation.variable_definitions.clone(),
-                selections: next_selections,
-            })
-        } else {
-            Arc::clone(operation)
+        if let TransformedValue::Replace(next_selections) = next_selections {
+            Arc::make_mut(operation).selections = next_selections
         };
-        Ok(next_operation)
+        Ok(())
     }
 
-    fn transform_fragment(
-        &self,
-        fragment: &Arc<FragmentDefinition>,
-    ) -> DiagnosticsResult<Arc<FragmentDefinition>> {
+    fn transform_fragment(&self, fragment: &mut Arc<FragmentDefinition>) -> DiagnosticsResult<()> {
         let next_selections =
             self.transform_selections(&fragment.selections, fragment.type_condition)?;
-        let next_fragment = if let TransformedValue::Replace(next_selections) = next_selections {
-            Arc::new(FragmentDefinition {
-                name: fragment.name,
-                type_condition: fragment.type_condition,
-                directives: fragment.directives.clone(),
-                variable_definitions: fragment.variable_definitions.clone(),
-                used_global_variables: fragment.used_global_variables.clone(),
-                selections: next_selections,
-            })
-        } else {
-            Arc::clone(fragment)
+        if let TransformedValue::Replace(next_selections) = next_selections {
+            Arc::make_mut(fragment).selections = next_selections
         };
-        Ok(next_fragment)
+        Ok(())
     }
 
     fn transform_selections(

@@ -22,25 +22,15 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 directive @serverInlineDirective on INLINE_FRAGMENT"#,
     );
     let ir = build(&schema, &ast.definitions).unwrap();
-    let context = Program::from_definitions(Arc::clone(&schema), ir);
-    let flatten_context = flatten(&context, !fixture.content.contains("%for_printing%")).unwrap();
+    let mut context = Program::from_definitions(Arc::clone(&schema), ir);
+    flatten(&mut context, !fixture.content.contains("%for_printing%")).unwrap();
 
-    assert_eq!(
-        context.fragments().count(),
-        flatten_context.fragments().count()
-    );
-
-    assert_eq!(
-        context.operations().count(),
-        flatten_context.operations().count()
-    );
-
-    let mut printed_queries = flatten_context
+    let mut printed_queries = context
         .operations()
         .map(|def| print_operation(&schema, def))
         .collect::<Vec<_>>();
 
-    let mut printed = flatten_context
+    let mut printed = context
         .fragments()
         .map(|def| print_fragment(&schema, def))
         .collect::<Vec<_>>();

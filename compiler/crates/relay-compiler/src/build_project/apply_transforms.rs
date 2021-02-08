@@ -184,7 +184,7 @@ fn apply_reader_transforms(
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    program = log_event.time("flatten", || flatten(&program, true))?;
+    log_event.time("flatten", || flatten(&mut program, true))?;
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
@@ -276,7 +276,7 @@ fn apply_normalization_transforms(
     program = log_event.time("generate_typename", || generate_typename(&program, true));
     print_stats("generate_typename", &program);
 
-    program = log_event.time("flatten", || flatten(&program, true))?;
+    log_event.time("flatten", || flatten(&mut program, true))?;
     print_stats("flatten", &program);
 
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
@@ -322,7 +322,7 @@ fn apply_operation_text_transforms(
     });
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
     program = log_event.time("generate_typename", || generate_typename(&program, false));
-    program = log_event.time("flatten", || flatten(&program, false))?;
+    log_event.time("flatten", || flatten(&mut program, false))?;
     program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));
     program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
@@ -359,7 +359,7 @@ fn apply_typegen_transforms(
     program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;
-    program = log_event.time("flatten", || flatten(&program, false))?;
+    log_event.time("flatten", || flatten(&mut program, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
     })?;

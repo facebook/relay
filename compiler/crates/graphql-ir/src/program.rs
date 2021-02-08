@@ -88,12 +88,24 @@ impl Program {
         self.operations.par_iter()
     }
 
+    pub fn par_operations_mut(
+        &mut self,
+    ) -> impl ParallelIterator<Item = &mut Arc<OperationDefinition>> {
+        self.operations.par_iter_mut()
+    }
+
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
     }
 
     pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.par_values()
+    }
+
+    pub fn par_fragments_mut(
+        &mut self,
+    ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
+        self.fragments.par_values_mut()
     }
 
     pub fn document_count(&self) -> usize {

@@ -9,10 +9,15 @@
 #docsRating {
     display: block;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.6);
     flex-direction: column;
     margin-bottom: 20px;
-    min-height: 32px;
+    /* this should be >49px, or else components move around when you provide feedback */
+    min-height: 60px;
+}
+
+#docsRating hr {
+    border-color: #333;
+    border-bottom: 0;
 }
 
 #docsRating svg {
@@ -24,7 +29,6 @@
 
 #docsRating svg:hover, #docsRating svg:focus {
     cursor: pointer;
-    fill: var(--ifm-color-primary);
 }
 
 #docsRating .i_thumbsup {
@@ -39,10 +43,6 @@
 }
 
 @media only screen and (min-width: 736px) {
-    #docsRating {
-        padding-left: 20px;
-    }
-
     .left-column {
         flex-direction: column;
     }

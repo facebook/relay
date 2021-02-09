@@ -70,6 +70,10 @@ impl Schema for SDLSchema {
         self.typename_field
     }
 
+    fn typename_field_name(&self) -> StringKey {
+        self.typename_field_name
+    }
+
     fn fetch_token_field(&self) -> FieldID {
         self.fetch_token_field
     }

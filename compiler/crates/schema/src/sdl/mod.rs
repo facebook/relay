@@ -670,11 +670,11 @@ impl SDLSchema {
         }
 
         // Step 2: define operation types, directives, and types
-        let string_type = *type_map.get(&"String".intern()).unwrap();
-        let id_type = *type_map.get(&"ID".intern()).unwrap();
+        let string_type = *type_map.get(&"String".intern()).expect("Missing String type");
+        let id_type = *type_map.get(&"ID".intern()).expect("Missing ID type");
 
         let unchecked_argument_type_sentinel = Some(TypeReference::Named(
-            *type_map.get(&"Boolean".intern()).unwrap(),
+            *type_map.get(&"Boolean".intern()).expect("Missing Boolean type"),
         ));
 
         let mut schema = SDLSchema {
@@ -769,7 +769,7 @@ impl SDLSchema {
     }
 
     fn load_default_typename_field(&mut self) {
-        let string_type = *self.type_map.get(&"String".intern()).unwrap();
+        let string_type = *self.type_map.get(&"String".intern()).expect("Missing String type");
         let typename_field_id = self.fields.len();
         self.typename_field = FieldID(typename_field_id.try_into().unwrap());
         self.fields.push(Field {
@@ -783,7 +783,7 @@ impl SDLSchema {
     }
 
     fn load_default_fetch_token_field(&mut self) {
-        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let fetch_token_field_id = self.fields.len();
         self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
         self.fields.push(Field {
@@ -797,7 +797,7 @@ impl SDLSchema {
     }
 
     fn load_default_clientid_field(&mut self) {
-        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let clientid_field_id = self.fields.len();
         self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         self.fields.push(Field {

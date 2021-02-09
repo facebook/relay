@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod lsp_notification_dispatch;
+mod lsp_request_dispatch;
+mod lsp_state;
+mod lsp_state_resources;
+
 use crate::{
     code_action::on_code_action,
     completion::on_completion,
@@ -29,6 +34,7 @@ use crate::{
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::{SendError, Sender};
 use log::debug;
+use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
     notification::{
@@ -39,11 +45,9 @@ use lsp_types::{
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use std::sync::Arc;
-mod lsp_request_dispatch;
-use lsp_request_dispatch::LSPRequestDispatch;
-mod lsp_notification_dispatch;
+
 use lsp_notification_dispatch::LSPNotificationDispatch;
-mod lsp_state;
+
 pub use crate::LSPExtraDataProvider;
 pub(crate) use lsp_state::LSPState;
 

@@ -28,6 +28,33 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
 };
 
+#[derive(Clone, Default)]
+/// This structure is representing the state of the current source control update
+/// Watchman subscription will trigger updates here
+struct SourceControlUpdateStatus {
+    // default - no updates
+    // 1 - update started
+    // 2 - update completed
+    value: Arc<AtomicI8>,
+}
+
+impl SourceControlUpdateStatus {
+    fn mark_as_started(&self) {
+        debug!("SourceControlUpdateStatus: source control update started!");
+        self.value.store(1, Ordering::Relaxed);
+    }
+    fn is_started(&self) -> bool {
+        self.value.load(Ordering::Relaxed) == 1
+    }
+    fn mark_as_completed(&self) {
+        debug!("SourceControlUpdateStatus: source control update completed!");
+        self.value.store(2, Ordering::Relaxed);
+    }
+    fn is_completed(&self) -> bool {
+        self.value.load(Ordering::Relaxed) == 2
+    }
+}
+
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
@@ -36,10 +63,7 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     compiler: Compiler<TPerfLogger>,
     errors: Arc<RwLock<Vec<String>>>,
-    // 0 - no updates
-    // 1 - update started
-    // 2 - update completed
-    source_code_update_status: Arc<AtomicI8>,
+    source_code_update_status: SourceControlUpdateStatus,
     notify_sender: Arc<Notify>,
     notify_receiver: Arc<Notify>,
     sender: Sender<Message>,
@@ -64,7 +88,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             compiler,
             errors: Default::default(),
             sender,
-            source_code_update_status: Arc::new(AtomicI8::new(0)),
+            source_code_update_status: Default::default(),
             notify_sender,
             notify_receiver,
         }
@@ -72,7 +96,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     pub(crate) async fn watch(&self) -> LSPProcessResult<()> {
-        loop {
+        'outer: loop {
             set_initializing_status(&self.sender);
 
             let setup_event = self
@@ -91,7 +115,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 Arc::clone(&compiler_state.pending_file_source_changes);
 
             // Start a separate task to receive watchman subscription updates
-            // this process will notify, when the change is detected
+            // this process will notify, when the change is detected.
+            // If watchman detects the source control update, it will update the state
+            // of the source_control_update_status, so we can cancel building schemas/
+            // and programs earlier
             let subscription_handle = self.watchman_subscription_handler(
                 file_source_subscription,
                 pending_file_source_changes,
@@ -106,19 +133,20 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.clear_errors();
 
             // Here we will wait for changes from watchman
-            loop {
+            'inner: loop {
                 self.notify_receiver.notified().await;
 
-                // SC Started, we can ignore all pending changes, and wait for it to complete,
+                // Source control update started, we can ignore all pending changes, and wait for it to complete,
                 // we may change the status bar to `Source Control Update...`
-                if self.source_code_update_status.load(Ordering::Relaxed) == 1 {
-                    continue;
+                if self.source_code_update_status.is_started() {
+                    break 'inner;
                 }
 
                 // SC Update completed, we need to abort current subscription, and re-initialize resource for LSP
-                if self.source_code_update_status.load(Ordering::Relaxed) == 2 {
+                if self.source_code_update_status.is_completed() {
+                    debug!("Watchman indicated the the source control update has completed!");
                     subscription_handle.abort();
-                    break;
+                    continue 'outer;
                 }
 
                 let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
@@ -164,6 +192,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         log_event: &impl PerfLogEvent,
     ) -> LSPProcessResult<()> {
         debug!("Initial build started...");
+        // TODO: (from https://fburl.com/diff/m8jg14sy) - pass source code update status to
+        // `compiler.build_schemas` and `compiler.build_source_programs` to cancel build earlier,
+        // if update detected
         self.build_schemas(compiler_state, log_event)?;
         self.build_source_programs(compiler_state, None, log_event)?;
 
@@ -178,7 +209,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         debug!("Building schemas");
 
         // Stop building programs if we detect source code update
-        if self.source_code_update_status.load(Ordering::Relaxed) == 1 {
+        if self.source_code_update_status.is_started() {
             return Ok(());
         }
 
@@ -206,7 +237,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         debug!("Building source programs");
 
         // Stop building programs if we detect source code update
-        if self.source_code_update_status.load(Ordering::Relaxed) == 1 {
+        if self.source_code_update_status.is_started() {
             return Ok(());
         }
 
@@ -255,11 +286,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     }
                     Ok(FileSourceSubscriptionNextChange::None) => {}
                     Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
-                        source_code_update_status.store(1, Ordering::Relaxed);
+                        source_code_update_status.mark_as_started();
                         notify_sender.notify_one();
                     }
                     Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
-                        source_code_update_status.store(2, Ordering::Relaxed);
+                        source_code_update_status.mark_as_completed();
                         notify_sender.notify_one();
                     }
                     Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {

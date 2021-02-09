@@ -13,7 +13,7 @@
 
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
@@ -86,9 +86,9 @@ beforeEach(() => {
 
   const ContextProvider = ({children}) => {
     return (
-      <ReactRelayContext.Provider value={{environment}}>
+      <RelayEnvironmentProvider environment={environment}>
         {children}
-      </ReactRelayContext.Provider>
+      </RelayEnvironmentProvider>
     );
   };
 

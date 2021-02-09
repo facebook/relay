@@ -118,7 +118,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
     // and `cacheIdentifier` identities are capturing all information about whether
     // the effect should be re-executed and the query re-retained.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environment, cacheIdentifier]);
+  }, [environment.id, cacheIdentifier]);
 
   const {fragmentNode, fragmentRef} = preparedQueryResult;
   const {data} = useFragmentNode(

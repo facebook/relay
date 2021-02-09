@@ -33,7 +33,7 @@ function useSubscription<TSubscriptionPayload>(
   React.useEffect(() => {
     const {dispose} = requestSubscription(environment, config);
     return dispose;
-  }, [environment, config, actualRequestSubscription]);
+  }, [environment.id, config, actualRequestSubscription]);
 }
 
 module.exports = useSubscription;

@@ -249,7 +249,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
     // inside paginationMetadata are static
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      environment,
+      environment.id,
       identifierValue,
       direction,
       cursor,

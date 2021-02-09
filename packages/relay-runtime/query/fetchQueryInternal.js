@@ -33,11 +33,7 @@ type RequestCacheEntry = {|
   +subscription: Subscription,
 |};
 
-const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-
-const requestCachesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
-  : new Map();
+const requestCachesByEnvironment = new Map();
 
 /**
  * Fetches the given query and variables on the provided environment,
@@ -311,12 +307,12 @@ function getRequestCache(
   const cached: ?Map<
     RequestIdentifier,
     RequestCacheEntry,
-  > = requestCachesByEnvironment.get(environment);
+  > = requestCachesByEnvironment.get(environment.id);
   if (cached != null) {
     return cached;
   }
   const requestCache: Map<RequestIdentifier, RequestCacheEntry> = new Map();
-  requestCachesByEnvironment.set(environment, requestCache);
+  requestCachesByEnvironment.set(environment.id, requestCache);
   return requestCache;
 }
 
@@ -335,9 +331,16 @@ function getCachedRequest(
   return cached;
 }
 
+function deleteRequestCache(
+  environment: IEnvironment,
+): void {
+  requestCachesByEnvironment.has(environment.id) && requestCachesByEnvironment.delete(environment.id);
+}
+
 module.exports = {
   fetchQuery,
   fetchQueryDeduped,
   getPromiseForActiveRequest,
   getObservableForActiveRequest,
+  deleteRequestCache
 };

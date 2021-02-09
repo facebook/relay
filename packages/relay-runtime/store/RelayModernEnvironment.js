@@ -64,6 +64,7 @@ import type {
   Store,
   StoreUpdater,
 } from './RelayStoreTypes';
+const fetchQueryInternal = require('../query/fetchQueryInternal');
 
 export type EnvironmentConfig = {|
   +configName?: string,
@@ -90,7 +91,10 @@ export type EnvironmentConfig = {|
   +requiredFieldLogger?: ?RequiredFieldLogger,
 |};
 
+let index = 0;
+
 class RelayModernEnvironment implements IEnvironment {
+  id: number;
   __log: LogFunction;
   +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
@@ -187,6 +191,11 @@ class RelayModernEnvironment implements IEnvironment {
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
+    this.id = index++;
+  }
+
+  dispose(): void {
+    fetchQueryInternal.deleteRequestCache(this);
   }
 
   getStore(): Store {

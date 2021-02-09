@@ -40,7 +40,7 @@ function useIsOperationNodeActive(
       'useIsOperationNodeActive: Plural fragments are not supported.',
     );
     return getObservableForActiveRequest(environment, selector.owner);
-  }, [environment, fragmentNode, fragmentRef]);
+  }, [environment.id, fragmentNode, fragmentRef]);
   const [isActive, setIsActive] = useState(observable != null);
 
   useEffect(() => {

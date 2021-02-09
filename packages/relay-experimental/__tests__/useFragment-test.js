@@ -14,7 +14,7 @@
 'use strict';
 
 const React = require('react');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const TestRenderer = require('react-test-renderer');
 
 const useFragmentOriginal = require('../useFragment');
@@ -196,12 +196,11 @@ describe('useFragment', () => {
       return <PluralRenderer users={usersData} />;
     };
 
-    const relayContext = {environment};
     ContextProvider = ({children}) => {
       return (
-        <ReactRelayContext.Provider value={relayContext}>
+        <RelayEnvironmentProvider environment={environment}>
           {children}
-        </ReactRelayContext.Provider>
+        </RelayEnvironmentProvider>
       );
     };
 

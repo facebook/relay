@@ -23,7 +23,7 @@ const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
@@ -416,12 +416,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment}), []);
-
         return (
-          <ReactRelayContext.Provider value={relayContext}>
+          <RelayEnvironmentProvider environment={environment}>
             {children}
-          </ReactRelayContext.Provider>
+          </RelayEnvironmentProvider>
         );
       };
 

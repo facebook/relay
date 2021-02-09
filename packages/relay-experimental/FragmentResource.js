@@ -41,12 +41,6 @@ export type FragmentResource = FragmentResourceImpl;
 
 type FragmentResourceCache = Cache<Promise<mixed> | FragmentResult>;
 
-const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-interface IMap<K, V> {
-  get(key: K): V | void;
-  set(key: K, value: V): IMap<K, V>;
-}
-
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
 opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
@@ -497,23 +491,28 @@ function createFragmentResource(environment: IEnvironment): FragmentResource {
   return new FragmentResourceImpl(environment);
 }
 
-const dataResources: IMap<IEnvironment, FragmentResource> = WEAKMAP_SUPPORTED
-  ? new WeakMap()
-  : new Map();
+const dataResources: Map<number, FragmentResource> = new Map();
 
 function getFragmentResourceForEnvironment(
   environment: IEnvironment,
 ): FragmentResourceImpl {
-  const cached = dataResources.get(environment);
+  const cached = dataResources.get(environment.id);
   if (cached) {
     return cached;
   }
   const newDataResource = createFragmentResource(environment);
-  dataResources.set(environment, newDataResource);
+  dataResources.set(environment.id, newDataResource);
   return newDataResource;
+}
+
+function deleteFragmentResourceForEnvironment(
+  environment: IEnvironment,
+): void {
+  dataResources.has(environment.id) && dataResources.delete(environment.id);
 }
 
 module.exports = {
   createFragmentResource,
   getFragmentResourceForEnvironment,
+  deleteFragmentResourceForEnvironment
 };

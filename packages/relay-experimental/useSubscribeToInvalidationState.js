@@ -51,7 +51,7 @@ function useSubscribeToInvalidationState(
     // Intentionally excluding dataIDs, since we're using stableDataIDs
     // instead
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stableDataIDs, callback, environment]);
+  }, [stableDataIDs, callback, environment.id]);
 
   return {
     dispose: () => {

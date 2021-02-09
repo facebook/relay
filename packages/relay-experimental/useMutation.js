@@ -81,7 +81,7 @@ function useMutation<TMutation: MutationParameters>(
         }
       }
     },
-    [environment, isMountedRef, mutation],
+    [environment.id, isMountedRef, mutation],
   );
 
   useEffect(() => {
@@ -96,7 +96,7 @@ function useMutation<TMutation: MutationParameters>(
       environmentRef.current = environment;
       mutationRef.current = mutation;
     }
-  }, [environment, isMountedRef, mutation]);
+  }, [environment.id, isMountedRef, mutation]);
 
   const commit = useCallback(
     (config: UseMutationConfig<TMutation>) => {
@@ -122,7 +122,7 @@ function useMutation<TMutation: MutationParameters>(
       }
       return disposable;
     },
-    [cleanup, commitMutationFn, environment, isMountedRef, mutation],
+    [cleanup, commitMutationFn, environment.id, isMountedRef, mutation],
   );
 
   return [commit, isMutationInFlight];

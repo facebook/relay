@@ -100,7 +100,7 @@ function useFragmentNode<TFragmentData: mixed>(
     // NOTE: We disable react-hooks-deps warning because environment and fragmentIdentifier
     // is capturing all information about whether the effect should be re-ran.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environment, fragmentIdentifier]);
+  }, [environment.id, fragmentIdentifier]);
 
   if (__DEV__) {
     if (

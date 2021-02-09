@@ -213,7 +213,7 @@ function useRefetchableFragmentNode<
   const profilerContext = useContext(ProfilerContext);
 
   const shouldReset =
-    environment !== mirroredEnvironment ||
+    environment.id !== mirroredEnvironment.id ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
   const [queryRef, loadQuery, disposeQuery] = useQueryLoader<TQuery>(
     refetchableRequest,

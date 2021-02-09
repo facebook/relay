@@ -15,10 +15,12 @@
 
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const {deleteQueryResourceForEnvironment} = require('./QueryResource');
+const {deleteFragmentResourceForEnvironment} = require('./FragmentResource');
 
 import type {IEnvironment} from 'relay-runtime';
 
-const {useMemo} = React;
+const {useMemo, useEffect} = React;
 
 type Props = $ReadOnly<{|
   children: React.Node,
@@ -27,7 +29,14 @@ type Props = $ReadOnly<{|
 
 function RelayEnvironmentProvider(props: Props): React.Node {
   const {children, environment} = props;
-  const context = useMemo(() => ({environment}), [environment]);
+  const context = useMemo(() => ({environment}), [environment.id]);
+
+  useEffect(() => () => {
+    environment.dispose();
+    deleteFragmentResourceForEnvironment(environment);
+    deleteQueryResourceForEnvironment(environment);
+  }, [environment.id]);
+  
   return (
     <ReactRelayContext.Provider value={context}>
       {children}

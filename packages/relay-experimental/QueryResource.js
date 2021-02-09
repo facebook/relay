@@ -65,12 +65,6 @@ opaque type QueryResult: {
   operation: OperationDescriptor,
 |};
 
-const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-interface IMap<K, V> {
-  get(key: K): V | void;
-  set(key: K, value: V): IMap<K, V>;
-}
-
 function getQueryCacheIdentifier(
   environment: IEnvironment,
   operation: OperationDescriptor,
@@ -587,24 +581,29 @@ function createQueryResource(environment: IEnvironment): QueryResource {
   return new QueryResourceImpl(environment);
 }
 
-const dataResources: IMap<IEnvironment, QueryResource> = WEAKMAP_SUPPORTED
-  ? new WeakMap()
-  : new Map();
+const dataResources: Map<number, QueryResource> = new Map();
 
 function getQueryResourceForEnvironment(
   environment: IEnvironment,
 ): QueryResourceImpl {
-  const cached = dataResources.get(environment);
+  const cached = dataResources.get(environment.id);
   if (cached) {
     return cached;
   }
   const newDataResource = createQueryResource(environment);
-  dataResources.set(environment, newDataResource);
+  dataResources.set(environment.id, newDataResource);
   return newDataResource;
+}
+
+function deleteQueryResourceForEnvironment(
+  environment: IEnvironment,
+): void {
+  dataResources.has(environment.id) && dataResources.delete(environment.id);
 }
 
 module.exports = {
   createQueryResource,
   getQueryResourceForEnvironment,
   getQueryCacheIdentifier,
+  deleteQueryResourceForEnvironment
 };

@@ -23,7 +23,7 @@ const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
@@ -34,6 +34,7 @@ const {
 
 describe('useBlockingPaginationFragment', () => {
   let environment;
+  let newEnvironment;
   let initialUser;
   let gqlQuery;
   let gqlQueryNestedFragment;
@@ -138,6 +139,11 @@ describe('useBlockingPaginationFragment', () => {
 
     // Set up environment and base data
     environment = createMockEnvironment({
+      handlerProvider: () => ConnectionHandler,
+    });
+
+    // Set new environment
+    newEnvironment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
     const generated = generateAndCompile(
@@ -389,14 +395,12 @@ describe('useBlockingPaginationFragment', () => {
 
     const ContextProvider = ({children}) => {
       const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
-
       setEnvironment = _setEnv;
 
       return (
-        <ReactRelayContext.Provider value={relayContext}>
+        <RelayEnvironmentProvider environment={env}>
           {children}
-        </ReactRelayContext.Provider>
+        </RelayEnvironmentProvider>
       );
     };
 
@@ -2788,10 +2792,6 @@ describe('useBlockingPaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // Set new environment
-          const newEnvironment = createMockEnvironment({
-            handlerProvider: () => ConnectionHandler,
-          });
           newEnvironment.commitPayload(query, {
             node: {
               __typename: 'User',

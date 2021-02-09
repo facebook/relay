@@ -18,7 +18,7 @@ const {useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
 const useFragmentNodeOriginal = require('../useFragmentNode');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -264,14 +264,11 @@ beforeEach(() => {
 
   const ContextProvider = ({children}) => {
     const [env, _setEnv] = useState(environment);
-    const relayContext = useMemo(() => ({environment: env}), [env]);
-
     setEnvironment = _setEnv;
-
     return (
-      <ReactRelayContext.Provider value={relayContext}>
+      <RelayEnvironmentProvider environment={env}>
         {children}
-      </ReactRelayContext.Provider>
+      </RelayEnvironmentProvider>
     );
   };
 

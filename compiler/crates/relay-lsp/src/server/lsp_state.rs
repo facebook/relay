@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::LSPExtraDataProvider;
 use crate::{
     lsp::set_initializing_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
@@ -26,7 +27,6 @@ use relay_compiler::{
     FileSourceSubscriptionNextChange,
 };
 use schema::SDLSchema;
-use schema_documentation::SchemaDocumentation;
 use std::{
     collections::{HashMap, HashSet},
     path::PathBuf,
@@ -38,19 +38,6 @@ use tokio::{
     sync::Notify,
     task::{self, JoinHandle},
 };
-
-pub trait LSPExtraDataProvider {
-    fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
-    fn resolve_field_definition(
-        &self,
-        project_name: String,
-        root_dir: &PathBuf,
-        parent_type: String,
-        field_name: Option<String>,
-    ) -> Option<Result<(String, u64), String>>;
-    fn get_schema_documentation(&self, schema_name: String) -> Arc<SchemaDocumentation>;
-}
-
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {

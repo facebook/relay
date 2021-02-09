@@ -6,7 +6,7 @@
  */
 
 //! Utilities for providing the hover feature
-use crate::server::LSPExtraDataProvider;
+use crate::LSPExtraDataProvider;
 use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},

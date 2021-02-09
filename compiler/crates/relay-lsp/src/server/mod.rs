@@ -44,7 +44,7 @@ use lsp_request_dispatch::LSPRequestDispatch;
 mod lsp_notification_dispatch;
 use lsp_notification_dispatch::LSPNotificationDispatch;
 mod lsp_state;
-pub use lsp_state::LSPExtraDataProvider;
+pub use crate::LSPExtraDataProvider;
 pub(crate) use lsp_state::LSPState;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification

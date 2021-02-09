@@ -6,16 +6,19 @@
  */
 
 use crate::{
+    lsp::set_initializing_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
 };
 use common::{PerfLogEvent, PerfLogger, Span};
+use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_syntax::{ExecutableDefinition, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
 use log::debug;
+use lsp_server::Message;
 use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{
     compiler::Compiler, compiler_state::CompilerState, config::Config, FileCategorizer, FileSource,
@@ -82,7 +85,6 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
-    errors: Arc<RwLock<Vec<LSPStateError>>>,
     perf_logger: Arc<TPerfLogger>,
 }
 
@@ -100,6 +102,7 @@ struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     source_code_update_status: Arc<AtomicI8>,
     notify_sender: Arc<Notify>,
     notify_receiver: Arc<Notify>,
+    sender: Sender<Message>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
@@ -108,6 +111,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         perf_logger: Arc<TPerfLogger>,
         schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
         source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+        sender: Sender<Message>,
     ) -> Self {
         let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
         let notify_sender = Arc::new(Notify::new());
@@ -119,6 +123,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             source_programs,
             compiler,
             errors: Default::default(),
+            sender,
             source_code_update_status: Arc::new(AtomicI8::new(0)),
             notify_sender,
             notify_receiver,
@@ -128,6 +133,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     async fn watch(&self) -> LSPProcessResult<()> {
         loop {
+            set_initializing_status(&self.sender);
+
             let setup_event = self
                 .perf_logger
                 .create_event("lsp_state_initialize_resources");
@@ -341,7 +348,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
@@ -354,7 +360,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             schemas: Default::default(),
             source_programs: Default::default(),
             synced_graphql_documents: Default::default(),
-            errors: lsp_state_errors,
             perf_logger,
         }
     }
@@ -366,9 +371,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
+        sender: Sender<Message>,
     ) -> LSPProcessResult<Self> {
-        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, lsp_state_errors);
+        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider);
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
@@ -379,8 +384,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         let source_programs = Arc::clone(&lsp_state.source_programs);
 
         task::spawn(async move {
-            let resources =
-                LSPStateResources::new(config_clone, perf_logger_clone, schemas, source_programs);
+            let resources = LSPStateResources::new(
+                config_clone,
+                perf_logger_clone,
+                schemas,
+                source_programs,
+                sender,
+            );
             resources.watch().await.unwrap();
         });
 
@@ -444,10 +454,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             &self.root_dir,
             index_offset,
         )
-    }
-
-    pub(crate) fn get_errors(&self) -> &Arc<RwLock<Vec<LSPStateError>>> {
-        &self.errors
     }
 
     fn start_compiler_once(&mut self) {

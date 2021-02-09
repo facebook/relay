@@ -11,9 +11,9 @@ use crate::{
     goto_definition::on_goto_definition,
     hover::on_hover,
     lsp::{
-        set_actual_server_status, set_starting_status, CompletionOptions, Connection,
-        GotoDefinition, HoverRequest, InitializeParams, Message, ServerCapabilities,
-        ServerResponse, TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+        set_initializing_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
+        InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
+        TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     references::on_references,
@@ -38,14 +38,14 @@ use lsp_types::{
     CodeActionProviderCapability,
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 mod lsp_request_dispatch;
 use lsp_request_dispatch::LSPRequestDispatch;
 mod lsp_notification_dispatch;
 use lsp_notification_dispatch::LSPNotificationDispatch;
 mod lsp_state;
 pub use lsp_state::LSPExtraDataProvider;
-pub(crate) use lsp_state::{LSPState, LSPStateError};
+pub(crate) use lsp_state::LSPState;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -90,9 +90,8 @@ where
         "Running language server with config root {:?}",
         config.root_dir
     );
-    set_starting_status(&connection.sender);
+    set_initializing_status(&connection.sender);
 
-    let lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>> = Default::default();
 
     config.artifact_writer = if extension_config.no_artifacts {
         Box::new(NoopArtifactWriter)
@@ -105,17 +104,14 @@ where
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),
-        Arc::clone(&lsp_state_errors),
     ));
 
     let mut lsp_state = LSPState::create_state(
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
-        lsp_state_errors,
+        connection.sender.clone(),
     )?;
-
-    set_actual_server_status(&connection.sender, &lsp_state.get_errors());
 
     for msg in connection.receiver {
         debug!("LSP message received {:?}", msg);

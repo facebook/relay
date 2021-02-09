@@ -21,14 +21,14 @@ use log::debug;
 use lsp_server::Message;
 use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{
-    compiler::Compiler, compiler_state::CompilerState, config::Config, FileCategorizer, FileSource,
-    FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
+    compiler::Compiler, compiler_state::CompilerState, config::Config, errors::BuildProjectError,
+    FileCategorizer, FileSource, FileSourceResult, FileSourceSubscription,
+    FileSourceSubscriptionNextChange,
 };
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 use std::{
     collections::{HashMap, HashSet},
-    fmt,
     path::PathBuf,
     sync::atomic::AtomicI8,
     sync::atomic::Ordering,
@@ -38,29 +38,6 @@ use tokio::{
     sync::Notify,
     task::{self, JoinHandle},
 };
-
-#[derive(Debug)]
-pub enum LSPStateError {
-    BuildSchemaError,
-    /// For the initial build, if we have validation errors in the program -
-    /// we won't be able to create a correct state
-    InitialBuildError,
-}
-
-impl fmt::Display for LSPStateError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                LSPStateError::BuildSchemaError =>
-                    "Unable to parse/create an instance of the GraphQL Schema for Relay LSP Server State.",
-                LSPStateError::InitialBuildError =>
-                    "Validation errors in documents. Please, fix the errors reported in the diagnostics panel.",
-            }
-        )
-    }
-}
 
 pub trait LSPExtraDataProvider {
     fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
@@ -95,7 +72,7 @@ struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     compiler: Compiler<TPerfLogger>,
-    errors: Arc<RwLock<Vec<LSPStateError>>>,
+    errors: Arc<RwLock<Vec<String>>>,
     // 0 - no updates
     // 1 - update started
     // 2 - update completed
@@ -162,6 +139,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             compiler_state.complete_compilation();
             self.perf_logger.complete_event(setup_event);
 
+            self.log_errors("lsp_state_error");
+
             // Here we will wait for changes from watchman
             loop {
                 self.notify_receiver.notified().await;
@@ -203,6 +182,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     )?;
 
                     compiler_state.complete_compilation();
+
+                    self.log_errors("lsp_state_user_error");
                 }
 
                 log_event.stop(log_time);
@@ -243,10 +224,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             .clone_from(&next_schemas);
 
         if !build_errors.is_empty() {
-            self.errors
-                .write()
-                .unwrap()
-                .push(LSPStateError::BuildSchemaError);
+            self.write_errors(vec![BuildProjectError::ValidationErrors {
+                errors: build_errors,
+            }]);
         }
 
         Ok(())
@@ -278,10 +258,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         )?;
 
         if !build_errors.is_empty() {
-            self.errors
-                .write()
-                .unwrap()
-                .push(LSPStateError::InitialBuildError);
+            self.write_errors(build_errors);
         }
 
         let mut source_programs_write_lock = self.source_programs.write().expect(
@@ -339,6 +316,32 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             .keys()
             .filter(|project_name| compiler_state.project_has_pending_changes(**project_name))
             .collect::<HashSet<_>>()
+    }
+
+    fn log_errors(&self, log_event_name: &str) {
+        if let Ok(read_lock) = self.errors.try_read() {
+            if !read_lock.is_empty() {
+                let error_message = read_lock
+                    .iter()
+                    .map(|err| format!("{:?}", err))
+                    .collect::<Vec<String>>()
+                    .join("\n");
+                let error_event = self.perf_logger.create_event(log_event_name);
+                error_event.string("error", error_message);
+                self.perf_logger.complete_event(error_event);
+                self.perf_logger.flush();
+            }
+        }
+        if let Ok(mut write_lock) = self.errors.try_write() {
+            write_lock.clear();
+        }
+    }
+
+    fn write_errors(&self, errors: Vec<BuildProjectError>) {
+        let mut write_lock = self.errors.write().unwrap();
+        for error in errors {
+            write_lock.push(error.to_string());
+        }
     }
 }
 
@@ -480,24 +483,5 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         }
 
         panic!("Expected to find project with name {}", project_name)
-    }
-
-    fn _log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, errors: &[T]) {
-        Self::_log_error(
-            logger,
-            errors
-                .iter()
-                .map(|err| format!("{:?}", err))
-                .collect::<Vec<String>>()
-                .join("\n"),
-        );
-    }
-
-    /// A quick helper so we can unwrap things and log, if somethings isn't right
-    fn _log_error(logger: &Arc<TPerfLogger>, error_message: String) {
-        let error_event = logger.create_event("lsp_state_error");
-        error_event.string("error", error_message);
-        logger.complete_event(error_event);
-        logger.flush();
     }
 }

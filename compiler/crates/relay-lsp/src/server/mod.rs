@@ -110,11 +110,10 @@ where
 
     let mut lsp_state = LSPState::create_state(
         Arc::new(config),
-        lsp_state_errors,
-        extra_data_provider,
         Arc::clone(&perf_logger),
-    )
-    .await?;
+        extra_data_provider,
+        lsp_state_errors,
+    )?;
 
     set_actual_server_status(&connection.sender, &lsp_state.get_errors());
 

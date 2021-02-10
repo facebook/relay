@@ -23,6 +23,8 @@ const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 const {
   createOperationDescriptor,
   getFragment,
+  RecordSource,
+  Store,
   __internal,
 } = require('relay-runtime');
 
@@ -55,7 +57,7 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {|variables: {...}, fetchPolicy?: FetchPolicy|};
+type Props = {|variables: {...}, fetchPolicy?: FetchPolicy, key?: number|};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -188,14 +190,17 @@ describe('useLazyLoadQueryNode', () => {
     expect(renderFn).not.toBeCalled();
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
-    environment.mock.resolve(gqlQuery, {
-      data: {
-        node: {
-          __typename: 'User',
-          id: variables.id,
-          name: 'Alice',
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Alice',
+          },
         },
-      },
+      });
+      jest.runAllImmediates();
     });
 
     const data = environment.lookup(query.fragment).data;
@@ -406,6 +411,64 @@ describe('useLazyLoadQueryNode', () => {
     const data = environment.lookup(query.fragment).data;
     expect(renderFn.mock.calls[0][0]).toEqual(data);
     expect(instance.toJSON()).toEqual('Alice');
+  });
+
+  it('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', () => {
+    const store = new Store(new RecordSource(), {
+      gcScheduler: run => run(),
+      gcReleaseBufferSize: 0,
+    });
+    jest.spyOn(store, 'scheduleGC');
+    environment = createMockEnvironment({
+      store,
+    });
+    // Render the component
+    const instance = render(
+      environment,
+      <Container key={0} variables={variables} />,
+    );
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    environment.execute.mockClear();
+    renderFn.mockClear();
+
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '1',
+            name: 'Bob',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    const data = environment.lookup(query.fragment).data;
+    expectToBeRendered(renderFn, data);
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    renderFn.mockClear();
+
+    ReactTestRenderer.act(() => {
+      // Pass a new key to force a re-mount
+      setProps({variables, key: 1});
+      jest.runAllImmediates();
+    });
+
+    // Assert that GC doesn't run since the query doesn't
+    // incorrectly get fully released (which would trigger GC)
+    expect(store.scheduleGC).toHaveBeenCalledTimes(0);
+
+    // Assert that a new request was not started
+    expect(environment.execute).toHaveBeenCalledTimes(0);
+
+    // Expect to still be able to render the same data
+    expectToBeRendered(renderFn, data);
+    expect(environment.retain).toHaveBeenCalledTimes(1);
   });
 
   it('disposes ongoing network request when component unmounts while suspended', () => {

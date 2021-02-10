@@ -118,7 +118,6 @@ function createCacheEntry(
 ): QueryResourceCacheEntry {
   let currentValue: Error | Promise<void> | QueryResult = value;
   let retainCount = 0;
-  let permanentlyRetained = false;
   let retainDisposable: ?Disposable = null;
   let releaseTemporaryRetain: ?() => void = null;
   let currentNetworkSubscription: ?Subscription = networkSubscription;
@@ -173,10 +172,6 @@ function createCacheEntry(
         return {dispose: () => {}};
       }
 
-      if (permanentlyRetained === true) {
-        return {dispose: () => {}};
-      }
-
       // NOTE: temporaryRetain is called during the render phase. However,
       // given that we can't tell if this render will eventually commit or not,
       // we create a timer to autodispose of this retain in case the associated
@@ -207,7 +202,7 @@ function createCacheEntry(
       // we only ever need a single temporary retain until the permanent retain is
       // established.
       // temporaryRetain may be called multiple times by React during the render
-      // phase, as well multiple times by other query components that are
+      // phase, as well as multiple times by other query components that are
       // rendering the same query/variables.
       if (releaseTemporaryRetain != null) {
         releaseTemporaryRetain();
@@ -216,9 +211,6 @@ function createCacheEntry(
 
       return {
         dispose: () => {
-          if (permanentlyRetained === true) {
-            return;
-          }
           releaseTemporaryRetain && releaseTemporaryRetain();
         },
       };
@@ -230,14 +222,12 @@ function createCacheEntry(
         releaseTemporaryRetain = null;
       }
 
-      permanentlyRetained = true;
       return {
         dispose: () => {
           disposable.dispose();
           if (retainCount <= 0 && currentNetworkSubscription != null) {
             currentNetworkSubscription.unsubscribe();
           }
-          permanentlyRetained = false;
         },
       };
     },

@@ -2361,7 +2361,7 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
       });
 
-      it('does not temporarily retain query anymore if it has been permanently retained', () => {
+      it('temporarily retains the query every time a render occurs, even if it has already been permanently retained', () => {
         const result = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2384,8 +2384,8 @@ describe('QueryResource', () => {
         // Assert network is called once
         expect(environment.execute).toBeCalledTimes(1);
 
-        // Permanently retain the second result, which is what would happen
-        // if the second render got committed
+        // Permanently retain the result, which is what would happen
+        // after the render commits
         const disposable = QueryResource.retain(result);
 
         // Assert permanent retain is established and nothing is released
@@ -2402,6 +2402,7 @@ describe('QueryResource', () => {
         // Assert that retain count remains at 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
+        // Simulate rendering a second time, but without committing
         QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2409,17 +2410,26 @@ describe('QueryResource', () => {
           renderPolicy,
         );
 
-        // Assert that the retain count remains at 1, even after
-        // temporarily retaining again
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        // Assert that the retain count increases by 1 due to the
+        // new temporary commit
+        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that disposing the first disposable doesn't release the query
+        // Assert that disposing the first disposable doesn't release the
+        // query since it's still temporarily retained
         disposable.dispose();
+        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        expect(release).toBeCalledTimes(0);
+        expect(environment.retain).toBeCalledTimes(1);
+
+        // Assert that if the render never commits, the temporary retain
+        // is released.
+        jest.runAllTimers();
+        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
         expect(release).toBeCalledTimes(1);
         expect(environment.retain).toBeCalledTimes(1);
       });
@@ -2662,7 +2672,7 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is 1
-        let cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
+        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
           queryMissingData,
           fetchPolicy,
           renderPolicy,
@@ -2691,45 +2701,38 @@ describe('QueryResource', () => {
         expect(release).toHaveBeenCalledTimes(0);
         expect(environment.retain).toBeCalledTimes(1);
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        // Assert that retain count is now at 2
+        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // First disposable will be called when query component finally unmounts
         disposable1.dispose();
 
-        // Assert that query is temporarily fully released on unmount
-        expect(release).toHaveBeenCalledTimes(1);
+        // Assert that query is still temporarily retained by new render
+        expect(release).toHaveBeenCalledTimes(0);
+        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 0
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
 
         // Permanently retain the query after the initial retain has been
         // disposed of. This will occur when the query component remounts.
         const disposable2 = QueryResource.retain(result2);
 
-        // Assert latest temporary retain is released
-        expect(release).toBeCalledTimes(1);
-        expect(environment.retain).toBeCalledTimes(2);
-        // Assert that retain count is now 1
-        cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
+        // Assert latest temporary retain is released, so the retain
+        // count on the cacheEntry will remain at 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        expect(environment.retain).toBeCalledTimes(1);
 
         // Running timers won't release the query since it has been
         // permanently retained
         jest.runAllTimers();
-        expect(release).toBeCalledTimes(1);
-        expect(environment.retain).toBeCalledTimes(2);
-        // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        expect(release).toBeCalledTimes(0);
+        expect(environment.retain).toBeCalledTimes(1);
 
         // Assert that disposing the last disposable fully releases the query
         disposable2.dispose();
-        expect(release).toBeCalledTimes(2);
-        expect(environment.retain).toBeCalledTimes(2);
+        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
+        expect(release).toBeCalledTimes(1);
+        expect(environment.retain).toBeCalledTimes(1);
       });
     });
   });

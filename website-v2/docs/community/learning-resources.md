@@ -1,7 +1,7 @@
 ---
 id: learning-resources
 title: Community Learning Resources
-slug: /community-learning-resources
+slug: /community-learning-resources/
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
@@ -24,6 +24,6 @@ These projects serve as an example of how to use Relay in real world application
 
 ## Relay Modern articles
 
-Note: you can find many more resources by looking at the <a href={useBaseUrl('docs/v10.1.3/community-learning-resources')}>Relay Modern Documentation.</a>
+Note: you can find many more resources by looking at the <a href={useBaseUrl('docs/v10.1.3/community-learning-resources/')}>Relay Modern Documentation.</a>
 
 <DocsRating />

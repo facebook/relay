@@ -1,6 +1,6 @@
 ---
 id: use-subscription
 title: useSubscription
-slug: /api-reference/use-subscription
+slug: /api-reference/use-subscription/
 ---
 TODO

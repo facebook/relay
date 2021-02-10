@@ -1,7 +1,7 @@
 ---
 id: compiler-architecture
 title: Compiler Architecture
-slug: /principles-and-architecture/compiler-architecture
+slug: /principles-and-architecture/compiler-architecture/
 ---
 
 import DocsRating from '../../src/core/DocsRating';

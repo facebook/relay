@@ -1,6 +1,6 @@
 ---
 id: graphql-server-specification
 title: GraphQL Server Specification
-slug: /guides/graphql-server-specification
+slug: /guides/graphql-server-specification/
 ---
 TODO

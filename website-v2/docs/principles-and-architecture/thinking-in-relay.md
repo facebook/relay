@@ -1,7 +1,7 @@
 ---
 id: thinking-in-relay
 title: Thinking in Relay
-slug: /principles-and-architecture/thinking-in-relay
+slug: /principles-and-architecture/thinking-in-relay/
 ---
 
 import DocsRating from '../../src/core/DocsRating';
@@ -20,13 +20,13 @@ Another logical approach is to have each component declare and fetch the data it
 
 Relay combines the advantages of both of these approaches by allowing components to specify what data they require, but to coalesce those requirements into a single query that fetches the data for an entire subtree of components. In other words, it determines *statically* (i.e. before your application runs; at the time you write your code) the requirements for an entire view!
 
-This is achieved with the help of GraphQL. Functional components use one or more GraphQL <a href="../guided-tour/rendering/fragments">fragments</a> to describe their data requirements. These fragments are then nested within other fragments, and ultimately within queries. And when such a query is fetched, Relay will make a single network request for it and all of its nested fragments. In other words, the Relay runtime is then able to make a *single network request* for all of the data required by a view!
+This is achieved with the help of GraphQL. Functional components use one or more GraphQL <a href="../../guided-tour/rendering/fragments/">fragments</a> to describe their data requirements. These fragments are then nested within other fragments, and ultimately within queries. And when such a query is fetched, Relay will make a single network request for it and all of its nested fragments. In other words, the Relay runtime is then able to make a *single network request* for all of the data required by a view!
 
 Let's dive deeper to understand how Relay achieves this feat.
 
 ## Specifying the data requirements of a component
 
-With Relay, the data requirements for a component are specified with <a href="../guided-tour/rendering/fragments">fragments</a>. Fragments are named snippets of GraphQL that specify which fields to select from an object of a particular type. Fragments are written within GraphQL literals. For example, the following declares a GraphQL literal containing a fragment which selects an author's name and photo url:
+With Relay, the data requirements for a component are specified with <a href="../../guided-tour/rendering/fragments/">fragments</a>. Fragments are named snippets of GraphQL that specify which fields to select from an object of a particular type. Fragments are written within GraphQL literals. For example, the following declares a GraphQL literal containing a fragment which selects an author's name and photo url:
 
 ```js
 

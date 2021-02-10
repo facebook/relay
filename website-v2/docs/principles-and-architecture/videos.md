@@ -1,7 +1,7 @@
 ---
 id: videos
 title: Videos
-slug: /principles-and-architecture/videos
+slug: /principles-and-architecture/videos/
 ---
 
 import DocsRating from '../../src/core/DocsRating';

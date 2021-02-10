@@ -1,6 +1,6 @@
 ---
 id: queries
 title: Queries
-slug: /guided-tour/rendering/queries
+slug: /guided-tour/rendering/queries/
 ---
 TODO

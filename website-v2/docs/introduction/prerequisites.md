@@ -1,6 +1,6 @@
 ---
 id: prerequisites
 title: Prerequisites
-slug: /introduction/prerequisites
+slug: /introduction/prerequisites/
 ---
 TODO

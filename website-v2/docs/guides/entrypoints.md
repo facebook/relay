@@ -1,6 +1,6 @@
 ---
 id: entrypoints
 title: Entrypoints
-slug: /guides/entrypoints
+slug: /guides/entrypoints/
 ---
 TODO

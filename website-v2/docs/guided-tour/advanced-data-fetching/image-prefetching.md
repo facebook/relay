@@ -1,6 +1,6 @@
 ---
 id: image-prefetching
 title: Image Prefetching
-slug: /guided-tour/advanced-data-fetching/image-prefetching
+slug: /guided-tour/advanced-data-fetching/image-prefetching/
 ---
 TODO

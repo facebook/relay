@@ -1,6 +1,6 @@
 ---
 id: graphql-mutations
 title: GraphQL Mutations
-slug: /guided-tour/updating-data/graphql-mutations
+slug: /guided-tour/updating-data/graphql-mutations/
 ---
 TODO

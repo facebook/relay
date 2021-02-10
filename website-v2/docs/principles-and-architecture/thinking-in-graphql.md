@@ -1,7 +1,7 @@
 ---
 id: thinking-in-graphql
 title: Thining in GraphQL
-slug: /principles-and-architecture/thinking-in-graphql
+slug: /principles-and-architecture/thinking-in-graphql/
 ---
 
 import DocsRating from '../../src/core/DocsRating';

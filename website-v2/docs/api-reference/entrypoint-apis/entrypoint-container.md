@@ -1,6 +1,6 @@
 ---
 id: entrypoint-container
 title: EntryPointContainer
-slug: /api-reference/entrypoint-container
+slug: /api-reference/entrypoint-container/
 ---
 TODO

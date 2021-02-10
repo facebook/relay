@@ -1,6 +1,6 @@
 ---
 id: introduction
 title: Introduction
-slug: /api-reference/entrypoints
+slug: /api-reference/entrypoints/
 ---
 TODO

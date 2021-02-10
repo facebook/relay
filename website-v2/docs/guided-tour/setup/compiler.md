@@ -1,6 +1,6 @@
 ---
 id: compiler
 title: Compiler
-slug: /guided-tour/compiler
+slug: /guided-tour/compiler/
 ---
 TODO

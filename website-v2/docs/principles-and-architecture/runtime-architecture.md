@@ -1,7 +1,7 @@
 ---
 id: runtime-architecture
 title: Runtime Architecture
-slug: /principles-and-architecture/runtime-architecture
+slug: /principles-and-architecture/runtime-architecture/
 ---
 
 import DocsRating from '../../src/core/DocsRating';

@@ -63,13 +63,6 @@ mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncor
             "plural": false,
             "selections": [
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "lastName",
-                "storageKey": null
-              },
-              {
                 "condition": "myVar",
                 "kind": "Condition",
                 "passingValue": true,
@@ -124,6 +117,13 @@ mutation abstractTypeRefinementNoUnnecessaryTypeDiscriminatorUnderConditionIncor
                 ],
                 "type": "Page",
                 "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
               }
             ],
             "storageKey": null

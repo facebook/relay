@@ -365,7 +365,7 @@ impl<'s> SkipRedundantNodesTransform {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
+            TransformedValue::Keep
         }
     }
 

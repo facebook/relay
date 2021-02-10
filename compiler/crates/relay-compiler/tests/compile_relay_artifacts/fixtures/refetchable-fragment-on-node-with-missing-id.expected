@@ -100,13 +100,6 @@ fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
             "abstractKey": "__isNode"
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -143,6 +136,13 @@ fragment refetchableFragmentOnNodeWithMissingId_ProfilePicture on User {
             ],
             "type": "User",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -248,13 +248,6 @@ fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
   "name": "refetchableFragmentOnNodeWithMissingId_RefetchableFragment",
   "selections": [
     {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    },
-    {
       "kind": "InlineFragment",
       "selections": [
         {
@@ -272,6 +265,13 @@ fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
       ],
       "type": "User",
       "abstractKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
     }
   ],
   "type": "Node",

@@ -181,13 +181,6 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -262,6 +255,13 @@ fragment multipleModulesSameSelections_MarkdownUserNameRenderer_name on Markdown
             ],
             "type": "User",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": "node(id:\"<user-id>\")"

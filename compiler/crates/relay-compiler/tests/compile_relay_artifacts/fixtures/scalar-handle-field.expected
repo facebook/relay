@@ -89,13 +89,6 @@ query scalarHandleField_ScalarHandleFieldQuery($id: ID!) {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -117,6 +110,13 @@ query scalarHandleField_ScalarHandleFieldQuery($id: ID!) {
             ],
             "type": "User",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null

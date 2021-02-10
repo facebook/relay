@@ -5,7 +5,7 @@ slug: /community-learning-resources
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
-import DocsRating from '../../website-v2/src/core/DocsRating';
+import DocsRating from '../../src/core/DocsRating';
 
 ## Relay example projects
 

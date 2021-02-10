@@ -4,7 +4,7 @@ title: Thining in GraphQL
 slug: /principles-and-architecture/thinking-in-graphql
 ---
 
-import DocsRating from '../../website-v2/src/core/DocsRating';
+import DocsRating from '../../src/core/DocsRating';
 
 GraphQL presents new ways for clients to fetch data by focusing on the needs of product developers and client applications. It provides a way for developers to specify the precise data needed for a view and enables a client to fetch that data in a single network request. Compared to traditional approaches such as REST, GraphQL helps applications to fetch data more efficiently (compared to resource-oriented REST approaches) and avoid duplication of server logic (which can occur with custom endpoints). Furthermore, GraphQL helps developers to decouple product code and server logic. For example, a product can fetch more or less information without requiring a change to every relevant server endpoint. It's a great way to fetch data.
 

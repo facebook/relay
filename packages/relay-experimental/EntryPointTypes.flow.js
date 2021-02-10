@@ -17,6 +17,7 @@ import type {JSResourceReference} from 'JSResourceReference';
 import type {AbstractComponent, ElementConfig} from 'React';
 import type {
   CacheConfig,
+  FetchPolicy,
   GraphQLResponse,
   IEnvironment,
   Observable,
@@ -39,7 +40,7 @@ export type PreloadOptions = {|
 |};
 
 export type LoadQueryOptions = {|
-  +fetchPolicy?: ?PreloadFetchPolicy,
+  +fetchPolicy?: ?FetchPolicy,
   +networkCacheConfig?: ?CacheConfig,
 |};
 
@@ -68,7 +69,7 @@ export type PreloadedQueryInner_DEPRECATED<
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: ?string | ?number,
-  +fetchPolicy: PreloadFetchPolicy,
+  +fetchPolicy: FetchPolicy,
   +networkCacheConfig?: ?CacheConfig,
   +id: ?string,
   +name: string,
@@ -85,7 +86,7 @@ export type PreloadedQueryInner<
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: string | number,
-  +fetchPolicy: PreloadFetchPolicy,
+  +fetchPolicy: FetchPolicy,
   +id: ?string,
   +isDisposed: boolean,
   +networkError: ?Error,

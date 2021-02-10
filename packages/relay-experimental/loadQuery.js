@@ -244,6 +244,9 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       networkCacheConfig,
     );
     retainReference = environment.retain(operation);
+    if (fetchPolicy === 'store-only') {
+      return;
+    }
 
     // N.B. If the fetch policy allows fulfillment from the store but the
     // environment already has the data for that operation cached in the store,
@@ -286,12 +289,14 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       checkAvailabilityAndExecute(module);
     } else {
       // If the module isn't synchronously available, we launch the
-      // network request immediately, ignoring the fetchPolicy. We
+      // network request immediately if the fetchPolicy might produce
+      // a network fetch, regardless of the state of the store cache. We
       // do this because we can't check if a query is cached without the
       // ast, and we know that if we don't have the query ast
       // available, then this query could've never been written to the
       // store in the first place, so it couldn't have been cached.
-      const networkObservable = makeNetworkRequest(params);
+      const networkObservable =
+        fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         queryId,
         preloadedModule => {
@@ -302,9 +307,11 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
             networkCacheConfig,
           );
           retainReference = environment.retain(operation);
-          executeDeduped(operation, () =>
-            executeWithNetworkSource(operation, networkObservable),
-          );
+          if (networkObservable != null) {
+            executeDeduped(operation, () =>
+              executeWithNetworkSource(operation, networkObservable),
+            );
+          }
         },
       ));
     }

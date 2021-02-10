@@ -300,6 +300,54 @@ describe('when passed a PreloadableConcreteRequest', () => {
         });
       });
     });
+
+    describe("with fetchPolicy === 'store-only'", () => {
+      it('should not call fetch if the query can be fulfilled by the store', () => {
+        const {source} = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {
+            fetchPolicy: 'store-only',
+          },
+        );
+        expect(fetch).not.toHaveBeenCalled();
+        expect(environment.executeWithSource).not.toHaveBeenCalled();
+        expect(source).toEqual(undefined);
+        // Query should still be retained even if we don't fetch
+        expect(environment.retain).toHaveBeenCalled();
+      });
+
+      it('should not call fetch if the query cannot be fulfilled by the store', () => {
+        mockAvailability = {status: 'missing'};
+        const {source} = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {
+            fetchPolicy: 'store-only',
+          },
+        );
+        expect(fetch).not.toHaveBeenCalled();
+        expect(environment.executeWithSource).not.toHaveBeenCalled();
+        expect(source).toEqual(undefined);
+        // Query should still be retained even if we don't fetch
+        expect(environment.retain).toHaveBeenCalled();
+      });
+
+      it('calling dispose releases the query', () => {
+        const preloadedQuery = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          variables,
+          {
+            fetchPolicy: 'store-or-network',
+          },
+        );
+        preloadedQuery.dispose();
+        expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe('when the query AST is unavailable synchronously', () => {
@@ -465,6 +513,54 @@ describe('when passed a PreloadableConcreteRequest', () => {
         }),
       );
       expect(environment.retain).toHaveBeenCalled();
+    });
+  });
+
+  describe("with fetchPolicy === 'store-only'", () => {
+    it('should not call fetch if the query can be fulfilled by the store', () => {
+      const {source} = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-only',
+        },
+      );
+      expect(fetch).not.toHaveBeenCalled();
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+      expect(source).toEqual(undefined);
+      // Query should still be retained even if we don't fetch
+      expect(environment.retain).toHaveBeenCalled();
+    });
+
+    it('should not call fetch if the query cannot be fulfilled by the store', () => {
+      mockAvailability = {status: 'missing'};
+      const {source} = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-only',
+        },
+      );
+      expect(fetch).not.toHaveBeenCalled();
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+      expect(source).toEqual(undefined);
+      // Query should still be retained even if we don't fetch
+      expect(environment.retain).toHaveBeenCalled();
+    });
+
+    it('calling dispose releases the query', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
+      preloadedQuery.dispose();
+      expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
     });
   });
 });
@@ -658,6 +754,54 @@ describe('when passed a query AST', () => {
       if (networkUnsubscribe != null) {
         expect(networkUnsubscribe).toHaveBeenCalledTimes(1);
       }
+    });
+  });
+
+  describe("with fetchPolicy === 'store-only'", () => {
+    it('should not call fetch if the query can be fulfilled by the store', () => {
+      const {source} = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-only',
+        },
+      );
+      expect(fetch).not.toHaveBeenCalled();
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+      expect(source).toEqual(undefined);
+      // Query should still be retained even if we don't fetch
+      expect(environment.retain).toHaveBeenCalled();
+    });
+
+    it('should not call fetch if the query cannot be fulfilled by the store', () => {
+      mockAvailability = {status: 'missing'};
+      const {source} = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-only',
+        },
+      );
+      expect(fetch).not.toHaveBeenCalled();
+      expect(environment.executeWithSource).not.toHaveBeenCalled();
+      expect(source).toEqual(undefined);
+      // Query should still be retained even if we don't fetch
+      expect(environment.retain).toHaveBeenCalled();
+    });
+
+    it('calling dispose releases the query', () => {
+      const preloadedQuery = loadQuery(
+        environment,
+        preloadableConcreteRequest,
+        variables,
+        {
+          fetchPolicy: 'store-or-network',
+        },
+      );
+      preloadedQuery.dispose();
+      expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
     });
   });
 });

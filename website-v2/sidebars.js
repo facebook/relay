@@ -103,6 +103,7 @@ module.exports = {
             'api-reference/query-fetching/load-query',
             'api-reference/query-fetching/fetch-query',
           ],
+          'Relay Runtime': ['api-reference/relay-runtime/store'],
         },
         'api-reference/legacy-apis/legacy-apis',
       ],

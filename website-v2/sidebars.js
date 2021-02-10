@@ -9,6 +9,54 @@
 
 'use strict';
 
+const {fbContent} = require('internaldocs-fb-helpers');
+
+const Guides = fbContent({
+  internal: [
+    'guides/graphql-server-specification',
+    'guides/persisted-queries',
+    'guides/graphql-and-directives',
+    'guides/network-layer',
+    'guides/flow-typing',
+    'guides/entrypoints',
+    'guides/client-schema-extensions',
+    'guides/writing-subscriptions',
+    'guides/testing-relay-components',
+    'guides/testing-relay-with-preloaded-components',
+    'guides/required-directive',
+    {
+      'Web-Only': [
+        'guides/incremental-data-delivery',
+        'guides/data-driven-dependencies',
+        'guides/image-prefetching',
+        'guides/fb/comet-route-prefetching',
+        'guides/fb/web-query-preloading',
+        'guides/fb/render-from-hack',
+        'guides/fb/production-graphql-endpoint-in-sandboxes',
+        'guides/fb/react-flight',
+        'guides/fb/native-fetch',
+      ],
+      'React-Native-Only': ['guides/fb/native-fetch'],
+    },
+  ],
+  external: [
+    'guides/graphql-server-specification',
+    'guides/persisted-queries',
+    'guides/graphql-and-directives',
+    'guides/network-layer',
+    'guides/flow-typing',
+    'guides/entrypoints',
+    'guides/client-schema-extensions',
+    'guides/writing-subscriptions',
+    'guides/testing-relay-components',
+    'guides/testing-relay-with-preloaded-components',
+    'guides/required-directive',
+    'guides/incremental-data-delivery',
+    'guides/data-driven-dependencies',
+    'guides/image-prefetching',
+  ],
+});
+
 // N.B. these IDs are path relative to the docs root + id.
 // They do not always correspond to the slug, e.g. with /fb/ in the id.
 module.exports = {
@@ -25,7 +73,10 @@ module.exports = {
         {
           'Setup and Workflow': [
             'guided-tour/setup/compiler',
-            'guided-tour/setup/fb/build-script',
+            ...fbContent({
+              internal: ['guided-tour/setup/fb/build-script'],
+              external: [],
+            }),
           ],
           'Rendering Data Basics': [
             'guided-tour/rendering/fragments',
@@ -107,33 +158,7 @@ module.exports = {
         },
         'api-reference/legacy-apis/legacy-apis',
       ],
-      Guides: [
-        'guides/graphql-server-specification',
-        'guides/persisted-queries',
-        'guides/graphql-and-directives',
-        'guides/network-layer',
-        'guides/flow-typing',
-        'guides/entrypoints',
-        'guides/client-schema-extensions',
-        'guides/writing-subscriptions',
-        'guides/testing-relay-components',
-        'guides/testing-relay-with-preloaded-components',
-        'guides/required-directive',
-        {
-          'Web-Only': [
-            'guides/incremental-data-delivery',
-            'guides/data-driven-dependencies',
-            'guides/image-prefetching',
-            'guides/fb/comet-route-prefetching',
-            'guides/fb/web-query-preloading',
-            'guides/fb/render-from-hack',
-            'guides/fb/production-graphql-endpoint-in-sandboxes',
-            'guides/fb/react-flight',
-            'guides/fb/native-fetch',
-          ],
-          'React-Native-Only': ['guides/fb/native-fetch'],
-        },
-      ],
+      Guides,
     },
     'glossary/glossary',
     {
@@ -143,8 +168,13 @@ module.exports = {
         'debugging/relay-devtools',
         'debugging/disallowed-inline-fragment-on-abstract-types',
         'debugging/inconsistent-typename-error',
-        'debugging/fb/debugging-phps',
-        'debugging/fb/vscode-extension',
+        ...fbContent({
+          internal: [
+            'debugging/fb/debugging-phps',
+            'debugging/fb/vscode-extension',
+          ],
+          external: [],
+        }),
       ],
       'Principles and Architecture': [
         'principles-and-architecture/thinking-in-graphql',

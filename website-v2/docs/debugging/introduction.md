@@ -1,6 +1,6 @@
 ---
 id: introduction
 title: Debugging
-slug: /debugging/introduction
+slug: /debugging/
 ---
 TODO

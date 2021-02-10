@@ -2731,6 +2731,160 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults([{data: refetchedUser}]);
         });
       });
+
+      describe('store-only', () => {
+        beforeEach(() => {
+          fetchPolicy = 'store-only';
+        });
+
+        it("doesn't start network request if refetch query is fully cached", () => {
+          renderFragment();
+          renderSpy.mockClear();
+          TestRenderer.act(() => {
+            refetch(
+              {id: '1'},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            );
+          });
+
+          // Assert request is not started
+          const refetchVariables = {...variables};
+          refetchQuery = createOperationDescriptor(
+            gqlRefetchQuery,
+            refetchVariables,
+            {force: true},
+          );
+          expectRequestIsInFlight({
+            inFlight: false,
+            requestCount: 0,
+            gqlRefetchQuery,
+            refetchVariables,
+          });
+
+          // Assert component renders immediately since data is cached
+          const refetchingUser = {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', refetchQuery),
+          };
+          expectFragmentResults([{data: refetchingUser}]);
+        });
+
+        it("doesn't start network request if refetch query is not fully cached", () => {
+          renderFragment();
+          renderSpy.mockClear();
+          TestRenderer.act(() => {
+            refetch(
+              {id: '4'},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            );
+          });
+
+          // Assert request is not started
+          const refetchVariables = {id: '4', scale: 16};
+          refetchQuery = createOperationDescriptor(
+            gqlRefetchQuery,
+            refetchVariables,
+            {force: true},
+          );
+          expectRequestIsInFlight({
+            inFlight: false,
+            requestCount: 0,
+            gqlRefetchQuery,
+            refetchVariables,
+          });
+
+          // Assert component renders immediately with empty data
+          expectFragmentResults([{data: null}]);
+        });
+
+        it("doesn't use data from previous network fetch and releases previous query", () => {
+          const renderer = renderFragment();
+          renderSpy.mockClear();
+          TestRenderer.act(() => {
+            refetch(
+              {id: '4'},
+              {
+                fetchPolicy: 'network-only',
+                UNSTABLE_renderPolicy: renderPolicy,
+              },
+            );
+          });
+
+          // Assert initial request is started
+          let refetchVariables = {id: '4', scale: 16};
+          refetchQuery = createOperationDescriptor(
+            gqlRefetchQuery,
+            refetchVariables,
+            {force: true},
+          );
+          expectFragmentIsRefetching(renderer, {
+            refetchVariables,
+            refetchQuery,
+          });
+          environment.executeWithSource.mockClear();
+
+          // Mock network response
+          TestRenderer.act(() => {
+            environment.mock.resolve(gqlRefetchQuery, {
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '4',
+                  name: 'Mark',
+                  profile_picture: {
+                    uri: 'scale16',
+                  },
+                  username: 'usermark',
+                },
+              },
+            });
+          });
+
+          // Assert fragment is rendered with new data
+          const refetchedUser = {
+            id: '4',
+            name: 'Mark',
+            profile_picture: {
+              uri: 'scale16',
+            },
+            ...createFragmentRef('4', refetchQuery),
+          };
+          expectFragmentResults([{data: refetchedUser}]);
+          environment.retain.mockClear();
+          release.mockClear();
+
+          // Call refetch again with store-only policy
+          renderSpy.mockClear();
+          TestRenderer.act(() => {
+            refetch(
+              {id: '6'},
+              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            );
+          });
+
+          // Assert request is not started
+          refetchVariables = {id: '6', scale: 16};
+          refetchQuery = createOperationDescriptor(
+            gqlRefetchQuery,
+            refetchVariables,
+            {force: true},
+          );
+          expectRequestIsInFlight({
+            inFlight: false,
+            requestCount: 0,
+            gqlRefetchQuery,
+            refetchVariables,
+          });
+
+          // Assert component renders immediately with empty data
+          expectFragmentResults([{data: null}]);
+          // Assert previous query was released
+          expect(release).toBeCalledTimes(1);
+          expect(environment.retain).toBeCalledTimes(2);
+        });
+      });
     });
 
     describe('disposing', () => {

@@ -36,10 +36,10 @@ const {
   getSelector,
 } = require('relay-runtime');
 
-import type {PreloadFetchPolicy} from './EntryPointTypes.flow';
 import type {LoaderFn} from './useQueryLoader';
 import type {
   Disposable,
+  FetchPolicy,
   IEnvironment,
   OperationDescriptor,
   OperationType,
@@ -83,7 +83,7 @@ export type ReturnType<
 |};
 
 export type Options = {|
-  fetchPolicy?: PreloadFetchPolicy,
+  fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
   UNSTABLE_renderPolicy?: RenderPolicy,
 |};
@@ -116,14 +116,14 @@ type Action =
   | {|
       type: 'refetch',
       refetchQuery: OperationDescriptor,
-      fetchPolicy?: PreloadFetchPolicy,
+      fetchPolicy?: FetchPolicy,
       renderPolicy?: RenderPolicy,
       onComplete?: (Error | null) => void,
       refetchEnvironment: ?IEnvironment,
     |};
 
 type RefetchState = {|
-  fetchPolicy: PreloadFetchPolicy | void,
+  fetchPolicy: FetchPolicy | void,
   mirroredEnvironment: IEnvironment,
   mirroredFragmentIdentifier: string,
   onComplete: ((Error | null) => void) | void,
@@ -227,8 +227,16 @@ function useRefetchableFragmentNode<
       fragmentIdentifier,
     });
     disposeQuery();
-  } else if (queryRef != null && refetchQuery != null) {
-    // Record the current ID and typename before refetching
+  } else if (refetchQuery != null && queryRef != null) {
+    // If refetch was called, we expect to have a refetchQuery and queryRef
+    // in state, since both state updates to set the refetchQuery and the
+    // queryRef occur simultaneously.
+    // In this case, we need to read the refetched query data (potentially
+    // suspending if it's in flight), and extract the new fragment ref
+    // from the query in order read the current @refetchable fragment
+    // with the updated fragment owner as the new refetchQuery.
+
+    // Before observing the refetch, record the current ID and typename
     // so that, if we are refetching existing data on
     // a field that implements Node, after refetching we
     // can validate that the received data is consistent
@@ -241,26 +249,27 @@ function useRefetchableFragmentNode<
       );
     }
 
-    // The queryRef obtained from useQueryLoader will have
-    // an observable we can consume if a network request was
-    // started. Otherwise we fall back to a a new network
-    // observable. Note that if loadQuery did not make a network
-    // request, we don't expect to make one here, i.e. we won't
-    // subscribe to the fallback observable, unless the state of
+    const handleQueryCompleted = maybeError => {
+      onComplete && onComplete(maybeError ?? null);
+    };
+
+    // The queryRef.source obtained from useQueryLoader will be
+    // an observable we can consume /if/ a network request was
+    // started. Otherwise, given that QueryResource.prepare
+    // always expects an observable we fall back to a new network
+    // observable. Note however that if loadQuery did not make a network
+    // request, we don't expect to make one here, unless the state of
     // the cache has changed between the call to refetch and this
     // render.
     const fetchObservable =
       queryRef.source != null
         ? queryRef.source
         : fetchQuery(environment, refetchQuery);
-    const handleQueryCompleted = maybeError => {
-      onComplete && onComplete(maybeError ?? null);
-    };
-    // If refetch has been called, we read the refetch
-    // query here using the query reference provided from
-    // useQueryLoader. Note that the network request is
-    // started during the call to refetch, but if the
-    // refetch query is still in flight, we will suspend
+
+    // Now wwe can we read the refetch query here using the
+    // queryRef provided from useQueryLoader. Note that the
+    // network request is started during the call to refetch,
+    // but if the refetch query is still in flight, we will suspend
     // at this point:
     const queryResult = profilerContext.wrapPrepareQueryResource(() => {
       return QueryResource.prepare(
@@ -288,6 +297,7 @@ function useRefetchableFragmentNode<
         profilerContext,
       );
     });
+
     const queryData = FragmentResource.read(
       queryResult.fragmentNode,
       queryResult.fragmentRef,
@@ -476,10 +486,14 @@ function useRefetchFunction<TQuery: OperationType>(
         refetchVariables,
         {force: true},
       );
-      // We call loadQuery with the variables extracted off
-      // the OperationDescriptor so that they have been
-      // filtered out to include only the variables actually
-      // declared in the query.
+
+      // We call loadQuery which will start a network request if necessary
+      // and update the querRef from useQueryLoader.
+      // Note the following:
+      // - loadQuery will dispose of any previously refetched queries.
+      // - We use the variables extracted off the OperationDescriptor
+      // so that they have been filtered out to include only the
+      // variables actually declared in the query.
       loadQuery(refetchQuery.request.variables, {
         fetchPolicy,
         __environment: refetchEnvironment,

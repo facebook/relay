@@ -11,7 +11,7 @@
 import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
@@ -57,6 +57,7 @@ const HomeSplash = () => {
 
 const Index = () => {
   const {siteConfig} = useDocusaurusContext();
+  const {withBaseUrl} = useBaseUrlUtils();
   const showcase = siteConfig.customFields.users
     .filter(user => {
       return user.pinned;
@@ -64,7 +65,7 @@ const Index = () => {
     .map((user, i) => {
       return (
         <a href={user.infoLink} key={i}>
-          <img src={user.image} title={user.caption} />
+          <img src={withBaseUrl(user.image)} title={user.caption} />
           <div>
             <h6>{user.caption}</h6>
             <p>{user.description}</p>

@@ -20,6 +20,8 @@ pub trait Schema {
 
     fn typename_field(&self) -> FieldID;
 
+    fn typename_field_name(&self) -> StringKey;
+
     fn fetch_token_field(&self) -> FieldID;
 
     fn get_type(&self, type_name: StringKey) -> Option<Type>;

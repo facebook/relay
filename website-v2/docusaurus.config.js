@@ -198,8 +198,9 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl: 'https://github.com/facebook/relay/edit/master/docs-2/',
-          path: '../docs-2',
+          editUrl:
+            'https://github.com/facebook/relay/edit/master/website-v2/docs/',
+          path: './docs',
           sidebarPath: require.resolve('./sidebars.js'),
           lastVersion: fbContent({
             internal: 'current',

@@ -13,11 +13,10 @@ use interner::StringKey;
 use schema::SDLSchema;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
-/**
- * An identifier that is unique to a given selection: the alias for
- * fields, the type for inline fragments, and a summary of the condition
- * variable and passing value for conditions.
- */
+
+/// An identifier that is unique to a given selection: the alias for
+/// fields, the type for inline fragments, and a summary of the condition
+/// variable and passing value for conditions.
 #[derive(Eq, Clone, Debug)]
 pub enum NodeIdentifier {
     LinkedField(LinkedFieldIdentifier),
@@ -30,14 +29,14 @@ pub enum NodeIdentifier {
 impl NodeIdentifier {
     pub fn from_selection(schema: &SDLSchema, selection: &Selection) -> Self {
         match selection {
-            Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier(
-                Arc::clone(&node),
-                node.alias_or_name(schema),
-            )),
-            Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier(
-                Arc::clone(&node),
-                node.alias_or_name(schema),
-            )),
+            Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier {
+                alias_or_name: node.alias_or_name(schema),
+                node: Arc::clone(&node),
+            }),
+            Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier {
+                alias_or_name: node.alias_or_name(schema),
+                node: Arc::clone(&node),
+            }),
             Selection::InlineFragment(node) => NodeIdentifier::InlineFragment(Arc::clone(node)),
             Selection::FragmentSpread(node) => NodeIdentifier::FragmentSpread(Arc::clone(node)),
             Selection::Condition(node) => NodeIdentifier::Condition(Arc::clone(node)),
@@ -121,30 +120,44 @@ impl Hash for NodeIdentifier {
 
 // Implement ScalarFieldIdentifier and LinkedFieldIdentifier separately for computing alias name
 #[derive(Eq, Clone, Debug)]
-pub struct ScalarFieldIdentifier(Arc<ScalarField>, StringKey);
+pub struct ScalarFieldIdentifier {
+    alias_or_name: StringKey,
+    node: Arc<ScalarField>,
+}
 impl PartialEq for ScalarFieldIdentifier {
     fn eq(&self, other: &Self) -> bool {
-        self.1 == other.1 && self.0.directives.location_agnostic_eq(&other.0.directives)
+        self.alias_or_name == other.alias_or_name
+            && self
+                .node
+                .directives
+                .location_agnostic_eq(&other.node.directives)
     }
 }
 impl Hash for ScalarFieldIdentifier {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.1.hash(state);
-        self.0.directives.location_agnostic_hash(state);
+        self.alias_or_name.hash(state);
+        self.node.directives.location_agnostic_hash(state);
     }
 }
 
 #[derive(Eq, Clone, Debug)]
-pub struct LinkedFieldIdentifier(Arc<LinkedField>, StringKey);
+pub struct LinkedFieldIdentifier {
+    alias_or_name: StringKey,
+    node: Arc<LinkedField>,
+}
 impl PartialEq for LinkedFieldIdentifier {
     fn eq(&self, other: &Self) -> bool {
-        self.1 == other.1 && self.0.directives.location_agnostic_eq(&other.0.directives)
+        self.alias_or_name == other.alias_or_name
+            && self
+                .node
+                .directives
+                .location_agnostic_eq(&other.node.directives)
     }
 }
 impl Hash for LinkedFieldIdentifier {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.1.hash(state);
-        self.0.directives.location_agnostic_hash(state);
+        self.alias_or_name.hash(state);
+        self.node.directives.location_agnostic_hash(state);
     }
 }
 

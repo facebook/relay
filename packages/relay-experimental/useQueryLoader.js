@@ -35,10 +35,10 @@ export type LoaderFn<TQuery: OperationType> = (
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
-type UseQueryLoaderLoadQueryOptions = {|
+export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{|
   ...LoadQueryOptions,
   +__environment?: ?IEnvironment,
-|};
+|}>;
 
 type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
   ?PreloadedQuery<TQuery>,

@@ -108,6 +108,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             let setup_event = self
                 .perf_logger
                 .create_event("lsp_state_initialize_resources");
+            let timer = setup_event.start("lsp_state_initialize_resources_time");
 
             let file_source = FileSource::connect(&self.config, &setup_event)
                 .await
@@ -138,6 +139,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             // Run initial build, before entering the watch changes loop
             self.initial_build(&compiler_state, &setup_event)?;
             compiler_state.complete_compilation();
+
+            setup_event.stop(timer);
             self.perf_logger.complete_event(setup_event);
 
             self.log_errors("lsp_state_error");
@@ -235,6 +238,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         log_event: &impl PerfLogEvent,
     ) -> LSPProcessResult<()> {
         debug!("Building schemas");
+        let timer = log_event.start("build_schemas");
 
         // Stop building programs if we detect source code update
         if self.source_code_update_status.is_started() {
@@ -253,6 +257,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             }]);
         }
 
+        log_event.stop(timer);
+
         Ok(())
     }
 
@@ -263,11 +269,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         log_event: &impl PerfLogEvent,
     ) -> LSPProcessResult<()> {
         debug!("Building source programs");
-
         // Stop building programs if we detect source code update
         if self.source_code_update_status.is_started() {
             return Ok(());
         }
+        let timer = log_event.start("build_source_programs_time");
 
         // This will build programs, but won't apply any transformations to them
         // that should be enough for LSP to start showing fragments information
@@ -295,6 +301,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             // list of source_programs
             source_programs_write_lock.insert(program_name, program);
         }
+
+        log_event.stop(timer);
 
         Ok(())
     }

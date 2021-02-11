@@ -145,6 +145,7 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<(CompilerState, FileSourceSubscription)> {
+        let timer = perf_logger_event.start("file_source_subscribe_time");
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
@@ -165,6 +166,8 @@ impl<'config> FileSource<'config> {
                 },
             )
             .await?;
+
+        perf_logger_event.stop(timer);
 
         Ok((
             compiler_state,

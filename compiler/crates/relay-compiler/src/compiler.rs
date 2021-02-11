@@ -97,14 +97,16 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &CompilerState,
         schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
         affected_projects: Option<HashSet<&ProjectName>>, // for watch-mode to filter-out unchanged projects
-        setup_event: &impl PerfLogEvent,
+        log_event: &impl PerfLogEvent,
     ) -> Result<(HashMap<ProjectName, Program>, Vec<BuildProjectError>)> {
-        let graphql_asts = setup_event.time("parse_sources_time", || {
+        let graphql_asts = log_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
                 &compiler_state.get_dirty_definitions(&self.config),
             )
         })?;
+
+        let timer = log_event.start("build_raw_programs");
 
         let programs: Vec<(ProjectName, _)> = self
             .config
@@ -125,7 +127,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             project_config,
                             &graphql_asts,
                             Arc::clone(schema),
-                            setup_event,
+                            log_event,
                         ),
                     )
                 } else {
@@ -150,6 +152,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 }
             };
         }
+
+        log_event.stop(timer);
 
         Ok((program_map, errors))
     }

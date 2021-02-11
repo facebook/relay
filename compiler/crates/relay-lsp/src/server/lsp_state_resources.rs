@@ -14,7 +14,7 @@ use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use graphql_ir::Program;
 use interner::StringKey;
-use log::debug;
+use log::{debug, info};
 use lsp_server::Message;
 use relay_compiler::{
     compiler::Compiler, compiler_state::CompilerState, config::Config, errors::BuildProjectError,
@@ -24,7 +24,8 @@ use schema::SDLSchema;
 use tokio::{sync::Notify, task, task::JoinHandle};
 
 use crate::{
-    lsp::set_initializing_status,
+    lsp::set_ready_status,
+    lsp::update_in_progress_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
 };
 
@@ -97,8 +98,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     pub(crate) async fn watch(&self) -> LSPProcessResult<()> {
         'outer: loop {
-            set_initializing_status(&self.sender);
+            info!("Initializing resources for LSP server");
 
+            update_in_progress_status(
+                "Relay: watchman...",
+                Some("Sending watchman query to get source files and possible saved state"),
+                &self.sender,
+            );
             let setup_event = self
                 .perf_logger
                 .create_event("lsp_state_initialize_resources");
@@ -123,6 +129,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 file_source_subscription,
                 pending_file_source_changes,
             );
+            update_in_progress_status(
+                "Relay: creating state...",
+                Some("Building schemas and source programs for LSP"),
+                &self.sender,
+            );
 
             // Run initial build, before entering the watch changes loop
             self.initial_build(&compiler_state, &setup_event)?;
@@ -132,6 +143,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.log_errors("lsp_state_error");
             self.clear_errors();
 
+            info!("LSP server initialization completed!");
+
+            set_ready_status(&self.sender);
+
             // Here we will wait for changes from watchman
             'inner: loop {
                 self.notify_receiver.notified().await;
@@ -139,6 +154,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
                 // we may change the status bar to `Source Control Update...`
                 if self.source_code_update_status.is_started() {
+                    update_in_progress_status(
+                        "Relay: hg update...",
+                        Some("Waiting for source control update"),
+                        &self.sender,
+                    );
                     break 'inner;
                 }
 
@@ -163,6 +183,12 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
                 // If changes contains schema files we need to rebuild schemas
                 if has_new_changes {
+                    update_in_progress_status(
+                        "Relay: updating state...",
+                        Some("Updating source programs with the latest changes."),
+                        &self.sender,
+                    );
+
                     if compiler_state.has_schema_changes() {
                         self.build_schemas(&compiler_state, &log_event)?;
                     }
@@ -177,6 +203,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
                     self.log_errors("lsp_state_user_error");
                     self.clear_errors();
+
+                    set_ready_status(&self.sender);
                 }
 
                 log_event.stop(log_time);

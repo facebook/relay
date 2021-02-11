@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<962b9cd10a2e1c2d34678b3450225cc0>>
+ * @generated SignedSource<<f2832fe97e2834f69d80283a47347ed1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -113,17 +113,17 @@ return {
             "storageKey": null
           },
           {
+            "if": null,
+            "kind": "Defer",
+            "label": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
+            "selections": (v2/*: any*/)
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "if": null,
-            "kind": "Defer",
-            "label": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
-            "selections": (v2/*: any*/)
           }
         ],
         "storageKey": null

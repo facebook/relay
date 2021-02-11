@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2c4e01dd3d73d62c2a8da8ed02446e6b>>
+ * @generated SignedSource<<4ad4b6e1972d7086ccc58452987a07e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -78,7 +78,6 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -97,7 +96,6 @@ return {
                     "name": "__typename",
                     "storageKey": null
                   },
-                  (v0/*: any*/),
                   {
                     "kind": "InlineFragment",
                     "selections": [
@@ -111,14 +109,16 @@ return {
                     ],
                     "type": "Entity",
                     "abstractKey": "__isEntity"
-                  }
+                  },
+                  (v0/*: any*/)
                 ],
                 "storageKey": null
               }
             ],
             "type": "Node",
             "abstractKey": "__isNode"
-          }
+          },
+          (v0/*: any*/)
         ],
         "storageKey": null
       }

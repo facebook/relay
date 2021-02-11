@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5dda18d41766424073df522fc674c32e>>
+ * @generated SignedSource<<19966e08783c6110469cc4959a027424>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -166,7 +166,6 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v3/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -233,7 +232,8 @@ return {
             ],
             "type": "User",
             "abstractKey": null
-          }
+          },
+          (v3/*: any*/)
         ],
         "storageKey": null
       }

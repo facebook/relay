@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bda15c9988dccc16ff8e82de7ab0b779>>
+ * @generated SignedSource<<4b624ef89a24a22e664b26140a5df532>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,20 +53,20 @@ v2 = {
   "name": "__typename",
   "storageKey": null
 },
-v3 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v4 = [
+v3 = [
   {
     "kind": "Literal",
     "name": "first",
     "value": 3
   }
-];
+],
+v4 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
@@ -109,13 +109,12 @@ return {
         "plural": false,
         "selections": [
           (v2/*: any*/),
-          (v3/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v3/*: any*/),
                 "concreteType": "FriendsConnection",
                 "kind": "LinkedField",
                 "name": "friends",
@@ -150,7 +149,7 @@ return {
                                 "name": "name",
                                 "storageKey": null
                               },
-                              (v3/*: any*/),
+                              (v4/*: any*/),
                               (v2/*: any*/)
                             ],
                             "storageKey": null
@@ -205,7 +204,7 @@ return {
               },
               {
                 "alias": null,
-                "args": (v4/*: any*/),
+                "args": (v3/*: any*/),
                 "filters": null,
                 "handle": "connection",
                 "key": "UserProfile_friends",
@@ -215,7 +214,8 @@ return {
             ],
             "type": "User",
             "abstractKey": null
-          }
+          },
+          (v4/*: any*/)
         ],
         "storageKey": null
       }

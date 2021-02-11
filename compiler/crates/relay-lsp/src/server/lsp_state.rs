@@ -5,18 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::LSPExtraDataProvider;
 use crate::{
     lsp_process_error::LSPProcessResult,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
 };
+use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{PerfLogger, Span};
 use crossbeam::Sender;
 use graphql_ir::Program;
 use graphql_syntax::{ExecutableDefinition, ExecutableDocument, GraphQLSource};
 use interner::StringKey;
+use log::info;
 use lsp_server::Message;
 use lsp_types::{TextDocumentPositionParams, Url};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
@@ -73,8 +74,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
     ) -> LSPProcessResult<Self> {
+        info!("Creating lsp_state...");
         let mut lsp_state = Self::new(config, perf_logger, extra_data_provider);
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -96,11 +99,17 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             resources.watch().await.unwrap();
         });
 
-        lsp_state.compiler = Some(Compiler::new(
-            Arc::clone(&lsp_state.config),
-            Arc::clone(&lsp_state.perf_logger),
-        ));
+        lsp_state.compiler = if extensions_config.enable_compiler {
+            info!("extensions_config.enable_compiler = true");
+            Some(Compiler::new(
+                Arc::clone(&lsp_state.config),
+                Arc::clone(&lsp_state.perf_logger),
+            ))
+        } else {
+            None
+        };
 
+        info!("Creating lsp_state created!");
         Ok(lsp_state)
     }
 

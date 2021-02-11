@@ -114,6 +114,7 @@ where
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
+        &extension_config,
         connection.sender.clone(),
     )?;
 

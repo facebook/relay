@@ -7,4 +7,5 @@
 
 pub struct ExtensionConfig {
     pub no_artifacts: bool,
+    pub enable_compiler: bool,
 }

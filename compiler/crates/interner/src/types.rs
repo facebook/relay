@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::hash::Hash;
+use std::num::NonZeroU32;
+
 /// A type that can be interned.
-pub trait Intern: std::cmp::Eq + std::hash::Hash + Clone {
+pub trait Intern: Eq + Hash + Clone {
     type Key;
 
     fn intern(self) -> Self::Key;
@@ -15,15 +18,15 @@ pub trait Intern: std::cmp::Eq + std::hash::Hash + Clone {
 /// A raw interned key; this should always be wrapped in a type-specific wrapper
 /// that implements `InternKey`.
 #[derive(Copy, Clone, Debug, Eq, Ord, Hash, PartialEq, PartialOrd)]
-pub struct RawInternKey(usize);
+pub struct RawInternKey(NonZeroU32);
 
 impl RawInternKey {
-    pub(crate) fn new(value: usize) -> Self {
+    pub(crate) fn new(value: NonZeroU32) -> Self {
         Self(value)
     }
 
     pub(crate) fn as_usize(self) -> usize {
-        self.0
+        self.0.get() as usize
     }
 }
 

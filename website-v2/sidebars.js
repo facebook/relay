@@ -27,8 +27,8 @@ const Guides = fbContent({
     {
       'Web-Only': [
         'guides/incremental-data-delivery',
-        'guides/data-driven-dependencies',
-        'guides/image-prefetching',
+        'guides/fb/data-driven-dependencies',
+        'guides/fb/image-prefetching',
         'guides/fb/comet-route-prefetching',
         'guides/fb/web-query-preloading',
         'guides/fb/render-from-hack',
@@ -52,8 +52,9 @@ const Guides = fbContent({
     'guides/testing-relay-with-preloaded-components',
     'guides/required-directive',
     'guides/incremental-data-delivery',
-    'guides/data-driven-dependencies',
-    'guides/image-prefetching',
+    // TODO release these in OSS
+    // 'guides/data-driven-dependencies',
+    // 'guides/image-prefetching',
   ],
 });
 
@@ -108,7 +109,12 @@ module.exports = {
           'Advanced Data Fetching': [
             'guided-tour/advanced-data-fetching/preloading-data',
             'guided-tour/advanced-data-fetching/incremental-data-delivery',
-            'guided-tour/advanced-data-fetching/data-driven-dependencies',
+            ...fbContent({
+              internal: [
+                'guided-tour/advanced-data-fetching/fb/data-driven-dependencies',
+              ],
+              external: [],
+            }),
             'guided-tour/advanced-data-fetching/image-prefetching',
           ],
           'Updating Data': [

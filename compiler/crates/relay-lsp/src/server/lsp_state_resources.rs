@@ -145,15 +145,15 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.diagnostic_reporter.clear_diagnostics();
 
             // Run initial build, before entering the watch changes loop
-            self.initial_build(&compiler_state, &setup_event)?;
+            if let Err(err) = self.initial_build(&compiler_state, &setup_event) {
+                self.report_error(err);
+            }
             compiler_state.complete_compilation();
 
             setup_event.stop(timer);
             self.perf_logger.complete_event(setup_event);
 
-            self.log_errors("lsp_state_error");
-            self.clear_errors();
-            self.diagnostic_reporter.commit_diagnostics();
+            self.publish_errors("lsp_state_error");
 
             info!("LSP server initialization completed!");
 
@@ -181,61 +181,65 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     continue 'outer;
                 }
 
-                let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
-                let log_time = log_event.start("lsp_state_watchman_event_time");
-
-                let has_new_changes = compiler_state
-                    .merge_file_source_changes(
-                        &self.config,
-                        &log_event,
-                        self.perf_logger.as_ref(),
-                        false,
-                    )
-                    .unwrap();
-
-                // If changes contains schema files we need to rebuild schemas
-                if has_new_changes {
-                    self.diagnostic_reporter.clear_diagnostics();
-
-                    update_in_progress_status(
-                        "Relay: checking...",
-                        Some(
-                            "Validating changes, and updating source programs with the latest changes.",
-                        ),
-                        &self.sender,
-                    );
-
-                    if compiler_state.has_schema_changes() {
-                        self.build_schemas(&compiler_state, &log_event)?;
-                    }
-
-                    self.build_source_programs(
-                        &compiler_state,
-                        Some(self.get_affected_projects(&compiler_state)),
-                        &log_event,
-                    )?;
-
-                    compiler_state.complete_compilation();
-
-                    self.log_errors("lsp_state_user_error");
-                    self.clear_errors();
-                    self.diagnostic_reporter.commit_diagnostics();
-
-                    set_ready_status(&self.sender);
+                if let Err(error) = self.incremental_build(&mut compiler_state) {
+                    self.report_error(error);
                 }
 
-                log_event.stop(log_time);
-                self.perf_logger.complete_event(log_event);
-                self.perf_logger.flush();
+                self.publish_errors("lsp_state_user_error");
             }
         }
+    }
+
+    fn incremental_build(&self, compiler_state: &mut CompilerState) -> Result<(), Error> {
+        let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
+        let log_time = log_event.start("lsp_state_watchman_event_time");
+
+        let has_new_changes = compiler_state.merge_file_source_changes(
+            &self.config,
+            &log_event,
+            self.perf_logger.as_ref(),
+            false,
+        )?;
+
+        // If changes contains schema files we need to rebuild schemas
+        if has_new_changes {
+            info!("LSP server detected changes...");
+
+            self.diagnostic_reporter.clear_diagnostics();
+
+            update_in_progress_status(
+                "Relay: checking...",
+                Some("Validating changes, and updating source programs with the latest changes."),
+                &self.sender,
+            );
+
+            if compiler_state.has_schema_changes() {
+                self.build_schemas(compiler_state, &log_event)?;
+            }
+
+            self.build_source_programs(
+                &compiler_state,
+                Some(self.get_affected_projects(compiler_state)),
+                &log_event,
+            )?;
+
+            compiler_state.complete_compilation();
+
+            set_ready_status(&self.sender);
+        }
+
+        log_event.stop(log_time);
+        self.perf_logger.complete_event(log_event);
+        self.perf_logger.flush();
+
+        Ok(())
     }
 
     fn initial_build(
         &self,
         compiler_state: &CompilerState,
         log_event: &impl PerfLogEvent,
-    ) -> LSPProcessResult<()> {
+    ) -> Result<(), Error> {
         debug!("Initial build started...");
         // TODO: (from https://fburl.com/diff/m8jg14sy) - pass source code update status to
         // `compiler.build_schemas` and `compiler.build_source_programs` to cancel build earlier,
@@ -250,7 +254,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         log_event: &impl PerfLogEvent,
-    ) -> LSPProcessResult<()> {
+    ) -> Result<(), Error> {
         debug!("Building schemas");
         let timer = log_event.start("build_schemas");
 
@@ -265,16 +269,17 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas")
             .clone_from(&next_schemas);
 
-        if !build_errors.is_empty() {
-            let error = Error::DiagnosticsError {
+        let result = if !build_errors.is_empty() {
+            Err(Error::DiagnosticsError {
                 errors: build_errors,
-            };
-            self.report_error(error);
-        }
+            })
+        } else {
+            Ok(())
+        };
 
         log_event.stop(timer);
 
-        Ok(())
+        result
     }
 
     fn build_source_programs(
@@ -282,7 +287,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         compiler_state: &CompilerState,
         affected_projects: Option<HashSet<&StringKey>>,
         log_event: &impl PerfLogEvent,
-    ) -> LSPProcessResult<()> {
+    ) -> Result<(), Error> {
         debug!("Building source programs");
         // Stop building programs if we detect source code update
         if self.source_code_update_status.is_started() {
@@ -302,13 +307,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             log_event,
         )?;
 
-        if !build_errors.is_empty() {
-            let error = Error::BuildProjectsErrors {
-                errors: build_errors,
-            };
-            self.report_error(error);
-        }
-
         let mut source_programs_write_lock = self.source_programs.write().expect(
             "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
         );
@@ -320,9 +318,18 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             source_programs_write_lock.insert(program_name, program);
         }
 
+
+        let result = if !build_errors.is_empty() {
+            Err(Error::BuildProjectsErrors {
+                errors: build_errors,
+            })
+        } else {
+            Ok(())
+        };
+
         log_event.stop(timer);
 
-        Ok(())
+        result
     }
 
     fn watchman_subscription_handler(
@@ -393,5 +400,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         if let Ok(mut write_lock) = self.errors.try_write() {
             write_lock.clear();
         }
+    }
+
+    /// This method, will log errors (if there were errors)
+    /// and report the diagnostics to IDE
+    fn publish_errors(&self, log_event_name: &str) {
+        self.log_errors(log_event_name);
+        self.clear_errors();
+        self.diagnostic_reporter.commit_diagnostics();
     }
 }

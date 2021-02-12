@@ -17,13 +17,14 @@ use interner::StringKey;
 use log::{debug, info};
 use lsp_server::Message;
 use relay_compiler::{
-    compiler::Compiler, compiler_state::CompilerState, config::Config, errors::BuildProjectError,
-    FileSource, FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
+    compiler::Compiler, compiler_state::CompilerState, config::Config, errors::Error, FileSource,
+    FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
 };
 use schema::SDLSchema;
 use tokio::{sync::Notify, task, task::JoinHandle};
 
 use crate::{
+    diagnostic_reporter::DiagnosticReporter,
     lsp::set_ready_status,
     lsp::update_in_progress_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
@@ -68,6 +69,7 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     notify_sender: Arc<Notify>,
     notify_receiver: Arc<Notify>,
     sender: Sender<Message>,
+    diagnostic_reporter: DiagnosticReporter,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
@@ -81,6 +83,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
+
+        let diagnostic_reporter = DiagnosticReporter::new(config.root_dir.clone(), sender.clone());
+
         Self {
             config,
             perf_logger,
@@ -92,6 +97,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             source_code_update_status: Default::default(),
             notify_sender,
             notify_receiver,
+            diagnostic_reporter,
         }
     }
 
@@ -136,6 +142,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 &self.sender,
             );
 
+            self.diagnostic_reporter.clear_diagnostics();
+
             // Run initial build, before entering the watch changes loop
             self.initial_build(&compiler_state, &setup_event)?;
             compiler_state.complete_compilation();
@@ -145,6 +153,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
             self.log_errors("lsp_state_error");
             self.clear_errors();
+            self.diagnostic_reporter.commit_diagnostics();
 
             info!("LSP server initialization completed!");
 
@@ -186,9 +195,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
                 // If changes contains schema files we need to rebuild schemas
                 if has_new_changes {
+                    self.diagnostic_reporter.clear_diagnostics();
+
                     update_in_progress_status(
-                        "Relay: updating state...",
-                        Some("Updating source programs with the latest changes."),
+                        "Relay: checking...",
+                        Some(
+                            "Validating changes, and updating source programs with the latest changes.",
+                        ),
                         &self.sender,
                     );
 
@@ -206,6 +219,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
                     self.log_errors("lsp_state_user_error");
                     self.clear_errors();
+                    self.diagnostic_reporter.commit_diagnostics();
 
                     set_ready_status(&self.sender);
                 }
@@ -252,9 +266,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             .clone_from(&next_schemas);
 
         if !build_errors.is_empty() {
-            self.write_errors(vec![BuildProjectError::ValidationErrors {
+            let error = Error::DiagnosticsError {
                 errors: build_errors,
-            }]);
+            };
+            self.report_error(error);
         }
 
         log_event.stop(timer);
@@ -288,7 +303,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         )?;
 
         if !build_errors.is_empty() {
-            self.write_errors(build_errors);
+            let error = Error::BuildProjectsErrors {
+                errors: build_errors,
+            };
+            self.report_error(error);
         }
 
         let mut source_programs_write_lock = self.source_programs.write().expect(
@@ -350,11 +368,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             .collect::<HashSet<_>>()
     }
 
-    fn write_errors(&self, errors: Vec<BuildProjectError>) {
-        let mut write_lock = self.errors.write().unwrap();
-        for error in errors {
-            write_lock.push(error.to_string());
-        }
+    fn report_error(&self, error: Error) {
+        self.diagnostic_reporter.report_error(&error);
+        self.errors.write().unwrap().push(error.to_string());
     }
 
     fn log_errors(&self, log_event_name: &str) {

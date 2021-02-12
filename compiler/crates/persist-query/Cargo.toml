@@ -8,7 +8,7 @@ license = "MIT"
 include = ["src/**/*.rs"]
 
 [dependencies]
-hyper = { version = "0.14", features = ["client", "http1", "http2"] }
+hyper = { version = "0.14.3", features = ["client", "http1", "http2"] }
 hyper-tls = "0.5"
 serde = { version = "1.0", features = ["derive", "rc"] }
 serde_json = { version = "1.0", features = ["float_roundtrip"] }

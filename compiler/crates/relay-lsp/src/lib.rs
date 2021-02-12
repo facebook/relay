@@ -10,6 +10,7 @@
 mod client;
 mod code_action;
 mod completion;
+mod diagnostic_reporter;
 mod extension_config;
 mod goto_definition;
 mod hover;

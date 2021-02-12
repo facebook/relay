@@ -163,13 +163,12 @@ module.exports = {
     'glossary/glossary',
     {
       Debugging: [
-        'debugging/introduction',
-        'debugging/network-logger',
         'debugging/relay-devtools',
         'debugging/disallowed-inline-fragment-on-abstract-types',
         'debugging/inconsistent-typename-error',
         ...fbContent({
           internal: [
+            'debugging/fb/network-logger',
             'debugging/fb/debugging-phps',
             'debugging/fb/vscode-extension',
           ],

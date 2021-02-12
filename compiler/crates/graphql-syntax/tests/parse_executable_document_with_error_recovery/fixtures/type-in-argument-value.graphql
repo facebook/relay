@@ -1,0 +1,5 @@
+ query Test @test(: ID!) {
+    node {
+      __typename
+    }
+  }

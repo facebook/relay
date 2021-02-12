@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa9b1896b37361df8252ebd29516695d>>
+ * @generated SignedSource<<f6f628d744f8a2180c60e8449c83b53a>>
  */
 
 mod parse_executable_document_with_error_recovery;
@@ -108,6 +108,13 @@ fn inline_fragment_without_selection() {
     let input = include_str!("parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.graphql");
     let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.expected");
     test_fixture(transform_fixture, "inline-fragment-without-selection.graphql", "parse_executable_document_with_error_recovery/fixtures/inline-fragment-without-selection.expected", input, expected);
+}
+
+#[test]
+fn type_in_argument_value() {
+    let input = include_str!("parse_executable_document_with_error_recovery/fixtures/type-in-argument-value.graphql");
+    let expected = include_str!("parse_executable_document_with_error_recovery/fixtures/type-in-argument-value.expected");
+    test_fixture(transform_fixture, "type-in-argument-value.graphql", "parse_executable_document_with_error_recovery/fixtures/type-in-argument-value.expected", input, expected);
 }
 
 #[test]

@@ -1,0 +1,159 @@
+==================================== INPUT ====================================
+query Test @test(: ID!) {
+    node {
+      __typename
+    }
+  }
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 1:23,
+    definitions: [
+        OperationDefinition {
+            location: type-in-argument-value.graphql:1:23,
+            operation: Some(
+                (
+                    Token {
+                        span: 1:6,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 7:11,
+                    token: Token {
+                        span: 7:11,
+                        kind: Identifier,
+                    },
+                    value: "Test",
+                },
+            ),
+            variable_definitions: None,
+            directives: [
+                Directive {
+                    span: 12:23,
+                    at: Token {
+                        span: 12:13,
+                        kind: At,
+                    },
+                    name: Identifier {
+                        span: 13:17,
+                        token: Token {
+                            span: 13:17,
+                            kind: Identifier,
+                        },
+                        value: "test",
+                    },
+                    arguments: Some(
+                        List {
+                            span: 17:23,
+                            start: Token {
+                                span: 17:18,
+                                kind: OpenParen,
+                            },
+                            items: [
+                                Argument {
+                                    span: 18:22,
+                                    name: Identifier {
+                                        span: 18:18,
+                                        token: Token {
+                                            span: 18:18,
+                                            kind: Empty,
+                                        },
+                                        value: "",
+                                    },
+                                    colon: Token {
+                                        span: 18:19,
+                                        kind: Colon,
+                                    },
+                                    value: Constant(
+                                        Enum(
+                                            EnumNode {
+                                                token: Token {
+                                                    span: 20:22,
+                                                    kind: Identifier,
+                                                },
+                                                value: "ID",
+                                            },
+                                        ),
+                                    ),
+                                },
+                                Argument {
+                                    span: 22:22,
+                                    name: Identifier {
+                                        span: 22:22,
+                                        token: Token {
+                                            span: 22:22,
+                                            kind: Empty,
+                                        },
+                                        value: "",
+                                    },
+                                    colon: Token {
+                                        span: 22:22,
+                                        kind: Empty,
+                                    },
+                                    value: Constant(
+                                        Null(
+                                            Token {
+                                                span: 22:22,
+                                                kind: Empty,
+                                            },
+                                        ),
+                                    ),
+                                },
+                            ],
+                            end: Token {
+                                span: 22:23,
+                                kind: Exclamation,
+                            },
+                        },
+                    ),
+                },
+            ],
+            selections: List {
+                span: 23:23,
+                start: Token {
+                    span: 23:23,
+                    kind: Empty,
+                },
+                items: [],
+                end: Token {
+                    span: 23:23,
+                    kind: Empty,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a colon (':')
+
+  type-in-argument-value.graphql:1:23
+    1 │  query Test @test(: ID!) {
+      │                       ^
+    2 │     node {
+
+
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  type-in-argument-value.graphql:1:19
+    1 │  query Test @test(: ID!) {
+      │                   ^
+    2 │     node {
+
+
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  type-in-argument-value.graphql:1:23
+    1 │  query Test @test(: ID!) {
+      │                       ^
+    2 │     node {
+
+
+✖︎ Expected a open brace ('{')
+
+  type-in-argument-value.graphql:1:24
+    1 │  query Test @test(: ID!) {
+      │                        ^
+    2 │     node {

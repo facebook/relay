@@ -1305,6 +1305,7 @@ impl<'a> Parser<'a> {
                     }
                 })()
             };
+
             let colon = self.parse_optional_kind(TokenKind::Colon);
             if let Some(colon) = colon {
                 if self.peek_kind(TokenKind::CloseParen) {
@@ -1339,6 +1340,8 @@ impl<'a> Parser<'a> {
                     Location::new(self.source_location, Span::new(name.span.end, self.index())),
                 ));
                 // Continue parsing value if the next token looks like a value (except for Enum)
+                // break early if the next token is not a valid token for the next argument
+                let mut should_break = false;
                 let value = match self.peek_token_kind() {
                     TokenKind::Dollar
                     | TokenKind::OpenBrace
@@ -1354,7 +1357,13 @@ impl<'a> Parser<'a> {
                             Value::Constant(ConstantValue::Null(self.empty_token()))
                         }
                     }
-                    _ => Value::Constant(ConstantValue::Null(self.empty_token())),
+                    TokenKind::CloseParen | TokenKind::Colon => {
+                        Value::Constant(ConstantValue::Null(self.empty_token()))
+                    }
+                    _ => {
+                        should_break = true;
+                        Value::Constant(ConstantValue::Null(self.empty_token()))
+                    }
                 };
                 let span = Span::new(start, self.end_index);
                 items.push(Argument {
@@ -1363,6 +1372,9 @@ impl<'a> Parser<'a> {
                     colon: self.empty_token(),
                     value,
                 });
+                if should_break {
+                    break;
+                }
             }
         }
         let end = self.parse_token();

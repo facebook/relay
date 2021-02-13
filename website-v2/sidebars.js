@@ -14,17 +14,16 @@ const {fbContent} = require('internaldocs-fb-helpers');
 const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
-    'guides/persisted-queries',
     'guides/network-layer',
     'guides/entrypoints',
     'guides/client-schema-extensions',
-    'guides/writing-subscriptions',
+    'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',
     'guides/fb/required-directive',
     {
       'Web-Only': [
-        'guides/incremental-data-delivery',
+        'guides/fb/incremental-data-delivery',
         'guides/fb/data-driven-dependencies',
         'guides/fb/image-prefetching',
         'guides/fb/comet-route-prefetching',
@@ -43,12 +42,12 @@ const Guides = fbContent({
     'guides/network-layer',
     'guides/entrypoints',
     'guides/client-schema-extensions',
-    'guides/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',
     // TODO(T84714692) release required guide externally
     // 'guides/required-directive',
-    'guides/incremental-data-delivery',
+    // TODO(T84797602) release incremental data delivery externally
+    // 'guides/incremental-data-delivery',
     // TODO release these in OSS
     // 'guides/data-driven-dependencies',
     // 'guides/image-prefetching',

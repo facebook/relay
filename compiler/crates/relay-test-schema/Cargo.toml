@@ -5,7 +5,6 @@ edition = "2018"
 version = "0.0.0"
 authors = ['Facebook']
 license = "MIT"
-include = ["src/**/*.graphql", "src/**/*.rs"]
 
 [dependencies]
 relay-schema = { path = "../relay-schema" }

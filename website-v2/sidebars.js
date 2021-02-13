@@ -139,11 +139,11 @@ module.exports = {
       'API Reference': [
         {
           'Relay Hooks': [
-            'api-reference/hooks/introduction',
             'api-reference/hooks/relay-environment-provider',
             'api-reference/hooks/use-relay-environment',
             'api-reference/hooks/use-preloaded-query',
             'api-reference/hooks/use-query-loader',
+            'api-reference/hooks/load-query',
             'api-reference/hooks/use-lazy-load-query',
             'api-reference/hooks/use-fragment',
             'api-reference/hooks/use-refetchable-fragment',
@@ -158,10 +158,7 @@ module.exports = {
             'api-reference/entrypoint-apis/load-entrypoint',
             'api-reference/entrypoint-apis/entrypoint-container',
           ],
-          'Query Fetching': [
-            'api-reference/query-fetching/load-query',
-            'api-reference/query-fetching/fetch-query',
-          ],
+          'Query Fetching': ['api-reference/query-fetching/fetch-query'],
           'Relay Runtime': ['api-reference/relay-runtime/store'],
           GraphQL: ['api-reference/graphql/graphql-and-directives'],
         },

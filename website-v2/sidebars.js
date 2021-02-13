@@ -153,7 +153,6 @@ module.exports = {
             'api-reference/hooks/use-subscription',
           ],
           'Entrypoint APIs': [
-            'api-reference/entrypoint-apis/introduction',
             'api-reference/entrypoint-apis/use-entrypoint-loader',
             'api-reference/entrypoint-apis/load-entrypoint',
             'api-reference/entrypoint-apis/entrypoint-container',

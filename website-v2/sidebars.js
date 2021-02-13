@@ -23,7 +23,7 @@ const Guides = fbContent({
     'guides/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',
-    'guides/required-directive',
+    'guides/fb/required-directive',
     {
       'Web-Only': [
         'guides/incremental-data-delivery',
@@ -50,7 +50,8 @@ const Guides = fbContent({
     'guides/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',
-    'guides/required-directive',
+    // TODO(T84714692) release required guide externally
+    // 'guides/required-directive',
     'guides/incremental-data-delivery',
     // TODO release these in OSS
     // 'guides/data-driven-dependencies',

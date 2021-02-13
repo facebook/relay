@@ -367,8 +367,6 @@ A query or entry point is lazy loaded if the request for the data occurs at rend
 
 Lazy loaded queries and entry points have performance downsides, are vulnerable to being over- and under-fetched, and can result in components being rendered with null data. They should be avoided.
 
-See [this guide](../guides/entrypoints/) for migrating off of lazy loaded queries and onto entry points.
-
 ## Linked Record
 
 A linked record is a record that is directly accessible from another record. For example, in the query `query MyQuery { viewer { account_user { active_instant_game { id } } } }`, `active_instant_game` (which has the type `Application` is a linked record of `account_user`.
@@ -725,7 +723,7 @@ TODO
 
 ## Root
 
-Outermost React Component for a given page or screen. Can be associated with an [entrypoint](../guides/entrypoints).
+Outermost React Component for a given page or screen. Can be associated with an entrypoint.
 
 Roots for entrypoints are referred to by the [`JSResource`](#JSResource) to the root React component module.
 

@@ -15,7 +15,13 @@ const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
     'guides/network-layer',
-    'guides/entrypoints',
+    // TODO(T84712342) convert entrypoints guide
+    // 'guides/entrypoints',
+    {
+      type: 'link',
+      label: 'Entrypoints',
+      href: 'https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/',
+    },
     'guides/client-schema-extensions',
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
@@ -40,7 +46,8 @@ const Guides = fbContent({
     'guides/graphql-server-specification',
     'guides/persisted-queries',
     'guides/network-layer',
-    'guides/entrypoints',
+    // TODO(T84712342) convert entry points to a guide
+    // 'guides/entrypoints',
     'guides/client-schema-extensions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',

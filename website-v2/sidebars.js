@@ -75,7 +75,7 @@ module.exports = {
             'guided-tour/setup/compiler',
             ...fbContent({
               internal: ['guided-tour/setup/fb/build-script'],
-              external: [],
+              external: ['guided-tour/setup/compiler'],
             }),
           ],
           'Rendering Data Basics': [

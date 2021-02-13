@@ -15,7 +15,6 @@ const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
     'guides/persisted-queries',
-    'guides/graphql-and-directives',
     'guides/network-layer',
     'guides/entrypoints',
     'guides/client-schema-extensions',
@@ -41,7 +40,6 @@ const Guides = fbContent({
   external: [
     'guides/graphql-server-specification',
     'guides/persisted-queries',
-    'guides/graphql-and-directives',
     'guides/network-layer',
     'guides/entrypoints',
     'guides/client-schema-extensions',
@@ -72,7 +70,6 @@ module.exports = {
         'guided-tour/introduction',
         {
           'Setup and Workflow': [
-            'guided-tour/setup/compiler',
             ...fbContent({
               internal: ['guided-tour/setup/fb/build-script'],
               external: ['guided-tour/setup/compiler'],
@@ -160,6 +157,7 @@ module.exports = {
             'api-reference/query-fetching/fetch-query',
           ],
           'Relay Runtime': ['api-reference/relay-runtime/store'],
+          GraphQL: ['api-reference/graphql/graphql-and-directives'],
         },
         'api-reference/legacy-apis/legacy-apis',
       ],

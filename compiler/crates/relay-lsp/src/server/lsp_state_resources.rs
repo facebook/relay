@@ -6,7 +6,7 @@
  */
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     sync::{atomic::AtomicI8, atomic::Ordering, Arc, RwLock},
 };
 
@@ -217,11 +217,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 self.build_schemas(compiler_state, &log_event)?;
             }
 
-            self.build_source_programs(
-                &compiler_state,
-                Some(self.get_affected_projects(compiler_state)),
-                &log_event,
-            )?;
+            self.build_source_programs(&compiler_state, &log_event)?;
 
             compiler_state.complete_compilation();
 
@@ -245,7 +241,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         // `compiler.build_schemas` and `compiler.build_source_programs` to cancel build earlier,
         // if update detected
         self.build_schemas(compiler_state, log_event)?;
-        self.build_source_programs(compiler_state, None, log_event)?;
+        self.build_source_programs(compiler_state, log_event)?;
 
         Ok(())
     }
@@ -285,7 +281,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     fn build_source_programs(
         &self,
         compiler_state: &CompilerState,
-        affected_projects: Option<HashSet<&StringKey>>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
         debug!("Building source programs");
@@ -303,7 +298,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 .schemas
                 .read()
                 .expect("LSPState::build_in_watch_mode: expect to acquire read lock on schemas"),
-            affected_projects,
             log_event,
         )?;
 
@@ -365,14 +359,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 }
             }
         })
-    }
-
-    fn get_affected_projects(&self, compiler_state: &CompilerState) -> HashSet<&StringKey> {
-        self.config
-            .projects
-            .keys()
-            .filter(|project_name| compiler_state.project_has_pending_changes(**project_name))
-            .collect::<HashSet<_>>()
     }
 
     fn report_error(&self, error: Error) {

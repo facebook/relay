@@ -28,7 +28,6 @@ use rayon::prelude::*;
 use schema::SDLSchema;
 use std::{
     collections::HashMap,
-    collections::HashSet,
     sync::atomic::{AtomicBool, Ordering},
     sync::Arc,
 };
@@ -96,7 +95,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &CompilerState,
         schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
-        affected_projects: Option<HashSet<&ProjectName>>, // for watch-mode to filter-out unchanged projects
         log_event: &impl PerfLogEvent,
     ) -> Result<(HashMap<ProjectName, Program>, Vec<BuildProjectError>)> {
         let graphql_asts = log_event.time("parse_sources_time", || {
@@ -112,11 +110,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             .config
             .par_enabled_projects()
             .filter(|project_config| {
-                if let Some(affected_projects) = &affected_projects {
-                    affected_projects.contains(&project_config.name)
-                } else {
-                    true
+                if let Some(base) = project_config.base {
+                    if compiler_state.project_has_pending_changes(base) {
+                        return true;
+                    }
                 }
+                compiler_state.project_has_pending_changes(project_config.name)
             })
             .map(|project_config| {
                 let project_name = project_config.name;

@@ -81,6 +81,24 @@ pub fn build_raw_program(
     }))
 }
 
+pub fn validate_program(
+    config: &Config,
+    program: &Program,
+    log_event: &impl PerfLogEvent,
+) -> Result<(), BuildProjectError> {
+    let timer = log_event.start("validate_time");
+    let result = validate(
+        program,
+        &config.connection_interface,
+        &config.additional_validations,
+    )
+    .map_err(|errors| BuildProjectError::ValidationErrors { errors });
+
+    log_event.stop(timer);
+
+    result
+}
+
 fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
@@ -116,16 +134,7 @@ fn build_programs(
     }
 
     // Call validation rules that go beyond type checking.
-    log_event.time("validate_time", || {
-        validate(
-            &program,
-            &config.connection_interface,
-            &config.additional_validations,
-        )
-        .map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
-        })
-    })?;
+    validate_program(&config, &program, log_event)?;
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = log_event.time("apply_transforms_time", || {

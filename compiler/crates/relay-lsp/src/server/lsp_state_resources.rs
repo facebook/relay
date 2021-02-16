@@ -154,10 +154,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.perf_logger.complete_event(setup_event);
 
             self.publish_errors("lsp_state_error");
+            set_ready_status(&self.sender);
 
             info!("LSP server initialization completed!");
 
-            set_ready_status(&self.sender);
 
             // Here we will wait for changes from watchman
             'inner: loop {
@@ -181,22 +181,32 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     continue 'outer;
                 }
 
-                if let Err(error) = self.incremental_build(&mut compiler_state) {
+                let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
+                let log_time = log_event.start("lsp_state_watchman_event_time");
+
+                if let Err(error) = self.incremental_build(&mut compiler_state, &log_event) {
                     self.report_error(error);
                 }
 
+                log_event.stop(log_time);
+                self.perf_logger.complete_event(log_event);
+                self.perf_logger.flush();
+
                 self.publish_errors("lsp_state_user_error");
+
+                set_ready_status(&self.sender);
             }
         }
     }
 
-    fn incremental_build(&self, compiler_state: &mut CompilerState) -> Result<(), Error> {
-        let log_event = self.perf_logger.create_event("lsp_state_watchman_event");
-        let log_time = log_event.start("lsp_state_watchman_event_time");
-
+    fn incremental_build(
+        &self,
+        compiler_state: &mut CompilerState,
+        log_event: &impl PerfLogEvent,
+    ) -> Result<(), Error> {
         let has_new_changes = compiler_state.merge_file_source_changes(
             &self.config,
-            &log_event,
+            log_event,
             self.perf_logger.as_ref(),
             false,
         )?;
@@ -214,19 +224,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             );
 
             if compiler_state.has_schema_changes() {
-                self.build_schemas(compiler_state, &log_event)?;
+                self.build_schemas(compiler_state, log_event)?;
             }
 
-            self.build_source_programs(&compiler_state, &log_event)?;
+            self.build_source_programs(&compiler_state, log_event)?;
 
             compiler_state.complete_compilation();
-
-            set_ready_status(&self.sender);
         }
-
-        log_event.stop(log_time);
-        self.perf_logger.complete_event(log_event);
-        self.perf_logger.flush();
 
         Ok(())
     }

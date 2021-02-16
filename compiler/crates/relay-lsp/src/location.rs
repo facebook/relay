@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::PathBuf;
+use std::{convert::TryInto, path::PathBuf};
 
 use common::{Location, SourceLocationKey};
 use lsp_types::Url;
@@ -27,7 +27,8 @@ pub fn to_contents_and_lsp_location_of_graphql_literal(
         SourceLocationKey::Embedded { path, index } => {
             let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
             let uri = get_uri(&path_to_fragment)?;
-            let (file_contents, range) = read_file_and_get_range(&path_to_fragment, index)?;
+            let (file_contents, range) =
+                read_file_and_get_range(&path_to_fragment, index.try_into().unwrap())?;
 
             Ok((file_contents, lsp_types::Location { uri, range }))
         }

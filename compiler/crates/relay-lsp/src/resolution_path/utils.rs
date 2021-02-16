@@ -68,9 +68,7 @@ mod tests {
         let schema = get_test_schema();
         let document = parse_executable_with_features(
             source,
-            SourceLocationKey::Standalone {
-                path: "/test/file".intern(),
-            },
+            SourceLocationKey::standalone("/test/file"),
             ParserFeatures {
                 enable_variable_definitions: true,
             },

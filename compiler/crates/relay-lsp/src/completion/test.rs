@@ -26,9 +26,7 @@ fn parse_and_resolve_completion_items(
     let next_source = source.replace("|", "");
     let document = parse_executable_with_error_recovery(
         &next_source,
-        SourceLocationKey::Standalone {
-            path: "/test/file".intern(),
-        },
+        SourceLocationKey::standalone("/test/file"),
     )
     .item;
 

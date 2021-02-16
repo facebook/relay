@@ -270,7 +270,6 @@ fn build_node_resolution_info_from_selections(
                     ..
                 } = node;
 
-
                 node_resolution_info.kind = NodeKind::InlineFragment;
                 if let Some(type_condition) = type_condition {
                     let type_name = type_condition.type_.value;
@@ -349,13 +348,8 @@ mod test {
     use schema::Schema;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
-        let document = parse_executable(
-            source,
-            SourceLocationKey::Standalone {
-                path: "/test/file".intern(),
-            },
-        )
-        .unwrap();
+        let document =
+            parse_executable(source, SourceLocationKey::standalone("/test/file")).unwrap();
 
         // Select the `uri` field
         let position_span = Span {
@@ -400,9 +394,7 @@ mod test {
                 name
             }
         "#,
-            SourceLocationKey::Standalone {
-                path: "/test/file".intern(),
-            },
+            SourceLocationKey::standalone("/test/file"),
         )
         .unwrap();
         // Position is outside of the document

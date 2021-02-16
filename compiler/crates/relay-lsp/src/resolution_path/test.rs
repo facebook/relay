@@ -8,14 +8,11 @@
 use super::*;
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-use interner::Intern;
 
 fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&ResolutionPath<'_>)) {
     let document = parse_executable_with_features(
         source,
-        SourceLocationKey::Standalone {
-            path: "/test/file".intern(),
-        },
+        SourceLocationKey::standalone("/test/file"),
         ParserFeatures {
             enable_variable_definitions: true,
         },

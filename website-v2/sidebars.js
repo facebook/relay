@@ -108,17 +108,18 @@ module.exports = {
             'guided-tour/list-data/adding-and-removing-items',
             'guided-tour/list-data/advanced-pagination',
           ],
-          'Advanced Data Fetching': [
-            'guided-tour/advanced-data-fetching/preloading-data',
-            'guided-tour/advanced-data-fetching/incremental-data-delivery',
-            ...fbContent({
-              internal: [
-                'guided-tour/advanced-data-fetching/fb/data-driven-dependencies',
-              ],
-              external: [],
-            }),
-            'guided-tour/advanced-data-fetching/image-prefetching',
-          ],
+        },
+        fbContent({
+          internal: {
+            'Advanced Data Fetching': [
+              'guided-tour/advanced-data-fetching/fb/preloading-data',
+              'guided-tour/advanced-data-fetching/fb/data-driven-dependencies',
+              'guided-tour/advanced-data-fetching/fb/image-prefetching',
+            ],
+          },
+          external: {},
+        }),
+        {
           'Updating Data': [
             'guided-tour/updating-data/introduction',
             'guided-tour/updating-data/graphql-mutations',

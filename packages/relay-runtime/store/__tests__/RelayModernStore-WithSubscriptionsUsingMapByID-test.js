@@ -19,13 +19,12 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
-const {getRequest} = require('../../query/GraphQLTag');
+const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {INVALIDATED_AT_KEY, REF_KEY} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
@@ -96,21 +95,24 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             logEvents.push(event);
           },
         });
-        ({UserFragment, UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserFragment = getFragment(graphql`
+          fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
             emailAddresses
           }
-
-          query UserQuery($size: Int) {
+        `);
+        UserQuery = getRequest(graphql`
+          query RelayModernStoreWithSubscriptionsUsingMapByIDTest1Query(
+            $size: Int
+          ) {
             me {
-              ...UserFragment
+              ...RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment
             }
           }
-        `));
+        `);
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -164,23 +166,26 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        ({UserQuery, UserFragment} = generateAndCompile(`
-          query UserQuery($size: Float!) {
+        UserQuery = getRequest(graphql`
+          query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(
+            $size: Float!
+          ) {
             me {
-              ...UserFragment
+              ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment
             }
           }
-
-          fragment UserFragment on User {
+        `);
+        UserFragment = getFragment(graphql`
+          fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
             emailAddresses
           }
-        `));
-        const queryNode = getRequest(UserQuery);
-        const owner = createOperationDescriptor(queryNode, {size: 32});
+        `);
+
+        const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(
           UserFragment,
           '4',

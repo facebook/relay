@@ -85,7 +85,7 @@ However, we recommend trying to keep a single connection per component, to keep 
 
 ### Bi-directional Pagination
 
-In the [Pagination](../pagination/) section we covered how to use `usePaginationFragment` to paginate in a single *“forward”* direction. However, connections also allow paginating in the opposite *“backward”* direction. The meaning of *“forward”* and *“backward”* directions will depend on how the items in the connection are sorted, for example  *“forward”* could mean more recent*, and “backward”* could mean less recent.
+In the [Pagination](../pagination/) section we covered how to use `usePaginationFragment` to paginate in a single *"forward"* direction. However, connections also allow paginating in the opposite *"backward"* direction. The meaning of *"forward"* and *"backward"* directions will depend on how the items in the connection are sorted, for example  *"forward"* could mean more recent*, and "backward"* could mean less recent.
 
 Regardless of the semantic meaning of the direction, Relay also provides the same APIs to paginate in the opposite direction, using `usePaginationFragment`, as long  as the `before` and `last` connection arguments are also used along with `after` and `first`:
 
@@ -151,20 +151,20 @@ function FriendsListComponent(props: Props) {
 
 ```
 
-* The APIs for both *“forward”* and *“backward”* are exactly the same, they're only named differently. When paginating forward, then the  `after` and `first` connection arguments will be used, when paginating backward, the `before` and `last` connection arguments will be used.
-* Note that the primitives for both *“forward”* and *“backward”* pagination are exposed from a single call to `usePaginationFragment`, so both *“forward”* and *“backward”* pagination can be performed simultaneously in the same component.
+* The APIs for both *"forward"* and *"backward"* are exactly the same, they're only named differently. When paginating forward, then the  `after` and `first` connection arguments will be used, when paginating backward, the `before` and `last` connection arguments will be used.
+* Note that the primitives for both *"forward"* and *"backward"* pagination are exposed from a single call to `usePaginationFragment`, so both *"forward"* and *"backward"* pagination can be performed simultaneously in the same component.
 
 
 
 ### Custom Connection State
 
-By default, when using `usePaginationFragment` and `@connection`, Relay will *append* new pages of items to the connection when paginating *“forward”,* and *prepend* new pages of items when paginating *“backward”*. This means that your component will always render the *full* connection, with *all* of the items that have been accumulated so far via pagination, and/or items that have been added or removed via mutations or subscriptions.
+By default, when using `usePaginationFragment` and `@connection`, Relay will *append* new pages of items to the connection when paginating *"forward",* and *prepend* new pages of items when paginating *"backward"*. This means that your component will always render the *full* connection, with *all* of the items that have been accumulated so far via pagination, and/or items that have been added or removed via mutations or subscriptions.
 
 However, it is possible that you'd need different behavior for how to merge and accumulate pagination results (or other updates to the connection), and/or derive local component state from changes to the connection. Some examples of this might be:
 
 * Keeping track of different *visible* slices or windows of the connection.
 * Visually separating each *page* of items. This requires knowledge of the exact set of items inside each page that has been fetched.
-* Displaying different ends of the same connection simultaneously, while keeping track of the “gaps” between them, and being able to merge results when preforming pagination between the gaps. For example, imagine rendering a list of comments where the oldest comments are displayed at the top, then a “gap” that can be interacted with to paginate, and then a section at the bottom which shows the most recent comments that have been added by the user or by real-time subscriptions.
+* Displaying different ends of the same connection simultaneously, while keeping track of the "gaps" between them, and being able to merge results when preforming pagination between the gaps. For example, imagine rendering a list of comments where the oldest comments are displayed at the top, then a "gap" that can be interacted with to paginate, and then a section at the bottom which shows the most recent comments that have been added by the user or by real-time subscriptions.
 
 
 To address these more complex use cases, Relay is still working on a solution:

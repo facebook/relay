@@ -25,7 +25,7 @@ extend type Comment {
 }
 ```
 
-* In this example, we're using the `extend` keyword to extend an existing type, and we’re adding a new field, `is_new_comment` to the existing `Comment` type, which we will be able to [read](#reading-client-only-data) in our components, and [update](#updating-client-only-data) when necessary using normal Relay APIs; you might imagine that we might use this field to render a different visual treatment for a comment if it’s new, and we might set it when creating a new comment.
+* In this example, we're using the `extend` keyword to extend an existing type, and we're adding a new field, `is_new_comment` to the existing `Comment` type, which we will be able to [read](#reading-client-only-data) in our components, and [update](#updating-client-only-data) when necessary using normal Relay APIs; you might imagine that we might use this field to render a different visual treatment for a comment if it's new, and we might set it when creating a new comment.
 * Note that in order for Relay to pick up this extension, the file needs to be inside `html/js/relay/schema/` in www or `xplat/js/RKJSModules/Libraries/Relay/native/schema/facebook` in fbsource.  The file can be named anything, but we recommend naming it the same as the type you're extending; in this case: `Comment.graphql`.
 
 
@@ -60,7 +60,7 @@ extend type Item {
 
 ```
 
-* In this contrived example, we’re defining 2 new client-only types, and `enum` and a regular `type`. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.
+* In this contrived example, we're defining 2 new client-only types, and `enum` and a regular `type`. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.
 * As mentioned previously, we will be able to [read](#reading-client-only-data) and [update](#updating-client-only-data) this data normally via Relay APIs.
 
 

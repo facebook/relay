@@ -13,7 +13,7 @@ import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 The purpose of this document is to cover the Relay APIs for testing Relay components.
 
-The content is focused mostly on jest unit-tests (testing individual components) and integration tests (testing a combination of components).  But these testing tools may be applied in different cases: screenshot-tests, production smoke-tests, “Redbox” tests, fuzz-tests, e2e test, etc.
+The content is focused mostly on jest unit-tests (testing individual components) and integration tests (testing a combination of components).  But these testing tools may be applied in different cases: screenshot-tests, production smoke-tests, "Redbox" tests, fuzz-tests, e2e test, etc.
 
 What are the benefits of writing jest tests:
 
@@ -556,7 +556,7 @@ The examples in this guide should work for testing components both with Relay Ho
 
 Even though in all of the examples here you can see assertions with `toMatchSnapshot()`, we keep it that way just to make examples concise. But it's not the recommended way to test your components.
 
-**[React Testing Library](https://testing-library.com/react)** is a set of helpers that let you test React components without relying on their implementation details. This approach makes refactoring a breeze and also nudges you towards best practices for accessibility. Although it doesn’t provide a way to “shallowly” render a component without its children, a test runner like Jest lets you do this by [mocking](https://reactjs.org/docs/testing-recipes.html#mocking-modules).
+**[React Testing Library](https://testing-library.com/react)** is a set of helpers that let you test React components without relying on their implementation details. This approach makes refactoring a breeze and also nudges you towards best practices for accessibility. Although it doesn't provide a way to "shallowly" render a component without its children, a test runner like Jest lets you do this by [mocking](https://reactjs.org/docs/testing-recipes.html#mocking-modules).
 
 
 

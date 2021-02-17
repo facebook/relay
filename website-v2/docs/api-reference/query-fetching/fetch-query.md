@@ -39,7 +39,7 @@ fetchQuery<AppQuery>(
 
 ### Arguments
 
-* `environment`: A Relay Environment instance to execute the request on. If you’re starting this request somewhere within a React component, you probably want to use the environment you obtain from using [`useRelayEnvironment`](../use-relay-environment/).
+* `environment`: A Relay Environment instance to execute the request on. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using [`useRelayEnvironment`](../use-relay-environment/).
 * `query`: GraphQL query to fetch, specified using a `graphql` template literal.
 * `variables`: Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.
 * `options`: *_[Optional]_* options object

@@ -41,7 +41,7 @@ const getEntrypointReference = environment => loadEntryPoint(
 
 * `environmentProvider`: A provider for a Relay Environment instance on which to execute the request. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using [`useRelayEnvironment`](../use-relay-environment/).
 * `EntryPoint`: EntryPoint to load.
-* `entryPointParams`: Parameters that will be passed to the EntryPoint’s `getPreloadProps` method.
+* `entryPointParams`: Parameters that will be passed to the EntryPoint's `getPreloadProps` method.
 
 ### Flow Type Parameters
 
@@ -49,7 +49,7 @@ const getEntrypointReference = environment => loadEntryPoint(
 * `TPreloadedQueries`: the type of the `queries` parameter to the EntryPoint component.
 * `TPreloadedEntryPoints`: the type of the `entrypoints` parameter passed to the EntryPoint component.
 * `TRuntimeProps`: the type of the `props` prop passed to `EntryPointContainer`. This object is passed down to the EntryPoint component, also as `props`.
-* `TExtraProps`: if an EntryPoint’s `getPreloadProps` method returns an object with an `extraProps` property, those extra props will be passed to the EntryPoint component as `extraProps`.
+* `TExtraProps`: if an EntryPoint's `getPreloadProps` method returns an object with an `extraProps` property, those extra props will be passed to the EntryPoint component as `extraProps`.
 * `TEntryPointComponent`: the type of the EntryPoint.
 * `TEntryPoint`: the type of the EntryPoint.
 
@@ -63,9 +63,9 @@ The exact format of the return value is *unstable and highly likely to change*. 
 
 ### Behavior
 
-* When `loadEntryPoint()` is called, each of an EntryPoint’s associated queries (if it has any) will load their query data and query AST. Once both the query AST and the data are available, the data will be written to the store. This differs from the behavior of `prepareEntryPoint_DEPRECATED`, which would only write the data from an associated query to the store when that query was rendered with `usePreloadedQuery`.
-* The EntryPoint reference’s associated query references will be retained by the Relay store, preventing it the data from being garbage collected. Once you call `.dispose()` on the EntryPoint reference, the data from the associated queries is liable to be garbage collected.
-* `loadEntryPoint` may throw an error if it is called during React’s render phase.
+* When `loadEntryPoint()` is called, each of an EntryPoint's associated queries (if it has any) will load their query data and query AST. Once both the query AST and the data are available, the data will be written to the store. This differs from the behavior of `prepareEntryPoint_DEPRECATED`, which would only write the data from an associated query to the store when that query was rendered with `usePreloadedQuery`.
+* The EntryPoint reference's associated query references will be retained by the Relay store, preventing it the data from being garbage collected. Once you call `.dispose()` on the EntryPoint reference, the data from the associated queries is liable to be garbage collected.
+* `loadEntryPoint` may throw an error if it is called during React's render phase.
 
 
 

@@ -11,7 +11,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 ## Refetching Fragments
 
-In order to refresh the data for a fragment, we need a query to refetch the fragment under; remember, *fragments can't be fetched by themselves: they need to be part of a query,* so we can't just “fetch” the fragment again by itself.
+In order to refresh the data for a fragment, we need a query to refetch the fragment under; remember, *fragments can't be fetched by themselves: they need to be part of a query,* so we can't just "fetch" the fragment again by itself.
 
 To do so, we can also use the `useRefetchableFragment` Hook in combination with the `@refetchable` directive, which will automatically generate a query to refetch the fragment under, and which we can fetch using the `refetch` function:
 
@@ -71,7 +71,7 @@ module.exports = UserComponent;
 Let's distill what's happening in this example:
 
 * `useRefetchableFragment` behaves the same way as a `useFragment` (see the [Fragments](../../rendering/fragments/) section), but with a few additions:
-    * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are “refetchable”, that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type.
+    * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type.
 
 <FbInternalOnly>
 
@@ -81,12 +81,12 @@ Let's distill what's happening in this example:
 
 * It returns a `refetch` function, which is already  Flow typed to expect the query variables that the generated query expects
 * It takes to Flow type parameters: the type of the generated query (in our case  `UserComponentRefreshQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
-* We’re calling the `refetch` function with 2 main inputs:
+* We're calling the `refetch` function with 2 main inputs:
     * The first argument is the set of variables to fetch the fragment with. In this case, calling `refetch` and passing an empty set of variables will fetch the fragment again *with the exact same variables the fragment was originally fetched with,* which is what we want for a refresh.
-    * In the second argument we are passing a `fetchPolicy` of `‘network-only’` to ensure that we always fetch from the network and skip the local data cache.
+    * In the second argument we are passing a `fetchPolicy` of `‘network-only'` to ensure that we always fetch from the network and skip the local data cache.
 * Calling `refetch` will re-render the component and cause `useRefetchableFragment` to suspend (as explained in [Transitions and Updates that Suspend](../../rendering/loading-states/)), since a network request will be required due to the `fetchPolicy` we are using. This means that you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, to show a fallback loading state, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) in order to show the appropriate pending or loading state.
     * In this case, we are using the pending flag provided by `useTransition`, `isRefreshing`, in order render a pending state while the request is active, i.e. to render the busy spinner and to disable our UI control.
-    * Using this pending state is optional, however, note that since `refetch` will cause the component to suspend, regardless of whether we’re rendering a pending state, we should *always* use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+    * Using this pending state is optional, however, note that since `refetch` will cause the component to suspend, regardless of whether we're rendering a pending state, we should *always* use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 
 
 

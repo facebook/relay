@@ -139,7 +139,7 @@ function App() {
 By default, internally at fb, Relay will *only* surface errors to React that are returned in the top-level [`errors` field](https://graphql.org/learn/validation/) if they are ether:
 
 * of `CRITICAL` severity,
-*  *or* if the top-level `data` field wasn’t returned in the response.
+*  *or* if the top-level `data` field wasn't returned in the response.
 
 
 If you wish to access error information in your application to display user friendly messages, the recommended approach is to model and expose the error information as part of your GraphQL schema.

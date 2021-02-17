@@ -25,7 +25,7 @@ mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
 }
 ```
 
-* The mutation above modifies the server data to “like” the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data in the backend.
+* The mutation above modifies the server data to "like" the specified `Feedback` object. `feedback_like` is a *mutation root field* (or just *mutation field*), which takes specific input and will be processed by the server to update the relevant data in the backend.
 * A mutation is handled in two separate steps: first, the update is processed on the server, and then the query is executed. This ensures that you only see data that has already been updated as part of your mutation response.
 * The mutation field (in this case, `feedback_like`) returns a specific GraphQL type which exposes the data for which we can query in the mutation response.
 
@@ -85,7 +85,7 @@ const feedbackLikeMutation = graphql`
 * Note that mutations can also reference GraphQL [variables](../../rendering/variables/) in the same way queries or fragments do.
 
 
-In order to *execute* a mutation against the server in Relay, we can use the `commitMutation` and [useMutation](../../../api-reference/use-mutation) APIs. Let’s take a look at an example using the `commitMutation` API:
+In order to *execute* a mutation against the server in Relay, we can use the `commitMutation` and [useMutation](../../../api-reference/use-mutation) APIs. Let's take a look at an example using the `commitMutation` API:
 
 ```js
 import type {Environment} from 'react-relay';
@@ -133,7 +133,7 @@ Let's distill what's happening here:
 There are four ways in which store data is updated when a request is complete:
 
 * If a field is queried from within the mutation field and includes an id field, that record in the local store will automatically be updated with the new values from the response. In the example, because the query includes `feedback` and `id`, Relay will find the existing `Feedback` object that matches the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
-    * Note that instead of refetching a fragment after a mutation completes, you can often spread the fragment into the mutation response in order to update the fragment’s data as part of the same request.
+    * Note that instead of refetching a fragment after a mutation completes, you can often spread the fragment into the mutation response in order to update the fragment's data as part of the same request.
 * If a field is queried from within the mutation field and includes an id field which has the `@deleteRecord` directive, that field will be removed from the store.
 * If an edge field is queried from within the mutation field and includes the `@prependEdge` or `@appendEdge` directives, that edge will be prepended or appended to a connection, respectively.
 * Lastly, for all updates not covered by the previous three bullet points, updater functions give you full control over how the data in the local store is updated when the request completes.
@@ -406,12 +406,12 @@ Let's distill this example:
 * In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/adding-and-removing-items/).
     * There is no need for an updater in this example — it would be a great place to use the `@appendEdge` directive instead!
 * Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
-* Note that the `root` field of the mutation is different from the `root` of queries, and `store.getRootField` in the mutation updater can only get the record from the mutation response. To get records from the root that’s not in the mutation response, use `store.getRoot().getLinkedRecord` instead.
+* Note that the `root` field of the mutation is different from the `root` of queries, and `store.getRootField` in the mutation updater can only get the record from the mutation response. To get records from the root that's not in the mutation response, use `store.getRoot().getLinkedRecord` instead.
 * Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 ### Optimistic updates
 
-Oftentimes, we don't want to wait for the server response to complete before we respond to user interaction. For example, if a user clicks the “Like” button, we don't want to wait until the mutation response comes back before we show them that the post has been liked; ideally, we'd do that instantly.
+Oftentimes, we don't want to wait for the server response to complete before we respond to user interaction. For example, if a user clicks the "Like" button, we don't want to wait until the mutation response comes back before we show them that the post has been liked; ideally, we'd do that instantly.
 
 More generally, in these cases we want to immediately ** update our local data *optimistically,* in order to improve perceived responsiveness; that is, we want to update our local data to immediately reflect what it would look like after the mutation *succeeds*. If the mutation ends up *not* succeeding, we can roll back the change and show an error message, but we're *optimistically* expecting the mutation to succeed most of the time.
 
@@ -523,7 +523,7 @@ Let's see what's happening here:
 * The `optimisticUpdater` has the same signature and behaves the same way as the regular `updater` function, the main difference being that it will be executed immediately, before the mutation response completes.
 * If the mutation succeeds, *the optimistic update will be rolled back,* and the server response will be applied.
     * Note that if we used an `optimisticResponse`, we wouldn't able to statically provide a value for `like_count`, since it requires reading the current value from the store first, which we can do with an `optimisticUpdater`.
-    * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other “Likes” occurred at the same time, the final `like_count` from the server might've incremented by more than 1.
+    * Also note that when mutation completes, the value from the server might differ from the value we optimistically predicted locally. For example, if other "Likes" occurred at the same time, the final `like_count` from the server might've incremented by more than 1.
 * If the mutation *fails*, *the optimistic update will be rolled back,* and the error will be communicated via the `onError` callback.
 * Note that we're not providing an `updater` function, which is okay. If it's not provided, the default behavior will still be applied when the server response arrives (i.e. merging the new field values for `like_count` and `viewer_does_like` on the `Feedback` object).
 
@@ -660,9 +660,9 @@ Let's distill this example, according to the execution order of the updaters:
 
 The recommended approach when executing a mutation is to request *all* the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
 
-However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
+However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine "blocking a user" or "leaving a group").
 
-For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation APIs documented in our [Staleness of Data section](../../reusing-cached-data/staleness-of-data/).
+For these types of mutations, it's often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation APIs documented in our [Staleness of Data section](../../reusing-cached-data/staleness-of-data/).
 
 ### Mutation queueing
 

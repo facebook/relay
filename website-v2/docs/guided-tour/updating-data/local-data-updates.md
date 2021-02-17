@@ -134,7 +134,7 @@ Updating the preview:
 
 * Store form states in React state(reducer) or context, then construct the full payload data for the preview query defined above.
 * Use `commitPayload` method on the local environment to update the data for the preview.
-* Use `generateUniqueClientID` from `CometRelay` or `relay-runtime` to create unique ids for the id fields in the payload, so that all local updates won’t cause conflict ids in relay store.
+* Use `generateUniqueClientID` from `CometRelay` or `relay-runtime` to create unique ids for the id fields in the payload, so that all local updates won't cause conflict ids in relay store.
 * Use `RawResponseType` in the generated query file to flow type the payload, this avoids missing fields or wrong fields.
 * Use `createPayloadFor3DField(fragmentName, normalizationFileResource, componentFileResource, restOfTheResponse)` to provide the field with 3D dependencies. With `RawResponseType` flow will statically make sure the document name and the rest of the response is correct.
 

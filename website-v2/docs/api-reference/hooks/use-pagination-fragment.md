@@ -79,7 +79,7 @@ module.exports = FriendsList;
 
 * `fragment`: GraphQL fragment specified using a `graphql` template literal.
     * This fragment must have an `@connection` directive on a connection field, otherwise using it will throw an error.
-    * This fragment must have a `@refetchable` directive, otherwise using it will throw an error. The `@refetchable` directive can only be added to fragments that are “refetchable”, that is, on fragments that are declared on `Viewer` or  `Query` types, or on a type that implements `Node` (i.e. a type that has an `id`).
+    * This fragment must have a `@refetchable` directive, otherwise using it will throw an error. The `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are declared on `Viewer` or  `Query` types, or on a type that implements `Node` (i.e. a type that has an `id`).
         * Note that you *do not* need to manually specify a pagination query yourself. The `@refetchable` directive will autogenerate a query with the specified `queryName`. This will also generate Flow types for the query, available to import from the generated file: `<queryName>.graphql.js`.
 * `fragmentReference`: The *fragment reference* is an opaque Relay object that Relay uses to read the data for the fragment from the store; more specifically, it contains information about which particular object instance the data should be read from.
     * The type of the fragment reference can be imported from the generated Flow types, from the file `<fragment_name>.graphql.js`, and can be used to declare the type of your `Props`. The name of the fragment reference type will be: `<fragment_name>$key`. We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared.
@@ -97,9 +97,9 @@ Object containing the following properties:
     * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema.
 * `isLoadingNext`: Boolean value which indicates if a pagination request for the *next* items in the connection is currently in flight, including any incremental data payloads.
 * `isLoadingPrevious`: Boolean value which indicates if a pagination request for the *previous* items in the connection is currently in flight, including any incremental data payloads.
-* `hasNext`: Boolean value which indicates if the end of the connection has been reached in the “forward” direction. It will be true if there are more items to query for available in that direction, or false otherwise.
-* `hasPrevious`: Boolean value which indicates if the end of the connection has been reached in the “backward” direction. It will be true if there are more items to query for available in that direction, or false otherwise.
-* `loadNext`: Function used to fetch more items in the connection in the “forward” direction.
+* `hasNext`: Boolean value which indicates if the end of the connection has been reached in the "forward" direction. It will be true if there are more items to query for available in that direction, or false otherwise.
+* `hasPrevious`: Boolean value which indicates if the end of the connection has been reached in the "backward" direction. It will be true if there are more items to query for available in that direction, or false otherwise.
+* `loadNext`: Function used to fetch more items in the connection in the "forward" direction.
     * Arguments:
         * `count`*:* Number that indicates how many items to query for in the pagination request.
         * `options`: *_[Optional]_* options object
@@ -108,8 +108,8 @@ Object containing the following properties:
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will cancel the pagination request.
     * Behavior:
         * Calling `loadNext`  *will not* cause the component to suspend. Instead, the `isLoadingNext` value will be set to true while the request is in flight, and the new items from the pagination request will be added to the connection, causing the component to re-render.
-        * Pagination requests initiated from calling `loadNext` will *always* use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn’t make sense, since that’d mean we’d be querying for a different connection.
-* `loadPrevious`: Function used to fetch more items in the connection in the “backward” direction.
+        * Pagination requests initiated from calling `loadNext` will *always* use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn't make sense, since that'd mean we'd be querying for a different connection.
+* `loadPrevious`: Function used to fetch more items in the connection in the "backward" direction.
     * Arguments:
         * `count`*:* Number that indicates how many items to query for in the pagination request.
         * `options`: *_[Optional]_* options object
@@ -118,7 +118,7 @@ Object containing the following properties:
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will cancel the pagination request.
     * Behavior:
         * Calling `loadPrevious`  *will not* cause the component to suspend. Instead, the `isLoadingPrevious` value will be set to true while the request is in flight, and the new items from the pagination request will be added to the connection, causing the component to re-render.
-        * Pagination requests initiated from calling `loadPrevious` will *always* use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn’t make sense, since that’d mean we’d be querying for a different connection.
+        * Pagination requests initiated from calling `loadPrevious` will *always* use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn't make sense, since that'd mean we'd be querying for a different connection.
 * `refetch`: Function used to refetch the connection fragment with a potentially new set of variables.
     * Arguments:
         * `variables`: Object containing the new set of variable values to be used to fetch the `@refetchable` query.
@@ -160,7 +160,7 @@ Object containing the following properties:
 * A pagination query no longer needs to be specified in this api, since it will be automatically generated by Relay by using a `@refetchable` fragment.
 * This api supports simultaneous bi-directional pagination out of the box.
 * This api no longer requires passing a `getVariables` or `getFragmentVariables` configuration functions, like the `PaginationContainer` does.
-    * This implies that pagination no longer has a between `variables` and `fragmentVariables`, which were previously vaguely defined concepts. Pagination requests will always use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn’t make sense, since that’d mean we’d be querying for a different connection.
+    * This implies that pagination no longer has a between `variables` and `fragmentVariables`, which were previously vaguely defined concepts. Pagination requests will always use the same variables that were originally used to fetch the connection, *except* pagination variables (which need to change in order to perform pagination); changing variables other than the pagination variables during pagination doesn't make sense, since that'd mean we'd be querying for a different connection.
 * This api no longer takes additional configuration like `direction` or `getConnectionFromProps` function (like Pagination Container does). These values will be automatically determined by Relay.
 * Refetching no longer has a distinction between `variables` and `fragmentVariables`, which were previously vaguely defined concepts. Refetching will always correctly refetch and render the fragment with the variables you provide (any variables omitted in the input will fallback to using the original values in the parent query).
 * Refetching will unequivocally update the component, which was not always true when calling `refetchConnection` from `PaginationContainer` (it would depend on what you were querying for in the refetch query and if your fragment was defined on the right object type).

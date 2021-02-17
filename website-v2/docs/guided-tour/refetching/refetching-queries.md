@@ -72,10 +72,10 @@ function App(props: Props) {
 Let's distill what's going on here:
 
 * We call `loadQuery` in the event handler for refreshing, so the network request starts immediately, and then pass the `refreshedQueryRef` to `usePreloadedQuery` so we render the updated data.
-* We are passing a `fetchPolicy` of `‘network-only’` to ensure that we always fetch from the network and skip the local data cache.
+* We are passing a `fetchPolicy` of `‘network-only'` to ensure that we always fetch from the network and skip the local data cache.
 * Calling `loadQuery` will re-render the component and cause `usePreloadedQuery` to suspend (as explained in [Transitions and Updates that Suspend](../../rendering/loading-states/)), since a network request will be required due to the `fetchPolicy` we are using. This means that you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, to show a fallback loading state, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) in order to show the appropriate pending or loading state.
     * In this case, we are using the pending flag provided by `useTransition`, `isRefreshing`, in order render a pending state while the request is active, i.e. to render the busy spinner and to disable our UI control.
-    * Using this pending state is optional, however, note that since `loadQuery` will cause the component to suspend, regardless of whether we’re rendering a pending state, we should *always* use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+    * Using this pending state is optional, however, note that since `loadQuery` will cause the component to suspend, regardless of whether we're rendering a pending state, we should *always* use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 
 
 

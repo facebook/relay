@@ -93,7 +93,7 @@ Lets see what's going on here:
 
 * `usePreloadedQuery`  takes a `graphql` query and a `PreloadedQuery` reference, and returns the data that was fetched for that query.
     * The `PreloadedQuery` (in this case `queryRef`) is an object that describes and references an *instance* of our query that is being (or was) fetched.
-        * We’ll cover how to actually fetch the query in the next section below, and cover how to show loading states if the query is in-flight when we try to render it in the [Loading States with Suspense](../loading-states/) section.
+        * We'll cover how to actually fetch the query in the next section below, and cover how to show loading states if the query is in-flight when we try to render it in the [Loading States with Suspense](../loading-states/) section.
     * Note that the `PreloadedQuery` type takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQuery`.
 * Similarly to fragments, *the component is automatically subscribed to updates to the query data*: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
 * `usePreloadedQuery` also additionally takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQuery`.
@@ -105,7 +105,7 @@ Lets see what's going on here:
 
 ### Fetching Queries for Render
 
-*Rendering* a query works very similarly to rendering a fragment; however, as described before, unlike fragments, queries can be fetched from the server. Usually we want to fetch somewhere at the root of our app *one or a few queries that* [*accumulate*](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/rendering-data/#composing-fragments-into) *all the data required to render the screen*, and ideally we’d fetch them as early as possible, before we even start rendering.
+*Rendering* a query works very similarly to rendering a fragment; however, as described before, unlike fragments, queries can be fetched from the server. Usually we want to fetch somewhere at the root of our app *one or a few queries that* [*accumulate*](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/rendering-data/#composing-fragments-into) *all the data required to render the screen*, and ideally we'd fetch them as early as possible, before we even start rendering.
 
 In order to *fetch* a query for later rendering it, you can use the `useQueryLoader` Hook:
 
@@ -142,18 +142,18 @@ function AppTabs() {
 }
 ```
 
-The example above is somewhat contrived, but let’s distill what is happening:
+The example above is somewhat contrived, but let's distill what is happening:
 
 * We are calling `useQueryLoader` inside our `AppTabs` component.
     * It takes a query, which in this case is our `HomeTabQuery` (the query that we declared in our previous example), and which we can obtain by requiring the auto-generated file: `‘HomeTabQuery.graphql'`.
     * It also additionally takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQueryType`, which you can also obtain from the auto-generated file: `‘HomeTabQuery.graphql'`.
 * Calling `useQueryLoader` allows us to obtain 2 things:
-    * `homeTabQueryRef`: A `?PreloadedQuery`, which is an object that describes and references an *instance* of our query that is being (or was) fetched. This value will be null if we haven’t fetched the query, i.e. if we haven’t called `loadHomeTabQuery`.
+    * `homeTabQueryRef`: A `?PreloadedQuery`, which is an object that describes and references an *instance* of our query that is being (or was) fetched. This value will be null if we haven't fetched the query, i.e. if we haven't called `loadHomeTabQuery`.
     * `loadHomeTabQuery`: A function that will *fetch* the data for this query from the server (if it isn't already cached), and given an object with the [variables](../variables/) the query expects, in this case `{id: '4'}` (we'll go into more detail about how Relay uses cached data in the [Reusing Cached Data For Render](../../reusing-cached-data/) section). Calling this function will also update the value of `homeTabQueryRef` to an instance of a `PreloadedQuery`.
         * Note that the `variables` we pass to this function will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
         * Also note that we are calling this function in the event handler that causes the `HomeTab` to be rendered. This allows us to start fetching the data for the screen as early as possible, even before the new tab starts rendering.
-            * In fact, note that this function can NOT be called during render; it *must* be called outside of a Component’s render function, otherwise it will produce an error.
-* Note that `useQueryLoader` will automatically dispose of all queries that have been loaded when the component unmounts. Disposing of a query means that Relay will no longer hold on to the data for that particular instance of the query in its cache (we’ll cover the lifetime of query data in [Reusing Cached Data For Render](../../reusing-cached-data/) section). Additionally, if the request for the query is still in flight when disposal occurs, it will be canceled.
+            * In fact, note that this function can NOT be called during render; it *must* be called outside of a Component's render function, otherwise it will produce an error.
+* Note that `useQueryLoader` will automatically dispose of all queries that have been loaded when the component unmounts. Disposing of a query means that Relay will no longer hold on to the data for that particular instance of the query in its cache (we'll cover the lifetime of query data in [Reusing Cached Data For Render](../../reusing-cached-data/) section). Additionally, if the request for the query is still in flight when disposal occurs, it will be canceled.
 * Our `AppTabs` component renders the `HomeTab` component from the previous example, and passes it the corresponding query reference. Note that this parent component owns the lifetime of the data for that query, meaning that when it unmounts, it will of dispose of that query, as mentioned above.
 * Finally, make sure you're providing a Relay environment using a [Relay Environment Provider](../environment/) at the root of your app before trying to use `useQueryLoader`.
 
@@ -184,7 +184,7 @@ render(<AppTabs initialQueryRef={initialQueryRef} initialTab={...} />)
 
 * In this example, we are calling the `loadQuery` function directly to obtain a `PreloadedQuery` instance that we can later pass to a component that uses `usePreloadedQuery`.
 * In this case, we would expect the root `AppTabs` component to manage the lifetime of the query reference, and dispose of it at the appropriate time, if at all.
-* We’ve left the details of “app initialization” vague in this example, since that will vary from application to application. The important thing to note here is that we should obtain a query reference before we start rendering the root component. Specifically, `loadQuery` can NOT be called during render; it must be called outside of a Component's render function, otherwise it will produce an error.
+* We've left the details of "app initialization" vague in this example, since that will vary from application to application. The important thing to note here is that we should obtain a query reference before we start rendering the root component. Specifically, `loadQuery` can NOT be called during render; it must be called outside of a Component's render function, otherwise it will produce an error.
 
 
 
@@ -198,7 +198,7 @@ As a result, we strongly discourage you from lazily loading queries.
 
 ### Render as you fetch
 
-The examples above illustrate how to separate fetching the data from rendering it, in order to start the fetch as early as possible (as opposed to waiting until we start rendering the component to start the fetch), and hopefully allow us to show content to our users a lot sooner. It also gives us more control and predictability over when the fetch occurs, whereas if we fetch during render, it becomes harder to determine when the fetch will (or should) occur, and it fits nicely with the [*“render-as-you-fetch”*](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense) pattern with [React Suspense](../loading-states/).
+The examples above illustrate how to separate fetching the data from rendering it, in order to start the fetch as early as possible (as opposed to waiting until we start rendering the component to start the fetch), and hopefully allow us to show content to our users a lot sooner. It also gives us more control and predictability over when the fetch occurs, whereas if we fetch during render, it becomes harder to determine when the fetch will (or should) occur, and it fits nicely with the [*"render-as-you-fetch"*](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense) pattern with [React Suspense](../loading-states/).
 
 This is the preferred pattern for fetching data with Relay, and it applies in several circumstances, such as the initial load of an application, during subsequent navigations, or when using UI elements such as menus, popovers, dialogs, or other UI elements which are initially hidden and later revealed upon an interaction, and which require fetching additional data apart from one initially required for the screen.
 
@@ -212,7 +212,7 @@ This requires an integration with your router.
 
 <FbInternalOnly>
 
-Internally, we use [Relay Entrypoints](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/) to implement the “render-as-you-fetch” pattern for these different use cases, and we’ve already set up infra that’s integrated with our routers and component libraries for these purposes, which means that you usually will not need to write the loading code directly. Additionally, Relay EntryPoints allow us not only fetch data ahead of render, but also download the required JS code for the root in parallel with the data fetch.
+Internally, we use [Relay Entrypoints](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/) to implement the "render-as-you-fetch" pattern for these different use cases, and we've already set up infra that's integrated with our routers and component libraries for these purposes, which means that you usually will not need to write the loading code directly. Additionally, Relay EntryPoints allow us not only fetch data ahead of render, but also download the required JS code for the root in parallel with the data fetch.
 
 For more information, check out the following guides:
 
@@ -228,7 +228,7 @@ For more information, check out the following guides:
 
 ---
 
-NOTE: Although generally discouraged, if required in circumstances where it’s not feasible or it’s very inconvenient to fetch ahead of render (e.g. where the Entrypoints infra is not already set up), the [`useLazyLoadQuery`](../../../api-reference/use-lazy-load-query/) API is still available. However, note that using that api can easily degrade performance and cause multiple round trips or a waterfall of requests.
+NOTE: Although generally discouraged, if required in circumstances where it's not feasible or it's very inconvenient to fetch ahead of render (e.g. where the Entrypoints infra is not already set up), the [`useLazyLoadQuery`](../../../api-reference/use-lazy-load-query/) API is still available. However, note that using that api can easily degrade performance and cause multiple round trips or a waterfall of requests.
 
 </FbInternalOnly>
 

@@ -35,7 +35,7 @@ If you have the need to do something more complicated, such as imperatively requ
 ### Arguments
 
 * `config`: the same config passed to `requestSubscription`
-    * NOTE: `useSubscription` doesn’t automatically add `client_subscription_id`. You may need to provide an arbitrary `client_subscription_id` to `config.variables.input`
+    * NOTE: `useSubscription` doesn't automatically add `client_subscription_id`. You may need to provide an arbitrary `client_subscription_id` to `config.variables.input`
 
 ### Requirements
 

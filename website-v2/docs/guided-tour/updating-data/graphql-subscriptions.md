@@ -34,7 +34,7 @@ subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
 }
 ```
 
-* Subscribing to the above subscription will notify the client whenever the specified `Feedback` object has been “liked” or “unliked”. The `feedback_like_subscription` field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
+* Subscribing to the above subscription will notify the client whenever the specified `Feedback` object has been "liked" or "unliked". The `feedback_like_subscription` field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
 * `feedback_like_subscription` returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Feedback object with its *updated* `like_count`, which will allows us to show the like count in real time.
 * In order to set up a subscription in the server, check out this guide: https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/
 
@@ -212,7 +212,7 @@ function MyFunctionalComponent({ id }) {
 }
 ```
 
-This is only a thin wrapper around the `requestSubscription` API. It’s behavior:
+This is only a thin wrapper around the `requestSubscription` API. It's behavior:
 
 * Subscribe when the component is mounted with the given config
 * Unsubscribe when the component is unmounted

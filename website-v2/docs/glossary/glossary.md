@@ -11,10 +11,10 @@ import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 ## 3D
 
-Data-Driven Dependencies. Facebook’s way of including the code to render a particular component if and only if it will actually be rendered. Canonical use cases are
+Data-Driven Dependencies. Facebook's way of including the code to render a particular component if and only if it will actually be rendered. Canonical use cases are
 
 * **Fields that are typically null**, and which are only rendered when not null.
-* **Unions**. For example, the core news feed item has many different variants, each of which is a separate React component. Which one we render depends on the data (i.e. is “data-driven”). On a given feed, it is likely that most variants will not be rendered, and need not be downloaded.
+* **Unions**. For example, the core news feed item has many different variants, each of which is a separate React component. Which one we render depends on the data (i.e. is "data-driven"). On a given feed, it is likely that most variants will not be rendered, and need not be downloaded.
 * **Component can have different rendering strategies, depending on the data.**
 
 See the [@match](#match) directive, [@module](#module) directive and [the 3D guide](../guides/data-driven-dependencies).
@@ -63,7 +63,7 @@ Compare with [variables](#variables) and see the [relevant section](../guided-to
 
 ## AST
 
-Abstract Syntax Tree. In Relay, the AST typically refers to the full Javascript object that Relay needs in order to be able to work with a query, subscription, mutation or fragment, though typically “the AST” will refer to a query, mutation or subscription AST.
+Abstract Syntax Tree. In Relay, the AST typically refers to the full Javascript object that Relay needs in order to be able to work with a query, subscription, mutation or fragment, though typically "the AST" will refer to a query, mutation or subscription AST.
 
 A Relay AST can be one of two types: a `ConcreteRequest` (representing a query, mutation or subscription), or a `ReaderFragment` (representing a fragment.)
 
@@ -91,7 +91,7 @@ TODO
 
 ## CacheConfig
 
-A value used to control how a query’s response may be cached. Ultimately passed to `environment.execute`.
+A value used to control how a query's response may be cached. Ultimately passed to `environment.execute`.
 
 ## Check
 
@@ -157,7 +157,7 @@ Called by `store.check`.
 
 ## DataID
 
-The globally-unique identifier of a record. Can be generated on the client with [missing field handlers](#missing-field-handler). Usually corresponds to an Ent’s ID (if available), but guaranteed to equal the value of the `__id` field.
+The globally-unique identifier of a record. Can be generated on the client with [missing field handlers](#missing-field-handler). Usually corresponds to an Ent's ID (if available), but guaranteed to equal the value of the `__id` field.
 
 [`updater`](#updater) and [`optimisticUpdater`](#optimisticupdater) functions are passed instances of [`RelaySourceSelectorProxy`](#recordproxy). Calling `.get(id)` with the DataID on a `RelaySourceSelectorProxy` will look up that item in the store, and return a proxy of it.
 
@@ -173,7 +173,7 @@ See the [Thinking in Relay guide](../principles-and-architecture/thinking-in-rel
 
 ## @defer
 
-A directive which can be added to a fragment spread to avoid blocking on that fragment’s data.
+A directive which can be added to a fragment spread to avoid blocking on that fragment's data.
 
 See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream/#defer).
 
@@ -183,7 +183,7 @@ Can refer to an `OperationDescriptor` or `RequestDescriptor`. Descriptors are ty
 
 ## DevTools
 
-An awesome Chrome extension for debugging Relay network requests, the Relay store and Relay events. Helpful for answering questions like “Why am I not seeing the data I expect to see?” “Why did this component suspend?” etc.
+An awesome Chrome extension for debugging Relay network requests, the Relay store and Relay events. Helpful for answering questions like "Why am I not seeing the data I expect to see?" "Why did this component suspend?" etc.
 
 See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Debugging_Guides/Relay_DevTools_Guide_For_Users/).
 
@@ -203,7 +203,7 @@ Any object which contains a `.dispose` method which takes no parameters and prov
 
 A lightweight object containing information on the components which need to be loaded (as in the form of calls to `JSResource`) and which queries need to be loaded (in the form of preloadable concrete requests) before a particular route, popover or other piece of conditionally loaded UI can be rendered.
 
-All queries which are required for the initial rendering of a piece of UI should be included in that UI’s entrypoint.
+All queries which are required for the initial rendering of a piece of UI should be included in that UI's entrypoint.
 
 Entrypoints can contain queries and other entrypoints.
 
@@ -219,7 +219,7 @@ All non-internal Relay hooks require being called within a Relay environment con
 
 ## Execute
 
-Executing a query, mutation or subscription (collectively, an operation) roughly means “create a lazy observable that, when subscribed to, will make a network request fulfilling the operation and write the returned data to the store.”
+Executing a query, mutation or subscription (collectively, an operation) roughly means "create a lazy observable that, when subscribed to, will make a network request fulfilling the operation and write the returned data to the store."
 
 A variety of `execute` methods are exposed on the Relay environment.
 
@@ -276,7 +276,7 @@ Just like a query reference and a graphql tagged literal describing a query (i.e
 
 An internal class supporting lazily loaded queries. Exposes two important methods:
 
-* `read`, which is meant to be called during a component’s render phase. It will attempt to fulfill a query from the store (by calling `environment.lookup`) and suspend if the data is not available. It furthermore writes the results from the attempted read (whether a promise, error or result) to an internal cache, and updates that cached value when the promise resolves or rejects.
+* `read`, which is meant to be called during a component's render phase. It will attempt to fulfill a query from the store (by calling `environment.lookup`) and suspend if the data is not available. It furthermore writes the results from the attempted read (whether a promise, error or result) to an internal cache, and updates that cached value when the promise resolves or rejects.
 * `subscribe`, which is called during the commit phase, and establishes subscriptions to the relay store.
 
 If the component which calls `.read` successfully loads a query, but suspends on a subsequent hook before committing, the data from that query can be garbage collected before the component ultimately renders. Thus, components which rely on `FragmentResource` are at risk of rendering null data.
@@ -345,7 +345,7 @@ See also abstract type refinement.
 
 ## Invalidation
 
-In certain cases, it is easy to determine the outcome of a mutation. For example, if you “like” a Feedback, the like count will increment and `viewer_did_like` will be set to true. However, in other cases, such as when you are blocking another user, the full impact on the data in your store is hard to determine.
+In certain cases, it is easy to determine the outcome of a mutation. For example, if you "like" a Feedback, the like count will increment and `viewer_did_like` will be set to true. However, in other cases, such as when you are blocking another user, the full impact on the data in your store is hard to determine.
 
 For situations like these, Relay allows you to invalidate a record (or the whole store), which will cause the data to be re-fetched the next time it is rendered.
 
@@ -581,7 +581,7 @@ TODO
 
 A class for helping with lazily loaded queries and exposing two important methods: `prepare` and `retain`.
 
-* `prepare` is called during a component’s render method, and will either read an existing cached value for the query, or fetch the query and suspend. It also stores the results of the attempted read (whether the data, a promise for the data or an error) in a local cache.
+* `prepare` is called during a component's render method, and will either read an existing cached value for the query, or fetch the query and suspend. It also stores the results of the attempted read (whether the data, a promise for the data or an error) in a local cache.
 * `retain` is called after the component has successfully rendered.
 
 If the component which calls `.prepare` successfully loads a query, but suspends on a subsequent hook before committing, the data from that query can be garbage collected before the component ultimately renders. Thus, components which rely on `QueryResource` are at risk of rendering null data.
@@ -617,7 +617,7 @@ A record refers to any item in the Relay [store](#store) that is stored by [ID](
 
 ## Record Source
 
-An abstract interface for storing [records](#record), keyed by [DataID](#dataid), used both for representing the store’s cache for updates to it.
+An abstract interface for storing [records](#record), keyed by [DataID](#dataid), used both for representing the store's cache for updates to it.
 
 ## Record Source Selector Proxy
 
@@ -667,7 +667,7 @@ An older version of Relay. This version of Relay had an API that was heavily foc
 
 ## Release Buffer
 
-As queries are released (no longer [retained](#retain)), their root nodes are stored in a release buffer of fixed size, and only evicted by newly released queries when there isn’t enough space in the release buffer. When Relay runs garbage collection, queries that are present in the release buffer and not disposed.
+As queries are released (no longer [retained](#retain)), their root nodes are stored in a release buffer of fixed size, and only evicted by newly released queries when there isn't enough space in the release buffer. When Relay runs garbage collection, queries that are present in the release buffer and not disposed.
 
 The size of the release buffer is configured with the `gcReleaseBufferSize` parameter.
 
@@ -757,7 +757,7 @@ TODO
 
 ## Selection
 
-A “selection of fields” refers to the fields you are requesting on an object that you are accessing, as part of a query, mutation, subscription or fragment.
+A "selection of fields" refers to the fields you are requesting on an object that you are accessing, as part of a query, mutation, subscription or fragment.
 
 ## Selector
 

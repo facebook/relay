@@ -20,7 +20,7 @@ import FbCometProfilePhotoHeaderExample from './fb/comet-profile-photo-header-ex
 > Note: Partial rendering behavior and is still highly experimental and likely to change. If you wish to use it, you can enable it by passing `{UNSTABLE_renderPolicy: "partial"}` as an option to `usePreloadedQuery`.
 
 
-Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *“partial rendering”* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
+Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 
 This can be useful in scenarios where we want to render a screen or a page as fast as possible, and we know that some of the data for that page is already cached so we can skip a loading state. For example, take the profile page: it is very likely that the user's name has already been cached at some point during usage of the app, so when visiting a profile page, if the name of the user is cached, we'd like to render immediately, even if the rest of the data for the profile page isn't available yet.
 

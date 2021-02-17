@@ -13,9 +13,9 @@ There are several scenarios in which we'll want to query a list of data from the
 
 ## Connections
 
-Specifically in Relay, we do this via GraphQL fields known as [Connections](https://graphql.github.io/learn/pagination/#complete-connection-model). Connections are GraphQL fields that take a set of arguments to specify which “slice” of the list to query, and include in their response both the “slice” of the list that was requested, as well as  information to indicate if there is more data available in the list and how to query it; this additional information can be used in order to perform pagination by querying for more “slices” or pages on the list.
+Specifically in Relay, we do this via GraphQL fields known as [Connections](https://graphql.github.io/learn/pagination/#complete-connection-model). Connections are GraphQL fields that take a set of arguments to specify which "slice" of the list to query, and include in their response both the "slice" of the list that was requested, as well as  information to indicate if there is more data available in the list and how to query it; this additional information can be used in order to perform pagination by querying for more "slices" or pages on the list.
 
-More specifically, we perform *cursor-based pagination,* in which the input used to query for “slices” of the list is a `cursor` and a `count`. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out <a href={useBaseUrl('graphql/connections.htm')}>the spec</a>.
+More specifically, we perform *cursor-based pagination,* in which the input used to query for "slices" of the list is a `cursor` and a `count`. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out <a href={useBaseUrl('graphql/connections.htm')}>the spec</a>.
 
 ## Rendering Connections
 
@@ -103,7 +103,7 @@ module.exports = FriendsListComponent;
 
 * `usePaginationFragment` behaves the same way as a `useFragment` (see the [Fragments](../../rendering/fragments/) section), so our list of friends is available under `data.friends.edges.node`, as declared by the fragment. However, it also has a few additions:
     * It expects a fragment that is a connection field annotated with the `@connection` directive
-    * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are “refetchable”, that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type.
+    * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type.
 
 <FbInternalOnly>
 
@@ -112,7 +112,7 @@ module.exports = FriendsListComponent;
 </FbInternalOnly>
 
 * It takes to Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
-* Note that we’re using [`SuspenseList`](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
+* Note that we're using [`SuspenseList`](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
 
 <FbInternalOnly>
 

@@ -12,7 +12,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 An important thing to keep in mind when attempting to reuse data that is cached in the Relay store is to understand the lifetime of that data; that is, if it is present in the store, and for how long it will be.
 
-Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we’ve never fetched data for a specific query, then it will be missing from the store.
+Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we've never fetched data for a specific query, then it will be missing from the store.
 
 However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using:
 

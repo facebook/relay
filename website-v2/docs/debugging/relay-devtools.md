@@ -57,7 +57,7 @@ The store panel allows users to view individual records from the store data in a
 
 ## Multiple Environments
 
-As you switch through the store and network panels, you’ll notice that there is also a dropdown menu on the left side of the developer tools. This dropdown allows users to switch between environments. The requests in the network tab and the store data are grouped by environment, so users can easily shuffle between active environments.
+As you switch through the store and network panels, you'll notice that there is also a dropdown menu on the left side of the developer tools. This dropdown allows users to switch between environments. The requests in the network tab and the store data are grouped by environment, so users can easily shuffle between active environments.
 
 ## Give Feedback
 

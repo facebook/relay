@@ -303,17 +303,22 @@ describe('useRefetchableFragmentNode', () => {
       ...
     }): $FlowFixMe => {
       const {isConcurrent = false, ...props} = args ?? {};
-      return TestRenderer.create(
-        <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
-          <React.Suspense fallback={<Fallback />}>
-            <ContextProvider>
-              <Container owner={query} {...props} />
-            </ContextProvider>
-          </React.Suspense>
-        </ErrorBoundary>,
-        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-        {unstable_isConcurrent: isConcurrent},
-      );
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
+            <React.Suspense fallback={<Fallback />}>
+              <ContextProvider>
+                <Container owner={query} {...props} />
+              </ContextProvider>
+            </React.Suspense>
+          </ErrorBoundary>,
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          {unstable_isConcurrent: isConcurrent},
+        );
+        jest.runAllImmediates();
+      });
+      return renderer;
     };
   });
 
@@ -3116,7 +3121,61 @@ describe('useRefetchableFragmentNode', () => {
         });
       });
 
-      it('disposes ongoing request if it is manually disposed', () => {
+      it('disposes ongoing request if it is manually disposed when refetch suspends', () => {
+        const renderer = renderFragment();
+        renderSpy.mockClear();
+        let disposable;
+        TestRenderer.act(() => {
+          disposable = refetch(
+            {id: '2'},
+            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+          );
+        });
+
+        // Assert request is started
+        const refetchVariables = {id: '2', scale: 16};
+        refetchQuery = createOperationDescriptor(
+          gqlRefetchQuery,
+          refetchVariables,
+          {force: true},
+        );
+        expectFragmentIsRefetching(renderer, {
+          refetchVariables,
+          refetchQuery,
+        });
+
+        TestRenderer.act(() => {
+          disposable && disposable.dispose();
+          jest.runAllImmediates();
+        });
+
+        // The request is not able to be cancelled
+        // since the new query reference is never able to
+        // commit, and we only dispose of network requests
+        // in the commit phase for concurrent safety.
+        // From the perspective of React, the refetch never
+        // occurred and a new query reference was not committed,
+        // so there is nothing to cancel.
+        expect(unsubscribe).toBeCalledTimes(0);
+        expectRequestIsInFlight({
+          inFlight: true,
+          requestCount: 1,
+          gqlRefetchQuery,
+          refetchVariables,
+        });
+
+        // Assert that when the refetch is disposed we reset to rendering the
+        // original data before the refetch
+        const initialUser = {
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', query),
+        };
+        expectFragmentResults([{data: initialUser}]);
+      });
+
+      it('disposes ongoing request if it is manually disposed when refetch does not suspend', () => {
         renderFragment();
         renderSpy.mockClear();
         let disposable;
@@ -3166,6 +3225,16 @@ describe('useRefetchableFragmentNode', () => {
           gqlRefetchQuery,
           refetchVariables,
         });
+
+        // Assert that when the refetch is disposed we reset to rendering the
+        // original data before the refetch
+        const initialUser = {
+          id: '1',
+          name: 'Alice',
+          profile_picture: null,
+          ...createFragmentRef('1', query),
+        };
+        expectFragmentResults([{data: initialUser}]);
       });
     });
 

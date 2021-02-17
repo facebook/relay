@@ -1,0 +1,8 @@
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+
+extend type User {
+  nickname: String
+  best_friends: FriendsConnection
+  client_actor_field: String
+  client_foo: Foo
+}

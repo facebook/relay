@@ -1,0 +1,10 @@
+# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+
+extend type Story {
+  flightComponent(
+    condition: Boolean!
+    count: Int!
+    id: ID!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
+}

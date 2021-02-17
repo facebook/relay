@@ -21,14 +21,17 @@ const RelayRecordSource = require('../RelayRecordSource');
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
+
+// TODO:
+// You may see some of the "__FlowFixMe__" in the calls to `createNormalizationSelector`.
+// This is because in this test we're relying on similarities between Reader and Normalization nodes during runtime.
+// This is not correct, and Flow is reporting these errors correctly. We need to prioritze fixing this.
 
 describe('check()', () => {
   let Query;
@@ -85,8 +88,8 @@ describe('check()', () => {
         'node(id:"1")': {__ref: '1'},
       },
     };
-    ({Query} = generateAndCompile(`
-      query Query($id: ID, $size: [Int]) {
+    Query = graphql`
+      query DataCheckerTestQuery($id: ID, $size: [Int]) {
         node(id: $id) {
           id
           __typename
@@ -112,7 +115,7 @@ describe('check()', () => {
           }
         }
       }
-    `));
+    `;
   });
 
   it('reads query data', () => {
@@ -121,7 +124,10 @@ describe('check()', () => {
     const status = check(
       source,
       target,
-      createNormalizationSelector(Query.fragment, ROOT_ID, {id: '1', size: 32}),
+      createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        id: '1',
+        size: 32,
+      }),
       [],
       null,
       defaultGetDataID,
@@ -170,10 +176,9 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {BarFragment} = generateAndCompile(`
-      fragment BarFragment on User @argumentDefinitions(
-        size: {type: "[Int]"}
-      ) {
+    const BarFragment = graphql`
+      fragment DataCheckerTestFragment on User
+        @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 1) {
@@ -189,11 +194,13 @@ describe('check()', () => {
           uri
         }
       }
-    `);
+    `;
     const status = check(
       source,
       target,
-      createNormalizationSelector(BarFragment, '1', {size: 32}),
+      createNormalizationSelector((BarFragment: $FlowFixMe), '1', {
+        size: 32,
+      }),
       [],
       null,
       defaultGetDataID,
@@ -228,17 +235,17 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {Fragment} = generateAndCompile(`
-      fragment Fragment on User {
+    const Fragment = graphql`
+      fragment DataCheckerTest1Fragment on User {
         profilePicture(size: 32) @__clientField(handle: "test") {
           uri
         }
       }
-    `);
+    `;
     const status = check(
       source,
       target,
-      createNormalizationSelector(Fragment, '1', {}),
+      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
       defaultGetDataID,
@@ -272,17 +279,17 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {Fragment} = generateAndCompile(`
-      fragment Fragment on User {
+    const Fragment = graphql`
+      fragment DataCheckerTest2Fragment on User {
         profilePicture(size: 32) @__clientField(handle: "test") {
           uri
         }
       }
-    `);
+    `;
     const status = check(
       source,
       target,
-      createNormalizationSelector(Fragment, '1', {}),
+      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
       defaultGetDataID,
@@ -317,18 +324,17 @@ describe('check()', () => {
     };
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
-    const {Fragment} = generateAndCompile(`
-      fragment Fragment on User {
+    const Fragment = graphql`
+      fragment DataCheckerTest3Fragment on User {
         profilePicture(size: 32) @__clientField(handle: "test") {
           uri
         }
       }
-    `);
-
+    `;
     const status = check(
       source,
       target,
-      createNormalizationSelector(Fragment, '1', {}),
+      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
       defaultGetDataID,
@@ -370,21 +376,21 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     // LinkedHandle selectors are only generated for a the normalization
     // code for a query
-    const {Query: ProfilePictureQuery} = generateAndCompile(`
-      query Query {
+    const ProfilePictureQuery = graphql`
+      query DataCheckerTest1Query {
         me {
           profilePicture(size: 32) @__clientField(handle: "test") {
             uri
           }
         }
       }
-    `);
+    `;
 
     const status = check(
       source,
       target,
       createNormalizationSelector(
-        ProfilePictureQuery.operation,
+        getRequest(ProfilePictureQuery).operation,
         'client:root',
         {},
       ),
@@ -428,21 +434,20 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     // LinkedHandle selectors are only generated for a the normalization
     // code for a query
-    const {Query: ProfilePictureQuery} = generateAndCompile(`
-      query Query {
+    const ProfilePictureQuery = graphql`
+      query DataCheckerTest7Query {
         me {
           profilePicture(size: 32) @__clientField(handle: "test") {
             uri
           }
         }
       }
-    `);
-
+    `;
     const status = check(
       source,
       target,
       createNormalizationSelector(
-        ProfilePictureQuery.operation,
+        getRequest(ProfilePictureQuery).operation,
         'client:root',
         {},
       ),
@@ -487,21 +492,20 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     // LinkedHandle selectors are only generated for a the normalization
     // code for a query
-    const {Query: ProfilePictureQuery} = generateAndCompile(`
-      query Query {
+    const ProfilePictureQuery = graphql`
+      query DataCheckerTest8Query {
         me {
           profilePicture(size: 32) @__clientField(handle: "test") {
             uri
           }
         }
       }
-    `);
-
+    `;
     const status = check(
       source,
       target,
       createNormalizationSelector(
-        ProfilePictureQuery.operation,
+        getRequest(ProfilePictureQuery).operation,
         'client:root',
         {},
       ),
@@ -541,21 +545,20 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     // ScalarHandle selectors are only generated for a the normalization
     // code for a query
-    const {Query: ProfilePictureQuery} = generateAndCompile(`
-      query Query {
+    const ProfilePictureQuery = graphql`
+      query DataCheckerTest2Query {
         me {
           profilePicture(size: 32) {
             uri @__clientField(handle: "test")
           }
         }
       }
-    `);
-
+    `;
     const status = check(
       source,
       target,
       createNormalizationSelector(
-        ProfilePictureQuery.operation,
+        getRequest(ProfilePictureQuery).operation,
         'client:root',
         {},
       ),
@@ -594,20 +597,21 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     // ScalarHandle selectors are only generated for a the normalization
     // code for a query
-    const {Query: ProfilePictureQuery} = generateAndCompile(`
-      query Query {
+    const ProfilePictureQuery = graphql`
+      query DataCheckerTest3Query {
         me {
           profilePicture(size: 32) {
             uri @__clientField(handle: "test")
           }
         }
       }
-    `);
+    `;
+
     const status = check(
       source,
       target,
       createNormalizationSelector(
-        ProfilePictureQuery.operation,
+        getRequest(ProfilePictureQuery).operation,
         'client:root',
         {},
       ),
@@ -627,38 +631,47 @@ describe('check()', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(`
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      const DataCheckerTestPlainUserNameRenderer_nameFragment = graphql`
+        fragment DataCheckerTestPlainUserNameRenderer_nameFragment on PlainUserNameRenderer {
           plaintext
           data {
             text
           }
         }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      `;
+      const DataCheckerTestMarkdownUserNameRenderer_nameFragment = graphql`
+        fragment DataCheckerTestMarkdownUserNameRenderer_nameFragment on MarkdownUserNameRenderer {
           markdown
           data {
             markup
           }
         }
+      `;
 
-        fragment BarFragment on User {
+      graphql`
+        fragment DataCheckerTest4Fragment on User {
           id
           nameRenderer @match {
-            ...PlainUserNameRenderer_name
+            ...DataCheckerTestPlainUserNameRenderer_nameFragment
               @module(name: "PlainUserNameRenderer.react")
-            ...MarkdownUserNameRenderer_name
+            ...DataCheckerTestMarkdownUserNameRenderer_nameFragment
               @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+      `;
 
-        query BarQuery($id: ID!) {
+      BarQuery = graphql`
+        query DataCheckerTest4Query($id: ID!) {
           node(id: $id) {
-            ...BarFragment
+            ...DataCheckerTest4Fragment
           }
         }
-      `);
-      BarQuery = nodes.BarQuery;
+      `;
+      const nodes = {
+        DataCheckerTestPlainUserNameRenderer_nameFragment,
+        DataCheckerTestMarkdownUserNameRenderer_nameFragment,
+      };
+
       loader = {
         get: jest.fn(
           moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
@@ -685,9 +698,10 @@ describe('check()', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'PlainUserNameRenderer',
-          __module_component_BarFragment: 'PlainUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'PlainUserNameRenderer_name$normalization.graphql',
+          __module_component_DataCheckerTest4Fragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_DataCheckerTest4Fragment:
+            'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
           plaintext: 'plain name',
           data: {__ref: 'data'},
         },
@@ -708,9 +722,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -718,7 +736,7 @@ describe('check()', () => {
       expect(loader.get).toBeCalledTimes(1);
       // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
-        'PlainUserNameRenderer_name$normalization.graphql',
+        'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
       );
       expect(status).toEqual({
         status: 'available',
@@ -743,9 +761,10 @@ describe('check()', () => {
           __id:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'MarkdownUserNameRenderer_name$normalization.graphql',
+          __module_component_DataCheckerTest4Fragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_DataCheckerTest4Fragment:
+            'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
           markdown: 'markdown payload',
           data: {__ref: 'data'},
         },
@@ -766,9 +785,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -811,9 +834,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         // Return null to indicate the fragment is not loaded yet
         {
@@ -866,9 +893,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -911,9 +942,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -954,9 +989,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -987,9 +1026,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1019,9 +1062,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1039,38 +1086,47 @@ describe('check()', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = generateAndCompile(`
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      const DataCheckerTest5PlainUserNameRenderer_name = graphql`
+        fragment DataCheckerTest5PlainUserNameRenderer_name on PlainUserNameRenderer {
           plaintext
           data {
             text
           }
         }
+      `;
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      const DataCheckerTest5MarkdownUserNameRenderer_name = graphql`
+        fragment DataCheckerTest5MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
           markdown
           data {
             markup
           }
         }
-
-        fragment BarFragment on User {
+      `;
+      graphql`
+        fragment DataCheckerTest5Fragment on User {
           id
-          nameRenderer { # no @match
-            ...PlainUserNameRenderer_name
+          nameRenderer {
+            # no @match
+            ...DataCheckerTest5PlainUserNameRenderer_name
               @module(name: "PlainUserNameRenderer.react")
-            ...MarkdownUserNameRenderer_name
+            ...DataCheckerTest5MarkdownUserNameRenderer_name
               @module(name: "MarkdownUserNameRenderer.react")
           }
         }
-
-        query BarQuery($id: ID!) {
+      `;
+      BarQuery = graphql`
+        query DataCheckerTest5Query($id: ID!) {
           node(id: $id) {
-            ...BarFragment
+            ...DataCheckerTest5Fragment
           }
         }
-      `);
-      BarQuery = nodes.BarQuery;
+      `;
+      const nodes = {
+        DataCheckerTest5PlainUserNameRenderer_name,
+        DataCheckerTest5MarkdownUserNameRenderer_name,
+      };
+
       loader = {
         get: jest.fn(
           moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
@@ -1095,9 +1151,10 @@ describe('check()', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'PlainUserNameRenderer',
-          __module_component_BarFragment: 'PlainUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'PlainUserNameRenderer_name$normalization.graphql',
+          __module_component_DataCheckerTest5Fragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_DataCheckerTest5Fragment:
+            'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
           plaintext: 'plain name',
           data: {__ref: 'data'},
         },
@@ -1118,9 +1175,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1128,7 +1189,7 @@ describe('check()', () => {
       expect(loader.get).toBeCalledTimes(1);
       // $FlowFixMe[prop-missing]
       expect(loader.get.mock.calls[0][0]).toBe(
-        'PlainUserNameRenderer_name$normalization.graphql',
+        'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
       );
       expect(status).toEqual({
         status: 'available',
@@ -1151,9 +1212,10 @@ describe('check()', () => {
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
           __typename: 'MarkdownUserNameRenderer',
-          __module_component_BarFragment: 'MarkdownUserNameRenderer.react',
-          __module_operation_BarFragment:
-            'MarkdownUserNameRenderer_name$normalization.graphql',
+          __module_component_DataCheckerTest5Fragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_DataCheckerTest5Fragment:
+            'DataCheckerTest5MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
           data: {__ref: 'data'},
         },
@@ -1174,9 +1236,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1217,9 +1283,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         // Return null to indicate the fragment is not loaded yet
         {
@@ -1270,9 +1340,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1313,9 +1387,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1354,9 +1432,13 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarQuery.operation, 'client:root', {
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(BarQuery).operation,
+          'client:root',
+          {
+            id: '1',
+          },
+        ),
         [],
         loader,
         defaultGetDataID,
@@ -1371,19 +1453,20 @@ describe('check()', () => {
 
   describe('when @defer directive is present', () => {
     beforeEach(() => {
-      const nodes = generateAndCompile(`
-        fragment TestFragment on User {
+      graphql`
+        fragment DataCheckerTest6Fragment on User {
           id
           name
         }
+      `;
 
-        query TestQuery($id: ID!) {
+      Query = graphql`
+        query DataCheckerTest9Query($id: ID!) {
           node(id: $id) {
-            ...TestFragment @defer(label: "TestFragment")
+            ...DataCheckerTest6Fragment @defer(label: "TestFragment")
           }
         }
-      `);
-      Query = nodes.TestQuery;
+      `;
     });
 
     it('returns true when deferred selections are fetched', () => {
@@ -1405,7 +1488,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
+        createNormalizationSelector(
+          getRequest(Query).operation,
+          'client:root',
+          {id: '1'},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -1436,7 +1523,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
+        createNormalizationSelector(
+          getRequest(Query).operation,
+          'client:root',
+          {id: '1'},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -1451,21 +1542,21 @@ describe('check()', () => {
 
   describe('when @stream directive is present', () => {
     beforeEach(() => {
-      const nodes = generateAndCompile(`
-        fragment TestFragment on Feedback {
+      graphql`
+        fragment DataCheckerTest7Fragment on Feedback {
           id
           actors @stream(label: "TestFragmentActors", initial_count: 0) {
             name
           }
         }
-
-        query TestQuery($id: ID!) {
+      `;
+      Query = graphql`
+        query DataCheckerTest6Query($id: ID!) {
           node(id: $id) {
-            ...TestFragment
+            ...DataCheckerTest7Fragment
           }
         }
-      `);
-      Query = nodes.TestQuery;
+      `;
     });
 
     it('returns true when streamed selections are fetched', () => {
@@ -1493,7 +1584,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
+        createNormalizationSelector(
+          getRequest(Query).operation,
+          'client:root',
+          {id: '1'},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -1530,7 +1625,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
+        createNormalizationSelector(
+          getRequest(Query).operation,
+          'client:root',
+          {id: '1'},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -1550,7 +1649,7 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(Query.fragment, ROOT_ID, {
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
           id: '1',
           size: 32,
         }),
@@ -1580,21 +1679,20 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(`
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
+      const BarFragment = graphql`
+        fragment DataCheckerTest8Fragment on User
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
             uri
           }
         }
-      `);
+      `;
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarFragment, '1', {size: 32}),
+        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
@@ -1622,21 +1720,20 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(`
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
+      const BarFragment = graphql`
+        fragment DataCheckerTest9Fragment on User
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
             uri
           }
         }
-      `);
+      `;
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarFragment, '1', {size: 32}),
+        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
@@ -1665,21 +1762,20 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(`
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
+      const BarFragment = graphql`
+        fragment DataCheckerTest10Fragment on User
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
             uri
           }
         }
-      `);
+      `;
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarFragment, '1', {size: 32}),
+        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [
           {
             kind: 'scalar',
@@ -1771,20 +1867,20 @@ describe('check()', () => {
         };
         const source = RelayRecordSource.create(data);
         const target = RelayRecordSource.create();
-        const {UserFragment} = generateAndCompile(`
-          fragment UserFragment on User {
+        const UserFragment = graphql`
+          fragment DataCheckerTest11Fragment on User {
             hometown {
               name
             }
           }
-        `);
+        `;
         const handle = jest.fn((field, record, argValues) => {
           return handleReturnValue;
         });
         const status = check(
           source,
           target,
-          createNormalizationSelector(UserFragment, 'user1', {}),
+          createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             {
               kind: 'linked',
@@ -1922,20 +2018,20 @@ describe('check()', () => {
         };
         const source = RelayRecordSource.create(data);
         const target = RelayRecordSource.create();
-        const {UserFragment} = generateAndCompile(`
-          fragment UserFragment on User {
+        const UserFragment = graphql`
+          fragment DataCheckerTest12Fragment on User {
             screennames {
               name
             }
           }
-        `);
+        `;
         const handle = jest.fn((field, record, argValues) => {
           return handleReturnValue;
         });
         const status = check(
           source,
           target,
-          createNormalizationSelector(UserFragment, 'user1', {}),
+          createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             {
               kind: 'pluralLinked',
@@ -1987,21 +2083,20 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(`
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
+      const BarFragment = graphql`
+        fragment DataCheckerTest13Fragment on User
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
             uri
           }
         }
-      `);
+      `;
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarFragment, '1', {size: 32}),
+        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [
           {
             kind: 'scalar',
@@ -2058,10 +2153,9 @@ describe('check()', () => {
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
-      const {BarFragment} = generateAndCompile(`
-        fragment BarFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
+      const BarFragment = graphql`
+        fragment DataCheckerTest14Fragment on User
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           client_actor_field
@@ -2095,33 +2189,11 @@ describe('check()', () => {
             }
           }
         }
-        extend type FriendsEdge {
-          client_friend_edge_field: String
-        }
-        extend type User {
-          nickname: String
-          best_friends: FriendsConnection
-          client_actor_field: String
-          client_foo: Foo
-        }
-        extend type FriendsConnection {
-          client_friends_connection_field: String
-        }
-        extend type Page {
-          client_actor_field: String
-        }
-        extend interface Actor {
-          client_actor_field: String
-        }
-        type Foo {
-          client_name: String
-          profile_picture(scale: Float): Image
-        }
-      `);
+      `;
       const status = check(
         source,
         target,
-        createNormalizationSelector(BarFragment, '1', {size: 32}),
+        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
@@ -2155,7 +2227,7 @@ describe('check()', () => {
         const status = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2191,7 +2263,7 @@ describe('check()', () => {
         const status = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2219,7 +2291,7 @@ describe('check()', () => {
         const nextStatus = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2268,7 +2340,7 @@ describe('check()', () => {
         const status = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2304,7 +2376,7 @@ describe('check()', () => {
         const status = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2332,7 +2404,7 @@ describe('check()', () => {
         const nextStatus = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2391,7 +2463,7 @@ describe('check()', () => {
         const status = check(
           source,
           target,
-          createNormalizationSelector(Query.fragment, ROOT_ID, {
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
           }),
@@ -2411,17 +2483,19 @@ describe('check()', () => {
   });
 
   it('returns true when a non-Node record is "missing" an id', () => {
-    const {TestFragment} = generateAndCompile(`
-      fragment TestFragment on Query {
+    const TestFragment = graphql`
+      fragment DataCheckerTest15Fragment on Query {
         maybeNodeInterface {
           # This "... on Node { id }" selection would be generated if not present
-          ... on Node { id }
+          ... on Node {
+            id
+          }
           ... on NonNodeNoID {
             name
           }
         }
       }
-    `);
+    `;
     const data = {
       'client:root': {
         __id: 'client:root',
@@ -2440,7 +2514,11 @@ describe('check()', () => {
     const status = check(
       source,
       target,
-      createNormalizationSelector(TestFragment, 'client:root', {}),
+      createNormalizationSelector(
+        (TestFragment: $FlowFixMe),
+        'client:root',
+        {},
+      ),
       [],
       null,
       defaultGetDataID,
@@ -2453,18 +2531,21 @@ describe('check()', () => {
   });
 
   it('returns false when a Node record is missing an id', () => {
-    const {TestFragment} = generateAndCompile(`
-      fragment TestFragment on Query {
+    const TestFragment = graphql`
+      fragment DataCheckerTest16Fragment on Query {
         maybeNodeInterface {
           # This "... on Node { id }" selection would be generated if not
           # present, and is flattened since Node is abstract
-          ... on Node { id }
+          ... on Node {
+            id
+          }
           ... on NonNodeNoID {
             name
           }
         }
       }
-    `);
+    `;
+
     const data = {
       'client:root': {
         __id: 'client:root',
@@ -2483,7 +2564,11 @@ describe('check()', () => {
     const status = check(
       source,
       target,
-      createNormalizationSelector(TestFragment, 'client:root', {}),
+      createNormalizationSelector(
+        (TestFragment: $FlowFixMe),
+        'client:root',
+        {},
+      ),
       [],
       null,
       defaultGetDataID,
@@ -2504,17 +2589,20 @@ describe('check()', () => {
     });
 
     it('returns `missing` when a Node record is missing an id', () => {
-      const {TestFragment} = generateAndCompile(`
-      fragment TestFragment on Query {
-        maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not present
-          ... on Node { id }
-          ... on NonNodeNoID {
-            name
+      const TestFragment = graphql`
+        fragment DataCheckerTest17Fragment on Query {
+          maybeNodeInterface {
+            # This "... on Node { id }" selection would be generated if not present
+            ... on Node {
+              id
+            }
+            ... on NonNodeNoID {
+              name
+            }
           }
         }
-      }
-    `);
+      `;
+
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2534,7 +2622,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(TestFragment, 'client:root', {}),
+        createNormalizationSelector(
+          (TestFragment: $FlowFixMe),
+          'client:root',
+          {},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -2546,17 +2638,20 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
     it('returns `missing` when an abstract refinement is only missing the discriminator field', () => {
-      const {TestFragment} = generateAndCompile(`
-      fragment TestFragment on Query {
-        maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not present
-          ... on Node { id }
-          ... on NonNodeNoID {
-            name
+      const TestFragment = graphql`
+        fragment DataCheckerTest18Fragment on Query {
+          maybeNodeInterface {
+            # This "... on Node { id }" selection would be generated if not present
+            ... on Node {
+              id
+            }
+            ... on NonNodeNoID {
+              name
+            }
           }
         }
-      }
-    `);
+      `;
+
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2576,7 +2671,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(TestFragment, 'client:root', {}),
+        createNormalizationSelector(
+          (TestFragment: $FlowFixMe),
+          'client:root',
+          {},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -2589,17 +2688,20 @@ describe('check()', () => {
     });
 
     it('returns `available` when a record is only missing fields in non-implemented interfaces', () => {
-      const {TestFragment} = generateAndCompile(`
-      fragment TestFragment on Query {
-        maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not present
-          ... on Node { id }
-          ... on NonNodeNoID {
-            name
+      const TestFragment = graphql`
+        fragment DataCheckerTest19Fragment on Query {
+          maybeNodeInterface {
+            # This "... on Node { id }" selection would be generated if not present
+            ... on Node {
+              id
+            }
+            ... on NonNodeNoID {
+              name
+            }
           }
         }
-      }
-    `);
+      `;
+
       const typeID = generateTypeID('NonNodeNoID');
       const data = {
         'client:root': {
@@ -2624,7 +2726,11 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(TestFragment, 'client:root', {}),
+        createNormalizationSelector(
+          (TestFragment: $FlowFixMe),
+          'client:root',
+          {},
+        ),
         [],
         null,
         defaultGetDataID,
@@ -2655,37 +2761,28 @@ describe('check()', () => {
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
-      ({FlightQuery, InnerQuery} = generateAndCompile(
-        `
-        query FlightQuery($id: ID!, $count: Int!) {
+      FlightQuery = graphql`
+        query DataCheckerTestFlightQuery($id: ID!, $count: Int!) {
           node(id: $id) {
             ... on Story {
               flightComponent(condition: true, count: $count, id: $id)
             }
           }
         }
-
-        query InnerQuery($id: ID!) {
+      `;
+      InnerQuery = graphql`
+        query DataCheckerTestInnerQuery($id: ID!) {
           node(id: $id) {
             ... on User {
               name
             }
           }
         }
+      `;
 
-        extend type Story {
-          flightComponent(
-            condition: Boolean!
-            count: Int!
-            id: ID!
-          ): ReactFlightComponent
-            @react_flight_component(name: "FlightComponent.server")
-        }
-        `,
-      ));
       operationLoader = {
-        get: jest.fn(() => InnerQuery),
-        load: jest.fn(() => Promise.resolve(InnerQuery)),
+        get: jest.fn(() => getRequest(InnerQuery)),
+        load: jest.fn(() => Promise.resolve(getRequest(InnerQuery))),
       };
     });
     afterEach(() => {
@@ -2743,10 +2840,14 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
-          count: 10,
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(FlightQuery).operation,
+          ROOT_ID,
+          {
+            count: 10,
+            id: '1',
+          },
+        ),
         [],
         operationLoader,
         defaultGetDataID,
@@ -2787,10 +2888,14 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
-          count: 10,
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(FlightQuery).operation,
+          ROOT_ID,
+          {
+            count: 10,
+            id: '1',
+          },
+        ),
         [],
         operationLoader,
         defaultGetDataID,
@@ -2827,10 +2932,14 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
-          count: 10,
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(FlightQuery).operation,
+          ROOT_ID,
+          {
+            count: 10,
+            id: '1',
+          },
+        ),
         [],
         operationLoader,
         defaultGetDataID,
@@ -2867,10 +2976,14 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
-          count: 10,
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(FlightQuery).operation,
+          ROOT_ID,
+          {
+            count: 10,
+            id: '1',
+          },
+        ),
         [],
         operationLoader,
         defaultGetDataID,
@@ -2906,10 +3019,14 @@ describe('check()', () => {
       const status = check(
         source,
         target,
-        createNormalizationSelector(FlightQuery.fragment, ROOT_ID, {
-          count: 10,
-          id: '1',
-        }),
+        createNormalizationSelector(
+          getRequest(FlightQuery).operation,
+          ROOT_ID,
+          {
+            count: 10,
+            id: '1',
+          },
+        ),
         [],
         operationLoader,
         defaultGetDataID,

@@ -3,4 +3,5 @@
 type Foo {
   client_name: String
   profile_picture(scale: Float): Image
+  bar: Bar
 }

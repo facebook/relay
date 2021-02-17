@@ -5,4 +5,5 @@ extend type User {
   best_friends: FriendsConnection
   client_actor_field: String
   client_foo: Foo
+  foo: Foo
 }

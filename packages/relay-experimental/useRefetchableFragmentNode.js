@@ -14,8 +14,6 @@
 'use strict';
 
 const ProfilerContext = require('./ProfilerContext');
-// flowlint-next-line untyped-import:off
-const Scheduler = require('scheduler');
 
 const getRefetchMetadata = require('./getRefetchMetadata');
 const getValueAtPath = require('./getValueAtPath');
@@ -401,22 +399,6 @@ function useRefetchFunction<TQuery: OperationType>(
           componentDisplayName,
         );
         return {dispose: () => {}};
-      }
-      if (
-        Scheduler.unstable_getCurrentPriorityLevel() <
-        Scheduler.unstable_NormalPriority
-      ) {
-        warning(
-          false,
-          'Relay: Unexpected call to `refetch` at a priority higher than ' +
-            'expected on fragment `%s` in `%s`. It looks like you tried to ' +
-            'call `refetch` under a high priority update, but updates that ' +
-            'can cause the component to suspend should be scheduled at ' +
-            'normal priority. Make sure you are calling `refetch` inside ' +
-            '`startTransition()` from the `useTransition()` hook.',
-          fragmentNode.name,
-          componentDisplayName,
-        );
       }
       if (parentFragmentRef == null) {
         warning(

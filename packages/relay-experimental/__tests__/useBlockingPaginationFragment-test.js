@@ -1008,39 +1008,6 @@ describe('useBlockingPaginationFragment', () => {
         expect(renderSpy).toBeCalledTimes(0);
       });
 
-      it('warns if load more scheduled at high priority', () => {
-        const warning = require('warning');
-        renderFragment();
-        expectFragmentResults([
-          {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-          },
-        ]);
-
-        TestRenderer.act(() => {
-          Scheduler.unstable_runWithPriority(
-            Scheduler.unstable_ImmediatePriority,
-            () => {
-              loadNext(1);
-            },
-          );
-        });
-
-        // $FlowFixMe[prop-missing]
-        const calls = warning.mock.calls.filter(
-          call =>
-            call[0] === false &&
-            call[1].includes(
-              'Relay: Unexpected call to `%s` at a priority higher than expected',
-            ),
-        );
-        expect(calls.length).toEqual(1);
-        expect(calls[0][2]).toEqual('loadNext');
-        expect(environment.execute).toHaveBeenCalledTimes(1);
-      });
-
       it('attempts to load more even if there are no more items to load', () => {
         (environment.getStore().getSource(): $FlowFixMe).clear();
         environment.commitPayload(query, {

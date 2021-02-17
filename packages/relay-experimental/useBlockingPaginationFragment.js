@@ -13,15 +13,11 @@
 
 'use strict';
 
-// flowlint-next-line untyped-import:off
-const Scheduler = require('scheduler');
-
 const getPaginationMetadata = require('./getPaginationMetadata');
 const invariant = require('invariant');
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-const warning = require('warning');
 
 const {useCallback, useEffect, useRef, useState} = require('react');
 const {getFragment, getFragmentIdentifier} = require('relay-runtime');
@@ -212,7 +208,7 @@ function useLoadMore<TQuery: OperationType>(args: {|
     // and blow away the whole list of items.
     error: promiseResolve,
   };
-  const [_loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
     ...loadMoreArgs,
     observer,
     onReset: handleReset,
@@ -236,36 +232,6 @@ function useLoadMore<TQuery: OperationType>(args: {|
     // NOTE: We know the identity of enableStoreUpdates wont change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestPromise]);
-
-  const loadMore = useCallback(
-    (...callArgs) => {
-      if (
-        Scheduler.unstable_getCurrentPriorityLevel() <
-        Scheduler.unstable_NormalPriority
-      ) {
-        warning(
-          false,
-          'Relay: Unexpected call to `%s` at a priority higher than ' +
-            'expected on fragment `%s` in `%s`. It looks like you tried to ' +
-            'call `refetch` under a high priority update, but updates that ' +
-            'can cause the component to suspend should be scheduled at ' +
-            'normal priority. Make sure you are calling `refetch` inside ' +
-            '`startTransition()` from the `useSuspenseTransition()` hook.',
-          args.direction === 'forward' ? 'loadNext' : 'loadPrevious',
-          args.fragmentNode.name,
-          args.componentDisplayName,
-        );
-      }
-
-      return _loadMore(...callArgs);
-    },
-    [
-      _loadMore,
-      args.componentDisplayName,
-      args.direction,
-      args.fragmentNode.name,
-    ],
-  );
 
   return [loadMore, hasMore, disposeFetch];
 }

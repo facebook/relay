@@ -556,36 +556,6 @@ describe('useRefetchableFragmentNode', () => {
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
     });
 
-    it('warns if refetch scheduled at high priority', () => {
-      const warning = require('warning');
-      renderFragment();
-      const initialUser = {
-        id: '1',
-        name: 'Alice',
-        profile_picture: null,
-        ...createFragmentRef('1', query),
-      };
-      expectFragmentResults([{data: initialUser}]);
-
-      TestRenderer.act(() => {
-        Scheduler.unstable_runWithPriority(
-          Scheduler.unstable_ImmediatePriority,
-          () => {
-            refetch({id: '4'});
-          },
-        );
-      });
-
-      expect(warning).toHaveBeenCalledTimes(2);
-      expect(
-        // $FlowFixMe[prop-missing]
-        warning.mock.calls[0][1].includes(
-          'Relay: Unexpected call to `refetch` at a priority higher than expected',
-        ),
-      ).toEqual(true);
-      expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
-    });
-
     it('throws error when error occurs during refetch', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 

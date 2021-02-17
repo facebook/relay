@@ -72,6 +72,7 @@ where
                             apply_normalization_transforms(
                                 project_name,
                                 Arc::clone(&operation_program),
+                                Arc::clone(&feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -79,6 +80,7 @@ where
                             apply_operation_text_transforms(
                                 project_name,
                                 Arc::clone(&operation_program),
+                                Arc::clone(&feature_flags),
                                 Arc::clone(&perf_logger),
                             )
                         },
@@ -217,12 +219,6 @@ fn apply_operation_transforms(
     let mut program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)
     });
-    program = log_event.time("apply_fragment_arguments", || {
-        apply_fragment_arguments(&program)
-    })?;
-    log_event.time("validate_global_variables", || {
-        validate_global_variables(&program)
-    })?;
     program = log_event.time("generate_id_field", || generate_id_field(&program));
     program = log_event.time("declarative_connection", || {
         transform_declarative_connection(&program, connection_interface)
@@ -248,6 +244,7 @@ fn apply_operation_transforms(
 fn apply_normalization_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
@@ -261,7 +258,11 @@ fn apply_normalization_transforms(
     log_event.string("project", project_name.to_string());
     print_stats("normalization start", &program);
 
-    let mut program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
+    let mut program = log_event.time("apply_fragment_arguments", || {
+        apply_fragment_arguments(&program, true, &feature_flags.no_inline)
+    })?;
+    print_stats("apply_fragment_arguments", &program);
+    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     print_stats("relay_early_flush", &program);
 
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
@@ -299,6 +300,7 @@ fn apply_normalization_transforms(
 fn apply_operation_text_transforms(
     project_name: StringKey,
     program: Arc<Program>,
+    feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
     // JS compiler
@@ -315,7 +317,13 @@ fn apply_operation_text_transforms(
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
-    let mut program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
+    let mut program = log_event.time("apply_fragment_arguments", || {
+        apply_fragment_arguments(&program, false, &feature_flags.no_inline)
+    })?;
+    log_event.time("validate_global_variables", || {
+        validate_global_variables(&program)
+    })?;
+    program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)

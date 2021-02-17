@@ -7,6 +7,8 @@ directive @relay_test_operation on QUERY | MUTATION | SUBSCRIPTION
 
 directive @inline on FRAGMENT_DEFINITION
 
+directive @no_inline on FRAGMENT_DEFINITION
+
 directive @raw_response_type on QUERY | MUTATION | SUBSCRIPTION
 
 directive @relay_early_flush on QUERY

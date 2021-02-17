@@ -31,6 +31,7 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod no_inline;
 mod node_identifier;
 mod react_flight;
 mod refetchable_fragment;
@@ -71,7 +72,7 @@ pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::FeatureFlags;
+pub use feature_flags::{FeatureFlags, NoInlineFeature};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -92,6 +93,7 @@ pub use match_::{
     split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
     MATCH_CONSTANTS,
 };
+pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
 pub use react_flight::{
     react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,

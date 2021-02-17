@@ -17,7 +17,7 @@ fn transform(program: &Program) -> DiagnosticsResult<Program> {
         program,
         &FeatureFlags {
             enable_required_transform_for_prefix: Some("Enabled".intern()),
-            enable_flight_transform: false,
+            ..Default::default()
         },
     )
 }

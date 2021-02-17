@@ -107,7 +107,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 .split_operations
                 .entry(normalization_name)
                 .or_insert_with(|| {
-                    // Exclude `__module_operation/module: js` field selections from `SplitOperation`
+                    // Exclude `__module_operation/__module_component: js` field selections from `SplitOperation`
                     let mut next_selections = Vec::with_capacity(fragment.selections.len() - 2);
                     for selection in &fragment.selections {
                         match selection {

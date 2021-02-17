@@ -35,6 +35,10 @@ impl Scope {
             .collect()
     }
 
+    pub fn push_bindings(&mut self, location: Location, bindings: FnvHashMap<StringKey, Value>) {
+        self.bindings.push((location, bindings));
+    }
+
     pub fn push(
         &mut self,
         location: Location,

@@ -1177,7 +1177,8 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         for selection in selections {
             match selection {
                 Selection::FragmentSpread(_) => {
-                    panic!("There should be no fragment spreads in the raw response IR.");
+                    // TODO T84961855: Potentially support @no_inline within @raw_response_type
+                    // For now we intentionally exclude selections from shared normalization fragments.
                 }
                 Selection::InlineFragment(inline_fragment) => {
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)

@@ -33,7 +33,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &program,
         &FeatureFlags {
             enable_required_transform_for_prefix: Some("".intern()),
-            enable_flight_transform: false,
+            ..Default::default()
         },
     )
     .map(|next_program| {

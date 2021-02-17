@@ -15,7 +15,9 @@ use interner::Intern;
 use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
 use relay_compiler::{apply_transforms, validate};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags, DIRECTIVE_SPLIT_OPERATION};
+use relay_transforms::{
+    ConnectionInterface, FeatureFlags, NoInlineFeature, DIRECTIVE_SPLIT_OPERATION,
+};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -49,6 +51,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
         enable_required_transform_for_prefix: Some("".intern()),
+        no_inline: NoInlineFeature::Enabled,
     };
 
     // TODO pass base fragment names

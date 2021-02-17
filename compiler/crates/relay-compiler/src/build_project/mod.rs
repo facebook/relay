@@ -143,7 +143,13 @@ fn build_programs(
             Arc::new(program),
             Arc::new(base_fragment_names),
             &config.connection_interface,
-            Arc::new(project_config.feature_flags.unwrap_or(config.feature_flags)),
+            Arc::new(
+                project_config
+                    .feature_flags
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or(config.feature_flags.clone()),
+            ),
             perf_logger,
         )
         .map_err(|errors| {

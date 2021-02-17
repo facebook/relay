@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95b79a4986f3411203abd6b9984ce4c3>>
+ * @generated SignedSource<<9370f5b7c4649df28b139fee002b2f94>>
  */
 
 mod compile_relay_artifacts;
@@ -591,6 +591,20 @@ fn nested_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/nested_conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/nested_conditions.expected");
     test_fixture(transform_fixture, "nested_conditions.graphql", "compile_relay_artifacts/fixtures/nested_conditions.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment_disallow_module() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.expected");
+    test_fixture(transform_fixture, "no-inline-fragment-disallow-module.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.expected", input, expected);
 }
 
 #[test]

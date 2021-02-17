@@ -31,43 +31,41 @@ describe('RelayOperationTracker', () => {
   let MutationOperation2;
   beforeEach(() => {
     tracker = new RelayOperationTracker();
-    const Query1 = graphql`
+    const Query1 = getRequest(graphql`
       query RelayOperationTrackerTest1Query($id: ID) {
         node(id: $id) {
           id
         }
       }
-    `;
-    const Query2 = graphql`
+    `);
+    const Query2 = getRequest(graphql`
       query RelayOperationTrackerTest2Query($id: ID) {
         node(id: $id) {
           __typename
         }
       }
-    `;
-    const Mutation1 = graphql`
+    `);
+    const Mutation1 = getRequest(graphql`
       mutation RelayOperationTrackerTest1Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           __typename
         }
       }
-    `;
-    const Mutation2 = graphql`
+    `);
+    const Mutation2 = getRequest(graphql`
       mutation RelayOperationTrackerTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           __typename
         }
       }
-    `;
+    `);
 
-    QueryOperation1 = createOperationDescriptor(getRequest(Query1), {id: '1'})
-      .request;
-    QueryOperation2 = createOperationDescriptor(getRequest(Query2), {id: '2'})
-      .request;
-    MutationOperation1 = createOperationDescriptor(getRequest(Mutation1), {
+    QueryOperation1 = createOperationDescriptor(Query1, {id: '1'}).request;
+    QueryOperation2 = createOperationDescriptor(Query2, {id: '2'}).request;
+    MutationOperation1 = createOperationDescriptor(Mutation1, {
       id: '1',
     }).request;
-    MutationOperation2 = createOperationDescriptor(getRequest(Mutation2), {
+    MutationOperation2 = createOperationDescriptor(Mutation2, {
       id: '2',
     }).request;
   });

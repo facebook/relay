@@ -35,20 +35,20 @@ describe('applyUpdate()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ParentQuery = graphql`
+    ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentApplyUpdateTestParentQuery {
         me {
           id
           name
         }
       }
-    `;
-    UserFragment = graphql`
+    `);
+    UserFragment = getFragment(graphql`
       fragment RelayModernEnvironmentApplyUpdateTestUserFragment on User {
         id
         name
       }
-    `;
+    `);
 
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
@@ -56,12 +56,12 @@ describe('applyUpdate()', () => {
       network: RelayNetwork.create(jest.fn()),
       store,
     });
-    operation = createOperationDescriptor(getRequest(ParentQuery), {});
+    operation = createOperationDescriptor(ParentQuery, {});
   });
 
   it('applies the mutation to the store', () => {
     const selector = createReaderSelector(
-      getFragment(UserFragment),
+      UserFragment,
       '4',
       {},
       operation.request,
@@ -86,7 +86,7 @@ describe('applyUpdate()', () => {
 
   it('reverts mutations when disposed', () => {
     const selector = createReaderSelector(
-      getFragment(UserFragment),
+      UserFragment,
       '4',
       {},
       operation.request,
@@ -109,7 +109,7 @@ describe('applyUpdate()', () => {
 
   it('can replace one mutation with another', () => {
     const selector = createReaderSelector(
-      getFragment(UserFragment),
+      UserFragment,
       '4',
       {},
       operation.request,
@@ -145,7 +145,7 @@ describe('applyUpdate()', () => {
 
   it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
     const selector = createReaderSelector(
-      getFragment(UserFragment),
+      UserFragment,
       '4',
       {},
       operation.request,
@@ -246,7 +246,7 @@ describe('applyUpdate()', () => {
 
     it('applies the mutation to the store', () => {
       const selector = createReaderSelector(
-        getFragment(UserFragment),
+        UserFragment,
         '4',
         {},
         operation.request,
@@ -277,7 +277,7 @@ describe('applyUpdate()', () => {
 
     it('reverts mutations when disposed', () => {
       const selector = createReaderSelector(
-        getFragment(UserFragment),
+        UserFragment,
         '4',
         {},
         operation.request,
@@ -312,7 +312,7 @@ describe('applyUpdate()', () => {
 
     it('can replace one mutation with another', () => {
       const selector = createReaderSelector(
-        getFragment(UserFragment),
+        UserFragment,
         '4',
         {},
         operation.request,
@@ -355,7 +355,7 @@ describe('applyUpdate()', () => {
 
     it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
       const selector = createReaderSelector(
-        getFragment(UserFragment),
+        UserFragment,
         '4',
         {},
         operation.request,

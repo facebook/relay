@@ -49,6 +49,7 @@ import type {
 import type {
   CacheConfig,
   ConnectionMetadata,
+  Direction,
   Disposable,
   FragmentMap,
   FragmentSpecResolver,
@@ -76,7 +77,7 @@ type FragmentVariablesGetter = (
 ) => Variables;
 
 export type ConnectionConfig = {
-  direction?: 'backward' | 'forward',
+  direction?: Direction,
   getConnectionFromProps?: (props: Object) => ?ConnectionData,
   getFragmentVariables?: FragmentVariablesGetter,
   getVariables: (

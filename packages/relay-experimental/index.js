@@ -40,7 +40,7 @@ const {loadQuery} = require('./loadQuery');
 export type * from './EntryPointTypes.flow';
 export type {MatchContainerProps, MatchPointer} from './MatchContainer';
 export type {ProfilerContextType} from './ProfilerContext';
-export type {Direction, LoadMoreFn} from './useLoadMoreFunction';
+export type {LoadMoreFn} from './useLoadMoreFunction';
 export type {UseMutationConfig} from './useMutation';
 export type {UseQueryLoaderLoadQueryOptions} from './useQueryLoader';
 export type {
@@ -48,6 +48,8 @@ export type {
   RefetchFnDynamic,
   Options as RefetchOptions,
 } from './useRefetchableFragmentNode';
+
+export type {Direction} from 'relay-runtime';
 
 module.exports = {
   EntryPointContainer: EntryPointContainer,

@@ -70,3 +70,5 @@ export type FetchPolicy =
   | 'store-and-network'
   | 'store-only';
 export type RenderPolicy = 'full' | 'partial';
+
+export type Direction = 'forward' | 'backward';

@@ -22,6 +22,7 @@ const invariant = require('invariant');
 const normalizeRelayPayload = require('../normalizeRelayPayload');
 const warning = require('warning');
 
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -32,7 +33,7 @@ const {
   ROOT_TYPE,
   TYPENAME_KEY,
 } = require('../RelayStoreUtils');
-const {generateAndCompile, simpleClone} = require('relay-test-utils-internal');
+const {simpleClone} = require('relay-test-utils-internal');
 
 describe('RelayPublishQueue', () => {
   beforeEach(() => {
@@ -89,33 +90,25 @@ describe('RelayPublishQueue', () => {
     beforeEach(() => {
       source = new RelayRecordSourceMapImpl(simpleClone(initialData));
       store = new RelayModernStore(source);
-      const mutationQuery = generateAndCompile(
-        `
-        mutation ChangeNameMutation(
-          $input: ActorNameChangeInput!
-        ) {
+      const mutationQuery = graphql`
+        mutation RelayPublishQueueTest1Mutation($input: ActorNameChangeInput!) {
           actorNameChange(input: $input) {
             actor {
               name
             }
           }
         }
-      `,
-      ).ChangeNameMutation;
+      `;
 
-      const mutationQueryAliased = generateAndCompile(
-        `
-        mutation ChangeNameMutation(
-          $input: ActorNameChangeInput!
-        ) {
+      const mutationQueryAliased = graphql`
+        mutation RelayPublishQueueTest2Mutation($input: ActorNameChangeInput!) {
           changeName: actorNameChange(input: $input) {
             actor {
               name
             }
           }
         }
-      `,
-      ).ChangeNameMutation;
+      `;
 
       const variables = {
         input: {
@@ -403,17 +396,15 @@ describe('RelayPublishQueue', () => {
     it('applies updates in subsequent run()s (payload then payload)', () => {
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       // First set `name`.
-      const nameMutation = generateAndCompile(`
-        mutation ChangeNameMutation(
-          $input: ActorNameChangeInput!
-        ) {
+      const nameMutation = graphql`
+        mutation RelayPublishQueueTest3Mutation($input: ActorNameChangeInput!) {
           actorNameChange(input: $input) {
             actor {
               name
             }
           }
         }
-      `).ChangeNameMutation;
+      `;
       const nameMutationDescriptor = createOperationDescriptor(nameMutation, {
         input: {},
       });
@@ -437,17 +428,15 @@ describe('RelayPublishQueue', () => {
         updater: null,
       });
       // Next set `lastName`.
-      const lastNameMutation = generateAndCompile(`
-        mutation ChangeNameMutation(
-          $input: ActorNameChangeInput!
-        ) {
+      const lastNameMutation = graphql`
+        mutation RelayPublishQueueTest4Mutation($input: ActorNameChangeInput!) {
           actorNameChange(input: $input) {
             actor {
               lastName
             }
           }
         }
-      `).ChangeNameMutation;
+      `;
       const lastNameMutationDescriptor = createOperationDescriptor(
         lastNameMutation,
         {input: {}},
@@ -798,15 +787,13 @@ describe('RelayPublishQueue', () => {
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
       const publishSource = new RelayRecordSourceMapImpl();
-      const {ActorQuery} = generateAndCompile(
-        `
-        query ActorQuery {
+      const ActorQuery = graphql`
+        query RelayPublishQueueTest1Query {
           me {
             name
           }
         }
-      `,
-      );
+      `;
 
       queue.commitPayload(createOperationDescriptor(ActorQuery, {}), {
         source: publishSource,
@@ -832,24 +819,22 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const {ActorQuery} = generateAndCompile(
-        `
-        fragment UserFragment on User {
+      graphql`
+        fragment RelayPublishQueueTest1Fragment on User {
           username
         }
-
-        query ActorQuery {
+      `;
+      const ActorQuery = graphql`
+        query RelayPublishQueueTest2Query {
           me {
             name
-            ...UserFragment
+            ...RelayPublishQueueTest1Fragment
           }
           nodes(ids: ["4"]) {
             name
           }
         }
-      `,
-      );
-
+      `;
       const operation = createOperationDescriptor(ActorQuery, {});
       const updater = jest.fn((storeProxy, data) => {
         const zuck = storeProxy.getRootField('me');
@@ -860,7 +845,7 @@ describe('RelayPublishQueue', () => {
         expect(data).toEqual({
           me: {
             __id: '4',
-            __fragments: {UserFragment: {}},
+            __fragments: {RelayPublishQueueTest1Fragment: {}},
             __fragmentOwner: operation.request,
             name: 'Zuck',
           },
@@ -954,17 +939,15 @@ describe('RelayPublishQueue', () => {
       };
       const queue = new RelayPublishQueue(store, handleProvider);
 
-      const {ActorQuery} = generateAndCompile(
-        `
-        query ActorQuery {
+      const ActorQuery = graphql`
+        query RelayPublishQueueTest3Query {
           me {
             screennames @__clientField(handle: "handleScreennames") {
               name @__clientField(handle: "handleName")
             }
           }
         }
-      `,
-      );
+      `;
 
       queue.commitPayload(createOperationDescriptor(ActorQuery, {}), {
         fieldPayloads: [
@@ -1076,15 +1059,13 @@ describe('RelayPublishQueue', () => {
           zuck.setValue(zuck.getValue('name').toUpperCase(), 'name');
         },
       });
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
+      const NameQuery = graphql`
+        query RelayPublishQueueTest4Query {
           me {
             name
           }
         }
-      `,
-      );
+      `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
         source: new RelayRecordSourceMapImpl({
@@ -1137,15 +1118,13 @@ describe('RelayPublishQueue', () => {
       });
       queue.run();
       // Query payload sets name to 'zuck'
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
+      const NameQuery = graphql`
+        query RelayPublishQueueTest5Query {
           me {
             name
           }
         }
-      `,
-      );
+      `;
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
         source: new RelayRecordSourceMapImpl({
           [ROOT_ID]: {
@@ -1196,15 +1175,13 @@ describe('RelayPublishQueue', () => {
         },
       };
       queue.applyUpdate(mutation);
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
+      const NameQuery = graphql`
+        query RelayPublishQueueTest6Query {
           me {
             name
           }
         }
-      `,
-      );
+      `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
         source: new RelayRecordSourceMapImpl({
@@ -1303,15 +1280,13 @@ describe('RelayPublishQueue', () => {
       };
       queue.applyUpdate(mutation);
       queue.commitUpdate(buggyUpdater);
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
+      const NameQuery = graphql`
+        query RelayPublishQueueTest7Query {
           me {
             name
           }
         }
-      `,
-      );
+      `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
         source: new RelayRecordSourceMapImpl({
@@ -1356,23 +1331,22 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const {ActorQuery} = generateAndCompile(
-        `
-        fragment UserFragment on User {
+      graphql`
+        fragment RelayPublishQueueTest2Fragment on User {
           username
         }
-
-        query ActorQuery {
+      `;
+      const ActorQuery = graphql`
+        query RelayPublishQueueTest8Query {
           me {
             name
-            ...UserFragment
+            ...RelayPublishQueueTest2Fragment
           }
           nodes(ids: ["4"]) {
             name
           }
         }
-      `,
-      );
+      `;
 
       const operation = createOperationDescriptor(ActorQuery, {});
       const updater = jest.fn((storeProxy, data) => {
@@ -1424,23 +1398,22 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
-      const {ActorQuery} = generateAndCompile(
-        `
-        fragment UserFragment on User {
+      graphql`
+        fragment RelayPublishQueueTest3Fragment on User {
           username
         }
-
-        query ActorQuery {
+      `;
+      const ActorQuery = graphql`
+        query RelayPublishQueueTest9Query {
           me {
             name
-            ...UserFragment
+            ...RelayPublishQueueTest3Fragment
           }
           nodes(ids: ["4"]) {
             name
           }
         }
-      `,
-      );
+      `;
 
       const operation = createOperationDescriptor(ActorQuery, {});
       const updater = jest.fn((storeProxy, data) => {
@@ -1524,15 +1497,13 @@ describe('RelayPublishQueue', () => {
         source = new RelayRecordSourceMapImpl({});
         store = new RelayModernStore(source);
         queue = new RelayPublishQueue(store, null, defaultGetDataID);
-        const {nameQuery} = generateAndCompile(
-          `
-          query nameQuery {
+        const nameQuery = graphql`
+          query RelayPublishQueueTest11Query {
             me {
               name
             }
           }
-        `,
-        );
+        `;
         nameSelector = createOperationDescriptor(nameQuery, {id: '4'});
         namePayload = {
           source: new RelayRecordSourceMapImpl({
@@ -1860,15 +1831,13 @@ describe('RelayPublishQueue', () => {
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
 
-      const {NameQuery} = generateAndCompile(
-        `
-        query NameQuery {
+      const NameQuery = graphql`
+        query RelayPublishQueueTest10Query {
           me {
             name
           }
         }
-      `,
-      );
+      `;
       // Query payload sets name to 'zuck'
       queue.commitPayload(createOperationDescriptor(NameQuery, {id: '4'}), {
         me: {

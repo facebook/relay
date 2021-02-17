@@ -18,7 +18,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
-const {getRequest} = require('../../query/GraphQLTag');
+const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -31,7 +31,6 @@ const {
 } = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
-  generateAndCompile,
   simpleClone,
 } = require('relay-test-utils-internal');
 
@@ -108,31 +107,34 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserQuery} = generateAndCompile(`
-          query UserQuery($id: ID!, $size: Int) {
+        UserQuery = graphql`
+          query RelayModernStoreTest1Query($id: ID!, $size: Int) {
             node(id: $id) {
-              ...UserFragment
+              ...RelayModernStoreTest1Fragment
             }
           }
-
-          fragment UserFragment on User {
+        `;
+        graphql`
+          fragment RelayModernStoreTest1Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-        `));
+        `;
       });
 
       it('prevents data from being collected', () => {
-        store.retain(createOperationDescriptor(UserQuery, {id: '4', size: 32}));
+        store.retain(
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
+        );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
       });
 
       it('frees data when disposed', () => {
         const {dispose} = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);
@@ -141,21 +143,21 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('only collects unreferenced data', () => {
-        const {JoeQuery} = generateAndCompile(`
-          fragment JoeFragment on Query @argumentDefinitions(
-            id: {type: "ID"}
-          ) {
+        const JoeQuery = graphql`
+          query RelayModernStoreTestJoeQuery($id: ID!) {
+            ...RelayModernStoreTestJoeFragment @arguments(id: $id)
+          }
+        `;
+        graphql`
+          fragment RelayModernStoreTestJoeFragment on Query
+            @argumentDefinitions(id: {type: "ID"}) {
             node(id: $id) {
               ... on User {
                 name
               }
             }
           }
-
-          query JoeQuery($id: ID!) {
-            ...JoeFragment @arguments(id: $id)
-          }
-        `);
+        `;
         const nextSource = getRecordSourceImplementation({
           '842472': {
             __id: '842472',
@@ -171,9 +173,11 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         });
         store.publish(nextSource);
         const {dispose} = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
-        store.retain(createOperationDescriptor(JoeQuery, {id: '842472'}));
+        store.retain(
+          createOperationDescriptor(getRequest(JoeQuery), {id: '842472'}),
+        );
 
         dispose(); // release one of the holds but not the other
         jest.runAllTimers();
@@ -204,26 +208,27 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserFragment, UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserFragment = graphql`
+          fragment RelayModernStoreTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-
-          query UserQuery($size: Int) {
+        `;
+        UserQuery = graphql`
+          query RelayModernStoreTest2Query($size: Int) {
             me {
-              ...UserFragment
+              ...RelayModernStoreTest2Fragment
             }
           }
-        `));
+        `;
       });
 
       it('returns selector data', () => {
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -252,29 +257,33 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('includes fragment owner in selector data when owner is provided', () => {
-        ({UserQuery, UserFragment} = generateAndCompile(`
-          query UserQuery($size: Float!) {
+        UserQuery = graphql`
+          query RelayModernStoreTest3Query($size: Float!) {
             me {
-              ...UserFragment
+              ...RelayModernStoreTest3Fragment
             }
           }
+        `;
 
-          fragment UserFragment on User {
+        UserFragment = graphql`
+          fragment RelayModernStoreTest3Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
-            ...ChildUserFragment
+            ...RelayModernStoreTest4Fragment
           }
-
-          fragment ChildUserFragment on User {
+        `;
+        graphql`
+          fragment RelayModernStoreTest4Fragment on User {
             username
           }
-        `));
+        `;
+
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -290,7 +299,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
 
             __id: '4',
-            __fragments: {ChildUserFragment: {}},
+            __fragments: {RelayModernStoreTest4Fragment: {}},
             __fragmentOwner: owner.request,
           },
           seenRecords: {
@@ -309,9 +318,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('returns deeply-frozen objects', () => {
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -338,9 +347,11 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         const nextSource = getRecordSourceImplementation(nextData);
         store.publish(nextSource); // takes effect w/o calling notify()
 
-        const owner = createOperationDescriptor(UserQuery, {size: 32});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {
+          size: 32,
+        });
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -400,28 +411,30 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             logEvents.push(event);
           },
         });
-        ({UserFragment, UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserFragment = graphql`
+          fragment RelayModernStoreTest5Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
             emailAddresses
           }
+        `;
 
-          query UserQuery($size: Int) {
+        UserQuery = graphql`
+          query RelayModernStoreTest4Query($size: Int) {
             me {
-              ...UserFragment
+              ...RelayModernStoreTest5Fragment
             }
           }
-        `));
+        `;
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -468,25 +481,26 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        ({UserQuery, UserFragment} = generateAndCompile(`
-          query UserQuery($size: Float!) {
+        UserQuery = graphql`
+          query RelayModernStoreTest5Query($size: Float!) {
             me {
-              ...UserFragment
+              ...RelayModernStoreTest6Fragment
             }
           }
-
-          fragment UserFragment on User {
+        `;
+        UserFragment = graphql`
+          fragment RelayModernStoreTest6Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
             emailAddresses
           }
-        `));
+        `;
         const queryNode = getRequest(UserQuery);
         const owner = createOperationDescriptor(queryNode, {size: 32});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -535,9 +549,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('vends deeply-frozen objects', () => {
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -563,9 +577,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('calls affected subscribers only once', () => {
         // subscribe(), publish(), publish(), notify() -> subscriber called once
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -636,9 +650,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -683,9 +697,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('notifies subscribers of changes to unfetched records', () => {
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '842472',
           {
             size: 32,
@@ -719,9 +733,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('notifies subscribers of changes to deleted records', () => {
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '842472',
           {
             size: 32,
@@ -759,9 +773,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('does not call subscribers whose data has not changed', () => {
         // subscribe(), publish() -> subscriber *not* called
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -784,9 +798,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('does not notify disposed subscribers', () => {
         // subscribe(), publish(), dispose(), notify() -> subscriber *not* called
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -854,12 +868,12 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       describe('with data invalidation', () => {
         it('correctly invalidates store when store is globally invalidated', () => {
-          const owner = createOperationDescriptor(UserQuery, {
+          const owner = createOperationDescriptor(getRequest(UserQuery), {
             id: '4',
             size: 32,
           });
           const selector = createReaderSelector(
-            UserFragment,
+            getFragment(UserFragment),
             '4',
             {size: 32},
             owner.request,
@@ -888,12 +902,12 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         });
 
         it('correctly invalidates individual records', () => {
-          const owner = createOperationDescriptor(UserQuery, {
+          const owner = createOperationDescriptor(getRequest(UserQuery), {
             id: '4',
             size: 32,
           });
           const selector = createReaderSelector(
-            UserFragment,
+            getFragment(UserFragment),
             '4',
             {size: 32},
             owner.request,
@@ -924,12 +938,12 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         });
 
         it("correctly invalidates records even when they weren't modified in the source being published", () => {
-          const owner = createOperationDescriptor(UserQuery, {
+          const owner = createOperationDescriptor(getRequest(UserQuery), {
             id: '4',
             size: 32,
           });
           const selector = createReaderSelector(
-            UserFragment,
+            getFragment(UserFragment),
             '4',
             {size: 32},
             owner.request,
@@ -961,9 +975,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('emits log events for publish and notify', () => {
-        const owner = createOperationDescriptor(UserQuery, {});
+        const owner = createOperationDescriptor(getRequest(UserQuery), {});
         const selector = createReaderSelector(
-          UserFragment,
+          getFragment(UserFragment),
           '4',
           {size: 32},
           owner.request,
@@ -1043,25 +1057,26 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserQuery = graphql`
+          query RelayModernStoreTest6Query($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...RelayModernStoreTest7Fragment
+            }
+          }
+        `;
+        graphql`
+          fragment RelayModernStoreTest7Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-
-          query UserQuery($id: ID!, $size: [Int]) {
-            node(id: $id) {
-              ...UserFragment
-            }
-          }
-        `));
+        `;
         environment = createMockEnvironment({store});
       });
 
       it('returns available if all data exists in the cache', () => {
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '4',
           size: 32,
         });
@@ -1072,7 +1087,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('returns missing if a scalar field is missing', () => {
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '4',
           size: 32,
         });
@@ -1088,7 +1103,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('returns missing if a linked field is missing', () => {
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '4',
           size: 64,
         });
@@ -1100,7 +1115,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '4',
           size: 32,
         });
@@ -1108,7 +1123,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       });
 
       it('returns missing if the root record is missing', () => {
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '842472',
           size: 32,
         });
@@ -1124,7 +1139,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           store = new RelayModernStore(source, {
             queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
           });
-          const operation = createOperationDescriptor(UserQuery, {
+          const operation = createOperationDescriptor(getRequest(UserQuery), {
             id: '4',
             size: 32,
           });
@@ -1153,7 +1168,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1164,7 +1179,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '842472',
               size: 32,
             });
@@ -1174,7 +1189,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
         describe('when query has been written to the store', () => {
           it('returns stale even if data is cached but store was invalidated after query was written', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1194,7 +1209,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1213,7 +1228,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns the most recent fetchTime when the query is written multiple times to the store', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1245,7 +1260,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1263,7 +1278,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns stale if data is not cached and store was invalidated after query was written', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '842472',
               size: 32,
             });
@@ -1283,7 +1298,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             environment.commitUpdate(storeProxy => {
               storeProxy.invalidateStore();
             });
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '842472',
               size: 32,
             });
@@ -1301,7 +1316,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       describe('when individual records are invalidated', () => {
         describe('when data is cached in the store', () => {
           it('returns stale if operation has not been written before', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1317,7 +1332,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns stale if operation was written before record was invalidated', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1338,7 +1353,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns available if operation was written after record was invalidated', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1378,7 +1393,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns stale if operation has not been written before', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1394,7 +1409,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns stale if operation was written before record was invalidated', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1415,7 +1430,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns missing if stale record is unreachable', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '842472',
               size: 32,
             });
@@ -1435,7 +1450,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           });
 
           it('returns missing if operation was written after record was invalidated', () => {
-            const operation = createOperationDescriptor(UserQuery, {
+            const operation = createOperationDescriptor(getRequest(UserQuery), {
               id: '4',
               size: 32,
             });
@@ -1929,25 +1944,26 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           gcReleaseBufferSize: 1,
           queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
         });
-        ({UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserQuery = graphql`
+          query RelayModernStoreTest7Query($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...RelayModernStoreTest8Fragment
+            }
+          }
+        `;
+        graphql`
+          fragment RelayModernStoreTest8Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-
-          query UserQuery($id: ID!, $size: [Int]) {
-            node(id: $id) {
-              ...UserFragment
-            }
-          }
-        `));
+        `;
       });
 
       it('keeps the data retained in the release buffer after released by caller', () => {
         const disposable = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
 
         jest.runAllTimers();
@@ -1965,7 +1981,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         let fetchTime = Date.now();
         jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '4',
           size: 32,
         });
@@ -1990,7 +2006,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         let fetchTime = Date.now();
         jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-        const operation = createOperationDescriptor(UserQuery, {
+        const operation = createOperationDescriptor(getRequest(UserQuery), {
           id: '4',
           size: 32,
         });
@@ -2012,7 +2028,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('keeps the data retained in the release buffer after double-released by caller', () => {
         const disposable = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
 
         jest.runAllTimers();
@@ -2029,7 +2045,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('releases the operation and collects data after release buffer reaches capacity', () => {
         const disposable = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
         jest.runAllTimers();
         // Assert data is not collected
@@ -2042,7 +2058,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         expect(source.toJSON()).toEqual(initialData);
 
         const disposable2 = store.retain(
-          createOperationDescriptor(UserQuery, {id: '5', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '5', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
@@ -2076,21 +2092,21 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
 
       it('when same operation retained multiple times, data is only collected until fully released from buffer', () => {
         const disposable = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
 
         // Retain the same operation again
         const disposable2 = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
 
         // Retain different operation
         const disposable3 = store.retain(
-          createOperationDescriptor(UserQuery, {id: '5', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '5', size: 32}),
         );
         jest.runAllTimers();
         expect(source.toJSON()).toEqual(initialData);
@@ -2138,15 +2154,15 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         // Disposing and re-retaining an operation should cause that query to *not* count
         // toward the release buffer capacity.
         store = new RelayModernStore(source, {gcReleaseBufferSize: 2});
-        const operation1 = createOperationDescriptor(UserQuery, {
+        const operation1 = createOperationDescriptor(getRequest(UserQuery), {
           id: '1',
           size: 32,
         });
-        const operation2 = createOperationDescriptor(UserQuery, {
+        const operation2 = createOperationDescriptor(getRequest(UserQuery), {
           id: '2',
           size: 32,
         });
-        const operation3 = createOperationDescriptor(UserQuery, {
+        const operation3 = createOperationDescriptor(getRequest(UserQuery), {
           id: '3',
           size: 32,
         });
@@ -2184,13 +2200,13 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       let store;
       let schedulerQueue;
 
-      const {NodeQuery} = generateAndCompile(`
-        query NodeQuery($id: ID!) {
+      const NodeQuery = graphql`
+        query RelayModernStoreTest8Query($id: ID!) {
           node(id: $id) {
             __typename
           }
         }
-      `);
+      `;
 
       function runNextScheduledJob() {
         const job = schedulerQueue.shift();
@@ -2223,7 +2239,9 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         store.publish(nextSource);
         store.notify();
 
-        return store.retain(createOperationDescriptor(NodeQuery, {id: nodeID}));
+        return store.retain(
+          createOperationDescriptor(getRequest(NodeQuery), {id: nodeID}),
+        );
       }
 
       beforeEach(() => {
@@ -2358,26 +2376,27 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source);
-        ({UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserQuery = graphql`
+          query RelayModernStoreTest9Query($id: ID!, $size: [Int]) {
+            node(id: $id) {
+              ...RelayModernStoreTest9Fragment
+            }
+          }
+        `;
+        graphql`
+          fragment RelayModernStoreTest9Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-
-          query UserQuery($id: ID!, $size: [Int]) {
-            node(id: $id) {
-              ...UserFragment
-            }
-          }
-        `));
+        `;
       });
 
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
         const {dispose} = store.retain(
-          createOperationDescriptor(UserQuery, {id: '4', size: 32}),
+          createOperationDescriptor(getRequest(UserQuery), {id: '4', size: 32}),
         );
         dispose();
         expect(data).toEqual(initialData);

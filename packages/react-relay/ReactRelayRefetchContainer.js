@@ -116,6 +116,7 @@ function createContainerWithFragments<
     }
 
     componentDidMount() {
+      this._isUnmounted = false;
       this._subscribeToNewResolver();
     }
 

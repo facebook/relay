@@ -380,6 +380,10 @@ function createContainerWithFragments<
       this._hasFetched = false;
     }
 
+    componentDidMount() {
+      this._isUnmounted = false;
+    }
+
     /**
      * When new props are received, read data for the new props and subscribe
      * for updates. Props may be the same in which case previous data and

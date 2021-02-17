@@ -34,6 +34,7 @@ describe('RelayResponseNormalizer', () => {
 
   beforeEach(() => {
     jest.resetModules();
+    // $FlowFixMe[incompatible-call]
     expect.extend(matchers);
   });
 

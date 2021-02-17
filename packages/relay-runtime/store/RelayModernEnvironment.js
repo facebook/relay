@@ -33,7 +33,6 @@ import type {
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {Observer} from '../network/RelayObservable';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -527,6 +526,7 @@ class RelayModernEnvironment implements IEnvironment {
               transactionID,
               params,
               variables,
+              cacheConfig,
             });
           },
           next: response => {

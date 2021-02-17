@@ -475,6 +475,7 @@ export type LogEvent =
       +transactionID: number,
       +params: RequestParameters,
       +variables: Variables,
+      +cacheConfig: CacheConfig,
     |}
   | {|
       +name: 'network.next',

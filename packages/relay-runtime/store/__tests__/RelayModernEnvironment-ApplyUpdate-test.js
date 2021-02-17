@@ -18,11 +18,11 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('applyUpdate()', () => {
   let environment;
@@ -35,18 +35,20 @@ describe('applyUpdate()', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({ParentQuery, UserFragment} = generateAndCompile(`
-        query ParentQuery {
-          me {
-            id
-            name
-          }
-        }
-        fragment UserFragment on User {
+    ParentQuery = graphql`
+      query RelayModernEnvironmentApplyUpdateTestParentQuery {
+        me {
           id
           name
         }
-      `));
+      }
+    `;
+    UserFragment = graphql`
+      fragment RelayModernEnvironmentApplyUpdateTestUserFragment on User {
+        id
+        name
+      }
+    `;
 
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
@@ -54,12 +56,12 @@ describe('applyUpdate()', () => {
       network: RelayNetwork.create(jest.fn()),
       store,
     });
-    operation = createOperationDescriptor(ParentQuery, {});
+    operation = createOperationDescriptor(getRequest(ParentQuery), {});
   });
 
   it('applies the mutation to the store', () => {
     const selector = createReaderSelector(
-      UserFragment,
+      getFragment(UserFragment),
       '4',
       {},
       operation.request,
@@ -84,7 +86,7 @@ describe('applyUpdate()', () => {
 
   it('reverts mutations when disposed', () => {
     const selector = createReaderSelector(
-      UserFragment,
+      getFragment(UserFragment),
       '4',
       {},
       operation.request,
@@ -107,7 +109,7 @@ describe('applyUpdate()', () => {
 
   it('can replace one mutation with another', () => {
     const selector = createReaderSelector(
-      UserFragment,
+      getFragment(UserFragment),
       '4',
       {},
       operation.request,
@@ -143,7 +145,7 @@ describe('applyUpdate()', () => {
 
   it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
     const selector = createReaderSelector(
-      UserFragment,
+      getFragment(UserFragment),
       '4',
       {},
       operation.request,
@@ -244,7 +246,7 @@ describe('applyUpdate()', () => {
 
     it('applies the mutation to the store', () => {
       const selector = createReaderSelector(
-        UserFragment,
+        getFragment(UserFragment),
         '4',
         {},
         operation.request,
@@ -275,7 +277,7 @@ describe('applyUpdate()', () => {
 
     it('reverts mutations when disposed', () => {
       const selector = createReaderSelector(
-        UserFragment,
+        getFragment(UserFragment),
         '4',
         {},
         operation.request,
@@ -310,7 +312,7 @@ describe('applyUpdate()', () => {
 
     it('can replace one mutation with another', () => {
       const selector = createReaderSelector(
-        UserFragment,
+        getFragment(UserFragment),
         '4',
         {},
         operation.request,
@@ -353,7 +355,7 @@ describe('applyUpdate()', () => {
 
     it('notifies the subscription when an optimistic update is reverted after commiting a server response for the same operation and also does not update the data subscribed', () => {
       const selector = createReaderSelector(
-        UserFragment,
+        getFragment(UserFragment),
         '4',
         {},
         operation.request,

@@ -126,14 +126,6 @@ fn apply_common_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // * DisallowIdAsAlias (in validate)
-    // + ConnectionTransform
-    // * RelayDirectiveTransform (in validate)
-    // + MaskTransform
-    // + MatchTransform
-    // + RefetchableFragmentTransform
-    // + DeferStreamTransform
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_name.to_string());
     let mut program = log_event.time("transform_connections", || {
@@ -166,12 +158,6 @@ fn apply_reader_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + ClientExtensionsTransform
-    // + FieldHandleTransform
-    // + InlineDataFragmentTransform
-    // + FlattenTransform, flattenAbstractTypes: true
-    // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_reader_transforms");
     log_event.string("project", project_name.to_string());
     let mut program = log_event.time("required_directive", || {
@@ -206,13 +192,6 @@ fn apply_operation_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + SplitModuleImportTransform
-    // * ValidateUnusedVariablesTransform (Moved to common_transforms)
-    // + ApplyFragmentArgumentTransform
-    // + ValidateGlobalVariablesTransform
-    // + GenerateIDFieldTransform
-    // * TestOperationTransform - part of relay_codegen
     let log_event = perf_logger.create_event("apply_operation_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -247,13 +226,6 @@ fn apply_normalization_transforms(
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + SkipUnreachableNodeTransform
-    // + InlineFragmentsTransform
-    // + ClientExtensionsTransform
-    // + GenerateTypeNameTransform
-    // + FlattenTransform, flattenAbstractTypes: true
-    // + SkipRedundantNodesTransform
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
     print_stats("normalization start", &program);
@@ -303,17 +275,6 @@ fn apply_operation_text_transforms(
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // + SkipSplitOperationTransform
-    // * ClientExtensionsTransform (not necessary in rust)
-    // + SkipClientExtensionsTransform
-    // + SkipUnreachableNodeTransform
-    // + GenerateTypeNameTransform
-    // + FlattenTransform, flattenAbstractTypes: false
-    // * SkipHandleFieldTransform (not necessary in rust)
-    // + FilterDirectivesTransform
-    // + SkipUnusedVariablesTransform
-    // + ValidateRequiredArgumentsTransform
     let log_event = perf_logger.create_event("apply_operation_text_transforms");
     log_event.string("project", project_name.to_string());
 
@@ -353,12 +314,6 @@ fn apply_typegen_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     perf_logger: Arc<impl PerfLogger>,
 ) -> DiagnosticsResult<Arc<Program>> {
-    // JS compiler
-    // * RelayDirectiveTransform
-    // + MaskTransform
-    // + MatchTransform
-    // + FlattenTransform, flattenAbstractTypes: false
-    // + RefetchableFragmentTransform,
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_name.to_string());
 

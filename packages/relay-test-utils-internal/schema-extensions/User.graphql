@@ -2,6 +2,7 @@
 
 extend type User {
   nickname: String
+  client_nickname: String
   best_friends: FriendsConnection
   client_actor_field: String
   client_foo: Foo

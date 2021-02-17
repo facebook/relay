@@ -12,12 +12,12 @@
 
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const {createReaderSelector, RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
@@ -43,14 +43,14 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest1Query {
         me {
           firstName
           lastName @required(action: LOG)
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
@@ -58,7 +58,7 @@ describe('RelayReader @required', () => {
     expect(() => {
       read(source, operation.fragment);
     }).toThrowErrorMatchingInlineSnapshot(
-      '"RelayReader(): Encountered a `@required` directive at path \\"me.lastName\\" in `FooQuery` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled."',
+      '"RelayReader(): Encountered a `@required` directive at path \\"me.lastName\\" in `RelayReaderRequiredFieldsTest1Query` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled."',
     );
   });
 
@@ -77,14 +77,14 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest2Query {
         me {
           firstName
           lastName @required(action: LOG)
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({me: null});
@@ -104,13 +104,13 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest3Query {
         me @required(action: THROW) {
           lastName @required(action: THROW)
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, missingRequiredFields} = read(source, operation.fragment);
     expect(data).toEqual(null);
@@ -132,14 +132,14 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest4Query {
         me {
           lastName @required(action: LOG)
           firstName @required(action: LOG)
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({me: null});
@@ -164,15 +164,15 @@ describe('RelayReader @required', () => {
         uri: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest5Query {
         me {
           backgroundImage {
             uri @required(action: LOG)
           }
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({me: {backgroundImage: null}});
@@ -204,15 +204,15 @@ describe('RelayReader @required', () => {
         uri: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest6Query {
         me {
           backgroundImage @required(action: LOG) {
             uri @required(action: LOG)
           }
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({me: null});
@@ -232,13 +232,13 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest7Query {
         me @required(action: LOG) {
           lastName @required(action: LOG)
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toBeNull();
@@ -272,8 +272,8 @@ describe('RelayReader @required', () => {
         service: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest8Query {
         me {
           screennames {
             name
@@ -281,7 +281,7 @@ describe('RelayReader @required', () => {
           }
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
@@ -306,13 +306,13 @@ describe('RelayReader @required', () => {
         emailAddress: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest9Query {
         me {
           emailAddresses @required(action: LOG)
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
@@ -347,8 +347,8 @@ describe('RelayReader @required', () => {
         service: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest10Query {
         me {
           screennames @required(action: LOG) {
             name
@@ -356,7 +356,7 @@ describe('RelayReader @required', () => {
           }
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({
@@ -380,15 +380,15 @@ describe('RelayReader @required', () => {
         viewer: {__ref: '2'},
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest11Query {
         viewer {
           allTimezones @required(action: NONE) {
             timezone
           }
         }
       }
-    `);
+    `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
     expect(data).toEqual({viewer: null});
@@ -408,15 +408,15 @@ describe('RelayReader @required', () => {
         maybeNodeInterface: {__ref: '3'},
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest12Query {
         maybeNodeInterface {
           ... on NonNodeNoID {
             name @required(action: LOG)
           }
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
@@ -437,8 +437,8 @@ describe('RelayReader @required', () => {
         maybeNodeInterface: {__ref: '3'},
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest13Query {
         maybeNodeInterface {
           ... on Story {
             # Weird that a story has a last name. Probably just test data being silly.
@@ -447,7 +447,7 @@ describe('RelayReader @required', () => {
           name
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data} = read(source, operation.fragment);
@@ -468,13 +468,13 @@ describe('RelayReader @required', () => {
         emailAddress: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery($skip: Boolean!) {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest14Query($skip: Boolean!) {
         me {
           emailAddresses @skip(if: $skip) @required(action: LOG)
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {
       id: '1',
@@ -498,13 +498,13 @@ describe('RelayReader @required', () => {
         emailAddress: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery($include: Boolean!) {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest15Query($include: Boolean!) {
         me {
           emailAddresses @include(if: $include) @required(action: LOG)
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {
       id: '1',
@@ -529,14 +529,14 @@ describe('RelayReader @required', () => {
         name: 'Zucc',
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery($include: Boolean!) {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest16Query($include: Boolean!) {
         me {
           emailAddresses @include(if: $include) @required(action: LOG)
           name
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {
       id: '1',
@@ -561,14 +561,14 @@ describe('RelayReader @required', () => {
         name: 'Zucc',
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery($skip: Boolean!) {
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest17Query($skip: Boolean!) {
         me {
           emailAddresses @skip(if: $skip) @required(action: LOG)
           name
         }
       }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {
       id: '1',
@@ -592,17 +592,13 @@ describe('RelayReader @required', () => {
         client_nickname: null,
       },
     });
-    const {FooQuery} = generateAndCompile(`
-      query FooQuery{
+    const FooQuery = graphql`
+      query RelayReaderRequiredFieldsTest18Query {
         me {
           client_nickname @required(action: LOG)
         }
       }
-
-      extend type User {
-        client_nickname: String
-      }
-    `);
+    `;
 
     const operation = createOperationDescriptor(FooQuery, {
       id: '1',
@@ -625,16 +621,18 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {BarFragment, UserQuery} = generateAndCompile(`
-      query UserQuery {
-        me {
-          ...BarFragment
-        }
-      }
-      fragment BarFragment on User {
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest1Fragment on User {
         lastName @required(action: LOG)
       }
-    `);
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest19Query {
+        me {
+          ...RelayReaderRequiredFieldsTest1Fragment
+        }
+      }
+    `;
     const owner = createOperationDescriptor(UserQuery);
     const {data} = read(
       source,
@@ -662,18 +660,20 @@ describe('RelayReader @required', () => {
         uri: null,
       },
     });
-    const {BarFragment, UserQuery} = generateAndCompile(`
-      query UserQuery {
-        me {
-          ...BarFragment
-        }
-      }
-      fragment BarFragment on User {
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest2Fragment on User {
         backgroundImage @required(action: LOG) {
           uri @required(action: LOG)
         }
       }
-    `);
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest20Query {
+        me {
+          ...RelayReaderRequiredFieldsTest2Fragment
+        }
+      }
+    `;
     const owner = createOperationDescriptor(UserQuery);
     const {data} = read(
       source,
@@ -696,16 +696,18 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {BarFragment, UserQuery} = generateAndCompile(`
-      query UserQuery {
-          ...BarFragment
-      }
-      fragment BarFragment on Query {
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest3Fragment on Query {
         me @required(action: LOG) {
           lastName @required(action: LOG)
         }
       }
-    `);
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest21Query {
+        ...RelayReaderRequiredFieldsTest3Fragment
+      }
+    `;
     const owner = createOperationDescriptor(UserQuery, {});
     const {data} = read(
       source,
@@ -729,19 +731,21 @@ describe('RelayReader @required', () => {
         lastName: null,
       },
     });
-    const {BarFragment, UserQuery} = generateAndCompile(`
-      query UserQuery {
-        me @required(action: LOG) {
-          firstName
-        }
-        ...BarFragment
-      }
-      fragment BarFragment on Query {
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest4Fragment on Query {
         me @required(action: LOG) {
           lastName @required(action: LOG)
         }
       }
-    `);
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest22Query {
+        me @required(action: LOG) {
+          firstName
+        }
+        ...RelayReaderRequiredFieldsTest4Fragment
+      }
+    `;
     const operation = createOperationDescriptor(UserQuery, {});
     const {data: queryData} = read(source, operation.fragment);
 
@@ -769,17 +773,19 @@ describe('RelayReader @required', () => {
         username: undefined,
       },
     });
-    const {BarFragment, UserQuery} = generateAndCompile(`
-      query UserQuery {
-        me {
-          ...BarFragment
-        }
-      }
-      fragment BarFragment on User {
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest5Fragment on User {
         firstName
         username @required(action: LOG)
       }
-    `);
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest23Query {
+        me {
+          ...RelayReaderRequiredFieldsTest5Fragment
+        }
+      }
+    `;
     const owner = createOperationDescriptor(UserQuery);
     const {data, isMissingData} = read(
       source,

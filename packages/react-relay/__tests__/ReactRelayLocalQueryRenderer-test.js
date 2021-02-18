@@ -17,14 +17,26 @@ const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 
-const {createOperationDescriptor} = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayLocalQueryRenderer', () => {
-  let TestQuery;
+  graphql`
+    fragment ReactRelayLocalQueryRendererTestUserFragment on User {
+      name
+    }
+  `;
+  const UserQuery = graphql`
+    query ReactRelayLocalQueryRendererTestUserQuery($id: ID = "<default>") {
+      node(id: $id) {
+        id
+        ... on User {
+          lastName
+        }
+        ...ReactRelayLocalQueryRendererTestUserFragment
+      }
+    }
+  `;
 
   let environment;
   let variables;
@@ -68,24 +80,9 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
   beforeEach(() => {
     environment = createMockEnvironment();
-    ({TestQuery} = generateAndCompile(`
-      query TestQuery($id: ID = "<default>") {
-        node(id: $id) {
-          id
-          ... on User {
-            lastName
-          }
-          ...TestFragment
-        }
-      }
-
-      fragment TestFragment on User {
-        name
-      }
-    `));
 
     variables = {id: '4'};
-    operation = createOperationDescriptor(TestQuery, variables);
+    operation = createOperationDescriptor(UserQuery, variables);
     render = jest.fn(({props}) => props?.node?.lastName);
   });
 
@@ -98,7 +95,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       }
       render = jest.fn(() => <ContextGetter />);
       ReactTestRenderer.act(() => {
-        renderer(environment, TestQuery, render, variables);
+        renderer(environment, UserQuery, render, variables);
       });
       expect(relayContext).toEqual({
         environment,
@@ -115,7 +112,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
         },
       };
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.retain).toBeCalledTimes(1);
       expect(environment.check).toBeCalledTimes(1);
@@ -129,7 +126,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('renders with undefined if query data does not exist in store', () => {
       ReactTestRenderer.act(() => {
-        renderer(environment, TestQuery, render, variables);
+        renderer(environment, UserQuery, render, variables);
       });
       expect(render).toBeCalledTimes(1);
       expect(render.mock.calls[0][0].props).toEqual({node: undefined});
@@ -145,7 +142,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
         },
       };
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       expect(
         environment
           .getStore()
@@ -165,7 +162,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
         },
       };
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.retain).toBeCalledTimes(1);
       const snapshot = environment.lookup(operation.fragment, operation);
@@ -197,7 +194,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       };
       environment.commitPayload(operation, payload);
 
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       render.mockClear();
@@ -221,7 +218,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     });
 
     it('subscribes to changes if initial data is undefined', () => {
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual(null);
@@ -258,7 +255,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     it('renders new data if the variables change', () => {
       const secondVariables = {id: '5'};
       const secondOperation = createOperationDescriptor(
-        TestQuery,
+        UserQuery,
         secondVariables,
       );
       const secondPayload = {
@@ -270,7 +267,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
         },
       };
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
@@ -311,7 +308,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     it('renders new data if the environment changes', () => {
       const newEnvironment = createMockEnvironment();
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
@@ -334,14 +331,16 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('renders new data if the query changes', () => {
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
 
       expect(render).toBeCalledTimes(1);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
 
-      const SecondTestQuery = generateAndCompile(`
-        query SecondTestQuery($id: ID = "<default>") {
+      const SecondUserQuery = graphql`
+        query ReactRelayLocalQueryRendererTestSecondUserQuery(
+          $id: ID = "<default>"
+        ) {
           node(id: $id) {
             id
             ... on User {
@@ -349,13 +348,13 @@ describe('ReactRelayLocalQueryRenderer', () => {
             }
           }
         }
-      `).SecondTestQuery;
+      `;
 
       ReactTestRenderer.act(() => {
-        setProps({query: SecondTestQuery});
+        setProps({query: SecondUserQuery});
       });
       const secondOperation = createOperationDescriptor(
-        SecondTestQuery,
+        SecondUserQuery,
         variables,
       );
       const snapshot = environment.lookup(
@@ -381,7 +380,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('disposes old observers when the varaibles change', () => {
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       expect(instance.toJSON()).toEqual('Mark');
       ReactTestRenderer.act(() => {
         setProps({variables: {id: '5'}});
@@ -416,7 +415,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('disposes old observers', () => {
       environment.commitPayload(operation, payload);
-      const instance = renderer(environment, TestQuery, render, variables);
+      const instance = renderer(environment, UserQuery, render, variables);
       expect(instance.toJSON()).toEqual('Mark');
       render.mockClear();
       instance.unmount();
@@ -444,7 +443,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
         },
       };
       environment.commitPayload(operation, payload);
-      instance = renderer(environment, TestQuery, render, variables);
+      instance = renderer(environment, UserQuery, render, variables);
     });
 
     it('runs after GC, data should not be collected by GC', () => {

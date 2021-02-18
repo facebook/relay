@@ -33,7 +33,7 @@ impl Default for FeatureFlags {
 }
 
 #[derive(Debug, Deserialize, Clone)]
-#[serde(tag = "kind")]
+#[serde(tag = "kind", rename_all = "lowercase")]
 pub enum NoInlineFeature {
     /// Fully disabled: developers may not use @no_inline
     Disabled,

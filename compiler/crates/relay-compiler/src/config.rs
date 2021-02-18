@@ -22,6 +22,7 @@ use interner::StringKey;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
+use relay_codegen::JsModuleFormat;
 use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
 use serde::Deserialize;
@@ -184,6 +185,7 @@ impl Config {
                     filename_for_artifact: None,
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
+                    js_module_format: config_file_project.js_module_format,
                 };
                 Ok((project_name, project_config))
             })
@@ -415,6 +417,7 @@ pub struct ProjectConfig {
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
+    pub js_module_format: JsModuleFormat,
 }
 
 impl Debug for ProjectConfig {
@@ -438,6 +441,7 @@ impl Debug for ProjectConfig {
             filename_for_artifact,
             skip_types_for_artifact,
             rollout,
+            js_module_format,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -472,6 +476,7 @@ impl Debug for ProjectConfig {
                 },
             )
             .field("rollout", rollout)
+            .field("js_module_format", js_module_format)
             .finish()
     }
 }
@@ -592,6 +597,9 @@ struct ConfigFileProject {
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
     #[serde(default)]
     pub rollout: Rollout,
+
+    #[serde(default)]
+    js_module_format: JsModuleFormat,
 }
 
 #[derive(Debug, Deserialize)]

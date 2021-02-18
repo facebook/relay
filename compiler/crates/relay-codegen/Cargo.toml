@@ -53,6 +53,7 @@ hex = "0.4"
 indexmap = { version = "1.6", features = ["serde-1", "rayon"] }
 lazy_static = "1.0"
 md-5 = "0.8"
+serde = { version = "1.0", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -298,7 +298,7 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::with_dedupe();
+            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let write_artifacts_time = log_event.start("write_artifacts_time");
             for artifact in &artifacts {
                 if should_stop_updating_artifacts() {
@@ -336,7 +336,7 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::with_dedupe();
+            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
             let write_artifacts_incremental_time =
@@ -361,7 +361,6 @@ pub async fn commit_project(
                 current_paths_map.insert(artifact);
             }
             log_event.stop(write_artifacts_incremental_time);
-
 
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
@@ -422,7 +421,6 @@ pub async fn commit_project(
         // directory first, then move to a correct destination.
         log_event.number("update_artifacts_after_source_control_update", 0);
     }
-
 
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",

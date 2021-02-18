@@ -165,7 +165,7 @@ schema = { path = "../schema" }
 criterion = "=0.3.1"
 dashmap = {version = "4.0.2", features = ["serde"] }
 fnv = "1.0"
-indexmap = { version = "1.3", features = ["serde-1", "rayon"] }
+indexmap = { version = "1.6", features = ["serde-1", "rayon"] }
 lazy_static = "1.0"
 parking_lot = "0.10.2"
 rayon = "1.2"

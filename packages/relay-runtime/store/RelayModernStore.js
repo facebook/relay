@@ -146,8 +146,8 @@ class RelayModernStore implements Store {
     this._shouldScheduleGC = false;
     this._storeSubscriptions =
       RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
-        ? new RelayStoreSubscriptionsUsingMapByID()
-        : new RelayStoreSubscriptions();
+        ? new RelayStoreSubscriptionsUsingMapByID(options?.log)
+        : new RelayStoreSubscriptions(options?.log);
     this._updatedRecordIDs = {};
 
     initializeRecordSource(this._recordSource);
@@ -304,6 +304,7 @@ class RelayModernStore implements Store {
       source,
       this._updatedRecordIDs,
       updatedOwners,
+      sourceOperation,
     );
     this._invalidationSubscriptions.forEach(subscription => {
       this._updateInvalidationSubscription(

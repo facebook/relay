@@ -365,6 +365,7 @@ export interface StoreSubscriptions {
     source: RecordSource,
     updatedRecordIDs: UpdatedRecords,
     updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
   ): void;
 }
 
@@ -517,6 +518,12 @@ export type LogEvent =
       +name: 'store.notify.complete',
       +updatedRecordIDs: UpdatedRecords,
       +invalidatedRecordIDs: Set<DataID>,
+    |}
+  | {|
+      +name: 'store.notify.subscription',
+      +sourceOperation?: OperationDescriptor,
+      +snapshot: Snapshot,
+      +nextSnapshot: Snapshot,
     |}
   | {|
       +name: 'entrypoint.root.consume',

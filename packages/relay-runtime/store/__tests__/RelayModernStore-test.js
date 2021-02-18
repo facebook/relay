@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
@@ -1020,6 +1021,90 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           },
         ]);
         expect(callback).toBeCalledTimes(1);
+      });
+
+      describe('with subscription notifications enabled', () => {
+        beforeAll(() => {
+          RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION = true;
+        });
+
+        afterAll(() => {
+          RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION = false;
+        });
+
+        it('emits log events for publish and notify', () => {
+          const owner = createOperationDescriptor(UserQuery, {});
+          const selector = createReaderSelector(
+            UserFragment,
+            '4',
+            {size: 32},
+            owner.request,
+          );
+          const snapshot = store.lookup(selector);
+          const callback = jest.fn(nextSnapshot => {
+            logEvents.push({
+              kind: 'test_only_callback',
+              data: nextSnapshot.data,
+            });
+          });
+          store.subscribe(snapshot, callback);
+
+          const nextSource = getRecordSourceImplementation({
+            'client:1': {
+              __id: 'client:1',
+              uri: 'https://photo2.jpg',
+            },
+          });
+          store.publish(nextSource);
+          expect(logEvents).toEqual([
+            {name: 'store.publish', source: nextSource, optimistic: false},
+          ]);
+          expect(callback).toBeCalledTimes(0);
+          logEvents.length = 0;
+          store.notify(owner);
+          expect(logEvents).toEqual([
+            {
+              name: 'store.notify.start',
+            },
+            // callbacks occur after notify.start...
+            {
+              name: 'store.notify.subscription',
+              sourceOperation: owner,
+              snapshot: expect.objectContaining({
+                data: {
+                  emailAddresses: ['a@b.com'],
+                  name: 'Zuck',
+                  profilePicture: {uri: 'https://photo1.jpg'},
+                },
+                selector,
+              }),
+              nextSnapshot: expect.objectContaining({
+                data: {
+                  emailAddresses: ['a@b.com'],
+                  name: 'Zuck',
+                  profilePicture: {uri: 'https://photo2.jpg'},
+                },
+                selector,
+              }),
+            },
+            {
+              // not a real LogEvent, this is for testing only
+              kind: 'test_only_callback',
+              data: {
+                emailAddresses: ['a@b.com'],
+                name: 'Zuck',
+                profilePicture: {uri: 'https://photo2.jpg'},
+              },
+            },
+            // ...and before notify.complete
+            {
+              name: 'store.notify.complete',
+              updatedRecordIDs: {'client:1': true},
+              invalidatedRecordIDs: new Set(),
+            },
+          ]);
+          expect(callback).toBeCalledTimes(1);
+        });
       });
     });
 

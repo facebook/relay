@@ -24,6 +24,7 @@ type FeatureFlags = {|
   ENABLE_STORE_SUBSCRIPTIONS_REFACTOR: boolean,
   ENABLE_LOAD_QUERY_REQUEST_DEDUPING: boolean,
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: boolean,
+  ENABLE_NOTIFY_SUBSCRIPTION: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -38,6 +39,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_STORE_SUBSCRIPTIONS_REFACTOR: false,
   ENABLE_LOAD_QUERY_REQUEST_DEDUPING: true,
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: false,
+  ENABLE_NOTIFY_SUBSCRIPTION: false,
 };
 
 module.exports = RelayFeatureFlags;

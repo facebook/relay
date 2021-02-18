@@ -56,7 +56,7 @@ export type Record = {[key: string]: mixed, ...};
 /**
  * A collection of records keyed by id.
  */
-export type RecordMap = {[dataID: DataID]: ?Record, ...};
+export type RecordObjectMap = {[DataID]: ?Record};
 
 export type FragmentMap = {[key: string]: ReaderFragment, ...};
 
@@ -113,7 +113,7 @@ export type MissingRequiredFields =
 export type Snapshot = {|
   +data: ?SelectorData,
   +isMissingData: boolean,
-  +seenRecords: RecordMap,
+  +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
 |};
@@ -269,7 +269,7 @@ export interface Store {
    * internal record source. Subscribers are not immediately notified - this
    * occurs when `notify()` is called.
    */
-  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void;
+  publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void;
 
   /**
    * Ensure that all the records necessary to fulfill the given selector are
@@ -363,7 +363,7 @@ export interface StoreSubscriptions {
    */
   updateSubscriptions(
     source: RecordSource,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ): void;
@@ -509,15 +509,15 @@ export type LogEvent =
     |}
   | {|
       +name: 'store.gc',
-      +references: Set<DataID>,
+      +references: DataIDSet,
     |}
   | {|
       +name: 'store.notify.start',
     |}
   | {|
       +name: 'store.notify.complete',
-      +updatedRecordIDs: UpdatedRecords,
-      +invalidatedRecordIDs: Set<DataID>,
+      +updatedRecordIDs: DataIDSet,
+      +invalidatedRecordIDs: DataIDSet,
     |}
   | {|
       +name: 'store.notify.subscription',
@@ -713,9 +713,10 @@ export type ModuleImportPointer = {
 };
 
 /**
- * A map of records affected by an update operation.
+ * A set of DataIDs used to track which IDs a read() operation observed and which IDs
+ * a publish operation updated.
  */
-export type UpdatedRecords = {[dataID: DataID]: boolean, ...};
+export type DataIDSet = Set<DataID>;
 
 /**
  * A function that updates a store (via a proxy) given the results of a "handle"

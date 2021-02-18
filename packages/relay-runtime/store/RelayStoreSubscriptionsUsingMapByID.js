@@ -22,12 +22,11 @@ import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {
   LogFunction,
   OperationDescriptor,
-  RecordMap,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
-  UpdatedRecords,
+  DataIDSet,
 } from './RelayStoreTypes';
 
 type Subscription = {|
@@ -65,7 +64,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       snapshot,
     };
     const dispose = () => {
-      for (const dataId in snapshot.seenRecords) {
+      for (const dataId of snapshot.seenRecords) {
         const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
         if (subscriptionsForDataId != null) {
           subscriptionsForDataId.delete(subscription);
@@ -76,7 +75,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       }
     };
 
-    for (const dataId in snapshot.seenRecords) {
+    for (const dataId of snapshot.seenRecords) {
       const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
       if (subscriptionsForDataId != null) {
         subscriptionsForDataId.add(subscription);
@@ -155,12 +154,12 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
 
   updateSubscriptions(
     source: RecordSource,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ) {
     this._notifiedRevision++;
-    Object.keys(updatedRecordIDs).forEach(updatedRecordId => {
+    updatedRecordIDs.forEach(updatedRecordId => {
       const subcriptionsForDataId = this._subscriptionsByDataId.get(
         updatedRecordId,
       );
@@ -258,9 +257,9 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
    */
   _updateSubscriptionsMap(
     subscription: Subscription,
-    prevSeenRecords: RecordMap,
+    prevSeenRecords: DataIDSet,
   ) {
-    for (const dataId in prevSeenRecords) {
+    for (const dataId of prevSeenRecords) {
       const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
       if (subscriptionsForDataId != null) {
         subscriptionsForDataId.delete(subscription);
@@ -270,7 +269,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       }
     }
 
-    for (const dataId in subscription.snapshot.seenRecords) {
+    for (const dataId of subscription.snapshot.seenRecords) {
       const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
       if (subscriptionsForDataId != null) {
         subscriptionsForDataId.add(subscription);

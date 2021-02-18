@@ -42,6 +42,21 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   }
 }
 
+function cloneEventWithSets(event) {
+  const nextEvent = {};
+  for (const key in event) {
+    if (event.hasOwnProperty(key)) {
+      const val = event[key];
+      if (val instanceof Set) {
+        nextEvent[key] = new Set(val);
+      } else {
+        nextEvent[key] = val;
+      }
+    }
+  }
+  return nextEvent;
+}
+
 [
   [data => new RelayRecordSourceMapImpl(data), 'Map'],
   [
@@ -92,7 +107,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
           log: event => {
-            logEvents.push(event);
+            logEvents.push(cloneEventWithSets(event));
           },
         });
         UserFragment = getFragment(graphql`
@@ -147,20 +162,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com'],
           },
-          seenRecords: {
-            '4': {
-              __id: '4',
-              id: '4',
-              __typename: 'User',
-              name: 'Zuck',
-              'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-              emailAddresses: ['a@b.com'],
-            },
-            'client:1': {
-              ...data['client:1'],
-              uri: 'https://photo2.jpg',
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
       });
 
@@ -217,20 +219,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com'],
           },
-          seenRecords: {
-            '4': {
-              __id: '4',
-              id: '4',
-              __typename: 'User',
-              name: 'Zuck',
-              'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-              emailAddresses: ['a@b.com'],
-            },
-            'client:1': {
-              ...data['client:1'],
-              uri: 'https://photo2.jpg',
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
         expect(callback.mock.calls[0][0].selector).toBe(selector);
       });
@@ -307,17 +296,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com', 'c@d.net'],
           },
-          seenRecords: {
-            '4': {
-              ...data['4'],
-              name: 'Mark',
-              emailAddresses: ['a@b.com', 'c@d.net'],
-            },
-            'client:1': {
-              ...data['client:1'],
-              uri: 'https://photo3.jpg',
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
       });
 
@@ -371,15 +350,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com'],
           },
-          seenRecords: {
-            '4': {
-              ...data['4'],
-              emailAddresses: ['a@b.com'],
-            },
-            'client:1': {
-              ...data['client:1'],
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
       });
 
@@ -415,7 +386,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           },
           missingRequiredFields: null,
           isMissingData: true,
-          seenRecords: nextSource.toJSON(),
+          seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
 
@@ -454,7 +425,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           },
           missingRequiredFields: null,
           isMissingData: true,
-          seenRecords: nextSource.toJSON(),
+          seenRecords: new Set(['842472']),
         });
       });
 
@@ -708,7 +679,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           // ...and before notify.complete
           {
             name: 'store.notify.complete',
-            updatedRecordIDs: {'client:1': true},
+            updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
           },
         ]);
@@ -791,7 +762,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             // ...and before notify.complete
             {
               name: 'store.notify.complete',
-              updatedRecordIDs: {'client:1': true},
+              updatedRecordIDs: new Set(['client:1']),
               invalidatedRecordIDs: new Set(),
             },
           ]);

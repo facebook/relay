@@ -17,18 +17,17 @@ const RelayReader = require('./RelayReader');
 
 const deepFreeze = require('../util/deepFreeze');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
-const isEmptyObject = require('../util/isEmptyObject');
 const recycleNodesInto = require('../util/recycleNodesInto');
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {
   LogFunction,
   OperationDescriptor,
+  DataIDSet,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
-  UpdatedRecords,
 } from './RelayStoreTypes';
 
 type Subscription = {|
@@ -108,11 +107,11 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
 
   updateSubscriptions(
     source: RecordSource,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ) {
-    const hasUpdatedRecords = !isEmptyObject(updatedRecordIDs);
+    const hasUpdatedRecords = updatedRecordIDs.size !== 0;
     this._subscriptions.forEach(subscription => {
       const owner = this._updateSubscription(
         source,
@@ -138,7 +137,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   _updateSubscription(
     source: RecordSource,
     subscription: Subscription,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     hasUpdatedRecords: boolean,
     sourceOperation?: OperationDescriptor,
   ): ?RequestDescriptor {

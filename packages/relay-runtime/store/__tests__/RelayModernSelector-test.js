@@ -47,6 +47,7 @@ describe('RelayModernSelector', () => {
   let owner;
 
   beforeEach(() => {
+    // $FlowFixMe[incompatible-call]
     expect.extend(matchers);
     jest.mock('warning');
 

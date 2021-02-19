@@ -175,19 +175,19 @@ table FBField {
     parent_type: FBType;
 }
 
-table FBTypeMap {
+table FBTypeMapEntry {
     name: string (key);
     value: FBType;
 }
 
-table FBDirectiveMap {
+table FBDirectiveMapEntry {
     name: string (key);
     value: FBDirective;
 }
 
 table FBSchema {
-    types: [FBTypeMap] (required);
-    directives: [FBDirectiveMap] (required);
+    types: [FBTypeMapEntry] (required);
+    directives: [FBDirectiveMapEntry] (required);
     scalars: [FBScalar] (required);
     input_objects: [FBInputObject] (required);
     enums: [FBEnum] (required);

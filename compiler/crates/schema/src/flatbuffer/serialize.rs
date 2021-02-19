@@ -35,9 +35,9 @@ struct Serializer<'fb, 'schema> {
     interfaces: Vec<WIPOffset<FBInterface<'fb>>>,
     unions: Vec<WIPOffset<FBUnion<'fb>>>,
     fields: Vec<WIPOffset<FBField<'fb>>>,
-    types: FnvHashMap<String, WIPOffset<FBTypeMap<'fb>>>,
+    types: FnvHashMap<String, WIPOffset<FBTypeMapEntry<'fb>>>,
     type_map: FnvHashMap<String, FBTypeArgs>,
-    directives: FnvHashMap<String, WIPOffset<FBDirectiveMap<'fb>>>,
+    directives: FnvHashMap<String, WIPOffset<FBDirectiveMapEntry<'fb>>>,
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
@@ -118,13 +118,13 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         };
         let fb_directive = FBDirective::create(&mut self.bldr, &args);
 
-        let directive_map_args = FBDirectiveMapArgs {
+        let directive_map_args = FBDirectiveMapEntryArgs {
             name: Some(self.bldr.create_string(name)),
             value: Some(fb_directive),
         };
         self.directives.insert(
             name.to_string(),
-            FBDirectiveMap::create(&mut self.bldr, &directive_map_args),
+            FBDirectiveMapEntry::create(&mut self.bldr, &directive_map_args),
         );
     }
 
@@ -500,12 +500,14 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     fn add_to_type_map(&mut self, id: usize, kind: FBTypeKind, name: &str) {
         let id = id.try_into().unwrap();
         let type_args = self.build_type_args(id, kind);
-        let args = FBTypeMapArgs {
+        let args = FBTypeMapEntryArgs {
             name: Some(self.bldr.create_string(name)),
             value: Some(FBType::create(&mut self.bldr, &type_args)),
         };
-        self.types
-            .insert(name.to_string(), FBTypeMap::create(&mut self.bldr, &args));
+        self.types.insert(
+            name.to_string(),
+            FBTypeMapEntry::create(&mut self.bldr, &args),
+        );
         self.type_map.insert(name.to_string(), type_args);
     }
 

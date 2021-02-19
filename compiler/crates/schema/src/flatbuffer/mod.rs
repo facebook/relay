@@ -22,14 +22,14 @@ use std::convert::TryInto;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {
-    directives: Vector<'fb, ForwardsUOffset<FBDirectiveMap<'fb>>>,
+    directives: Vector<'fb, ForwardsUOffset<FBDirectiveMapEntry<'fb>>>,
     enums: Vector<'fb, ForwardsUOffset<FBEnum<'fb>>>,
     fields: Vector<'fb, ForwardsUOffset<FBField<'fb>>>,
     input_objects: Vector<'fb, ForwardsUOffset<FBInputObject<'fb>>>,
     interfaces: Vector<'fb, ForwardsUOffset<FBInterface<'fb>>>,
     objects: Vector<'fb, ForwardsUOffset<FBObject<'fb>>>,
     scalars: Vector<'fb, ForwardsUOffset<FBScalar<'fb>>>,
-    types: Vector<'fb, ForwardsUOffset<FBTypeMap<'fb>>>,
+    types: Vector<'fb, ForwardsUOffset<FBTypeMapEntry<'fb>>>,
     unions: Vector<'fb, ForwardsUOffset<FBUnion<'fb>>>,
 }
 

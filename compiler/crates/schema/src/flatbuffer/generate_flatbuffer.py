@@ -50,8 +50,8 @@ content = content.replace(
 # add explicit unnamed lifetimes required by Rust 2018
 type_names = [
     "FBType",
-    "FBTypeMap",
-    "FBDirectiveMap",
+    "FBTypeMapEntry",
+    "FBDirectiveMapEntry",
     "FBDirective",
     "FBTypeReference",
     "FBConstValue",

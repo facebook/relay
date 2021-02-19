@@ -2313,15 +2313,15 @@ impl<'a, 'b> FBFieldBuilder<'a, 'b> {
   }
 }
 
-pub enum FBTypeMapOffset {}
+pub enum FBTypeMapEntryOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBTypeMap<'a> {
+pub struct FBTypeMapEntry<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBTypeMap<'a> {
-    type Inner = FBTypeMap<'a>;
+impl<'a> flatbuffers::Follow<'a> for FBTypeMapEntry<'a> {
+    type Inner = FBTypeMapEntry<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2330,18 +2330,18 @@ impl<'a> flatbuffers::Follow<'a> for FBTypeMap<'a> {
     }
 }
 
-impl<'a> FBTypeMap<'a> {
+impl<'a> FBTypeMapEntry<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBTypeMap {
+        FBTypeMapEntry {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBTypeMapArgs<'args>) -> flatbuffers::WIPOffset<FBTypeMap<'bldr>> {
-      let mut builder = FBTypeMapBuilder::new(_fbb);
+        args: &'args FBTypeMapEntryArgs<'args>) -> flatbuffers::WIPOffset<FBTypeMapEntry<'bldr>> {
+      let mut builder = FBTypeMapEntryBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -2352,10 +2352,10 @@ impl<'a> FBTypeMap<'a> {
 
   #[inline]
   pub fn name(&self) -> &'a str {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBTypeMap::VT_NAME, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBTypeMapEntry::VT_NAME, None).unwrap()
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &FBTypeMap<'_>) ->  bool {
+  pub fn key_compare_less_than(&self, o: &FBTypeMapEntry<'_>) ->  bool {
     self.name() < o.name()
   }
 
@@ -2366,61 +2366,61 @@ impl<'a> FBTypeMap<'a> {
   }
   #[inline]
   pub fn value(&self) -> Option<FBType<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBType<'a>>>(FBTypeMap::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<FBType<'a>>>(FBTypeMapEntry::VT_VALUE, None)
   }
 }
 
-pub struct FBTypeMapArgs<'a> {
+pub struct FBTypeMapEntryArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub value: Option<flatbuffers::WIPOffset<FBType<'a >>>,
 }
-impl<'a> Default for FBTypeMapArgs<'a> {
+impl<'a> Default for FBTypeMapEntryArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBTypeMapArgs {
+        FBTypeMapEntryArgs {
             name: None, // required field
             value: None,
         }
     }
 }
-pub struct FBTypeMapBuilder<'a, 'b> {
+pub struct FBTypeMapEntryBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBTypeMapBuilder<'a, 'b> {
+impl<'a, 'b> FBTypeMapEntryBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBTypeMap::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBTypeMapEntry::VT_NAME, name);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBType<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBType<'_>>>(FBTypeMap::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBType<'_>>>(FBTypeMapEntry::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBTypeMapBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBTypeMapEntryBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBTypeMapBuilder {
+    FBTypeMapEntryBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBTypeMap<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<FBTypeMapEntry<'a>> {
     let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, FBTypeMap::VT_NAME,"name");
+    self.fbb_.required(o, FBTypeMapEntry::VT_NAME,"name");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBDirectiveMapOffset {}
+pub enum FBDirectiveMapEntryOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBDirectiveMap<'a> {
+pub struct FBDirectiveMapEntry<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBDirectiveMap<'a> {
-    type Inner = FBDirectiveMap<'a>;
+impl<'a> flatbuffers::Follow<'a> for FBDirectiveMapEntry<'a> {
+    type Inner = FBDirectiveMapEntry<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2429,18 +2429,18 @@ impl<'a> flatbuffers::Follow<'a> for FBDirectiveMap<'a> {
     }
 }
 
-impl<'a> FBDirectiveMap<'a> {
+impl<'a> FBDirectiveMapEntry<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBDirectiveMap {
+        FBDirectiveMapEntry {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBDirectiveMapArgs<'args>) -> flatbuffers::WIPOffset<FBDirectiveMap<'bldr>> {
-      let mut builder = FBDirectiveMapBuilder::new(_fbb);
+        args: &'args FBDirectiveMapEntryArgs<'args>) -> flatbuffers::WIPOffset<FBDirectiveMapEntry<'bldr>> {
+      let mut builder = FBDirectiveMapEntryBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -2451,10 +2451,10 @@ impl<'a> FBDirectiveMap<'a> {
 
   #[inline]
   pub fn name(&self) -> &'a str {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBDirectiveMap::VT_NAME, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBDirectiveMapEntry::VT_NAME, None).unwrap()
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &FBDirectiveMap<'_>) ->  bool {
+  pub fn key_compare_less_than(&self, o: &FBDirectiveMapEntry<'_>) ->  bool {
     self.name() < o.name()
   }
 
@@ -2465,48 +2465,48 @@ impl<'a> FBDirectiveMap<'a> {
   }
   #[inline]
   pub fn value(&self) -> Option<FBDirective<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBDirective<'a>>>(FBDirectiveMap::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<FBDirective<'a>>>(FBDirectiveMapEntry::VT_VALUE, None)
   }
 }
 
-pub struct FBDirectiveMapArgs<'a> {
+pub struct FBDirectiveMapEntryArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub value: Option<flatbuffers::WIPOffset<FBDirective<'a >>>,
 }
-impl<'a> Default for FBDirectiveMapArgs<'a> {
+impl<'a> Default for FBDirectiveMapEntryArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBDirectiveMapArgs {
+        FBDirectiveMapEntryArgs {
             name: None, // required field
             value: None,
         }
     }
 }
-pub struct FBDirectiveMapBuilder<'a, 'b> {
+pub struct FBDirectiveMapEntryBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBDirectiveMapBuilder<'a, 'b> {
+impl<'a, 'b> FBDirectiveMapEntryBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirectiveMap::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirectiveMapEntry::VT_NAME, name);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBDirective<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBDirective<'_>>>(FBDirectiveMap::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBDirective<'_>>>(FBDirectiveMapEntry::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBDirectiveMapBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBDirectiveMapEntryBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBDirectiveMapBuilder {
+    FBDirectiveMapEntryBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBDirectiveMap<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<FBDirectiveMapEntry<'a>> {
     let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, FBDirectiveMap::VT_NAME,"name");
+    self.fbb_.required(o, FBDirectiveMapEntry::VT_NAME,"name");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
@@ -2563,12 +2563,12 @@ impl<'a> FBSchema<'a> {
     pub const VT_FIELDS: flatbuffers::VOffsetT = 20;
 
   #[inline]
-  pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>>>>(FBSchema::VT_TYPES, None).unwrap()
+  pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a>>>>>(FBSchema::VT_TYPES, None).unwrap()
   }
   #[inline]
-  pub fn directives(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>>>(FBSchema::VT_DIRECTIVES, None).unwrap()
+  pub fn directives(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a>>>>>(FBSchema::VT_DIRECTIVES, None).unwrap()
   }
   #[inline]
   pub fn scalars(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBScalar<'a>>> {
@@ -2601,8 +2601,8 @@ impl<'a> FBSchema<'a> {
 }
 
 pub struct FBSchemaArgs<'a> {
-    pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBTypeMap<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveMap<'a >>>>>,
+    pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a >>>>>,
     pub scalars: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBScalar<'a >>>>>,
     pub input_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBInputObject<'a >>>>>,
     pub enums: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBEnum<'a >>>>>,
@@ -2633,11 +2633,11 @@ pub struct FBSchemaBuilder<'a, 'b> {
 }
 impl<'a, 'b> FBSchemaBuilder<'a, 'b> {
   #[inline]
-  pub fn add_types(&mut self, types: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBTypeMap<'b >>>>) {
+  pub fn add_types(&mut self, types: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBTypeMapEntry<'b >>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_TYPES, types);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveMap<'b >>>>) {
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'b >>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_DIRECTIVES, directives);
   }
   #[inline]

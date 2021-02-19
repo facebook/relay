@@ -12,11 +12,11 @@ use crate::feature_flags::NoInlineFeature;
 use crate::match_::{get_normalization_operation_name, SplitOperationMetadata};
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    OperationDefinition, Program, Selection, Transformed, TransformedMulti, TransformedValue,
-    Transformer, ValidationMessage, Value, Variable,
+    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
+    TransformedValue, Transformer, ValidationMessage, Value, Variable,
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
@@ -47,12 +47,14 @@ pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
     no_inline_feature: &NoInlineFeature,
+    base_fragment_names: &FnvHashSet<StringKey>,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
-        no_inline_feature,
+        base_fragment_names,
         errors: Vec::new(),
         fragments: Default::default(),
         is_normalization,
+        no_inline_feature,
         program,
         scope: Default::default(),
         split_operations: Default::default(),
@@ -89,17 +91,18 @@ enum PendingFragment {
     Resolved(Option<Arc<FragmentDefinition>>),
 }
 
-struct ApplyFragmentArgumentsTransform<'flags, 'program> {
-    no_inline_feature: &'flags NoInlineFeature,
+struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
+    base_fragment_names: &'base_fragments FnvHashSet<StringKey>,
     errors: Vec<Diagnostic>,
     fragments: FnvHashMap<StringKey, PendingFragment>,
     is_normalization: bool,
+    no_inline_feature: &'flags NoInlineFeature,
     program: &'program Program,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
 }
 
-impl Transformer for ApplyFragmentArgumentsTransform<'_, '_> {
+impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -157,11 +160,24 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_> {
                     fragment.name.item,
                 );
                 let normalization_name = normalization_name_string.intern();
-                return Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
                     arguments: transformed_arguments,
                     directives,
                     fragment: WithLocation::new(fragment.name.location, normalization_name),
-                })));
+                }));
+                // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
+                // type of the object matches the fragment's type condition. Rather than reimplement type refinement
+                // for fragment spreads, we wrap the fragment spread in an inlinefragment (which may be inlined away)
+                // that ensures it will go through type-refinement at runtime.
+                return if fragment.type_condition.is_abstract_type() {
+                    Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                        directives: Default::default(),
+                        selections: vec![next_spread],
+                        type_condition: Some(fragment.type_condition),
+                    })))
+                } else {
+                    Transformed::Replace(next_spread)
+                };
             }
         }
         if let Some(applied_fragment) = self.apply_fragment(spread, fragment) {
@@ -232,12 +248,16 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_> {
     }
 }
 
-impl ApplyFragmentArgumentsTransform<'_, '_> {
+impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
     fn transform_no_inline_fragment(
         &mut self,
         fragment: &FragmentDefinition,
         directive: &Directive,
     ) {
+        // We do not need to to write normalization files for base fragments
+        if self.base_fragment_names.contains(&fragment.name.item) {
+            return;
+        }
         if !self
             .no_inline_feature
             .enable_for_fragment(fragment.name.item)

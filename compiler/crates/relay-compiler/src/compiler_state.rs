@@ -357,14 +357,18 @@ impl CompilerState {
     }
 
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
-    pub fn has_breaking_schema_change(&self) -> bool {
-        self.extensions
-            .values()
-            .any(|sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .iter()
-                .any(|(_, sources)| !(sources.pending.is_empty() || self.is_change_safe(&sources)))
+    pub fn has_breaking_schema_change(&self, project_name: StringKey) -> bool {
+        if let Some(extension) = self.extensions.get(&project_name) {
+            if !extension.pending.is_empty() {
+                return true;
+            }
+        }
+        if let Some(schema) = self.schemas.get(&project_name) {
+            if !(schema.pending.is_empty() || self.is_change_safe(schema)) {
+                return true;
+            }
+        }
+        false
     }
 
     /// Merges pending changes from the file source into the compiler state.

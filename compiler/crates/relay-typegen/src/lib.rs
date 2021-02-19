@@ -758,6 +758,12 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             }
         }
 
+        if base_fields.is_empty() && by_concrete_type.is_empty() {
+            // base fields and per-type fields are all empty: this can only occur bc the only selection was a
+            // @no_inline fragment. in this case, emit a single, empty ExactObject since nothing was selected
+            return AST::ExactObject(Default::default());
+        }
+
         let mut types: Vec<AST> = Vec::new();
 
         if !by_concrete_type.is_empty() {

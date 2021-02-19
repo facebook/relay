@@ -15,8 +15,7 @@ use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
     FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
 };
-pub use graphqlschema_generated::graphqlschema;
-use graphqlschema_generated::graphqlschema::*;
+use graphqlschema_generated::*;
 use interner::{Intern, StringKey};
 pub use serialize::serialize_as_fb;
 use std::convert::TryInto;

@@ -36,6 +36,8 @@ content = (
  *
  * \x40generated
  */
+
+#![allow(unused_imports, dead_code)]
 """.format(
         flatc_version
     )
@@ -64,10 +66,8 @@ content = content.replace(
 )
 
 # fixup unused imports and deprecated `extern crate`
-content = content.replace("use std::mem;\n", "")
-content = content.replace("use std::cmp::Ordering;\n", "")
 content = content.replace("use self::flatbuffers::EndianScalar;\n", "")
-content = content.replace("extern crate flatbuffers;\n", "")
+content = content.replace("extern crate flatbuffers;", "use flatbuffers;")
 
 # fixup lifetime warning that this lifetime can be inferred
 content = content.replace("<'a: 'b, 'b>", "<'a, 'b>")

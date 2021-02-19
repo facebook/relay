@@ -8,7 +8,7 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
-use super::graphqlschema_generated::graphqlschema::*;
+use super::graphqlschema_generated::*;
 use crate::{
     sdl::SDLSchema, Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue,
     EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID, Schema, Type,

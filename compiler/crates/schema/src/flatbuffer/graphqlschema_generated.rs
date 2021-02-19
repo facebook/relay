@@ -13,11 +13,13 @@
  * @generated
  */
 
-#[allow(unused_imports, dead_code)]
-pub mod graphqlschema {
+#![allow(unused_imports, dead_code)]
 
-    
-    
+use std::mem;
+use std::cmp::Ordering;
+
+use flatbuffers;
+
 #[allow(non_camel_case_types)]
 #[repr(i8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
@@ -2702,5 +2704,3 @@ pub fn finish_fbschema_buffer<'a, 'b>(
 pub fn finish_size_prefixed_fbschema_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<FBSchema<'a>>) {
   fbb.finish_size_prefixed(root, None);
 }
-}  // pub mod graphqlschema
-

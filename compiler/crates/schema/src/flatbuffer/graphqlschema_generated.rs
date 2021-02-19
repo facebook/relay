@@ -2563,40 +2563,40 @@ impl<'a> FBSchema<'a> {
     pub const VT_FIELDS: flatbuffers::VOffsetT = 20;
 
   #[inline]
-  pub fn types(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>>>>(FBSchema::VT_TYPES, None)
+  pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMap<'a>>>>>(FBSchema::VT_TYPES, None).unwrap()
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>>>(FBSchema::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveMap<'a>>>>>(FBSchema::VT_DIRECTIVES, None).unwrap()
   }
   #[inline]
-  pub fn scalars(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBScalar<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBScalar<'a>>>>>(FBSchema::VT_SCALARS, None)
+  pub fn scalars(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBScalar<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBScalar<'a>>>>>(FBSchema::VT_SCALARS, None).unwrap()
   }
   #[inline]
-  pub fn input_objects(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBInputObject<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBInputObject<'a>>>>>(FBSchema::VT_INPUT_OBJECTS, None)
+  pub fn input_objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBInputObject<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBInputObject<'a>>>>>(FBSchema::VT_INPUT_OBJECTS, None).unwrap()
   }
   #[inline]
-  pub fn enums(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBEnum<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBEnum<'a>>>>>(FBSchema::VT_ENUMS, None)
+  pub fn enums(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBEnum<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBEnum<'a>>>>>(FBSchema::VT_ENUMS, None).unwrap()
   }
   #[inline]
-  pub fn objects(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBObject<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBObject<'a>>>>>(FBSchema::VT_OBJECTS, None)
+  pub fn objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBObject<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBObject<'a>>>>>(FBSchema::VT_OBJECTS, None).unwrap()
   }
   #[inline]
-  pub fn interfaces(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBInterface<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBInterface<'a>>>>>(FBSchema::VT_INTERFACES, None)
+  pub fn interfaces(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBInterface<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBInterface<'a>>>>>(FBSchema::VT_INTERFACES, None).unwrap()
   }
   #[inline]
-  pub fn unions(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBUnion<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBUnion<'a>>>>>(FBSchema::VT_UNIONS, None)
+  pub fn unions(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBUnion<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBUnion<'a>>>>>(FBSchema::VT_UNIONS, None).unwrap()
   }
   #[inline]
-  pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBField<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBField<'a>>>>>(FBSchema::VT_FIELDS, None)
+  pub fn fields(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBField<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBField<'a>>>>>(FBSchema::VT_FIELDS, None).unwrap()
   }
 }
 
@@ -2615,15 +2615,15 @@ impl<'a> Default for FBSchemaArgs<'a> {
     #[inline]
     fn default() -> Self {
         FBSchemaArgs {
-            types: None,
-            directives: None,
-            scalars: None,
-            input_objects: None,
-            enums: None,
-            objects: None,
-            interfaces: None,
-            unions: None,
-            fields: None,
+            types: None, // required field
+            directives: None, // required field
+            scalars: None, // required field
+            input_objects: None, // required field
+            enums: None, // required field
+            objects: None, // required field
+            interfaces: None, // required field
+            unions: None, // required field
+            fields: None, // required field
         }
     }
 }
@@ -2679,6 +2679,15 @@ impl<'a, 'b> FBSchemaBuilder<'a, 'b> {
   #[inline]
   pub fn finish(self) -> flatbuffers::WIPOffset<FBSchema<'a>> {
     let o = self.fbb_.end_table(self.start_);
+    self.fbb_.required(o, FBSchema::VT_TYPES,"types");
+    self.fbb_.required(o, FBSchema::VT_DIRECTIVES,"directives");
+    self.fbb_.required(o, FBSchema::VT_SCALARS,"scalars");
+    self.fbb_.required(o, FBSchema::VT_INPUT_OBJECTS,"input_objects");
+    self.fbb_.required(o, FBSchema::VT_ENUMS,"enums");
+    self.fbb_.required(o, FBSchema::VT_OBJECTS,"objects");
+    self.fbb_.required(o, FBSchema::VT_INTERFACES,"interfaces");
+    self.fbb_.required(o, FBSchema::VT_UNIONS,"unions");
+    self.fbb_.required(o, FBSchema::VT_FIELDS,"fields");
     flatbuffers::WIPOffset::new(o.value())
   }
 }

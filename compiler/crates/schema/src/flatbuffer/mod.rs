@@ -22,18 +22,30 @@ use std::convert::TryInto;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {
-    fb_schema: FBSchema<'fb>,
-    types: Vector<'fb, ForwardsUOffset<FBTypeMap<'fb>>>,
     directives: Vector<'fb, ForwardsUOffset<FBDirectiveMap<'fb>>>,
+    enums: Vector<'fb, ForwardsUOffset<FBEnum<'fb>>>,
+    fields: Vector<'fb, ForwardsUOffset<FBField<'fb>>>,
+    input_objects: Vector<'fb, ForwardsUOffset<FBInputObject<'fb>>>,
+    interfaces: Vector<'fb, ForwardsUOffset<FBInterface<'fb>>>,
+    objects: Vector<'fb, ForwardsUOffset<FBObject<'fb>>>,
+    scalars: Vector<'fb, ForwardsUOffset<FBScalar<'fb>>>,
+    types: Vector<'fb, ForwardsUOffset<FBTypeMap<'fb>>>,
+    unions: Vector<'fb, ForwardsUOffset<FBUnion<'fb>>>,
 }
 
 impl<'fb> FlatBufferSchema<'fb> {
     pub fn build(bytes: &'fb [u8]) -> Self {
         let fb_schema: FBSchema<'fb> = get_root_as_fbschema(bytes);
         Self {
-            fb_schema,
-            types: fb_schema.types().unwrap(),
-            directives: fb_schema.directives().unwrap(),
+            directives: fb_schema.directives(),
+            enums: fb_schema.enums(),
+            fields: fb_schema.fields(),
+            input_objects: fb_schema.input_objects(),
+            interfaces: fb_schema.interfaces(),
+            objects: fb_schema.objects(),
+            scalars: fb_schema.scalars(),
+            types: fb_schema.types(),
+            unions: fb_schema.unions(),
         }
     }
 
@@ -143,7 +155,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_scalar(&self, id: ScalarID) -> Option<Scalar> {
-        let scalar = self.fb_schema.scalars()?.get(id.0.try_into().unwrap());
+        let scalar = self.scalars.get(id.0.try_into().unwrap());
         let parsed_scalar = Scalar {
             name: scalar.name()?.to_string().intern(),
             is_extension: scalar.is_extension(),
@@ -153,10 +165,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_input_object(&self, id: InputObjectID) -> Option<InputObject> {
-        let input_object = self
-            .fb_schema
-            .input_objects()?
-            .get(id.0.try_into().unwrap());
+        let input_object = self.input_objects.get(id.0.try_into().unwrap());
         let parsed_input_object = InputObject {
             name: input_object.name()?.to_string().intern(),
             fields: self.parse_arguments(input_object.fields()?)?,
@@ -166,7 +175,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_enum(&self, id: EnumID) -> Option<Enum> {
-        let enum_ = self.fb_schema.enums()?.get(id.0.try_into().unwrap());
+        let enum_ = self.enums.get(id.0.try_into().unwrap());
         let parsed_enum = Enum {
             name: enum_.name()?.to_string().intern(),
             is_extension: enum_.is_extension(),
@@ -177,7 +186,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_object(&self, id: ObjectID) -> Option<Object> {
-        let object = self.fb_schema.objects()?.get(id.0.try_into().unwrap());
+        let object = self.objects.get(id.0.try_into().unwrap());
         let name = object.name()?.intern();
         let parsed_object = Object {
             name,
@@ -190,7 +199,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_interface(&self, id: InterfaceID) -> Option<Interface> {
-        let interface = self.fb_schema.interfaces()?.get(id.0.try_into().unwrap());
+        let interface = self.interfaces.get(id.0.try_into().unwrap());
         let name = interface.name()?.intern();
 
         let parsed_interface = Interface {
@@ -205,7 +214,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_union(&self, id: UnionID) -> Option<Union> {
-        let union = self.fb_schema.unions()?.get(id.0.try_into().unwrap());
+        let union = self.unions.get(id.0.try_into().unwrap());
         let parsed_union = Union {
             name: union.name()?.intern(),
             is_extension: union.is_extension(),
@@ -216,7 +225,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     }
 
     fn parse_field(&self, id: FieldID) -> Option<Field> {
-        let field = self.fb_schema.fields()?.get(id.0.try_into().unwrap());
+        let field = self.fields.get(id.0.try_into().unwrap());
         let parsed_field = Field {
             name: field.name()?.intern(),
             is_extension: field.is_extension(),
@@ -384,41 +393,23 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn get_fbtype_name(&self, type_: &FBType<'_>) -> StringKey {
         match type_.kind() {
             FBTypeKind::Scalar => self
-                .fb_schema
-                .scalars()
-                .unwrap()
+                .scalars
                 .get(type_.scalar_id().try_into().unwrap())
                 .name(),
             FBTypeKind::InputObject => self
-                .fb_schema
-                .input_objects()
-                .unwrap()
+                .input_objects
                 .get(type_.input_object_id().try_into().unwrap())
                 .name(),
-            FBTypeKind::Enum => self
-                .fb_schema
-                .enums()
-                .unwrap()
-                .get(type_.enum_id().try_into().unwrap())
-                .name(),
+            FBTypeKind::Enum => self.enums.get(type_.enum_id().try_into().unwrap()).name(),
             FBTypeKind::Object => self
-                .fb_schema
-                .objects()
-                .unwrap()
+                .objects
                 .get(type_.object_id().try_into().unwrap())
                 .name(),
             FBTypeKind::Interface => self
-                .fb_schema
-                .interfaces()
-                .unwrap()
+                .interfaces
                 .get(type_.interface_id().try_into().unwrap())
                 .name(),
-            FBTypeKind::Union => self
-                .fb_schema
-                .unions()
-                .unwrap()
-                .get(type_.union_id().try_into().unwrap())
-                .name(),
+            FBTypeKind::Union => self.unions.get(type_.union_id().try_into().unwrap()).name(),
         }
         .unwrap()
         .intern()

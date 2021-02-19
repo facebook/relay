@@ -186,15 +186,15 @@ table FBDirectiveMap {
 }
 
 table FBSchema {
-    types: [FBTypeMap];
-    directives: [FBDirectiveMap];
-    scalars: [FBScalar];
-    input_objects: [FBInputObject];
-    enums: [FBEnum];
-    objects: [FBObject];
-    interfaces: [FBInterface];
-    unions: [FBUnion];
-    fields: [FBField];
+    types: [FBTypeMap] (required);
+    directives: [FBDirectiveMap] (required);
+    scalars: [FBScalar] (required);
+    input_objects: [FBInputObject] (required);
+    enums: [FBEnum] (required);
+    objects: [FBObject] (required);
+    interfaces: [FBInterface] (required);
+    unions: [FBUnion] (required);
+    fields: [FBField] (required);
 }
 
 root_type FBSchema;

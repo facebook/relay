@@ -159,12 +159,8 @@ class RelayReferenceMarker {
           break;
         // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
-          invariant(
-            false,
-            'RelayReferenceMarker(): Unexpected fragment spread `...%s`, ' +
-              'expected all fragments to be inlined.',
-            selection.name,
-          );
+          this._traverseSelections(selection.fragment.selections, record);
+          break;
         case LINKED_HANDLE:
           // The selections for a "handle" field are the same as those of the
           // original linked field where the handle was applied. Reference marking

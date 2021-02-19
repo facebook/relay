@@ -25,6 +25,7 @@ const {
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -208,6 +209,10 @@ class RelayResponseNormalizer {
             this._traverseSelections(selection, record, data);
           }
           break;
+        case FRAGMENT_SPREAD: {
+          this._traverseSelections(selection.fragment, record, data);
+          break;
+        }
         case INLINE_FRAGMENT: {
           const {abstractKey} = selection;
           if (abstractKey == null) {

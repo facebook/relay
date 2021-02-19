@@ -70,7 +70,19 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         for (_key, value) in self.directives.iter().collect::<BTreeMap<_, _>>() {
             ordered_directives.push(*value);
         }
+
+        let (has_query_type, query_type) = self.get_object_id(self.schema.query_type());
+        assert!(has_query_type);
+        let (has_mutation_type, mutation_type) = self.get_object_id(self.schema.mutation_type());
+        let (has_subscription_type, subscription_type) =
+            self.get_object_id(self.schema.subscription_type());
+
         let schema_args = FBSchemaArgs {
+            query_type,
+            has_mutation_type,
+            mutation_type,
+            has_subscription_type,
+            subscription_type,
             types: Some(self.bldr.create_vector(&ordered_types)),
             scalars: Some(self.bldr.create_vector(&self.scalars)),
             input_objects: Some(self.bldr.create_vector(&self.input_objects)),
@@ -84,6 +96,18 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let schema_offset = FBSchema::create(&mut self.bldr, &schema_args);
         finish_fbschema_buffer(&mut self.bldr, schema_offset);
         self.bldr.finished_data().to_owned()
+    }
+
+    /// Returns true and an object id when passed Some(Type) or false and 0 for None
+    /// This is used to serialize the query/mutation/subscription types.
+    fn get_object_id(&mut self, type_: Option<Type>) -> (bool, u32) {
+        if let Some(type_) = type_ {
+            let type_args = self.get_type_args(type_);
+            assert!(type_args.kind == FBTypeKind::Object);
+            (true, type_args.object_id)
+        } else {
+            (false, 0)
+        }
     }
 
     fn serialize_types(&mut self) {

@@ -186,6 +186,11 @@ table FBDirectiveMapEntry {
 }
 
 table FBSchema {
+    query_type: uint32;
+    has_mutation_type: bool;
+    mutation_type: uint32;
+    has_subscription_type: bool;
+    subscription_type: uint32;
     types: [FBTypeMapEntry] (required);
     directives: [FBDirectiveMapEntry] (required);
     scalars: [FBScalar] (required);

@@ -2549,19 +2549,49 @@ impl<'a> FBSchema<'a> {
       if let Some(x) = args.scalars { builder.add_scalars(x); }
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.types { builder.add_types(x); }
+      builder.add_subscription_type(args.subscription_type);
+      builder.add_mutation_type(args.mutation_type);
+      builder.add_query_type(args.query_type);
+      builder.add_has_subscription_type(args.has_subscription_type);
+      builder.add_has_mutation_type(args.has_mutation_type);
       builder.finish()
     }
 
-    pub const VT_TYPES: flatbuffers::VOffsetT = 4;
-    pub const VT_DIRECTIVES: flatbuffers::VOffsetT = 6;
-    pub const VT_SCALARS: flatbuffers::VOffsetT = 8;
-    pub const VT_INPUT_OBJECTS: flatbuffers::VOffsetT = 10;
-    pub const VT_ENUMS: flatbuffers::VOffsetT = 12;
-    pub const VT_OBJECTS: flatbuffers::VOffsetT = 14;
-    pub const VT_INTERFACES: flatbuffers::VOffsetT = 16;
-    pub const VT_UNIONS: flatbuffers::VOffsetT = 18;
-    pub const VT_FIELDS: flatbuffers::VOffsetT = 20;
+    pub const VT_QUERY_TYPE: flatbuffers::VOffsetT = 4;
+    pub const VT_HAS_MUTATION_TYPE: flatbuffers::VOffsetT = 6;
+    pub const VT_MUTATION_TYPE: flatbuffers::VOffsetT = 8;
+    pub const VT_HAS_SUBSCRIPTION_TYPE: flatbuffers::VOffsetT = 10;
+    pub const VT_SUBSCRIPTION_TYPE: flatbuffers::VOffsetT = 12;
+    pub const VT_TYPES: flatbuffers::VOffsetT = 14;
+    pub const VT_DIRECTIVES: flatbuffers::VOffsetT = 16;
+    pub const VT_SCALARS: flatbuffers::VOffsetT = 18;
+    pub const VT_INPUT_OBJECTS: flatbuffers::VOffsetT = 20;
+    pub const VT_ENUMS: flatbuffers::VOffsetT = 22;
+    pub const VT_OBJECTS: flatbuffers::VOffsetT = 24;
+    pub const VT_INTERFACES: flatbuffers::VOffsetT = 26;
+    pub const VT_UNIONS: flatbuffers::VOffsetT = 28;
+    pub const VT_FIELDS: flatbuffers::VOffsetT = 30;
 
+  #[inline]
+  pub fn query_type(&self) -> u32 {
+    self._tab.get::<u32>(FBSchema::VT_QUERY_TYPE, Some(0)).unwrap()
+  }
+  #[inline]
+  pub fn has_mutation_type(&self) -> bool {
+    self._tab.get::<bool>(FBSchema::VT_HAS_MUTATION_TYPE, Some(false)).unwrap()
+  }
+  #[inline]
+  pub fn mutation_type(&self) -> u32 {
+    self._tab.get::<u32>(FBSchema::VT_MUTATION_TYPE, Some(0)).unwrap()
+  }
+  #[inline]
+  pub fn has_subscription_type(&self) -> bool {
+    self._tab.get::<bool>(FBSchema::VT_HAS_SUBSCRIPTION_TYPE, Some(false)).unwrap()
+  }
+  #[inline]
+  pub fn subscription_type(&self) -> u32 {
+    self._tab.get::<u32>(FBSchema::VT_SUBSCRIPTION_TYPE, Some(0)).unwrap()
+  }
   #[inline]
   pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a>>> {
     self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a>>>>>(FBSchema::VT_TYPES, None).unwrap()
@@ -2601,6 +2631,11 @@ impl<'a> FBSchema<'a> {
 }
 
 pub struct FBSchemaArgs<'a> {
+    pub query_type: u32,
+    pub has_mutation_type: bool,
+    pub mutation_type: u32,
+    pub has_subscription_type: bool,
+    pub subscription_type: u32,
     pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a >>>>>,
     pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a >>>>>,
     pub scalars: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBScalar<'a >>>>>,
@@ -2615,6 +2650,11 @@ impl<'a> Default for FBSchemaArgs<'a> {
     #[inline]
     fn default() -> Self {
         FBSchemaArgs {
+            query_type: 0,
+            has_mutation_type: false,
+            mutation_type: 0,
+            has_subscription_type: false,
+            subscription_type: 0,
             types: None, // required field
             directives: None, // required field
             scalars: None, // required field
@@ -2632,6 +2672,26 @@ pub struct FBSchemaBuilder<'a, 'b> {
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
 impl<'a, 'b> FBSchemaBuilder<'a, 'b> {
+  #[inline]
+  pub fn add_query_type(&mut self, query_type: u32) {
+    self.fbb_.push_slot::<u32>(FBSchema::VT_QUERY_TYPE, query_type, 0);
+  }
+  #[inline]
+  pub fn add_has_mutation_type(&mut self, has_mutation_type: bool) {
+    self.fbb_.push_slot::<bool>(FBSchema::VT_HAS_MUTATION_TYPE, has_mutation_type, false);
+  }
+  #[inline]
+  pub fn add_mutation_type(&mut self, mutation_type: u32) {
+    self.fbb_.push_slot::<u32>(FBSchema::VT_MUTATION_TYPE, mutation_type, 0);
+  }
+  #[inline]
+  pub fn add_has_subscription_type(&mut self, has_subscription_type: bool) {
+    self.fbb_.push_slot::<bool>(FBSchema::VT_HAS_SUBSCRIPTION_TYPE, has_subscription_type, false);
+  }
+  #[inline]
+  pub fn add_subscription_type(&mut self, subscription_type: u32) {
+    self.fbb_.push_slot::<u32>(FBSchema::VT_SUBSCRIPTION_TYPE, subscription_type, 0);
+  }
   #[inline]
   pub fn add_types(&mut self, types: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBTypeMapEntry<'b >>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_TYPES, types);

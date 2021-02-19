@@ -22,6 +22,9 @@ use std::convert::TryInto;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {
+    query_type: Type,
+    mutation_type: Option<Type>,
+    subscription_type: Option<Type>,
     directives: Vector<'fb, ForwardsUOffset<FBDirectiveMapEntry<'fb>>>,
     enums: Vector<'fb, ForwardsUOffset<FBEnum<'fb>>>,
     fields: Vector<'fb, ForwardsUOffset<FBField<'fb>>>,
@@ -36,7 +39,19 @@ pub struct FlatBufferSchema<'fb> {
 impl<'fb> FlatBufferSchema<'fb> {
     pub fn build(bytes: &'fb [u8]) -> Self {
         let fb_schema: FBSchema<'fb> = get_root_as_fbschema(bytes);
+
+        let query_type = Type::Object(ObjectID(fb_schema.query_type()));
+        let mutation_type = fb_schema
+            .has_mutation_type()
+            .then(|| Type::Object(ObjectID(fb_schema.mutation_type())));
+        let subscription_type = fb_schema
+            .has_subscription_type()
+            .then(|| Type::Object(ObjectID(fb_schema.subscription_type())));
+
         Self {
+            query_type,
+            mutation_type,
+            subscription_type,
             directives: fb_schema.directives(),
             enums: fb_schema.enums(),
             fields: fb_schema.fields(),
@@ -47,6 +62,18 @@ impl<'fb> FlatBufferSchema<'fb> {
             types: fb_schema.types(),
             unions: fb_schema.unions(),
         }
+    }
+
+    pub fn query_type(&self) -> Type {
+        self.query_type
+    }
+
+    pub fn mutation_type(&self) -> Option<Type> {
+        self.mutation_type
+    }
+
+    pub fn subscription_type(&self) -> Option<Type> {
+        self.subscription_type
     }
 
     pub fn get_type(&self, type_name: StringKey) -> Option<Type> {

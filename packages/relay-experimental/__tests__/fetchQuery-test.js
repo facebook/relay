@@ -18,12 +18,10 @@ const fetchQuery = require('../fetchQuery');
 const {
   createOperationDescriptor,
   getRequest,
+  graphql,
   RelayFeatureFlags,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 const response = {
   data: {
@@ -51,16 +49,14 @@ describe('fetchQuery', () => {
       };
     });
     variables = {id: '4'};
-    query = generateAndCompile(
-      `query TestQuery($id: ID!) {
-          node(id: $id) {
-            id
-          }
+    query = graphql`
+      query fetchQueryTest1Query($id: ID!) {
+        node(id: $id) {
+          id
         }
-      `,
-    ).TestQuery;
+      }
+    `;
   });
-
   it('fetches request and does not retain data', () => {
     let calledObserver = false;
     const observer = {
@@ -72,8 +68,9 @@ describe('fetchQuery', () => {
     const subscription = fetchQuery(environment, query, variables).subscribe(
       observer,
     );
-    environment.mock.nextValue(query, response);
-    environment.mock.complete(query);
+    const queryNode = getRequest(query);
+    environment.mock.nextValue(queryNode, response);
+    environment.mock.complete(queryNode);
     subscription.unsubscribe();
     expect(calledObserver).toEqual(true);
     expect(retained.length).toEqual(0);
@@ -93,9 +90,10 @@ describe('fetchQuery', () => {
       },
     };
     fetchQuery(environment, query, variables).subscribe(observer);
-    environment.mock.nextValue(query, response);
+    const queryNode = getRequest(query);
+    environment.mock.nextValue(queryNode, response);
     expect(calledNext).toEqual(true);
-    environment.mock.complete(query);
+    environment.mock.complete(queryNode);
     expect(retained.length).toEqual(0);
   });
 
@@ -114,7 +112,8 @@ describe('fetchQuery', () => {
     const subscription = fetchQuery(environment, query, variables).subscribe(
       observer,
     );
-    environment.mock.nextValue(query, response);
+    const queryNode = getRequest(query);
+    environment.mock.nextValue(queryNode, response);
     subscription.unsubscribe();
     expect(calledNext).toEqual(true);
     expect(calledUnsubscribe).toEqual(true);
@@ -132,7 +131,8 @@ describe('fetchQuery', () => {
     const subscription = fetchQuery(environment, query, variables).subscribe(
       observer,
     );
-    environment.mock.reject(query, new Error('Oops'));
+    const queryNode = getRequest(query);
+    environment.mock.reject(queryNode, new Error('Oops'));
     expect(calledError).toEqual(true);
     expect(retained.length).toEqual(0);
     subscription.unsubscribe();
@@ -141,10 +141,11 @@ describe('fetchQuery', () => {
   describe('.toPromise()', () => {
     it('fetches request and does not retain query data', async () => {
       const promise = fetchQuery(environment, query, variables).toPromise();
+      const queryNode = getRequest(query);
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(queryNode, variables, {force: true}),
       ).toEqual(true);
-      environment.mock.nextValue(query, response);
+      environment.mock.nextValue(queryNode, response);
       const data = await promise;
       expect(data).toEqual({
         node: {
@@ -152,30 +153,31 @@ describe('fetchQuery', () => {
         },
       });
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(queryNode, variables, {force: true}),
       ).toEqual(true);
       expect(retained.length).toEqual(0);
 
-      environment.mock.complete(query);
+      environment.mock.complete(queryNode);
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(queryNode, variables, {force: true}),
       ).toEqual(false);
       expect(retained.length).toEqual(0);
     });
 
     it('rejects when error occurs', async () => {
       const promise = fetchQuery(environment, query, variables).toPromise();
+      const queryNode = getRequest(query);
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(queryNode, variables, {force: true}),
       ).toEqual(true);
-      environment.mock.reject(query, new Error('Oops'));
+      environment.mock.reject(queryNode, new Error('Oops'));
       try {
         await promise;
       } catch (error) {
         expect(error.message).toEqual('Oops');
       }
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(queryNode, variables, {force: true}),
       ).toEqual(false);
       expect(retained.length).toEqual(0);
     });
@@ -186,11 +188,12 @@ describe('fetchQuery', () => {
       const promise = fetchQuery(environment, query, variables, {
         fetchPolicy: 'store-or-network',
       }).toPromise();
+      const queryNode = getRequest(query);
       // Needs to load data from network
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(queryNode, variables, {force: true}),
       ).toEqual(true);
-      environment.mock.nextValue(query, response);
+      environment.mock.nextValue(queryNode, response);
       const data = await promise;
       expect(data).toEqual({
         node: {
@@ -211,7 +214,7 @@ describe('fetchQuery', () => {
       }).toPromise();
       // Shouldn't be loading because the data is already cached
       expect(
-        environment.mock.isLoading(query, variables, {force: true}),
+        environment.mock.isLoading(getRequest(query), variables, {force: true}),
       ).toEqual(false);
       const data = await promise;
       expect(data).toEqual({
@@ -230,25 +233,26 @@ describe('fetchQuery with missing @required value', () => {
   afterEach(() => {
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   });
+
   it('provides data snapshot on next', () => {
     const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({
       requiredFieldLogger,
     });
-    const query = generateAndCompile(
-      `query TestQuery {
-          me {
-            name @required(action: LOG)
-          }
+    const query = graphql`
+      query fetchQueryTest2Query {
+        me {
+          name @required(action: LOG)
         }
-      `,
-    ).TestQuery;
+      }
+    `;
 
     const observer = {next: jest.fn()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     expect(observer.next).not.toHaveBeenCalled();
+    const queryNode = getRequest(query);
 
-    environment.mock.nextValue(query, {
+    environment.mock.nextValue(queryNode, {
       data: {
         me: {
           name: null,
@@ -260,57 +264,62 @@ describe('fetchQuery with missing @required value', () => {
     expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
       kind: 'missing_field.log',
-      owner: 'TestQuery',
+      owner: 'fetchQueryTest2Query',
     });
   });
 
   it('throws on resolution', () => {
     const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({requiredFieldLogger});
-    const query = generateAndCompile(
-      `query TestQuery {
-          me {
-            name @required(action: THROW)
-          }
+    const query = graphql`
+      query fetchQueryTest3Query {
+        me {
+          name @required(action: THROW)
         }
-      `,
-    ).TestQuery;
+      }
+    `;
 
     const observer = {next: jest.fn(), error: jest.fn()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
+    const queryNode = getRequest(query);
+
     expect(observer.next).not.toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
 
-    environment.mock.nextValue(query, {data: {me: {name: null}}});
+    environment.mock.nextValue(queryNode, {data: {me: {name: null}}});
     subscription.unsubscribe();
     expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
       kind: 'missing_field.throw',
-      owner: 'TestQuery',
+      owner: 'fetchQueryTest3Query',
     });
     expect(observer.error).toHaveBeenCalledWith(
-      Error("Relay: Missing @required value at path 'me.name' in 'TestQuery'."),
+      Error(
+        "Relay: Missing @required value at path 'me.name' in 'fetchQueryTest3Query'.",
+      ),
     );
     expect(observer.next).not.toHaveBeenCalled();
   });
 
   it('does not report missing required values in fragments', () => {
     const environment = createMockEnvironment({});
-    const query = generateAndCompile(
-      `query TestQuery {
-          me {
-            ...TestFragment
-          }
+    graphql`
+      fragment fetchQueryTestFragment on User {
+        name @required(action: THROW)
+      }
+    `;
+    const query = graphql`
+      query fetchQueryTest4Query {
+        me {
+          ...fetchQueryTestFragment
         }
-        fragment TestFragment on User {
-          name @required(action: THROW)
-        }
-      `,
-    ).TestQuery;
+      }
+    `;
 
     const observer = {next: jest.fn(), error: jest.fn()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
-    environment.mock.nextValue(query, {data: {me: {name: null}}});
+    const queryNode = getRequest(query);
+    environment.mock.nextValue(queryNode, {data: {me: {name: null}}});
 
     subscription.unsubscribe();
 

@@ -53,7 +53,7 @@ lazy_static = "1.0"
 md-5 = "0.8"
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
-serde = { version = "1.0", features = ["derive", "rc"] }
+serde = { version = "=1.0.118", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

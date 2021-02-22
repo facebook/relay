@@ -16,10 +16,10 @@
 const React = require('react');
 const Scheduler = require('scheduler');
 
-import type {OperationDescriptor, Variables} from 'relay-runtime';
 const {useMemo, useState, useEffect} = React;
 const TestRenderer = require('react-test-renderer');
 
+const {useTrackLoadQueryInRender} = require('../loadQuery');
 const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -31,6 +31,8 @@ const {
   Observable,
   __internal: {fetchQuery},
 } = require('relay-runtime');
+
+import type {OperationDescriptor, Variables} from 'relay-runtime';
 
 describe('useRefetchableFragmentNode', () => {
   let environment;
@@ -60,6 +62,7 @@ describe('useRefetchableFragmentNode', () => {
   let renderFragment;
   let renderSpy;
   let refetch;
+  let callDuringRenderCount;
   let Renderer;
 
   class ErrorBoundary extends React.Component<any, any> {
@@ -123,6 +126,7 @@ describe('useRefetchableFragmentNode', () => {
 
     fetchPolicy = 'store-or-network';
     renderPolicy = 'partial';
+    callDuringRenderCount = 0;
 
     ({
       createMockEnvironment,
@@ -243,6 +247,7 @@ describe('useRefetchableFragmentNode', () => {
       userRef?: {...},
       owner: OperationDescriptor,
       fragment: $FlowFixMe,
+      callDuringRenderKey?: ?number,
       ...
     }) => {
       // We need a render a component to run a Hook
@@ -267,14 +272,23 @@ describe('useRefetchableFragmentNode', () => {
       forceUpdate = _setCount;
       setOwner = _setOwner;
 
-      const {fragmentData: userData} = useRefetchableFragmentNode(
-        fragment,
-        userRef,
-      );
+      const {
+        fragmentData: userData,
+        refetch: refetchInternal,
+      } = useRefetchableFragmentNode(fragment, userRef);
+
+      if (
+        props.callDuringRenderKey != null &&
+        props.callDuringRenderKey !== callDuringRenderCount
+      ) {
+        callDuringRenderCount++;
+        refetchInternal({});
+      }
       return <Renderer user={userData} />;
     };
 
     const ContextProvider = ({children}) => {
+      useTrackLoadQueryInRender();
       const [env, _setEnv] = useState(environment);
       const relayContext = useMemo(() => ({environment: env}), [env]);
 
@@ -300,6 +314,7 @@ describe('useRefetchableFragmentNode', () => {
       owner?: $FlowFixMe,
       userRef?: $FlowFixMe,
       fragment?: $FlowFixMe,
+      callDuringRenderKey?: ?number,
       ...
     }): $FlowFixMe => {
       const {isConcurrent = false, ...props} = args ?? {};
@@ -1446,6 +1461,24 @@ describe('useRefetchableFragmentNode', () => {
         // $FlowFixMe[prop-missing]
         warning.mock.calls.filter(call => call[0] === false).length,
       ).toEqual(0);
+    });
+
+    it('warns if called during render', () => {
+      const warning = require('warning');
+      // $FlowFixMe[prop-missing]
+      warning.mockClear();
+
+      renderFragment({callDuringRenderKey: 1});
+
+      // $FlowFixMe[prop-missing]
+      const warningCalls = warning.mock.calls.filter(call => call[0] === false);
+      expect(warningCalls.length).toEqual(1);
+      expect(
+        warningCalls[0][1].includes(
+          'should not be called inside a React render function',
+        ),
+      ).toEqual(true);
+      expect(warningCalls[0][2]).toEqual('refetch');
     });
 
     describe('multiple refetches', () => {

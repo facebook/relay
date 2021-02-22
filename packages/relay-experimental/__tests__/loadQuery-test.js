@@ -13,7 +13,12 @@
 
 'use strict';
 
-const {loadQuery} = require('../loadQuery');
+// Need React require for OSS build
+// eslint-disable-next-line no-unused-vars
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
+
+const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 const {
   Network,
   Observable,
@@ -802,6 +807,68 @@ describe('when passed a query AST', () => {
       );
       preloadedQuery.dispose();
       expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('warnings', () => {
+    let Container;
+    let LoadDuringRender;
+
+    beforeEach(() => {
+      jest.mock('warning');
+      Container = props => {
+        useTrackLoadQueryInRender();
+        return props.children;
+      };
+      LoadDuringRender = (props: {|name?: ?string|}) => {
+        loadQuery(environment, preloadableConcreteRequest, variables, {
+          fetchPolicy: 'store-or-network',
+          __nameForWarning: props.name,
+        });
+        return null;
+      };
+    });
+
+    it('warns if called during render', () => {
+      const warning = require('warning');
+      // $FlowFixMe[prop-missing]
+      warning.mockClear();
+
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <Container>
+            <LoadDuringRender />
+          </Container>,
+        );
+      });
+      expect(warning).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[prop-missing]
+      expect(warning.mock.calls[0][1]).toContain(
+        'should not be called inside a React render function',
+      );
+      // $FlowFixMe[prop-missing]
+      expect(warning.mock.calls[0][2]).toEqual('loadQuery');
+    });
+
+    it('uses provided name for warning', () => {
+      const warning = require('warning');
+      // $FlowFixMe[prop-missing]
+      warning.mockClear();
+
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <Container>
+            <LoadDuringRender name="refetch" />
+          </Container>,
+        );
+      });
+      expect(warning).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[prop-missing]
+      expect(warning.mock.calls[0][1]).toContain(
+        'should not be called inside a React render function',
+      );
+      // $FlowFixMe[prop-missing]
+      expect(warning.mock.calls[0][2]).toEqual('refetch');
     });
   });
 });

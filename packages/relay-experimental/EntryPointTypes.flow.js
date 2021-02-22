@@ -42,6 +42,7 @@ export type PreloadOptions = {|
 export type LoadQueryOptions = {|
   +fetchPolicy?: ?FetchPolicy,
   +networkCacheConfig?: ?CacheConfig,
+  +__nameForWarning?: ?string,
 |};
 
 // Note: the phantom type parameter here helps ensures that the

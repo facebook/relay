@@ -479,6 +479,7 @@ function useRefetchFunction<TQuery: OperationType>(
       loadQuery(refetchQuery.request.variables, {
         fetchPolicy,
         __environment: refetchEnvironment,
+        __nameForWarning: 'refetch',
       });
 
       dispatch({

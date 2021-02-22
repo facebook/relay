@@ -128,6 +128,7 @@ function useQueryLoader<TQuery: OperationType>(
           ? {
               fetchPolicy: options.fetchPolicy,
               networkCacheConfig: options.networkCacheConfig,
+              __nameForWarning: options.__nameForWarning,
             }
           : options;
       if (isMountedRef.current) {

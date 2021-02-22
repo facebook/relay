@@ -69,6 +69,7 @@ function loadEntryPoint<
         {
           fetchPolicy: options?.fetchPolicy,
           networkCacheConfig: options?.networkCacheConfig,
+          __nameForWarning: 'loadEntryPoint',
         },
         environmentProviderOptions,
       );

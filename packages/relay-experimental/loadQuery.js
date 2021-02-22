@@ -70,7 +70,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ?.ReactCurrentDispatcher?.current;
   warning(
     RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
-    'Relay: `loadQuery` (or `loadEntryPoint`) should not be called inside a React render function.',
+    'Relay: `%s` should not be called inside a React render function.',
+    options?.__nameForWarning ?? 'loadQuery',
   );
 
   // Every time you call loadQuery, we will generate a new fetchKey.

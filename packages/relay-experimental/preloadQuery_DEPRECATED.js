@@ -101,9 +101,23 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   const source =
     queryEntry.kind === 'network'
       ? Observable.create(sink => {
-          const subscription = queryEntry.subject.subscribe(sink);
+          let subscription;
+          if (pendingQueries.get(queryEntry.cacheKey) == null) {
+            const newQueryEntry = preloadQueryDeduped(
+              environment,
+              pendingQueries,
+              preloadableRequest,
+              variables,
+              options,
+            );
+            if (newQueryEntry.kind === 'network') {
+              subscription = newQueryEntry.subject.subscribe(sink);
+            }
+          } else {
+            subscription = queryEntry.subject.subscribe(sink);
+          }
           return () => {
-            subscription.unsubscribe();
+            subscription?.unsubscribe();
             cleanup(pendingQueries, queryEntry);
           };
         })

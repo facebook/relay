@@ -17,6 +17,7 @@ const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
+const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
 
 const {useEffect} = require('react');
@@ -44,6 +45,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   let environment;
   let gqlQuery;
   let gqlQueryWithDefer;
+  let gqlFragment;
   let createMockEnvironment;
   let generateAndCompile;
   let query;
@@ -117,6 +119,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     `);
     gqlQuery = generated.UserQuery;
     gqlQueryWithDefer = generated.UserQueryWithDefer;
+    gqlFragment = generated.UserFragment;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {
@@ -196,7 +199,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // The effect cleanup will execute, so we assert that
     // the query is disposed:
     expect(release).toHaveBeenCalledTimes(1);
-    // Unsubscribing after completion is a no-op
+    // Request is "cancelled" because susbcription cleanup runs on completion
     expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
 
     // The effect setup will re-execute, so we assert that
@@ -219,7 +222,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       'commit: Alice 1',
     ]);
 
-    // Resolve second network response
+    // Resolve response for second request
     renderLogs = [];
     environment.execute.mockClear();
     ReactTestRenderer.act(() => {
@@ -324,7 +327,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // The effect cleanup will execute, so we assert that
     // the query is disposed:
     expect(release).toHaveBeenCalledTimes(1);
-    // Unsubscribing after completion is a no-op
+    // Request is "cancelled" because susbcription cleanup runs on completion
     expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
 
     // The effect setup will re-execute, so we assert that
@@ -363,6 +366,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   describe('with incremental delivery', () => {
     it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
       let renderLogs = [];
+      const FragmentComponent = function(props) {
+        const data = useFragment(gqlFragment, props.user);
+        return data?.firstName === undefined ? 'Missing fragment data' : null;
+      };
+
       const QueryComponent = function() {
         const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
           fetchPolicy: 'network-only',
@@ -377,7 +385,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         }, [name]);
 
         renderLogs.push(`render: ${name}`);
-        return name;
+        return (
+          <>
+            {name}
+            <React.Suspense fallback="Loading fragment">
+              <FragmentComponent user={result?.node} />
+            </React.Suspense>
+          </>
+        );
       };
 
       let instance;
@@ -434,7 +449,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // re-suspend:
       expectToHaveFetched(environment, queryWithDefer);
       expect(environment.retain).toHaveBeenCalledTimes(2);
-      expect(instance.toJSON()).toEqual('Fallback');
+      expect(instance.toJSON()).toEqual(['Fallback']);
 
       // Assert render state of component using the query up until
       // the point of re-suspending:
@@ -449,7 +464,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'commit: Alice 1',
       ]);
 
-      // Resolve second network response
+      // Resolve response for second request
       renderLogs = [];
       environment.execute.mockClear();
       ReactTestRenderer.act(() => {
@@ -475,7 +490,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      expect(instance.toJSON()).toEqual('Alice 2');
+      expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
 
       // Resolve incremental payload for second network request
       ReactTestRenderer.act(() => {
@@ -514,9 +529,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     it('forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
       let renderLogs = [];
+      const FragmentComponent = function(props) {
+        const data = useFragment(gqlFragment, props.user);
+        return data?.firstName === undefined ? 'Missing fragment data' : null;
+      };
+
       const QueryComponent = function() {
         const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
-          fetchPolicy: 'store-or-network',
+          fetchPolicy: 'network-only',
         });
 
         const name = result?.node?.name ?? 'Empty';
@@ -528,7 +548,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         }, [name]);
 
         renderLogs.push(`render: ${name}`);
-        return name;
+        return (
+          <>
+            {name}
+            <React.Suspense fallback="Loading fragment">
+              <FragmentComponent user={result?.node} />
+            </React.Suspense>
+          </>
+        );
       };
 
       let instance;
@@ -585,7 +612,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // re-suspend:
       expectToHaveFetched(environment, queryWithDefer);
       expect(environment.retain).toHaveBeenCalledTimes(2);
-      expect(instance.toJSON()).toEqual('Fallback');
+      expect(instance.toJSON()).toEqual(['Fallback']);
 
       // Assert render state of component using the query up until
       // the point of re-suspending:
@@ -600,7 +627,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'commit: Alice 1',
       ]);
 
-      // Resolve second network response
+      // Resolve response for second request
       renderLogs = [];
       environment.execute.mockClear();
       ReactTestRenderer.act(() => {
@@ -626,7 +653,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      expect(instance.toJSON()).toEqual('Alice 2');
+      expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
 
       // Resolve incremental payload for second network request
       ReactTestRenderer.act(() => {

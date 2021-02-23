@@ -67,10 +67,6 @@ Note that this is a basic example to help you get started. This example could be
 
 ## Caching
 
-The Relay store will cache data from queries that are currently retained. This includes queries whose data is actively being rendered. This should be sufficient for most needs, and you will not often need to implement caching at the network layer.
-
-However, it is possible to implement caching at the network layer.
-
-For an example, see <a href={useBaseUrl('docs/v10.1.2/network-layer#caching')}>the prior docs</a>.
+The Relay store will cache data from queries that are currently retained. See the section on [reusing cached data](../../guided-tour/reusing-cached-data/) of the guided tour.
 
 <DocsRating />

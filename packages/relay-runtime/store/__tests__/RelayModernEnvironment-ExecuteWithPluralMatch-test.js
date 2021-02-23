@@ -42,7 +42,7 @@ describe('execute() a query with plural @match', () => {
   let operation;
   let operationCallback;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let query;

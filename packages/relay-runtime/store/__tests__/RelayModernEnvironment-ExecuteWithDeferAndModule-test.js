@@ -41,7 +41,7 @@ describe('execute() a query with @defer and @module', () => {
   let next;
   let operation;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let operationCallback;

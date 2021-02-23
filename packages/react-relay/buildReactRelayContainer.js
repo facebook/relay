@@ -14,6 +14,7 @@
 
 const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 
 const assertFragmentMap = require('./assertFragmentMap');
 const invariant = require('invariant');
@@ -60,11 +61,15 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       containerName,
       containerName,
     );
+    const queryRendererContext = readContext(ReactRelayQueryRendererContext);
 
     return (
       <Container
         {...props}
         __relayContext={context}
+        __rootIsQueryRenderer={
+          queryRendererContext?.rootIsQueryRenderer ?? false
+        }
         componentRef={props.componentRef || ref}
       />
     );

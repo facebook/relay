@@ -10,8 +10,10 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 
+const {fetchQuery} = require('../../query/fetchQueryInternal');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -121,6 +123,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {foo: 'foo', bar: 42},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(resolver.resolve()).toEqual({
       user: null, // set to null since prop is missing
@@ -134,6 +137,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
       resolver = new RelayModernFragmentSpecResolver(
@@ -141,6 +145,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: undefined},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
     });
@@ -152,6 +157,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve().user).toBe(user);
     });
@@ -162,6 +168,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(() => resolver.dispose()).not.toThrow();
     });
@@ -172,6 +179,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: zuck},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({
         user: {
@@ -188,6 +196,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: zuck},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
@@ -206,6 +215,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UserFragment},
         {user: zuck},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       resolver.dispose();
       setName('4', 'Mark'); // Zuck -> Mark
@@ -229,6 +239,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UserFragment},
           {user: zuck},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -254,6 +265,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UserFragment},
           {user: {}},
           callback,
+          true /* rootIsQueryRenderer */,
         );
         resolver.setProps({user: zuck});
         expect(callback).not.toBeCalled();
@@ -330,6 +342,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UserFragment},
           {user: zuck},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -408,6 +421,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: null},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
       resolver = new RelayModernFragmentSpecResolver(
@@ -415,6 +429,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: undefined},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({user: null});
     });
@@ -426,6 +441,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: users},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve().user).toBe(users);
     });
@@ -436,6 +452,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck]},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
       expect(resolver.resolve()).toEqual({
         user: [
@@ -454,6 +471,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck]},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       setName('4', 'Mark'); // Zuck -> Mark
       expect(callback).toBeCalled();
@@ -473,6 +491,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck, beast]},
         jest.fn(),
+        true /* rootIsQueryRenderer */,
       );
 
       expect(resolver.resolve()).toEqual({
@@ -507,6 +526,7 @@ describe('RelayModernFragmentSpecResolver', () => {
         {user: UsersFragment},
         {user: [zuck]},
         callback,
+        true /* rootIsQueryRenderer */,
       );
       resolver.dispose();
       setName('4', 'Mark'); // Zuck -> Mark
@@ -532,6 +552,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UsersFragment},
           {user: [zuck]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -557,6 +578,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UsersFragment},
           {user: [{}]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
         resolver.setProps({user: [zuck]});
         expect(callback).not.toBeCalled();
@@ -705,6 +727,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           {user: UsersFragment},
           {user: [zuck]},
           callback,
+          true /* rootIsQueryRenderer */,
         );
       });
 
@@ -776,6 +799,67 @@ describe('RelayModernFragmentSpecResolver', () => {
             },
           ],
         });
+      });
+    });
+  });
+
+  describe('suspense compatibility', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE = true;
+    });
+
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE = false;
+    });
+
+    describe('when data is missing and query is in progress', () => {
+      beforeEach(() => {
+        jest.mock('warning');
+        setName('4', undefined);
+        fetchQuery(environment, zuckOperation).subscribe({});
+      });
+      it('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          true /* rootIsQueryRenderer */,
+        );
+        expect(resolver.resolve()).toEqual({
+          user: {
+            id: '4',
+            name: undefined,
+          },
+        });
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain(
+          'has missing data and would suspend',
+        );
+      });
+
+      it('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          false /* rootIsQueryRenderer */,
+        );
+        let promise;
+        try {
+          resolver.resolve();
+        } catch (e) {
+          promise = e;
+        }
+        expect(promise).toBeDefined();
+        expect(promise.then).toBeDefined();
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain('suspended');
       });
     });
   });

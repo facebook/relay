@@ -64,6 +64,7 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
+      const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
       // In which case the subscription would cause a leak.
@@ -73,6 +74,7 @@ function createContainerWithFragments<
         containerName,
         fragments,
         props,
+        rootIsQueryRenderer,
       );
       this.state = {
         data: resolver.resolve(),
@@ -96,6 +98,7 @@ function createContainerWithFragments<
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
+      const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
       let resolver: FragmentSpecResolver = prevState.resolver;
@@ -118,6 +121,7 @@ function createContainerWithFragments<
           containerName,
           fragments,
           nextProps,
+          rootIsQueryRenderer,
         );
 
         return {
@@ -227,7 +231,12 @@ function createContainerWithFragments<
     }
 
     render() {
-      const {componentRef, __relayContext: _, ...props} = this.props;
+      const {
+        componentRef,
+        __relayContext,
+        __rootIsQueryRenderer,
+        ...props
+      } = this.props;
       return React.createElement(Component, {
         ...props,
         ...this.state.data,

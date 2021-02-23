@@ -13,6 +13,7 @@
 const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayLocalQueryRenderer = require('../ReactRelayLocalQueryRenderer');
+const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
 const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
@@ -491,6 +492,36 @@ describe('ReactRelayLocalQueryRenderer', () => {
           .getSource()
           .toJSON(),
       ).toEqual({});
+    });
+  });
+
+  describe('QueryRenderer context', () => {
+    let queryRendererContext;
+    let ContextGetter;
+
+    beforeEach(() => {
+      ContextGetter = () => {
+        queryRendererContext = readContext(ReactRelayQueryRendererContext);
+        return null;
+      };
+
+      render = jest.fn(() => <ContextGetter />);
+    });
+
+    it('sets QueryRenderer context', () => {
+      expect.assertions(1);
+      ReactTestRenderer.act(() => {
+        renderer(environment, UserQuery, render, variables);
+      });
+
+      expect(queryRendererContext.rootIsQueryRenderer).toBe(true);
+    });
+
+    it('default context', () => {
+      expect.assertions(1);
+      ReactTestRenderer.create(<ContextGetter />);
+
+      expect(queryRendererContext.rootIsQueryRenderer).toBe(false);
     });
   });
 });

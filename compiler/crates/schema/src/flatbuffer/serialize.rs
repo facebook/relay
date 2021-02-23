@@ -10,7 +10,7 @@
 
 use super::graphqlschema_generated::*;
 use crate::{
-    sdl::SDLSchema, Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue,
+    sdl::SDLSchemaImpl, Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue,
     EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID, Schema, Type,
     TypeReference, UnionID,
 };
@@ -21,13 +21,13 @@ use interner::StringKey;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 
-pub fn serialize_as_fb(schema: &SDLSchema) -> Vec<u8> {
+pub fn serialize_as_fb(schema: &SDLSchemaImpl) -> Vec<u8> {
     let mut serializer = Serializer::new(&schema);
     serializer.serialize_schema()
 }
 
 struct Serializer<'fb, 'schema> {
-    schema: &'schema SDLSchema,
+    schema: &'schema SDLSchemaImpl,
     bldr: FlatBufferBuilder<'fb>,
     scalars: Vec<WIPOffset<FBScalar<'fb>>>,
     input_objects: Vec<WIPOffset<FBInputObject<'fb>>>,
@@ -42,7 +42,7 @@ struct Serializer<'fb, 'schema> {
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
-    fn new(schema: &'schema SDLSchema) -> Self {
+    fn new(schema: &'schema SDLSchemaImpl) -> Self {
         Self {
             schema,
             bldr: FlatBufferBuilder::new(),

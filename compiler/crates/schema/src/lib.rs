@@ -14,8 +14,9 @@
 pub mod definitions;
 mod errors;
 mod flatbuffer;
-pub mod graphql_schema;
-pub mod sdl;
+mod graphql_schema;
+mod schema;
+mod sdl;
 
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
@@ -27,7 +28,8 @@ pub use errors::{Result, SchemaError};
 use flatbuffer::FlatBufferSchema;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use sdl::SDLSchema;
+pub use schema::SDLSchema;
+pub use sdl::SDLSchemaImpl;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 

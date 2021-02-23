@@ -34,7 +34,7 @@ const environment = new Environment({
 
 For more details on creating a Network, see the [NetworkLayer guide](./network-layer.html).
 
-Once you have an environment, you can pass it in to your [`QueryRenderer`](./query-renderer.html) instance, or into mutations via the `commitUpdate` function (see "[Mutations](./mutations.html)").
+Once you have an environment, you can pass it in to your [`QueryRenderer`](./query-renderer.html) instance, or into mutations via the `commitMutation` function (see "[Mutations](./mutations.html)").
 
 ## Adding a `handlerProvider`
 

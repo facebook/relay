@@ -513,15 +513,17 @@ export type LogEvent =
     |}
   | {|
       +name: 'store.notify.start',
+      +sourceOperation: ?OperationDescriptor,
     |}
   | {|
       +name: 'store.notify.complete',
+      +sourceOperation: ?OperationDescriptor,
       +updatedRecordIDs: DataIDSet,
       +invalidatedRecordIDs: DataIDSet,
     |}
   | {|
       +name: 'store.notify.subscription',
-      +sourceOperation?: OperationDescriptor,
+      +sourceOperation: ?OperationDescriptor,
       +snapshot: Snapshot,
       +nextSnapshot: Snapshot,
     |}

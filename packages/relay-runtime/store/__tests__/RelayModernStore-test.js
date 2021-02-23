@@ -1017,6 +1017,7 @@ function cloneEventWithSets(event) {
           expect(logEvents).toEqual([
             {
               name: 'store.notify.start',
+              sourceOperation: owner,
             },
             // callbacks occur after notify.start...
             {
@@ -1051,6 +1052,7 @@ function cloneEventWithSets(event) {
             // ...and before notify.complete
             {
               name: 'store.notify.complete',
+              sourceOperation: owner,
               updatedRecordIDs: new Set(['client:1']),
               invalidatedRecordIDs: new Set(),
             },

@@ -287,6 +287,7 @@ class RelayModernStore implements Store {
     if (log != null) {
       log({
         name: 'store.notify.start',
+        sourceOperation,
       });
     }
 
@@ -315,6 +316,7 @@ class RelayModernStore implements Store {
     if (log != null) {
       log({
         name: 'store.notify.complete',
+        sourceOperation,
         updatedRecordIDs: this._updatedRecordIDs,
         invalidatedRecordIDs: this._invalidatedRecordIDs,
       });

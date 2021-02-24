@@ -10,6 +10,7 @@
 'use strict';
 
 const versions = require('./versions.json');
+
 const {fbContent} = require('internaldocs-fb-helpers');
 
 module.exports = {
@@ -227,6 +228,11 @@ module.exports = {
         {
           to: 'docs/',
           label: 'Docs',
+          position: 'left',
+        },
+        {
+          to: 'blog/',
+          label: 'Blog',
           position: 'left',
         },
         {

@@ -154,12 +154,8 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 let mut directives = Vec::with_capacity(spread.directives.len() + 1);
                 directives.extend(spread.directives.iter().cloned());
                 directives.push(directive.clone());
-                let mut normalization_name_string = String::new();
-                get_normalization_operation_name(
-                    &mut normalization_name_string,
-                    fragment.name.item,
-                );
-                let normalization_name = normalization_name_string.intern();
+                let normalization_name =
+                    get_normalization_operation_name(fragment.name.item).intern();
                 let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
                     arguments: transformed_arguments,
                     directives,
@@ -304,9 +300,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         };
         metadata.parent_sources.insert(fragment.name.item);
         directives.push(metadata.to_directive());
-        let mut normalization_name_string = String::new();
-        get_normalization_operation_name(&mut normalization_name_string, name.item);
-        let normalization_name = normalization_name_string.intern();
+        let normalization_name = get_normalization_operation_name(name.item).intern();
         let operation = OperationDefinition {
             name: WithLocation::new(name.location, normalization_name),
             type_: type_condition,

@@ -343,8 +343,7 @@ impl<'program> MatchTransform<'program> {
                 },
             );
 
-            let mut normalization_name = String::new();
-            get_normalization_operation_name(&mut normalization_name, spread.fragment.item);
+            let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
             normalization_name.push_str(".graphql");
 
             let mut component_field_arguments = vec![build_string_literal_argument(

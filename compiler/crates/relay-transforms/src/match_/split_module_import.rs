@@ -99,9 +99,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 .value
                 .item
                 .expect_string_literal();
-            let mut normalization_name_string = String::new();
-            get_normalization_operation_name(&mut normalization_name_string, name);
-            let normalization_name = normalization_name_string.intern();
+            let normalization_name = get_normalization_operation_name(name).intern();
             let schema = &self.program.schema;
             let created_split_operation = self
                 .split_operations

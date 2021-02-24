@@ -6,8 +6,7 @@
  */
 
 use interner::StringKey;
-use std::fmt::Write;
 
-pub fn get_normalization_operation_name<W: Write>(writer: &mut W, name: StringKey) {
-    write!(writer, "{}$normalization", name).unwrap();
+pub fn get_normalization_operation_name(name: StringKey) -> String {
+    format!("{}$normalization", name)
 }

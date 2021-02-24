@@ -536,7 +536,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       const QueryComponent = function() {
         const result = useLazyLoadQuery<_>(gqlQueryWithDefer, variables, {
-          fetchPolicy: 'network-only',
+          fetchPolicy: 'store-or-network',
         });
 
         const name = result?.node?.name ?? 'Empty';

@@ -18,6 +18,7 @@ mod graphql_schema;
 mod schema;
 mod sdl;
 
+pub use crate::schema::SDLSchema;
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
@@ -28,7 +29,6 @@ pub use errors::{Result, SchemaError};
 use flatbuffer::FlatBufferSchema;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use schema::SDLSchema;
 pub use sdl::SDLSchemaImpl;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");

@@ -9,8 +9,9 @@ mod scope;
 
 use super::get_applied_fragment_name;
 use crate::feature_flags::NoInlineFeature;
-use crate::match_::{get_normalization_operation_name, SplitOperationMetadata};
+use crate::match_::SplitOperationMetadata;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::util::get_normalization_operation_name;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
@@ -284,7 +285,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}' with arguments: fragment arguments are not yet supported",
-                    fragment.name.item, 
+                    fragment.name.item,
                 ),
                 directive.name.location,
             ));
@@ -314,7 +315,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}' - @no_inline is not yet supported on fragments loaded with @module",
-                    fragment.name.item, 
+                    fragment.name.item,
                 ),
                 directive.name.location,
             ));

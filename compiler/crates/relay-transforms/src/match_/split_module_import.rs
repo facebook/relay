@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{get_normalization_operation_name, SplitOperationMetadata, MATCH_CONSTANTS};
+use super::{SplitOperationMetadata, MATCH_CONSTANTS};
+use crate::util::get_normalization_operation_name;
 use common::{NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{

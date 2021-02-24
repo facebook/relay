@@ -7,7 +7,8 @@
 
 use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
-use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{

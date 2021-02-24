@@ -126,6 +126,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                         SplitOperationMetadata {
                             derived_from: name,
                             parent_sources: Default::default(),
+                            raw_response_type: false,
                         },
                         OperationDefinition {
                             name: WithLocation::new(

@@ -50,6 +50,14 @@ pub fn generate_artifacts(
                 .expect("Expected the source document for the SplitOperation to exist.");
             let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
             let source_file = source_fragment.name.location.source_location();
+            let typegen_operation = if metadata.raw_response_type {
+                programs
+                    .normalization
+                    .operation(normalization_operation.name.item)
+                    .map(Arc::clone)
+            } else {
+                None
+            };
 
             artifacts.push(Artifact {
                 source_definition_names: metadata.parent_sources.into_iter().collect(),
@@ -60,6 +68,7 @@ pub fn generate_artifacts(
                 ),
                 content: ArtifactContent::SplitOperation {
                     normalization_operation: Arc::clone(normalization_operation),
+                    typegen_operation,
                     source_hash,
                 },
                 source_file,
@@ -113,10 +122,10 @@ pub fn generate_artifacts(
     Ok(artifacts)
 }
 
-fn generate_normalization_artifact<'a>(
+fn generate_normalization_artifact(
     source_definition_name: StringKey,
     project_config: &ProjectConfig,
-    programs: &'a Programs,
+    programs: &Programs,
     normalization_operation: &Arc<OperationDefinition>,
     source_hash: String,
     source_file: SourceLocationKey,

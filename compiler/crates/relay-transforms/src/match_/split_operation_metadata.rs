@@ -15,6 +15,7 @@ lazy_static! {
     pub static ref DIRECTIVE_SPLIT_OPERATION: StringKey = "__splitOperation".intern();
     static ref ARG_DERIVED_FROM: StringKey = "derivedFrom".intern();
     static ref ARG_PARENT_SOURCES: StringKey = "parentSources".intern();
+    static ref ARG_RAW_RESPONSE_TYPE: StringKey = "rawResponseType".intern();
 }
 
 /// The split operation metadata directive indicates that an operation was split
@@ -27,30 +28,40 @@ pub struct SplitOperationMetadata {
     /// They are the reason this split operation exist. If they are all removed,
     /// this file also needs to be removed.
     pub parent_sources: FnvHashSet<StringKey>,
+
+    /// Should a @raw_response_type style type be generated.
+    pub raw_response_type: bool,
 }
 
 impl SplitOperationMetadata {
     pub fn to_directive(&self) -> Directive {
+        let mut arguments = vec![
+            Argument {
+                name: WithLocation::generated(*ARG_DERIVED_FROM),
+                value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                    self.derived_from,
+                ))),
+            },
+            Argument {
+                name: WithLocation::generated(*ARG_PARENT_SOURCES),
+                value: WithLocation::generated(Value::Constant(ConstantValue::List(
+                    self.parent_sources
+                        .iter()
+                        .cloned()
+                        .map(ConstantValue::String)
+                        .collect(),
+                ))),
+            },
+        ];
+        if self.raw_response_type {
+            arguments.push(Argument {
+                name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE),
+                value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
+            });
+        }
         Directive {
             name: WithLocation::generated(*DIRECTIVE_SPLIT_OPERATION),
-            arguments: vec![
-                Argument {
-                    name: WithLocation::generated(*ARG_DERIVED_FROM),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        self.derived_from,
-                    ))),
-                },
-                Argument {
-                    name: WithLocation::generated(*ARG_PARENT_SOURCES),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                        self.parent_sources
-                            .iter()
-                            .cloned()
-                            .map(ConstantValue::String)
-                            .collect(),
-                    ))),
-                },
-            ],
+            arguments,
         }
     }
 }
@@ -67,6 +78,8 @@ impl From<&Directive> for SplitOperationMetadata {
             .arguments
             .named(*ARG_PARENT_SOURCES)
             .expect("Expected parent_sources arg to exist");
+        let raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
+
         if let Value::Constant(ConstantValue::List(source_definition_names)) =
             &parent_sources_arg.value.item
         {
@@ -84,6 +97,7 @@ impl From<&Directive> for SplitOperationMetadata {
             Self {
                 derived_from,
                 parent_sources,
+                raw_response_type,
             }
         } else {
             panic!("Expected parent sources to be a constant of list.");

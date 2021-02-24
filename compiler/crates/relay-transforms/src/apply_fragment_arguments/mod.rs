@@ -300,6 +300,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
             parent_sources: Default::default(),
+            raw_response_type: true,
         };
         metadata.parent_sources.insert(fragment.name.item);
         directives.push(metadata.to_directive());

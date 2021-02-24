@@ -26,6 +26,7 @@ use graphql_ir::{
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
@@ -84,6 +85,19 @@ pub fn generate_operation_type(
     generator.result
 }
 
+pub fn generate_split_operation_type(
+    typegen_operation: &OperationDefinition,
+    normalization_operation: &OperationDefinition,
+    schema: &SDLSchema,
+    typegen_config: &TypegenConfig,
+) -> String {
+    let mut generator = TypeGenerator::new(schema, typegen_config);
+    generator
+        .generate_split_operation_type(typegen_operation, normalization_operation)
+        .unwrap();
+    generator.result
+}
+
 enum GeneratedInputObject {
     Pending,
     Resolved(AST),
@@ -100,6 +114,7 @@ struct TypeGenerator<'schema, 'config> {
     schema: &'schema SDLSchema,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
+    imported_raw_response_types: IndexSet<StringKey>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'config TypegenConfig,
@@ -114,6 +129,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
             schema,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
+            imported_raw_response_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
             typegen_config,
@@ -172,6 +188,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         } else {
             self.write_fragment_imports()?;
         }
+        self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
         write_ast!(
@@ -223,6 +240,32 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
                 Box::from(AST::ExactObject(operation_types)),
             )
         )?;
+        Ok(())
+    }
+
+    fn generate_split_operation_type(
+        &mut self,
+        typegen_operation: &OperationDefinition,
+        normalization_operation: &OperationDefinition,
+    ) -> Result {
+        let raw_response_selections =
+            self.raw_response_visit_selections(&normalization_operation.selections);
+        let raw_response_type =
+            self.raw_response_selections_to_babel(raw_response_selections, None);
+
+        self.write_runtime_imports()?;
+        self.write_fragment_imports()?;
+        self.write_split_raw_response_type_imports()?;
+        self.write_enum_definitions()?;
+        for (key, ast) in self.match_fields.iter() {
+            write_ast!(self, AST::ExportTypeEquals(*key, Box::from(ast.clone())))?;
+        }
+
+        write_ast!(
+            self,
+            AST::ExportTypeEquals(typegen_operation.name.item, Box::from(raw_response_type))
+        )?;
+
         Ok(())
     }
 
@@ -1017,9 +1060,7 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
     }
 
     fn write_fragment_imports(&mut self) -> Result {
-        let mut used_fragments: Vec<_> = self.used_fragments.iter().collect();
-        used_fragments.sort();
-        for used_fragment in used_fragments {
+        for used_fragment in self.used_fragments.iter().sorted() {
             let fragment_type_name = get_old_fragment_type_name(*used_fragment);
             if !self.generated_fragments.contains(used_fragment) {
                 if self.typegen_config.haste {
@@ -1047,6 +1088,31 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         Ok(())
     }
 
+    fn write_split_raw_response_type_imports(&mut self) -> Result {
+        if self.imported_raw_response_types.is_empty() {
+            return Ok(());
+        }
+
+        for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
+            if self.typegen_config.haste {
+                write_ast!(
+                    self,
+                    AST::ImportFragmentType(
+                        vec![imported_raw_response_type],
+                        format!("{}.graphql", imported_raw_response_type).intern()
+                    )
+                )?;
+            } else {
+                write_ast!(
+                    self,
+                    AST::DefineType(imported_raw_response_type, Box::new(AST::Any))
+                )?;
+            }
+        }
+
+        Ok(())
+    }
+
     fn write_fragment_refs_for_refetchable(
         &mut self,
         refetchable_fragment_name: StringKey,
@@ -1055,11 +1121,11 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
         write_ast!(
             self,
-            AST::DeclareExportFragment(old_fragment_type_name, None,)
+            AST::DeclareExportFragment(old_fragment_type_name, None)
         )?;
         write_ast!(
             self,
-            AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name),)
+            AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
         )?;
         Ok(())
     }
@@ -1182,9 +1248,20 @@ impl<'schema, 'config> TypeGenerator<'schema, 'config> {
         let mut type_selections = Vec::new();
         for selection in selections {
             match selection {
-                Selection::FragmentSpread(_) => {
-                    // TODO T84961855: Potentially support @no_inline within @raw_response_type
-                    // For now we intentionally exclude selections from shared normalization fragments.
+                Selection::FragmentSpread(spread) => {
+                    let spread_type = spread.fragment.item;
+                    self.imported_raw_response_types.insert(spread_type);
+                    type_selections.push(TypeSelection {
+                        key: *SPREAD_KEY,
+                        conditional: false,
+                        value: Some(AST::Identifier(spread_type)),
+                        schema_name: None,
+                        node_type: None,
+                        concrete_type: None,
+                        ref_: None,
+                        node_selections: None,
+                        document_name: None,
+                    })
                 }
                 Selection::InlineFragment(inline_fragment) => {
                     self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)

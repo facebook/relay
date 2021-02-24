@@ -25,6 +25,8 @@ fragment noInlineFragment_user on User @no_inline {
 ==================================== OUTPUT ===================================
 import type { noInlineFragment_address$ref } from "noInlineFragment_address.graphql";
 import type { noInlineFragment_user$ref } from "noInlineFragment_user.graphql";
+import type { noInlineFragment_address$normalization } from "noInlineFragment_address$normalization.graphql";
+import type { noInlineFragment_user$normalization } from "noInlineFragment_user$normalization.graphql";
 export type noInlineFragmentQueryVariables = {|
   global?: ?number,
   shadowed_global?: ?number,
@@ -40,7 +42,9 @@ export type noInlineFragmentQueryResponse = {|
 |};
 export type noInlineFragmentQueryRawResponse = {|
   +me: ?{|
-    +address: ?{||},
+    ...noInlineFragment_user$normalization,
+    +address: ?{| ...noInlineFragment_address$normalization
+    |},
     +id: string,
   |}
 |};

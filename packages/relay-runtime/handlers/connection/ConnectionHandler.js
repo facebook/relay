@@ -369,6 +369,11 @@ function createEdge(
     edge = store.create(edgeID, edgeType);
   }
   edge.setLinkedRecord(node, NODE);
+  if (edge.getValue('cursor') == null) {
+    // Always use null instead of undefined value for cursor
+    // to avoid considering it as missing data
+    edge.setValue(null, 'cursor');
+  }
   return edge;
 }
 
@@ -504,6 +509,11 @@ function buildConnectionEdge(
   const edgeID = generateClientID(connection.getDataID(), EDGES, edgeIndex);
   const connectionEdge = store.create(edgeID, edge.getType());
   connectionEdge.copyFieldsFrom(edge);
+  if (connectionEdge.getValue('cursor') == null) {
+    // Always use null instead of undefined value for cursor
+    // to avoid considering it as missing data
+    connectionEdge.setValue(null, 'cursor');
+  }
   connection.setValue(edgeIndex + 1, NEXT_EDGE_INDEX);
   return connectionEdge;
 }

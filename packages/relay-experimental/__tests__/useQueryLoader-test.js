@@ -19,21 +19,19 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
 const useQueryLoader = require('../useQueryLoader');
 
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {graphql, getRequest} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
-import type {ConcreteRequest} from 'relay-runtime';
+import type {GraphQLTaggedNode} from 'relay-runtime';
 
-const generatedQuery: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query: GraphQLTaggedNode = graphql`
+  query useQueryLoaderTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`).TestQuery;
-
+`;
+const generatedQuery = getRequest(query);
 const defaultOptions = {};
 
 let renderCount;

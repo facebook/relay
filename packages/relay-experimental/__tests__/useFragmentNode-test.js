@@ -1073,9 +1073,9 @@ it('should warn if fragment reference is non-null but read-out data is null', ()
   warning.mockClear();
 
   renderSingularFragment();
-  expect(warning).toBeCalledTimes(2);
+  expect(warning).toBeCalledTimes(1);
   // $FlowFixMe[prop-missing]
-  const [, warningMessage] = warning.mock.calls[1];
+  const [, warningMessage] = warning.mock.calls[0];
   expect(
     warningMessage.startsWith(
       'Relay: Expected to have been able to read non-null data for fragment `%s`',
@@ -1114,9 +1114,9 @@ it('should warn if plural fragment reference is non-null but read-out data is nu
   warning.mockClear();
 
   renderPluralFragment();
-  expect(warning).toBeCalledTimes(2);
+  expect(warning).toBeCalledTimes(1);
   // $FlowFixMe[prop-missing]
-  const [, warningMessage] = warning.mock.calls[1];
+  const [, warningMessage] = warning.mock.calls[0];
   expect(
     warningMessage.startsWith(
       'Relay: Expected to have been able to read non-null data for fragment `%s`',
@@ -1124,62 +1124,6 @@ it('should warn if plural fragment reference is non-null but read-out data is nu
   ).toEqual(true);
   // $FlowFixMe[prop-missing]
   warning.mockClear();
-});
-
-it('should warn if data is missing and there are no pending requests', () => {
-  // This prevents console.error output in the test, which is expected
-  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-  const warning = require('warning');
-
-  const missingDataVariables = {...singularVariables, id: '4'};
-  const missingDataQuery = createOperationDescriptor(
-    gqlSingularQuery,
-    missingDataVariables,
-  );
-
-  // Commit a payload where name is missing.
-  environment.commitPayload(missingDataQuery, {
-    node: {
-      __typename: 'User',
-      id: '4',
-    },
-  });
-
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
-  TestRenderer.act(() => {
-    renderSingularFragment({owner: missingDataQuery});
-  });
-
-  // Assert warning message
-  expect(warning).toHaveBeenCalledTimes(1);
-  // $FlowFixMe[prop-missing]
-  const [, warningMessage, ...warningArgs] = warning.mock.calls[0];
-  expect(
-    warningMessage.startsWith(
-      'Relay: Tried reading fragment `%s` ' +
-        'declared in `%s`, but it has ' +
-        'missing data and its parent query `%s` is not being fetched.',
-    ),
-  ).toEqual(true);
-  expect(warningArgs).toEqual([
-    'UserFragment',
-    'TestDisplayName',
-    'UserQuery',
-    'UserQuery',
-  ]);
-
-  // Assert render output with missing data
-  assertFragmentResults([
-    {
-      data: {
-        id: '4',
-        name: undefined,
-        profile_picture: undefined,
-        ...createFragmentRef('4', missingDataQuery),
-      },
-    },
-  ]);
 });
 
 it('should subscribe for updates even if there is missing data', () => {

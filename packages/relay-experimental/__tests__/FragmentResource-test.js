@@ -492,34 +492,6 @@ describe('FragmentResource', () => {
       expect(cached).toBe(null);
     });
 
-    it('should raise a warning if data is missing and no pending requests', () => {
-      jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      FragmentResource.read(
-        getFragment(UserFragmentMissing),
-        {
-          __id: '4',
-          __fragments: {
-            UserFragment: {},
-          },
-          __fragmentOwner: queryMissingData.request,
-        },
-        componentDisplayName,
-      );
-
-      expect(console.error).toHaveBeenCalledTimes(1);
-      // $FlowFixMe[prop-missing]
-      const warningMessage = console.error.mock.calls[0][0];
-      expect(
-        warningMessage.startsWith(
-          'Warning: Relay: Tried reading fragment `UserFragment` ' +
-            'declared in `TestComponent`, but it has ' +
-            'missing data and its parent query `UserQuery` is not being fetched.',
-        ),
-      ).toEqual(true);
-      // $FlowFixMe[prop-missing]
-      console.error.mockClear();
-    });
-
     it('should show a readable error message if fragment is conditionally included', () => {
       expect(() =>
         FragmentResource.read(

@@ -17,7 +17,6 @@ const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
 const mapObject = require('mapObject');
-const warning = require('warning');
 
 const {
   __internal: {getPromiseForActiveRequest},
@@ -199,8 +198,6 @@ class FragmentResourceImpl {
       fragmentSelector.kind === 'PluralReaderSelector'
         ? fragmentSelector.selectors[0].owner
         : fragmentSelector.owner;
-    const parentQueryName =
-      fragmentOwner.node.params.name ?? 'Unknown Parent Query';
 
     if (!isMissingData(snapshot)) {
       this._reportMissingRequiredFieldsInSnapshot(snapshot);
@@ -221,30 +218,6 @@ class FragmentResourceImpl {
     if (networkPromise != null) {
       throw networkPromise;
     }
-
-    // 4. If a cached value still isn't available, raise a warning.
-    // This means that we're trying to read a fragment that isn't available
-    // and isn't being fetched at all.
-    warning(
-      false,
-      'Relay: Tried reading fragment `%s` declared in ' +
-        '`%s`, but it has missing data and its parent query `%s` is not ' +
-        'being fetched.\n' +
-        'This might be fixed by by re-running the Relay Compiler. ' +
-        ' Otherwise, make sure of the following:\n' +
-        '* You are correctly fetching `%s` if you are using a ' +
-        '"store-only" `fetchPolicy`.\n' +
-        "* Other queries aren't accidentally fetching and overwriting " +
-        'the data for this fragment.\n' +
-        '* Any related mutations or subscriptions are fetching all of ' +
-        'the data for this fragment.\n' +
-        "* Any related store updaters aren't accidentally deleting " +
-        'data for this fragment.',
-      fragmentNode.name,
-      componentDisplayName,
-      parentQueryName,
-      parentQueryName,
-    );
 
     this._reportMissingRequiredFieldsInSnapshot(snapshot);
     return getFragmentResult(fragmentIdentifier, snapshot);

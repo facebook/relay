@@ -168,32 +168,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     warning.mockClear();
   });
 
-  it('should warn if data is missing and it is not being fetched by owner or other operations', () => {
-    // At this point the viewer query is resolved but, it does not have any 3D data
-    // So it should throw a waring for missing data
-    const snapshot = FragmentResource.read(
-      PlainUserNameRenderer_name,
-      {
-        __id:
-          'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
-        __fragments: {
-          PlainUserNameRenderer_name: {},
-        },
-        __fragmentOwner: viewerOperation.request,
-      },
-      componentName,
-    );
-    expect(snapshot.data).toEqual({
-      data: undefined,
-      plaintext: undefined,
-    });
-    expect(warning).toBeCalled();
-    // $FlowFixMe[prop-missing]
-    expect(warning.mock.calls[0][0]).toBe(false);
-    // $FlowFixMe[prop-missing]
-    expect(warning.mock.calls[0][1]).toMatch(/it has missing data/);
-  });
-
   it('should throw and cache promise for pending operation affecting fragment owner', () => {
     environment.execute({operation: nodeOperation}).subscribe({});
     // $FlowFixMe[prop-missing]

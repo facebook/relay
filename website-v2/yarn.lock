@@ -3767,13 +3767,13 @@ dns-txt@^2.0.2:
   dependencies:
     buffer-indexof "^1.0.0"
 
-docusaurus-plugin-internaldocs-fb@^0.5.7:
-  version "0.5.7"
-  resolved "https://registry.yarnpkg.com/docusaurus-plugin-internaldocs-fb/-/docusaurus-plugin-internaldocs-fb-0.5.7.tgz#7f2a1b1bbbe1edd22d817001edc2c3a5c1e8d988"
-  integrity sha512-FIDNifFK3jB10NlEaiunMV3JdcDgOvCPgxFKFPzf8oe7W5fVSeY4stIcepnXbo5umpyKFMRtLT8Bw6loJkJF3Q==
+docusaurus-plugin-internaldocs-fb@^0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/docusaurus-plugin-internaldocs-fb/-/docusaurus-plugin-internaldocs-fb-0.7.0.tgz#3eecd8a781eacaacb6a3d060d9bfab5110c14acb"
+  integrity sha512-Mi2uanibcdbq9U17VCMdwOGY1fcGyPnoOQVtwir7HMHa1hm//7vuWbcaR1qYs2MvprkgE0NgidRKL8ChnEjdBA==
   dependencies:
-    internaldocs-fb-helpers "^1.1.0"
-    remark-code-snippets "^0.1.1"
+    internaldocs-fb-helpers "^1.4.0"
+    remark-code-snippets "^0.1.4"
     remark-mdx-filter-imports "^0.1.2"
 
 dom-converter@^0.2:
@@ -5344,10 +5344,10 @@ internal-ip@^4.3.0:
     default-gateway "^4.2.0"
     ipaddr.js "^1.9.0"
 
-internaldocs-fb-helpers@^1.1.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/internaldocs-fb-helpers/-/internaldocs-fb-helpers-1.2.0.tgz#bdaf2a503ebbaa1eb69a5caa4f827f7beccda391"
-  integrity sha512-qlJ19P13nt5kVXniEQZfZPnU+RK20jGIyuchn2eDI9KoZ65EnNBOo0Mpb31y/+7FQtadd4oC8OWpwoEbsTWgXA==
+internaldocs-fb-helpers@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/internaldocs-fb-helpers/-/internaldocs-fb-helpers-1.4.0.tgz#65282d741c7b16f47efbf5d1c7507b18ad67d877"
+  integrity sha512-bUf1wm5spaOrf5X41w8Zew2X4I9N5wOcsD6pYW5U87eeQoHoEzYsR8n+5GjP9ZAOmvkbqIxeHx0ccl6lSHDNmg==
 
 interpret@^1.0.0:
   version "1.4.0"
@@ -8480,10 +8480,10 @@ remark-admonitions@^1.2.1:
     unified "^8.4.2"
     unist-util-visit "^2.0.1"
 
-remark-code-snippets@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/remark-code-snippets/-/remark-code-snippets-0.1.1.tgz#46d3b45e5c27d048141b6f79211e47e0ef53b89e"
-  integrity sha512-qOupYCWAiOf+Y2W0ApcaeQVvElRc5GBSLkVjsUP4avf9WAU73+8n41yTHhSVZdAUB6hw+Z7LOPmZ9Rz6FLIiTw==
+remark-code-snippets@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/remark-code-snippets/-/remark-code-snippets-0.1.4.tgz#312d42d31facf49371eddf2a5bdd1ab27db91560"
+  integrity sha512-4PkDgwuZFPGt3VvcORJlKXdKR/efmqxJrdZWEZfJAYPRqW2GtgInPxLezvnj0cqeIgW5vICItZnIzvF3u7BbKw==
   dependencies:
     unist-util-visit "^2.0.1"
 

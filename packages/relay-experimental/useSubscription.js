@@ -31,7 +31,7 @@ function useSubscription<TSubscriptionPayload>(
     requestSubscriptionFn ?? requestSubscription;
   const environment = useRelayEnvironment();
   React.useEffect(() => {
-    const {dispose} = requestSubscription(environment, config);
+    const {dispose} = actualRequestSubscription(environment, config);
     return dispose;
   }, [environment, config, actualRequestSubscription]);
 }

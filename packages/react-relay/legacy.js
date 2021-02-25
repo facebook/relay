@@ -12,30 +12,13 @@
 
 'use strict';
 
-const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
 const ReactRelayLocalQueryRenderer = require('./ReactRelayLocalQueryRenderer');
 const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
 const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
 const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
-const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
 const RelayRuntime = require('relay-runtime');
-
-const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
-const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
-const useFragment = require('./relay-hooks/useFragment');
-const useLazyLoadQuery = require('./relay-hooks/useLazyLoadQuery');
-const useMutation = require('./relay-hooks/useMutation');
-const usePaginationFragment = require('./relay-hooks/usePaginationFragment');
-const usePreloadedQuery = require('./relay-hooks/usePreloadedQuery');
-const useQueryLoader = require('./relay-hooks/useQueryLoader');
-const useRefetchableFragment = require('./relay-hooks/useRefetchableFragment');
-const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
-const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
-const useSubscription = require('./relay-hooks/useSubscription');
-
-const {loadQuery} = require('./relay-hooks/loadQuery');
 
 export type {
   $FragmentRef,
@@ -80,9 +63,8 @@ export type {
 } from 'relay-runtime';
 
 /**
- * The public interface to react-relay.
- * Currently contains both Relay Hooks and legacy Container APIs.
- * Will eventually only export the interface from ./hooks.js.
+ * Legacy react-relay exports.
+ * Should prefer using interface defined in ./hooks.js
  */
 module.exports = {
   ConnectionHandler: RelayRuntime.ConnectionHandler,
@@ -104,25 +86,4 @@ module.exports = {
   graphql: RelayRuntime.graphql,
   readInlineData: RelayRuntime.readInlineData,
   requestSubscription: RelayRuntime.requestSubscription,
-
-  // Relay Hooks
-  EntryPointContainer: EntryPointContainer,
-  RelayEnvironmentProvider: RelayEnvironmentProvider,
-
-  fetchQuery: RelayRuntime.fetchQuery,
-
-  loadQuery: loadQuery,
-  loadEntryPoint: loadEntryPoint,
-
-  useFragment: useFragment,
-  useLazyLoadQuery: useLazyLoadQuery,
-  useEntryPointLoader: useEntryPointLoader,
-  useQueryLoader: useQueryLoader,
-  useMutation: useMutation,
-  usePaginationFragment: usePaginationFragment,
-  usePreloadedQuery: usePreloadedQuery,
-  useRefetchableFragment: useRefetchableFragment,
-  useRelayEnvironment: useRelayEnvironment,
-  useSubscribeToInvalidationState: useSubscribeToInvalidationState,
-  useSubscription: useSubscription,
 };

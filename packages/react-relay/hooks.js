@@ -13,12 +13,6 @@
 'use strict';
 
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayFragmentContainer = require('./ReactRelayFragmentContainer');
-const ReactRelayLocalQueryRenderer = require('./ReactRelayLocalQueryRenderer');
-const ReactRelayPaginationContainer = require('./ReactRelayPaginationContainer');
-const ReactRelayQueryRenderer = require('./ReactRelayQueryRenderer');
-const ReactRelayRefetchContainer = require('./ReactRelayRefetchContainer');
 const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
 const RelayRuntime = require('relay-runtime');
 
@@ -80,32 +74,19 @@ export type {
 } from 'relay-runtime';
 
 /**
- * The public interface to react-relay.
- * Currently contains both Relay Hooks and legacy Container APIs.
- * Will eventually only export the interface from ./hooks.js.
+ * The public interface for Relay Hooks.
+ * This will eventually become the main public interface for react-relay.
  */
 module.exports = {
   ConnectionHandler: RelayRuntime.ConnectionHandler,
-  QueryRenderer: ReactRelayQueryRenderer,
-  LocalQueryRenderer: ReactRelayLocalQueryRenderer,
-
-  MutationTypes: RelayRuntime.MutationTypes,
-  RangeOperations: RelayRuntime.RangeOperations,
-
-  ReactRelayContext,
 
   applyOptimisticMutation: RelayRuntime.applyOptimisticMutation,
   commitLocalUpdate: RelayRuntime.commitLocalUpdate,
   commitMutation: RelayRuntime.commitMutation,
-  createFragmentContainer: ReactRelayFragmentContainer.createContainer,
-  createPaginationContainer: ReactRelayPaginationContainer.createContainer,
-  createRefetchContainer: ReactRelayRefetchContainer.createContainer,
-  fetchQuery_DEPRECATED: RelayRuntime.fetchQuery_DEPRECATED,
   graphql: RelayRuntime.graphql,
   readInlineData: RelayRuntime.readInlineData,
   requestSubscription: RelayRuntime.requestSubscription,
 
-  // Relay Hooks
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
 

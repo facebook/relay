@@ -17,7 +17,17 @@ Data-Driven Dependencies. Facebook's way of including the code to render a parti
 * **Unions**. For example, the core news feed item has many different variants, each of which is a separate React component. Which one we render depends on the data (i.e. is "data-driven"). On a given feed, it is likely that most variants will not be rendered, and need not be downloaded.
 * **Component can have different rendering strategies, depending on the data.**
 
+<FbInternalOnly>
+
 See the [@match](#match) directive, [@module](#module) directive and [the 3D guide](../guides/data-driven-dependencies).
+
+</FbInternalOnly>
+
+<OssOnly>
+
+See the [@match](#match) directive and the [@module](#module) directive.
+
+</OssOnly>
 
 ## Abstract Type
 
@@ -808,7 +818,11 @@ subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
 }
 ```
 
+<FbInternalOnly>
+
 See also [the guide](../guides/writing-subscriptions).
+
+</FbInternalOnly>
 
 ## Transaction ID
 

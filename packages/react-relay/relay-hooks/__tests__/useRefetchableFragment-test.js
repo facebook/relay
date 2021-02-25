@@ -87,10 +87,10 @@ describe('useRefetchableFragment', () => {
     jest.mock('warning');
     renderSpy = jest.fn();
 
-    const {
+    ({
       createMockEnvironment,
       generateAndCompile,
-    } = require('relay-test-utils-internal');
+    } = require('relay-test-utils-internal'));
 
     // Set up environment and base data
     environment = createMockEnvironment();

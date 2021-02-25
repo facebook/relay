@@ -19,7 +19,7 @@ import type {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedEntryPoint,
-} from 'relay-experimental/EntryPointTypes.flow';
+} from './EntryPointTypes.flow';
 
 function loadEntryPoint<
   TEntryPointParams: {...},

@@ -453,9 +453,9 @@ export type LogEvent =
       +operation: OperationDescriptor,
       // value from ProfilerContext
       +profilerContext: mixed,
-      // FetchPolicy from relay-experimental
+      // FetchPolicy from Relay Hooks
       +fetchPolicy: string,
-      // RenderPolicy from relay-experimental
+      // RenderPolicy from Relay Hooks
       +renderPolicy: string,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,

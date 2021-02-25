@@ -162,7 +162,7 @@ describe('FragmentResource', () => {
     });
 
     it('should return empty array for plural fragment when plural field is empty', () => {
-      const {UsersFragment} = generateAndCompile(
+      ({UsersFragment} = generateAndCompile(
         `
           fragment UsersFragment on User @relay(plural: true) {
             id
@@ -174,7 +174,7 @@ describe('FragmentResource', () => {
             }
           }
         `,
-      );
+      ));
 
       const result = FragmentResource.read(
         getFragment(UsersFragment),

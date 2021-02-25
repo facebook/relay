@@ -13,11 +13,11 @@
 
 'use strict';
 
-const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 const {
   __internal: {fetchQuery},
 } = require('relay-runtime');

@@ -15,8 +15,8 @@
 
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
-const {RelayEnvironmentProvider} = require('relay-experimental');
 const {
   createMockEnvironment,
   generateAndCompile,

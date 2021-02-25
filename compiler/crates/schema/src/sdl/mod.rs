@@ -8,7 +8,7 @@
 use crate::definitions::{Argument, Directive, *};
 use crate::errors::SchemaError;
 use crate::graphql_schema::Schema;
-use common::{Diagnostic, DiagnosticsResult, Location};
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -1205,7 +1205,7 @@ impl SDLSchemaImpl {
                 .map(|arg_def| {
                     Ok(Argument {
                         name: arg_def.name.value,
-                        type_: self.build_type_reference(&arg_def.type_)?,
+                        type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
                     })
                 })
@@ -1214,6 +1214,36 @@ impl SDLSchemaImpl {
         } else {
             Ok(ArgumentDefinitions(Vec::new()))
         }
+    }
+
+    fn build_input_object_reference(
+        &mut self,
+        ast_type: &TypeAnnotation,
+    ) -> DiagnosticsResult<TypeReference> {
+        Ok(match ast_type {
+            TypeAnnotation::Named(name) => {
+                let type_ = self.type_map.get(&name.value).ok_or_else(|| {
+                    vec![Diagnostic::error(
+                        SchemaError::UndefinedType(name.value),
+                        Location::new(SourceLocationKey::generated(), name.span),
+                    )]
+                })?;
+                if !(type_.is_enum() || type_.is_scalar() || type_.is_input_object()) {
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExpectedInputType(name.value),
+                        Location::new(SourceLocationKey::generated(), name.span),
+                    )]);
+                }
+
+                TypeReference::Named(*type_)
+            }
+            TypeAnnotation::NonNull(of_type) => {
+                TypeReference::NonNull(Box::new(self.build_input_object_reference(&of_type.type_)?))
+            }
+            TypeAnnotation::List(of_type) => {
+                TypeReference::List(Box::new(self.build_input_object_reference(&of_type.type_)?))
+            }
+        })
     }
 
     fn build_type_reference(

@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+interface Node {
+  id: ID
+}
+input InvalidInput {
+  value: String
+  node: Node
+}
+==================================== ERROR ====================================
+✖︎ Expected a field of the input object to be a valid input object, scalar, or enum. Got 'Node'.
+
+  <generated>:8:9
+    7 │   value: String
+    8 │   node: Node
+      │         ^^^^
+    9 │ }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<66e926091c11679f6572f66c4322d5a7>>
+ * @generated SignedSource<<f3abeff8bed19f3dde20e9f5e5394d05>>
  */
 
 mod validate_schema;
@@ -24,13 +24,6 @@ fn validate_enum() {
     let input = include_str!("validate_schema/fixtures/validate_enum.graphql");
     let expected = include_str!("validate_schema/fixtures/validate_enum.expected");
     test_fixture(transform_fixture, "validate_enum.graphql", "validate_schema/fixtures/validate_enum.expected", input, expected);
-}
-
-#[test]
-fn validate_input_object() {
-    let input = include_str!("validate_schema/fixtures/validate_input_object.graphql");
-    let expected = include_str!("validate_schema/fixtures/validate_input_object.expected");
-    test_fixture(transform_fixture, "validate_input_object.graphql", "validate_schema/fixtures/validate_input_object.expected", input, expected);
 }
 
 #[test]

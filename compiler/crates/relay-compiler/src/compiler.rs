@@ -193,6 +193,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         }
                         Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
                             source_control_update_completed.store(true, Ordering::Relaxed);
+                            source_control_update_in_process.store(false, Ordering::Relaxed);
                             notify_sender.notify_one();
                             break;
                         }

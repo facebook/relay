@@ -7,7 +7,7 @@
 
 use std::{
     collections::HashMap,
-    sync::{atomic::AtomicI8, atomic::Ordering, Arc, RwLock},
+    sync::{Arc, RwLock},
 };
 
 use common::{PerfLogEvent, PerfLogger};
@@ -19,6 +19,7 @@ use lsp_server::Message;
 use relay_compiler::{
     compiler::Compiler, compiler_state::CompilerState, config::Config, errors::Error, FileSource,
     FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
+    SourceControlUpdateStatus,
 };
 use schema::SDLSchema;
 use tokio::{sync::Notify, task, task::JoinHandle};
@@ -29,33 +30,6 @@ use crate::{
     lsp::update_in_progress_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
 };
-
-#[derive(Clone, Default)]
-/// This structure is representing the state of the current source control update
-/// Watchman subscription will trigger updates here
-struct SourceControlUpdateStatus {
-    // default - no updates
-    // 1 - update started
-    // 2 - update completed
-    value: Arc<AtomicI8>,
-}
-
-impl SourceControlUpdateStatus {
-    fn mark_as_started(&self) {
-        debug!("SourceControlUpdateStatus: source control update started!");
-        self.value.store(1, Ordering::Relaxed);
-    }
-    fn is_started(&self) -> bool {
-        self.value.load(Ordering::Relaxed) == 1
-    }
-    fn mark_as_completed(&self) {
-        debug!("SourceControlUpdateStatus: source control update completed!");
-        self.value.store(2, Ordering::Relaxed);
-    }
-    fn is_completed(&self) -> bool {
-        self.value.load(Ordering::Relaxed) == 2
-    }
-}
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {

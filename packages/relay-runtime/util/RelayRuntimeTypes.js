@@ -61,9 +61,6 @@ export type CacheConfig = {|
   transactionId?: ?string,
 |};
 
-/**
- * Experimental
- */
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
 export type FetchPolicy =
   | FetchQueryFetchPolicy

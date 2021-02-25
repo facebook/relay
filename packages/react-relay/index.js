@@ -68,6 +68,7 @@ module.exports = {
   createPaginationContainer: ReactRelayPaginationContainer.createContainer,
   createRefetchContainer: ReactRelayRefetchContainer.createContainer,
   fetchQuery: RelayRuntime.fetchQuery,
+  fetchQuery_DEPRECATED: RelayRuntime.fetchQuery_DEPRECATED,
   graphql: RelayRuntime.graphql,
   readInlineData: RelayRuntime.readInlineData,
   requestSubscription: RelayRuntime.requestSubscription,

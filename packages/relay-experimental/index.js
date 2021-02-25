@@ -19,7 +19,6 @@ const MatchContainer = require('./MatchContainer');
 const ProfilerContext = require('./ProfilerContext');
 const RelayEnvironmentProvider = require('./RelayEnvironmentProvider');
 
-const fetchQuery = require('./fetchQuery');
 const loadEntryPoint = require('./loadEntryPoint');
 const prepareEntryPoint_DEPRECATED = require('./prepareEntryPoint_DEPRECATED');
 const useBlockingPaginationFragment = require('./useBlockingPaginationFragment');
@@ -55,8 +54,6 @@ module.exports = {
   MatchContainer: MatchContainer,
   ProfilerContext: ProfilerContext,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
-
-  fetchQuery: fetchQuery,
 
   loadQuery: loadQuery,
   loadEntryPoint: loadEntryPoint,

@@ -7,6 +7,7 @@
 
 mod graphqlschema_generated;
 mod serialize;
+mod wrapper;
 
 use crate::definitions::{Argument, Directive, *};
 use common::Span;
@@ -19,6 +20,7 @@ use graphqlschema_generated::*;
 use interner::{Intern, StringKey};
 pub use serialize::serialize_as_fb;
 use std::convert::TryInto;
+pub use wrapper::SchemaWrapper;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {

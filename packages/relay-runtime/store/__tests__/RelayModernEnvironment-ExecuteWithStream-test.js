@@ -109,7 +109,7 @@ describe('execute() a query with @stream', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      UNSTABLE_DO_NOT_USE_getDataID: getDataID,
+      getDataID: getDataID,
       network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {

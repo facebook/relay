@@ -110,7 +110,7 @@ class RelayModernStore implements Store {
       gcScheduler?: ?Scheduler,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
-      UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+      getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
     |},
@@ -131,8 +131,7 @@ class RelayModernStore implements Store {
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
     this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
-    this._getDataID =
-      options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = options?.getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();

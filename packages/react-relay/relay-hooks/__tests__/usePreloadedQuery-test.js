@@ -142,7 +142,7 @@ describe('usePreloadedQuery', () => {
       let data;
       function Component(props) {
         data = usePreloadedQuery(query, props.prefetched);
-        return data.node.name;
+        return data?.node?.name;
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -199,7 +199,7 @@ describe('usePreloadedQuery', () => {
       let data;
       function Component(props) {
         data = usePreloadedQuery(query, props.prefetched);
-        return data.node.name;
+        return data?.node?.name ?? 'MISSING NAME';
       }
       const renderer = TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
@@ -523,14 +523,14 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {
-      it('suspends while the query is pending until the query AST and network response are available', () => {
+      it('does not suspend while the query is pending until the query AST and network response are available', () => {
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '4',
         });
         let data;
         function Component(props) {
           data = usePreloadedQuery(query, props.prefetched);
-          return data.node.name;
+          return data?.node?.name ?? 'MISSING NAME';
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={environment}>
@@ -539,13 +539,18 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
+        // When the query AST is not available, we are unable to detect the promise
+        // for that query in flight.
+        // This isn't really a problem in practice because by the time the component
+        // renders the ast /must/ have already been downloaded
+        // TODO(T85673186): Detect raw network requests in flight to suspend on.
         TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('Fallback');
-        expect(data).toBe(undefined);
+        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(data).toEqual({node: undefined});
 
         PreloadableQueryRegistry.set(ID, query);
-        expect(renderer.toJSON()).toEqual('Fallback');
-        expect(data).toBe(undefined);
+        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(data).toEqual({node: undefined});
 
         expect(dataSource).toBeDefined();
         if (dataSource) {
@@ -561,14 +566,14 @@ describe('usePreloadedQuery', () => {
         });
       });
 
-      it('suspends while the query is pending until the network response and the query AST are available', () => {
+      it('does not suspend while the query is pending until the network response and the query AST are available', () => {
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '4',
         });
         let data;
         function Component(props) {
           data = usePreloadedQuery(query, props.prefetched);
-          return data.node.name;
+          return data?.node?.name ?? 'MISSING NAME';
         }
         const renderer = TestRenderer.create(
           <RelayEnvironmentProvider environment={environment}>
@@ -577,13 +582,18 @@ describe('usePreloadedQuery', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>,
         );
+        // When the query AST is not available, we are unable to detect the promise
+        // for that query in flight.
+        // This isn't really a problem in practice because by the time the component
+        // renders the ast /must/ have already been downloaded
+        // TODO(T85673186): Detect raw network requests in flight to suspend on.
         PreloadableQueryRegistry.set(ID, query);
-        expect(renderer.toJSON()).toEqual('Fallback');
-        expect(data).toBe(undefined);
+        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(data).toEqual({node: undefined});
 
         TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('Fallback');
-        expect(data).toBe(undefined);
+        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(data).toEqual({node: undefined});
 
         expect(dataSource).toBeDefined();
         if (dataSource) {
@@ -1000,7 +1010,8 @@ describe('usePreloadedQuery', () => {
         );
 
         function Component(props) {
-          return usePreloadedQuery(query, props.prefetched);
+          const data = usePreloadedQuery(query, props.prefetched);
+          return data?.node?.name ?? 'MISSING NAME';
         }
 
         const render = () => {
@@ -1023,7 +1034,7 @@ describe('usePreloadedQuery', () => {
 
         prefetched.dispose();
         render();
-        expect(warning).toBeCalledTimes(3);
+        expect(warning).toBeCalledTimes(5);
         expect(warning).toHaveBeenLastCalledWith(
           false, // invariant broken
           expectWarningMessage,

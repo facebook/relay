@@ -420,7 +420,7 @@ it('fetches and renders synchronously when the query data is cached, then update
       },
     });
     dataSource.complete();
-    jest.runAllTimers();
+    jest.runAllImmediates();
   });
   // Ignore the results of the preloader if data can be fulfilled from cache
   expect(renderer.toJSON()).toEqual('Zuck');

@@ -30,20 +30,6 @@ export type {
   RelayRefetchContainer,
   RelayRefetchProp,
 } from './ReactRelayTypes';
-export type * from './relay-hooks/EntryPointTypes.flow';
-export type {
-  MatchContainerProps,
-  MatchPointer,
-} from './relay-hooks/MatchContainer';
-export type {ProfilerContextType} from './relay-hooks/ProfilerContext';
-export type {Direction, LoadMoreFn} from './relay-hooks/useLoadMoreFunction';
-export type {UseMutationConfig} from './relay-hooks/useMutation';
-export type {UseQueryLoaderLoadQueryOptions} from './relay-hooks/useQueryLoader';
-export type {
-  RefetchFn,
-  RefetchFnDynamic,
-  Options as RefetchOptions,
-} from './relay-hooks/useRefetchableFragmentNode';
 export type {
   DataID,
   DeclarativeMutationConfig,

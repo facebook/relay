@@ -252,13 +252,13 @@ fragment queryWithMatchDirectiveWithExtraArgument_NameRendererFragment on User {
     __typename
     ... on PlainUserNameRenderer {
       ...queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name
-      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
-      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
+      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "PlainUserNameRenderer")
+      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "PlainUserNameRenderer")
     }
     ... on MarkdownUserNameRenderer {
       ...queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name
-      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
-      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext")
+      __module_operation_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "MarkdownUserNameRenderer")
+      __module_component_queryWithMatchDirectiveWithExtraArgument_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithMatchDirectiveWithExtraArgument_NameRendererFragment.nameRendererForContext", branch: "MarkdownUserNameRenderer")
     }
   }
 }

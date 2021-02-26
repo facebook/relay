@@ -31,15 +31,15 @@ fragment ActorsRendererFragment on Node {
       ... on PlainUserNameRenderer {
         ... on PlainUserNameRenderer @__module(key: "ActorsRendererFragment", id: "ActorsRendererFragment.actors.nameRenderer", module: "PlainUserNameRenderer.react", sourceDocument: "ActorsRendererFragment", name: "PlainUserNameRenderer_name") {
           ...PlainUserNameRenderer_name
-          __module_operation_ActorsRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "ActorsRendererFragment.actors.nameRenderer")
-          __module_component_ActorsRendererFragment: js(module: "PlainUserNameRenderer.react", id: "ActorsRendererFragment.actors.nameRenderer")
+          __module_operation_ActorsRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "ActorsRendererFragment.actors.nameRenderer", branch: "PlainUserNameRenderer")
+          __module_component_ActorsRendererFragment: js(module: "PlainUserNameRenderer.react", id: "ActorsRendererFragment.actors.nameRenderer", branch: "PlainUserNameRenderer")
         }
       }
       ... on MarkdownUserNameRenderer {
         ... on MarkdownUserNameRenderer @__module(key: "ActorsRendererFragment", id: "ActorsRendererFragment.actors.nameRenderer", module: "MarkdownUserNameRenderer.react", sourceDocument: "ActorsRendererFragment", name: "MarkdownUserNameRenderer_name") {
           ...MarkdownUserNameRenderer_name
-          __module_operation_ActorsRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "ActorsRendererFragment.actors.nameRenderer")
-          __module_component_ActorsRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "ActorsRendererFragment.actors.nameRenderer")
+          __module_operation_ActorsRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "ActorsRendererFragment.actors.nameRenderer", branch: "MarkdownUserNameRenderer")
+          __module_component_ActorsRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "ActorsRendererFragment.actors.nameRenderer", branch: "MarkdownUserNameRenderer")
         }
       }
     }

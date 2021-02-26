@@ -66,9 +66,10 @@ pub fn build_raw_program(
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
+    is_incremental_build: bool,
 ) -> Result<Program, BuildProjectError> {
     let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, false)
+        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 

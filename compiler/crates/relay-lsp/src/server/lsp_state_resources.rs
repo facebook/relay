@@ -6,7 +6,7 @@
  */
 
 use std::{
-    collections::HashMap,
+    collections::{hash_map::Entry, HashMap},
     sync::{Arc, RwLock},
 };
 
@@ -131,7 +131,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             set_ready_status(&self.sender);
 
             info!("LSP server initialization completed!");
-
 
             // Here we will wait for changes from watchman
             'inner: loop {
@@ -270,7 +269,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
         // This will build programs, but won't apply any transformations to them
         // that should be enough for LSP to start showing fragments information
-        let (programs, build_errors) = self.compiler.build_raw_programs(
+        let (programs, graphql_asts, build_errors) = self.compiler.build_raw_programs(
             compiler_state,
             &self
                 .schemas
@@ -279,17 +278,24 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             log_event,
         )?;
 
-        let mut source_programs_write_lock = self.source_programs.write().expect(
+        let mut source_programs = self.source_programs.write().expect(
             "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
         );
 
-        for (program_name, program) in programs {
-            // NOTE: Currently, we rely on the fact that `build_raw_programs`
-            // will always return a full program, so we can safely replace it in the current
-            // list of source_programs
-            source_programs_write_lock.insert(program_name, program);
+        for (program_name, next_program) in programs {
+            match source_programs.entry(program_name) {
+                Entry::Vacant(e) => {
+                    e.insert(next_program);
+                }
+                Entry::Occupied(mut e) => {
+                    let program = e.get_mut();
+                    let removed_definition_names = graphql_asts
+                        .get(&program_name)
+                        .map(|ast| ast.removed_definition_names.as_ref());
+                    program.merge_program(next_program, removed_definition_names);
+                }
+            }
         }
-
 
         let result = if !build_errors.is_empty() {
             Err(Error::BuildProjectsErrors {

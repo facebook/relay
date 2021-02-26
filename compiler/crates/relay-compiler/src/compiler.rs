@@ -21,6 +21,7 @@ use crate::{
     watchman::FileSourceSubscriptionNextChange,
 };
 use common::{Diagnostic, PerfLogEvent, PerfLogger};
+use fnv::FnvHashMap;
 use futures::future::join_all;
 use graphql_ir::Program;
 use log::{debug, info};
@@ -92,7 +93,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &CompilerState,
         schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
         log_event: &impl PerfLogEvent,
-    ) -> Result<(HashMap<ProjectName, Program>, Vec<BuildProjectError>)> {
+    ) -> Result<(
+        HashMap<ProjectName, Program>,
+        FnvHashMap<ProjectName, GraphQLAsts>,
+        Vec<BuildProjectError>,
+    )> {
         let graphql_asts = log_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
@@ -115,6 +120,13 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             })
             .map(|project_config| {
                 let project_name = project_config.name;
+                let is_incremental_build = compiler_state.has_processed_changes()
+                    && !compiler_state.has_breaking_schema_change(project_name)
+                    && if let Some(base) = project_config.base {
+                        !compiler_state.has_breaking_schema_change(base)
+                    } else {
+                        true
+                    };
                 if let Some(schema) = schemas.get(&project_name) {
                     (
                         project_config.name,
@@ -123,6 +135,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             &graphql_asts,
                             Arc::clone(schema),
                             log_event,
+                            is_incremental_build,
                         ),
                     )
                 } else {
@@ -150,7 +163,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
         log_event.stop(timer);
 
-        Ok((program_map, errors))
+        Ok((program_map, graphql_asts, errors))
     }
 
     pub async fn watch(&self) -> Result<()> {

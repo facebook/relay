@@ -31,6 +31,8 @@ const resolveImmediate = require('../util/resolveImmediate');
 
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 
+const RelayMapStoreSource = require('./RelayMapStoreSource');
+
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -47,6 +49,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
   Store,
+  StoreSource,
   StoreSubscriptions,
   DataIDSet,
 } from './RelayStoreTypes';
@@ -59,6 +62,13 @@ export opaque type InvalidationState = {|
 type InvalidationSubscription = {|
   callback: () => void,
   invalidationState: InvalidationState,
+|};
+
+type RootSource = {|
+  operation: OperationDescriptor,
+  refCount: number,
+  epoch: ?number,
+  fetchTime: ?number,
 |};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 0;
@@ -91,15 +101,7 @@ class RelayModernStore implements Store {
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
   _releaseBuffer: Array<string>;
-  _roots: Map<
-    string,
-    {|
-      operation: OperationDescriptor,
-      refCount: number,
-      epoch: ?number,
-      fetchTime: ?number,
-    |},
-  >;
+  _roots: StoreSource<string, RootSource>;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
@@ -112,6 +114,7 @@ class RelayModernStore implements Store {
       operationLoader?: ?OperationLoader,
       UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
+      roots?: ?StoreSource<string, RootSource>,
       queryCacheExpirationTime?: ?number,
     |},
   ) {
@@ -142,7 +145,8 @@ class RelayModernStore implements Store {
     this._optimisticSource = null;
     this._recordSource = source;
     this._releaseBuffer = [];
-    this._roots = new Map();
+    this._roots =
+      options?.roots ?? new RelayMapStoreSource<string, RootSource>();
     this._shouldScheduleGC = false;
     this._storeSubscriptions =
       RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
@@ -229,9 +233,10 @@ class RelayModernStore implements Store {
           rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
 
         if (rootEntryIsStale) {
-          this._roots.delete(id);
+          this._roots.remove(id);
           this.scheduleGC();
         } else {
+          // Otherwise fully release the query and run GC.
           this._releaseBuffer.push(id);
 
           // If the release buffer is now over-full, remove the least-recently
@@ -239,7 +244,7 @@ class RelayModernStore implements Store {
           // buffer have a refCount of 0.
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
-            this._roots.delete(_id);
+            this._roots.remove(_id);
             this.scheduleGC();
           }
         }
@@ -568,14 +573,18 @@ class RelayModernStore implements Store {
       const references = new Set();
 
       // Mark all records that are traversable from a root
-      for (const {operation} of this._roots.values()) {
-        const selector = operation.root;
-        RelayReferenceMarker.mark(
-          this._recordSource,
-          selector,
-          references,
-          this._operationLoader,
-        );
+      for (const key of this._roots.getAllKeys()) {
+        const entry = this._roots.get(key);
+        if (entry != null) {
+          const {operation} = entry;
+          const selector = operation.root;
+          RelayReferenceMarker.mark(
+            this._recordSource,
+            selector,
+            references,
+            this._operationLoader,
+          );
+        }
         // Yield for other work after each operation
         yield;
 

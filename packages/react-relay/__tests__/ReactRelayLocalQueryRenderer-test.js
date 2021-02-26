@@ -18,7 +18,12 @@ const ReactTestRenderer = require('react-test-renderer');
 
 const readContext = require('../readContext');
 
-const {createOperationDescriptor, graphql} = require('relay-runtime');
+const {
+  RecordSource,
+  Store,
+  createOperationDescriptor,
+  graphql,
+} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayLocalQueryRenderer', () => {
@@ -80,7 +85,9 @@ describe('ReactRelayLocalQueryRenderer', () => {
   }
 
   beforeEach(() => {
-    environment = createMockEnvironment();
+    environment = createMockEnvironment({
+      store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
+    });
 
     variables = {id: '4'};
     operation = createOperationDescriptor(UserQuery, variables);
@@ -307,7 +314,9 @@ describe('ReactRelayLocalQueryRenderer', () => {
     });
 
     it('renders new data if the environment changes', () => {
-      const newEnvironment = createMockEnvironment();
+      const newEnvironment = createMockEnvironment({
+        store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
+      });
       environment.commitPayload(operation, payload);
       const instance = renderer(environment, UserQuery, render, variables);
       ReactTestRenderer.act(() => jest.runAllImmediates());

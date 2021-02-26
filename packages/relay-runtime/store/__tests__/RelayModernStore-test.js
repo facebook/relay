@@ -80,7 +80,7 @@ function cloneEventWithSets(event) {
     describe('constructor', () => {
       it('creates the root record upon store initialization', () => {
         const source = getRecordSourceImplementation({});
-        const store = new RelayModernStore(source);
+        const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         expect(store.getSource().get(ROOT_ID)).toEqual({
           __id: ROOT_ID,
           __typename: ROOT_TYPE,
@@ -122,7 +122,7 @@ function cloneEventWithSets(event) {
         };
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         UserQuery = getRequest(graphql`
           query RelayModernStoreTest1Query($id: ID!, $size: Int) {
             node(id: $id) {
@@ -219,7 +219,7 @@ function cloneEventWithSets(event) {
           },
         };
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         UserFragment = getFragment(graphql`
           fragment RelayModernStoreTest2Fragment on User {
             name
@@ -402,6 +402,7 @@ function cloneEventWithSets(event) {
           log: event => {
             logEvents.push(cloneEventWithSets(event));
           },
+          gcReleaseBufferSize: 0,
         });
         UserFragment = getFragment(graphql`
           fragment RelayModernStoreTest5Fragment on User {
@@ -604,7 +605,7 @@ function cloneEventWithSets(event) {
           },
         };
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
           UserFragment,
@@ -1089,7 +1090,7 @@ function cloneEventWithSets(event) {
           },
         };
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         UserQuery = getRequest(graphql`
           query RelayModernStoreTest6Query($id: ID!, $size: [Int]) {
             node(id: $id) {
@@ -1147,7 +1148,7 @@ function cloneEventWithSets(event) {
         // $FlowFixMe[incompatible-type] found deploying v0.109.0
         delete data['client:1']; // profile picture
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         const operation = createOperationDescriptor(UserQuery, {
           id: '4',
           size: 32,
@@ -1171,6 +1172,7 @@ function cloneEventWithSets(event) {
 
           store = new RelayModernStore(source, {
             queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
+            gcReleaseBufferSize: 0,
           });
           const operation = createOperationDescriptor(UserQuery, {
             id: '4',
@@ -1544,7 +1546,7 @@ function cloneEventWithSets(event) {
           },
         };
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         environment = createMockEnvironment({store});
       });
 
@@ -2278,7 +2280,10 @@ function cloneEventWithSets(event) {
       beforeEach(() => {
         schedulerQueue = [];
         source = getRecordSourceImplementation({});
-        store = new RelayModernStore(source, {gcScheduler: mockScheduler});
+        store = new RelayModernStore(source, {
+          gcScheduler: mockScheduler,
+          gcReleaseBufferSize: 0,
+        });
       });
 
       afterEach(() => {
@@ -2406,7 +2411,7 @@ function cloneEventWithSets(event) {
         };
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
-        store = new RelayModernStore(source);
+        store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         UserQuery = getRequest(graphql`
           query RelayModernStoreTest9Query($id: ID!, $size: [Int]) {
             node(id: $id) {

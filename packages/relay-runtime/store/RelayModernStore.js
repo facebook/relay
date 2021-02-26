@@ -61,7 +61,7 @@ type InvalidationSubscription = {|
   invalidationState: InvalidationState,
 |};
 
-const DEFAULT_RELEASE_BUFFER_SIZE = 0;
+const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
 /**
  * @public

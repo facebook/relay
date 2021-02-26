@@ -102,7 +102,10 @@ describe('execute() with Flight field', () => {
     source = RelayRecordSource.create();
     // DataChecker receives its operationLoader from the store, not the
     // environment. So we have to pass it here as well.
-    store = new RelayModernStore(source, {operationLoader});
+    store = new RelayModernStore(source, {
+      operationLoader,
+      gcReleaseBufferSize: 0,
+    });
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       operationLoader,

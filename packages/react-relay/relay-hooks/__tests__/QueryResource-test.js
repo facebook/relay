@@ -47,7 +47,7 @@ describe('QueryResource', () => {
   };
 
   beforeEach(() => {
-    store = new Store(new RecordSource());
+    store = new Store(new RecordSource(), {gcReleaseBufferSize: 0});
     environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
     gqlQuery = generateAndCompile(
@@ -2752,7 +2752,10 @@ describe('QueryResource, with an environment meant for SSR', () => {
   };
 
   beforeEach(() => {
-    environment = createMockEnvironment({isServer: true});
+    environment = createMockEnvironment({
+      isServer: true,
+      store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
+    });
     QueryResource = getQueryResourceForEnvironment(environment);
     gqlQuery = generateAndCompile(
       `query UserQuery($id: ID!) {

@@ -132,6 +132,7 @@ describe('useLazyLoadQueryNode', () => {
       log: event => {
         logs.push(event);
       },
+      store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
     release = jest.fn();
     const originalRetain = environment.retain.bind(environment);

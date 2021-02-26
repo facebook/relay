@@ -105,7 +105,7 @@ describe('@no_inline', () => {
       next: jest.fn(),
     };
     source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
+    store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create((fetch: $FlowFixMe)),
       store,

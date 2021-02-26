@@ -109,6 +109,7 @@ function cloneEventWithSets(event) {
           log: event => {
             logEvents.push(cloneEventWithSets(event));
           },
+          gcReleaseBufferSize: 0,
         });
         UserFragment = getFragment(graphql`
           fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment on User {

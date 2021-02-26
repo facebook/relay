@@ -263,7 +263,11 @@ impl<'config> FileSource<'config> {
                 perf_logger.flush();
                 "failed to deserialize"
             })?;
-        if compiler_state.saved_state_version != saved_state_version {
+        // For cases, where we want to debug saved state integration, that doesn't include
+        // saved_state format changes we may need to disable this by adding this env variable
+        if std::env::var("RELAY_COMPILER_IGNORE_SAVED_STATE_VERSION").is_err()
+            && compiler_state.saved_state_version != saved_state_version
+        {
             return Err("Saved state version doesn't match.");
         }
         compiler_state

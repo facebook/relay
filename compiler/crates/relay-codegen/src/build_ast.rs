@@ -24,7 +24,8 @@ use relay_transforms::{
     ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
     DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
     NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, REQUIRED_METADATA_KEY,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
@@ -854,6 +855,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         {
             return self.build_normalization_fragment_spread(frag_spread);
         }
+        if frag_spread
+            .directives
+            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+            .is_some()
+        {
+            return self.build_relay_client_component_fragment_spread(frag_spread);
+        }
         let args = self.build_arguments(&frag_spread.arguments);
         Primitive::Key(self.object(vec![
             ObjectEntry {
@@ -891,6 +899,35 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,
                 value: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
+            },
+        ]))
+    }
+
+    fn build_relay_client_component_fragment_spread(
+        &mut self,
+        frag_spread: &FragmentSpread,
+    ) -> Primitive {
+        let normalization_name = frag_spread
+            .directives
+            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+            .unwrap()
+            .arguments
+            .named(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME)
+            .unwrap()
+            .value
+            .item
+            .expect_string_literal()
+            .to_string()
+            .trim_end_matches(".graphql")
+            .intern();
+        Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.client_component),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment,
+                value: Primitive::ModuleDependency(normalization_name),
             },
         ]))
     }

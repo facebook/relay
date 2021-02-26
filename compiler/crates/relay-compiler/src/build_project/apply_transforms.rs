@@ -141,11 +141,12 @@ fn apply_common_transforms(
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
-    program = if feature_flags.enable_flight_transform {
-        log_event.time("react_flight", || react_flight(&program))?
-    } else {
-        program
-    };
+    if feature_flags.enable_flight_transform {
+        program = log_event.time("react_flight", || react_flight(&program))?;
+        program = log_event.time("relay_client_component", || {
+            relay_client_component(&program)
+        })?;
+    }
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))

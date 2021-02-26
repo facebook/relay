@@ -1,0 +1,12 @@
+# expected-to-throw
+query QueryWithRelayClientComponent {
+  me {
+    id
+    ...ClientFragment @relay_client_component @defer @relay(mask: false)
+  }
+}
+
+fragment ClientFragment on User {
+  id
+  name
+}

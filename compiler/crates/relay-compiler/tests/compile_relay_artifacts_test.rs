@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<496a6c7e642dfebe536cdb128760d8f4>>
+ * @generated SignedSource<<455aa0f55db78048dbac13d74d348649>>
  */
 
 mod compile_relay_artifacts;
@@ -696,6 +696,13 @@ fn query_with_raw_response_type_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected");
     test_fixture(transform_fixture, "query-with-raw-response-type-directive.graphql", "compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected", input, expected);
+}
+
+#[test]
+fn query_with_relay_client_component() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.expected");
+    test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component.expected", input, expected);
 }
 
 #[test]

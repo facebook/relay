@@ -18,6 +18,7 @@ mod connections;
 mod declarative_connection;
 mod dedupe_type_discriminator;
 mod defer_stream;
+mod errors;
 mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
@@ -35,6 +36,7 @@ mod no_inline;
 mod node_identifier;
 mod react_flight;
 mod refetchable_fragment;
+mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
 mod remove_base_fragments;
@@ -60,6 +62,7 @@ lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
 }
 
+pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
@@ -103,6 +106,10 @@ pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
 };
+pub use relay_client_component::{
+    relay_client_component, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+};
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
 pub use remove_base_fragments::remove_base_fragments;
@@ -121,6 +128,7 @@ pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::{
-    extract_variable_name, generate_abstract_type_refinement_key, remove_directive, PointerAddress,
+    extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
+    remove_directive, PointerAddress,
 };
 pub use validations::*;

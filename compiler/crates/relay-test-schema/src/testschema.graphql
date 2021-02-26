@@ -70,6 +70,8 @@ scalar ReactFlightComponent
 
 scalar ReactFlightProps
 
+directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
+
 union MaybeNode = Story | FakeNode | NonNode
 
 type FakeNode {

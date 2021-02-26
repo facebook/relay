@@ -71,3 +71,6 @@ directive @appendEdge(connections: [ID!]!) on FIELD
 directive @prependEdge(connections: [ID!]!) on FIELD
 directive @appendNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 directive @prependNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
+
+# RelayClientComponentTransform
+directive @relay_client_component on FRAGMENT_SPREAD

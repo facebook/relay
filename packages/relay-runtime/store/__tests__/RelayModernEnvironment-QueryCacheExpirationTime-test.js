@@ -23,7 +23,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {graphql, getRequest} = require('relay-runtime');
 
 describe('query cache expiration time', () => {
   let environment;
@@ -40,14 +40,14 @@ describe('query cache expiration time', () => {
     jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
     jest.resetModules();
-    ({ParentQuery} = generateAndCompile(`
-        query ParentQuery {
-          me {
-            id
-            name
-          }
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentQueryCacheExpirationTimeTestQuery {
+        me {
+          id
+          name
         }
-      `));
+      }
+    `);
 
     source = RelayRecordSource.create();
     store = new RelayModernStore(source, {
@@ -58,7 +58,9 @@ describe('query cache expiration time', () => {
       network: RelayNetwork.create(jest.fn()),
       store,
     });
-    operationDescriptor = createOperationDescriptor(ParentQuery, {size: 32});
+    operationDescriptor = createOperationDescriptor(ParentQuery, {
+      size: 32,
+    });
   });
 
   afterEach(() => {

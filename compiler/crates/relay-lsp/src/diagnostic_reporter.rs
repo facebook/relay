@@ -30,8 +30,17 @@ fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
     let canonical_path = std::fs::canonicalize(root_dir.join(file_path)).ok()?;
     Url::from_file_path(canonical_path).ok()
 }
+
+#[derive(Default)]
+struct DiagnosticSet {
+    /// Stores the diagnostics from IDE source, which will be updated on any text change
+    quick_diagnostics: Vec<Diagnostic>,
+    /// Stores the diagnostics from watchman source, which will be updated on file save
+    regular_diagnostics: Vec<Diagnostic>,
+}
+
 pub struct DiagnosticReporter {
-    active_diagnostics: Arc<RwLock<HashMap<Url, Vec<Diagnostic>>>>,
+    active_diagnostics: Arc<RwLock<HashMap<Url, DiagnosticSet>>>,
     sender: Sender<Message>,
     root_dir: PathBuf,
     source_reader: Box<dyn SourceReader + Send + Sync>,
@@ -47,14 +56,17 @@ impl DiagnosticReporter {
         }
     }
 
-    pub fn clear_diagnostics(&self) {
+    pub fn clear_regular_diagnostics(&self) {
         let mut active_diagnostics = self
             .active_diagnostics
             .write()
             .expect("build_finishes: could not acquire write lock for self.active_diagnostics");
         for diagnostics in active_diagnostics.values_mut() {
-            diagnostics.clear();
+            diagnostics.regular_diagnostics.clear();
         }
+        active_diagnostics.retain(|_, diagnostics| {
+            !diagnostics.regular_diagnostics.is_empty() || !diagnostics.quick_diagnostics.is_empty()
+        })
     }
 
     pub fn report_error(&self, error: &Error) {
@@ -86,7 +98,12 @@ impl DiagnosticReporter {
             .iter()
         {
             let params = PublishDiagnosticsParams {
-                diagnostics: diagnostics.clone(),
+                diagnostics: diagnostics
+                    .quick_diagnostics
+                    .iter()
+                    .chain(diagnostics.regular_diagnostics.iter())
+                    .cloned()
+                    .collect(),
                 uri: url.clone(),
                 version: None,
             };
@@ -100,7 +117,26 @@ impl DiagnosticReporter {
             .expect("add_diagnostic: could not acquire write lock for self.active_diagnostics")
             .entry(url)
             .or_default()
+            .regular_diagnostics
             .push(diagnostic);
+    }
+
+    pub fn update_quick_diagnostics_for_url(&self, url: Url, diagnostics: Vec<Diagnostic>) {
+        self.active_diagnostics
+            .write()
+            .expect("update_quick_diagnostics_for_url: could not acquire write lock for self.active_diagnostics")
+            .entry(url)
+            .or_default()
+            .regular_diagnostics = diagnostics;
+    }
+
+    pub fn clear_quick_diagnostics_for_url(&self, url: &Url) {
+        if let Some(diagnostics) =  self.active_diagnostics
+            .write()
+            .expect("update_quick_diagnostics_for_url: could not acquire write lock for self.active_diagnostics")
+            .get_mut(url) {
+                diagnostics.quick_diagnostics.clear();
+            }
     }
 
     #[cfg(test)]

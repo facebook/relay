@@ -45,7 +45,7 @@ impl StatusReporter for LSPStatusReporter {
 
     fn build_finishes(&self, result: &CompilerResult<()>) {
         set_ready_status(&self.sender);
-        self.diagnostic_reporter.clear_diagnostics();
+        self.diagnostic_reporter.clear_regular_diagnostics();
 
         if let Err(error) = result {
             self.diagnostic_reporter.report_error(error);

@@ -42,7 +42,7 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     notify_sender: Arc<Notify>,
     notify_receiver: Arc<Notify>,
     sender: Sender<Message>,
-    diagnostic_reporter: DiagnosticReporter,
+    diagnostic_reporter: Arc<DiagnosticReporter>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
@@ -52,11 +52,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
         source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
         sender: Sender<Message>,
+        diagnostic_reporter: Arc<DiagnosticReporter>,
     ) -> Self {
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
-
-        let diagnostic_reporter = DiagnosticReporter::new(config.root_dir.clone(), sender.clone());
 
         Self {
             config,
@@ -113,7 +112,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 &self.sender,
             );
 
-            self.diagnostic_reporter.clear_diagnostics();
+            self.diagnostic_reporter.clear_regular_diagnostics();
 
             // Run initial build, before entering the watch changes loop
             if let Err(err) = self.initial_build(&compiler_state, &setup_event) {
@@ -185,7 +184,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         if has_new_changes {
             info!("LSP server detected changes...");
 
-            self.diagnostic_reporter.clear_diagnostics();
+            self.diagnostic_reporter.clear_regular_diagnostics();
 
             update_in_progress_status(
                 "Relay: checking...",

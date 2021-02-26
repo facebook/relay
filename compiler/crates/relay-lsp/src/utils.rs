@@ -82,21 +82,11 @@ pub fn extract_executable_definitions_from_text(
     Ok(definitions)
 }
 
-/// Return a parsed executable document for this LSP request, only if the request occurs
-/// within a GraphQL document.
-pub fn extract_executable_document_from_text(
-    text_document_position: TextDocumentPositionParams,
-    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
+pub fn extract_project_name_from_url(
     file_categorizer: &FileCategorizer,
+    url: &Url,
     root_dir: &PathBuf,
-    index_offset: usize,
-) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
-    let graphql_source = get_graphql_source_from_text_document_position(
-        &text_document_position,
-        graphql_source_cache,
-    )?;
-    let url = &text_document_position.text_document.uri;
-    let position = text_document_position.position;
+) -> LSPRuntimeResult<StringKey> {
     let absolute_file_path = PathBuf::from(url.path());
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
@@ -117,6 +107,25 @@ pub fn extract_executable_document_from_text(
                 file_path
             )));
         };
+    Ok(project_name)
+}
+
+/// Return a parsed executable document for this LSP request, only if the request occurs
+/// within a GraphQL document.
+pub fn extract_executable_document_from_text(
+    text_document_position: TextDocumentPositionParams,
+    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
+    file_categorizer: &FileCategorizer,
+    root_dir: &PathBuf,
+    index_offset: usize,
+) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
+    let graphql_source = get_graphql_source_from_text_document_position(
+        &text_document_position,
+        graphql_source_cache,
+    )?;
+    let url = &text_document_position.text_document.uri;
+    let position = text_document_position.position;
+    let project_name = extract_project_name_from_url(file_categorizer, url, root_dir)?;
 
     let document = parse_executable_with_error_recovery(
         &graphql_source.text,

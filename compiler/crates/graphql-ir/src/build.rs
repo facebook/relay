@@ -589,10 +589,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
-                let directives = self.build_directives(
-                    spread.directives.iter(),
-                    DirectiveLocation::FragmentSpread,
-                )?;
+                let directives = if self.options.relay_mode {
+                    self.build_directives(
+                        spread.directives.iter().filter(|directive| {
+                            directive.name.value != *DIRECTIVE_ARGUMENTS
+                                && directive.name.value != *DIRECTIVE_UNCHECKED_ARGUMENTS
+                        }),
+                        DirectiveLocation::FragmentSpread,
+                    )?
+                } else {
+                    self.build_directives(&spread.directives, DirectiveLocation::FragmentSpread)?
+                };
                 return Ok(FragmentSpread {
                     fragment: spread_name_with_location,
                     arguments: Vec::new(),

@@ -6,20 +6,26 @@
  */
 
 use crate::{
+    diagnostic_reporter::DiagnosticReporter,
     lsp_process_error::LSPProcessResult,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
+    utils::extract_project_name_from_url,
     utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
 };
 use crate::{ExtensionConfig, LSPExtraDataProvider};
-use common::{PerfLogger, Span};
+use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::Sender;
-use graphql_ir::Program;
-use graphql_syntax::{ExecutableDefinition, ExecutableDocument, GraphQLSource};
+use graphql_ir::{
+    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
+};
+use graphql_syntax::{
+    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
+};
 use interner::StringKey;
 use log::info;
 use lsp_server::Message;
-use lsp_types::{TextDocumentPositionParams, Url};
+use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::SDLSchema;
 use std::{
@@ -43,6 +49,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
+    diagnostic_reporter: Arc<DiagnosticReporter>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
@@ -51,9 +58,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        sender: Sender<Message>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
+        let diagnostic_reporter =
+            Arc::new(DiagnosticReporter::new(config.root_dir.clone(), sender));
+
         Self {
             config,
             compiler: None,
@@ -64,6 +75,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             source_programs: Default::default(),
             synced_graphql_documents: Default::default(),
             perf_logger,
+            diagnostic_reporter,
         }
     }
 
@@ -78,7 +90,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         sender: Sender<Message>,
     ) -> LSPProcessResult<Self> {
         info!("Creating lsp_state...");
-        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider);
+        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
@@ -87,6 +99,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         let perf_logger_clone = Arc::clone(&lsp_state.perf_logger);
         let schemas = Arc::clone(&lsp_state.schemas);
         let source_programs = Arc::clone(&lsp_state.source_programs);
+        let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
 
         task::spawn(async move {
             let resources = LSPStateResources::new(
@@ -95,6 +108,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                 schemas,
                 source_programs,
                 sender,
+                diagnostic_reporter,
             );
             resources.watch().await.unwrap();
         });
@@ -167,6 +181,65 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         )
     }
 
+    pub(crate) fn validate_synced_sources(
+        &mut self,
+        url: Url,
+        graphql_sources: &[GraphQLSource],
+    ) -> LSPRuntimeResult<()> {
+        let mut diagnostics = vec![];
+
+        let url_str = url.to_string();
+        let project_name =
+            extract_project_name_from_url(&self.file_categorizer, &url, &self.root_dir)?;
+
+        for graphql_source in graphql_sources {
+            let result = parse_executable_with_error_recovery(
+                &graphql_source.text,
+                SourceLocationKey::standalone(&url_str),
+            );
+
+            diagnostics.extend(
+                result
+                    .errors
+                    .into_iter()
+                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+            );
+            if let Some(schema) = self
+                .schemas
+                .read()
+                .expect(
+                    "validate_synced_sources: could not acquire read lock for state.get_schemas",
+                )
+                .get(&project_name)
+            {
+                if let Err(errors) = build_ir_with_extra_features(
+                    schema,
+                    &result.item.definitions,
+                    BuilderOptions {
+                        allow_undefined_fragment_spreads: true,
+                        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                        relay_mode: true,
+                    },
+                ) {
+                    diagnostics.extend(
+                        errors
+                            .into_iter()
+                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+                    );
+                }
+            }
+        }
+        self.diagnostic_reporter
+            .update_quick_diagnostics_for_url(url, diagnostics);
+        self.diagnostic_reporter.commit_diagnostics();
+        Ok(())
+    }
+
+    pub(crate) fn clear_quick_diagnostics_for_url(&self, url: &Url) {
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url)
+    }
+
     fn start_compiler_once(&mut self) {
         if let Some(compiler) = self.compiler.take() {
             tokio::spawn(async move { compiler.watch().await });
@@ -191,5 +264,24 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         }
 
         panic!("Expected to find project with name {}", project_name)
+    }
+}
+
+fn convert_diagnostic(
+    graphql_source: &GraphQLSource,
+    diagnostic: CompilerDiagnostic,
+) -> Diagnostic {
+    Diagnostic {
+        code: None,
+        message: diagnostic.message().to_string(),
+        range: diagnostic.location().span().to_range(
+            &graphql_source.text,
+            graphql_source.line_index,
+            graphql_source.column_index,
+        ),
+        related_information: None,
+        severity: Some(DiagnosticSeverity::Error),
+        source: None,
+        tags: None,
     }
 }

@@ -18,7 +18,7 @@ use log::{debug, info};
 use lsp_server::Message;
 use relay_compiler::{
     build_schema, compiler::build_raw_programs, compiler_state::CompilerState, config::Config,
-    errors::Error, FileSource, FileSourceResult, FileSourceSubscription,
+    errors::Error, validate_program, FileSource, FileSourceResult, FileSourceSubscription,
     FileSourceSubscriptionNextChange, SourceControlUpdateStatus,
 };
 use schema::SDLSchema;
@@ -287,6 +287,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             log_event,
         )?;
 
+        self.validate_programs(&programs, log_event)?;
+
         let mut source_programs = self.source_programs.write().expect(
             "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
         );
@@ -317,6 +319,26 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         log_event.stop(timer);
 
         result
+    }
+
+    fn validate_programs(
+        &self,
+        programs: &HashMap<StringKey, Program>,
+        log_event: &impl PerfLogEvent,
+    ) -> Result<(), Error> {
+        let mut errors = vec![];
+
+        for program in programs.values() {
+            if let Err(err) = validate_program(&self.config, program, log_event) {
+                errors.push(err);
+            }
+        }
+
+        if errors.is_empty() {
+            Ok(())
+        } else {
+            Err(Error::BuildProjectsErrors { errors })
+        }
     }
 
     fn watchman_subscription_handler(

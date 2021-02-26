@@ -88,84 +88,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         (schemas, errors)
     }
 
-    pub fn build_raw_programs(
-        &self,
-        compiler_state: &CompilerState,
-        schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
-        log_event: &impl PerfLogEvent,
-    ) -> Result<(
-        HashMap<ProjectName, Program>,
-        FnvHashMap<ProjectName, GraphQLAsts>,
-        Vec<BuildProjectError>,
-    )> {
-        let graphql_asts = log_event.time("parse_sources_time", || {
-            GraphQLAsts::from_graphql_sources_map(
-                &compiler_state.graphql_sources,
-                &compiler_state.get_dirty_definitions(&self.config),
-            )
-        })?;
-
-        let timer = log_event.start("build_raw_programs");
-
-        let programs: Vec<(ProjectName, _)> = self
-            .config
-            .par_enabled_projects()
-            .filter(|project_config| {
-                if let Some(base) = project_config.base {
-                    if compiler_state.project_has_pending_changes(base) {
-                        return true;
-                    }
-                }
-                compiler_state.project_has_pending_changes(project_config.name)
-            })
-            .map(|project_config| {
-                let project_name = project_config.name;
-                let is_incremental_build = compiler_state.has_processed_changes()
-                    && !compiler_state.has_breaking_schema_change(project_name)
-                    && if let Some(base) = project_config.base {
-                        !compiler_state.has_breaking_schema_change(base)
-                    } else {
-                        true
-                    };
-                if let Some(schema) = schemas.get(&project_name) {
-                    (
-                        project_config.name,
-                        build_raw_program(
-                            project_config,
-                            &graphql_asts,
-                            Arc::clone(schema),
-                            log_event,
-                            is_incremental_build,
-                        ),
-                    )
-                } else {
-                    (
-                        project_name,
-                        Err(BuildProjectError::SchemaNotFoundForProject { project_name }),
-                    )
-                }
-            })
-            .collect();
-
-        let mut errors: Vec<BuildProjectError> = vec![];
-        let mut program_map: HashMap<ProjectName, Program> = Default::default();
-
-        for (program_name, program_result) in programs {
-            match program_result {
-                Ok(program) => {
-                    program_map.insert(program_name, program);
-                }
-                Err(error) => {
-                    errors.push(error);
-                }
-            };
-        }
-
-        log_event.stop(timer);
-
-        Ok((program_map, graphql_asts, errors))
-    }
-
     pub async fn watch(&self) -> Result<()> {
         loop {
             let setup_event = self.perf_logger.create_event("compiler_setup");
@@ -326,6 +248,82 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         self.config.status_reporter.build_finishes(&result);
         result
     }
+}
+
+type AstMap = FnvHashMap<ProjectName, GraphQLAsts>;
+type ProgramMap = HashMap<ProjectName, Program>;
+
+pub fn build_raw_programs(
+    config: &Config,
+    compiler_state: &CompilerState,
+    schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
+    log_event: &impl PerfLogEvent,
+) -> Result<(ProgramMap, AstMap, Vec<BuildProjectError>)> {
+    let graphql_asts = log_event.time("parse_sources_time", || {
+        GraphQLAsts::from_graphql_sources_map(
+            &compiler_state.graphql_sources,
+            &compiler_state.get_dirty_definitions(config),
+        )
+    })?;
+
+    let timer = log_event.start("build_raw_programs");
+
+    let programs: Vec<(ProjectName, _)> = config
+        .par_enabled_projects()
+        .filter(|project_config| {
+            if let Some(base) = project_config.base {
+                if compiler_state.project_has_pending_changes(base) {
+                    return true;
+                }
+            }
+            compiler_state.project_has_pending_changes(project_config.name)
+        })
+        .map(|project_config| {
+            let project_name = project_config.name;
+            let is_incremental_build = compiler_state.has_processed_changes()
+                && !compiler_state.has_breaking_schema_change(project_name)
+                && if let Some(base) = project_config.base {
+                    !compiler_state.has_breaking_schema_change(base)
+                } else {
+                    true
+                };
+            if let Some(schema) = schemas.get(&project_name) {
+                (
+                    project_config.name,
+                    build_raw_program(
+                        project_config,
+                        &graphql_asts,
+                        Arc::clone(schema),
+                        log_event,
+                        is_incremental_build,
+                    ),
+                )
+            } else {
+                (
+                    project_name,
+                    Err(BuildProjectError::SchemaNotFoundForProject { project_name }),
+                )
+            }
+        })
+        .collect();
+
+    let mut errors: Vec<BuildProjectError> = vec![];
+    let mut program_map: HashMap<ProjectName, Program> = Default::default();
+
+    for (program_name, program_result) in programs {
+        match program_result {
+            Ok(program) => {
+                program_map.insert(program_name, program);
+            }
+            Err(error) => {
+                errors.push(error);
+            }
+        };
+    }
+
+    log_event.stop(timer);
+
+    Ok((program_map, graphql_asts, errors))
 }
 
 async fn build_projects<TPerfLogger: PerfLogger + 'static>(

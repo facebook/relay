@@ -17,9 +17,9 @@ use interner::StringKey;
 use log::{debug, info};
 use lsp_server::Message;
 use relay_compiler::{
-    compiler::Compiler, compiler_state::CompilerState, config::Config, errors::Error, FileSource,
-    FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
-    SourceControlUpdateStatus,
+    build_schema, compiler::build_raw_programs, compiler_state::CompilerState, config::Config,
+    errors::Error, FileSource, FileSourceResult, FileSourceSubscription,
+    FileSourceSubscriptionNextChange, SourceControlUpdateStatus,
 };
 use schema::SDLSchema;
 use tokio::{sync::Notify, task, task::JoinHandle};
@@ -37,7 +37,6 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     perf_logger: Arc<TPerfLogger>,
     schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
     source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
-    compiler: Compiler<TPerfLogger>,
     errors: Arc<RwLock<Vec<String>>>,
     source_code_update_status: SourceControlUpdateStatus,
     notify_sender: Arc<Notify>,
@@ -54,7 +53,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
         sender: Sender<Message>,
     ) -> Self {
-        let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
         let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
 
@@ -65,7 +63,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             perf_logger,
             schemas,
             source_programs,
-            compiler,
             errors: Default::default(),
             sender,
             source_code_update_status: Default::default(),
@@ -236,11 +233,22 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             return Ok(());
         }
 
-        let (next_schemas, build_errors) = self.compiler.build_schemas(&compiler_state, log_event);
-        self.schemas
-            .write()
-            .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas")
-            .clone_from(&next_schemas);
+        let mut build_errors = vec![];
+        for project_config in self.config.enabled_projects() {
+            match build_schema(compiler_state, project_config) {
+                Ok(schema) => {
+                    self.schemas
+                        .write()
+                        .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas")
+                        .insert(project_config.name, schema);
+                }
+                Err(diagnostics) => {
+                    for err in diagnostics {
+                        build_errors.push(err);
+                    }
+                }
+            };
+        }
 
         let result = if !build_errors.is_empty() {
             Err(Error::DiagnosticsError {
@@ -269,7 +277,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
         // This will build programs, but won't apply any transformations to them
         // that should be enough for LSP to start showing fragments information
-        let (programs, graphql_asts, build_errors) = self.compiler.build_raw_programs(
+        let (programs, graphql_asts, build_errors) = build_raw_programs(
+            &self.config,
             compiler_state,
             &self
                 .schemas

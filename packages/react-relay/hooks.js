@@ -31,16 +31,6 @@ const useSubscription = require('./relay-hooks/useSubscription');
 
 const {loadQuery} = require('./relay-hooks/loadQuery');
 
-export type {
-  $FragmentRef,
-  $RelayProps,
-  RelayFragmentContainer,
-  RelayPaginationContainer,
-  RelayPaginationProp,
-  RelayProp,
-  RelayRefetchContainer,
-  RelayRefetchProp,
-} from './ReactRelayTypes';
 export type * from './relay-hooks/EntryPointTypes.flow';
 export type {
   MatchContainerProps,

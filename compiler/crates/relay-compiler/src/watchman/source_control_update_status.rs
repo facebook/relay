@@ -10,7 +10,7 @@ use std::sync::{
     Arc,
 };
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 /// This structure is representing the state of the current source control update.
 /// Watchman subscription will trigger updates here
 pub struct SourceControlUpdateStatus {

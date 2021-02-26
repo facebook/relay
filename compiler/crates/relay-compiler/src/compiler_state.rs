@@ -10,7 +10,7 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
     categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
-    FileSourceResult, WatchmanFile,
+    FileSourceResult, SourceControlUpdateStatus, WatchmanFile,
 };
 use common::{PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -21,7 +21,6 @@ use rayon::prelude::*;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     fmt,
     fs::File,
@@ -194,7 +193,7 @@ pub struct CompilerState {
     #[serde(skip)]
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
-    pub source_control_update_in_progress: Arc<AtomicBool>,
+    pub source_control_update_status: Arc<SourceControlUpdateStatus>,
 }
 
 impl CompilerState {
@@ -218,7 +217,7 @@ impl CompilerState {
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
-            source_control_update_in_progress: Arc::new(AtomicBool::new(false)),
+            source_control_update_status: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -600,8 +599,7 @@ impl CompilerState {
     }
 
     pub fn is_source_control_update_in_progress(&self) -> bool {
-        self.source_control_update_in_progress
-            .load(Ordering::Relaxed)
+        self.source_control_update_status.is_started()
     }
 
     /// Over the course of the build, we may need to stop current progress

@@ -24,6 +24,7 @@ mod validate;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
+use crate::watchman::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;
@@ -43,12 +44,7 @@ use log::{debug, info};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
-use std::{
-    collections::hash_map::Entry,
-    path::PathBuf,
-    sync::atomic::{AtomicBool, Ordering},
-    sync::Arc,
-};
+use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
 
 pub enum BuildProjectFailure {
@@ -236,13 +232,13 @@ pub async fn commit_project(
     removed_definition_names: Vec<StringKey>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
-    source_control_update_in_progress: Arc<AtomicBool>,
+    source_control_update_status: Arc<SourceControlUpdateStatus>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
     }
@@ -263,7 +259,7 @@ pub async fn commit_project(
         }
     }
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         debug!(
             "commit_project cancelled before generating extra artifacts due to source control updates"
         );
@@ -283,13 +279,13 @@ pub async fn commit_project(
         });
     }
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         debug!("commit_project cancelled before writing artifacts due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
     }
 
     let should_stop_updating_artifacts = || {
-        if source_control_update_in_progress.load(Ordering::Relaxed) {
+        if source_control_update_status.is_started() {
             debug!("artifact_writer updates cancelled due source control updates");
             true
         } else {
@@ -415,7 +411,7 @@ pub async fn commit_project(
         }
     };
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         log_event.number("update_artifacts_after_source_control_update", 1);
         debug!(
             "We just updated artifacts after source control update happened. Most likely we have outdated artifacts now..."

@@ -14,6 +14,7 @@ use crate::{
     server::LSPState,
 };
 use common::PerfLogger;
+use fnv::FnvHashMap;
 use graphql_ir::{Program, Value};
 use graphql_text_printer::print_value;
 use interner::StringKey;
@@ -21,10 +22,7 @@ use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
-use std::{
-    collections::HashMap,
-    sync::{Arc, RwLock},
-};
+use std::sync::{Arc, RwLock};
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -76,7 +74,7 @@ fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
     schema_documentation: &Arc<SchemaDocumentation>,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     extra_data_provider: &Box<dyn LSPExtraDataProvider>,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
@@ -125,7 +123,6 @@ fn get_hover_response_contents(
             if let Some(type_description) = schema_documentation.get_type_description(&type_name) {
                 hover_contents.push(MarkedString::String(type_description.to_string()));
             }
-
 
             if !field.arguments.is_empty() {
                 let mut args_string: Vec<String> =

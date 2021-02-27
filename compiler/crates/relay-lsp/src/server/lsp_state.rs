@@ -16,6 +16,7 @@ use crate::{
 use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::Sender;
+use fnv::FnvHashMap;
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
 };
@@ -45,8 +46,8 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     root_dir: PathBuf,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
-    schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
-    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+    schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
+    source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
@@ -127,11 +128,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         Ok(lsp_state)
     }
 
-    pub(crate) fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>> {
+    pub(crate) fn get_schemas(&self) -> Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>> {
         self.schemas.clone()
     }
 
-    pub(crate) fn get_source_programs_ref(&self) -> &Arc<RwLock<HashMap<StringKey, Program>>> {
+    pub(crate) fn get_source_programs_ref(&self) -> &Arc<RwLock<FnvHashMap<StringKey, Program>>> {
         &self.source_programs
     }
 

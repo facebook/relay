@@ -251,12 +251,12 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 }
 
 type AstMap = FnvHashMap<ProjectName, GraphQLAsts>;
-type ProgramMap = HashMap<ProjectName, Program>;
+type ProgramMap = FnvHashMap<ProjectName, Program>;
 
 pub fn build_raw_programs(
     config: &Config,
     compiler_state: &CompilerState,
-    schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
+    schemas: &FnvHashMap<ProjectName, Arc<SDLSchema>>,
     log_event: &impl PerfLogEvent,
 ) -> Result<(ProgramMap, AstMap, Vec<BuildProjectError>)> {
     let graphql_asts = log_event.time("parse_sources_time", || {
@@ -308,7 +308,7 @@ pub fn build_raw_programs(
         .collect();
 
     let mut errors: Vec<BuildProjectError> = vec![];
-    let mut program_map: HashMap<ProjectName, Program> = Default::default();
+    let mut program_map: FnvHashMap<ProjectName, Program> = Default::default();
 
     for (program_name, program_result) in programs {
         match program_result {

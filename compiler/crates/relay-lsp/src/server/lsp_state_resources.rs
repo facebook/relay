@@ -6,12 +6,13 @@
  */
 
 use std::{
-    collections::{hash_map::Entry, HashMap},
+    collections::hash_map::Entry,
     sync::{Arc, RwLock},
 };
 
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
+use fnv::FnvHashMap;
 use graphql_ir::Program;
 use interner::StringKey;
 use log::{debug, info};
@@ -35,8 +36,8 @@ use crate::{
 pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
     perf_logger: Arc<TPerfLogger>,
-    schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
-    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+    schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
+    source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     errors: Arc<RwLock<Vec<String>>>,
     source_code_update_status: SourceControlUpdateStatus,
     notify_sender: Arc<Notify>,
@@ -49,8 +50,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     pub(crate) fn new(
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
-        schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
-        source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+        schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
+        source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
     ) -> Self {
@@ -322,7 +323,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
     fn validate_programs(
         &self,
-        programs: &HashMap<StringKey, Program>,
+        programs: &FnvHashMap<StringKey, Program>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
         let mut errors = vec![];

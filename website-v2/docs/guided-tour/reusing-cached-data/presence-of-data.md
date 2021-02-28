@@ -33,7 +33,8 @@ However, this can be at odds with reusing cached data; if the data is deleted to
 
 
 
-Query Retention
+#### Query Retention
+
 Retaining a query indicates to Relay that the data for that query and variables shouldn't be deleted (i.e. garbage collected). Multiple callers might retain a single query, and as long as there is at least one caller retaining a query, it won't be deleted from the store.
 
 By default, any query components using `useQueryLoader` / `usePreloadedQuery` or our other APIs will retain the query for as long as they are mounted. After they unmount, they will release the query, which means that the query might be deleted at any point in the future after that occurs.
@@ -57,7 +58,7 @@ disposable.dispose();
 Controlling Relay's Garbage Collection Policy
 There are currently 2 options you can provide to your Relay Store in to control the behavior of garbage collection:
 
-_GC Scheduler_
+#### GC Scheduler
 
 The `gcScheduler` is a function you can provide to the Relay Store which will determine when a GC execution should be scheduled to run:
 
@@ -75,7 +76,7 @@ const store = new Store(source, {gcScheduler});
 * You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
 
-_GC Release Buffer Size_
+#### GC Release Buffer Size
 
 The Relay Store internally holds a release buffer to keep a specific (configurable) number of queries temporarily retained even *after* they have been released by their original owner  (which will happen by default when a component rendering that query unmounts). This makes it possible (and more likely) to be able to reuse data when navigating back to a page, tab or piece of content that has been visited before.
 
@@ -86,12 +87,6 @@ const store = new Store(source, {gcReleaseBufferSize: 10});
 ```
 
 * Note that having a buffer size of 0 is equivalent to not having the release buffer, which means that queries will be immediately released and collected.
-
-<FbInternalOnly>
-
-* By default, our internal environments (e.g. `RelayFBEnvironment` and `CometRelayEnvironment`) have a release buffer size of 10.
-
-</FbInternalOnly>
-
+* By default, environments have a release buffer size of 10.
 
 <DocsRating />

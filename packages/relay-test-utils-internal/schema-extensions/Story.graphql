@@ -7,4 +7,10 @@ extend type Story {
     id: ID!
   ): ReactFlightComponent
     @react_flight_component(name: "FlightComponent.server")
+
+  flightComponentValidateMutation(
+    condition: Boolean!
+    count: Int!
+  ): ReactFlightComponent
+    @react_flight_component(name: "FlightComponent.server")
 }

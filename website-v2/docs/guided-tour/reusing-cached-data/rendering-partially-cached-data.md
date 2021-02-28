@@ -1,6 +1,6 @@
 ---
 id: rendering-partially-cached-data
-title: Rendering Partially Cached Data (Experimental)
+title: Rendering Partially Cached Data
 slug: /guided-tour/reusing-cached-data/rendering-partially-cached-data/
 ---
 
@@ -8,17 +8,7 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbCometProfilePhotoHeaderExample from './fb/comet-profile-photo-header-example.md';
 
-## Rendering Partially Cached Data [EXPERIMENTAL]
-
-<FbInternalOnly>
-
-> NOTE: Partial rendering behavior is currently only enabled within Comet.
-
-</FbInternalOnly>
-
-
-> Note: Partial rendering behavior and is still highly experimental and likely to change. If you wish to use it, you can enable it by passing `{UNSTABLE_renderPolicy: "partial"}` as an option to `usePreloadedQuery`.
-
+## Rendering Partially Cached Data
 
 Often times when dealing with cached data, we'd like the ability to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 

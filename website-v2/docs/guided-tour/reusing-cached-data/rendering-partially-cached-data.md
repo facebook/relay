@@ -6,7 +6,7 @@ slug: /guided-tour/reusing-cached-data/rendering-partially-cached-data/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-import FbCometProfilePhotoHeaderExample from './fb/comet-profile-photo-header-example.md';
+import FbProfilePhotoHeaderExample from './fb/FbProfileHeaderExample.md';
 
 ## Rendering Partially Cached Data
 
@@ -173,6 +173,6 @@ The process that we described above works the same way for nested fragments (i.e
 
 As mentioned in our motivating example, this is desirable because it can allows us to skip loading states entirely. More specifically, the ability to render data that is partially available allows us to render intermediate UI states that more closely resemble the final rendered state.
 
-<FbCometProfilePhotoHeaderExample />
+<FbProfilePhotoHeaderExample />
 
 <DocsRating />

@@ -103,7 +103,10 @@ module.exports = {
             'guided-tour/list-data/rendering-connections',
             'guided-tour/list-data/pagination',
             'guided-tour/list-data/streaming-pagination',
-            'guided-tour/list-data/blocking-pagination',
+            ...fbContent({
+              internal: ['guided-tour/list-data/fb/blocking-pagination'],
+              external: [],
+            }),
             'guided-tour/list-data/refetching-connections',
             'guided-tour/list-data/adding-and-removing-items',
             'guided-tour/list-data/advanced-pagination',
@@ -170,7 +173,6 @@ module.exports = {
     {
       Debugging: [
         'debugging/relay-devtools',
-        'debugging/disallowed-inline-fragment-on-abstract-types',
         'debugging/inconsistent-typename-error',
         ...fbContent({
           internal: [

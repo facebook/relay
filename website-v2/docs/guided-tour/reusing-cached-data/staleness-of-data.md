@@ -6,6 +6,7 @@ slug: /guided-tour/reusing-cached-data/staleness-of-data/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import FbPushViews from './fb/FbPushViews.md';
 
 ## Staleness of Data
 
@@ -59,11 +60,7 @@ This is useful for a lot of use cases, but there are some times when we'd like t
 * When invalidating data that is already visible in the current page. Since no navigation is occurring, we won't re-evaluate the queries for the current page, so even if some data is stale, it won't be immediately refetched and we will be showing stale data.
 * When invalidating data that is rendered on a previous view that was never unmounted; since the view wasn't unmounted, if we navigate back, the queries for that view won't be re-evaluated, meaning that even if some is stale, it won't be refetched and we will be showing stale data.
 
-<FbInternalOnly>
-
-> NOTE: Push Views on Comet are an example of a situation where a view is never unmounted.
-
-</FbInternalOnly>
+<FbPushViews />
 
 To support these use cases, Relay exposes the `useSubscribeToInvalidationState` hook:
 

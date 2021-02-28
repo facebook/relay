@@ -7,7 +7,7 @@ slug: /api-reference/use-pagination-fragment/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-
+import FbRefetchBlurb from './fb/FbRefetchBlurb.md';
 
 ## `usePaginationFragment`
 
@@ -133,11 +133,7 @@ Object containing the following properties:
     * Behavior:
         * Calling `refetch` with a new set of variables will fetch the fragment again *with the newly provided variables*. Note that the variables you need to provide are only the ones referenced inside the fragment. In this example, it means fetching the translated body of the currently rendered Comment, by passing a new value to the `lang` variable.
 
-<FbInternalOnly>
-
-* Calling `refetch` will re-render your component and may cause it to _*[suspend](../../guided-tour/rendering/loading-states)*_, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useSuspenseTransition`](https://our.internmc.facebook.com/intern/wiki/Comet/Placeholders_in_Comet#usesuspensetransition) with a Suspense Config ([Transitions and Updates that Suspend](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/rendering-data/#transitions-and-updates)) in order to show the appropriate pending or loading state.
-
-</FbInternalOnly>
+<FbRefetchBlurb />
 
 <OssOnly>
 

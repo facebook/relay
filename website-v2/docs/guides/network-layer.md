@@ -9,7 +9,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <FbInternalOnly>
 
-> In most cases, the network layer is setup for you, e.g. in `createRelayFBNetworkFetch.js` and `createRelayFBNetwork.js`. You should not need to worry about this step unless you are setting up a new environment.
+> In most cases, the network layer is setup for you. You should not need to worry about this step unless you are setting up a new environment.
 
 </FbInternalOnly>
 

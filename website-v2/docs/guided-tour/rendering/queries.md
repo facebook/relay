@@ -7,7 +7,7 @@ slug: /guided-tour/rendering/queries/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-
+import FbEntrypointsExtraInfo from './fb/FbEntrypointsExtraInfo.md';
 
 ## Queries
 
@@ -210,27 +210,7 @@ This requires an integration with your router.
 
 </OssOnly>
 
-<FbInternalOnly>
-
-Internally, we use [Relay Entrypoints](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/) to implement the "render-as-you-fetch" pattern for these different use cases, and we've already set up infra that's integrated with our routers and component libraries for these purposes, which means that you usually will not need to write the loading code directly. Additionally, Relay EntryPoints allow us not only fetch data ahead of render, but also download the required JS code for the root in parallel with the data fetch.
-
-For more information, check out the following guides:
-
-* [Relay Entrypoints Guide](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/)
-* [Setting up a page in Comet with Entrypoints](https://www.internalfb.com/intern/wiki/Comet/Create_a_Page/)
-* [Setting up a page in Gemini with Entrypoints](https://www.internalfb.com/intern/wiki/Gemini/Create_a_Page_in_Comet/)
-* [Setting up a page in InternalFB with Entrypoints](https://www.internalfb.com/intern/wiki/Internal_FB/Writing_an_Entrypoint/)
-* [Setting up a surface in RN with Entrypoints](https://www.internalfb.com/intern/wiki/React_Native/Relay/Data_preloading_in_EntryPoints/)
-* Comet UI Components Integrated with Entrypoints:
-    * [Menus and Popovers](https://www.internalfb.com/intern/wiki/Comet/Component_Library/Popovers_and_Menus/)
-    * [Dialogs](https://www.internalfb.com/intern/wiki/Comet/Component_Library/Dialogs/)
-
-
----
-
-NOTE: Although generally discouraged, if required in circumstances where it's not feasible or it's very inconvenient to fetch ahead of render (e.g. where the Entrypoints infra is not already set up), the [`useLazyLoadQuery`](../../../api-reference/use-lazy-load-query/) API is still available. However, note that using that api can easily degrade performance and cause multiple round trips or a waterfall of requests.
-
-</FbInternalOnly>
+<FbEntrypointsExtraInfo />
 
 ### Composing Fragments into Queries
 

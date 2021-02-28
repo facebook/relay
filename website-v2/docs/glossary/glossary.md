@@ -37,16 +37,6 @@ See [interface](#interface-graphql).
 
 See [type refinement](#type-refinement). If type refinement is a way of conditionally including fields if a type implements a particular concrete type (such as `... on User { name }`), abstract type refinement refers to conditionally including fields if a type implements a particular abstract type (i.e. interface). So, `... on Actor { field }`.
 
-This causes problems with suspense, because we do not know at runtime whether a particular concrete type implements a particular interfaces. In general, Relay causes components to suspend if data is missing, and if we cannot accurately predict which data is missing, Relay cannot cause components to suspend correctly and reliably.
-
-<FbInternalOnly>
-See this <a href="https://fb.workplace.com/groups/2013416805579500/permalink/2487047094883133/">post</a> and this <a href="../debugging/disallowed-inline-fragment-on-abstract-types">explanation</a> of the lint rule.
-</FbInternalOnly>
-
-<OssOnly>
-See this <a href="../debugging/disallowed-inline-fragment-on-abstract-types">explanation</a> of the lint rule.
-</OssOnly>
-
 ## @arguments
 
 A [directive](#directive) that modifies a [fragment spread](#fragment-spread) and is used to pass arguments (defined with [`@argumentDefinitions`](#argumentdefinitions)) to that fragment.

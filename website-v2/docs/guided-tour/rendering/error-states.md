@@ -6,12 +6,9 @@ slug: /guided-tour/rendering/error-states/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import FbErrorBoundary from './fb/FbErrorBoundary.md';
 
-<FbInternalOnly>
-
-> In Comet, you should use `CometErrorBoundary`.
-
-</FbInternalOnly>
+<FbErrorBoundary />
 
 ## Error States with Error Boundaries
 

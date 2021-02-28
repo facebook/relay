@@ -6,6 +6,7 @@ slug: /guided-tour/reusing-cached-data/presence-of-data/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import FbGarbageCollection from './fb/FbGarbageCollection.md';
 
 
 ## Presence of Data
@@ -25,11 +26,7 @@ However, this can be at odds with reusing cached data; if the data is deleted to
 
 > NOTE: Usually, you shouldn't need to worry about configuring garbage collection and data retention, as this should be configured by the app infrastructure at the RelayEnvironment level; however, we will cover it here for reference.
 
-<FbInternalOnly>
-
-> NOTE: Garbage collection and data retention is configured for you in Comet.
-
-</FbInternalOnly>
+<FbGarbageCollection />
 
 
 

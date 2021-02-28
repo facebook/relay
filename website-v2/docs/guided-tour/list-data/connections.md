@@ -8,6 +8,8 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
+import FbSuspenseListAlternative from './fb/FbSuspenseListAlternative.md';
+
 There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we don't want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
 
 
@@ -114,11 +116,6 @@ module.exports = FriendsListComponent;
 * It takes to Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 * Note that we're using [`SuspenseList`](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
 
-<FbInternalOnly>
-
-> In Comet, you should use `CometSuspenseList`.
-
-</FbInternalOnly>
-
+<FbSuspsenseListAlternative />
 
 <DocsRating />

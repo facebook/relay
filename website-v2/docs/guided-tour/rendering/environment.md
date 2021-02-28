@@ -6,8 +6,8 @@ slug: /guided-tour/rendering/environment/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-import FbActorsAndEnvironments from './fb/actors-and-environments.md';
-
+import FbActorsAndEnvironments from './fb/FbActorsAndEnvironments.md';
+import FbEnvironmentSetup from './fb/FbEnvironmentSetup.md';
 
 ## Environment
 
@@ -32,26 +32,7 @@ function Root() {
 
 * The `RelayEnvironmentProvider` takes an environment, which it will make available to all descendant Relay components, and which is necessary for Relay to function.
 
-
-<FbInternalOnly>
-
-NOTE: For Comet, we have a `CometRelayEnvironmentProvider`, which serves as a convenient wrapper:
-
-```js
-const CometRelayEnvironmentProvider = require('CometRelayEnvironmentProvider');
-
-function Root() {
-  return (
-    <CometRelayEnvironmentProvider>
-      {...}
-    </CometRelayEnvironmentProvider>
-  );
-}
-```
-
-* All of this is already set up in Comet, so you shouldn't need to use this unless you need to render new React roots, such as modals or dialogs.
-
-</FbInternalOnly>
+<FbEnvironmentSetup />
 
 ### Accessing the Relay Environment
 

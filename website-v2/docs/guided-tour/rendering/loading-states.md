@@ -178,7 +178,7 @@ function App() {
 
 <FbInternalOnly>
 
-Whenever we're going to make a transition that might cause new content to suspend, we should use [`useTransition`](https://our.internmc.facebook.com/intern/wiki/Comet/Placeholders_in_Comet#usesuspensetransition) to schedule the update for  transition:
+Whenever we're going to make a transition that might cause new content to suspend, we should use [`useTransition`](https://our.internmc.facebook.com/intern/wiki/Comet/Placeholders_in_Comet#usesuspensetransition) to schedule the update for transition:
 
 </FbInternalOnly>
 

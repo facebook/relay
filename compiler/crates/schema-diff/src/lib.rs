@@ -537,14 +537,14 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
     SchemaChange::DefinitionChanges(changes)
 }
 
-pub fn detect_changes(current_text: &str, previous_text: &str) -> SchemaChange {
+pub fn detect_changes(current_text: &[&str], previous_text: &[&str]) -> SchemaChange {
     if current_text == previous_text {
         return SchemaChange::None;
     }
 
     match (
-        parse_schema_document(current_text, SourceLocationKey::Generated),
-        parse_schema_document(previous_text, SourceLocationKey::Generated),
+        parse_schema_document(&current_text.join("\n"), SourceLocationKey::Generated),
+        parse_schema_document(&previous_text.join("\n"), SourceLocationKey::Generated),
     ) {
         (Ok(current_schema), Ok(previous_schema)) => {
             diff(current_schema.definitions, previous_schema.definitions)

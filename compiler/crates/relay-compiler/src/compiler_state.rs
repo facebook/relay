@@ -332,7 +332,7 @@ impl CompilerState {
             .map(String::as_str)
             .collect::<Vec<_>>();
 
-        let schema_change = detect_changes(&current.join("\n"), &previous.join("\n"));
+        let schema_change = detect_changes(&current, &previous);
 
         if schema_change == SchemaChange::None {
             true

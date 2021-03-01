@@ -33,7 +33,7 @@ pub use sdl::SDLSchemaImpl;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 
-pub use flatbuffer::serialize_as_fb;
+pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[sdl], &[])

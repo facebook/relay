@@ -23,7 +23,7 @@ use flatbuffers;
 #[allow(non_camel_case_types)]
 #[repr(i8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum FBConstValueKind {
+pub enum ConstValueKind {
   Null = 0,
   String = 1,
   Bool = 2,
@@ -35,10 +35,10 @@ pub enum FBConstValueKind {
 
 }
 
-pub const ENUM_MIN_FBCONST_VALUE_KIND: i8 = 0;
-pub const ENUM_MAX_FBCONST_VALUE_KIND: i8 = 7;
+pub const ENUM_MIN_CONST_VALUE_KIND: i8 = 0;
+pub const ENUM_MAX_CONST_VALUE_KIND: i8 = 7;
 
-impl<'a> flatbuffers::Follow<'a> for FBConstValueKind {
+impl<'a> flatbuffers::Follow<'a> for ConstValueKind {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
@@ -46,43 +46,43 @@ impl<'a> flatbuffers::Follow<'a> for FBConstValueKind {
   }
 }
 
-impl flatbuffers::EndianScalar for FBConstValueKind {
+impl flatbuffers::EndianScalar for ConstValueKind {
   #[inline]
   fn to_little_endian(self) -> Self {
     let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const FBConstValueKind;
+    let p = &n as *const i8 as *const ConstValueKind;
     unsafe { *p }
   }
   #[inline]
   fn from_little_endian(self) -> Self {
     let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const FBConstValueKind;
+    let p = &n as *const i8 as *const ConstValueKind;
     unsafe { *p }
   }
 }
 
-impl flatbuffers::Push for FBConstValueKind {
-    type Output = FBConstValueKind;
+impl flatbuffers::Push for ConstValueKind {
+    type Output = ConstValueKind;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<FBConstValueKind>(dst, *self);
+        flatbuffers::emplace_scalar::<ConstValueKind>(dst, *self);
     }
 }
 
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_FBCONST_VALUE_KIND:[FBConstValueKind; 8] = [
-  FBConstValueKind::Null,
-  FBConstValueKind::String,
-  FBConstValueKind::Bool,
-  FBConstValueKind::Int,
-  FBConstValueKind::Float,
-  FBConstValueKind::Enum,
-  FBConstValueKind::List,
-  FBConstValueKind::Object
+pub const ENUM_VALUES_CONST_VALUE_KIND:[ConstValueKind; 8] = [
+  ConstValueKind::Null,
+  ConstValueKind::String,
+  ConstValueKind::Bool,
+  ConstValueKind::Int,
+  ConstValueKind::Float,
+  ConstValueKind::Enum,
+  ConstValueKind::List,
+  ConstValueKind::Object
 ];
 
 #[allow(non_camel_case_types)]
-pub const ENUM_NAMES_FBCONST_VALUE_KIND:[&'static str; 8] = [
+pub const ENUM_NAMES_CONST_VALUE_KIND:[&'static str; 8] = [
     "Null",
     "String",
     "Bool",
@@ -93,15 +93,15 @@ pub const ENUM_NAMES_FBCONST_VALUE_KIND:[&'static str; 8] = [
     "Object"
 ];
 
-pub fn enum_name_fbconst_value_kind(e: FBConstValueKind) -> &'static str {
+pub fn enum_name_const_value_kind(e: ConstValueKind) -> &'static str {
   let index = e as i8;
-  ENUM_NAMES_FBCONST_VALUE_KIND[index as usize]
+  ENUM_NAMES_CONST_VALUE_KIND[index as usize]
 }
 
 #[allow(non_camel_case_types)]
 #[repr(i8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum FBTypeKind {
+pub enum TypeKind {
   Scalar = 0,
   InputObject = 1,
   Enum = 2,
@@ -111,10 +111,10 @@ pub enum FBTypeKind {
 
 }
 
-pub const ENUM_MIN_FBTYPE_KIND: i8 = 0;
-pub const ENUM_MAX_FBTYPE_KIND: i8 = 5;
+pub const ENUM_MIN_TYPE_KIND: i8 = 0;
+pub const ENUM_MAX_TYPE_KIND: i8 = 5;
 
-impl<'a> flatbuffers::Follow<'a> for FBTypeKind {
+impl<'a> flatbuffers::Follow<'a> for TypeKind {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
@@ -122,41 +122,41 @@ impl<'a> flatbuffers::Follow<'a> for FBTypeKind {
   }
 }
 
-impl flatbuffers::EndianScalar for FBTypeKind {
+impl flatbuffers::EndianScalar for TypeKind {
   #[inline]
   fn to_little_endian(self) -> Self {
     let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const FBTypeKind;
+    let p = &n as *const i8 as *const TypeKind;
     unsafe { *p }
   }
   #[inline]
   fn from_little_endian(self) -> Self {
     let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const FBTypeKind;
+    let p = &n as *const i8 as *const TypeKind;
     unsafe { *p }
   }
 }
 
-impl flatbuffers::Push for FBTypeKind {
-    type Output = FBTypeKind;
+impl flatbuffers::Push for TypeKind {
+    type Output = TypeKind;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<FBTypeKind>(dst, *self);
+        flatbuffers::emplace_scalar::<TypeKind>(dst, *self);
     }
 }
 
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_FBTYPE_KIND:[FBTypeKind; 6] = [
-  FBTypeKind::Scalar,
-  FBTypeKind::InputObject,
-  FBTypeKind::Enum,
-  FBTypeKind::Object,
-  FBTypeKind::Interface,
-  FBTypeKind::Union
+pub const ENUM_VALUES_TYPE_KIND:[TypeKind; 6] = [
+  TypeKind::Scalar,
+  TypeKind::InputObject,
+  TypeKind::Enum,
+  TypeKind::Object,
+  TypeKind::Interface,
+  TypeKind::Union
 ];
 
 #[allow(non_camel_case_types)]
-pub const ENUM_NAMES_FBTYPE_KIND:[&'static str; 6] = [
+pub const ENUM_NAMES_TYPE_KIND:[&'static str; 6] = [
     "Scalar",
     "InputObject",
     "Enum",
@@ -165,25 +165,25 @@ pub const ENUM_NAMES_FBTYPE_KIND:[&'static str; 6] = [
     "Union"
 ];
 
-pub fn enum_name_fbtype_kind(e: FBTypeKind) -> &'static str {
+pub fn enum_name_type_kind(e: TypeKind) -> &'static str {
   let index = e as i8;
-  ENUM_NAMES_FBTYPE_KIND[index as usize]
+  ENUM_NAMES_TYPE_KIND[index as usize]
 }
 
 #[allow(non_camel_case_types)]
 #[repr(i8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum FBTypeReferenceKind {
+pub enum TypeReferenceKind {
   Named = 0,
   NonNull = 1,
   List = 2,
 
 }
 
-pub const ENUM_MIN_FBTYPE_REFERENCE_KIND: i8 = 0;
-pub const ENUM_MAX_FBTYPE_REFERENCE_KIND: i8 = 2;
+pub const ENUM_MIN_TYPE_REFERENCE_KIND: i8 = 0;
+pub const ENUM_MAX_TYPE_REFERENCE_KIND: i8 = 2;
 
-impl<'a> flatbuffers::Follow<'a> for FBTypeReferenceKind {
+impl<'a> flatbuffers::Follow<'a> for TypeReferenceKind {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
@@ -191,52 +191,52 @@ impl<'a> flatbuffers::Follow<'a> for FBTypeReferenceKind {
   }
 }
 
-impl flatbuffers::EndianScalar for FBTypeReferenceKind {
+impl flatbuffers::EndianScalar for TypeReferenceKind {
   #[inline]
   fn to_little_endian(self) -> Self {
     let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const FBTypeReferenceKind;
+    let p = &n as *const i8 as *const TypeReferenceKind;
     unsafe { *p }
   }
   #[inline]
   fn from_little_endian(self) -> Self {
     let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const FBTypeReferenceKind;
+    let p = &n as *const i8 as *const TypeReferenceKind;
     unsafe { *p }
   }
 }
 
-impl flatbuffers::Push for FBTypeReferenceKind {
-    type Output = FBTypeReferenceKind;
+impl flatbuffers::Push for TypeReferenceKind {
+    type Output = TypeReferenceKind;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<FBTypeReferenceKind>(dst, *self);
+        flatbuffers::emplace_scalar::<TypeReferenceKind>(dst, *self);
     }
 }
 
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_FBTYPE_REFERENCE_KIND:[FBTypeReferenceKind; 3] = [
-  FBTypeReferenceKind::Named,
-  FBTypeReferenceKind::NonNull,
-  FBTypeReferenceKind::List
+pub const ENUM_VALUES_TYPE_REFERENCE_KIND:[TypeReferenceKind; 3] = [
+  TypeReferenceKind::Named,
+  TypeReferenceKind::NonNull,
+  TypeReferenceKind::List
 ];
 
 #[allow(non_camel_case_types)]
-pub const ENUM_NAMES_FBTYPE_REFERENCE_KIND:[&'static str; 3] = [
+pub const ENUM_NAMES_TYPE_REFERENCE_KIND:[&'static str; 3] = [
     "Named",
     "NonNull",
     "List"
 ];
 
-pub fn enum_name_fbtype_reference_kind(e: FBTypeReferenceKind) -> &'static str {
+pub fn enum_name_type_reference_kind(e: TypeReferenceKind) -> &'static str {
   let index = e as i8;
-  ENUM_NAMES_FBTYPE_REFERENCE_KIND[index as usize]
+  ENUM_NAMES_TYPE_REFERENCE_KIND[index as usize]
 }
 
 #[allow(non_camel_case_types)]
 #[repr(i8)]
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum FBDirectiveLocation {
+pub enum DirectiveLocation {
   Query = 0,
   Mutation = 1,
   Subscription = 2,
@@ -259,10 +259,10 @@ pub enum FBDirectiveLocation {
 
 }
 
-pub const ENUM_MIN_FBDIRECTIVE_LOCATION: i8 = 0;
-pub const ENUM_MAX_FBDIRECTIVE_LOCATION: i8 = 18;
+pub const ENUM_MIN_DIRECTIVE_LOCATION: i8 = 0;
+pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 18;
 
-impl<'a> flatbuffers::Follow<'a> for FBDirectiveLocation {
+impl<'a> flatbuffers::Follow<'a> for DirectiveLocation {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
@@ -270,54 +270,54 @@ impl<'a> flatbuffers::Follow<'a> for FBDirectiveLocation {
   }
 }
 
-impl flatbuffers::EndianScalar for FBDirectiveLocation {
+impl flatbuffers::EndianScalar for DirectiveLocation {
   #[inline]
   fn to_little_endian(self) -> Self {
     let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const FBDirectiveLocation;
+    let p = &n as *const i8 as *const DirectiveLocation;
     unsafe { *p }
   }
   #[inline]
   fn from_little_endian(self) -> Self {
     let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const FBDirectiveLocation;
+    let p = &n as *const i8 as *const DirectiveLocation;
     unsafe { *p }
   }
 }
 
-impl flatbuffers::Push for FBDirectiveLocation {
-    type Output = FBDirectiveLocation;
+impl flatbuffers::Push for DirectiveLocation {
+    type Output = DirectiveLocation;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<FBDirectiveLocation>(dst, *self);
+        flatbuffers::emplace_scalar::<DirectiveLocation>(dst, *self);
     }
 }
 
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_FBDIRECTIVE_LOCATION:[FBDirectiveLocation; 19] = [
-  FBDirectiveLocation::Query,
-  FBDirectiveLocation::Mutation,
-  FBDirectiveLocation::Subscription,
-  FBDirectiveLocation::Field,
-  FBDirectiveLocation::FragmentDefinition,
-  FBDirectiveLocation::FragmentSpread,
-  FBDirectiveLocation::InlineFragment,
-  FBDirectiveLocation::Schema,
-  FBDirectiveLocation::Scalar,
-  FBDirectiveLocation::Object,
-  FBDirectiveLocation::FieldDefinition,
-  FBDirectiveLocation::ArgumentDefinition,
-  FBDirectiveLocation::Interface,
-  FBDirectiveLocation::Union,
-  FBDirectiveLocation::Enum,
-  FBDirectiveLocation::EnumValue,
-  FBDirectiveLocation::InputObject,
-  FBDirectiveLocation::InputFieldDefinition,
-  FBDirectiveLocation::VariableDefinition
+pub const ENUM_VALUES_DIRECTIVE_LOCATION:[DirectiveLocation; 19] = [
+  DirectiveLocation::Query,
+  DirectiveLocation::Mutation,
+  DirectiveLocation::Subscription,
+  DirectiveLocation::Field,
+  DirectiveLocation::FragmentDefinition,
+  DirectiveLocation::FragmentSpread,
+  DirectiveLocation::InlineFragment,
+  DirectiveLocation::Schema,
+  DirectiveLocation::Scalar,
+  DirectiveLocation::Object,
+  DirectiveLocation::FieldDefinition,
+  DirectiveLocation::ArgumentDefinition,
+  DirectiveLocation::Interface,
+  DirectiveLocation::Union,
+  DirectiveLocation::Enum,
+  DirectiveLocation::EnumValue,
+  DirectiveLocation::InputObject,
+  DirectiveLocation::InputFieldDefinition,
+  DirectiveLocation::VariableDefinition
 ];
 
 #[allow(non_camel_case_types)]
-pub const ENUM_NAMES_FBDIRECTIVE_LOCATION:[&'static str; 19] = [
+pub const ENUM_NAMES_DIRECTIVE_LOCATION:[&'static str; 19] = [
     "Query",
     "Mutation",
     "Subscription",
@@ -339,20 +339,20 @@ pub const ENUM_NAMES_FBDIRECTIVE_LOCATION:[&'static str; 19] = [
     "VariableDefinition"
 ];
 
-pub fn enum_name_fbdirective_location(e: FBDirectiveLocation) -> &'static str {
+pub fn enum_name_directive_location(e: DirectiveLocation) -> &'static str {
   let index = e as i8;
-  ENUM_NAMES_FBDIRECTIVE_LOCATION[index as usize]
+  ENUM_NAMES_DIRECTIVE_LOCATION[index as usize]
 }
 
-pub enum FBConstValueOffset {}
+pub enum ConstValueOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBConstValue<'a> {
+pub struct ConstValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBConstValue<'a> {
-    type Inner = FBConstValue<'a>;
+impl<'a> flatbuffers::Follow<'a> for ConstValue<'a> {
+    type Inner = ConstValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -361,18 +361,18 @@ impl<'a> flatbuffers::Follow<'a> for FBConstValue<'a> {
     }
 }
 
-impl<'a> FBConstValue<'a> {
+impl<'a> ConstValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBConstValue {
+        ConstValue {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBConstValueArgs<'args>) -> flatbuffers::WIPOffset<FBConstValue<'bldr>> {
-      let mut builder = FBConstValueBuilder::new(_fbb);
+        args: &'args ConstValueArgs<'args>) -> flatbuffers::WIPOffset<ConstValue<'bldr>> {
+      let mut builder = ConstValueBuilder::new(_fbb);
       if let Some(x) = args.object_value { builder.add_object_value(x); }
       if let Some(x) = args.list_value { builder.add_list_value(x); }
       if let Some(x) = args.enum_value { builder.add_enum_value(x); }
@@ -394,54 +394,54 @@ impl<'a> FBConstValue<'a> {
     pub const VT_OBJECT_VALUE: flatbuffers::VOffsetT = 18;
 
   #[inline]
-  pub fn kind(&self) -> FBConstValueKind {
-    self._tab.get::<FBConstValueKind>(FBConstValue::VT_KIND, Some(FBConstValueKind::Null)).unwrap()
+  pub fn kind(&self) -> ConstValueKind {
+    self._tab.get::<ConstValueKind>(ConstValue::VT_KIND, Some(ConstValueKind::Null)).unwrap()
   }
   #[inline]
   pub fn string_value(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBConstValue::VT_STRING_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ConstValue::VT_STRING_VALUE, None)
   }
   #[inline]
   pub fn bool_value(&self) -> bool {
-    self._tab.get::<bool>(FBConstValue::VT_BOOL_VALUE, Some(false)).unwrap()
+    self._tab.get::<bool>(ConstValue::VT_BOOL_VALUE, Some(false)).unwrap()
   }
   #[inline]
   pub fn int_value(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBConstValue::VT_INT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ConstValue::VT_INT_VALUE, None)
   }
   #[inline]
   pub fn float_value(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBConstValue::VT_FLOAT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ConstValue::VT_FLOAT_VALUE, None)
   }
   #[inline]
   pub fn enum_value(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBConstValue::VT_ENUM_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ConstValue::VT_ENUM_VALUE, None)
   }
   #[inline]
-  pub fn list_value(&self) -> Option<FBListValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBListValue<'a>>>(FBConstValue::VT_LIST_VALUE, None)
+  pub fn list_value(&self) -> Option<ListValue<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<ListValue<'a>>>(ConstValue::VT_LIST_VALUE, None)
   }
   #[inline]
-  pub fn object_value(&self) -> Option<FBObjectValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBObjectValue<'a>>>(FBConstValue::VT_OBJECT_VALUE, None)
+  pub fn object_value(&self) -> Option<ObjectValue<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<ObjectValue<'a>>>(ConstValue::VT_OBJECT_VALUE, None)
   }
 }
 
-pub struct FBConstValueArgs<'a> {
-    pub kind: FBConstValueKind,
+pub struct ConstValueArgs<'a> {
+    pub kind: ConstValueKind,
     pub string_value: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub bool_value: bool,
     pub int_value: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub float_value: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub enum_value: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub list_value: Option<flatbuffers::WIPOffset<FBListValue<'a >>>,
-    pub object_value: Option<flatbuffers::WIPOffset<FBObjectValue<'a >>>,
+    pub list_value: Option<flatbuffers::WIPOffset<ListValue<'a >>>,
+    pub object_value: Option<flatbuffers::WIPOffset<ObjectValue<'a >>>,
 }
-impl<'a> Default for FBConstValueArgs<'a> {
+impl<'a> Default for ConstValueArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBConstValueArgs {
-            kind: FBConstValueKind::Null,
+        ConstValueArgs {
+            kind: ConstValueKind::Null,
             string_value: None,
             bool_value: false,
             int_value: None,
@@ -452,67 +452,67 @@ impl<'a> Default for FBConstValueArgs<'a> {
         }
     }
 }
-pub struct FBConstValueBuilder<'a, 'b> {
+pub struct ConstValueBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBConstValueBuilder<'a, 'b> {
+impl<'a, 'b> ConstValueBuilder<'a, 'b> {
   #[inline]
-  pub fn add_kind(&mut self, kind: FBConstValueKind) {
-    self.fbb_.push_slot::<FBConstValueKind>(FBConstValue::VT_KIND, kind, FBConstValueKind::Null);
+  pub fn add_kind(&mut self, kind: ConstValueKind) {
+    self.fbb_.push_slot::<ConstValueKind>(ConstValue::VT_KIND, kind, ConstValueKind::Null);
   }
   #[inline]
   pub fn add_string_value(&mut self, string_value: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBConstValue::VT_STRING_VALUE, string_value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ConstValue::VT_STRING_VALUE, string_value);
   }
   #[inline]
   pub fn add_bool_value(&mut self, bool_value: bool) {
-    self.fbb_.push_slot::<bool>(FBConstValue::VT_BOOL_VALUE, bool_value, false);
+    self.fbb_.push_slot::<bool>(ConstValue::VT_BOOL_VALUE, bool_value, false);
   }
   #[inline]
   pub fn add_int_value(&mut self, int_value: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBConstValue::VT_INT_VALUE, int_value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ConstValue::VT_INT_VALUE, int_value);
   }
   #[inline]
   pub fn add_float_value(&mut self, float_value: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBConstValue::VT_FLOAT_VALUE, float_value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ConstValue::VT_FLOAT_VALUE, float_value);
   }
   #[inline]
   pub fn add_enum_value(&mut self, enum_value: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBConstValue::VT_ENUM_VALUE, enum_value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ConstValue::VT_ENUM_VALUE, enum_value);
   }
   #[inline]
-  pub fn add_list_value(&mut self, list_value: flatbuffers::WIPOffset<FBListValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBListValue<'_>>>(FBConstValue::VT_LIST_VALUE, list_value);
+  pub fn add_list_value(&mut self, list_value: flatbuffers::WIPOffset<ListValue<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ListValue<'_>>>(ConstValue::VT_LIST_VALUE, list_value);
   }
   #[inline]
-  pub fn add_object_value(&mut self, object_value: flatbuffers::WIPOffset<FBObjectValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBObjectValue<'_>>>(FBConstValue::VT_OBJECT_VALUE, object_value);
+  pub fn add_object_value(&mut self, object_value: flatbuffers::WIPOffset<ObjectValue<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ObjectValue<'_>>>(ConstValue::VT_OBJECT_VALUE, object_value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBConstValueBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ConstValueBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBConstValueBuilder {
+    ConstValueBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBConstValue<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<ConstValue<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBListValueOffset {}
+pub enum ListValueOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBListValue<'a> {
+pub struct ListValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBListValue<'a> {
-    type Inner = FBListValue<'a>;
+impl<'a> flatbuffers::Follow<'a> for ListValue<'a> {
+    type Inner = ListValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -521,18 +521,18 @@ impl<'a> flatbuffers::Follow<'a> for FBListValue<'a> {
     }
 }
 
-impl<'a> FBListValue<'a> {
+impl<'a> ListValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBListValue {
+        ListValue {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBListValueArgs<'args>) -> flatbuffers::WIPOffset<FBListValue<'bldr>> {
-      let mut builder = FBListValueBuilder::new(_fbb);
+        args: &'args ListValueArgs<'args>) -> flatbuffers::WIPOffset<ListValue<'bldr>> {
+      let mut builder = ListValueBuilder::new(_fbb);
       if let Some(x) = args.values { builder.add_values(x); }
       builder.finish()
     }
@@ -540,55 +540,55 @@ impl<'a> FBListValue<'a> {
     pub const VT_VALUES: flatbuffers::VOffsetT = 4;
 
   #[inline]
-  pub fn values(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBConstValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBConstValue<'a>>>>>(FBListValue::VT_VALUES, None)
+  pub fn values(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ConstValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ConstValue<'a>>>>>(ListValue::VT_VALUES, None)
   }
 }
 
-pub struct FBListValueArgs<'a> {
-    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBConstValue<'a >>>>>,
+pub struct ListValueArgs<'a> {
+    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<ConstValue<'a >>>>>,
 }
-impl<'a> Default for FBListValueArgs<'a> {
+impl<'a> Default for ListValueArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBListValueArgs {
+        ListValueArgs {
             values: None,
         }
     }
 }
-pub struct FBListValueBuilder<'a, 'b> {
+pub struct ListValueBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBListValueBuilder<'a, 'b> {
+impl<'a, 'b> ListValueBuilder<'a, 'b> {
   #[inline]
-  pub fn add_values(&mut self, values: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBConstValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBListValue::VT_VALUES, values);
+  pub fn add_values(&mut self, values: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<ConstValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ListValue::VT_VALUES, values);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBListValueBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ListValueBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBListValueBuilder {
+    ListValueBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBListValue<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<ListValue<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBObjectFieldOffset {}
+pub enum ObjectFieldOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBObjectField<'a> {
+pub struct ObjectField<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBObjectField<'a> {
-    type Inner = FBObjectField<'a>;
+impl<'a> flatbuffers::Follow<'a> for ObjectField<'a> {
+    type Inner = ObjectField<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -597,18 +597,18 @@ impl<'a> flatbuffers::Follow<'a> for FBObjectField<'a> {
     }
 }
 
-impl<'a> FBObjectField<'a> {
+impl<'a> ObjectField<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBObjectField {
+        ObjectField {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBObjectFieldArgs<'args>) -> flatbuffers::WIPOffset<FBObjectField<'bldr>> {
-      let mut builder = FBObjectFieldBuilder::new(_fbb);
+        args: &'args ObjectFieldArgs<'args>) -> flatbuffers::WIPOffset<ObjectField<'bldr>> {
+      let mut builder = ObjectFieldBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -619,64 +619,64 @@ impl<'a> FBObjectField<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBObjectField::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ObjectField::VT_NAME, None)
   }
   #[inline]
-  pub fn value(&self) -> Option<FBConstValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBConstValue<'a>>>(FBObjectField::VT_VALUE, None)
+  pub fn value(&self) -> Option<ConstValue<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue<'a>>>(ObjectField::VT_VALUE, None)
   }
 }
 
-pub struct FBObjectFieldArgs<'a> {
+pub struct ObjectFieldArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<FBConstValue<'a >>>,
+    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a >>>,
 }
-impl<'a> Default for FBObjectFieldArgs<'a> {
+impl<'a> Default for ObjectFieldArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBObjectFieldArgs {
+        ObjectFieldArgs {
             name: None,
             value: None,
         }
     }
 }
-pub struct FBObjectFieldBuilder<'a, 'b> {
+pub struct ObjectFieldBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBObjectFieldBuilder<'a, 'b> {
+impl<'a, 'b> ObjectFieldBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBObjectField::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ObjectField::VT_NAME, name);
   }
   #[inline]
-  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBConstValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBConstValue<'_>>>(FBObjectField::VT_VALUE, value);
+  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue<'_>>>(ObjectField::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBObjectFieldBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ObjectFieldBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBObjectFieldBuilder {
+    ObjectFieldBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBObjectField<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<ObjectField<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBObjectValueOffset {}
+pub enum ObjectValueOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBObjectValue<'a> {
+pub struct ObjectValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBObjectValue<'a> {
-    type Inner = FBObjectValue<'a>;
+impl<'a> flatbuffers::Follow<'a> for ObjectValue<'a> {
+    type Inner = ObjectValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -685,18 +685,18 @@ impl<'a> flatbuffers::Follow<'a> for FBObjectValue<'a> {
     }
 }
 
-impl<'a> FBObjectValue<'a> {
+impl<'a> ObjectValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBObjectValue {
+        ObjectValue {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBObjectValueArgs<'args>) -> flatbuffers::WIPOffset<FBObjectValue<'bldr>> {
-      let mut builder = FBObjectValueBuilder::new(_fbb);
+        args: &'args ObjectValueArgs<'args>) -> flatbuffers::WIPOffset<ObjectValue<'bldr>> {
+      let mut builder = ObjectValueBuilder::new(_fbb);
       if let Some(x) = args.fields { builder.add_fields(x); }
       builder.finish()
     }
@@ -704,55 +704,55 @@ impl<'a> FBObjectValue<'a> {
     pub const VT_FIELDS: flatbuffers::VOffsetT = 4;
 
   #[inline]
-  pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBObjectField<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBObjectField<'a>>>>>(FBObjectValue::VT_FIELDS, None)
+  pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ObjectField<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ObjectField<'a>>>>>(ObjectValue::VT_FIELDS, None)
   }
 }
 
-pub struct FBObjectValueArgs<'a> {
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBObjectField<'a >>>>>,
+pub struct ObjectValueArgs<'a> {
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<ObjectField<'a >>>>>,
 }
-impl<'a> Default for FBObjectValueArgs<'a> {
+impl<'a> Default for ObjectValueArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBObjectValueArgs {
+        ObjectValueArgs {
             fields: None,
         }
     }
 }
-pub struct FBObjectValueBuilder<'a, 'b> {
+pub struct ObjectValueBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBObjectValueBuilder<'a, 'b> {
+impl<'a, 'b> ObjectValueBuilder<'a, 'b> {
   #[inline]
-  pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBObjectField<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBObjectValue::VT_FIELDS, fields);
+  pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<ObjectField<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ObjectValue::VT_FIELDS, fields);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBObjectValueBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ObjectValueBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBObjectValueBuilder {
+    ObjectValueBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBObjectValue<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<ObjectValue<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBTypeOffset {}
+pub enum TypeOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBType<'a> {
+pub struct Type<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBType<'a> {
-    type Inner = FBType<'a>;
+impl<'a> flatbuffers::Follow<'a> for Type<'a> {
+    type Inner = Type<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -761,18 +761,18 @@ impl<'a> flatbuffers::Follow<'a> for FBType<'a> {
     }
 }
 
-impl<'a> FBType<'a> {
+impl<'a> Type<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBType {
+        Type {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBTypeArgs) -> flatbuffers::WIPOffset<FBType<'bldr>> {
-      let mut builder = FBTypeBuilder::new(_fbb);
+        args: &'args TypeArgs) -> flatbuffers::WIPOffset<Type<'bldr>> {
+      let mut builder = TypeBuilder::new(_fbb);
       builder.add_union_id(args.union_id);
       builder.add_interface_id(args.interface_id);
       builder.add_object_id(args.object_id);
@@ -792,38 +792,38 @@ impl<'a> FBType<'a> {
     pub const VT_UNION_ID: flatbuffers::VOffsetT = 16;
 
   #[inline]
-  pub fn kind(&self) -> FBTypeKind {
-    self._tab.get::<FBTypeKind>(FBType::VT_KIND, Some(FBTypeKind::Scalar)).unwrap()
+  pub fn kind(&self) -> TypeKind {
+    self._tab.get::<TypeKind>(Type::VT_KIND, Some(TypeKind::Scalar)).unwrap()
   }
   #[inline]
   pub fn scalar_id(&self) -> u32 {
-    self._tab.get::<u32>(FBType::VT_SCALAR_ID, Some(0)).unwrap()
+    self._tab.get::<u32>(Type::VT_SCALAR_ID, Some(0)).unwrap()
   }
   #[inline]
   pub fn input_object_id(&self) -> u32 {
-    self._tab.get::<u32>(FBType::VT_INPUT_OBJECT_ID, Some(0)).unwrap()
+    self._tab.get::<u32>(Type::VT_INPUT_OBJECT_ID, Some(0)).unwrap()
   }
   #[inline]
   pub fn enum_id(&self) -> u32 {
-    self._tab.get::<u32>(FBType::VT_ENUM_ID, Some(0)).unwrap()
+    self._tab.get::<u32>(Type::VT_ENUM_ID, Some(0)).unwrap()
   }
   #[inline]
   pub fn object_id(&self) -> u32 {
-    self._tab.get::<u32>(FBType::VT_OBJECT_ID, Some(0)).unwrap()
+    self._tab.get::<u32>(Type::VT_OBJECT_ID, Some(0)).unwrap()
   }
   #[inline]
   pub fn interface_id(&self) -> u32 {
-    self._tab.get::<u32>(FBType::VT_INTERFACE_ID, Some(0)).unwrap()
+    self._tab.get::<u32>(Type::VT_INTERFACE_ID, Some(0)).unwrap()
   }
   #[inline]
   pub fn union_id(&self) -> u32 {
-    self._tab.get::<u32>(FBType::VT_UNION_ID, Some(0)).unwrap()
+    self._tab.get::<u32>(Type::VT_UNION_ID, Some(0)).unwrap()
   }
 }
 
 #[derive(Copy, Clone)]
-    pub struct FBTypeArgs {
-    pub kind: FBTypeKind,
+    pub struct TypeArgs {
+    pub kind: TypeKind,
     pub scalar_id: u32,
     pub input_object_id: u32,
     pub enum_id: u32,
@@ -831,11 +831,11 @@ impl<'a> FBType<'a> {
     pub interface_id: u32,
     pub union_id: u32,
 }
-impl<'a> Default for FBTypeArgs {
+impl<'a> Default for TypeArgs {
     #[inline]
     fn default() -> Self {
-        FBTypeArgs {
-            kind: FBTypeKind::Scalar,
+        TypeArgs {
+            kind: TypeKind::Scalar,
             scalar_id: 0,
             input_object_id: 0,
             enum_id: 0,
@@ -845,63 +845,63 @@ impl<'a> Default for FBTypeArgs {
         }
     }
 }
-pub struct FBTypeBuilder<'a, 'b> {
+pub struct TypeBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBTypeBuilder<'a, 'b> {
+impl<'a, 'b> TypeBuilder<'a, 'b> {
   #[inline]
-  pub fn add_kind(&mut self, kind: FBTypeKind) {
-    self.fbb_.push_slot::<FBTypeKind>(FBType::VT_KIND, kind, FBTypeKind::Scalar);
+  pub fn add_kind(&mut self, kind: TypeKind) {
+    self.fbb_.push_slot::<TypeKind>(Type::VT_KIND, kind, TypeKind::Scalar);
   }
   #[inline]
   pub fn add_scalar_id(&mut self, scalar_id: u32) {
-    self.fbb_.push_slot::<u32>(FBType::VT_SCALAR_ID, scalar_id, 0);
+    self.fbb_.push_slot::<u32>(Type::VT_SCALAR_ID, scalar_id, 0);
   }
   #[inline]
   pub fn add_input_object_id(&mut self, input_object_id: u32) {
-    self.fbb_.push_slot::<u32>(FBType::VT_INPUT_OBJECT_ID, input_object_id, 0);
+    self.fbb_.push_slot::<u32>(Type::VT_INPUT_OBJECT_ID, input_object_id, 0);
   }
   #[inline]
   pub fn add_enum_id(&mut self, enum_id: u32) {
-    self.fbb_.push_slot::<u32>(FBType::VT_ENUM_ID, enum_id, 0);
+    self.fbb_.push_slot::<u32>(Type::VT_ENUM_ID, enum_id, 0);
   }
   #[inline]
   pub fn add_object_id(&mut self, object_id: u32) {
-    self.fbb_.push_slot::<u32>(FBType::VT_OBJECT_ID, object_id, 0);
+    self.fbb_.push_slot::<u32>(Type::VT_OBJECT_ID, object_id, 0);
   }
   #[inline]
   pub fn add_interface_id(&mut self, interface_id: u32) {
-    self.fbb_.push_slot::<u32>(FBType::VT_INTERFACE_ID, interface_id, 0);
+    self.fbb_.push_slot::<u32>(Type::VT_INTERFACE_ID, interface_id, 0);
   }
   #[inline]
   pub fn add_union_id(&mut self, union_id: u32) {
-    self.fbb_.push_slot::<u32>(FBType::VT_UNION_ID, union_id, 0);
+    self.fbb_.push_slot::<u32>(Type::VT_UNION_ID, union_id, 0);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBTypeBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> TypeBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBTypeBuilder {
+    TypeBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBType<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Type<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBTypeReferenceOffset {}
+pub enum TypeReferenceOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBTypeReference<'a> {
+pub struct TypeReference<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBTypeReference<'a> {
-    type Inner = FBTypeReference<'a>;
+impl<'a> flatbuffers::Follow<'a> for TypeReference<'a> {
+    type Inner = TypeReference<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -910,18 +910,18 @@ impl<'a> flatbuffers::Follow<'a> for FBTypeReference<'a> {
     }
 }
 
-impl<'a> FBTypeReference<'a> {
+impl<'a> TypeReference<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBTypeReference {
+        TypeReference {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBTypeReferenceArgs<'args>) -> flatbuffers::WIPOffset<FBTypeReference<'bldr>> {
-      let mut builder = FBTypeReferenceBuilder::new(_fbb);
+        args: &'args TypeReferenceArgs<'args>) -> flatbuffers::WIPOffset<TypeReference<'bldr>> {
+      let mut builder = TypeReferenceBuilder::new(_fbb);
       if let Some(x) = args.list { builder.add_list(x); }
       if let Some(x) = args.null { builder.add_null(x); }
       if let Some(x) = args.named { builder.add_named(x); }
@@ -935,85 +935,85 @@ impl<'a> FBTypeReference<'a> {
     pub const VT_LIST: flatbuffers::VOffsetT = 10;
 
   #[inline]
-  pub fn kind(&self) -> FBTypeReferenceKind {
-    self._tab.get::<FBTypeReferenceKind>(FBTypeReference::VT_KIND, Some(FBTypeReferenceKind::Named)).unwrap()
+  pub fn kind(&self) -> TypeReferenceKind {
+    self._tab.get::<TypeReferenceKind>(TypeReference::VT_KIND, Some(TypeReferenceKind::Named)).unwrap()
   }
   #[inline]
-  pub fn named(&self) -> Option<FBType<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBType<'a>>>(FBTypeReference::VT_NAMED, None)
+  pub fn named(&self) -> Option<Type<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Type<'a>>>(TypeReference::VT_NAMED, None)
   }
   #[inline]
-  pub fn null(&self) -> Option<FBTypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBTypeReference<'a>>>(FBTypeReference::VT_NULL, None)
+  pub fn null(&self) -> Option<TypeReference<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(TypeReference::VT_NULL, None)
   }
   #[inline]
-  pub fn list(&self) -> Option<FBTypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBTypeReference<'a>>>(FBTypeReference::VT_LIST, None)
+  pub fn list(&self) -> Option<TypeReference<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(TypeReference::VT_LIST, None)
   }
 }
 
-pub struct FBTypeReferenceArgs<'a> {
-    pub kind: FBTypeReferenceKind,
-    pub named: Option<flatbuffers::WIPOffset<FBType<'a >>>,
-    pub null: Option<flatbuffers::WIPOffset<FBTypeReference<'a >>>,
-    pub list: Option<flatbuffers::WIPOffset<FBTypeReference<'a >>>,
+pub struct TypeReferenceArgs<'a> {
+    pub kind: TypeReferenceKind,
+    pub named: Option<flatbuffers::WIPOffset<Type<'a >>>,
+    pub null: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
+    pub list: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
 }
-impl<'a> Default for FBTypeReferenceArgs<'a> {
+impl<'a> Default for TypeReferenceArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBTypeReferenceArgs {
-            kind: FBTypeReferenceKind::Named,
+        TypeReferenceArgs {
+            kind: TypeReferenceKind::Named,
             named: None,
             null: None,
             list: None,
         }
     }
 }
-pub struct FBTypeReferenceBuilder<'a, 'b> {
+pub struct TypeReferenceBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBTypeReferenceBuilder<'a, 'b> {
+impl<'a, 'b> TypeReferenceBuilder<'a, 'b> {
   #[inline]
-  pub fn add_kind(&mut self, kind: FBTypeReferenceKind) {
-    self.fbb_.push_slot::<FBTypeReferenceKind>(FBTypeReference::VT_KIND, kind, FBTypeReferenceKind::Named);
+  pub fn add_kind(&mut self, kind: TypeReferenceKind) {
+    self.fbb_.push_slot::<TypeReferenceKind>(TypeReference::VT_KIND, kind, TypeReferenceKind::Named);
   }
   #[inline]
-  pub fn add_named(&mut self, named: flatbuffers::WIPOffset<FBType<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBType<'_>>>(FBTypeReference::VT_NAMED, named);
+  pub fn add_named(&mut self, named: flatbuffers::WIPOffset<Type<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type<'_>>>(TypeReference::VT_NAMED, named);
   }
   #[inline]
-  pub fn add_null(&mut self, null: flatbuffers::WIPOffset<FBTypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBTypeReference<'_>>>(FBTypeReference::VT_NULL, null);
+  pub fn add_null(&mut self, null: flatbuffers::WIPOffset<TypeReference<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(TypeReference::VT_NULL, null);
   }
   #[inline]
-  pub fn add_list(&mut self, list: flatbuffers::WIPOffset<FBTypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBTypeReference<'_>>>(FBTypeReference::VT_LIST, list);
+  pub fn add_list(&mut self, list: flatbuffers::WIPOffset<TypeReference<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(TypeReference::VT_LIST, list);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBTypeReferenceBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> TypeReferenceBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBTypeReferenceBuilder {
+    TypeReferenceBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBTypeReference<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<TypeReference<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBArgumentValueOffset {}
+pub enum ArgumentValueOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBArgumentValue<'a> {
+pub struct ArgumentValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBArgumentValue<'a> {
-    type Inner = FBArgumentValue<'a>;
+impl<'a> flatbuffers::Follow<'a> for ArgumentValue<'a> {
+    type Inner = ArgumentValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1022,18 +1022,18 @@ impl<'a> flatbuffers::Follow<'a> for FBArgumentValue<'a> {
     }
 }
 
-impl<'a> FBArgumentValue<'a> {
+impl<'a> ArgumentValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBArgumentValue {
+        ArgumentValue {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBArgumentValueArgs<'args>) -> flatbuffers::WIPOffset<FBArgumentValue<'bldr>> {
-      let mut builder = FBArgumentValueBuilder::new(_fbb);
+        args: &'args ArgumentValueArgs<'args>) -> flatbuffers::WIPOffset<ArgumentValue<'bldr>> {
+      let mut builder = ArgumentValueBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -1044,64 +1044,64 @@ impl<'a> FBArgumentValue<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBArgumentValue::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(ArgumentValue::VT_NAME, None)
   }
   #[inline]
-  pub fn value(&self) -> Option<FBConstValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBConstValue<'a>>>(FBArgumentValue::VT_VALUE, None)
+  pub fn value(&self) -> Option<ConstValue<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue<'a>>>(ArgumentValue::VT_VALUE, None)
   }
 }
 
-pub struct FBArgumentValueArgs<'a> {
+pub struct ArgumentValueArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<FBConstValue<'a >>>,
+    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a >>>,
 }
-impl<'a> Default for FBArgumentValueArgs<'a> {
+impl<'a> Default for ArgumentValueArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBArgumentValueArgs {
+        ArgumentValueArgs {
             name: None,
             value: None,
         }
     }
 }
-pub struct FBArgumentValueBuilder<'a, 'b> {
+pub struct ArgumentValueBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBArgumentValueBuilder<'a, 'b> {
+impl<'a, 'b> ArgumentValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBArgumentValue::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ArgumentValue::VT_NAME, name);
   }
   #[inline]
-  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBConstValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBConstValue<'_>>>(FBArgumentValue::VT_VALUE, value);
+  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue<'_>>>(ArgumentValue::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBArgumentValueBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ArgumentValueBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBArgumentValueBuilder {
+    ArgumentValueBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBArgumentValue<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<ArgumentValue<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBDirectiveValueOffset {}
+pub enum DirectiveValueOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBDirectiveValue<'a> {
+pub struct DirectiveValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBDirectiveValue<'a> {
-    type Inner = FBDirectiveValue<'a>;
+impl<'a> flatbuffers::Follow<'a> for DirectiveValue<'a> {
+    type Inner = DirectiveValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1110,18 +1110,18 @@ impl<'a> flatbuffers::Follow<'a> for FBDirectiveValue<'a> {
     }
 }
 
-impl<'a> FBDirectiveValue<'a> {
+impl<'a> DirectiveValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBDirectiveValue {
+        DirectiveValue {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBDirectiveValueArgs<'args>) -> flatbuffers::WIPOffset<FBDirectiveValue<'bldr>> {
-      let mut builder = FBDirectiveValueBuilder::new(_fbb);
+        args: &'args DirectiveValueArgs<'args>) -> flatbuffers::WIPOffset<DirectiveValue<'bldr>> {
+      let mut builder = DirectiveValueBuilder::new(_fbb);
       if let Some(x) = args.arguments { builder.add_arguments(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -1132,64 +1132,64 @@ impl<'a> FBDirectiveValue<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBDirectiveValue::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(DirectiveValue::VT_NAME, None)
   }
   #[inline]
-  pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBArgumentValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBArgumentValue<'a>>>>>(FBDirectiveValue::VT_ARGUMENTS, None)
+  pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ArgumentValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ArgumentValue<'a>>>>>(DirectiveValue::VT_ARGUMENTS, None)
   }
 }
 
-pub struct FBDirectiveValueArgs<'a> {
+pub struct DirectiveValueArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBArgumentValue<'a >>>>>,
+    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<ArgumentValue<'a >>>>>,
 }
-impl<'a> Default for FBDirectiveValueArgs<'a> {
+impl<'a> Default for DirectiveValueArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBDirectiveValueArgs {
+        DirectiveValueArgs {
             name: None,
             arguments: None,
         }
     }
 }
-pub struct FBDirectiveValueBuilder<'a, 'b> {
+pub struct DirectiveValueBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBDirectiveValueBuilder<'a, 'b> {
+impl<'a, 'b> DirectiveValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirectiveValue::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(DirectiveValue::VT_NAME, name);
   }
   #[inline]
-  pub fn add_arguments(&mut self, arguments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBArgumentValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirectiveValue::VT_ARGUMENTS, arguments);
+  pub fn add_arguments(&mut self, arguments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<ArgumentValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(DirectiveValue::VT_ARGUMENTS, arguments);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBDirectiveValueBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> DirectiveValueBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBDirectiveValueBuilder {
+    DirectiveValueBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBDirectiveValue<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<DirectiveValue<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBArgumentOffset {}
+pub enum ArgumentOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBArgument<'a> {
+pub struct Argument<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBArgument<'a> {
-    type Inner = FBArgument<'a>;
+impl<'a> flatbuffers::Follow<'a> for Argument<'a> {
+    type Inner = Argument<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1198,18 +1198,18 @@ impl<'a> flatbuffers::Follow<'a> for FBArgument<'a> {
     }
 }
 
-impl<'a> FBArgument<'a> {
+impl<'a> Argument<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBArgument {
+        Argument {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBArgumentArgs<'args>) -> flatbuffers::WIPOffset<FBArgument<'bldr>> {
-      let mut builder = FBArgumentBuilder::new(_fbb);
+        args: &'args ArgumentArgs<'args>) -> flatbuffers::WIPOffset<Argument<'bldr>> {
+      let mut builder = ArgumentBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.type_ { builder.add_type_(x); }
       if let Some(x) = args.name { builder.add_name(x); }
@@ -1222,74 +1222,74 @@ impl<'a> FBArgument<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBArgument::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Argument::VT_NAME, None)
   }
   #[inline]
-  pub fn type_(&self) -> Option<FBTypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBTypeReference<'a>>>(FBArgument::VT_TYPE_, None)
+  pub fn type_(&self) -> Option<TypeReference<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(Argument::VT_TYPE_, None)
   }
   #[inline]
-  pub fn value(&self) -> Option<FBConstValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBConstValue<'a>>>(FBArgument::VT_VALUE, None)
+  pub fn value(&self) -> Option<ConstValue<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue<'a>>>(Argument::VT_VALUE, None)
   }
 }
 
-pub struct FBArgumentArgs<'a> {
+pub struct ArgumentArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub type_: Option<flatbuffers::WIPOffset<FBTypeReference<'a >>>,
-    pub value: Option<flatbuffers::WIPOffset<FBConstValue<'a >>>,
+    pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
+    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a >>>,
 }
-impl<'a> Default for FBArgumentArgs<'a> {
+impl<'a> Default for ArgumentArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBArgumentArgs {
+        ArgumentArgs {
             name: None,
             type_: None,
             value: None,
         }
     }
 }
-pub struct FBArgumentBuilder<'a, 'b> {
+pub struct ArgumentBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBArgumentBuilder<'a, 'b> {
+impl<'a, 'b> ArgumentBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBArgument::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Argument::VT_NAME, name);
   }
   #[inline]
-  pub fn add_type_(&mut self, type_: flatbuffers::WIPOffset<FBTypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBTypeReference<'_>>>(FBArgument::VT_TYPE_, type_);
+  pub fn add_type_(&mut self, type_: flatbuffers::WIPOffset<TypeReference<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(Argument::VT_TYPE_, type_);
   }
   #[inline]
-  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBConstValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBConstValue<'_>>>(FBArgument::VT_VALUE, value);
+  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue<'_>>>(Argument::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBArgumentBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ArgumentBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBArgumentBuilder {
+    ArgumentBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBArgument<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Argument<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBDirectiveOffset {}
+pub enum DirectiveOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBDirective<'a> {
+pub struct Directive<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBDirective<'a> {
-    type Inner = FBDirective<'a>;
+impl<'a> flatbuffers::Follow<'a> for Directive<'a> {
+    type Inner = Directive<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1298,18 +1298,18 @@ impl<'a> flatbuffers::Follow<'a> for FBDirective<'a> {
     }
 }
 
-impl<'a> FBDirective<'a> {
+impl<'a> Directive<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBDirective {
+        Directive {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBDirectiveArgs<'args>) -> flatbuffers::WIPOffset<FBDirective<'bldr>> {
-      let mut builder = FBDirectiveBuilder::new(_fbb);
+        args: &'args DirectiveArgs<'args>) -> flatbuffers::WIPOffset<Directive<'bldr>> {
+      let mut builder = DirectiveBuilder::new(_fbb);
       if let Some(x) = args.locations { builder.add_locations(x); }
       if let Some(x) = args.arguments { builder.add_arguments(x); }
       if let Some(x) = args.name { builder.add_name(x); }
@@ -1326,37 +1326,37 @@ impl<'a> FBDirective<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBDirective::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Directive::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBDirective::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Directive::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
-  pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBArgument<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBArgument<'a>>>>>(FBDirective::VT_ARGUMENTS, None)
+  pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument<'a>>>>>(Directive::VT_ARGUMENTS, None)
   }
   #[inline]
-  pub fn locations(&self) -> Option<flatbuffers::Vector<'a, FBDirectiveLocation>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, FBDirectiveLocation>>>(FBDirective::VT_LOCATIONS, None)
+  pub fn locations(&self) -> Option<flatbuffers::Vector<'a, DirectiveLocation>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, DirectiveLocation>>>(Directive::VT_LOCATIONS, None)
   }
   #[inline]
   pub fn repeatable(&self) -> bool {
-    self._tab.get::<bool>(FBDirective::VT_REPEATABLE, Some(false)).unwrap()
+    self._tab.get::<bool>(Directive::VT_REPEATABLE, Some(false)).unwrap()
   }
 }
 
-pub struct FBDirectiveArgs<'a> {
+pub struct DirectiveArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
-    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBArgument<'a >>>>>,
-    pub locations: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , FBDirectiveLocation>>>,
+    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Argument<'a >>>>>,
+    pub locations: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , DirectiveLocation>>>,
     pub repeatable: bool,
 }
-impl<'a> Default for FBDirectiveArgs<'a> {
+impl<'a> Default for DirectiveArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBDirectiveArgs {
+        DirectiveArgs {
             name: None,
             is_extension: false,
             arguments: None,
@@ -1365,55 +1365,55 @@ impl<'a> Default for FBDirectiveArgs<'a> {
         }
     }
 }
-pub struct FBDirectiveBuilder<'a, 'b> {
+pub struct DirectiveBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBDirectiveBuilder<'a, 'b> {
+impl<'a, 'b> DirectiveBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirective::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Directive::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBDirective::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Directive::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
-  pub fn add_arguments(&mut self, arguments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBArgument<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirective::VT_ARGUMENTS, arguments);
+  pub fn add_arguments(&mut self, arguments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Argument<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Directive::VT_ARGUMENTS, arguments);
   }
   #[inline]
-  pub fn add_locations(&mut self, locations: flatbuffers::WIPOffset<flatbuffers::Vector<'b , FBDirectiveLocation>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirective::VT_LOCATIONS, locations);
+  pub fn add_locations(&mut self, locations: flatbuffers::WIPOffset<flatbuffers::Vector<'b , DirectiveLocation>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Directive::VT_LOCATIONS, locations);
   }
   #[inline]
   pub fn add_repeatable(&mut self, repeatable: bool) {
-    self.fbb_.push_slot::<bool>(FBDirective::VT_REPEATABLE, repeatable, false);
+    self.fbb_.push_slot::<bool>(Directive::VT_REPEATABLE, repeatable, false);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBDirectiveBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> DirectiveBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBDirectiveBuilder {
+    DirectiveBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBDirective<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Directive<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBEnumValueOffset {}
+pub enum EnumValueOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBEnumValue<'a> {
+pub struct EnumValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBEnumValue<'a> {
-    type Inner = FBEnumValue<'a>;
+impl<'a> flatbuffers::Follow<'a> for EnumValue<'a> {
+    type Inner = EnumValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1422,18 +1422,18 @@ impl<'a> flatbuffers::Follow<'a> for FBEnumValue<'a> {
     }
 }
 
-impl<'a> FBEnumValue<'a> {
+impl<'a> EnumValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBEnumValue {
+        EnumValue {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBEnumValueArgs<'args>) -> flatbuffers::WIPOffset<FBEnumValue<'bldr>> {
-      let mut builder = FBEnumValueBuilder::new(_fbb);
+        args: &'args EnumValueArgs<'args>) -> flatbuffers::WIPOffset<EnumValue<'bldr>> {
+      let mut builder = EnumValueBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.value { builder.add_value(x); }
       builder.finish()
@@ -1444,64 +1444,64 @@ impl<'a> FBEnumValue<'a> {
 
   #[inline]
   pub fn value(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBEnumValue::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(EnumValue::VT_VALUE, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBEnumValue::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(EnumValue::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBEnumValueArgs<'a> {
+pub struct EnumValueArgs<'a> {
     pub value: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBEnumValueArgs<'a> {
+impl<'a> Default for EnumValueArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBEnumValueArgs {
+        EnumValueArgs {
             value: None,
             directives: None,
         }
     }
 }
-pub struct FBEnumValueBuilder<'a, 'b> {
+pub struct EnumValueBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBEnumValueBuilder<'a, 'b> {
+impl<'a, 'b> EnumValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBEnumValue::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(EnumValue::VT_VALUE, value);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBEnumValue::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(EnumValue::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBEnumValueBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> EnumValueBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBEnumValueBuilder {
+    EnumValueBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBEnumValue<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<EnumValue<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBScalarOffset {}
+pub enum ScalarOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBScalar<'a> {
+pub struct Scalar<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBScalar<'a> {
-    type Inner = FBScalar<'a>;
+impl<'a> flatbuffers::Follow<'a> for Scalar<'a> {
+    type Inner = Scalar<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1510,18 +1510,18 @@ impl<'a> flatbuffers::Follow<'a> for FBScalar<'a> {
     }
 }
 
-impl<'a> FBScalar<'a> {
+impl<'a> Scalar<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBScalar {
+        Scalar {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBScalarArgs<'args>) -> flatbuffers::WIPOffset<FBScalar<'bldr>> {
-      let mut builder = FBScalarBuilder::new(_fbb);
+        args: &'args ScalarArgs<'args>) -> flatbuffers::WIPOffset<Scalar<'bldr>> {
+      let mut builder = ScalarBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.add_is_extension(args.is_extension);
@@ -1534,74 +1534,74 @@ impl<'a> FBScalar<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBScalar::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Scalar::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBScalar::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Scalar::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBScalar::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Scalar::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBScalarArgs<'a> {
+pub struct ScalarArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBScalarArgs<'a> {
+impl<'a> Default for ScalarArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBScalarArgs {
+        ScalarArgs {
             name: None,
             is_extension: false,
             directives: None,
         }
     }
 }
-pub struct FBScalarBuilder<'a, 'b> {
+pub struct ScalarBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBScalarBuilder<'a, 'b> {
+impl<'a, 'b> ScalarBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBScalar::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Scalar::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBScalar::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Scalar::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBScalar::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Scalar::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBScalarBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ScalarBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBScalarBuilder {
+    ScalarBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBScalar<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Scalar<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBInputObjectOffset {}
+pub enum InputObjectOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBInputObject<'a> {
+pub struct InputObject<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBInputObject<'a> {
-    type Inner = FBInputObject<'a>;
+impl<'a> flatbuffers::Follow<'a> for InputObject<'a> {
+    type Inner = InputObject<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1610,18 +1610,18 @@ impl<'a> flatbuffers::Follow<'a> for FBInputObject<'a> {
     }
 }
 
-impl<'a> FBInputObject<'a> {
+impl<'a> InputObject<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBInputObject {
+        InputObject {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBInputObjectArgs<'args>) -> flatbuffers::WIPOffset<FBInputObject<'bldr>> {
-      let mut builder = FBInputObjectBuilder::new(_fbb);
+        args: &'args InputObjectArgs<'args>) -> flatbuffers::WIPOffset<InputObject<'bldr>> {
+      let mut builder = InputObjectBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.fields { builder.add_fields(x); }
       if let Some(x) = args.name { builder.add_name(x); }
@@ -1634,74 +1634,74 @@ impl<'a> FBInputObject<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBInputObject::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(InputObject::VT_NAME, None)
   }
   #[inline]
-  pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBArgument<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBArgument<'a>>>>>(FBInputObject::VT_FIELDS, None)
+  pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument<'a>>>>>(InputObject::VT_FIELDS, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBInputObject::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(InputObject::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBInputObjectArgs<'a> {
+pub struct InputObjectArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBArgument<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Argument<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBInputObjectArgs<'a> {
+impl<'a> Default for InputObjectArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBInputObjectArgs {
+        InputObjectArgs {
             name: None,
             fields: None,
             directives: None,
         }
     }
 }
-pub struct FBInputObjectBuilder<'a, 'b> {
+pub struct InputObjectBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBInputObjectBuilder<'a, 'b> {
+impl<'a, 'b> InputObjectBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInputObject::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(InputObject::VT_NAME, name);
   }
   #[inline]
-  pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBArgument<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInputObject::VT_FIELDS, fields);
+  pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Argument<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(InputObject::VT_FIELDS, fields);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInputObject::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(InputObject::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBInputObjectBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> InputObjectBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBInputObjectBuilder {
+    InputObjectBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBInputObject<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<InputObject<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBEnumOffset {}
+pub enum EnumOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBEnum<'a> {
+pub struct Enum<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBEnum<'a> {
-    type Inner = FBEnum<'a>;
+impl<'a> flatbuffers::Follow<'a> for Enum<'a> {
+    type Inner = Enum<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1710,18 +1710,18 @@ impl<'a> flatbuffers::Follow<'a> for FBEnum<'a> {
     }
 }
 
-impl<'a> FBEnum<'a> {
+impl<'a> Enum<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBEnum {
+        Enum {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBEnumArgs<'args>) -> flatbuffers::WIPOffset<FBEnum<'bldr>> {
-      let mut builder = FBEnumBuilder::new(_fbb);
+        args: &'args EnumArgs<'args>) -> flatbuffers::WIPOffset<Enum<'bldr>> {
+      let mut builder = EnumBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.values { builder.add_values(x); }
       if let Some(x) = args.name { builder.add_name(x); }
@@ -1736,32 +1736,32 @@ impl<'a> FBEnum<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBEnum::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Enum::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBEnum::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Enum::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
-  pub fn values(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBEnumValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBEnumValue<'a>>>>>(FBEnum::VT_VALUES, None)
+  pub fn values(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<EnumValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<EnumValue<'a>>>>>(Enum::VT_VALUES, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBEnum::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Enum::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBEnumArgs<'a> {
+pub struct EnumArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
-    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBEnumValue<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<EnumValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBEnumArgs<'a> {
+impl<'a> Default for EnumArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBEnumArgs {
+        EnumArgs {
             name: None,
             is_extension: false,
             values: None,
@@ -1769,51 +1769,51 @@ impl<'a> Default for FBEnumArgs<'a> {
         }
     }
 }
-pub struct FBEnumBuilder<'a, 'b> {
+pub struct EnumBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBEnumBuilder<'a, 'b> {
+impl<'a, 'b> EnumBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBEnum::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Enum::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBEnum::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Enum::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
-  pub fn add_values(&mut self, values: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBEnumValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBEnum::VT_VALUES, values);
+  pub fn add_values(&mut self, values: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<EnumValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Enum::VT_VALUES, values);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBEnum::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Enum::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBEnumBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> EnumBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBEnumBuilder {
+    EnumBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBEnum<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Enum<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBObjectOffset {}
+pub enum ObjectOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBObject<'a> {
+pub struct Object<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBObject<'a> {
-    type Inner = FBObject<'a>;
+impl<'a> flatbuffers::Follow<'a> for Object<'a> {
+    type Inner = Object<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1822,18 +1822,18 @@ impl<'a> flatbuffers::Follow<'a> for FBObject<'a> {
     }
 }
 
-impl<'a> FBObject<'a> {
+impl<'a> Object<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBObject {
+        Object {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBObjectArgs<'args>) -> flatbuffers::WIPOffset<FBObject<'bldr>> {
-      let mut builder = FBObjectBuilder::new(_fbb);
+        args: &'args ObjectArgs<'args>) -> flatbuffers::WIPOffset<Object<'bldr>> {
+      let mut builder = ObjectBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.interfaces { builder.add_interfaces(x); }
       if let Some(x) = args.fields { builder.add_fields(x); }
@@ -1850,37 +1850,37 @@ impl<'a> FBObject<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBObject::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Object::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBObject::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Object::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
   pub fn fields(&self) -> Option<flatbuffers::Vector<'a, u32>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(FBObject::VT_FIELDS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Object::VT_FIELDS, None)
   }
   #[inline]
   pub fn interfaces(&self) -> Option<flatbuffers::Vector<'a, u32>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(FBObject::VT_INTERFACES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Object::VT_INTERFACES, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBObject::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Object::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBObjectArgs<'a> {
+pub struct ObjectArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
     pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
     pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBObjectArgs<'a> {
+impl<'a> Default for ObjectArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBObjectArgs {
+        ObjectArgs {
             name: None,
             is_extension: false,
             fields: None,
@@ -1889,55 +1889,55 @@ impl<'a> Default for FBObjectArgs<'a> {
         }
     }
 }
-pub struct FBObjectBuilder<'a, 'b> {
+pub struct ObjectBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBObjectBuilder<'a, 'b> {
+impl<'a, 'b> ObjectBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBObject::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Object::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBObject::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Object::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
   pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBObject::VT_FIELDS, fields);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Object::VT_FIELDS, fields);
   }
   #[inline]
   pub fn add_interfaces(&mut self, interfaces: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBObject::VT_INTERFACES, interfaces);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Object::VT_INTERFACES, interfaces);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBObject::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Object::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBObjectBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ObjectBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBObjectBuilder {
+    ObjectBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBObject<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Object<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBInterfaceOffset {}
+pub enum InterfaceOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBInterface<'a> {
+pub struct Interface<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBInterface<'a> {
-    type Inner = FBInterface<'a>;
+impl<'a> flatbuffers::Follow<'a> for Interface<'a> {
+    type Inner = Interface<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -1946,18 +1946,18 @@ impl<'a> flatbuffers::Follow<'a> for FBInterface<'a> {
     }
 }
 
-impl<'a> FBInterface<'a> {
+impl<'a> Interface<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBInterface {
+        Interface {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBInterfaceArgs<'args>) -> flatbuffers::WIPOffset<FBInterface<'bldr>> {
-      let mut builder = FBInterfaceBuilder::new(_fbb);
+        args: &'args InterfaceArgs<'args>) -> flatbuffers::WIPOffset<Interface<'bldr>> {
+      let mut builder = InterfaceBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.implementing_objects { builder.add_implementing_objects(x); }
       if let Some(x) = args.interfaces { builder.add_interfaces(x); }
@@ -1976,42 +1976,42 @@ impl<'a> FBInterface<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBInterface::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Interface::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBInterface::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Interface::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
   pub fn fields(&self) -> Option<flatbuffers::Vector<'a, u32>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(FBInterface::VT_FIELDS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Interface::VT_FIELDS, None)
   }
   #[inline]
   pub fn interfaces(&self) -> Option<flatbuffers::Vector<'a, u32>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(FBInterface::VT_INTERFACES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Interface::VT_INTERFACES, None)
   }
   #[inline]
   pub fn implementing_objects(&self) -> Option<flatbuffers::Vector<'a, u32>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(FBInterface::VT_IMPLEMENTING_OBJECTS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Interface::VT_IMPLEMENTING_OBJECTS, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBInterface::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Interface::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBInterfaceArgs<'a> {
+pub struct InterfaceArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
     pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
     pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
     pub implementing_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBInterfaceArgs<'a> {
+impl<'a> Default for InterfaceArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBInterfaceArgs {
+        InterfaceArgs {
             name: None,
             is_extension: false,
             fields: None,
@@ -2021,59 +2021,59 @@ impl<'a> Default for FBInterfaceArgs<'a> {
         }
     }
 }
-pub struct FBInterfaceBuilder<'a, 'b> {
+pub struct InterfaceBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBInterfaceBuilder<'a, 'b> {
+impl<'a, 'b> InterfaceBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInterface::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Interface::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBInterface::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Interface::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
   pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInterface::VT_FIELDS, fields);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Interface::VT_FIELDS, fields);
   }
   #[inline]
   pub fn add_interfaces(&mut self, interfaces: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInterface::VT_INTERFACES, interfaces);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Interface::VT_INTERFACES, interfaces);
   }
   #[inline]
   pub fn add_implementing_objects(&mut self, implementing_objects: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInterface::VT_IMPLEMENTING_OBJECTS, implementing_objects);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Interface::VT_IMPLEMENTING_OBJECTS, implementing_objects);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBInterface::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Interface::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBInterfaceBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> InterfaceBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBInterfaceBuilder {
+    InterfaceBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBInterface<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Interface<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBUnionOffset {}
+pub enum UnionOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBUnion<'a> {
+pub struct Union<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBUnion<'a> {
-    type Inner = FBUnion<'a>;
+impl<'a> flatbuffers::Follow<'a> for Union<'a> {
+    type Inner = Union<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2082,18 +2082,18 @@ impl<'a> flatbuffers::Follow<'a> for FBUnion<'a> {
     }
 }
 
-impl<'a> FBUnion<'a> {
+impl<'a> Union<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBUnion {
+        Union {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBUnionArgs<'args>) -> flatbuffers::WIPOffset<FBUnion<'bldr>> {
-      let mut builder = FBUnionBuilder::new(_fbb);
+        args: &'args UnionArgs<'args>) -> flatbuffers::WIPOffset<Union<'bldr>> {
+      let mut builder = UnionBuilder::new(_fbb);
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.members { builder.add_members(x); }
       if let Some(x) = args.name { builder.add_name(x); }
@@ -2108,32 +2108,32 @@ impl<'a> FBUnion<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBUnion::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Union::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBUnion::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Union::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
   pub fn members(&self) -> Option<flatbuffers::Vector<'a, u32>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(FBUnion::VT_MEMBERS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, u32>>>(Union::VT_MEMBERS, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBUnion::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Union::VT_DIRECTIVES, None)
   }
 }
 
-pub struct FBUnionArgs<'a> {
+pub struct UnionArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
     pub members: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
 }
-impl<'a> Default for FBUnionArgs<'a> {
+impl<'a> Default for UnionArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBUnionArgs {
+        UnionArgs {
             name: None,
             is_extension: false,
             members: None,
@@ -2141,51 +2141,51 @@ impl<'a> Default for FBUnionArgs<'a> {
         }
     }
 }
-pub struct FBUnionBuilder<'a, 'b> {
+pub struct UnionBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBUnionBuilder<'a, 'b> {
+impl<'a, 'b> UnionBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBUnion::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Union::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBUnion::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Union::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
   pub fn add_members(&mut self, members: flatbuffers::WIPOffset<flatbuffers::Vector<'b , u32>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBUnion::VT_MEMBERS, members);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Union::VT_MEMBERS, members);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBUnion::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Union::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBUnionBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> UnionBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBUnionBuilder {
+    UnionBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBUnion<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Union<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBFieldOffset {}
+pub enum FieldOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBField<'a> {
+pub struct Field<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBField<'a> {
-    type Inner = FBField<'a>;
+impl<'a> flatbuffers::Follow<'a> for Field<'a> {
+    type Inner = Field<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2194,18 +2194,18 @@ impl<'a> flatbuffers::Follow<'a> for FBField<'a> {
     }
 }
 
-impl<'a> FBField<'a> {
+impl<'a> Field<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBField {
+        Field {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBFieldArgs<'args>) -> flatbuffers::WIPOffset<FBField<'bldr>> {
-      let mut builder = FBFieldBuilder::new(_fbb);
+        args: &'args FieldArgs<'args>) -> flatbuffers::WIPOffset<Field<'bldr>> {
+      let mut builder = FieldBuilder::new(_fbb);
       if let Some(x) = args.parent_type { builder.add_parent_type(x); }
       if let Some(x) = args.directives { builder.add_directives(x); }
       if let Some(x) = args.type_ { builder.add_type_(x); }
@@ -2224,42 +2224,42 @@ impl<'a> FBField<'a> {
 
   #[inline]
   pub fn name(&self) -> Option<&'a str> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBField::VT_NAME, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(Field::VT_NAME, None)
   }
   #[inline]
   pub fn is_extension(&self) -> bool {
-    self._tab.get::<bool>(FBField::VT_IS_EXTENSION, Some(false)).unwrap()
+    self._tab.get::<bool>(Field::VT_IS_EXTENSION, Some(false)).unwrap()
   }
   #[inline]
-  pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBArgument<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBArgument<'a>>>>>(FBField::VT_ARGUMENTS, None)
+  pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument<'a>>>>>(Field::VT_ARGUMENTS, None)
   }
   #[inline]
-  pub fn type_(&self) -> Option<FBTypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBTypeReference<'a>>>(FBField::VT_TYPE_, None)
+  pub fn type_(&self) -> Option<TypeReference<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(Field::VT_TYPE_, None)
   }
   #[inline]
-  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveValue<'a>>>>>(FBField::VT_DIRECTIVES, None)
+  pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Field::VT_DIRECTIVES, None)
   }
   #[inline]
-  pub fn parent_type(&self) -> Option<FBType<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBType<'a>>>(FBField::VT_PARENT_TYPE, None)
+  pub fn parent_type(&self) -> Option<Type<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Type<'a>>>(Field::VT_PARENT_TYPE, None)
   }
 }
 
-pub struct FBFieldArgs<'a> {
+pub struct FieldArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
     pub is_extension: bool,
-    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBArgument<'a >>>>>,
-    pub type_: Option<flatbuffers::WIPOffset<FBTypeReference<'a >>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveValue<'a >>>>>,
-    pub parent_type: Option<flatbuffers::WIPOffset<FBType<'a >>>,
+    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Argument<'a >>>>>,
+    pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub parent_type: Option<flatbuffers::WIPOffset<Type<'a >>>,
 }
-impl<'a> Default for FBFieldArgs<'a> {
+impl<'a> Default for FieldArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBFieldArgs {
+        FieldArgs {
             name: None,
             is_extension: false,
             arguments: None,
@@ -2269,59 +2269,59 @@ impl<'a> Default for FBFieldArgs<'a> {
         }
     }
 }
-pub struct FBFieldBuilder<'a, 'b> {
+pub struct FieldBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBFieldBuilder<'a, 'b> {
+impl<'a, 'b> FieldBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBField::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Field::VT_NAME, name);
   }
   #[inline]
   pub fn add_is_extension(&mut self, is_extension: bool) {
-    self.fbb_.push_slot::<bool>(FBField::VT_IS_EXTENSION, is_extension, false);
+    self.fbb_.push_slot::<bool>(Field::VT_IS_EXTENSION, is_extension, false);
   }
   #[inline]
-  pub fn add_arguments(&mut self, arguments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBArgument<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBField::VT_ARGUMENTS, arguments);
+  pub fn add_arguments(&mut self, arguments: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Argument<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Field::VT_ARGUMENTS, arguments);
   }
   #[inline]
-  pub fn add_type_(&mut self, type_: flatbuffers::WIPOffset<FBTypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBTypeReference<'_>>>(FBField::VT_TYPE_, type_);
+  pub fn add_type_(&mut self, type_: flatbuffers::WIPOffset<TypeReference<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(Field::VT_TYPE_, type_);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveValue<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBField::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Field::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn add_parent_type(&mut self, parent_type: flatbuffers::WIPOffset<FBType<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBType<'_>>>(FBField::VT_PARENT_TYPE, parent_type);
+  pub fn add_parent_type(&mut self, parent_type: flatbuffers::WIPOffset<Type<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type<'_>>>(Field::VT_PARENT_TYPE, parent_type);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBFieldBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FieldBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBFieldBuilder {
+    FieldBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBField<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Field<'a>> {
     let o = self.fbb_.end_table(self.start_);
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBTypeMapEntryOffset {}
+pub enum TypeMapEntryOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBTypeMapEntry<'a> {
+pub struct TypeMapEntry<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBTypeMapEntry<'a> {
-    type Inner = FBTypeMapEntry<'a>;
+impl<'a> flatbuffers::Follow<'a> for TypeMapEntry<'a> {
+    type Inner = TypeMapEntry<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2330,18 +2330,18 @@ impl<'a> flatbuffers::Follow<'a> for FBTypeMapEntry<'a> {
     }
 }
 
-impl<'a> FBTypeMapEntry<'a> {
+impl<'a> TypeMapEntry<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBTypeMapEntry {
+        TypeMapEntry {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBTypeMapEntryArgs<'args>) -> flatbuffers::WIPOffset<FBTypeMapEntry<'bldr>> {
-      let mut builder = FBTypeMapEntryBuilder::new(_fbb);
+        args: &'args TypeMapEntryArgs<'args>) -> flatbuffers::WIPOffset<TypeMapEntry<'bldr>> {
+      let mut builder = TypeMapEntryBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -2352,10 +2352,10 @@ impl<'a> FBTypeMapEntry<'a> {
 
   #[inline]
   pub fn name(&self) -> &'a str {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBTypeMapEntry::VT_NAME, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(TypeMapEntry::VT_NAME, None).unwrap()
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &FBTypeMapEntry<'_>) ->  bool {
+  pub fn key_compare_less_than(&self, o: &TypeMapEntry<'_>) ->  bool {
     self.name() < o.name()
   }
 
@@ -2365,62 +2365,62 @@ impl<'a> FBTypeMapEntry<'a> {
     key.cmp(&val)
   }
   #[inline]
-  pub fn value(&self) -> Option<FBType<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBType<'a>>>(FBTypeMapEntry::VT_VALUE, None)
+  pub fn value(&self) -> Option<Type<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Type<'a>>>(TypeMapEntry::VT_VALUE, None)
   }
 }
 
-pub struct FBTypeMapEntryArgs<'a> {
+pub struct TypeMapEntryArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<FBType<'a >>>,
+    pub value: Option<flatbuffers::WIPOffset<Type<'a >>>,
 }
-impl<'a> Default for FBTypeMapEntryArgs<'a> {
+impl<'a> Default for TypeMapEntryArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBTypeMapEntryArgs {
+        TypeMapEntryArgs {
             name: None, // required field
             value: None,
         }
     }
 }
-pub struct FBTypeMapEntryBuilder<'a, 'b> {
+pub struct TypeMapEntryBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBTypeMapEntryBuilder<'a, 'b> {
+impl<'a, 'b> TypeMapEntryBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBTypeMapEntry::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(TypeMapEntry::VT_NAME, name);
   }
   #[inline]
-  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBType<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBType<'_>>>(FBTypeMapEntry::VT_VALUE, value);
+  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<Type<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type<'_>>>(TypeMapEntry::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBTypeMapEntryBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> TypeMapEntryBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBTypeMapEntryBuilder {
+    TypeMapEntryBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBTypeMapEntry<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<TypeMapEntry<'a>> {
     let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, FBTypeMapEntry::VT_NAME,"name");
+    self.fbb_.required(o, TypeMapEntry::VT_NAME,"name");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBDirectiveMapEntryOffset {}
+pub enum DirectiveMapEntryOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBDirectiveMapEntry<'a> {
+pub struct DirectiveMapEntry<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBDirectiveMapEntry<'a> {
-    type Inner = FBDirectiveMapEntry<'a>;
+impl<'a> flatbuffers::Follow<'a> for DirectiveMapEntry<'a> {
+    type Inner = DirectiveMapEntry<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2429,18 +2429,18 @@ impl<'a> flatbuffers::Follow<'a> for FBDirectiveMapEntry<'a> {
     }
 }
 
-impl<'a> FBDirectiveMapEntry<'a> {
+impl<'a> DirectiveMapEntry<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBDirectiveMapEntry {
+        DirectiveMapEntry {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBDirectiveMapEntryArgs<'args>) -> flatbuffers::WIPOffset<FBDirectiveMapEntry<'bldr>> {
-      let mut builder = FBDirectiveMapEntryBuilder::new(_fbb);
+        args: &'args DirectiveMapEntryArgs<'args>) -> flatbuffers::WIPOffset<DirectiveMapEntry<'bldr>> {
+      let mut builder = DirectiveMapEntryBuilder::new(_fbb);
       if let Some(x) = args.value { builder.add_value(x); }
       if let Some(x) = args.name { builder.add_name(x); }
       builder.finish()
@@ -2451,10 +2451,10 @@ impl<'a> FBDirectiveMapEntry<'a> {
 
   #[inline]
   pub fn name(&self) -> &'a str {
-    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(FBDirectiveMapEntry::VT_NAME, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(DirectiveMapEntry::VT_NAME, None).unwrap()
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &FBDirectiveMapEntry<'_>) ->  bool {
+  pub fn key_compare_less_than(&self, o: &DirectiveMapEntry<'_>) ->  bool {
     self.name() < o.name()
   }
 
@@ -2464,62 +2464,62 @@ impl<'a> FBDirectiveMapEntry<'a> {
     key.cmp(&val)
   }
   #[inline]
-  pub fn value(&self) -> Option<FBDirective<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<FBDirective<'a>>>(FBDirectiveMapEntry::VT_VALUE, None)
+  pub fn value(&self) -> Option<Directive<'a>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<Directive<'a>>>(DirectiveMapEntry::VT_VALUE, None)
   }
 }
 
-pub struct FBDirectiveMapEntryArgs<'a> {
+pub struct DirectiveMapEntryArgs<'a> {
     pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<FBDirective<'a >>>,
+    pub value: Option<flatbuffers::WIPOffset<Directive<'a >>>,
 }
-impl<'a> Default for FBDirectiveMapEntryArgs<'a> {
+impl<'a> Default for DirectiveMapEntryArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBDirectiveMapEntryArgs {
+        DirectiveMapEntryArgs {
             name: None, // required field
             value: None,
         }
     }
 }
-pub struct FBDirectiveMapEntryBuilder<'a, 'b> {
+pub struct DirectiveMapEntryBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBDirectiveMapEntryBuilder<'a, 'b> {
+impl<'a, 'b> DirectiveMapEntryBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBDirectiveMapEntry::VT_NAME, name);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(DirectiveMapEntry::VT_NAME, name);
   }
   #[inline]
-  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<FBDirective<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<FBDirective<'_>>>(FBDirectiveMapEntry::VT_VALUE, value);
+  pub fn add_value(&mut self, value: flatbuffers::WIPOffset<Directive<'b >>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Directive<'_>>>(DirectiveMapEntry::VT_VALUE, value);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBDirectiveMapEntryBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> DirectiveMapEntryBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBDirectiveMapEntryBuilder {
+    DirectiveMapEntryBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBDirectiveMapEntry<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<DirectiveMapEntry<'a>> {
     let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, FBDirectiveMapEntry::VT_NAME,"name");
+    self.fbb_.required(o, DirectiveMapEntry::VT_NAME,"name");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
-pub enum FBSchemaOffset {}
+pub enum SchemaOffset {}
 #[derive(Copy, Clone, Debug, PartialEq)]
 
-pub struct FBSchema<'a> {
+pub struct Schema<'a> {
   pub _tab: flatbuffers::Table<'a>,
 }
 
-impl<'a> flatbuffers::Follow<'a> for FBSchema<'a> {
-    type Inner = FBSchema<'a>;
+impl<'a> flatbuffers::Follow<'a> for Schema<'a> {
+    type Inner = Schema<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
         Self {
@@ -2528,18 +2528,18 @@ impl<'a> flatbuffers::Follow<'a> for FBSchema<'a> {
     }
 }
 
-impl<'a> FBSchema<'a> {
+impl<'a> Schema<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        FBSchema {
+        Schema {
             _tab: table,
         }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
         _fbb: &'mut_bldr mut flatbuffers::FlatBufferBuilder<'bldr>,
-        args: &'args FBSchemaArgs<'args>) -> flatbuffers::WIPOffset<FBSchema<'bldr>> {
-      let mut builder = FBSchemaBuilder::new(_fbb);
+        args: &'args SchemaArgs<'args>) -> flatbuffers::WIPOffset<Schema<'bldr>> {
+      let mut builder = SchemaBuilder::new(_fbb);
       if let Some(x) = args.fields { builder.add_fields(x); }
       if let Some(x) = args.unions { builder.add_unions(x); }
       if let Some(x) = args.interfaces { builder.add_interfaces(x); }
@@ -2574,82 +2574,82 @@ impl<'a> FBSchema<'a> {
 
   #[inline]
   pub fn query_type(&self) -> u32 {
-    self._tab.get::<u32>(FBSchema::VT_QUERY_TYPE, Some(0)).unwrap()
+    self._tab.get::<u32>(Schema::VT_QUERY_TYPE, Some(0)).unwrap()
   }
   #[inline]
   pub fn has_mutation_type(&self) -> bool {
-    self._tab.get::<bool>(FBSchema::VT_HAS_MUTATION_TYPE, Some(false)).unwrap()
+    self._tab.get::<bool>(Schema::VT_HAS_MUTATION_TYPE, Some(false)).unwrap()
   }
   #[inline]
   pub fn mutation_type(&self) -> u32 {
-    self._tab.get::<u32>(FBSchema::VT_MUTATION_TYPE, Some(0)).unwrap()
+    self._tab.get::<u32>(Schema::VT_MUTATION_TYPE, Some(0)).unwrap()
   }
   #[inline]
   pub fn has_subscription_type(&self) -> bool {
-    self._tab.get::<bool>(FBSchema::VT_HAS_SUBSCRIPTION_TYPE, Some(false)).unwrap()
+    self._tab.get::<bool>(Schema::VT_HAS_SUBSCRIPTION_TYPE, Some(false)).unwrap()
   }
   #[inline]
   pub fn subscription_type(&self) -> u32 {
-    self._tab.get::<u32>(FBSchema::VT_SUBSCRIPTION_TYPE, Some(0)).unwrap()
+    self._tab.get::<u32>(Schema::VT_SUBSCRIPTION_TYPE, Some(0)).unwrap()
   }
   #[inline]
-  pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a>>>>>(FBSchema::VT_TYPES, None).unwrap()
+  pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<TypeMapEntry<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<TypeMapEntry<'a>>>>>(Schema::VT_TYPES, None).unwrap()
   }
   #[inline]
-  pub fn directives(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a>>>>>(FBSchema::VT_DIRECTIVES, None).unwrap()
+  pub fn directives(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a>>>>>(Schema::VT_DIRECTIVES, None).unwrap()
   }
   #[inline]
-  pub fn scalars(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBScalar<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBScalar<'a>>>>>(FBSchema::VT_SCALARS, None).unwrap()
+  pub fn scalars(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Scalar<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Scalar<'a>>>>>(Schema::VT_SCALARS, None).unwrap()
   }
   #[inline]
-  pub fn input_objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBInputObject<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBInputObject<'a>>>>>(FBSchema::VT_INPUT_OBJECTS, None).unwrap()
+  pub fn input_objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<InputObject<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<InputObject<'a>>>>>(Schema::VT_INPUT_OBJECTS, None).unwrap()
   }
   #[inline]
-  pub fn enums(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBEnum<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBEnum<'a>>>>>(FBSchema::VT_ENUMS, None).unwrap()
+  pub fn enums(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Enum<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Enum<'a>>>>>(Schema::VT_ENUMS, None).unwrap()
   }
   #[inline]
-  pub fn objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBObject<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBObject<'a>>>>>(FBSchema::VT_OBJECTS, None).unwrap()
+  pub fn objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Object<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Object<'a>>>>>(Schema::VT_OBJECTS, None).unwrap()
   }
   #[inline]
-  pub fn interfaces(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBInterface<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBInterface<'a>>>>>(FBSchema::VT_INTERFACES, None).unwrap()
+  pub fn interfaces(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Interface<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Interface<'a>>>>>(Schema::VT_INTERFACES, None).unwrap()
   }
   #[inline]
-  pub fn unions(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBUnion<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBUnion<'a>>>>>(FBSchema::VT_UNIONS, None).unwrap()
+  pub fn unions(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Union<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Union<'a>>>>>(Schema::VT_UNIONS, None).unwrap()
   }
   #[inline]
-  pub fn fields(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<FBField<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<FBField<'a>>>>>(FBSchema::VT_FIELDS, None).unwrap()
+  pub fn fields(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Field<'a>>> {
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Field<'a>>>>>(Schema::VT_FIELDS, None).unwrap()
   }
 }
 
-pub struct FBSchemaArgs<'a> {
+pub struct SchemaArgs<'a> {
     pub query_type: u32,
     pub has_mutation_type: bool,
     pub mutation_type: u32,
     pub has_subscription_type: bool,
     pub subscription_type: u32,
-    pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBTypeMapEntry<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'a >>>>>,
-    pub scalars: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBScalar<'a >>>>>,
-    pub input_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBInputObject<'a >>>>>,
-    pub enums: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBEnum<'a >>>>>,
-    pub objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBObject<'a >>>>>,
-    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBInterface<'a >>>>>,
-    pub unions: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBUnion<'a >>>>>,
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<FBField<'a >>>>>,
+    pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<TypeMapEntry<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a >>>>>,
+    pub scalars: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Scalar<'a >>>>>,
+    pub input_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<InputObject<'a >>>>>,
+    pub enums: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Enum<'a >>>>>,
+    pub objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Object<'a >>>>>,
+    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Interface<'a >>>>>,
+    pub unions: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Union<'a >>>>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Field<'a >>>>>,
 }
-impl<'a> Default for FBSchemaArgs<'a> {
+impl<'a> Default for SchemaArgs<'a> {
     #[inline]
     fn default() -> Self {
-        FBSchemaArgs {
+        SchemaArgs {
             query_type: 0,
             has_mutation_type: false,
             mutation_type: 0,
@@ -2667,109 +2667,109 @@ impl<'a> Default for FBSchemaArgs<'a> {
         }
     }
 }
-pub struct FBSchemaBuilder<'a, 'b> {
+pub struct SchemaBuilder<'a, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FBSchemaBuilder<'a, 'b> {
+impl<'a, 'b> SchemaBuilder<'a, 'b> {
   #[inline]
   pub fn add_query_type(&mut self, query_type: u32) {
-    self.fbb_.push_slot::<u32>(FBSchema::VT_QUERY_TYPE, query_type, 0);
+    self.fbb_.push_slot::<u32>(Schema::VT_QUERY_TYPE, query_type, 0);
   }
   #[inline]
   pub fn add_has_mutation_type(&mut self, has_mutation_type: bool) {
-    self.fbb_.push_slot::<bool>(FBSchema::VT_HAS_MUTATION_TYPE, has_mutation_type, false);
+    self.fbb_.push_slot::<bool>(Schema::VT_HAS_MUTATION_TYPE, has_mutation_type, false);
   }
   #[inline]
   pub fn add_mutation_type(&mut self, mutation_type: u32) {
-    self.fbb_.push_slot::<u32>(FBSchema::VT_MUTATION_TYPE, mutation_type, 0);
+    self.fbb_.push_slot::<u32>(Schema::VT_MUTATION_TYPE, mutation_type, 0);
   }
   #[inline]
   pub fn add_has_subscription_type(&mut self, has_subscription_type: bool) {
-    self.fbb_.push_slot::<bool>(FBSchema::VT_HAS_SUBSCRIPTION_TYPE, has_subscription_type, false);
+    self.fbb_.push_slot::<bool>(Schema::VT_HAS_SUBSCRIPTION_TYPE, has_subscription_type, false);
   }
   #[inline]
   pub fn add_subscription_type(&mut self, subscription_type: u32) {
-    self.fbb_.push_slot::<u32>(FBSchema::VT_SUBSCRIPTION_TYPE, subscription_type, 0);
+    self.fbb_.push_slot::<u32>(Schema::VT_SUBSCRIPTION_TYPE, subscription_type, 0);
   }
   #[inline]
-  pub fn add_types(&mut self, types: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBTypeMapEntry<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_TYPES, types);
+  pub fn add_types(&mut self, types: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<TypeMapEntry<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_TYPES, types);
   }
   #[inline]
-  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBDirectiveMapEntry<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_DIRECTIVES, directives);
+  pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveMapEntry<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_DIRECTIVES, directives);
   }
   #[inline]
-  pub fn add_scalars(&mut self, scalars: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBScalar<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_SCALARS, scalars);
+  pub fn add_scalars(&mut self, scalars: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Scalar<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_SCALARS, scalars);
   }
   #[inline]
-  pub fn add_input_objects(&mut self, input_objects: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBInputObject<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_INPUT_OBJECTS, input_objects);
+  pub fn add_input_objects(&mut self, input_objects: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<InputObject<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_INPUT_OBJECTS, input_objects);
   }
   #[inline]
-  pub fn add_enums(&mut self, enums: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBEnum<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_ENUMS, enums);
+  pub fn add_enums(&mut self, enums: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Enum<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_ENUMS, enums);
   }
   #[inline]
-  pub fn add_objects(&mut self, objects: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBObject<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_OBJECTS, objects);
+  pub fn add_objects(&mut self, objects: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Object<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_OBJECTS, objects);
   }
   #[inline]
-  pub fn add_interfaces(&mut self, interfaces: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBInterface<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_INTERFACES, interfaces);
+  pub fn add_interfaces(&mut self, interfaces: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Interface<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_INTERFACES, interfaces);
   }
   #[inline]
-  pub fn add_unions(&mut self, unions: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBUnion<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_UNIONS, unions);
+  pub fn add_unions(&mut self, unions: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Union<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_UNIONS, unions);
   }
   #[inline]
-  pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<FBField<'b >>>>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(FBSchema::VT_FIELDS, fields);
+  pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<Field<'b >>>>) {
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Schema::VT_FIELDS, fields);
   }
   #[inline]
-  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FBSchemaBuilder<'a, 'b> {
+  pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> SchemaBuilder<'a, 'b> {
     let start = _fbb.start_table();
-    FBSchemaBuilder {
+    SchemaBuilder {
       fbb_: _fbb,
       start_: start,
     }
   }
   #[inline]
-  pub fn finish(self) -> flatbuffers::WIPOffset<FBSchema<'a>> {
+  pub fn finish(self) -> flatbuffers::WIPOffset<Schema<'a>> {
     let o = self.fbb_.end_table(self.start_);
-    self.fbb_.required(o, FBSchema::VT_TYPES,"types");
-    self.fbb_.required(o, FBSchema::VT_DIRECTIVES,"directives");
-    self.fbb_.required(o, FBSchema::VT_SCALARS,"scalars");
-    self.fbb_.required(o, FBSchema::VT_INPUT_OBJECTS,"input_objects");
-    self.fbb_.required(o, FBSchema::VT_ENUMS,"enums");
-    self.fbb_.required(o, FBSchema::VT_OBJECTS,"objects");
-    self.fbb_.required(o, FBSchema::VT_INTERFACES,"interfaces");
-    self.fbb_.required(o, FBSchema::VT_UNIONS,"unions");
-    self.fbb_.required(o, FBSchema::VT_FIELDS,"fields");
+    self.fbb_.required(o, Schema::VT_TYPES,"types");
+    self.fbb_.required(o, Schema::VT_DIRECTIVES,"directives");
+    self.fbb_.required(o, Schema::VT_SCALARS,"scalars");
+    self.fbb_.required(o, Schema::VT_INPUT_OBJECTS,"input_objects");
+    self.fbb_.required(o, Schema::VT_ENUMS,"enums");
+    self.fbb_.required(o, Schema::VT_OBJECTS,"objects");
+    self.fbb_.required(o, Schema::VT_INTERFACES,"interfaces");
+    self.fbb_.required(o, Schema::VT_UNIONS,"unions");
+    self.fbb_.required(o, Schema::VT_FIELDS,"fields");
     flatbuffers::WIPOffset::new(o.value())
   }
 }
 
 #[inline]
-pub fn get_root_as_fbschema<'a>(buf: &'a [u8]) -> FBSchema<'a> {
-  flatbuffers::get_root::<FBSchema<'a>>(buf)
+pub fn get_root_as_schema<'a>(buf: &'a [u8]) -> Schema<'a> {
+  flatbuffers::get_root::<Schema<'a>>(buf)
 }
 
 #[inline]
-pub fn get_size_prefixed_root_as_fbschema<'a>(buf: &'a [u8]) -> FBSchema<'a> {
-  flatbuffers::get_size_prefixed_root::<FBSchema<'a>>(buf)
+pub fn get_size_prefixed_root_as_schema<'a>(buf: &'a [u8]) -> Schema<'a> {
+  flatbuffers::get_size_prefixed_root::<Schema<'a>>(buf)
 }
 
 #[inline]
-pub fn finish_fbschema_buffer<'a, 'b>(
+pub fn finish_schema_buffer<'a, 'b>(
     fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>,
-    root: flatbuffers::WIPOffset<FBSchema<'a>>) {
+    root: flatbuffers::WIPOffset<Schema<'a>>) {
   fbb.finish(root, None);
 }
 
 #[inline]
-pub fn finish_size_prefixed_fbschema_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<FBSchema<'a>>) {
+pub fn finish_size_prefixed_schema_buffer<'a, 'b>(fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>, root: flatbuffers::WIPOffset<Schema<'a>>) {
   fbb.finish_size_prefixed(root, None);
 }

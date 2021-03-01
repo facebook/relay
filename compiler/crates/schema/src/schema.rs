@@ -201,7 +201,7 @@ impl SDLSchema {
         client_definitions: &[graphql_syntax::TypeSystemDefinition],
     ) -> DiagnosticsResult<Self> {
         let sdl_schema = crate::sdl::SDLSchemaImpl::build(schema_definitions, client_definitions)?;
-        let flatbuffer_bytes = crate::flatbuffer::serialize_as_fb(&sdl_schema);
+        let flatbuffer_bytes = crate::flatbuffer::serialize_as_flatbuffer(&sdl_schema);
         Ok(SDLSchema::FlatBuffer(SchemaWrapper::from_vec(
             flatbuffer_bytes,
         )))

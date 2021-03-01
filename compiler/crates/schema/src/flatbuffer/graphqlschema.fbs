@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-enum FBConstValueKind : byte {
+enum ConstValueKind : byte {
     Null = 0,
     String,
     Bool,
@@ -16,31 +16,31 @@ enum FBConstValueKind : byte {
     Object
 }
 
-table FBConstValue {
-    kind: FBConstValueKind;
+table ConstValue {
+    kind: ConstValueKind;
     string_value: string;
     bool_value: bool;
     int_value: string;
     float_value: string;
     enum_value: string;
-    list_value: FBListValue;
-    object_value: FBObjectValue;
+    list_value: ListValue;
+    object_value: ObjectValue;
 }
 
-table FBListValue {
-    values: [FBConstValue];
+table ListValue {
+    values: [ConstValue];
 }
 
-table FBObjectField {
+table ObjectField {
     name: string;
-    value: FBConstValue;
+    value: ConstValue;
 }
 
-table FBObjectValue {
-    fields: [FBObjectField];
+table ObjectValue {
+    fields: [ObjectField];
 }
 
-enum FBTypeKind : byte {
+enum TypeKind : byte {
     Scalar = 0,
     InputObject = 1,
     Enum = 2,
@@ -49,8 +49,8 @@ enum FBTypeKind : byte {
     Union = 5,
 }
 
-table FBType {
-    kind: FBTypeKind;
+table Type {
+    kind: TypeKind;
     scalar_id: uint32;
     input_object_id: uint32;
     enum_id: uint32;
@@ -59,36 +59,36 @@ table FBType {
     union_id: uint32;
 }
 
-enum FBTypeReferenceKind : byte {
+enum TypeReferenceKind : byte {
     Named = 0,
     NonNull,
     List
 }
 
-table FBTypeReference {
-    kind: FBTypeReferenceKind;
-    named: FBType;
-    null: FBTypeReference;
-    list: FBTypeReference;
+table TypeReference {
+    kind: TypeReferenceKind;
+    named: Type;
+    null: TypeReference;
+    list: TypeReference;
 }
 
-table FBArgumentValue {
+table ArgumentValue {
     name: string;
-    value: FBConstValue;
+    value: ConstValue;
 }
 
-table FBDirectiveValue {
+table DirectiveValue {
     name: string;
-    arguments: [FBArgumentValue];
+    arguments: [ArgumentValue];
 }
 
-table FBArgument {
+table Argument {
     name: string;
-    type_: FBTypeReference;
-    value: FBConstValue;
+    type_: TypeReference;
+    value: ConstValue;
 }
 
-enum FBDirectiveLocation : byte {
+enum DirectiveLocation : byte {
     Query = 0,
     Mutation,
     Subscription,
@@ -110,96 +110,96 @@ enum FBDirectiveLocation : byte {
     VariableDefinition,
 }
 
-table FBDirective {
+table Directive {
     name: string;
     is_extension: bool;
-    arguments: [FBArgument];
-    locations: [FBDirectiveLocation];
+    arguments: [Argument];
+    locations: [DirectiveLocation];
     repeatable: bool;
 }
 
-table FBEnumValue {
+table EnumValue {
     value: string;
-    directives: [FBDirectiveValue];
+    directives: [DirectiveValue];
 }
 
-table FBScalar {
+table Scalar {
     name: string;
     is_extension: bool;
-    directives: [FBDirectiveValue];
+    directives: [DirectiveValue];
 }
 
-table FBInputObject {
+table InputObject {
     name: string;
-    fields: [FBArgument];
-    directives: [FBDirectiveValue];
+    fields: [Argument];
+    directives: [DirectiveValue];
 }
 
-table FBEnum {
+table Enum {
     name: string;
     is_extension: bool;
-    values: [FBEnumValue];
-    directives: [FBDirectiveValue];
+    values: [EnumValue];
+    directives: [DirectiveValue];
 }
 
-table FBObject {
+table Object {
     name: string;
     is_extension: bool;
     fields: [uint32];
     interfaces: [uint32];
-    directives: [FBDirectiveValue];
+    directives: [DirectiveValue];
 }
 
-table FBInterface {
+table Interface {
     name: string;
     is_extension: bool;
     fields: [uint32];
     interfaces: [uint32];
     implementing_objects: [uint32];
-    directives: [FBDirectiveValue];
+    directives: [DirectiveValue];
 }
 
-table FBUnion {
+table Union {
     name: string;
     is_extension: bool;
     members: [uint32];
-    directives: [FBDirectiveValue];
+    directives: [DirectiveValue];
 }
 
-table FBField {
+table Field {
     name: string;
     is_extension: bool;
-    arguments: [FBArgument];
-    type_: FBTypeReference;
-    directives: [FBDirectiveValue];
-    parent_type: FBType;
+    arguments: [Argument];
+    type_: TypeReference;
+    directives: [DirectiveValue];
+    parent_type: Type;
 }
 
-table FBTypeMapEntry {
+table TypeMapEntry {
     name: string (key);
-    value: FBType;
+    value: Type;
 }
 
-table FBDirectiveMapEntry {
+table DirectiveMapEntry {
     name: string (key);
-    value: FBDirective;
+    value: Directive;
 }
 
-table FBSchema {
+table Schema {
     query_type: uint32;
     has_mutation_type: bool;
     mutation_type: uint32;
     has_subscription_type: bool;
     subscription_type: uint32;
-    types: [FBTypeMapEntry] (required);
-    directives: [FBDirectiveMapEntry] (required);
-    scalars: [FBScalar] (required);
-    input_objects: [FBInputObject] (required);
-    enums: [FBEnum] (required);
-    objects: [FBObject] (required);
-    interfaces: [FBInterface] (required);
-    unions: [FBUnion] (required);
-    fields: [FBField] (required);
+    types: [TypeMapEntry] (required);
+    directives: [DirectiveMapEntry] (required);
+    scalars: [Scalar] (required);
+    input_objects: [InputObject] (required);
+    enums: [Enum] (required);
+    objects: [Object] (required);
+    interfaces: [Interface] (required);
+    unions: [Union] (required);
+    fields: [Field] (required);
 }
 
-root_type FBSchema;
+root_type Schema;

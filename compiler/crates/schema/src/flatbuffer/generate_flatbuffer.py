@@ -49,14 +49,14 @@ content = content.replace(
 
 # add explicit unnamed lifetimes required by Rust 2018
 type_names = [
-    "FBType",
-    "FBTypeMapEntry",
-    "FBDirectiveMapEntry",
-    "FBDirective",
-    "FBTypeReference",
-    "FBConstValue",
-    "FBObjectValue",
-    "FBListValue",
+    "Type",
+    "TypeMapEntry",
+    "DirectiveMapEntry",
+    "Directive",
+    "TypeReference",
+    "ConstValue",
+    "ObjectValue",
+    "ListValue",
 ]
 for type_name in type_names:
     content = content.replace(type_name + ">", type_name + "<'_>>")
@@ -74,7 +74,7 @@ content = content.replace("<'a: 'b, 'b>", "<'a, 'b>")
 
 # add Clone to type, I think this was a manual add at some point
 content = content.replace(
-    "pub struct FBTypeArgs {", "#[derive(Copy, Clone)]\n    pub struct FBTypeArgs {"
+    "pub struct TypeArgs {", "#[derive(Copy, Clone)]\n    pub struct TypeArgs {"
 )
 
 # drop excessive empty lines

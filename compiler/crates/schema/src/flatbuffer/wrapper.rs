@@ -27,7 +27,7 @@ struct OwnedFlatBufferSchema {
 
     #[borrows(data)]
     #[covariant]
-    pub fb: FlatBufferSchema<'this>,
+    pub schema: FlatBufferSchema<'this>,
 }
 
 const CLIENTID_FIELD_ID: FieldID = FieldID(10_000_000);
@@ -65,7 +65,7 @@ impl SchemaWrapper {
     pub fn from_vec(data: Vec<u8>) -> Self {
         let fb = OwnedFlatBufferSchemaBuilder {
             data,
-            fb_builder: |data| FlatBufferSchema::build(&data),
+            schema_builder: |data| FlatBufferSchema::build(&data),
         }
         .build();
 
@@ -139,22 +139,22 @@ impl SchemaWrapper {
         (vec![]).into_iter()
     }
 
-    fn fb(&self) -> &FlatBufferSchema<'_> {
-        self.fb.borrow_fb()
+    fn flatbuffer_schema(&self) -> &FlatBufferSchema<'_> {
+        self.fb.borrow_schema()
     }
 }
 
 impl Schema for SchemaWrapper {
     fn query_type(&self) -> Option<Type> {
-        Some(self.fb().query_type())
+        Some(self.flatbuffer_schema().query_type())
     }
 
     fn mutation_type(&self) -> Option<Type> {
-        self.fb().mutation_type()
+        self.flatbuffer_schema().mutation_type()
     }
 
     fn subscription_type(&self) -> Option<Type> {
-        self.fb().subscription_type()
+        self.flatbuffer_schema().subscription_type()
     }
 
     fn clientid_field(&self) -> FieldID {
@@ -170,13 +170,13 @@ impl Schema for SchemaWrapper {
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
-        self.fb().get_type(type_name)
+        self.flatbuffer_schema().get_type(type_name)
     }
 
     fn get_directive(&self, name: StringKey) -> Option<&Directive> {
         self.directives
             .get(name, || {
-                match (name.lookup(), self.fb().get_directive(name)) {
+                match (name.lookup(), self.flatbuffer_schema().get_directive(name)) {
                     ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
                         let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
                         for arg in next_args.iter_mut() {
@@ -196,31 +196,33 @@ impl Schema for SchemaWrapper {
     }
 
     fn input_object(&self, id: InputObjectID) -> &InputObject {
-        self.input_objects.get(id, || self.fb().input_object(id))
+        self.input_objects
+            .get(id, || self.flatbuffer_schema().input_object(id))
     }
 
     fn enum_(&self, id: EnumID) -> &Enum {
-        self.enums.get(id, || self.fb().enum_(id))
+        self.enums.get(id, || self.flatbuffer_schema().enum_(id))
     }
 
     fn scalar(&self, id: ScalarID) -> &Scalar {
-        self.scalars.get(id, || self.fb().scalar(id))
+        self.scalars.get(id, || self.flatbuffer_schema().scalar(id))
     }
 
     fn field(&self, id: FieldID) -> &Field {
-        self.fields.get(id, || self.fb().field(id))
+        self.fields.get(id, || self.flatbuffer_schema().field(id))
     }
 
     fn object(&self, id: ObjectID) -> &Object {
-        self.objects.get(id, || self.fb().object(id))
+        self.objects.get(id, || self.flatbuffer_schema().object(id))
     }
 
     fn union(&self, id: UnionID) -> &Union {
-        self.unions.get(id, || self.fb().union(id))
+        self.unions.get(id, || self.flatbuffer_schema().union(id))
     }
 
     fn interface(&self, id: InterfaceID) -> &Interface {
-        self.interfaces.get(id, || self.fb().interface(id))
+        self.interfaces
+            .get(id, || self.flatbuffer_schema().interface(id))
     }
 
     fn get_type_name(&self, type_: Type) -> StringKey {

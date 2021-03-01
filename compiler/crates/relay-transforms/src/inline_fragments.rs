@@ -6,7 +6,7 @@
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::NamedItem;
+use crate::relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
@@ -89,11 +89,11 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
         match selection {
             Selection::FragmentSpread(selection) => {
-                if selection
-                    .directives
-                    .named(*NO_INLINE_DIRECTIVE_NAME)
-                    .is_some()
-                {
+                let should_skip_inline = selection.directives.iter().any(|directive| {
+                    directive.name.item == *NO_INLINE_DIRECTIVE_NAME
+                        || directive.name.item == *RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME
+                });
+                if should_skip_inline {
                     Transformed::Keep
                 } else {
                     Transformed::Replace(Selection::InlineFragment(

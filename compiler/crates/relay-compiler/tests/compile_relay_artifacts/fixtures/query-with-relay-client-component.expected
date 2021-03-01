@@ -148,42 +148,8 @@ fragment queryWithRelayClientComponent_ClientComponentFragment on User {
             "storageKey": null
           },
           {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": [
-                  {
-                    "kind": "Variable",
-                    "name": "size",
-                    "variableName": "size"
-                  }
-                ],
-                "concreteType": "Image",
-                "kind": "LinkedField",
-                "name": "profilePicture",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "uri",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
+            "kind": "ClientComponent",
+            "fragment": require('queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql')
           }
         ],
         "storageKey": null

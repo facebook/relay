@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<639c1389d314a78d9317a649c9432bb9>>
+ * @generated SignedSource<<bacaaf6b903bdaf0680db17f0a49238b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,9 @@ export type RelayStoreUtilsTest3QueryVariables = {||};
 export type RelayStoreUtilsTest3QueryResponse = {|
   +me: ?{|
     +profile_picture: ?{|
-      +uri: ?string
-    |}
-  |}
+      +uri: ?string,
+    |},
+  |},
 |};
 export type RelayStoreUtilsTest3Query = {|
   variables: RelayStoreUtilsTest3QueryVariables,

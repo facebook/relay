@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4fe311b8b112e5fc8f5018781753979d>>
+ * @generated SignedSource<<dd2e94f9e32010f41e6c5214625a9b30>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@ import type { ConcreteRequest } from 'relay-runtime';
 type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$ref = any;
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryVariables = {||};
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryResponse = {|
-  +$fragmentRefs: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$ref
+  +$fragmentRefs: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootRootFragment$ref,
 |};
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQuery = {|
   variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentIsConcreteButOnTheRootQueryVariables,

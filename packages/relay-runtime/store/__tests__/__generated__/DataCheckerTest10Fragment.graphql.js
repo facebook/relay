@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<80d44c3cc864bd1c05b3eb73e4fa33be>>
+ * @generated SignedSource<<8a1623fd8284d971e8241b3dbb46c7c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type DataCheckerTest10Fragment = {|
   +id: string,
   +firstName: ?string,
   +profilePicture: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$refType: DataCheckerTest10Fragment$ref,
 |};

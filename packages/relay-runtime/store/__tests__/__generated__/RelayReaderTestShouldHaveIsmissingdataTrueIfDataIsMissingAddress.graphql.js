@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<369cb83aa35b07fd4d32e059ad30fdfe>>
+ * @generated SignedSource<<93ebd20a5a80552061a0ab0f27b24484>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMis
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress = {|
   +id: string,
   +address: ?{|
-    +city: ?string
+    +city: ?string,
   |},
   +$refType: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress$ref,
 |};

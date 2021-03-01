@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b17ed86a80278c5a2c0795dd2b5f3ba6>>
+ * @generated SignedSource<<1e1186d92e901dacf9af9ca121a09ff4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,7 @@ export type ConnectionHandlerTestConnectionQueryResponse = {|
       +edges: ?$ReadOnlyArray<?{|
         +cursor: ?string,
         +node: ?{|
-          +id: string
+          +id: string,
         |},
       |}>,
       +pageInfo: ?{|
@@ -39,8 +39,8 @@ export type ConnectionHandlerTestConnectionQueryResponse = {|
         +hasPreviousPage: ?boolean,
         +startCursor: ?string,
       |},
-    |}
-  |}
+    |},
+  |},
 |};
 export type ConnectionHandlerTestConnectionQuery = {|
   variables: ConnectionHandlerTestConnectionQueryVariables,

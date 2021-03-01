@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4601d3d88ccabbf8b611d8104451d7d5>>
+ * @generated SignedSource<<5ca2c441d6697978a4cc24596c073a84>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$ref: Frag
 declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$ref;
 export type RelayModernEnvironmentNoInlineTest_noInline = {|
   +profile_picture?: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$ref,
   +$refType: RelayModernEnvironmentNoInlineTest_noInline$ref,

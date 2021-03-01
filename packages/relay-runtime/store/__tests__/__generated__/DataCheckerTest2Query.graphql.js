@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5af8db4ab4c5b98778926cfb41116ab6>>
+ * @generated SignedSource<<44fccb16217cf2448a60f0f082177e0b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,9 @@ export type DataCheckerTest2QueryVariables = {||};
 export type DataCheckerTest2QueryResponse = {|
   +me: ?{|
     +profilePicture: ?{|
-      +uri: ?string
-    |}
-  |}
+      +uri: ?string,
+    |},
+  |},
 |};
 export type DataCheckerTest2Query = {|
   variables: DataCheckerTest2QueryVariables,

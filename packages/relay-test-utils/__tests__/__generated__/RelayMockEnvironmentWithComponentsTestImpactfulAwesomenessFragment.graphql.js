@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<91ac1f48dee5b04bc9d3014b3c575868>>
+ * @generated SignedSource<<438fd4c59252888acda646d443feaafa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ declare export opaque type RelayMockEnvironmentWithComponentsTestImpactfulAwesom
 export type RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment = {|
   +id: string,
   +message: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +doesViewerLike: ?boolean,
   +$refType: RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment$ref,

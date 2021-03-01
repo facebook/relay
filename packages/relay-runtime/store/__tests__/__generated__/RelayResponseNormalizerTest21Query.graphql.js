@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0e1f09f5c1f45d40d93249f0ef351920>>
+ * @generated SignedSource<<860cf9660e5b8f142cd54a477aa7b153>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ export type RelayResponseNormalizerTest21QueryResponse = {|
   +named: ?{|
     +name: ?string,
     +id?: string,
-  |}
+  |},
 |};
 export type RelayResponseNormalizerTest21Query = {|
   variables: RelayResponseNormalizerTest21QueryVariables,

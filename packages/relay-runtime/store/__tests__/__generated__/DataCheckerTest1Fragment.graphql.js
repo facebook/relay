@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f92e46058bf0ad5f9317938f4ff7b7a5>>
+ * @generated SignedSource<<803f1ca590111eff8f509c6447b97285>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ declare export opaque type DataCheckerTest1Fragment$ref: FragmentReference;
 declare export opaque type DataCheckerTest1Fragment$fragmentType: DataCheckerTest1Fragment$ref;
 export type DataCheckerTest1Fragment = {|
   +profilePicture: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$refType: DataCheckerTest1Fragment$ref,
 |};

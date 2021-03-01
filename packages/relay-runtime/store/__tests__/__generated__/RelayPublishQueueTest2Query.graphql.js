@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<54b5dd2d4df98bd8971538637b028c1e>>
+ * @generated SignedSource<<8fef0dcdf0fc124c752bab33f2070d62>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayPublishQueueTest2QueryResponse = {|
     +$fragmentRefs: RelayPublishQueueTest1Fragment$ref,
   |},
   +nodes: ?$ReadOnlyArray<?{|
-    +name: ?string
+    +name: ?string,
   |}>,
 |};
 export type RelayPublishQueueTest2Query = {|

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6eeaba8fe189b481a93a3dd99dc80502>>
+ * @generated SignedSource<<7f16348d8a123131ab0520da6d5e55de>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,8 +23,8 @@ export type getFragmentIdentifierTestUserQueryVariables = {|
 |};
 export type getFragmentIdentifierTestUserQueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: getFragmentIdentifierTestUserFragment$ref
-  |}
+    +$fragmentRefs: getFragmentIdentifierTestUserFragment$ref,
+  |},
 |};
 export type getFragmentIdentifierTestUserQuery = {|
   variables: getFragmentIdentifierTestUserQueryVariables,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20055709f8668848f6c43878d8c970f7>>
+ * @generated SignedSource<<3badb2b51fd7274d15e2346ec263bab4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragme
 declare export opaque type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref;
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment = {|
   +actor: ?{|
-    +id: string
+    +id: string,
   |},
   +$refType: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref,
 |};

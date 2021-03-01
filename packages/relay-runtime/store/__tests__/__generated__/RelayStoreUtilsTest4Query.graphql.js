@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dff6260d2ca6b311aad57b270faaf12a>>
+ * @generated SignedSource<<b900173c362c9f8998e6c68571fb316e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,11 +26,11 @@ export type RelayStoreUtilsTest4QueryResponse = {|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +id: string
-        |}
-      |}>
-    |}
-  |}
+          +id: string,
+        |},
+      |}>,
+    |},
+  |},
 |};
 export type RelayStoreUtilsTest4Query = {|
   variables: RelayStoreUtilsTest4QueryVariables,

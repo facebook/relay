@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a64df2eb7a3cd6277fea1e9b4bfe27e>>
+ * @generated SignedSource<<03a69e9fe41f1a4839e7798427546000>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type DataCheckerTestFlightQueryVariables = {|
 |};
 export type DataCheckerTestFlightQueryResponse = {|
   +node: ?{|
-    +flightComponent?: ?any
-  |}
+    +flightComponent?: ?any,
+  |},
 |};
 export type DataCheckerTestFlightQuery = {|
   variables: DataCheckerTestFlightQueryVariables,

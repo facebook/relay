@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e64cae2599d74a842df6e5655d41039b>>
+ * @generated SignedSource<<2c019f207cc9bebea039cb9467b4cbca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ declare export opaque type RelayReaderRequiredFieldsTest2Fragment$ref: FragmentR
 declare export opaque type RelayReaderRequiredFieldsTest2Fragment$fragmentType: RelayReaderRequiredFieldsTest2Fragment$ref;
 export type RelayReaderRequiredFieldsTest2Fragment = ?{|
   +backgroundImage: {|
-    +uri: string
+    +uri: string,
   |},
   +$refType: RelayReaderRequiredFieldsTest2Fragment$ref,
 |};

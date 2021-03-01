@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bab2d0559b745a9b05bc7691a7313a2b>>
+ * @generated SignedSource<<8d11d9573123d71effd73fb44f24ddcf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,11 +23,11 @@ export type commitMutationTest5QueryResponse = {|
       +count: ?number,
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +id: string
-        |}
+          +id: string,
+        |},
       |}>,
-    |}
-  |}
+    |},
+  |},
 |};
 export type commitMutationTest5Query = {|
   variables: commitMutationTest5QueryVariables,

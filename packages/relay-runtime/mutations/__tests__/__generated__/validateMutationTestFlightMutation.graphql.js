@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e0624b300b83138ed562a2755fbe5c16>>
+ * @generated SignedSource<<2c6df9358fa04ee48d85fe8324fbd01a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,11 +35,11 @@ export type validateMutationTestFlightMutationResponse = {|
     +story: ?{|
       +id: string,
       +body: ?{|
-        +text: ?string
+        +text: ?string,
       |},
       +flightComponentValidateMutation: ?any,
-    |}
-  |}
+    |},
+  |},
 |};
 export type validateMutationTestFlightMutation = {|
   variables: validateMutationTestFlightMutationVariables,

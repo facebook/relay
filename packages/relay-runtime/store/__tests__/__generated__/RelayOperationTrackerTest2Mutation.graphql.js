@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<83bfcc654ee99439fac6cc16ec4df63e>>
+ * @generated SignedSource<<483f7c66ac2ef6ed37f47902039ab5ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,12 @@ export type CommentDeleteInput = {|
   commentId?: ?string,
 |};
 export type RelayOperationTrackerTest2MutationVariables = {|
-  input?: ?CommentDeleteInput
+  input?: ?CommentDeleteInput,
 |};
 export type RelayOperationTrackerTest2MutationResponse = {|
   +commentDelete: ?{|
-    +__typename: string
-  |}
+    +__typename: string,
+  |},
 |};
 export type RelayOperationTrackerTest2Mutation = {|
   variables: RelayOperationTrackerTest2MutationVariables,

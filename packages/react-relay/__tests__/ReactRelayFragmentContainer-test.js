@@ -18,10 +18,10 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   createReaderSelector,
   createOperationDescriptor,
+  graphql,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
-  generateAndCompile,
   unwrapContainer,
 } = require('relay-test-utils-internal');
 
@@ -38,7 +38,6 @@ describe('ReactRelayFragmentContainer', () => {
   let ownerUser2;
   let render;
   let spec;
-  let variables;
 
   class ContextSetter extends React.Component {
     constructor(props) {
@@ -81,35 +80,39 @@ describe('ReactRelayFragmentContainer', () => {
     jest.resetModules();
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UserQueryWithCond} = generateAndCompile(`
-      query UserQuery($id: ID!) {
+    UserQuery = graphql`
+      query ReactRelayFragmentContainerTestUserQuery($id: ID!) {
         node(id: $id) {
-          ...UserFragment
+          ...ReactRelayFragmentContainerTestUserFragment
         }
       }
+    `;
 
-      query UserQueryWithCond(
+    UserQueryWithCond = graphql`
+      query ReactRelayFragmentContainerTestUserWithCondQuery(
         $id: ID!
         $condGlobal: Boolean!
       ) {
         node(id: $id) {
-          ...UserFragment @arguments(cond: $condGlobal)
+          ...ReactRelayFragmentContainerTestUserFragment
+            @arguments(cond: $condGlobal)
         }
       }
+    `;
 
-      fragment UserFragment on User @argumentDefinitions(
-        cond: {type: "Boolean!", defaultValue: true}
-      ) {
+    UserFragment = graphql`
+      fragment ReactRelayFragmentContainerTestUserFragment on User
+        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
       }
-    `));
+    `;
 
     render = jest.fn(() => <div />);
     spec = {
       user: UserFragment,
     };
-    variables = {rootVariable: 'root'};
+
     TestComponent = render;
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayFragmentContainer.createContainer(
@@ -530,20 +533,19 @@ describe('ReactRelayFragmentContainer', () => {
     expect(environment.lookup).not.toBeCalled();
     expect(environment.subscribe).not.toBeCalled();
   });
-
   test('throw for @inline fragments', () => {
-    const {InlineUserFragment} = generateAndCompile(`
-      fragment InlineUserFragment on User @inline {
+    const InlineUserFragment = graphql`
+      fragment ReactRelayFragmentContainerTestInlineUserFragment on User
+        @inline {
         id
       }
-    `);
+    `;
     expect(() => {
       ReactRelayFragmentContainer.createContainer(() => <div />, {
         user: InlineUserFragment,
       });
-    }).toThrow(
-      'GraphQLTag: Expected a fragment, got ' +
-        '`{"kind":"InlineDataFragment","name":"InlineUserFragment"}`.',
+    }).toThrowError(
+      /"kind":"InlineDataFragment","name":"ReactRelayFragmentContainerTestInlineUserFragment/,
     );
   });
 

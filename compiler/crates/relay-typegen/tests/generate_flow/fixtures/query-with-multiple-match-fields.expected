@@ -61,7 +61,7 @@ export type TestResponse = {|
     +actor: ?{|
       +name?: ?string,
       +$fragmentRefs: AnotherNameRendererFragment$ref,
-    |}
+    |},
   |},
 |};
 export type PlainUserNameRenderer_name = {|
@@ -100,7 +100,7 @@ export type TestRawResponse = {|
       +__typename: "MarkdownUserNameRenderer",
       ...MarkdownUserNameRenderer_name,
     |}> | {|
-      +__typename: string
+      +__typename: string,
     |}),
   |} | {|
     +__typename: string,
@@ -128,12 +128,12 @@ export type TestRawResponse = {|
         +__typename: "MarkdownUserNameRenderer",
         ...MarkdownUserNameRenderer_name,
       |}> | {|
-        +__typename: string
+        +__typename: string,
       |}),
     |} | {|
       +__typename: string,
       +id: string,
-    |})
+    |}),
   |},
 |};
 export type Test = {|
@@ -169,7 +169,7 @@ declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownU
 export type MarkdownUserNameRenderer_name = {|
   +markdown: ?string,
   +data: ?{|
-    +markup: ?string
+    +markup: ?string,
   |},
   +$refType: MarkdownUserNameRenderer_name$ref,
 |};
@@ -207,7 +207,7 @@ declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNam
 export type PlainUserNameRenderer_name = {|
   +plaintext: ?string,
   +data: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: PlainUserNameRenderer_name$ref,
 |};

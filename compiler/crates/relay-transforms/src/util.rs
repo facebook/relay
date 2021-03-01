@@ -10,7 +10,9 @@ use crate::connections::ConnectionConstants;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
-use crate::react_flight::{REACT_FLIGHT_DIRECTIVE_NAME, REACT_FLIGHT_METADATA_KEY};
+use crate::react_flight::{
+    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+};
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
 use crate::required_directive::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
@@ -21,7 +23,7 @@ use fnv::FnvHashSet;
 use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::{SDLSchema, Schema, Type};
 
 // A wrapper type that allows comparing pointer equality of references. Two
 // `PointerAddress` values are equal if they point to the same memory location.
@@ -96,8 +98,8 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_DIRECTIVE_NAME
-            || name == *REACT_FLIGHT_METADATA_KEY
+            || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
+            || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
             || name == *REQUIRED_DIRECTIVE_NAME
             || name == *REQUIRED_METADATA_KEY
             || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
@@ -111,8 +113,8 @@ impl CustomMetadataDirectives {
             || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
             || name == *INTERNAL_METADATA_DIRECTIVE
             || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_DIRECTIVE_NAME
-            || name == *REACT_FLIGHT_METADATA_KEY
+            || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
+            || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
             || name == *REQUIRED_DIRECTIVE_NAME
     }
 
@@ -140,6 +142,18 @@ pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool 
     RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES.contains(&directive.name.item)
 }
 
-pub fn generate_abstract_type_refinement_key(schema: &Schema, type_: Type) -> StringKey {
+pub fn generate_abstract_type_refinement_key(schema: &SDLSchema, type_: Type) -> StringKey {
     format!("__is{}", schema.get_type_name(type_).lookup()).intern()
+}
+
+pub fn get_normalization_operation_name(name: StringKey) -> String {
+    format!("{}$normalization", name)
+}
+
+pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
+    format!(
+        "{}.graphql",
+        get_normalization_operation_name(fragment_name)
+    )
+    .intern()
 }

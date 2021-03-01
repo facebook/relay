@@ -80,7 +80,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Watchman error.")]
+    #[error("Watchman error: {source}.")]
     Watchman {
         #[from]
         source: watchman_client::Error,
@@ -108,6 +108,12 @@ pub enum Error {
 
     #[error("Compilation cancelled due to new changes")]
     Cancelled,
+
+    #[error("IO error {0}")]
+    IOError(std::io::Error),
+
+    #[error("Watchman subscription canceled")]
+    WatchmanSubscriptionCanceled,
 }
 
 #[derive(Debug, Error)]
@@ -199,4 +205,7 @@ pub enum BuildProjectError {
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },
+
+    #[error("Unable to get schema for project {project_name}")]
+    SchemaNotFoundForProject { project_name: ProjectName },
 }

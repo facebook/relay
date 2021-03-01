@@ -12,22 +12,22 @@ export type UpdateAllSeenStateInput = {|
   storyIds?: ?$ReadOnlyArray<?string>,
 |};
 export type InputHasArrayVariables = {|
-  input?: ?UpdateAllSeenStateInput
+  input?: ?UpdateAllSeenStateInput,
 |};
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +actorCount: ?number
-    |}>
-  |}
+      +actorCount: ?number,
+    |}>,
+  |},
 |};
 export type InputHasArrayRawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
       +actorCount: ?number,
       +id: string,
-    |}>
-  |}
+    |}>,
+  |},
 |};
 export type InputHasArray = {|
   variables: InputHasArrayVariables,

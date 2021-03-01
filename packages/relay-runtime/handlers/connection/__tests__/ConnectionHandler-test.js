@@ -22,13 +22,11 @@ const RelayStoreUtils = require('../../../store/RelayStoreUtils');
 const defaultGetDataID = require('../../../store/defaultGetDataID');
 const getRelayHandleKey = require('../../../util/getRelayHandleKey');
 
+const {graphql, getRequest} = require('../../../query/GraphQLTag');
 const {
   createNormalizationSelector,
 } = require('../../../store/RelayModernSelector');
-const {
-  generateWithTransforms,
-  simpleClone,
-} = require('relay-test-utils-internal');
+const {simpleClone} = require('relay-test-utils-internal');
 
 const {
   ID_KEY,
@@ -82,13 +80,27 @@ describe('ConnectionHandler', () => {
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
     proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
-    ({ConnectionQuery} = generateWithTransforms(
-      `
-      query ConnectionQuery($id: ID!, $before: ID $count: Int, $after: ID, $orderby: [String]) {
+    ConnectionQuery = getRequest(graphql`
+      query ConnectionHandlerTestConnectionQuery(
+        $id: ID!
+        $before: ID
+        $count: Int
+        $after: ID
+        $orderby: [String]
+      ) {
         node(id: $id) {
           ... on User {
-            friends(before: $before, after: $after, first: $count, orderby: $orderby)
-            @__clientField(handle: "connection", filters: ["orderby"], key: "ConnectionQuery_friends") {
+            friends(
+              before: $before
+              after: $after
+              first: $count
+              orderby: $orderby
+            )
+              @__clientField(
+                handle: "connection"
+                filters: ["orderby"]
+                key: "ConnectionQuery_friends"
+              ) {
               count
               edges {
                 cursor
@@ -106,8 +118,25 @@ describe('ConnectionHandler', () => {
           }
         }
       }
-    `,
-    ));
+    `);
+  });
+
+  describe('getConnectionID()', () => {
+    it('returns the connection ID when no filters are specified', () => {
+      expect(
+        ConnectionHandler.getConnectionID('4', 'ConnectionQuery_friends'),
+      ).toBe('client:4:__ConnectionQuery_friends_connection');
+    });
+
+    it('returns the connection ID when filters are specified', () => {
+      expect(
+        ConnectionHandler.getConnectionID('4', 'ConnectionQuery_friends', {
+          orderby: ['first name'],
+        }),
+      ).toBe(
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+      );
+    });
   });
 
   describe('insertEdgeAfter()', () => {

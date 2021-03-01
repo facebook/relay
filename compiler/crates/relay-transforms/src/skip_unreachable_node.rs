@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use common::NamedItem;
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, FragmentDefinition, FragmentSpread, Program, Selection, Transformed,
@@ -130,6 +132,9 @@ impl Transformer for SkipUnreachableNodeTransform {
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
+        if spread.directives.named(*NO_INLINE_DIRECTIVE_NAME).is_some() {
+            return Transformed::Keep;
+        }
         if self.should_delete_fragment_definition(spread.fragment.item) {
             Transformed::Delete
         } else {

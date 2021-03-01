@@ -34,7 +34,7 @@ declare export opaque type Bar$fragmentType: Bar$ref;
 export type Bar = ?{|
   +name?: string,
   +body?: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: Bar$ref,
 |};
@@ -55,7 +55,7 @@ export type Foo = ?({|
 |} | {|
   +__typename: "Comment",
   +body: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: Foo$ref,
 |} | {|

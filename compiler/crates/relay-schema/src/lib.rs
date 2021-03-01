@@ -14,7 +14,7 @@
 use common::DiagnosticsResult;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{ArgumentDefinitions, Schema, TypeReference};
+use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
 use std::iter::once;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
@@ -28,7 +28,7 @@ lazy_static! {
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
     extension_sdls: &[U],
-) -> DiagnosticsResult<Schema> {
+) -> DiagnosticsResult<SDLSchema> {
     let extensions: Vec<&str> = once(RELAY_EXTENSIONS)
         .chain(extension_sdls.iter().map(|sdl| sdl.as_ref()))
         .collect();

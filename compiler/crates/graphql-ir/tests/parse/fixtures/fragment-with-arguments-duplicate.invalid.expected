@@ -20,7 +20,7 @@ fragment Foo on User @argumentDefinitions(
   fragment-with-arguments-duplicate.invalid.graphql:3:10
     2 │ fragment F1 on User {
     3 │   ...Foo @arguments(width: $myArg) @arguments(height: $myArg)
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^
     4 │ }
 
   ℹ︎ duplicate definition
@@ -37,7 +37,7 @@ fragment Foo on User @argumentDefinitions(
   fragment-with-arguments-duplicate.invalid.graphql:7:10
     6 │ fragment F2 on User {
     7 │   ...Foo @uncheckedArguments_DEPRECATED(width: $myArg) @arguments(height: $myArg)
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     8 │ }
 
   ℹ︎ duplicate definition

@@ -66,6 +66,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
   MissingRequiredFields,
+  DataIDSet,
 } from './RelayStoreTypes';
 
 function read(
@@ -85,7 +86,7 @@ class RelayReader {
   _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
-  _seenRecords: {[dataID: DataID]: ?Record, ...};
+  _seenRecords: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
 
@@ -95,7 +96,7 @@ class RelayReader {
     this._missingRequiredFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
-    this._seenRecords = {};
+    this._seenRecords = new Set();
     this._selector = selector;
     this._variables = selector.variables;
   }
@@ -169,7 +170,7 @@ class RelayReader {
     prevData: ?SelectorData,
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
-    this._seenRecords[dataID] = record;
+    this._seenRecords.add(dataID);
     if (record == null) {
       if (record === undefined) {
         this._isMissingData = true;
@@ -423,9 +424,7 @@ class RelayReader {
     const reactFlightClientResponseRecord = this._recordSource.get(
       reactFlightClientResponseRecordID,
     );
-    this._seenRecords[
-      reactFlightClientResponseRecordID
-    ] = reactFlightClientResponseRecord;
+    this._seenRecords.add(reactFlightClientResponseRecordID);
     if (reactFlightClientResponseRecord == null) {
       data[applicationName] = reactFlightClientResponseRecord;
       if (reactFlightClientResponseRecord === undefined) {

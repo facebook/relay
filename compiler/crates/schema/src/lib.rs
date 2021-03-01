@@ -13,32 +13,37 @@
 
 pub mod definitions;
 mod errors;
+mod flatbuffer;
+mod graphql_schema;
+mod schema;
+mod sdl;
 
+pub use crate::schema::SDLSchema;
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
     EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
-    ObjectID, Scalar, ScalarID, Schema, Type, TypeReference, TypeWithFields, Union, UnionID,
+    ObjectID, Scalar, ScalarID, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
-pub use graphql_syntax::DirectiveLocation;
+use flatbuffer::FlatBufferSchema;
+pub use graphql_schema::Schema;
+pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
+pub use sdl::SDLSchemaImpl;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 
-pub fn build_schema(sdl: &str) -> DiagnosticsResult<Schema> {
+pub use flatbuffer::serialize_as_flatbuffer;
+
+pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[sdl], &[])
 }
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
     extension_sdls: &[U],
-) -> DiagnosticsResult<Schema> {
-    let mut server_definitions = {
-        let schema_doc =
-            graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())?;
-        schema_doc.definitions
-    };
-
+) -> DiagnosticsResult<SDLSchema> {
+    let mut server_definitions = builtins()?;
     let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
         combined_sdl.push_str(server_sdl.as_ref());
@@ -60,5 +65,16 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
         );
     }
 
-    Schema::build(&server_definitions, &extension_definitions)
+    SDLSchema::build(&server_definitions, &extension_definitions)
+}
+
+pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {
+    Ok(FlatBufferSchema::build(bytes))
+}
+
+pub fn builtins() -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    Ok(
+        graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())?
+            .definitions,
+    )
 }

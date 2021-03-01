@@ -77,7 +77,7 @@ describe('execute() a query with @defer', () => {
   let next;
   let operation;
   let operationLoader: {|
-    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let query;

@@ -11,21 +11,20 @@
 'use strict';
 
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernTestUtils = require('relay-test-utils-internal');
 const RelayStoreUtils = require('../RelayStoreUtils');
 
-const {generateAndCompile} = RelayModernTestUtils;
+const {graphql} = require('../../query/GraphQLTag');
 
 describe('RelayStoreUtils', () => {
   describe('getArgumentValues()', () => {
     it('returns argument values', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest1Fragment on User {
           friends(orderby: $order, first: 10) {
             count
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
       const variables = {order: 'name'};
       expect(RelayStoreUtils.getArgumentValues(field.args, variables)).toEqual({
@@ -37,23 +36,23 @@ describe('RelayStoreUtils', () => {
 
   describe('getStorageKey()', () => {
     it('uses the field name when there are no arguments', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest2Fragment on User {
           name
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe('name');
     });
 
     it('embeds literal argument values', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest3Fragment on User {
           profilePicture(size: 128) {
             uri
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {})).toBe(
         'profilePicture(size:128)',
@@ -61,15 +60,14 @@ describe('RelayStoreUtils', () => {
     });
 
     it('embeds variable values', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User @argumentDefinitions(
-          size: {type: "[Int]"}
-        ) {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest4Fragment on User
+          @argumentDefinitions(size: {type: "[Int]"}) {
           profilePicture(size: $size) {
             uri
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
       expect(RelayStoreUtils.getStorageKey(field, {size: 256})).toBe(
         'profilePicture(size:256)',
@@ -77,16 +75,17 @@ describe('RelayStoreUtils', () => {
     });
 
     it('filters out arguments that are unset', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User @argumentDefinitions(
-          preset: {type: "PhotoSize"}
-          size: {type: "[Int]"}
-        ) {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest5Fragment on User
+          @argumentDefinitions(
+            preset: {type: "PhotoSize"}
+            size: {type: "[Int]"}
+          ) {
           profilePicture(preset: $preset, size: $size) {
             uri
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
       expect(
         RelayStoreUtils.getStorageKey(field, {preset: null, size: 128}),
@@ -94,16 +93,17 @@ describe('RelayStoreUtils', () => {
     });
 
     it('suppresses the argument list if all values are unset', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User @argumentDefinitions(
-          preset: {type: "PhotoSize"}
-          size: {type: "[Int]"}
-        ) {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest6Fragment on User
+          @argumentDefinitions(
+            preset: {type: "PhotoSize"}
+            size: {type: "[Int]"}
+          ) {
           profilePicture(preset: $preset, size: $size) {
             uri
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
       expect(
         RelayStoreUtils.getStorageKey(field, {preset: null, size: null}),
@@ -111,14 +111,14 @@ describe('RelayStoreUtils', () => {
     });
 
     it('imposes a stable ordering within object arguments', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest7Fragment on User {
           # Pass in arguments reverse-lexicographical order.
           storySearch(query: {text: "foo", offset: 100, limit: 10}) {
             id
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
 
       // Note that storage key employs stable lexicographical ordering anyway.
@@ -128,14 +128,14 @@ describe('RelayStoreUtils', () => {
     });
 
     it('supports complex objects', () => {
-      const {UserFragment} = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = graphql`
+        fragment RelayStoreUtilsTest8Fragment on User {
           # Pass in arguments reverse-lexicographical order.
           storySearch(query: {text: $foo, offset: 100, limit: 10}) {
             id
           }
         }
-      `);
+      `;
       const field = UserFragment.selections[0];
 
       // Note that storage key employs stable lexicographical ordering anyway.
@@ -203,15 +203,19 @@ describe('RelayStoreUtils', () => {
     });
 
     it('creates a key with no arguments', () => {
-      const {UserQuery} = generateAndCompile(`
-        query UserQuery {
+      const UserQuery = graphql`
+        query RelayStoreUtilsTest1Query {
           me {
-            address @__clientField(key: "UserQuery_address", handle: "addressHandler") {
+            address
+              @__clientField(
+                key: "UserQuery_address"
+                handle: "addressHandler"
+              ) {
               city
             }
           }
         }
-      `);
+      `;
       const handle = UserQuery.operation.selections[0].selections.find(
         selection => selection.kind === 'LinkedHandle',
       );
@@ -220,16 +224,19 @@ describe('RelayStoreUtils', () => {
     });
 
     it('creates a key with arguments', () => {
-      const {UserQuery} = generateAndCompile(`
-        query UserQuery {
+      const UserQuery = graphql`
+        query RelayStoreUtilsTest2Query {
           me {
             profile_picture(scale: 42)
-            @__clientField(key: "UserQuery_profile_picture", handle: "photoHandler") {
+              @__clientField(
+                key: "UserQuery_profile_picture"
+                handle: "photoHandler"
+              ) {
               uri
             }
           }
         }
-      `);
+      `;
       const handle = UserQuery.operation.selections[0].selections.find(
         selection => selection.kind === 'LinkedHandle',
       );
@@ -238,16 +245,20 @@ describe('RelayStoreUtils', () => {
     });
 
     it('creates a key with arguments and filters', () => {
-      const {UserQuery} = generateAndCompile(`
-        query UserQuery {
+      const UserQuery = graphql`
+        query RelayStoreUtilsTest3Query {
           me {
             profile_picture(scale: 42)
-            @__clientField(key: "UserQuery_profile_picture", handle: "photoHandler", filters: ["scale"]) {
+              @__clientField(
+                key: "UserQuery_profile_picture"
+                handle: "photoHandler"
+                filters: ["scale"]
+              ) {
               uri
             }
           }
         }
-      `);
+      `;
       const handle = UserQuery.operation.selections[0].selections.find(
         selection => selection.kind === 'LinkedHandle',
       );
@@ -256,13 +267,18 @@ describe('RelayStoreUtils', () => {
     });
 
     it('creates a dynamic connection key', () => {
-      const {UserQuery} = generateAndCompile(`
-        query UserQuery($count: Int!, $cursor: ID, $dynamicKey: String!) {
+      const UserQuery = graphql`
+        query RelayStoreUtilsTest4Query(
+          $count: Int!
+          $cursor: ID
+          $dynamicKey: String!
+        ) {
           me {
-            friends(after: $cursor, first: $count) @connection(
-              key: "UserQuery_friends"
-              dynamicKey_UNSTABLE: $dynamicKey
-            ) {
+            friends(after: $cursor, first: $count)
+              @connection(
+                key: "UserQuery_friends"
+                dynamicKey_UNSTABLE: $dynamicKey
+              ) {
               edges {
                 node {
                   id
@@ -271,7 +287,7 @@ describe('RelayStoreUtils', () => {
             }
           }
         }
-      `);
+      `;
       const handle = UserQuery.operation.selections[0].selections.find(
         selection => selection.kind === 'LinkedHandle',
       );
@@ -284,15 +300,19 @@ describe('RelayStoreUtils', () => {
     });
 
     it('creates a dynamic connection key with filters', () => {
-      const {UserQuery} = generateAndCompile(`
-        query UserQuery($count: Int!, $cursor: ID, $dynamicKey: String!) {
+      const UserQuery = graphql`
+        query RelayStoreUtilsTest5Query(
+          $count: Int!
+          $cursor: ID
+          $dynamicKey: String!
+        ) {
           me {
             friends(after: $cursor, first: $count, orderby: ["name"])
-            @connection(
-              key: "UserQuery_friends"
-              dynamicKey_UNSTABLE: $dynamicKey
-              filters: ["orderby"]
-            ) {
+              @connection(
+                key: "UserQuery_friends"
+                dynamicKey_UNSTABLE: $dynamicKey
+                filters: ["orderby"]
+              ) {
               edges {
                 node {
                   id
@@ -301,7 +321,7 @@ describe('RelayStoreUtils', () => {
             }
           }
         }
-      `);
+      `;
       const variables = {
         count: 5,
         cursor: null,

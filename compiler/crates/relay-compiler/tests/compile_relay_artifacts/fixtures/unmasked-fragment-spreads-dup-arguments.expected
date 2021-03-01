@@ -150,6 +150,11 @@ fragment unmaskedFragmentSpreadsDupArguments_UserUtil3_user on User @relay(mask:
       "storageKey": null
     },
     {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "unmaskedFragmentSpreadsDupArguments_UserUtil3_user"
+    },
+    {
       "alias": "anotherUrl",
       "args": [
         {
@@ -161,11 +166,6 @@ fragment unmaskedFragmentSpreadsDupArguments_UserUtil3_user on User @relay(mask:
       "kind": "ScalarField",
       "name": "url",
       "storageKey": null
-    },
-    {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "unmaskedFragmentSpreadsDupArguments_UserUtil3_user"
     }
   ],
   "type": "User",

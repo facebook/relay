@@ -1,0 +1,205 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+enum ConstValueKind : byte {
+    Null = 0,
+    String,
+    Bool,
+    Int,
+    Float,
+    Enum,
+    List,
+    Object
+}
+
+table ConstValue {
+    kind: ConstValueKind;
+    string_value: string;
+    bool_value: bool;
+    int_value: string;
+    float_value: string;
+    enum_value: string;
+    list_value: ListValue;
+    object_value: ObjectValue;
+}
+
+table ListValue {
+    values: [ConstValue];
+}
+
+table ObjectField {
+    name: string;
+    value: ConstValue;
+}
+
+table ObjectValue {
+    fields: [ObjectField];
+}
+
+enum TypeKind : byte {
+    Scalar = 0,
+    InputObject = 1,
+    Enum = 2,
+    Object = 3,
+    Interface = 4,
+    Union = 5,
+}
+
+table Type {
+    kind: TypeKind;
+    scalar_id: uint32;
+    input_object_id: uint32;
+    enum_id: uint32;
+    object_id: uint32;
+    interface_id: uint32;
+    union_id: uint32;
+}
+
+enum TypeReferenceKind : byte {
+    Named = 0,
+    NonNull,
+    List
+}
+
+table TypeReference {
+    kind: TypeReferenceKind;
+    named: Type;
+    null: TypeReference;
+    list: TypeReference;
+}
+
+table ArgumentValue {
+    name: string;
+    value: ConstValue;
+}
+
+table DirectiveValue {
+    name: string;
+    arguments: [ArgumentValue];
+}
+
+table Argument {
+    name: string;
+    type_: TypeReference;
+    value: ConstValue;
+}
+
+enum DirectiveLocation : byte {
+    Query = 0,
+    Mutation,
+    Subscription,
+    Field,
+    FragmentDefinition,
+    FragmentSpread,
+    InlineFragment,
+    Schema,
+    Scalar,
+    Object,
+    FieldDefinition,
+    ArgumentDefinition,
+    Interface,
+    Union,
+    Enum,
+    EnumValue,
+    InputObject,
+    InputFieldDefinition,
+    VariableDefinition,
+}
+
+table Directive {
+    name: string;
+    is_extension: bool;
+    arguments: [Argument];
+    locations: [DirectiveLocation];
+    repeatable: bool;
+}
+
+table EnumValue {
+    value: string;
+    directives: [DirectiveValue];
+}
+
+table Scalar {
+    name: string;
+    is_extension: bool;
+    directives: [DirectiveValue];
+}
+
+table InputObject {
+    name: string;
+    fields: [Argument];
+    directives: [DirectiveValue];
+}
+
+table Enum {
+    name: string;
+    is_extension: bool;
+    values: [EnumValue];
+    directives: [DirectiveValue];
+}
+
+table Object {
+    name: string;
+    is_extension: bool;
+    fields: [uint32];
+    interfaces: [uint32];
+    directives: [DirectiveValue];
+}
+
+table Interface {
+    name: string;
+    is_extension: bool;
+    fields: [uint32];
+    interfaces: [uint32];
+    implementing_objects: [uint32];
+    directives: [DirectiveValue];
+}
+
+table Union {
+    name: string;
+    is_extension: bool;
+    members: [uint32];
+    directives: [DirectiveValue];
+}
+
+table Field {
+    name: string;
+    is_extension: bool;
+    arguments: [Argument];
+    type_: TypeReference;
+    directives: [DirectiveValue];
+    parent_type: Type;
+}
+
+table TypeMapEntry {
+    name: string (key);
+    value: Type;
+}
+
+table DirectiveMapEntry {
+    name: string (key);
+    value: Directive;
+}
+
+table Schema {
+    query_type: uint32;
+    has_mutation_type: bool;
+    mutation_type: uint32;
+    has_subscription_type: bool;
+    subscription_type: uint32;
+    types: [TypeMapEntry] (required);
+    directives: [DirectiveMapEntry] (required);
+    scalars: [Scalar] (required);
+    input_objects: [InputObject] (required);
+    enums: [Enum] (required);
+    objects: [Object] (required);
+    interfaces: [Interface] (required);
+    unions: [Union] (required);
+    fields: [Field] (required);
+}
+
+root_type Schema;

@@ -25,7 +25,7 @@ pub use syntax_error::SyntaxError;
 pub use utils::*;
 
 use crate::parser::Parser;
-use common::{DiagnosticsResult, SourceLocationKey};
+use common::{DiagnosticsResult, SourceLocationKey, WithDiagnostics};
 
 /// Parses a GraphQL document that might contain type system and executable
 /// definitions.
@@ -49,12 +49,22 @@ pub fn parse_document_with_features(
     parser.parse_document()
 }
 
-/// Parses a GraphQL document that's restricted to executable executable
-/// definitions.
+/// Parses a GraphQL document that's restricted to executable definitions.
 pub fn parse_executable(
     source: &str,
     source_location: SourceLocationKey,
 ) -> DiagnosticsResult<ExecutableDocument> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_executable_document().into()
+}
+
+/// Parses a GraphQL document that's restricted to executable definitions,
+/// with error recovery.
+pub fn parse_executable_with_error_recovery(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> WithDiagnostics<ExecutableDocument> {
     let features = ParserFeatures::default();
     let parser = Parser::new(source, source_location, features);
     parser.parse_executable_document()
@@ -68,7 +78,7 @@ pub fn parse_executable_with_features(
     features: ParserFeatures,
 ) -> DiagnosticsResult<ExecutableDocument> {
     let parser = Parser::new(source, source_location, features);
-    parser.parse_executable_document()
+    parser.parse_executable_document().into()
 }
 
 /// Parses a GraphQL document that's restricted to type system definitions

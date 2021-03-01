@@ -9,7 +9,7 @@ scratch. Instead, convert one component at a time to the Relay Modern API while
 continuing to have a working app. Once all components have been converted, the
 smaller and faster Relay Modern runtime can be used.
 
-During this migration, use the [Relay Compat](./relay-compat.html) tools and APIs to work with both Relay Classic and Relay Modern.
+During this migration, use the [Relay Compat](./classic-relay-compat.html) tools and APIs to work with both Relay Classic and Relay Modern.
 
 ## API and Runtime
 

@@ -117,13 +117,6 @@ fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownU
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -160,6 +153,13 @@ fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownU
             ],
             "type": "User",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -192,8 +192,8 @@ fragment moduleOverlapAcrossDocuments_BarNameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer {
       ...moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name
-      __module_operation_moduleOverlapAcrossDocuments_BarNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer")
-      __module_component_moduleOverlapAcrossDocuments_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer")
+      __module_operation_moduleOverlapAcrossDocuments_BarNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_moduleOverlapAcrossDocuments_BarNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
     }
   }
 }
@@ -369,13 +369,13 @@ fragment moduleOverlapAcrossDocuments_FooNameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer {
       ...moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name
-      __module_operation_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
-      __module_component_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
+      __module_operation_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
     }
     ... on PlainUserNameRenderer {
       ...moduleOverlapAcrossDocuments_PlainUserNameRenderer_name
-      __module_operation_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
-      __module_component_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer")
+      __module_operation_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name$normalization.graphql", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_moduleOverlapAcrossDocuments_FooNameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "moduleOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
     }
   }
 }

@@ -36,7 +36,7 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let QueryOperation2;
   let MutationOperation;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
 

@@ -16,4 +16,5 @@ extend type User {
 
   <generated>:1:1
     1 │ # expected-to-throw
+      │ ^
     2 │

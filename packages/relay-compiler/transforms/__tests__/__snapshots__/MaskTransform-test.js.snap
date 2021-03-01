@@ -89,20 +89,20 @@ fragment StringFragment on Query {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Cannot combine variables with incompatible types Int and ID when applying @relay(unmask: true).
-
-Source: GraphQL request (14:16)
-13: fragment StringFragment on Query {
-14:   task(number: $id) {
-                   ^
-15:     title
-
-Source: GraphQL request (8:12)
-7: fragment NullableIDFragment on Query {
-8:   node(id: $id) {
-              ^
-9:     id
-
+- Cannot combine variables with incompatible types Int and ID when applying @relay(unmask: true).
+  
+  Source: GraphQL request (14:16)
+  13: fragment StringFragment on Query {
+  14:   task(number: $id) {
+                     ^
+  15:     title
+  
+  Source: GraphQL request (8:12)
+  7: fragment NullableIDFragment on Query {
+  8:   node(id: $id) {
+                ^
+  9:     id
+  
 `;
 
 exports[`MaskTransform matches expected output: relay-mask-transform-incompatible-type-invalid2.graphql 1`] = `
@@ -128,20 +128,20 @@ fragment NullableIDListFragment on Query {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Cannot combine variables with incompatible types [ID!] and ID when applying @relay(unmask: true).
-
-Source: GraphQL request (14:14)
-13: fragment NullableIDListFragment on Query {
-14:   nodes(ids: $id) {
-                 ^
-15:     id
-
-Source: GraphQL request (8:12)
-7: fragment NullableIDFragment on Query {
-8:   node(id: $id) {
-              ^
-9:     id
-
+- Cannot combine variables with incompatible types [ID!] and ID when applying @relay(unmask: true).
+  
+  Source: GraphQL request (14:14)
+  13: fragment NullableIDListFragment on Query {
+  14:   nodes(ids: $id) {
+                   ^
+  15:     id
+  
+  Source: GraphQL request (8:12)
+  7: fragment NullableIDFragment on Query {
+  8:   node(id: $id) {
+                ^
+  9:     id
+  
 `;
 
 exports[`MaskTransform matches expected output: relay-mask-transform-mixed-local-root-invalid.graphql 1`] = `
@@ -160,20 +160,20 @@ fragment NonNullIDFragment on Query {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Cannot combine global and local variables when applying @relay(unmask: true).
-
-Source: GraphQL request (2:52)
-1: # expected-to-throw
-2: fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
-                                                      ^
-3:   ...NonNullIDFragment @relay(mask: false)
-
-Source: GraphQL request (7:24)
-6: fragment NonNullIDFragment on Query {
-7:   node_id_required(id: $id) {
-                          ^
-8:     id
-
+- Cannot combine global and local variables when applying @relay(unmask: true).
+  
+  Source: GraphQL request (2:52)
+  1: # expected-to-throw
+  2: fragment ParentQuery on Query @argumentDefinitions(id: {type: "ID!"}) {
+                                                        ^
+  3:   ...NonNullIDFragment @relay(mask: false)
+  
+  Source: GraphQL request (7:24)
+  6: fragment NonNullIDFragment on Query {
+  7:   node_id_required(id: $id) {
+                            ^
+  8:     id
+  
 `;
 
 exports[`MaskTransform matches expected output: relay-mask-transform-mixed-null.graphql 1`] = `

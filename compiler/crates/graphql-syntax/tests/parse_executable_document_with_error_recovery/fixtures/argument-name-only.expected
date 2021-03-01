@@ -1,0 +1,114 @@
+==================================== INPUT ====================================
+fragment Test on User {
+  photo(size)
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:40,
+    definitions: [
+        FragmentDefinition {
+            location: argument-name-only.graphql:0:39,
+            fragment: Token {
+                span: 0:8,
+                kind: Identifier,
+            },
+            name: Identifier {
+                span: 9:13,
+                token: Token {
+                    span: 9:13,
+                    kind: Identifier,
+                },
+                value: "Test",
+            },
+            variable_definitions: None,
+            type_condition: TypeCondition {
+                span: 14:21,
+                on: Token {
+                    span: 14:16,
+                    kind: Identifier,
+                },
+                type_: Identifier {
+                    span: 17:21,
+                    token: Token {
+                        span: 17:21,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+            },
+            directives: [],
+            selections: List {
+                span: 22:39,
+                start: Token {
+                    span: 22:23,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 26:37,
+                        alias: None,
+                        name: Identifier {
+                            span: 26:31,
+                            token: Token {
+                                span: 26:31,
+                                kind: Identifier,
+                            },
+                            value: "photo",
+                        },
+                        arguments: Some(
+                            List {
+                                span: 31:37,
+                                start: Token {
+                                    span: 31:32,
+                                    kind: OpenParen,
+                                },
+                                items: [
+                                    Argument {
+                                        span: 32:36,
+                                        name: Identifier {
+                                            span: 32:36,
+                                            token: Token {
+                                                span: 32:36,
+                                                kind: Identifier,
+                                            },
+                                            value: "size",
+                                        },
+                                        colon: Token {
+                                            span: 36:36,
+                                            kind: Empty,
+                                        },
+                                        value: Constant(
+                                            Null(
+                                                Token {
+                                                    span: 36:36,
+                                                    kind: Empty,
+                                                },
+                                            ),
+                                        ),
+                                    },
+                                ],
+                                end: Token {
+                                    span: 36:37,
+                                    kind: CloseParen,
+                                },
+                            },
+                        ),
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 38:39,
+                    kind: CloseBrace,
+                },
+            },
+        },
+    ],
+}
+Errors:
+✖︎ Expected a colon (':')
+
+  argument-name-only.graphql:2:13
+    1 │ fragment Test on User {
+    2 │   photo(size)
+      │             ^
+    3 │ }

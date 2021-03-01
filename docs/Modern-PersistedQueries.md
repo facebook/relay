@@ -2,33 +2,36 @@
 id: persisted-queries
 title: Persisted Queries
 ---
-
 The relay compiler supports persisted queries which is useful because:
 
-* the client operation text becomes just an md5 hash which is usually shorter than the real
-query string. This saves upload bytes from the client to the server.
+-   the client operation text becomes just an md5 hash which is usually shorter than the real
+    query string. This saves upload bytes from the client to the server.
 
-* the server can now whitelist queries which improves security by restricting the operations
-that can be executed by a client.
+-   the server can now whitelist queries which improves security by restricting the operations
+    that can be executed by a client.
 
 ## Usage on the client
 
 ### The `--persist-output` flag
+
 In your `npm` script in `package.json`, run the relay compiler using the `--persist-output` flag:
 
 ```js
+
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./path/to/persisted-queries.json"
 }
+
 ```
 
-The `--persist-ouput` flag does 3 things:
+The `--persist-ouput` flag does 2 things:
 
-1. It converts all query and mutation operation texts to md5 hashes.
+1.  It converts all query and mutation operation texts to md5 hashes.
 
     For example without `--persist-output`, a generated `ConcreteRequest` might look like below:
 
     ```js
+
     const node/*: ConcreteRequest*/ = (function(){
     //... excluded for brevity
     return {
@@ -40,11 +43,13 @@ The `--persist-ouput` flag does 3 things:
       //... excluded for brevity
     };
     })();
+
     ```
 
     With `--persist-output <path>` this becomes:
 
     ```js
+
     const node/*: ConcreteRequest*/ = (function(){
     //... excluded for brevity
     return {
@@ -56,24 +61,29 @@ The `--persist-ouput` flag does 3 things:
       //... excluded for brevity
     };
     })();
+
     ```
 
-2. It generates a JSON file at the `<path>` you specify containing a mapping from query ids
-to the corresponding operation texts.
+2.  It generates a JSON file at the `<path>` you specify containing a mapping from query ids
+    to the corresponding operation texts.
 
 ```js
+
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./src/queryMaps/queryMap.json"
 }
+
 ```
 
 The example above writes the complete query map file to `./src/queryMaps/queryMap.json`. You need to ensure all the directories
 leading to the `queryMap.json` file exist.
 
 ### Network layer changes
+
 You'll need to modify your network layer fetch implementation to pass a documentId parameter in the POST body instead of a query parameter:
 
 ```js
+
 function fetchQuery(operation, variables,) {
   return fetch('/graphql', {
     method: 'POST',
@@ -89,9 +99,11 @@ function fetchQuery(operation, variables,) {
     return response.json();
   });
 }
+
 ```
 
 ## Executing Persisted Queries on the Server
+
 To execute client requests that send persisted queries instead of query text, your server will need to be able
 to lookup the query text corresponding to each id. Typically this will involve saving the output of the `--persist-output <path>` JSON file to a database or some other storage mechanism, and retrieving the corresponding text for the ID specified by a client.
 
@@ -99,29 +111,34 @@ For universal applications where the client and server code are in one project, 
 the query map file in a common location accessible to both the client and the server.
 
 ### Compile time push
+
 For applications where the client and server projects are separate, one option is to have an additional npm run script
 to push the query map at compile time to a location accessible by your server:
 
 ```js
+
 "scripts": {
   "push-queries": "node ./pushQueries.js",
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-ouput <path> && npm run push-queries"
 }
+
 ```
 
 Some possibilities of what you can do in `./pushQueries.js`:
 
-* `git push` to your server repo
+-   `git push` to your server repo
 
-* save the query maps to a database
+-   save the query maps to a database
 
 ### Run time push
+
 A second more complex option is to push your query maps to the server at runtime, without the server knowing the query ids at the start.
 The client optimistically sends a query id to the server, which does not have the query map. The server then in turn requests
 for the full query text from the client so it can cache the query map for subsequent requests. This is a more complex approach
 requiring the client and server to interact to exchange the query maps.
 
 ### Simple server example
+
 Once your server has access to the query map, you can perform the mapping. The solution varies depending on the server and
 database technologies you use, so we'll just cover the most common and basic example here.
 
@@ -129,6 +146,7 @@ If you use `express-graphql` and have access to the query map file, you can impo
 perform the matching using the `matchQueryMiddleware` from [relay-compiler-plus](https://github.com/yusinto/relay-compiler-plus).
 
 ```js
+
 import Express from 'express';
 import expressGraphql from 'express-graphql';
 import {matchQueryMiddleware} from 'relay-compiler-plus';
@@ -139,9 +157,11 @@ const app = Express();
 app.use('/graphql',
   matchQueryMiddleware(queryMapJson),
   expressGraphl({schema}));
+
 ```
 
 ## Using `--persist-output` and `--watch`
+
 It is possible to continuously generate the query map files by using the `--persist-output` and `--watch` options simultaneously.
 This only makes sense for universal applications i.e. if your client and server code are in a single project
 and you run them both together on localhost during development. Furthermore, in order for the server to pick up changes

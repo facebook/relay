@@ -6,7 +6,7 @@
  */
 
 use common::DiagnosticsResult;
-use schema::{build_schema, Schema};
+use schema::{build_schema, SDLSchema};
 use schema_validate_lib::validate;
 use std::fs;
 use std::path::Path;
@@ -25,7 +25,7 @@ pub fn main() {
     match build_schema_from_file(&opt.schema_path) {
         Ok(schema) => {
             let validation_context = validate(&schema);
-            if !validation_context.errors.is_empty() {
+            if !validation_context.errors.lock().unwrap().is_empty() {
                 eprintln!(
                     "Schema failed validation with below errors:\n{}",
                     validation_context.print_errors()
@@ -40,7 +40,7 @@ pub fn main() {
     }
 }
 
-fn build_schema_from_file(schema_file: &str) -> DiagnosticsResult<Schema> {
+fn build_schema_from_file(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
     let path = Path::new(schema_file);
     let data = if path.is_file() {
         fs::read_to_string(path).unwrap()

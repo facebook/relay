@@ -138,20 +138,20 @@ query TestQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected all fields on the same parent with the name or alias 'friendsAlias' to have the same name and arguments.
-
-Source: GraphQL request (12:9)
-11:       ... on User {
-12:         friendsAlias: friends(first: 10) {
-            ^
-13:           edges {
-
-Source: GraphQL request (7:9)
-6:       ... on User {
-7:         friendsAlias: friends(first: 5) {
-           ^
-8:           count
-
+- Expected all fields on the same parent with the name or alias 'friendsAlias' to have the same name and arguments.
+  
+  Source: GraphQL request (12:9)
+  11:       ... on User {
+  12:         friendsAlias: friends(first: 10) {
+              ^
+  13:           edges {
+  
+  Source: GraphQL request (7:9)
+  6:       ... on User {
+  7:         friendsAlias: friends(first: 5) {
+             ^
+  8:           count
+  
 `;
 
 exports[`FlattenTransform matches expected output: flatten-same-name-different-args.invalid.graphql 1`] = `
@@ -182,20 +182,20 @@ query TestQuery($id: ID!) {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected all fields on the same parent with the name or alias 'friends' to have the same name and arguments.
-
-Source: GraphQL request (12:9)
-11:       ... on User {
-12:         friends(first: 10) {
-            ^
-13:           edges {
-
-Source: GraphQL request (7:9)
-6:       ... on User {
-7:         friends(first: 5) {
-           ^
-8:           count
-
+- Expected all fields on the same parent with the name or alias 'friends' to have the same name and arguments.
+  
+  Source: GraphQL request (12:9)
+  11:       ... on User {
+  12:         friends(first: 10) {
+              ^
+  13:           edges {
+  
+  Source: GraphQL request (7:9)
+  6:       ... on User {
+  7:         friends(first: 5) {
+             ^
+  8:           count
+  
 `;
 
 exports[`FlattenTransform matches expected output: flattens-inline-inside-condition.graphql 1`] = `
@@ -515,20 +515,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
-
-Source: GraphQL request (11:5)
-10:     # conflicts with above: same alias but different types are matched
-11:     nameRenderer @match {
-        ^
-12:       ...MarkdownUserNameRenderer_name
-
-Source: GraphQL request (4:3)
-3:   id
-4:   nameRenderer @match {
-     ^
-5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-
+- Expected all fields on the same parent with the name or alias 'nameRenderer' to have the same name and arguments.
+  
+  Source: GraphQL request (11:5)
+  10:     # conflicts with above: same alias but different types are matched
+  11:     nameRenderer @match {
+          ^
+  12:       ...MarkdownUserNameRenderer_name
+  
+  Source: GraphQL request (4:3)
+  3:   id
+  4:   nameRenderer @match {
+       ^
+  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  
 `;
 
 exports[`FlattenTransform matches expected output: match-field-overlap-different-react-modules.invalid.graphql 1`] = `
@@ -569,20 +569,20 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
 THROWN EXCEPTION:
 
-Invalid @module selection: concrete type 'PlainUserNameRenderer' was matched multiple times at path 'nameRenderer' but with a different fragment or module name.
-
-Source: GraphQL request (12:7)
-11:     nameRenderer @match {
-12:       ...PlainUserNameRenderer_name
-          ^
-13:         @module(name: "OtherPlainUserNameRenderer.react")
-
-Source: GraphQL request (5:5)
-4:   nameRenderer @match {
-5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-       ^
-6:     ...MarkdownUserNameRenderer_name
-
+- Invalid @module selection: concrete type 'PlainUserNameRenderer' was matched multiple times at path 'nameRenderer' but with a different fragment or module name.
+  
+  Source: GraphQL request (12:7)
+  11:     nameRenderer @match {
+  12:       ...PlainUserNameRenderer_name
+            ^
+  13:         @module(name: "OtherPlainUserNameRenderer.react")
+  
+  Source: GraphQL request (5:5)
+  4:   nameRenderer @match {
+  5:     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+         ^
+  6:     ...MarkdownUserNameRenderer_name
+  
 `;
 
 exports[`FlattenTransform matches expected output: match-field-overlap-same-selections.graphql 1`] = `

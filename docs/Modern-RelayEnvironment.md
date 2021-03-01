@@ -2,7 +2,6 @@
 id: relay-environment
 title: Relay Environment
 ---
-
 The Relay "Environment" bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
 
 Most applications will create a single Environment instance and use it throughout. In specific situations, however, you may want to create multiple environments for different purposes. For example, you may create a new environment instance whenever the user logs in or out in order to prevent data for different users being cached together. Similarly, a server rendered application may create a new environment instance per request, so that each request gets its own cache and user data does not overlap. Alternatively, you might have multiple products or features within a larger application, and you want each one to have product-specific network-handling or caching.
@@ -12,6 +11,7 @@ Most applications will create a single Environment instance and use it throughou
 To create an environment instance in Relay Modern, use the `RelayModernEnvironment` class:
 
 ```javascript
+
 const {
   Environment,
   Network,
@@ -29,6 +29,7 @@ const environment = new Environment({
   network,
   store,
 });
+
 ```
 
 For more details on creating a Network, see the [NetworkLayer guide](./network-layer.html).
@@ -42,6 +43,7 @@ The example above did not configure a `handlerProvider`, which means that a defa
 If you wish to provide your own `handlerProvider`, you can do so:
 
 ```javascript
+
 const {
   ConnectionHandler,
 } = require('relay-runtime');
@@ -55,4 +57,5 @@ function handlerProvider(handle) {
     `handlerProvider: No handler provided for ${handle}`
   );
 }
+
 ```

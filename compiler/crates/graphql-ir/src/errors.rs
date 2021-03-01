@@ -123,16 +123,16 @@ pub enum ValidationMessage {
         "Invalid type '{type_condition}' in inline fragment, this type can never occur for parent type '{parent_type}'"
     )]
     InvalidInlineFragmentTypeCondition {
-        parent_type: String,
-        type_condition: String,
+        parent_type: StringKey,
+        type_condition: StringKey,
     },
     #[error(
         "Invalid fragment spread '{fragment_name}', the type of this fragment ('{type_condition}') can never occur for parent type '{parent_type}'"
     )]
     InvalidFragmentSpreadType {
         fragment_name: StringKey,
-        parent_type: String,
-        type_condition: String,
+        parent_type: StringKey,
+        type_condition: StringKey,
     },
     #[error("Directive '{0}' not supported in this location")]
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
@@ -148,10 +148,8 @@ pub enum ValidationMessage {
     #[error("Unexpected arguments on '__token' field")]
     InvalidArgumentsOnFetchTokenField(),
 
-    #[error(
-        "Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`."
-    )]
-    DisallowIdAsAliasError(),
+    #[error("Relay does not allow aliasing fields to `{0}`.")]
+    DisallowReservedAliasError(StringKey),
 
     #[error("Relay does not allow `__typename` field on Query, Mutation or Subscription.")]
     DisallowTypenameOnRoot(),

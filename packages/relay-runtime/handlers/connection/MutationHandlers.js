@@ -104,26 +104,47 @@ function edgeUpdater(
       connections != null,
       'MutationHandlers: Expected connection IDs to be specified.',
     );
-    const serverEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
-    for (const connectionID of connections) {
-      const connection = store.get(connectionID);
-      if (connection == null) {
-        warning(
-          false,
-          `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
-        );
+    let singleServerEdge, serverEdges;
+    try {
+      singleServerEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
+    } catch {}
+    if (!singleServerEdge) {
+      try {
+        serverEdges = record.getLinkedRecords(payload.fieldKey, payload.args);
+      } catch {}
+    }
+    if (singleServerEdge == null && serverEdges == null) {
+      warning(
+        false,
+        'MutationHandlers: Expected the server edge to be non-null.',
+      );
+      return;
+    }
+    const serverEdgeList = serverEdges ?? [singleServerEdge];
+    for (const serverEdge of serverEdgeList) {
+      if (serverEdge == null) {
         continue;
       }
-      const clientEdge = ConnectionHandler.buildConnectionEdge(
-        store,
-        connection,
-        serverEdge,
-      );
-      invariant(
-        clientEdge != null,
-        'MutationHandlers: Failed to build the edge.',
-      );
-      insertFn(connection, clientEdge);
+      for (const connectionID of connections) {
+        const connection = store.get(connectionID);
+        if (connection == null) {
+          warning(
+            false,
+            `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
+          );
+          continue;
+        }
+        const clientEdge = ConnectionHandler.buildConnectionEdge(
+          store,
+          connection,
+          serverEdge,
+        );
+        invariant(
+          clientEdge != null,
+          'MutationHandlers: Failed to build the edge.',
+        );
+        insertFn(connection, clientEdge);
+      }
     }
   };
 }
@@ -155,10 +176,10 @@ function nodeUpdater(
         serverNodes = record.getLinkedRecords(payload.fieldKey, payload.args);
       } catch {}
     }
-    invariant(
-      singleServerNode != null || serverNodes != null,
-      'MutationHandlers: Expected target node to exist.',
-    );
+    if (singleServerNode == null && serverNodes == null) {
+      warning(false, 'MutationHandlers: Expected target node to exist.');
+      return;
+    }
     const serverNodeList = serverNodes ?? [singleServerNode];
     for (const serverNode of serverNodeList) {
       if (serverNode == null) {

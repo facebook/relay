@@ -13,56 +13,62 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::StringKey;
-use schema::Schema;
+use schema::{SDLSchema, Schema};
 use std::fmt::{Result, Write};
 
 const TAB_SIZE: usize = 2;
 
-pub fn print_ir(schema: &Schema, definitions: &[ExecutableDefinition]) -> Vec<String> {
+pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions
         .iter()
         .map(|def| print_definition(&schema, &def))
         .collect()
 }
 
-pub fn print_definition(schema: &Schema, definition: &ExecutableDefinition) -> String {
+pub fn print_definition(schema: &SDLSchema, definition: &ExecutableDefinition) -> String {
     let mut result = String::new();
     write_definition(schema, definition, &mut result).unwrap();
     result
 }
 
-pub fn print_operation(schema: &Schema, operation: &OperationDefinition) -> String {
+pub fn print_operation(schema: &SDLSchema, operation: &OperationDefinition) -> String {
     let mut result = String::new();
     write_operation(schema, operation, &mut result).unwrap();
     result
 }
 
-pub fn print_fragment(schema: &Schema, fragment: &FragmentDefinition) -> String {
+pub fn print_fragment(schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
     let mut result = String::new();
     write_fragment(schema, fragment, &mut result).unwrap();
     result
 }
 
-pub fn print_arguments(schema: &Schema, arguments: &[Argument]) -> String {
+pub fn print_selections(schema: &SDLSchema, selections: &[Selection]) -> String {
+    let mut result = String::new();
+    write_selections(schema, selections, &mut result).unwrap();
+    result
+}
+
+pub fn print_arguments(schema: &SDLSchema, arguments: &[Argument]) -> String {
     let mut result = String::new();
     write_arguments(schema, arguments, &mut result).unwrap();
     result
 }
 
-pub fn print_directives(schema: &Schema, directives: &[Directive]) -> String {
+pub fn print_directives(schema: &SDLSchema, directives: &[Directive]) -> String {
     let mut result = String::new();
     write_directives(schema, directives, &mut result).unwrap();
     result
 }
 
-pub fn print_value(schema: &Schema, value: &Value) -> String {
+pub fn print_value(schema: &SDLSchema, value: &Value) -> String {
     let mut result = String::new();
     write_value(schema, value, &mut result).unwrap();
     result
 }
 
 pub fn write_definition(
-    schema: &Schema,
+    schema: &SDLSchema,
     definition: &ExecutableDefinition,
     mut result: &mut impl Write,
 ) -> Result {
@@ -71,7 +77,7 @@ pub fn write_definition(
 }
 
 pub fn write_operation(
-    schema: &Schema,
+    schema: &SDLSchema,
     operation: &OperationDefinition,
     mut result: &mut impl Write,
 ) -> Result {
@@ -80,7 +86,7 @@ pub fn write_operation(
 }
 
 pub fn write_fragment(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &FragmentDefinition,
     mut result: &mut impl Write,
 ) -> Result {
@@ -88,8 +94,17 @@ pub fn write_fragment(
     printer.print_fragment(fragment)
 }
 
+pub fn write_selections(
+    schema: &SDLSchema,
+    selections: &[Selection],
+    mut result: &mut impl Write,
+) -> Result {
+    let mut printer = Printer::new(&schema, &mut result);
+    printer.print_selections(selections, 0)
+}
+
 pub fn write_arguments(
-    schema: &Schema,
+    schema: &SDLSchema,
     arguments: &[Argument],
     mut result: &mut impl Write,
 ) -> Result {
@@ -98,7 +113,7 @@ pub fn write_arguments(
 }
 
 pub fn write_directives(
-    schema: &Schema,
+    schema: &SDLSchema,
     directives: &[Directive],
     mut result: &mut impl Write,
 ) -> Result {
@@ -106,18 +121,18 @@ pub fn write_directives(
     printer.print_directives(directives, None, None)
 }
 
-pub fn write_value(schema: &Schema, value: &Value, mut result: &mut impl Write) -> Result {
+pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Write) -> Result {
     let mut printer = Printer::new(&schema, &mut result);
     printer.print_value(value)
 }
 
 struct Printer<'schema, 'writer, W: Write> {
-    schema: &'schema Schema,
+    schema: &'schema SDLSchema,
     writer: &'writer mut W,
 }
 
 impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
-    fn new(schema: &'schema Schema, writer: &'writer mut W) -> Self {
+    fn new(schema: &'schema SDLSchema, writer: &'writer mut W) -> Self {
         Self { schema, writer }
     }
 
@@ -360,12 +375,14 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                 write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
 
                 match &var_def.default_value {
-                    Some(ConstantValue::Null()) | None => {}
+                    None => {}
                     Some(default_value) => {
                         write!(self.writer, " = ")?;
                         self.print_constant_value(&default_value)?;
                     }
                 }
+
+                self.print_directives(&var_def.directives, None, None)?;
             }
             write!(self.writer, "\n)")?;
         }

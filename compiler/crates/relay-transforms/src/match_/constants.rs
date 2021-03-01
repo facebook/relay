@@ -11,6 +11,7 @@ use lazy_static::lazy_static;
 pub struct MatchConstants {
     pub js_field_type: StringKey,
     pub js_field_id_arg: StringKey,
+    pub js_field_branch_arg: StringKey,
     pub js_field_module_arg: StringKey,
     pub js_field_name: StringKey,
     pub key_arg: StringKey,
@@ -26,6 +27,7 @@ lazy_static! {
     pub static ref MATCH_CONSTANTS: MatchConstants = MatchConstants {
         js_field_type: "JSDependency".intern(),
         js_field_id_arg: "id".intern(),
+        js_field_branch_arg: "branch".intern(),
         js_field_module_arg: "module".intern(),
         js_field_name: "js".intern(),
         key_arg: "key".intern(),

@@ -12,6 +12,22 @@ use std::fmt::Write;
 
 pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
 
+#[derive(fmt::Debug)]
+pub struct WithDiagnostics<T> {
+    pub item: T,
+    pub errors: Vec<Diagnostic>,
+}
+
+impl<T> Into<Result<T, Vec<Diagnostic>>> for WithDiagnostics<T> {
+    fn into(self) -> Result<T, Vec<Diagnostic>> {
+        if self.errors.is_empty() {
+            Ok(self.item)
+        } else {
+            Err(self.errors)
+        }
+    }
+}
+
 pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> DiagnosticsResult<T> {
     if diagnostics.is_empty() {
         Ok(result)

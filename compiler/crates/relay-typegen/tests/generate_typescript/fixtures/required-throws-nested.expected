@@ -8,10 +8,10 @@ query FooQuery {
 ==================================== OUTPUT ===================================
 export type FooQueryVariables = {};
 export type FooQueryResponse = {
-  readonly me?: {
-    readonly firstName?: string,
+  readonly me: {
+    readonly firstName: string | null,
     readonly lastName: string,
-  }
+  } | null
 };
 export type FooQuery = {
   variables: FooQueryVariables,

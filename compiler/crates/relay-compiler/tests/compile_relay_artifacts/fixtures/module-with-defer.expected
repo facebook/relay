@@ -217,8 +217,8 @@ fragment moduleWithDefer_FooNameRendererFragment on User {
     ... @defer(label: "moduleWithDefer_FooNameRendererFragment$defer$moduleWithDefer_MarkdownUserNameRenderer_name") {
       ... on MarkdownUserNameRenderer {
         ...moduleWithDefer_MarkdownUserNameRenderer_name
-        __module_operation_moduleWithDefer_FooNameRendererFragment: js(module: "moduleWithDefer_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleWithDefer_FooNameRendererFragment.nameRenderer")
-        __module_component_moduleWithDefer_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleWithDefer_FooNameRendererFragment.nameRenderer")
+        __module_operation_moduleWithDefer_FooNameRendererFragment: js(module: "moduleWithDefer_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleWithDefer_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+        __module_component_moduleWithDefer_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleWithDefer_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
       }
     }
   }

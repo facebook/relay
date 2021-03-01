@@ -45,7 +45,7 @@ describe('retain()', () => {
         }
       `));
     const source = RelayRecordSource.create();
-    const store = new RelayModernStore(source);
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,

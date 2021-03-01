@@ -9,6 +9,7 @@
 
 'use strict';
 
+const DocsRating = require('./DocsRating');
 const React = require('react');
 
 class Footer extends React.Component {
@@ -17,22 +18,28 @@ class Footer extends React.Component {
     return (
       <footer className="nav-footer" id="footer">
         <section className="sitemap">
-          <a href={this.props.config.baseUrl} className="nav-home">
-            <img
-              src={this.props.config.baseUrl + this.props.config.footerIcon}
-              alt={this.props.config.title}
-              width="66"
-              height="58"
-            />
-          </a>
-          <div>
-            <h5>Docs</h5>
-            <a
-              href={
-                this.props.config.baseUrl + 'docs/en/introduction-to-relay.html'
-              }>
-              Introduction
-            </a>
+          <div className="left-column">
+            <DocsRating />
+            <div>
+              <a href={this.props.config.baseUrl} className="nav-home">
+                <img
+                  src={this.props.config.baseUrl + this.props.config.footerIcon}
+                  alt={this.props.config.title}
+                  width="66"
+                  height="58"
+                />
+              </a>
+              <div className="links-column">
+                <h5>Docs</h5>
+                <a
+                  href={
+                    this.props.config.baseUrl +
+                    'docs/en/introduction-to-relay.html'
+                  }>
+                  Introduction
+                </a>
+              </div>
+            </div>
           </div>
           <div>
             <h5>Community</h5>
@@ -51,6 +58,12 @@ class Footer extends React.Component {
             </a>
             <a href="https://opensource.facebook.com/legal/privacy">
               Privacy Policy
+            </a>
+            <a href="https://opensource.facebook.com/legal/data-policy/">
+              Data Policy
+            </a>
+            <a href="https://opensource.facebook.com/legal/cookie-policy/">
+              Cookie Policy
             </a>
           </div>
         </section>

@@ -34,6 +34,7 @@ import type {
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   NormalizationSelector,
   OperationLoader,
   Record,
@@ -60,7 +61,7 @@ const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 function mark(
   recordSource: RecordSource,
   selector: NormalizationSelector,
-  references: Set<DataID>,
+  references: DataIDSet,
   operationLoader: ?OperationLoader,
 ): void {
   const {dataID, node, variables} = selector;
@@ -80,13 +81,13 @@ class RelayReferenceMarker {
   _operationLoader: OperationLoader | null;
   _operationName: ?string;
   _recordSource: RecordSource;
-  _references: Set<DataID>;
+  _references: DataIDSet;
   _variables: Variables;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
-    references: Set<DataID>,
+    references: DataIDSet,
     operationLoader: ?OperationLoader,
   ) {
     this._operationLoader = operationLoader ?? null;
@@ -158,12 +159,8 @@ class RelayReferenceMarker {
           break;
         // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
-          invariant(
-            false,
-            'RelayReferenceMarker(): Unexpected fragment spread `...%s`, ' +
-              'expected all fragments to be inlined.',
-            selection.name,
-          );
+          this._traverseSelections(selection.fragment.selections, record);
+          break;
         case LINKED_HANDLE:
           // The selections for a "handle" field are the same as those of the
           // original linked field where the handle was applied. Reference marking

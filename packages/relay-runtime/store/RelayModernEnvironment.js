@@ -30,11 +30,9 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
   GraphQLResponse,
   INetwork,
-  LogRequestInfoFunction,
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {Observer} from '../network/RelayObservable';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -58,6 +56,7 @@ import type {
   OptimisticUpdateFunction,
   PublishQueue,
   ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -72,17 +71,13 @@ export type EnvironmentConfig = {|
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +network: INetwork,
   +scheduler?: ?TaskScheduler,
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
-  /**
-   * This method is likely to change in future versions, use at your own risk.
-   * It can potentially break existing calls like store.get(<id>),
-   * because the internal ID might not be the `id` field on the node anymore
-   */
-  +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
@@ -94,6 +89,7 @@ class RelayModernEnvironment implements IEnvironment {
   +_defaultRenderPolicy: RenderPolicy;
   _operationLoader: ?OperationLoader;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
@@ -117,6 +113,7 @@ class RelayModernEnvironment implements IEnvironment {
     const operationLoader = config.operationLoader;
     const reactFlightPayloadDeserializer =
       config.reactFlightPayloadDeserializer;
+    const reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
     if (__DEV__) {
       if (operationLoader != null) {
         invariant(
@@ -148,7 +145,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
     this._network = this.__wrapNetworkWithLogObserver(config.network);
-    this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
       handlerProvider,
@@ -183,6 +180,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
   }
 
   getStore(): Store {
@@ -248,6 +246,7 @@ class RelayModernEnvironment implements IEnvironment {
         optimisticConfig,
         publishQueue: this._publishQueue,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         sink,
         source,
@@ -286,6 +285,7 @@ class RelayModernEnvironment implements IEnvironment {
         optimisticConfig: null,
         publishQueue: this._publishQueue,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         sink,
         source: RelayObservable.from({
@@ -367,10 +367,6 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
-    const logObserver = this.__createExecuteLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       const source = this._network.execute(
         operation.request.node.params,
@@ -385,6 +381,7 @@ class RelayModernEnvironment implements IEnvironment {
         optimisticConfig: null,
         publishQueue: this._publishQueue,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         sink,
         source,
@@ -395,7 +392,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -421,10 +418,6 @@ class RelayModernEnvironment implements IEnvironment {
     updater?: ?SelectorStoreUpdater,
     uploadables?: ?UploadableMap,
   |}): RelayObservable<GraphQLResponse> {
-    const logObserver = this.__createExecuteLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {
@@ -450,6 +443,7 @@ class RelayModernEnvironment implements IEnvironment {
         optimisticConfig,
         publishQueue: this._publishQueue,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         sink,
         source,
@@ -460,7 +454,7 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   /**
@@ -479,10 +473,6 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse> {
-    const logObserver = this.__createExecuteLogObserver(
-      operation.request.node.params,
-      operation.request.variables,
-    );
     return RelayObservable.create(sink => {
       const executor = RelayModernQueryExecutor.execute({
         operation,
@@ -492,6 +482,7 @@ class RelayModernEnvironment implements IEnvironment {
         optimisticConfig: null,
         publishQueue: this._publishQueue,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         sink,
         source,
@@ -500,55 +491,11 @@ class RelayModernEnvironment implements IEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       });
       return () => executor.cancel();
-    }).do(logObserver);
+    });
   }
 
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
-  }
-
-  __createExecuteLogObserver(
-    params: RequestParameters,
-    variables: Variables,
-  ): Observer<GraphQLResponse> {
-    const transactionID = generateID();
-    const log = this.__log;
-    return {
-      start: subscription => {
-        log({
-          name: 'execute.start',
-          transactionID,
-          params,
-          variables,
-        });
-      },
-      next: response => {
-        log({
-          name: 'execute.next',
-          transactionID,
-          response,
-        });
-      },
-      error: error => {
-        log({
-          name: 'execute.error',
-          transactionID,
-          error,
-        });
-      },
-      complete: () => {
-        log({
-          name: 'execute.complete',
-          transactionID,
-        });
-      },
-      unsubscribe: () => {
-        log({
-          name: 'execute.unsubscribe',
-          transactionID,
-        });
-      },
-    };
   }
 
   /**
@@ -574,6 +521,7 @@ class RelayModernEnvironment implements IEnvironment {
               transactionID,
               params,
               variables,
+              cacheConfig,
             });
           },
           next: response => {

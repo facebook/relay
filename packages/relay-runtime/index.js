@@ -48,6 +48,7 @@ const createRelayContext = require('./store/createRelayContext');
 const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
+const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
@@ -97,6 +98,7 @@ export type {
   ReactFlightPayloadData,
   ReactFlightPayloadQuery,
   ReactFlightServerTree,
+  ReactFlightServerError,
   SubscribeFunction,
   Uploadable,
   UploadableMap,
@@ -135,6 +137,7 @@ export type {
   Props,
   PublishQueue,
   ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   ReactFlightClientResponse,
   ReaderSelector,
   ReadOnlyRecordProxy,
@@ -202,6 +205,7 @@ export type {
   VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
+export type {RequestIdentifier} from './util/getRequestIdentifier';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -286,7 +290,8 @@ module.exports = {
   applyOptimisticMutation,
   commitLocalUpdate,
   commitMutation,
-  fetchQuery,
+  fetchQuery: fetchQuery,
+  fetchQuery_DEPRECATED,
   isRelayModernEnvironment,
   requestSubscription,
 

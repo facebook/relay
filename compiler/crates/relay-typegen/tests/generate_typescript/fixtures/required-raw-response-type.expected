@@ -14,10 +14,10 @@ export type MyQueryResponse = {
   }
 } | null;
 export type MyQueryRawResponse = {
-  readonly me?: {
+  readonly me: {
     readonly id: string,
-    readonly name?: string,
-  }
+    readonly name: string | null,
+  } | null
 };
 export type MyQuery = {
   variables: MyQueryVariables,

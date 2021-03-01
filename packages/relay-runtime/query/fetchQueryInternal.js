@@ -92,8 +92,7 @@ const requestCachesByEnvironment = WEAKMAP_SUPPORTED
  * Cancelling requests:
  * ====================
  * If the subscription returned by subscribe is called while the
- * request is in-flight, apart from releasing retained data, the request will
- * also be cancelled.
+ * request is in-flight, the request will be cancelled.
  *
  * ```
  * const subscription = fetchQuery(...).subscribe(...);
@@ -233,7 +232,7 @@ function getActiveStatusObservableForCachedRequest(
 
 /**
  * If a request is active for the given query, variables and environment,
- * this function will return a Promise that will resolve when that request has
+ * this function will return a Promise that will resolve when that request
  * stops being active (receives a final payload), and the data has been saved
  * to the store.
  * If no request is active, null will be returned

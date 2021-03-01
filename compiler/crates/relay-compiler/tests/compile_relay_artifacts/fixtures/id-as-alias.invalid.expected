@@ -10,7 +10,7 @@ fragment idAsAlias_ProfilePicture on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.
+✖︎ Relay does not allow aliasing fields to `id`.
 
   id-as-alias.invalid.graphql:3:3
     2 │ fragment idAsAlias_User_fragment on User {
@@ -19,7 +19,7 @@ fragment idAsAlias_ProfilePicture on User {
     4 │ }
 
 
-✖︎ Relay does not allow aliasing fields to `id`. This name is reserved for the globally unique `id` field on `Node`.
+✖︎ Relay does not allow aliasing fields to `id`.
 
   id-as-alias.invalid.graphql:8:5
     7 │   profilePicture(size: $size) {

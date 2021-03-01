@@ -5,28 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::{ArtifactFileWriter, ArtifactWriter};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::{
+    artifact_writer::{ArtifactFileWriter, ArtifactWriter},
+    AdditionalValidations,
+};
 use crate::compiler_state::{ProjectName, SourceSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::rollout::Rollout;
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
-use graphql_ir::Program;
+use common::SourceLocationKey;
+use fmt::Debug;
+use interner::StringKey;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
+use relay_codegen::JsModuleFormat;
 use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
-use schema::Schema;
 use serde::Deserialize;
 use sha1::{Digest, Sha1};
 use std::{
     collections::{HashMap, HashSet},
     fmt,
     path::PathBuf,
-    sync::Arc,
 };
 use watchman_client::pdu::ScmAwareClockData;
 
@@ -50,7 +54,7 @@ pub struct Config {
     /// If set, tries to initialize the compiler from the saved state file.
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
-    pub generate_extra_operation_artifacts: Option<GenerateExtraArtifactsFn>,
+    pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
 
@@ -79,9 +83,11 @@ pub struct Config {
         >,
     >,
 
-    pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+    /// Validations that can be added to the config that will be called in addition to default
+    /// validation rules.
+    pub additional_validations: Option<AdditionalValidations>,
 
-    pub on_build_project_success: Option<OnBuildProjectSuccess>,
+    pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
 }
 
 impl Config {
@@ -169,13 +175,17 @@ impl Config {
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
+                    schema_name: config_file_project.schema_name,
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
                     feature_flags: config_file_project.feature_flags,
+                    filename_for_artifact: None,
+                    skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
+                    js_module_format: config_file_project.js_module_format,
                 };
                 Ok((project_name, project_config))
             })
@@ -202,7 +212,7 @@ impl Config {
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
-            generate_extra_operation_artifacts: None,
+            generate_extra_artifacts: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
@@ -212,7 +222,7 @@ impl Config {
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
-            on_build_project_success: None,
+            additional_validations: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -337,7 +347,7 @@ impl fmt::Debug for Config {
             header,
             codegen_command,
             load_saved_state_file,
-            generate_extra_operation_artifacts,
+            generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
             connection_interface,
@@ -369,8 +379,8 @@ impl fmt::Debug for Config {
                 &option_fn_to_string(operation_persister),
             )
             .field(
-                "generate_extra_operation_artifacts",
-                &option_fn_to_string(generate_extra_operation_artifacts),
+                "generate_extra_artifacts",
+                &option_fn_to_string(generate_extra_artifacts),
             )
             .field(
                 "saved_state_loader",
@@ -387,7 +397,6 @@ impl fmt::Debug for Config {
     }
 }
 
-#[derive(Debug)]
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
@@ -398,12 +407,78 @@ pub struct ProjectConfig {
     pub extensions: Vec<PathBuf>,
     pub enabled: bool,
     pub schema_location: SchemaLocation,
+    pub schema_name: Option<String>,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
     pub extra: Option<HashMap<String, String>>,
     pub feature_flags: Option<FeatureFlags>,
+    pub filename_for_artifact:
+        Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
+    pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
+    pub js_module_format: JsModuleFormat,
+}
+
+impl Debug for ProjectConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let ProjectConfig {
+            name,
+            base,
+            output,
+            extra_artifacts_output,
+            shard_output,
+            shard_strip_regex,
+            extensions,
+            enabled,
+            schema_location,
+            schema_name,
+            typegen_config,
+            persist,
+            variable_names_comment,
+            extra,
+            feature_flags,
+            filename_for_artifact,
+            skip_types_for_artifact,
+            rollout,
+            js_module_format,
+        } = self;
+        f.debug_struct("ProjectConfig")
+            .field("name", name)
+            .field("base", base)
+            .field("output", output)
+            .field("extra_artifacts_output", extra_artifacts_output)
+            .field("shard_output", shard_output)
+            .field("shard_strip_regex", shard_strip_regex)
+            .field("extensions", extensions)
+            .field("enabled", enabled)
+            .field("schema_location", schema_location)
+            .field("schema_name", schema_name)
+            .field("typegen_config", typegen_config)
+            .field("persist", persist)
+            .field("variable_names_comment", variable_names_comment)
+            .field("extra", extra)
+            .field("feature_flags", feature_flags)
+            .field(
+                "filename_for_artifact",
+                &if filename_for_artifact.is_some() {
+                    "Some<Fn>"
+                } else {
+                    "None"
+                },
+            )
+            .field(
+                "skip_types_for_artifact",
+                &if skip_types_for_artifact.is_some() {
+                    "Some<Fn>"
+                } else {
+                    "None"
+                },
+            )
+            .field("rollout", rollout)
+            .field("js_module_format", js_module_format)
+            .finish()
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -494,6 +569,9 @@ struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+    /// For most cases, project name should be enough for schema identification. But, we may have cases when the schema_name,
+    /// may be different
+    schema_name: Option<String>,
 
     /// If this option is set, the compiler will persist queries using this
     /// config.
@@ -519,6 +597,9 @@ struct ConfigFileProject {
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
     #[serde(default)]
     pub rollout: Rollout,
+
+    #[serde(default)]
+    js_module_format: JsModuleFormat,
 }
 
 #[derive(Debug, Deserialize)]
@@ -543,5 +624,3 @@ pub trait OperationPersister {
 
     fn worker_count(&self) -> usize;
 }
-
-type OnBuildProjectSuccess = Box<dyn Fn(ProjectName, &Arc<Schema>, &Program) + Send + Sync>;

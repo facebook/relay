@@ -23,15 +23,13 @@ const RelayRecordSource = require('../../store/RelayRecordSource');
 const commitMutation = require('../commitMutation');
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 
@@ -41,10 +39,8 @@ describe('Configs: NODE_DELETE', () => {
   it('deletes a node', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest1Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           deletedCommentId
           feedback {
@@ -55,7 +51,7 @@ describe('Configs: NODE_DELETE', () => {
           }
         }
       }
-    `).CommentDeleteMutation;
+    `);
     const feedbackID = 'feedback123';
     const firstCommentID = 'comment456';
     const secondCommentID = 'comment789';
@@ -64,10 +60,10 @@ describe('Configs: NODE_DELETE', () => {
         deletedCommentId: firstCommentID,
       },
     };
-    const {FeedbackCommentQuery} = generateAndCompile(`
-      query FeedbackCommentQuery {
+    const FeedbackCommentQuery = getRequest(graphql`
+      query commitMutationTest1Query {
         node(id: "feedback123") {
-          ...on Feedback {
+          ... on Feedback {
             topLevelComments(first: 2) {
               count
               edges {
@@ -179,10 +175,8 @@ describe('Configs: RANGE_DELETE', () => {
   });
 
   it('handles configs', () => {
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           deletedCommentId
           feedback {
@@ -192,7 +186,7 @@ describe('Configs: RANGE_DELETE', () => {
           }
         }
       }
-    `).CommentDeleteMutation;
+    `);
     const commentID = 'comment123';
     const variables = {
       input: {
@@ -220,13 +214,11 @@ describe('Configs: RANGE_DELETE', () => {
         pathToConnection: ['feedback', 'comments'],
       },
     ];
-    ({FeedbackCommentQuery} = generateAndCompile(`
-      query FeedbackCommentQuery {
+    FeedbackCommentQuery = getRequest(graphql`
+      query commitMutationTest2Query {
         node(id: "123") {
-          ...on Feedback {
-            comments(first: 10) @connection(
-              key: "Feedback_comments"
-            ) {
+          ... on Feedback {
+            comments(first: 10) @connection(key: "Feedback_comments") {
               edges {
                 node {
                   body {
@@ -238,7 +230,7 @@ describe('Configs: RANGE_DELETE', () => {
           }
         }
       }
-    `));
+    `);
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -318,10 +310,8 @@ describe('Configs: RANGE_DELETE', () => {
   it('handles config with deletedIDFieldName as path', () => {
     const optimisticUpdater = jest.fn();
     const updater = jest.fn();
-    const mutation = generateAndCompile(`
-      mutation UnfriendMutation(
-        $input: UnfriendInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest3Mutation($input: UnfriendInput) {
         unfriend(input: $input) {
           actor {
             id
@@ -331,7 +321,7 @@ describe('Configs: RANGE_DELETE', () => {
           }
         }
       }
-    `).UnfriendMutation;
+    `);
     const configs = [
       {
         type: 'RANGE_DELETE',
@@ -350,24 +340,23 @@ describe('Configs: RANGE_DELETE', () => {
     environment = createMockEnvironment();
     store = environment.getStore();
 
-    const {FriendQuery} = generateAndCompile(`
-      query FriendQuery {
+    const FriendQuery = getRequest(graphql`
+      query commitMutationTest3Query {
         viewer {
           actor {
-            ...on User {
-              friends(first: 1) @connection(
-                key: "Friends_friends") {
-                  edges {
-                    node {
-                      id
-                    }
+            ... on User {
+              friends(first: 1) @connection(key: "Friends_friends") {
+                edges {
+                  node {
+                    id
                   }
                 }
               }
             }
           }
         }
-      `);
+      }
+    `);
     const payload = {
       viewer: {
         actor: {
@@ -486,10 +475,8 @@ describe('Configs: RANGE_ADD', () => {
     environment = createMockEnvironment();
     store = environment.getStore();
 
-    mutation = generateAndCompile(`
-      mutation CommentCreateMutation(
-        $input: CommentCreateInput
-      ) {
+    mutation = getRequest(graphql`
+      mutation commitMutationTest4Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           feedbackCommentEdge {
             cursor
@@ -501,15 +488,15 @@ describe('Configs: RANGE_ADD', () => {
             }
           }
         }
-    }`).CommentCreateMutation;
+      }
+    `);
 
-    ({CommentQuery} = generateAndCompile(`
-      query CommentQuery {
-        node(id:"feedback123") {
-          ...on Feedback {
-            topLevelComments(first: 1) @connection(
-              key: "Feedback_topLevelComments"
-            ) {
+    CommentQuery = getRequest(graphql`
+      query commitMutationTest4Query {
+        node(id: "feedback123") {
+          ... on Feedback {
+            topLevelComments(first: 1)
+              @connection(key: "Feedback_topLevelComments") {
               edges {
                 node {
                   id
@@ -518,7 +505,8 @@ describe('Configs: RANGE_ADD', () => {
             }
           }
         }
-      }`));
+      }
+    `);
     payload = {
       node: {
         id: feedbackID,
@@ -837,13 +825,12 @@ describe('Configs: RANGE_ADD', () => {
         edgeName: 'feedbackCommentEdge',
       },
     ];
-    ({CommentQuery} = generateAndCompile(`
-      query CommentQuery {
-        node(id:"feedback123") {
-          ...on Feedback {
-            topLevelComments(orderBy: chronological, first: 1) @connection(
-              key: "Feedback_topLevelComments"
-            ) {
+    CommentQuery = getRequest(graphql`
+      query commitMutationTest5Query {
+        node(id: "feedback123") {
+          ... on Feedback {
+            topLevelComments(orderBy: chronological, first: 1)
+              @connection(key: "Feedback_topLevelComments") {
               count
               edges {
                 node {
@@ -853,7 +840,8 @@ describe('Configs: RANGE_ADD', () => {
             }
           }
         }
-      }`));
+      }
+    `);
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, nullthrows(payload));
     const snapshot = store.lookup(
@@ -1063,10 +1051,8 @@ describe('Aliased mutation roots', () => {
 
   it('does not present a warning when mutation uses an aliased in combination with a optimistcResponse', () => {
     const environment = createMockEnvironment();
-    const mutation = generateAndCompile(`
-      mutation CommentDeleteMutation(
-        $input: CommentDeleteInput
-      ) {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTest5Mutation($input: CommentDeleteInput) {
         alias: commentDelete(input: $input) {
           deletedCommentId
           feedback {
@@ -1077,7 +1063,7 @@ describe('Aliased mutation roots', () => {
           }
         }
       }
-    `).CommentDeleteMutation;
+    `);
     commitMutation(environment, {
       mutation,
       variables: {},
@@ -1111,27 +1097,26 @@ describe('commitMutation()', () => {
   let variables;
 
   beforeEach(() => {
-    ({
-      CreateCommentMutation: mutation,
-      CommentFragment: fragment,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    fragment = getFragment(graphql`
+      fragment commitMutationTest2Fragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+    mutation = getRequest(graphql`
+      mutation commitMutationTest6Mutation($input: CommentCreateInput!) {
+        commentCreate(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
-        fragment CommentFragment on Comment {
-          id
-          body {
-            text
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         feedbackId: '1',
@@ -1398,7 +1383,7 @@ describe('commitMutation()', () => {
     expect(onCompleted).toBeCalledTimes(0);
     expect(onError).toBeCalledTimes(1);
     expect(onError.mock.calls[0][0].message).toContain(
-      'No data returned for operation `CreateCommentMutation`',
+      'No data returned for operation `commitMutationTest6Mutation`',
     );
   });
 
@@ -1425,27 +1410,27 @@ describe('commitMutation() cacheConfig', () => {
   let variables;
 
   beforeEach(() => {
-    ({
-      CreateCommentMutation: mutation,
-      CommentFragment: fragment,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    fragment = getFragment(graphql`
+      fragment commitMutationTest1Fragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+
+    mutation = getRequest(graphql`
+      mutation commitMutationTest7Mutation($input: CommentCreateInput!) {
+        commentCreate(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
-        fragment CommentFragment on Comment {
-          id
-          body {
-            text
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',

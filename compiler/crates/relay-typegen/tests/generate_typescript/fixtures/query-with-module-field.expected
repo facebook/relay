@@ -18,31 +18,30 @@ fragment Test_userRenderer on PlainUserRenderer {
 }
 ==================================== OUTPUT ===================================
 import { Local3DPayload } from "relay-runtime";
-import type { Test_user$ref } from "Test_user.graphql";
 export type TestVariables = {};
 export type TestResponse = {
-  readonly node?: {
-    readonly $fragmentRefs: Test_user$ref
-  }
+  readonly node: {
+    readonly " $fragmentRefs": FragmentRefs<"Test_user">
+  } | null
 };
 export type Test_userRenderer = {
-  readonly user?: {
-    readonly username?: string,
+  readonly user: {
+    readonly username: string | null,
     readonly id: string,
-  }
+  } | null
 };
 export type TestRawResponse = {
-  readonly node?: {
+  readonly node: {
     readonly __typename: "User",
     readonly id: string,
-    readonly plainUserRenderer?: {
-      readonly __module_operation_Test_user?: any,
-      readonly __module_component_Test_user?: any,
-    } | Local3DPayload<"Test_user", {}>,
+    readonly plainUserRenderer: {
+      readonly __module_operation_Test_user: any | null,
+      readonly __module_component_Test_user: any | null,
+    } | Local3DPayload<"Test_user", {}> | null,
   } | {
     readonly __typename: string,
     readonly id: string,
-  }
+  } | null
 };
 export type Test = {
   variables: TestVariables,
@@ -50,35 +49,30 @@ export type Test = {
   rawResponse: TestRawResponse,
 };
 -------------------------------------------------------------------------------
-import type { Test_userRenderer$ref } from "Test_userRenderer.graphql";
-import { FragmentReference } from "relay-runtime";
-export type Test_user$ref = FragmentReference & { _: "Test_user$ref" };
-export type Test_user$fragmentType = Test_user$ref & { _: "Test_user$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type Test_user = {
-  readonly plainUserRenderer?: {
-    readonly __fragmentPropName?: string,
-    readonly __module_component?: string,
-    readonly $fragmentRefs: Test_userRenderer$ref,
-  },
-  readonly $refType: Test_user$ref,
+  readonly plainUserRenderer: {
+    readonly __fragmentPropName?: string | null,
+    readonly __module_component?: string | null,
+    readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">,
+  } | null,
+  readonly " $refType": FragmentRefs<"Test_user">,
 };
 export type Test_user$data = Test_user;
 export type Test_user$key = {
-  readonly $data?: Test_user$data,
-  readonly $fragmentRefs: Test_user$ref,
+  readonly " $data"?: Test_user$data,
+  readonly " $fragmentRefs": FragmentRefs<"Test_user">,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type Test_userRenderer$ref = FragmentReference & { _: "Test_userRenderer$ref" };
-export type Test_userRenderer$fragmentType = Test_userRenderer$ref & { _: "Test_userRenderer$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type Test_userRenderer = {
-  readonly user?: {
-    readonly username?: string
-  },
-  readonly $refType: Test_userRenderer$ref,
+  readonly user: {
+    readonly username: string | null
+  } | null,
+  readonly " $refType": FragmentRefs<"Test_userRenderer">,
 };
 export type Test_userRenderer$data = Test_userRenderer;
 export type Test_userRenderer$key = {
-  readonly $data?: Test_userRenderer$data,
-  readonly $fragmentRefs: Test_userRenderer$ref,
+  readonly " $data"?: Test_userRenderer$data,
+  readonly " $fragmentRefs": FragmentRefs<"Test_userRenderer">,
 };

@@ -9,7 +9,7 @@ use super::{ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
 use graphql_ir::{ConstantValue, Directive, LinkedField, ScalarField, ValidationMessage, Value};
 use interner::StringKey;
-use schema::Schema;
+use schema::SDLSchema;
 
 #[derive(Clone, Copy)]
 pub struct RequiredMetadata {
@@ -20,7 +20,7 @@ pub struct RequiredMetadata {
 
 pub trait RequireableField {
     fn directives(&self) -> &Vec<Directive>;
-    fn name_with_location(&self, schema: &Schema) -> WithLocation<StringKey>;
+    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey>;
     fn required_metadata(&self) -> Result<Option<RequiredMetadata>, Diagnostic> {
         if let Some(required_directive) = self.directives().named(*REQUIRED_DIRECTIVE_NAME) {
             let action_arg = get_action_argument(required_directive)?;
@@ -39,7 +39,7 @@ impl RequireableField for ScalarField {
     fn directives(&self) -> &Vec<Directive> {
         &self.directives
     }
-    fn name_with_location(&self, schema: &Schema) -> WithLocation<StringKey> {
+    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
         WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
     }
 }
@@ -48,7 +48,7 @@ impl RequireableField for LinkedField {
     fn directives(&self) -> &Vec<Directive> {
         &self.directives
     }
-    fn name_with_location(&self, schema: &Schema) -> WithLocation<StringKey> {
+    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
         WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
     }
 }

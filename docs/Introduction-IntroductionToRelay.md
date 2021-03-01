@@ -1,8 +1,8 @@
 ---
 id: introduction-to-relay
 title: Introduction to Relay
+slug: /
 ---
-
 Relay is a JavaScript framework for building data-driven React applications powered by GraphQL, designed from the ground up to be easy to use, extensible and, most of all, performant. Relay accomplishes this with static queries and ahead-of-time code generation.
 
 [React](https://facebook.github.io/react/) allows views to be defined as components where every component is responsible for rendering a part of the UI. Composing other components is how to build complex UIs. Each React component doesn't need to know the inner workings of the composed components.

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4bd8416be2bb740c09b7765a2d26da92>>
+ * @generated SignedSource<<31f14a6ef857d59ea8fad502001be404>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,12 +17,12 @@
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
 export type ReactRelayQueryRendererTestNextQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type ReactRelayQueryRendererTestNextQueryResponse = {|
   +node: ?{|
-    +name?: ?string
-  |}
+    +name?: ?string,
+  |},
 |};
 export type ReactRelayQueryRendererTestNextQuery = {|
   variables: ReactRelayQueryRendererTestNextQueryVariables,
@@ -103,14 +103,14 @@ return {
             "name": "__typename",
             "storageKey": null
           },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          (v2/*: any*/)
+          }
         ],
         "storageKey": null
       }

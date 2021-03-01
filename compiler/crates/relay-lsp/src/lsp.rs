@@ -8,8 +8,8 @@
 //! Utilities for reading, writing, and transforming data for the LSP service
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
+
 use crate::lsp_process_error::LSPProcessResult;
-use common::Location;
 use crossbeam::{crossbeam_channel::Sender, SendError};
 pub use lsp_server::{Connection, Message};
 pub use lsp_server::{
@@ -18,35 +18,6 @@ pub use lsp_server::{
 };
 pub use lsp_types::{notification::*, request::*, *};
 use serde::{Deserialize, Serialize};
-use std::fs;
-use std::path::PathBuf;
-
-#[derive(Debug, Clone)]
-pub enum LSPBridgeMessage {
-    GotoDefinitionRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
-    CompletionRequest {
-        request_id: ServerRequestId,
-        params: CompletionParams,
-    },
-    HoverRequest {
-        request_id: ServerRequestId,
-        text_document_position: TextDocumentPositionParams,
-    },
-    DidOpenTextDocument(DidOpenTextDocumentParams),
-    DidChangeTextDocument(DidChangeTextDocumentParams),
-    DidCloseTextDocument(DidCloseTextDocumentParams),
-}
-
-/// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
-/// Returns None if we are unable to do the conversion
-pub fn url_from_location(location: Location, root_dir: &PathBuf) -> Option<Url> {
-    let file_path = location.source_location().path();
-    let canonical_path = fs::canonicalize(root_dir.join(file_path)).ok()?;
-    Url::from_file_path(canonical_path).ok()
-}
 
 #[derive(Debug)]
 pub enum ShowStatus {}
@@ -55,7 +26,7 @@ pub enum ShowStatus {}
 #[serde(rename_all = "camelCase")]
 pub struct ShowStatusParams {
     #[serde(rename = "type")]
-    pub typ: MessageType,
+    pub type_: MessageType,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub progress: Option<Progress>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -82,50 +53,52 @@ impl Request for ShowStatus {
 
 pub fn set_ready_status(sender: &Sender<Message>) {
     update_status(
-        Some("Relay: ready".into()),
-        Some("Relay: ready".into()),
+        "Relay: ready",
+        Some("The Relay extension is ready"),
         MessageType::Info,
         sender,
     );
 }
 
 pub fn set_initializing_status(sender: &Sender<Message>) {
-    update_status(
-        Some("Relay: initializing".into()),
-        Some("Relay: initializing".into()),
-        MessageType::Warning,
+    update_in_progress_status(
+        "Relay: initializing...",
+        Some(
+            "The Relay compiler will start when you open a Javascript file containing a graphql literal",
+        ),
         sender,
     );
 }
 
-pub fn set_running_status(sender: &Sender<Message>) {
-    update_status(
-        Some("Relay: compiling".into()),
-        Some("Relay: compiling".into()),
-        MessageType::Warning,
-        sender,
-    );
+pub fn update_in_progress_status(
+    short_message: impl Into<String>,
+    message: Option<impl Into<String>>,
+    sender: &Sender<Message>,
+) {
+    update_status(short_message, message, MessageType::Warning, sender);
 }
 
-fn update_status(
-    short_message: Option<String>,
-    message: Option<String>,
-    typ: MessageType,
+pub fn update_status(
+    short_message: impl Into<String>,
+    message: Option<impl Into<String>>,
+    type_: MessageType,
     sender: &Sender<Message>,
 ) {
     let request = ServerRequest::new(
         ShowStatus::METHOD.to_string().into(),
         ShowStatus::METHOD.into(),
         ShowStatusParams {
-            typ,
+            type_,
             progress: None,
             uri: None,
-            message,
-            short_message,
+            message: message.map(|s| s.into()),
+            short_message: Some(short_message.into()),
             actions: None,
         },
     );
-    sender.send(Message::Request(request)).unwrap();
+    sender
+        .send(Message::Request(request))
+        .expect("update_status: failed to send");
 }
 
 /// Show a notification in the client

@@ -23,7 +23,7 @@ use graphql_text_printer::print_value;
 use interner::StringKey;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
-use schema::Schema;
+use schema::SDLSchema;
 use std::fmt::Write;
 use std::sync::Arc;
 use utils::*;
@@ -249,7 +249,7 @@ impl RefetchableFragment<'_> {
 }
 
 type BuildRefetchOperationFn = fn(
-    schema: &Schema,
+    schema: &SDLSchema,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
@@ -274,7 +274,6 @@ const GENERATORS: [QueryGenerator; 4] = [
     FETCHABLE_QUERY_GENERATOR,
 ];
 
-#[allow(dead_code)]
 pub struct RefetchRoot {
     operation: Arc<OperationDefinition>,
     fragment: Arc<FragmentDefinition>,

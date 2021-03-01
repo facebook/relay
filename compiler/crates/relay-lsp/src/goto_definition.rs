@@ -7,41 +7,63 @@
 
 //! Utilities for providing the goto definition feature
 
-use crate::{lsp::GotoDefinitionResponse, lsp_runtime_error::LSPRuntimeResult};
 use crate::{
-    lsp_runtime_error::LSPRuntimeError,
-    utils::{NodeKind, NodeResolutionInfo},
+    location::to_lsp_location_of_graphql_literal,
+    lsp::GotoDefinitionResponse,
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    resolution_path::utils::find_selection_parent_type,
+    resolution_path::{
+        IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
+        SelectionParent, TypeConditionPath,
+    },
+    server::LSPState,
+    LSPExtraDataProvider,
 };
-use common::{Location, SourceLocationKey};
+use common::PerfLogger;
+use fnv::FnvHashMap;
 use graphql_ir::Program;
 use interner::StringKey;
-use lsp_types::Url;
+use lsp_types::{
+    request::{GotoDefinition, Request},
+    Url,
+};
+use schema::Schema;
 use std::{
-    collections::HashMap,
     path::PathBuf,
+    str,
     sync::{Arc, RwLock},
 };
 
-pub fn get_goto_definition_response(
-    node_resolution_info: NodeResolutionInfo,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+fn get_goto_definition_response<'a>(
+    node_path: ResolutionPath<'a>,
+    project_name: StringKey,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
+    // https://github.com/rust-lang/rust-clippy/issues/3971
+    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    match node_resolution_info.kind {
-        NodeKind::FragmentSpread(fragment_name) => {
-            let project_name = node_resolution_info.project_name;
-            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
-                let fragment = source_program.fragment(fragment_name).ok_or_else(|| {
-                    LSPRuntimeError::UnexpectedError(format!(
-                        "Could not find fragment with name {}",
-                        fragment_name
-                    ))
-                })?;
+    match node_path {
+        ResolutionPath::Ident(IdentPath {
+            inner: fragment_name,
+            parent: IdentParent::FragmentSpreadName(_),
+        }) => {
+            if let Some(source_program) = source_programs
+                .read()
+                .expect("get_goto_definition_response: expect to acquire a read lock on programs")
+                .get(&project_name)
+            {
+                let fragment = source_program
+                    .fragment(fragment_name.value)
+                    .ok_or_else(|| {
+                        LSPRuntimeError::UnexpectedError(format!(
+                            "Could not find fragment with name {}",
+                            fragment_name
+                        ))
+                    })?;
 
-                Ok(GotoDefinitionResponse::Scalar(to_lsp_location(
-                    fragment.name.location,
-                    root_dir,
-                )?))
+                Ok(GotoDefinitionResponse::Scalar(
+                    to_lsp_location_of_graphql_literal(fragment.name.location, root_dir)?,
+                ))
             } else {
                 Err(LSPRuntimeError::UnexpectedError(format!(
                     "Project name {} not found",
@@ -49,93 +71,128 @@ pub fn get_goto_definition_response(
                 )))
             }
         }
+        ResolutionPath::Ident(IdentPath {
+            inner: field_name,
+            parent:
+                IdentParent::LinkedFieldName(LinkedFieldPath {
+                    inner: _,
+                    parent: selection_path,
+                }),
+        }) => resolve_field(
+            field_name.value.to_string(),
+            selection_path.parent,
+            project_name,
+            source_programs,
+            root_dir,
+            extra_data_provider,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: field_name,
+            parent:
+                IdentParent::ScalarFieldName(ScalarFieldPath {
+                    inner: _,
+                    parent: selection_path,
+                }),
+        }) => resolve_field(
+            field_name.value.to_string(),
+            selection_path.parent,
+            project_name,
+            source_programs,
+            root_dir,
+            extra_data_provider,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::TypeConditionType(TypeConditionPath {
+                    inner: type_condition,
+                    parent: _,
+                }),
+        }) => {
+            let provider_response = extra_data_provider
+                .resolve_field_definition(
+                    project_name.to_string(),
+                    root_dir,
+                    type_condition.type_.value.to_string(),
+                    None,
+                )
+                .ok_or(LSPRuntimeError::ExpectedError)?;
+            let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Error resolving field definition location: {}",
+                    e
+                ))
+            })?;
+            Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
+        }
         _ => Err(LSPRuntimeError::ExpectedError),
     }
 }
 
-fn to_lsp_location(
-    location: Location,
+fn resolve_field<'a>(
+    field_name: String,
+    selection_parent: SelectionParent<'a>,
+    project_name: StringKey,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
-) -> LSPRuntimeResult<lsp_types::Location> {
-    match location.source_location() {
-        SourceLocationKey::Embedded { path, index } => {
-            let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
-            let uri = get_uri(&path_to_fragment)?;
-            let range = read_file_and_get_range(&path_to_fragment, index)?;
-
-            Ok(lsp_types::Location { uri, range })
-        }
-        SourceLocationKey::Standalone { path } => {
-            let path_to_fragment = root_dir.join(PathBuf::from(path.lookup()));
-            let uri = get_uri(&path_to_fragment)?;
-            Ok(lsp_types::Location {
-                uri,
-                range: lsp_types::Range {
-                    start: lsp_types::Position {
-                        line: 0,
-                        character: 0,
-                    },
-                    end: lsp_types::Position {
-                        line: 0,
-                        character: 0,
-                    },
-                },
-            })
-        }
-        SourceLocationKey::Generated => Err(LSPRuntimeError::UnexpectedError(
-            "Cannot get location of a generated artifact".to_string(),
-        )),
-    }
-}
-
-fn read_file_and_get_range(
-    path_to_fragment: &PathBuf,
-    index: usize,
-) -> LSPRuntimeResult<lsp_types::Range> {
-    let file = std::fs::read(path_to_fragment)
-        .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
-    let file_contents =
-        std::str::from_utf8(&file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
-
-    let response =
-        extract_graphql::parse_chunks(file_contents).map_err(LSPRuntimeError::UnexpectedError)?;
-    let source = response.get(index).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "File {:?} does not contain enough graphql literals: {} needed; {} found",
-            path_to_fragment,
-            index,
-            response.len()
-        ))
+    // https://github.com/rust-lang/rust-clippy/issues/3971
+    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let programs = source_programs
+        .read()
+        .expect("get_goto_definition_response: expect to acquire a read lock on programs");
+    let source_program = programs.get(&project_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
     })?;
 
-    let lines = source.text.lines().enumerate();
-    let (line_count, last_line) = lines.last().ok_or_else(|| {
+    let parent_type = find_selection_parent_type(selection_parent, &source_program.schema)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+
+    let parent_name = source_program.schema.get_type_name(parent_type);
+
+    let provider_response = extra_data_provider
+        .resolve_field_definition(
+            project_name.to_string(),
+            root_dir,
+            parent_name.to_string(),
+            Some(field_name),
+        )
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+    let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
         LSPRuntimeError::UnexpectedError(format!(
-            "Encountered empty graphql literal in {:?} (literal {})",
-            path_to_fragment, index
+            "Error resolving field definition location: {}",
+            e
         ))
     })?;
-
-    Ok(lsp_types::Range {
-        start: lsp_types::Position {
-            line: source.line_index as u64,
-            character: source.column_index as u64,
-        },
-        end: lsp_types::Position {
-            line: (source.line_index + line_count) as u64,
-            character: last_line.len() as u64,
-        },
-    })
+    Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
 }
 
-fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Url> {
-    Url::parse(&format!(
-        "file://{}",
-        path.to_str()
-            .ok_or_else(|| LSPRuntimeError::UnexpectedError(format!(
-                "Could not cast path {:?} as string",
-                path
-            )))?
-    ))
-    .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))
+pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <GotoDefinition as Request>::Params,
+) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
+    let (document, position_span, project_name) =
+        state.extract_executable_document_from_text(params, 1)?;
+    let path = document.resolve((), position_span);
+
+    let goto_definition_response = get_goto_definition_response(
+        path,
+        project_name,
+        state.get_source_programs_ref(),
+        state.root_dir(),
+        &state.extra_data_provider,
+    )?;
+
+    Ok(Some(goto_definition_response))
+}
+
+fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {
+    let start = lsp_types::Position { line, character: 0 };
+    let range = lsp_types::Range { start, end: start };
+
+    let uri = Url::parse(&format!("file://{}", path)).map_err(|e| {
+        LSPRuntimeError::UnexpectedError(format!("Could not parse path as URL: {}", e))
+    })?;
+
+    Ok(lsp_types::Location { uri, range })
 }

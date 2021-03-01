@@ -34,6 +34,17 @@ fragment constantVariableMatchesConstantValue_F on Query @argumentDefinitions(
     "name": "constantVariableMatchesConstantValue_TestQuery",
     "selections": [
       {
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "userID",
+            "variableName": "id"
+          }
+        ],
+        "kind": "FragmentSpread",
+        "name": "constantVariableMatchesConstantValue_F"
+      },
+      {
         "alias": null,
         "args": [
           {
@@ -56,17 +67,6 @@ fragment constantVariableMatchesConstantValue_F on Query @argumentDefinitions(
           }
         ],
         "storageKey": null
-      },
-      {
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "userID",
-            "variableName": "id"
-          }
-        ],
-        "kind": "FragmentSpread",
-        "name": "constantVariableMatchesConstantValue_F"
       }
     ],
     "type": "Query",

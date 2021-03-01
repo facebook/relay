@@ -16,30 +16,29 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
 export type ExampleQueryVariables = {
   id: string,
   condition: boolean,
 };
 export type ExampleQueryResponse = {
-  readonly node?: {
-    readonly $fragmentRefs: FriendFragment$ref
-  }
+  readonly node: {
+    readonly " $fragmentRefs": FragmentRefs<"FriendFragment">
+  } | null
 };
 export type ExampleQueryRawResponse = {
-  readonly node?: {
+  readonly node: {
     readonly __typename: "User",
     readonly id: string,
-    readonly name?: string,
-    readonly lastName?: string,
-    readonly feedback?: {
+    readonly name: string | null,
+    readonly lastName: string | null,
+    readonly feedback: {
       readonly id: string,
-      readonly name?: string,
-    },
+      readonly name: string | null,
+    } | null,
   } | {
     readonly __typename: string,
     readonly id: string,
-  }
+  } | null
 };
 export type ExampleQuery = {
   variables: ExampleQueryVariables,
@@ -47,20 +46,18 @@ export type ExampleQuery = {
   rawResponse: ExampleQueryRawResponse,
 };
 -------------------------------------------------------------------------------
-import { FragmentReference } from "relay-runtime";
-export type FriendFragment$ref = FragmentReference & { _: "FriendFragment$ref" };
-export type FriendFragment$fragmentType = FriendFragment$ref & { _: "FriendFragment$fragmentType" };
+import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
-  readonly name?: string,
-  readonly lastName?: string,
+  readonly name?: string | null,
+  readonly lastName?: string | null,
   readonly feedback?: {
     readonly id: string,
-    readonly name?: string,
-  },
-  readonly $refType: FriendFragment$ref,
+    readonly name: string | null,
+  } | null,
+  readonly " $refType": FragmentRefs<"FriendFragment">,
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
-  readonly $data?: FriendFragment$data,
-  readonly $fragmentRefs: FriendFragment$ref,
+  readonly " $data"?: FriendFragment$data,
+  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
 };

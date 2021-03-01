@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_server::ProtocolError;
+use crossbeam::SendError;
+use lsp_server::{Message, ProtocolError};
 use relay_compiler::errors::Error as CompilerError;
 use serde_json::Error as SerdeError;
 use std::io::Error as IOError;
@@ -30,6 +31,7 @@ pub enum LSPProcessError {
     IOError(IOError),
     SerdeError(SerdeError),
     JoinError(JoinError),
+    SendError(SendError<Message>),
 }
 
 extend_error!(CompilerError);
@@ -37,3 +39,9 @@ extend_error!(IOError);
 extend_error!(ProtocolError);
 extend_error!(SerdeError);
 extend_error!(JoinError);
+
+impl From<SendError<Message>> for LSPProcessError {
+    fn from(err: SendError<Message>) -> Self {
+        LSPProcessError::SendError(err)
+    }
+}

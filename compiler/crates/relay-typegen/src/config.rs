@@ -43,6 +43,12 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub optional_input_fields: Vec<StringKey>,
 
+    /// # For Typescript type generation
+    /// Whether to use the `import type` syntax introduced in Typescript
+    /// version 3.8. This will prevent warnings from `importsNotUsedAsValues`.
+    #[serde(default)]
+    pub use_import_type_syntax: bool,
+
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
     #[serde(default)]

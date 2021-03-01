@@ -1,0 +1,5 @@
+fragment Test on User {
+  photo (size: $size {
+    url
+  }
+}

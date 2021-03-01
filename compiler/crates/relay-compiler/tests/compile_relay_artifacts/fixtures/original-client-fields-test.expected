@@ -4,6 +4,13 @@ query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
     ...originalClientFieldsTest_BestFriends
     ...originalClientFieldsTest_OnlyClientFields
   }
+  named {
+    # fragments on extension types are skipped
+    ...originalClientFieldsTest_FooFragment
+    ... on Foo {
+      name
+    }
+  }
 }
 
 # This fragment disappears because all selections are removed
@@ -26,13 +33,6 @@ fragment originalClientFieldsTest_BestFriends on User {
     }
     pageInfo {
       hasNextPage
-    }
-  }
-  ... on Named {
-    # fragments on extension types are skipped
-    ...originalClientFieldsTest_FooFragment
-    ... on Foo {
-      name
     }
   }
 }
@@ -94,6 +94,41 @@ type Foo implements Named {
           }
         ],
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "named",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "originalClientFieldsTest_FooFragment"
+          },
+          {
+            "kind": "ClientExtension",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Foo",
+                "abstractKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
       }
     ],
     "type": "Query",
@@ -145,32 +180,6 @@ type Foo implements Named {
               {
                 "kind": "TypeDiscriminator",
                 "abstractKey": "__isNode"
-              },
-              {
-                "kind": "InlineFragment",
-                "selections": [
-                  {
-                    "kind": "ClientExtension",
-                    "selections": [
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "name",
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "Foo",
-                        "abstractKey": null
-                      }
-                    ]
-                  }
-                ],
-                "type": "Named",
-                "abstractKey": "__isNamed"
               },
               {
                 "kind": "ClientExtension",
@@ -255,6 +264,57 @@ type Foo implements Named {
           }
         ],
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "named",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "type": "Node",
+            "abstractKey": "__isNode"
+          },
+          {
+            "kind": "ClientExtension",
+            "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Foo",
+                "abstractKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
       }
     ]
   },
@@ -276,6 +336,13 @@ query originalClientFieldsTest_BestFriendsQuery(
     __typename
     ...originalClientFieldsTest_BestFriends
     id
+  }
+  named {
+    __typename
+    ... on Node {
+      __isNode: __typename
+      id
+    }
   }
 }
 
@@ -299,37 +366,6 @@ fragment originalClientFieldsTest_NodeFragment on Node {
       "args": null,
       "kind": "FragmentSpread",
       "name": "originalClientFieldsTest_NodeFragment"
-    },
-    {
-      "kind": "InlineFragment",
-      "selections": [
-        {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "originalClientFieldsTest_FooFragment"
-        },
-        {
-          "kind": "ClientExtension",
-          "selections": [
-            {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "name",
-                  "storageKey": null
-                }
-              ],
-              "type": "Foo",
-              "abstractKey": null
-            }
-          ]
-        }
-      ],
-      "type": "Named",
-      "abstractKey": "__isNamed"
     },
     {
       "kind": "ClientExtension",

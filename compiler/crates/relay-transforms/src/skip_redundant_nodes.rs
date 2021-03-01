@@ -16,7 +16,7 @@ use graphql_ir::{
     Selection, Transformed, TransformedValue,
 };
 use rayon::prelude::*;
-use schema::Schema;
+use schema::SDLSchema;
 use std::iter::Iterator;
 use std::sync::Arc;
 
@@ -124,7 +124,7 @@ struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
 struct SkipRedundantNodesTransform {
-    schema: Arc<Schema>,
+    schema: Arc<SDLSchema>,
     cache: Cache,
 }
 
@@ -156,7 +156,7 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::LinkedField(selection) => {
-                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                let should_cache = is_empty && Arc::strong_count(selection) > 2;
                 if should_cache {
                     let key = PointerAddress::new(selection);
                     if let Some(cached) = self.cache.get(&key) {
@@ -207,7 +207,7 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::InlineFragment(selection) => {
-                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                let should_cache = is_empty && Arc::strong_count(selection) > 2;
                 if should_cache {
                     let key = PointerAddress::new(selection);
                     if let Some(cached) = self.cache.get(&key) {
@@ -365,7 +365,7 @@ impl<'s> SkipRedundantNodesTransform {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
+            TransformedValue::Keep
         }
     }
 
@@ -484,11 +484,6 @@ where
 {
     fn contains_key(&self, key: &K) -> bool {
         self.data.iter().any(|(k, _v)| k == key)
-    }
-
-    #[allow(dead_code)]
-    fn get(&self, key: &K) -> Option<&V> {
-        self.data.iter().find(|(k, _v)| k == key).map(|(_k, v)| v)
     }
 
     fn get_mut(&mut self, key: &K) -> Option<&mut V> {

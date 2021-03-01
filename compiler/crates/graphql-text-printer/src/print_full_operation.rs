@@ -38,7 +38,7 @@ impl<'s> OperationPrinter<'s> {
         self.visit_operation(operation);
         let mut fragments: Vec<(StringKey, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
-        fragments.sort_unstable_by(|a, b| a.0.lookup().cmp(b.0.lookup()));
+        fragments.sort_unstable_by_key(|(name, _)| *name);
         for (_, fragment) in fragments {
             result.push_str("\n\n");
             result.push_str(self.print_fragment(&fragment));

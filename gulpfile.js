@@ -14,7 +14,10 @@ const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
     '@babel/plugin-transform-flow-strip-types',
-    '@babel/plugin-transform-runtime',
+    [
+      '@babel/plugin-transform-runtime',
+      {version: require('@babel/runtime/package.json').version},
+    ],
     '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-proposal-optional-catch-binding',
     '@babel/plugin-proposal-optional-chaining',
@@ -138,6 +141,8 @@ const builds = [
     package: 'react-relay',
     exports: {
       index: 'index.js',
+      hooks: 'hooks.js',
+      legacy: 'legacy.js',
       ReactRelayContext: 'ReactRelayContext.js',
     },
     bundles: [
@@ -145,6 +150,18 @@ const builds = [
         entry: 'index.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'hooks.js',
+        output: 'react-relay-hooks',
+        libraryName: 'ReactRelayHooks',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'legacy.js',
+        output: 'react-relay-legacy',
+        libraryName: 'ReactRelayLegacy',
         libraryTarget: 'umd',
       },
     ],

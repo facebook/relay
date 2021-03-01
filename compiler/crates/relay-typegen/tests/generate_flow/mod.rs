@@ -13,7 +13,7 @@ use graphql_syntax::parse_executable;
 use interner::Intern;
 use relay_compiler::apply_transforms;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{ConnectionInterface, FeatureFlags, NoInlineFeature};
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
@@ -38,8 +38,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &ConnectionInterface::default(),
         Arc::new(FeatureFlags {
-            enable_flight_transform: false,
             enable_required_transform_for_prefix: Some("".intern()),
+            no_inline: NoInlineFeature::Enabled,
+            ..Default::default()
         }),
         Arc::new(ConsoleLogger),
     )
@@ -47,10 +48,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let typegen_config = TypegenConfig {
         language: TypegenLanguage::Flow,
-        enum_module_suffix: None,
-        optional_input_fields: Default::default(),
-        custom_scalar_types: Default::default(),
         haste: true,
+        ..Default::default()
     };
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();

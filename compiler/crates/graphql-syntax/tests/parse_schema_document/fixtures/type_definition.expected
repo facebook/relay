@@ -113,7 +113,7 @@ SchemaDocument {
                 ],
                 directives: [
                     ConstantDirective {
-                        span: 76:102,
+                        span: 76:101,
                         at: Token {
                             span: 76:77,
                             kind: At,
@@ -186,7 +186,7 @@ SchemaDocument {
                                 },
                                 type_: NonNull(
                                     NonNullTypeAnnotation {
-                                        span: 110:116,
+                                        span: 110:113,
                                         type_: Named(
                                             Identifier {
                                                 span: 110:112,
@@ -217,7 +217,7 @@ SchemaDocument {
                                 },
                                 type_: NonNull(
                                     NonNullTypeAnnotation {
-                                        span: 142:150,
+                                        span: 142:149,
                                         type_: Named(
                                             Identifier {
                                                 span: 142:148,

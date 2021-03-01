@@ -63,7 +63,7 @@ export type ConcreateTypes = {|
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
-    +__typename: "%other"
+    +__typename: "%other",
   |}),
   +$refType: ConcreateTypes$ref,
 |};
@@ -84,7 +84,7 @@ declare export opaque type FragmentSpread$fragmentType: FragmentSpread$ref;
 export type FragmentSpread = {|
   +id: string,
   +justFrag: ?{|
-    +$fragmentRefs: PictureFragment$ref
+    +$fragmentRefs: PictureFragment$ref,
   |},
   +fragAndField: ?{|
     +uri: ?string,

@@ -122,7 +122,12 @@ function eachWithCombinedError<T>(iterable: Iterable<T>, fn: T => void): void {
   }
   if (errors.length > 0) {
     if (errors.length === 1) {
-      throw errors[0];
+      throw createUserError(
+        String(errors[0])
+          .split('\n')
+          .map((line, index) => (index === 0 ? `- ${line}` : `  ${line}`))
+          .join('\n'),
+      );
     }
     throw createUserError(
       `Encountered ${errors.length} errors:\n` +

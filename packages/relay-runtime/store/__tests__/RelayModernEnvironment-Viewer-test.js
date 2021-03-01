@@ -26,8 +26,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {graphql} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {graphql, getRequest} = require('relay-runtime');
 
 describe('Mutations on viewer', () => {
   let dataSource;
@@ -79,14 +78,15 @@ describe('Mutations on viewer', () => {
   });
 
   it("doesn't overwrite existing data in a mutation under viewer field", () => {
-    const {ShortCutQuery} = generateAndCompile(`
-      query ShortCutQuery {
+    const query = graphql`
+      query RelayModernEnvironmentViewerTestQuery {
         viewer {
           marketplace_settings {
             categories
           }
         }
-      }`);
+      }
+    `;
     const payload = {
       viewer: {
         marketplace_settings: {
@@ -94,7 +94,7 @@ describe('Mutations on viewer', () => {
         },
       },
     };
-
+    const ShortCutQuery = getRequest(query);
     const operationDescriptor = createOperationDescriptor(ShortCutQuery, {});
     const selector = createReaderSelector(
       ShortCutQuery.fragment,

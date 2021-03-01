@@ -99,6 +99,13 @@ if (__DEV__) {
       case 'Condition':
         validateSelections(optimisticResponse, selection.selections, context);
         return;
+      case 'FragmentSpread':
+        validateSelections(
+          optimisticResponse,
+          selection.fragment.selections,
+          context,
+        );
+        return;
       case 'ScalarField':
       case 'LinkedField':
       case 'FlightField':

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cce375bd2ac345641ea7b4e271d0ad71>>
+ * @generated SignedSource<<f822e91f881f4161d1aa8462382b6a1e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -99,13 +99,6 @@ var node/*: ConcreteRequest*/ = {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              },
-              {
                 "kind": "InlineFragment",
                 "selections": [
                   {
@@ -118,6 +111,13 @@ var node/*: ConcreteRequest*/ = {
                 ],
                 "type": "User",
                 "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
               }
             ],
             "storageKey": null

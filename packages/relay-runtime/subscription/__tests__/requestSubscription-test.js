@@ -177,7 +177,7 @@ describe('requestSubscription-test', () => {
               },
             },
             {
-              cursor: undefined,
+              cursor: null,
               node: {
                 __typename: 'Comment',
                 body: {

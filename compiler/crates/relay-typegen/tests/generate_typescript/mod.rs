@@ -38,8 +38,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &ConnectionInterface::default(),
         Arc::new(FeatureFlags {
-            enable_flight_transform: false,
             enable_required_transform_for_prefix: Some("".intern()),
+            ..Default::default()
         }),
         Arc::new(ConsoleLogger),
     )

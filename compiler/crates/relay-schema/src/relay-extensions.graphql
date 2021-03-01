@@ -7,6 +7,8 @@ directive @relay_test_operation on QUERY | MUTATION | SUBSCRIPTION
 
 directive @inline on FRAGMENT_DEFINITION
 
+directive @no_inline on FRAGMENT_DEFINITION
+
 directive @raw_response_type on QUERY | MUTATION | SUBSCRIPTION
 
 directive @relay_early_flush on QUERY
@@ -69,3 +71,6 @@ directive @appendEdge(connections: [ID!]!) on FIELD
 directive @prependEdge(connections: [ID!]!) on FIELD
 directive @appendNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 directive @prependNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
+
+# RelayClientComponentTransform
+directive @relay_client_component on FRAGMENT_SPREAD

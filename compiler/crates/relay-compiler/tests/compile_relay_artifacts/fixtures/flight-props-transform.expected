@@ -203,13 +203,6 @@ extend type Story {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -244,6 +237,13 @@ extend type Story {
             ],
             "type": "Story",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -349,13 +349,6 @@ query flightPropsTransform_StoryCommentsQuery(
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -397,6 +390,13 @@ query flightPropsTransform_StoryCommentsQuery(
             ],
             "type": "Story",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -531,13 +531,6 @@ fragment flightPropsTransform_storyTitle on Story {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -644,6 +637,13 @@ fragment flightPropsTransform_storyTitle on Story {
             ],
             "type": "Story",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -771,13 +771,6 @@ fragment flightPropsTransform_storyTitle on Story {
             "storageKey": null
           },
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
             "kind": "InlineFragment",
             "selections": [
               {
@@ -801,6 +794,13 @@ fragment flightPropsTransform_storyTitle on Story {
             ],
             "type": "Story",
             "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -849,6 +849,11 @@ fragment flightPropsTransform_storyTitle on Story {
   "name": "flightPropsTransform_story",
   "selections": [
     {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "flightPropsTransform_storyHeader"
+    },
+    {
       "alias": "StoryAttachments",
       "args": [
         {
@@ -894,11 +899,6 @@ fragment flightPropsTransform_storyTitle on Story {
       "kind": "FlightField",
       "name": "flight",
       "storageKey": null
-    },
-    {
-      "args": null,
-      "kind": "FragmentSpread",
-      "name": "flightPropsTransform_storyHeader"
     },
     {
       "args": null,

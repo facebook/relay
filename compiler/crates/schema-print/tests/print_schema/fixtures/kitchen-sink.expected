@@ -23,7 +23,12 @@ type User implements XIGHuman @fetchable(field_name: "id") {
   content_type(
     type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]
   ): [AppStoreSectionContentTypeEnum]
-  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
+  story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
+}
+
+input XIGStoryInput {
+  id: ID
+  name: String
 }
 
 type XIGStory
@@ -130,10 +135,15 @@ type User implements XIGHuman @fetchable(field_name: "id") {
   id: ID
   story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
   content_type(type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]): [AppStoreSectionContentTypeEnum]
-  story(story: XIGStory = {id: 123, name: "instagram_story"}): XIGStory
+  story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
 }
 
 interface XIGHuman @source(schema: "instagram", name: "Human") {
+  name: String
+}
+
+input XIGStoryInput {
+  id: ID
   name: String
 }
 

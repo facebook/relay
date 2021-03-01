@@ -19,6 +19,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {generateClientID} = require('../../store/ClientID');
+const {getStableStorageKey} = require('../../store/RelayStoreUtils');
 
 import type {
   HandleFieldPayload,
@@ -276,6 +277,47 @@ function getConnection(
 /**
  * @public
  *
+ * Given a record ID, the key of a connection field, and optional filters used
+ * to identify the connection, returns the connection ID.
+ *
+ * Example:
+ *
+ * Given that data has already been fetched on some user `<user-id>` on the `friends`
+ * field:
+ *
+ * ```
+ * fragment FriendsFragment on User {
+ *   friends(first: 10) @connection(key: "FriendsFragment_friends") {
+ *     edges {
+ *       node {
+ *         id
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * The ID of the `friends` connection record can be accessed with:
+ *
+ * ```
+ * store => {
+ *   const connectionID = ConnectionHandler.getConnectionID('<user-id>', 'FriendsFragment_friends');
+ * }
+ * ```
+ */
+function getConnectionID(
+  recordID: DataID,
+  key: string,
+  filters?: ?Variables,
+): DataID {
+  const handleKey = getRelayHandleKey(CONNECTION, key, null);
+  const storageKey = getStableStorageKey(handleKey, filters);
+  return generateClientID(recordID, storageKey);
+}
+
+/**
+ * @public
+ *
  * Inserts an edge after the given cursor, or at the end of the list if no
  * cursor is provided.
  *
@@ -369,6 +411,11 @@ function createEdge(
     edge = store.create(edgeID, edgeType);
   }
   edge.setLinkedRecord(node, NODE);
+  if (edge.getValue('cursor') == null) {
+    // Always use null instead of undefined value for cursor
+    // to avoid considering it as missing data
+    edge.setValue(null, 'cursor');
+  }
   return edge;
 }
 
@@ -504,6 +551,11 @@ function buildConnectionEdge(
   const edgeID = generateClientID(connection.getDataID(), EDGES, edgeIndex);
   const connectionEdge = store.create(edgeID, edge.getType());
   connectionEdge.copyFieldsFrom(edge);
+  if (connectionEdge.getValue('cursor') == null) {
+    // Always use null instead of undefined value for cursor
+    // to avoid considering it as missing data
+    connectionEdge.setValue(null, 'cursor');
+  }
   connection.setValue(edgeIndex + 1, NEXT_EDGE_INDEX);
   return connectionEdge;
 }
@@ -543,6 +595,7 @@ module.exports = {
   createEdge,
   deleteNode,
   getConnection,
+  getConnectionID,
   insertEdgeAfter,
   insertEdgeBefore,
   update,

@@ -88,8 +88,7 @@ const requestCachesByEnvironment = new Map();
  * Cancelling requests:
  * ====================
  * If the subscription returned by subscribe is called while the
- * request is in-flight, apart from releasing retained data, the request will
- * also be cancelled.
+ * request is in-flight, the request will be cancelled.
  *
  * ```
  * const subscription = fetchQuery(...).subscribe(...);

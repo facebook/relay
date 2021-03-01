@@ -12,6 +12,7 @@ use crate::build_ast::{
 };
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
+use crate::js_module_format::JsModuleFormat;
 use crate::utils::escape;
 
 use graphql_ir::{FragmentDefinition, OperationDefinition};
@@ -22,12 +23,20 @@ use indexmap::IndexMap;
 use interner::StringKey;
 use std::fmt::{Result as FmtResult, Write};
 
-pub fn print_operation(schema: &SDLSchema, operation: &OperationDefinition) -> String {
-    Printer::without_dedupe().print_operation(schema, operation)
+pub fn print_operation(
+    schema: &SDLSchema,
+    operation: &OperationDefinition,
+    js_module_format: JsModuleFormat,
+) -> String {
+    Printer::without_dedupe(js_module_format).print_operation(schema, operation)
 }
 
-pub fn print_fragment(schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
-    Printer::without_dedupe().print_fragment(schema, fragment)
+pub fn print_fragment(
+    schema: &SDLSchema,
+    fragment: &FragmentDefinition,
+    js_module_format: JsModuleFormat,
+) -> String {
+    Printer::without_dedupe(js_module_format).print_fragment(schema, fragment)
 }
 
 pub fn print_request(
@@ -35,14 +44,21 @@ pub fn print_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters,
+    js_module_format: JsModuleFormat,
 ) -> String {
-    Printer::without_dedupe().print_request(schema, operation, fragment, request_parameters)
+    Printer::without_dedupe(js_module_format).print_request(
+        schema,
+        operation,
+        fragment,
+        request_parameters,
+    )
 }
 
 pub fn print_request_params(
     schema: &SDLSchema,
     operation: &OperationDefinition,
     query_id: Option<String>,
+    js_module_format: JsModuleFormat,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
     request_parameters.id = query_id;
@@ -50,25 +66,28 @@ pub fn print_request_params(
     let mut builder = AstBuilder::default();
     let request_parameters_ast_key =
         build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
-    let printer = JSONPrinter::new(&builder);
+    let printer = JSONPrinter::new(&builder, js_module_format);
     printer.print(request_parameters_ast_key, false)
 }
 
 pub struct Printer {
+    js_module_format: JsModuleFormat,
     builder: AstBuilder,
     dedupe: bool,
 }
 
 impl Printer {
-    pub fn with_dedupe() -> Self {
+    pub fn with_dedupe(js_module_format: JsModuleFormat) -> Self {
         Self {
+            js_module_format,
             builder: Default::default(),
             dedupe: true,
         }
     }
 
-    pub fn without_dedupe() -> Self {
+    pub fn without_dedupe(js_module_format: JsModuleFormat) -> Self {
         Self {
+            js_module_format,
             builder: Default::default(),
             dedupe: false,
         }
@@ -90,7 +109,7 @@ impl Printer {
             fragment,
             request_parameters,
         );
-        let printer = JSONPrinter::new(&self.builder);
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
         printer.print(key, self.dedupe)
     }
 
@@ -100,13 +119,13 @@ impl Printer {
         operation: &OperationDefinition,
     ) -> String {
         let key = build_operation(schema, &mut self.builder, operation);
-        let printer = JSONPrinter::new(&self.builder);
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
         printer.print(key, self.dedupe)
     }
 
     pub fn print_fragment(&mut self, schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
         let key = build_fragment(schema, &mut self.builder, fragment);
-        let printer = JSONPrinter::new(&self.builder);
+        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
         printer.print(key, self.dedupe)
     }
 }
@@ -116,14 +135,16 @@ struct JSONPrinter<'b> {
     variable_definitions: VariableDefinitions,
     duplicates: FnvHashSet<AstKey>,
     builder: &'b AstBuilder,
+    js_module_format: JsModuleFormat,
 }
 
 impl<'b> JSONPrinter<'b> {
-    fn new(builder: &'b AstBuilder) -> Self {
+    fn new(builder: &'b AstBuilder, js_module_format: JsModuleFormat) -> Self {
         Self {
             variable_definitions: Default::default(),
             duplicates: Default::default(),
             builder,
+            js_module_format,
         }
     }
 
@@ -291,7 +312,10 @@ impl<'b> JSONPrinter<'b> {
             Primitive::StorageKey(field_name, key) => {
                 write_static_storage_key(f, &self.builder, *field_name, *key)
             }
-            Primitive::ModuleDependency(key) => write!(f, "require('{}.graphql')", key),
+            Primitive::ModuleDependency(key) => match self.js_module_format {
+                JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),
+                JsModuleFormat::Haste => write!(f, "require('{}.graphql')", key),
+            },
         }
     }
 }

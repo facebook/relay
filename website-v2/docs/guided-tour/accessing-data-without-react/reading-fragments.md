@@ -1,6 +1,12 @@
 ---
 id: reading-fragments
 title: Reading Fragments
-slug: /guided-tour/accessing-data-without-react/reading-fragments
+slug: /guided-tour/accessing-data-without-react/reading-fragments/
 ---
-TODO
+
+import DocsRating from '../../../src/core/DocsRating';
+import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+
+
+
+<DocsRating />

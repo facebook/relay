@@ -141,6 +141,8 @@ const builds = [
     package: 'react-relay',
     exports: {
       index: 'index.js',
+      hooks: 'hooks.js',
+      legacy: 'legacy.js',
       ReactRelayContext: 'ReactRelayContext.js',
     },
     bundles: [
@@ -148,6 +150,18 @@ const builds = [
         entry: 'index.js',
         output: 'react-relay',
         libraryName: 'ReactRelay',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'hooks.js',
+        output: 'react-relay-hooks',
+        libraryName: 'ReactRelayHooks',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'legacy.js',
+        output: 'react-relay-legacy',
+        libraryName: 'ReactRelayLegacy',
         libraryTarget: 'umd',
       },
     ],

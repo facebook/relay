@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4bd8416be2bb740c09b7765a2d26da92>>
+ * @generated SignedSource<<fb851c07667fb88ec2c7025417c8fcfb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -103,14 +103,14 @@ return {
             "name": "__typename",
             "storageKey": null
           },
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          (v2/*: any*/)
+          }
         ],
         "storageKey": null
       }

@@ -1,7 +1,7 @@
 {
   "name": "relay-config",
   "description": "Config parser for Relay applications.",
-  "version": "10.1.3",
+  "version": "11.0.0-rc.0",
   "keywords": [
     "graphql",
     "relay"
@@ -15,6 +15,6 @@
     "cosmiconfig": "^5.0.5"
   },
   "peerDependencies": {
-    "relay-compiler": "10.1.3"
+    "relay-compiler": "11.0.0-rc.0"
   }
 }

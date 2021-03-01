@@ -90,23 +90,18 @@ pub fn get_definition_references<'a>(
         .iter()
         .collect();
         let mut references = FnvHashSet::default();
-        loop {
-            let selection = selections.pop();
-            if let Some(selection) = selection {
-                match selection {
-                    Selection::FragmentSpread(selection) => {
-                        references.insert(selection.name.value);
-                    }
-                    Selection::LinkedField(selection) => {
-                        selections.extend(selection.selections.items.iter());
-                    }
-                    Selection::InlineFragment(selection) => {
-                        selections.extend(selection.selections.items.iter());
-                    }
-                    Selection::ScalarField(_) => {}
+        while let Some(selection) = selections.pop() {
+            match selection {
+                Selection::FragmentSpread(selection) => {
+                    references.insert(selection.name.value);
                 }
-            } else {
-                break;
+                Selection::LinkedField(selection) => {
+                    selections.extend(&selection.selections.items);
+                }
+                Selection::InlineFragment(selection) => {
+                    selections.extend(&selection.selections.items);
+                }
+                Selection::ScalarField(_) => {}
             }
         }
         result.insert(name, references);

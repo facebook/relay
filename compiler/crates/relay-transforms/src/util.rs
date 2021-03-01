@@ -145,3 +145,15 @@ pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool 
 pub fn generate_abstract_type_refinement_key(schema: &SDLSchema, type_: Type) -> StringKey {
     format!("__is{}", schema.get_type_name(type_).lookup()).intern()
 }
+
+pub fn get_normalization_operation_name(name: StringKey) -> String {
+    format!("{}$normalization", name)
+}
+
+pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
+    format!(
+        "{}.graphql",
+        get_normalization_operation_name(fragment_name)
+    )
+    .intern()
+}

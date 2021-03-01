@@ -129,13 +129,6 @@ query multipleConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              },
-              {
                 "condition": "foo",
                 "kind": "Condition",
                 "passingValue": true,
@@ -162,6 +155,13 @@ query multipleConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
                     ]
                   }
                 ]
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
               }
             ],
             "storageKey": null

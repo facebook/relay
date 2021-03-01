@@ -1562,7 +1562,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1593,7 +1593,7 @@ describe('connection node mutations', () => {
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend',
@@ -1617,7 +1617,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1673,7 +1673,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1704,7 +1704,7 @@ describe('connection node mutations', () => {
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend',
@@ -1728,7 +1728,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1790,7 +1790,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-1',
@@ -1798,7 +1798,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-2',
@@ -1835,7 +1835,7 @@ describe('connection node mutations', () => {
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend-2',
@@ -1843,7 +1843,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend-1',
@@ -1867,7 +1867,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-1',
@@ -1875,7 +1875,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-2',
@@ -1924,7 +1924,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-optimistic-append',
@@ -1968,7 +1968,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',

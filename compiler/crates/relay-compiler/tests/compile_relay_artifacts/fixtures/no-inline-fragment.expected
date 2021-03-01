@@ -1,0 +1,659 @@
+==================================== INPUT ====================================
+query noInlineFragmentQuery(
+  $global: Float
+  $shadowed_global: Float
+  $global_from_parent: Float
+) {
+  me {
+    ...noInlineFragment_parent
+      @arguments(
+        scalar_from_parent: 3.14
+        global_from_parent: $global_from_parent
+        shadowed_global: $shadowed_global
+      )
+  }
+}
+
+fragment noInlineFragment_parent on User
+@no_inline
+@argumentDefinitions(
+  scalar_from_parent: {type: "Float"}
+  global_from_parent: {type: "Float"}
+  shadowed_global: {type: "Float"}
+) {
+  scalar_from_parent: profile_picture(scale: $scalar_from_parent) {
+    uri
+  }
+  global_from_parent: profile_picture(scale: $global_from_parent) {
+    uri
+  }
+  shadowed_global: profile_picture(scale: $shadowed_global) {
+    uri
+  }
+  global: profile_picture(scale: $global) {
+    uri
+  }
+
+  ...noInlineFragment_child
+    @arguments(
+      scalar_from_parent: $scalar_from_parent
+      local_from_parent: $global_from_parent
+      shadowed_global: $shadowed_global
+    )
+}
+
+fragment noInlineFragment_child on User
+@argumentDefinitions(
+  scalar_from_parent: {type: "Float"}
+  local_from_parent: {type: "Float"}
+  shadowed_global: {type: "Float"}
+) {
+  scalar_from_parent: profile_picture(scale: $scalar_from_parent) {
+    uri
+  }
+  local_from_parent: profile_picture(scale: $local_from_parent) {
+    uri
+  }
+  shadowed_global: profile_picture(scale: $shadowed_global) {
+    uri
+  }
+  global: profile_picture(scale: $global) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global_from_parent"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "shadowed_global"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "noInlineFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "global_from_parent",
+                "variableName": "global_from_parent"
+              },
+              {
+                "kind": "Literal",
+                "name": "scalar_from_parent",
+                "value": 3.14
+              },
+              {
+                "kind": "Variable",
+                "name": "shadowed_global",
+                "variableName": "shadowed_global"
+              }
+            ],
+            "kind": "FragmentSpread",
+            "name": "noInlineFragment_parent"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "shadowed_global"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "global_from_parent"
+      }
+    ],
+    "kind": "Operation",
+    "name": "noInlineFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "noInlineFragment_parent$global_from_parent",
+                "variableName": "global_from_parent"
+              },
+              {
+                "kind": "Literal",
+                "name": "noInlineFragment_parent$scalar_from_parent",
+                "value": 3.14
+              },
+              {
+                "kind": "Variable",
+                "name": "noInlineFragment_parent$shadowed_global",
+                "variableName": "shadowed_global"
+              }
+            ],
+            "fragment": require('noInlineFragment_parent$normalization.graphql'),
+            "kind": "FragmentSpread"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "noInlineFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query noInlineFragmentQuery(
+  $global: Float
+  $shadowed_global: Float
+  $global_from_parent: Float
+) {
+  me {
+    ...noInlineFragment_parent_4pGKCl
+    id
+  }
+}
+
+fragment noInlineFragment_child_xXZ4f on User {
+  scalar_from_parent: profile_picture(scale: 3.14) {
+    uri
+  }
+  local_from_parent: profile_picture(scale: $global_from_parent) {
+    uri
+  }
+  shadowed_global: profile_picture(scale: $shadowed_global) {
+    uri
+  }
+  global: profile_picture(scale: $global) {
+    uri
+  }
+}
+
+fragment noInlineFragment_parent_4pGKCl on User {
+  scalar_from_parent: profile_picture(scale: 3.14) {
+    uri
+  }
+  global_from_parent: profile_picture(scale: $global_from_parent) {
+    uri
+  }
+  shadowed_global: profile_picture(scale: $shadowed_global) {
+    uri
+  }
+  global: profile_picture(scale: $global) {
+    uri
+  }
+  ...noInlineFragment_child_xXZ4f
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "noInlineFragment_parent$scalar_from_parent"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "noInlineFragment_parent$global_from_parent"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "noInlineFragment_parent$shadowed_global"
+    }
+  ],
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "noInlineFragment_parent$normalization",
+  "selections": [
+    {
+      "alias": "scalar_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "noInlineFragment_parent$scalar_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "global_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "noInlineFragment_parent$global_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "shadowed_global",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "noInlineFragment_parent$shadowed_global"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "global",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "global"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "local_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "noInlineFragment_parent$global_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "global"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "local_from_parent"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "scalar_from_parent"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "shadowed_global"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "noInlineFragment_child",
+  "selections": [
+    {
+      "alias": "scalar_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "scalar_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "local_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "local_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "shadowed_global",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "shadowed_global"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "global",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "global"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "global"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "global_from_parent"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "scalar_from_parent"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "shadowed_global"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "noInlineFragment_parent",
+  "selections": [
+    {
+      "alias": "scalar_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "scalar_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "global_from_parent",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "global_from_parent"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "shadowed_global",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "shadowed_global"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "global",
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "scale",
+          "variableName": "global"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "local_from_parent",
+          "variableName": "global_from_parent"
+        },
+        {
+          "kind": "Variable",
+          "name": "scalar_from_parent",
+          "variableName": "scalar_from_parent"
+        },
+        {
+          "kind": "Variable",
+          "name": "shadowed_global",
+          "variableName": "shadowed_global"
+        }
+      ],
+      "kind": "FragmentSpread",
+      "name": "noInlineFragment_child"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

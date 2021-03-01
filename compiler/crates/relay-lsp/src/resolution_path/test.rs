@@ -8,14 +8,11 @@
 use super::*;
 use common::{SourceLocationKey, Span};
 use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-use interner::Intern;
 
 fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&ResolutionPath<'_>)) {
     let document = parse_executable_with_features(
         source,
-        SourceLocationKey::Standalone {
-            path: "/test/file".intern(),
-        },
+        SourceLocationKey::standalone("/test/file"),
         ParserFeatures {
             enable_variable_definitions: true,
         },
@@ -309,11 +306,10 @@ fn list_literal() {
             resolved,
             ResolutionPath::ConstantString(ConstantStringPath {
                 inner: _,
-                parent:
-                    ConstantValuePath {
-                        inner: _,
-                        parent: ConstantValueParent::ConstantArgValue(_),
-                    },
+                parent: ConstantValuePath {
+                    inner: _,
+                    parent: ConstantValueParent::ConstantArgValue(_),
+                },
             })
         );
     })
@@ -331,15 +327,13 @@ fn fragment_argument_name() {
             resolved,
             ResolutionPath::VariableIdentifier(VariableIdentifierPath {
                 inner: _,
-                parent:
-                    VariableIdentifierParent::VariableDefinition(VariableDefinitionPath {
+                parent: VariableIdentifierParent::VariableDefinition(VariableDefinitionPath {
+                    inner: _,
+                    parent: VariableDefinitionListPath {
                         inner: _,
-                        parent:
-                            VariableDefinitionListPath {
-                                inner: _,
-                                parent: VariableDefinitionListParent::FragmentDefinition(_),
-                            },
-                    }),
+                        parent: VariableDefinitionListParent::FragmentDefinition(_),
+                    },
+                }),
             })
         );
     })
@@ -357,11 +351,10 @@ fn fragment_argument_type() {
             resolved,
             ResolutionPath::Ident(IdentPath {
                 inner: _,
-                parent:
-                    IdentParent::TypeAnnotation(TypeAnnotationPath {
-                        inner: _,
-                        parent: TypeAnnotationParent::NonNullTypeAnnotation(_),
-                    }),
+                parent: IdentParent::TypeAnnotation(TypeAnnotationPath {
+                    inner: _,
+                    parent: TypeAnnotationParent::NonNullTypeAnnotation(_),
+                }),
             })
         )
     })

@@ -85,6 +85,12 @@ export type NormalizationInlineFragment = {|
   +abstractKey: ?string,
 |};
 
+export type NormalizationFragmentSpread = {|
+  +kind: 'FragmentSpread',
+  +fragment: NormalizationNode,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+|};
+
 export type NormalizationLinkedField = {|
   +kind: 'LinkedField',
   +alias: ?string,
@@ -159,6 +165,7 @@ export type NormalizationSelection =
   | NormalizationDefer
   | NormalizationField
   | NormalizationFlightField
+  | NormalizationFragmentSpread
   | NormalizationHandle
   | NormalizationInlineFragment
   | NormalizationModuleImport

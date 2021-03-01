@@ -17,11 +17,9 @@ const RelayFeatureFlags = require('../RelayFeatureFlags');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
 const invariant = require('invariant');
 
-const {createOperationDescriptor, getFragment} = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {createOperationDescriptor} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('getFragmentIdentifier', () => {
   let environment;
@@ -43,65 +41,71 @@ describe('getFragmentIdentifier', () => {
   beforeEach(() => {
     RelayFeatureFlags.ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION = false;
     environment = createMockEnvironment();
-    const generated = generateAndCompile(`
-      fragment NestedUserFragment on User {
+    graphql`
+      fragment getFragmentIdentifierTestNestedUserFragment on User {
         username
       }
-
-      fragment UserFragment on User  {
+    `;
+    gqlSingularFragment = getFragment(graphql`
+      fragment getFragmentIdentifierTestUserFragment on User {
         id
         name
         profile_picture(scale: $scale) {
           uri
         }
-        ...NestedUserFragment
+        ...getFragmentIdentifierTestNestedUserFragment
       }
-
-      fragment UserFragmentWithArgs on User
-      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+    `);
+    gqlFragmentWithArgs = getFragment(graphql`
+      fragment getFragmentIdentifierTestUserFragmentWithArgs on User
+        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
           uri
         }
-        ...NestedUserFragment
+        ...getFragmentIdentifierTestNestedUserFragment
       }
-
-      fragment UsersFragment on User @relay(plural: true) {
+    `);
+    gqlPluralFragment = getFragment(graphql`
+      fragment getFragmentIdentifierTestUsersFragment on User
+        @relay(plural: true) {
         id
         name
         profile_picture(scale: $scale) {
           uri
         }
-        ...NestedUserFragment
+        ...getFragmentIdentifierTestNestedUserFragment
       }
-
-      query UsersQuery($ids: [ID!]!, $scale: Float!) {
+    `);
+    gqlPluralQuery = getRequest(graphql`
+      query getFragmentIdentifierTestUsersQuery($ids: [ID!]!, $scale: Float!) {
         nodes(ids: $ids) {
-          ...UsersFragment
+          ...getFragmentIdentifierTestUsersFragment
         }
       }
-
-      query UserQuery($id: ID!, $scale: Float!) {
+    `);
+    gqlSingularQuery = getRequest(graphql`
+      query getFragmentIdentifierTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
-          ...UserFragment
+          ...getFragmentIdentifierTestUserFragment
         }
       }
-
-      query UserQueryWithArgs($id: ID!, $scale: Float!) {
+    `);
+    gqlQueryWithArgs = getRequest(graphql`
+      query getFragmentIdentifierTestUserQueryWithArgsQuery(
+        $id: ID!
+        $scale: Float!
+      ) {
         node(id: $id) {
-          ...UserFragmentWithArgs @arguments(scaleLocal: $scale)
+          ...getFragmentIdentifierTestUserFragmentWithArgs
+            @arguments(scaleLocal: $scale)
         }
       }
     `);
     pluralVariables = {ids: ['1'], scale: 16};
     singularVariables = {id: '1', scale: 16};
-    gqlQueryWithArgs = generated.UserQueryWithArgs;
-    gqlFragmentWithArgs = generated.UserFragmentWithArgs;
-    gqlPluralQuery = generated.UsersQuery;
-    gqlPluralFragment = generated.UsersFragment;
-    gqlSingularQuery = generated.UserQuery;
-    gqlSingularFragment = generated.UserFragment;
+
     pluralQuery = createOperationDescriptor(gqlPluralQuery, pluralVariables);
     singularQuery = singularQuery = createOperationDescriptor(
       gqlSingularQuery,
@@ -145,19 +149,24 @@ describe('getFragmentIdentifier', () => {
 
   it('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
-    expect(identifier).toEqual('null/UserFragment/{}/null');
+    expect(identifier).toEqual(
+      'null/getFragmentIdentifierTestUserFragment/{}/null',
+    );
   });
 
   it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
-    expect(identifier).toEqual('null/UsersFragment/{}/null');
+    expect(identifier).toEqual(
+      'null/getFragmentIdentifierTestUsersFragment/{}/null',
+    );
   });
 
   it('returns correct identifier when using singular fragment', () => {
     const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
-      singularQuery.request.identifier + '/UserFragment/{"scale":16}/"1"',
+      singularQuery.request.identifier +
+        '/getFragmentIdentifierTestUserFragment/{"scale":16}/"1"',
     );
   });
 
@@ -166,7 +175,7 @@ describe('getFragmentIdentifier', () => {
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
       queryWithArgs.request.identifier +
-        '/UserFragmentWithArgs/{"scaleLocal":16}/"1"',
+        '/getFragmentIdentifierTestUserFragmentWithArgs/{"scaleLocal":16}/"1"',
     );
   });
 
@@ -177,7 +186,7 @@ describe('getFragmentIdentifier', () => {
     expect(identifier).toEqual(
       '[' +
         pluralQuery.request.identifier +
-        ']/UsersFragment/{"scale":16}/["1"]',
+        ']/getFragmentIdentifierTestUsersFragment/{"scale":16}/["1"]',
     );
   });
 
@@ -189,7 +198,7 @@ describe('getFragmentIdentifier', () => {
         pluralQuery.request.identifier +
         ',' +
         pluralQuery.request.identifier +
-        ']/UsersFragment/{"scale":16}/["1","2"]',
+        ']/getFragmentIdentifierTestUsersFragment/{"scale":16}/["1","2"]',
     );
   });
 });
@@ -214,65 +223,76 @@ describe('getFragmentIdentifier Optimized', () => {
   beforeEach(() => {
     RelayFeatureFlags.ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION = true;
     environment = createMockEnvironment();
-    const generated = generateAndCompile(`
-      fragment NestedUserFragment on User {
+    graphql`
+      fragment getFragmentIdentifierTest1NestedUserFragment on User {
         username
       }
+    `;
 
-      fragment UserFragment on User  {
+    gqlSingularFragment = getFragment(graphql`
+      fragment getFragmentIdentifierTest1UserFragment on User {
         id
         name
         profile_picture(scale: $scale) {
           uri
         }
-        ...NestedUserFragment
+        ...getFragmentIdentifierTest1NestedUserFragment
       }
+    `);
 
-      fragment UserFragmentWithArgs on User
-      @argumentDefinitions(scaleLocal: {type: "Float!"}) {
+    gqlFragmentWithArgs = getFragment(graphql`
+      fragment getFragmentIdentifierTest1UserFragmentWithArgs on User
+        @argumentDefinitions(scaleLocal: {type: "Float!"}) {
         id
         name
         profile_picture(scale: $scaleLocal) {
           uri
         }
-        ...NestedUserFragment
+        ...getFragmentIdentifierTest1NestedUserFragment
       }
-
-      fragment UsersFragment on User @relay(plural: true) {
+    `);
+    gqlPluralFragment = getFragment(graphql`
+      fragment getFragmentIdentifierTest1UsersFragment on User
+        @relay(plural: true) {
         id
         name
         profile_picture(scale: $scale) {
           uri
         }
-        ...NestedUserFragment
+        ...getFragmentIdentifierTest1NestedUserFragment
       }
+    `);
 
-      query UsersQuery($ids: [ID!]!, $scale: Float!) {
+    gqlPluralQuery = getRequest(graphql`
+      query getFragmentIdentifierTest1UsersQuery($ids: [ID!]!, $scale: Float!) {
         nodes(ids: $ids) {
-          ...UsersFragment
+          ...getFragmentIdentifierTest1UsersFragment
         }
       }
+    `);
 
-      query UserQuery($id: ID!, $scale: Float!) {
+    gqlSingularQuery = getRequest(graphql`
+      query getFragmentIdentifierTest1UserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
-          ...UserFragment
+          ...getFragmentIdentifierTest1UserFragment
         }
       }
+    `);
 
-      query UserQueryWithArgs($id: ID!, $scale: Float!) {
+    gqlQueryWithArgs = getRequest(graphql`
+      query getFragmentIdentifierTest1UserQueryWithArgsQuery(
+        $id: ID!
+        $scale: Float!
+      ) {
         node(id: $id) {
-          ...UserFragmentWithArgs @arguments(scaleLocal: $scale)
+          ...getFragmentIdentifierTest1UserFragmentWithArgs
+            @arguments(scaleLocal: $scale)
         }
       }
     `);
     pluralVariables = {ids: ['1'], scale: 16};
     singularVariables = {id: '1', scale: 16};
-    gqlQueryWithArgs = generated.UserQueryWithArgs;
-    gqlFragmentWithArgs = generated.UserFragmentWithArgs;
-    gqlPluralQuery = generated.UsersQuery;
-    gqlPluralFragment = generated.UsersFragment;
-    gqlSingularQuery = generated.UserQuery;
-    gqlSingularFragment = generated.UserFragment;
+
     pluralQuery = createOperationDescriptor(gqlPluralQuery, pluralVariables);
     singularQuery = singularQuery = createOperationDescriptor(
       gqlSingularQuery,
@@ -320,24 +340,31 @@ describe('getFragmentIdentifier Optimized', () => {
 
   it('returns correct identifier when fragment ref is undefined', () => {
     const identifier = getFragmentIdentifier(singularFragment, undefined);
-    expect(identifier).toEqual('null/UserFragment/{}/missing');
+    expect(identifier).toEqual(
+      'null/getFragmentIdentifierTest1UserFragment/{}/missing',
+    );
   });
 
   it('returns correct identifier when fragment ref is null', () => {
     const identifier = getFragmentIdentifier(singularFragment, null);
-    expect(identifier).toEqual('null/UserFragment/{}/null');
+    expect(identifier).toEqual(
+      'null/getFragmentIdentifierTest1UserFragment/{}/null',
+    );
   });
 
   it('returns correct identifier when using plural fragment and fragment ref is empty', () => {
     const identifier = getFragmentIdentifier(pluralFragment, []);
-    expect(identifier).toEqual('null/UsersFragment/{}/null');
+    expect(identifier).toEqual(
+      'null/getFragmentIdentifierTest1UsersFragment/{}/null',
+    );
   });
 
   it('returns correct identifier when using singular fragment', () => {
     const fragmentRef = environment.lookup(singularQuery.fragment).data?.node;
     const identifier = getFragmentIdentifier(singularFragment, fragmentRef);
     expect(identifier).toEqual(
-      singularQuery.request.identifier + '/UserFragment/{"scale":16}/1',
+      singularQuery.request.identifier +
+        '/getFragmentIdentifierTest1UserFragment/{"scale":16}/1',
     );
   });
 
@@ -346,7 +373,7 @@ describe('getFragmentIdentifier Optimized', () => {
     const identifier = getFragmentIdentifier(fragmentWithArgs, fragmentRef);
     expect(identifier).toEqual(
       queryWithArgs.request.identifier +
-        '/UserFragmentWithArgs/{"scaleLocal":16}/1',
+        '/getFragmentIdentifierTest1UserFragmentWithArgs/{"scaleLocal":16}/1',
     );
   });
 
@@ -355,7 +382,9 @@ describe('getFragmentIdentifier Optimized', () => {
     invariant(Array.isArray(fragmentRef), 'Expected a plural fragment ref.');
     const identifier = getFragmentIdentifier(pluralFragment, [fragmentRef[0]]);
     expect(identifier).toEqual(
-      '[' + pluralQuery.request.identifier + ']/UsersFragment/{"scale":16}/[1]',
+      '[' +
+        pluralQuery.request.identifier +
+        ']/getFragmentIdentifierTest1UsersFragment/{"scale":16}/[1]',
     );
   });
 
@@ -367,7 +396,7 @@ describe('getFragmentIdentifier Optimized', () => {
         pluralQuery.request.identifier +
         ',' +
         pluralQuery.request.identifier +
-        ']/UsersFragment/{"scale":16}/[1,2]',
+        ']/getFragmentIdentifierTest1UsersFragment/{"scale":16}/[1,2]',
     );
   });
 });

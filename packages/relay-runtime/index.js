@@ -48,6 +48,7 @@ const createRelayContext = require('./store/createRelayContext');
 const deepFreeze = require('./util/deepFreeze');
 const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
+const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
@@ -289,7 +290,8 @@ module.exports = {
   applyOptimisticMutation,
   commitLocalUpdate,
   commitMutation,
-  fetchQuery,
+  fetchQuery: fetchQuery,
+  fetchQuery_DEPRECATED,
   isRelayModernEnvironment,
   requestSubscription,
 

@@ -6,12 +6,13 @@
  */
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     sync::{Arc, RwLock},
 };
 
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
+use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::{Intern, StringKey};
@@ -20,15 +21,13 @@ use relay_test_schema::get_test_schema;
 
 fn parse_and_resolve_completion_items(
     source: &str,
-    source_programs: Option<Arc<RwLock<HashMap<StringKey, Program>>>>,
+    source_programs: Option<Arc<RwLock<FnvHashMap<StringKey, Program>>>>,
 ) -> Option<Vec<CompletionItem>> {
     let pos = source.find('|').unwrap() - 1;
     let next_source = source.replace("|", "");
     let document = parse_executable_with_error_recovery(
         &next_source,
-        SourceLocationKey::Standalone {
-            path: "/test/file".intern(),
-        },
+        SourceLocationKey::standalone("/test/file"),
     )
     .item;
 
@@ -46,11 +45,11 @@ fn parse_and_resolve_completion_items(
     )
 }
 
-fn build_source_programs(source: &str) -> Arc<RwLock<HashMap<StringKey, Program>>> {
+fn build_source_programs(source: &str) -> Arc<RwLock<FnvHashMap<StringKey, Program>>> {
     let document = parse_executable(source, SourceLocationKey::Generated).unwrap();
     let ir = build(&get_test_schema(), &document.definitions).unwrap();
     let program = Program::from_definitions(get_test_schema(), ir);
-    let mut source_programs_map = HashMap::new();
+    let mut source_programs_map = FnvHashMap::default();
     source_programs_map.insert("test_project".intern(), program);
     Arc::new(RwLock::new(source_programs_map))
 }

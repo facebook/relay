@@ -14,6 +14,7 @@ use crate::{
 };
 use common::{NamedItem, PerfLogger, Span};
 
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
 use graphql_syntax::{
     Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
@@ -29,7 +30,6 @@ use schema::{
     TypeReference, TypeWithFields,
 };
 use std::{
-    collections::{HashMap, HashSet},
     iter::once,
     sync::{Arc, RwLock},
 };
@@ -48,7 +48,7 @@ pub enum CompletionKind {
     },
     ArgumentName {
         has_colon: bool,
-        existing_names: HashSet<StringKey>,
+        existing_names: FnvHashSet<StringKey>,
         kind: ArgumentKind,
     },
     ArgumentValue {
@@ -514,7 +514,7 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let project_name = request.project_name;
@@ -653,7 +653,7 @@ fn completion_items_for_request(
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
     arguments: impl Iterator<Item = T>,
     schema: &SDLSchema,
-    existing_names: HashSet<StringKey>,
+    existing_names: FnvHashSet<StringKey>,
     has_colon: bool,
 ) -> Vec<CompletionItem> {
     arguments
@@ -1016,7 +1016,7 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);

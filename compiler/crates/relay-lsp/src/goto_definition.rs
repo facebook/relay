@@ -20,6 +20,7 @@ use crate::{
     LSPExtraDataProvider,
 };
 use common::PerfLogger;
+use fnv::FnvHashMap;
 use graphql_ir::Program;
 use interner::StringKey;
 use lsp_types::{
@@ -28,7 +29,6 @@ use lsp_types::{
 };
 use schema::Schema;
 use std::{
-    collections::HashMap,
     path::PathBuf,
     str,
     sync::{Arc, RwLock},
@@ -37,7 +37,7 @@ use std::{
 fn get_goto_definition_response<'a>(
     node_path: ResolutionPath<'a>,
     project_name: StringKey,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
     // https://github.com/rust-lang/rust-clippy/issues/3971
     #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
@@ -133,7 +133,7 @@ fn resolve_field<'a>(
     field_name: String,
     selection_parent: SelectionParent<'a>,
     project_name: StringKey,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
     // https://github.com/rust-lang/rust-clippy/issues/3971
     #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,

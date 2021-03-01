@@ -145,6 +145,7 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<(CompilerState, FileSourceSubscription)> {
+        let timer = perf_logger_event.start("file_source_subscribe_time");
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
@@ -165,6 +166,8 @@ impl<'config> FileSource<'config> {
                 },
             )
             .await?;
+
+        perf_logger_event.stop(timer);
 
         Ok((
             compiler_state,
@@ -260,7 +263,11 @@ impl<'config> FileSource<'config> {
                 perf_logger.flush();
                 "failed to deserialize"
             })?;
-        if compiler_state.saved_state_version != saved_state_version {
+        // For cases, where we want to debug saved state integration, that doesn't include
+        // saved_state format changes we may need to disable this by adding this env variable
+        if std::env::var("RELAY_COMPILER_IGNORE_SAVED_STATE_VERSION").is_err()
+            && compiler_state.saved_state_version != saved_state_version
+        {
             return Err("Saved state version doesn't match.");
         }
         compiler_state

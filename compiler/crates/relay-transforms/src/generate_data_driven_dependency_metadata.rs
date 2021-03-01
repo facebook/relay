@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
+use super::match_::MATCH_CONSTANTS;
+use crate::util::get_fragment_filename;
 use common::{NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -291,10 +292,4 @@ fn get_argument_value(directive: &Directive, argument_name: StringKey) -> String
             argument_name
         ),
     }
-}
-
-fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
-    let mut fragment = String::new();
-    get_normalization_operation_name(&mut fragment, fragment_name);
-    format!("{}.graphql", fragment).intern()
 }

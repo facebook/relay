@@ -33,7 +33,6 @@ import type {
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {Observer} from '../network/RelayObservable';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -79,12 +78,7 @@ export type EnvironmentConfig = {|
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
-  /**
-   * This method is likely to change in future versions, use at your own risk.
-   * It can potentially break existing calls like store.get(<id>),
-   * because the internal ID might not be the `id` field on the node anymore
-   */
-  +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
@@ -155,7 +149,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
     this._network = this.__wrapNetworkWithLogObserver(config.network);
-    this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
       handlerProvider,
@@ -536,6 +530,7 @@ class RelayModernEnvironment implements IEnvironment {
               transactionID,
               params,
               variables,
+              cacheConfig,
             });
           },
           next: response => {

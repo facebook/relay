@@ -12,6 +12,7 @@ use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
+use std::num::NonZeroU32;
 use std::sync::Arc;
 
 /// Slices of bytes intern as BytesKey
@@ -176,7 +177,11 @@ impl BytesTableData {
     pub fn new() -> Self {
         Self {
             buffer: Some(Self::new_buffer()),
-            items: Default::default(),
+            items: vec![
+                // Add buffer value so the used index starts at 1
+                // and we can use a NonZero type.
+                b"<sentinel>",
+            ],
             table: Default::default(),
         }
     }
@@ -220,7 +225,10 @@ impl BytesTableData {
         }
 
         // Otherwise intern
-        let key = RawInternKey::new(self.items.len());
+        let key = RawInternKey::new(unsafe {
+            // Safe because we initialize `self.items` with a sentinel value
+            NonZeroU32::new_unchecked(self.items.len() as u32)
+        });
         let static_bytes = self.alloc(value);
         self.items.push(static_bytes);
         self.table.insert(static_bytes, key);

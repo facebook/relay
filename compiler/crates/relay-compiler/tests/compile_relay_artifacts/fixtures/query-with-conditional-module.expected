@@ -237,8 +237,8 @@ fragment queryWithConditionalModule_NameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer @include(if: $fetchModule) {
       ...queryWithConditionalModule_MarkdownUserNameRenderer_name
-      __module_operation_queryWithConditionalModule_NameRendererFragment: js(module: "queryWithConditionalModule_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithConditionalModule_NameRendererFragment.nameRenderer")
-      __module_component_queryWithConditionalModule_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithConditionalModule_NameRendererFragment.nameRenderer")
+      __module_operation_queryWithConditionalModule_NameRendererFragment: js(module: "queryWithConditionalModule_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithConditionalModule_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_queryWithConditionalModule_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithConditionalModule_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
     }
   }
 }

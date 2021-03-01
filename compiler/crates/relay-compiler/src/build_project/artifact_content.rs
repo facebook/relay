@@ -36,6 +36,7 @@ pub enum ArtifactContent {
     },
     SplitOperation {
         normalization_operation: Arc<OperationDefinition>,
+        typegen_operation: Option<Arc<OperationDefinition>>,
         source_hash: String,
     },
     Generic {
@@ -79,12 +80,15 @@ impl ArtifactContent {
             ),
             ArtifactContent::SplitOperation {
                 normalization_operation,
+                typegen_operation,
                 source_hash,
             } => generate_split_operation(
                 config,
+                project_config,
                 printer,
                 schema,
                 normalization_operation,
+                typegen_operation,
                 source_hash,
             ),
             ArtifactContent::Fragment {
@@ -273,9 +277,11 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
 
 fn generate_split_operation(
     config: &Config,
+    project_config: &ProjectConfig,
     printer: &mut Printer,
     schema: &SDLSchema,
-    node: &OperationDefinition,
+    normalization_operation: &OperationDefinition,
+    typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
@@ -291,13 +297,28 @@ fn generate_split_operation(
     writeln!(content, "'use strict';\n").unwrap();
     writeln!(
         content,
-        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n\n*/\n"
+        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n"
     )
     .unwrap();
+    if let Some(typegen_operation) = typegen_operation {
+        writeln!(
+            content,
+            "{}",
+            relay_typegen::generate_split_operation_type(
+                typegen_operation,
+                normalization_operation,
+                schema,
+                &project_config.typegen_config,
+            )
+        )
+        .unwrap();
+    }
+    writeln!(content, "*/\n").unwrap();
+
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation(schema, node)
+        printer.print_operation(schema, normalization_operation)
     )
     .unwrap();
     writeln!(content, "if (__DEV__) {{").unwrap();

@@ -29,11 +29,13 @@ pub use build_project::{
     },
     build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    is_operation_preloadable, validate, Artifact, ArtifactContent, Programs, SourceHashes,
+    is_operation_preloadable, validate, validate_program, Artifact, ArtifactContent, Programs,
+    SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;
 pub use watchman::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
-    FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader, SourceReader,
+    FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
+    SourceControlUpdateStatus, SourceReader,
 };

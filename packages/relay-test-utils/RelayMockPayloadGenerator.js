@@ -28,6 +28,7 @@ const {
   CONNECTION,
   DEFER,
   FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -300,6 +301,18 @@ class RelayMockPayloadGenerator {
         case STREAM: {
           mockData = this._traverseSelections(
             selection.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          break;
+        }
+
+        case FRAGMENT_SPREAD: {
+          mockData = this._traverseSelections(
+            selection.fragment.selections,
             typeName,
             isAbstractType,
             path,

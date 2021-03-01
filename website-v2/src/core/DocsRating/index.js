@@ -10,6 +10,7 @@
 /* eslint-disable lint/no-value-import */
 import './docsRating.css';
 
+import {fbContent} from 'internaldocs-fb-helpers';
 import * as React from 'react';
 /* eslint-enable lint/no-value-import */
 
@@ -24,7 +25,7 @@ function provideFeedbackToGoogleAnalytics(value) {
   }
 }
 
-const DocsRating = () => {
+const DocsRatingExternal = () => {
   const [hasProvidedFeedback, setHasProvidedFeedback] = React.useState(false);
   const provideFeedback = value => {
     setHasProvidedFeedback(true);
@@ -64,4 +65,10 @@ const DocsRating = () => {
   );
 };
 
-export default DocsRating;
+const DocsRatingInternal = () => null;
+
+export default () =>
+  fbContent({
+    internal: <DocsRatingInternal />,
+    external: <DocsRatingExternal />,
+  });

@@ -10,6 +10,7 @@ mod file_categorizer;
 mod file_group;
 mod file_source;
 mod query_builder;
+mod source_control_update_status;
 mod watchman_file;
 
 pub use self::extract_graphql::{
@@ -20,5 +21,6 @@ pub use file_group::FileGroup;
 pub use file_source::{
     FileSource, FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
 };
+pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
 pub use watchman_file::{read_to_string, WatchmanFile};

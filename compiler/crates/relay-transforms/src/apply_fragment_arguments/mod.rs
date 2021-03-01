@@ -8,14 +8,19 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use common::{Diagnostic, DiagnosticsResult, WithLocation};
-use fnv::FnvHashMap;
+use crate::feature_flags::NoInlineFeature;
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::util::get_normalization_operation_name;
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread,
-    OperationDefinition, Program, Selection, Transformed, TransformedMulti, TransformedValue,
-    Transformer, ValidationMessage, Value,
+    Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
+    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
+    TransformedValue, Transformer, ValidationMessage, Value, Variable,
 };
-use interner::StringKey;
+use graphql_syntax::OperationKind;
+use interner::{Intern, StringKey};
 use scope::Scope;
 use std::sync::Arc;
 
@@ -39,12 +44,21 @@ use std::sync::Arc;
 /// - Nodes that would become empty as a result of the above are removed.
 ///
 /// Note that unreferenced fragments are not added to the output.
-pub fn apply_fragment_arguments(program: &Program) -> DiagnosticsResult<Program> {
+pub fn apply_fragment_arguments(
+    program: &Program,
+    is_normalization: bool,
+    no_inline_feature: &NoInlineFeature,
+    base_fragment_names: &FnvHashSet<StringKey>,
+) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
-        program,
-        fragments: Default::default(),
-        scope: Default::default(),
+        base_fragment_names,
         errors: Vec::new(),
+        fragments: Default::default(),
+        is_normalization,
+        no_inline_feature,
+        program,
+        scope: Default::default(),
+        split_operations: Default::default(),
     };
 
     let mut next_program = transform
@@ -61,6 +75,10 @@ pub fn apply_fragment_arguments(program: &Program) -> DiagnosticsResult<Program>
         }
     }
 
+    for (_, operation) in transform.split_operations {
+        next_program.insert_operation(Arc::new(operation));
+    }
+
     if transform.errors.is_empty() {
         Ok(next_program)
     } else {
@@ -74,14 +92,18 @@ enum PendingFragment {
     Resolved(Option<Arc<FragmentDefinition>>),
 }
 
-struct ApplyFragmentArgumentsTransform<'program> {
-    program: &'program Program,
-    fragments: FnvHashMap<StringKey, PendingFragment>,
-    scope: Scope,
+struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
+    base_fragment_names: &'base_fragments FnvHashSet<StringKey>,
     errors: Vec<Diagnostic>,
+    fragments: FnvHashMap<StringKey, PendingFragment>,
+    is_normalization: bool,
+    no_inline_feature: &'flags NoInlineFeature,
+    program: &'program Program,
+    scope: Scope,
+    split_operations: FnvHashMap<StringKey, OperationDefinition>,
 }
 
-impl Transformer for ApplyFragmentArgumentsTransform<'_> {
+impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -96,15 +118,66 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_> {
 
     fn transform_fragment(
         &mut self,
-        _fragment: &FragmentDefinition,
+        fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        // Fragments are included where referenced.
-        // Unreferenced fragments are not included.
+        if self.is_normalization {
+            let no_inline_directive = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME);
+            if let Some(no_inline_directive) = no_inline_directive {
+                self.transform_no_inline_fragment(fragment, no_inline_directive);
+            }
+        }
+        // Non-inlined fragments are promoted to operations; other fragments are deleted
+        // unless they are referenced
         Transformed::Delete
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        if let Some(applied_fragment) = self.apply_fragment(spread) {
+        let fragment = self
+            .program
+            .fragment(spread.fragment.item)
+            .unwrap_or_else(|| {
+                panic!(
+                    "Tried to spread missing fragment: `{}`.",
+                    spread.fragment.item
+                );
+            });
+        if self.is_normalization {
+            if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
+                let transformed_arguments = spread
+                    .arguments
+                    .iter()
+                    .map(|arg| {
+                        let mut arg = self.transform_argument(arg).unwrap_or_else(|| arg.clone());
+                        arg.name.item = format_local_variable(fragment.name.item, arg.name.item);
+                        arg
+                    })
+                    .collect();
+                let mut directives = Vec::with_capacity(spread.directives.len() + 1);
+                directives.extend(spread.directives.iter().cloned());
+                directives.push(directive.clone());
+                let normalization_name =
+                    get_normalization_operation_name(fragment.name.item).intern();
+                let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    arguments: transformed_arguments,
+                    directives,
+                    fragment: WithLocation::new(fragment.name.location, normalization_name),
+                }));
+                // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
+                // type of the object matches the fragment's type condition. Rather than reimplement type refinement
+                // for fragment spreads, we wrap the fragment spread in an inlinefragment (which may be inlined away)
+                // that ensures it will go through type-refinement at runtime.
+                return if fragment.type_condition.is_abstract_type() {
+                    Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                        directives: Default::default(),
+                        selections: vec![next_spread],
+                        type_condition: Some(fragment.type_condition),
+                    })))
+                } else {
+                    Transformed::Replace(next_spread)
+                };
+            }
+        }
+        if let Some(applied_fragment) = self.apply_fragment(spread, fragment) {
             let directives = self
                 .transform_directives(&spread.directives)
                 .replace_or_else(|| spread.directives.clone());
@@ -172,18 +245,89 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_> {
     }
 }
 
-impl ApplyFragmentArgumentsTransform<'_> {
-    fn apply_fragment(&mut self, spread: &FragmentSpread) -> Option<Arc<FragmentDefinition>> {
+impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
+    fn transform_no_inline_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+        directive: &Directive,
+    ) {
+        // We do not need to to write normalization files for base fragments
+        if self.base_fragment_names.contains(&fragment.name.item) {
+            return;
+        }
+        if !self
+            .no_inline_feature
+            .enable_for_fragment(fragment.name.item)
+        {
+            self.errors.push(Diagnostic::error(
+                format!(
+                    "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
+                    fragment.name.item, self.no_inline_feature
+                ),
+                directive.name.location,
+            ));
+        }
+        self.scope = no_inline_fragment_scope(fragment);
         let fragment = self
-            .program
-            .fragment(spread.fragment.item)
-            .unwrap_or_else(|| {
-                panic!(
-                    "Tried to spread missing fragment: `{}`.",
-                    spread.fragment.item
-                );
-            });
+            .default_transform_fragment(fragment)
+            .unwrap_or_else(|| fragment.clone());
+        let FragmentDefinition {
+            name,
+            mut directives,
+            mut variable_definitions,
+            selections,
+            type_condition,
+            ..
+        } = fragment;
 
+        if !variable_definitions.is_empty() && !self.no_inline_feature.enable_fragment_variables() {
+            // arguments disallowed
+            self.errors.push(Diagnostic::error(
+                format!(
+                    "Invalid usage of @no_inline on fragment '{}' with arguments: fragment arguments are not yet supported",
+                    fragment.name.item,
+                ),
+                directive.name.location,
+            ));
+        }
+
+        for variable in &mut variable_definitions {
+            variable.name.item = format_local_variable(fragment.name.item, variable.name.item);
+        }
+        let mut metadata = SplitOperationMetadata {
+            derived_from: fragment.name.item,
+            parent_sources: Default::default(),
+            raw_response_type: true,
+        };
+        metadata.parent_sources.insert(fragment.name.item);
+        directives.push(metadata.to_directive());
+        let normalization_name = get_normalization_operation_name(name.item).intern();
+        let operation = OperationDefinition {
+            name: WithLocation::new(name.location, normalization_name),
+            type_: type_condition,
+            variable_definitions,
+            directives,
+            selections,
+            kind: OperationKind::Query,
+        };
+
+        if self.program.operation(normalization_name).is_some() {
+            self.errors.push(Diagnostic::error(
+                format!(
+                    "Invalid usage of @no_inline on fragment '{}' - @no_inline is not yet supported on fragments loaded with @module",
+                    fragment.name.item,
+                ),
+                directive.name.location,
+            ));
+        }
+        self.split_operations.insert(fragment.name.item, operation);
+    }
+
+    fn apply_fragment(
+        &mut self,
+        spread: &FragmentSpread,
+        fragment: &FragmentDefinition,
+    ) -> Option<Arc<FragmentDefinition>> {
         let transformed_arguments = self
             .transform_arguments(&spread.arguments)
             .replace_or_else(|| spread.arguments.clone());
@@ -292,4 +436,29 @@ impl ApplyFragmentArgumentsTransform<'_> {
             })))
         }
     }
+}
+
+fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
+    let mut bindings = FnvHashMap::with_capacity_and_hasher(
+        fragment.variable_definitions.len(),
+        Default::default(),
+    );
+    for variable_definition in &fragment.variable_definitions {
+        let variable_name = variable_definition.name.item;
+        let scoped_variable_name = format_local_variable(fragment.name.item, variable_name);
+        bindings.insert(
+            variable_name,
+            Value::Variable(Variable {
+                name: WithLocation::new(variable_definition.name.location, scoped_variable_name),
+                type_: variable_definition.type_.clone(),
+            }),
+        );
+    }
+    let mut scope = Scope::root_scope();
+    scope.push_bindings(fragment.name.location, bindings);
+    scope
+}
+
+fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+    format!("{}${}", fragment_name, arg_name).intern()
 }

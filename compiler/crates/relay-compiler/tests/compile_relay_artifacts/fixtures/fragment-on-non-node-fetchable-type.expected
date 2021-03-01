@@ -103,13 +103,6 @@ fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              },
-              {
                 "kind": "InlineFragment",
                 "selections": [
                   {
@@ -139,6 +132,13 @@ fragment fragmentOnNonNodeFetchableType_ProfilePicture on User {
                 ],
                 "type": "User",
                 "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
               }
             ],
             "storageKey": null

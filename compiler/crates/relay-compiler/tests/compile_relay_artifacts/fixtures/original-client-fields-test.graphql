@@ -3,6 +3,13 @@ query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
     ...originalClientFieldsTest_BestFriends
     ...originalClientFieldsTest_OnlyClientFields
   }
+  named {
+    # fragments on extension types are skipped
+    ...originalClientFieldsTest_FooFragment
+    ... on Foo {
+      name
+    }
+  }
 }
 
 # This fragment disappears because all selections are removed
@@ -25,13 +32,6 @@ fragment originalClientFieldsTest_BestFriends on User {
     }
     pageInfo {
       hasNextPage
-    }
-  }
-  ... on Named {
-    # fragments on extension types are skipped
-    ...originalClientFieldsTest_FooFragment
-    ... on Foo {
-      name
     }
   }
 }

@@ -11,13 +11,13 @@ export type MyQueryResponse = ?{|
   +me: {|
     +id: string,
     +name: string,
-  |}
+  |},
 |};
 export type MyQueryRawResponse = {|
   +me: ?{|
     +id: string,
     +name: ?string,
-  |}
+  |},
 |};
 export type MyQuery = {|
   variables: MyQueryVariables,

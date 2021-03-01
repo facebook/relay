@@ -21,10 +21,10 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentCreateMutationVariables = {|
   input: CommentCreateInput,
@@ -37,10 +37,10 @@ export type CommentCreateMutationResponse = {|
       +id: string,
       +name: ?string,
       +friends: ?{|
-        +count: ?number
+        +count: ?number,
       |},
-    |}
-  |}
+    |},
+  |},
 |};
 export type CommentCreateMutation = {|
   variables: CommentCreateMutationVariables,

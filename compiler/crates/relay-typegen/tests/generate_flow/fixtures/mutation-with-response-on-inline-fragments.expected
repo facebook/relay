@@ -34,22 +34,22 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
 export type TestMutationVariables = {|
-  input: CommentCreateInput
+  input: CommentCreateInput,
 |};
 export type TestMutationResponse = {|
   +commentCreate: ?{|
     +viewer: ?{|
       +actor: ?{|
-        +$fragmentRefs: InlineFragmentWithOverlappingFields$ref
-      |}
-    |}
-  |}
+        +$fragmentRefs: InlineFragmentWithOverlappingFields$ref,
+      |},
+    |},
+  |},
 |};
 export type TestMutationRawResponse = {|
   +commentCreate: ?{|
@@ -70,16 +70,16 @@ export type TestMutationRawResponse = {|
         +hometown: ?{|
           +id: string,
           +message: ?{|
-            +text: ?string
+            +text: ?string,
           |},
         |},
       |} | {|
         +__typename: string,
         +__isActor: string,
         +id: string,
-      |})
-    |}
-  |}
+      |}),
+    |},
+  |},
 |};
 export type TestMutation = {|
   variables: TestMutationVariables,
@@ -95,7 +95,7 @@ export type InlineFragmentWithOverlappingFields = {|
     +id: string,
     +name: ?string,
     +message?: ?{|
-      +text: ?string
+      +text: ?string,
     |},
   |},
   +name?: ?string,

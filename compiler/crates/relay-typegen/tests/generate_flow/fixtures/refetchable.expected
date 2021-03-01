@@ -11,12 +11,12 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type FlowRefetchableFragment$ref: FragmentReference;
 declare export opaque type FlowRefetchableFragment$fragmentType: FlowRefetchableFragment$ref;
 export type FlowRefetchableFragmentQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type FlowRefetchableFragmentQueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: FlowRefetchableFragment$ref
-  |}
+    +$fragmentRefs: FlowRefetchableFragment$ref,
+  |},
 |};
 export type FlowRefetchableFragmentQuery = {|
   variables: FlowRefetchableFragmentQueryVariables,

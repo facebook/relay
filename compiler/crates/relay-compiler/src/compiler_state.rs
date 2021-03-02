@@ -184,7 +184,6 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
-    #[serde(with = "clock_json_string")]
     pub clock: Clock,
     pub saved_state_version: String,
     #[serde(skip)]
@@ -522,10 +521,11 @@ impl CompilerState {
             file: path.clone(),
             source: err,
         })?;
-        bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
+        serde_json::to_writer(writer, self).map_err(|err| Error::SerializationError {
             file: path.clone(),
             source: err,
-        })
+        })?;
+        Ok(())
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
@@ -534,10 +534,11 @@ impl CompilerState {
             source: err,
         })?;
         let reader = BufReader::new(file);
-        bincode::deserialize_from(reader).map_err(|err| Error::DeserializationError {
+        let state = serde_json::from_reader(reader).map_err(|err| Error::DeserializationError {
             file: path.clone(),
             source: err,
-        })
+        })?;
+        Ok(state)
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {
@@ -605,45 +606,5 @@ impl CompilerState {
     /// as there maybe incoming file change or source control update in progress
     pub fn should_cancel_current_build(&self) -> bool {
         self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
-    }
-}
-
-/// A module to serialize a watchman Clock value via JSON.
-/// The reason is that `Clock` internally uses an untagged enum value
-/// which requires "self descriptive" serialization formats and `bincode` does not
-/// support those enums.
-mod clock_json_string {
-    use crate::watchman::Clock;
-    use serde::{
-        de::{Error, Visitor},
-        Deserializer, Serializer,
-    };
-
-    pub fn serialize<S>(clock: &Clock, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let json_string = serde_json::to_string(clock).unwrap();
-        serializer.serialize_str(&json_string)
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Clock, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        deserializer.deserialize_str(JSONStringVisitor)
-    }
-
-    struct JSONStringVisitor;
-    impl<'de> Visitor<'de> for JSONStringVisitor {
-        type Value = Clock;
-
-        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            formatter.write_str("a JSON encoded watchman::Clock value")
-        }
-
-        fn visit_str<E: Error>(self, v: &str) -> Result<Clock, E> {
-            Ok(serde_json::from_str(v).unwrap())
-        }
     }
 }

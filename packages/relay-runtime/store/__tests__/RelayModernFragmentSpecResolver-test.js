@@ -17,11 +17,8 @@ const {fetchQuery} = require('../../query/fetchQueryInternal');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
-
+const {graphql, getRequest} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
   let UserQuery;
@@ -59,28 +56,39 @@ describe('RelayModernFragmentSpecResolver', () => {
 
   beforeEach(() => {
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery, UsersFragment} = generateAndCompile(`
-      query UserQuery($id: ID! $size: Int $fetchSize: Boolean!) {
+    UserFragment = graphql`
+      fragment RelayModernFragmentSpecResolverTestQueryUserFragment on User {
+        id
+        name
+        profilePicture(size: $size) @include(if: $fetchSize) {
+          uri
+        }
+      }
+    `;
+    UsersFragment = graphql`
+      fragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User
+        @relay(plural: true) {
+        id
+        name
+        profilePicture(size: $size) @include(if: $fetchSize) {
+          uri
+        }
+      }
+    `;
+
+    UserQuery = getRequest(graphql`
+      query RelayModernFragmentSpecResolverTestQuery(
+        $id: ID!
+        $size: Int
+        $fetchSize: Boolean!
+      ) {
         node(id: $id) {
-          ...UserFragment
-          ...UsersFragment
+          ...RelayModernFragmentSpecResolverTestQueryUserFragment
+          ...RelayModernFragmentSpecResolverTestQueryUsersFragment
         }
       }
-      fragment UserFragment on User {
-        id
-        name
-        profilePicture(size: $size) @include(if: $fetchSize) {
-          uri
-        }
-      }
-      fragment UsersFragment on User @relay(plural: true) {
-        id
-        name
-        profilePicture(size: $size) @include(if: $fetchSize) {
-          uri
-        }
-      }
-    `));
+    `);
+
     zuckOperation = createOperationDescriptor(UserQuery, {
       fetchSize: false,
       id: '4',

@@ -44,6 +44,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
+    root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
     schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
@@ -71,6 +72,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             compiler: None,
             extra_data_provider,
             file_categorizer,
+            root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Default::default(),
             source_programs: Default::default(),
@@ -157,6 +159,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn root_dir(&self) -> &PathBuf {
         &self.root_dir
+    }
+
+    pub(crate) fn root_dir_str(&self) -> &str {
+        &self.root_dir_str
     }
 
     pub(crate) fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {

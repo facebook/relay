@@ -21,11 +21,10 @@ const {
   createOperationDescriptor,
   RecordSource,
   Store,
+  graphql,
+  getRequest,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 import type {Subscription} from 'relay-runtime';
 
@@ -50,18 +49,17 @@ describe('QueryResource', () => {
     store = new Store(new RecordSource(), {gcReleaseBufferSize: 0});
     environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
-    gqlQuery = generateAndCompile(
-      `query UserQuery($id: ID!) {
+    gqlQuery = getRequest(graphql`
+      query QueryResourceTest1Query($id: ID!) {
         node(id: $id) {
           ... on User {
             id
           }
         }
       }
-    `,
-    ).UserQuery;
-    gqlQueryMissingData = generateAndCompile(
-      `query UserQuery($id: ID!) {
+    `);
+    gqlQueryMissingData = getRequest(graphql`
+      query QueryResourceTest2Query($id: ID!) {
         node(id: $id) {
           ... on User {
             id
@@ -69,8 +67,7 @@ describe('QueryResource', () => {
           }
         }
       }
-    `,
-    ).UserQuery;
+    `);
 
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryMissingData = createOperationDescriptor(
@@ -126,7 +123,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -158,7 +155,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -230,7 +227,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -319,7 +316,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -365,19 +362,20 @@ describe('QueryResource', () => {
 
         describe('when using fragments', () => {
           it('should return result and not send a network request if all data is locally available', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-              fragment UserFragment on User {
+            graphql`
+              fragment QueryResourceTest1Fragment on User {
                 id
               }
-              query UserQuery($id: ID!) {
+            `;
+
+            const UserQuery = getRequest(graphql`
+              query QueryResourceTest3Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...UserFragment
+                  ...QueryResourceTest1Fragment
                 }
               }
-            `,
-            );
+            `);
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -404,7 +402,7 @@ describe('QueryResource', () => {
               fragmentRef: {
                 __id: ROOT_ID,
                 __fragments: {
-                  UserQuery: variables,
+                  QueryResourceTest3Query: variables,
                 },
                 __fragmentOwner: queryWithFragments.request,
               },
@@ -420,20 +418,20 @@ describe('QueryResource', () => {
           });
 
           it('should return result and send a network request when some data is missing in fragment', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-                fragment UserFragment on User {
-                  id
-                  username
+            graphql`
+              fragment QueryResourceTest2Fragment on User {
+                id
+                username
+              }
+            `;
+            const UserQuery = getRequest(graphql`
+              query QueryResourceTest4Query($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...QueryResourceTest2Fragment
                 }
-                query UserQuery($id: ID!) {
-                  node(id: $id) {
-                    __typename
-                    ...UserFragment
-                  }
-                }
-              `,
-            );
+              }
+            `);
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -459,7 +457,7 @@ describe('QueryResource', () => {
               fragmentRef: {
                 __id: ROOT_ID,
                 __fragments: {
-                  UserQuery: variables,
+                  QueryResourceTest4Query: variables,
                 },
                 __fragmentOwner: queryWithFragments.request,
               },
@@ -475,19 +473,19 @@ describe('QueryResource', () => {
           });
 
           it('should suspend and send a network request if data for query is cached but stale', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-              fragment UserFragment on User {
+            graphql`
+              fragment QueryResourceTest3Fragment on User {
                 id
               }
-              query UserQuery($id: ID!) {
+            `;
+            const UserQuery = getRequest(graphql`
+              query QueryResourceTest5Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...UserFragment
+                  ...QueryResourceTest3Fragment
                 }
               }
-            `,
-            );
+            `);
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -557,7 +555,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -724,7 +722,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -818,19 +816,19 @@ describe('QueryResource', () => {
 
         describe('when using fragments', () => {
           it('should return result and not send a network request if all data is locally available', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-              fragment UserFragment on User {
+            graphql`
+              fragment QueryResourceTest4Fragment on User {
                 id
               }
-              query UserQuery($id: ID!) {
+            `;
+            const UserQuery = getRequest(graphql`
+              query QueryResourceTest6Query($id: ID!) {
                 node(id: $id) {
                   __typename
-                  ...UserFragment
+                  ...QueryResourceTest4Fragment
                 }
               }
-            `,
-            );
+            `);
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -857,7 +855,7 @@ describe('QueryResource', () => {
               fragmentRef: {
                 __id: ROOT_ID,
                 __fragments: {
-                  UserQuery: variables,
+                  QueryResourceTest6Query: variables,
                 },
                 __fragmentOwner: queryWithFragments.request,
               },
@@ -873,20 +871,20 @@ describe('QueryResource', () => {
           });
 
           it('should suspend and send a network request when some data is missing in fragment', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-                fragment UserFragment on User {
-                  id
-                  username
+            graphql`
+              fragment QueryResourceTest5Fragment on User {
+                id
+                username
+              }
+            `;
+            const UserQuery = getRequest(graphql`
+              query QueryResourceTest7Query($id: ID!) {
+                node(id: $id) {
+                  __typename
+                  ...QueryResourceTest5Fragment
                 }
-                query UserQuery($id: ID!) {
-                  node(id: $id) {
-                    __typename
-                    ...UserFragment
-                  }
-                }
-              `,
-            );
+              }
+            `);
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -926,21 +924,21 @@ describe('QueryResource', () => {
 
         describe('when using incremental data', () => {
           it('should suspend and send a network request when some data is missing in fragment', () => {
-            const {UserQuery} = generateAndCompile(
-              `
-                fragment UserFragment on User {
+            graphql`
+              fragment QueryResourceTest6Fragment on User {
+                id
+                username
+              }
+            `;
+            const UserQuery = getRequest(graphql`
+              query QueryResourceTest8Query($id: ID!) {
+                node(id: $id) {
+                  __typename
                   id
-                  username
+                  ...QueryResourceTest6Fragment @defer
                 }
-                query UserQuery($id: ID!) {
-                  node(id: $id) {
-                    __typename
-                    id
-                    ...UserFragment @defer
-                  }
-                }
-              `,
-            );
+              }
+            `);
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -1000,7 +998,7 @@ describe('QueryResource', () => {
               fragmentRef: {
                 __id: ROOT_ID,
                 __fragments: {
-                  UserQuery: variables,
+                  QueryResourceTest8Query: variables,
                 },
                 __fragmentOwner: queryWithFragments.request,
               },
@@ -1019,7 +1017,7 @@ describe('QueryResource', () => {
                 __typename: 'User',
                 username: 'zuck',
               },
-              label: 'UserQuery$defer$UserFragment',
+              label: 'QueryResourceTest8Query$defer$QueryResourceTest6Fragment',
               path: ['node'],
             });
             // Data should not be missing anymore
@@ -1074,7 +1072,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -1106,7 +1104,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -1168,7 +1166,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -1257,7 +1255,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -1325,7 +1323,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -1490,7 +1488,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -1698,7 +1696,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -1873,7 +1871,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -1948,7 +1946,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -1980,7 +1978,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -2013,7 +2011,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -2052,7 +2050,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest1Query: variables,
               },
               __fragmentOwner: query.request,
             },
@@ -2084,7 +2082,7 @@ describe('QueryResource', () => {
             fragmentRef: {
               __id: ROOT_ID,
               __fragments: {
-                UserQuery: variables,
+                QueryResourceTest2Query: variables,
               },
               __fragmentOwner: queryMissingData.request,
             },
@@ -2757,16 +2755,15 @@ describe('QueryResource, with an environment meant for SSR', () => {
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
     QueryResource = getQueryResourceForEnvironment(environment);
-    gqlQuery = generateAndCompile(
-      `query UserQuery($id: ID!) {
+    gqlQuery = getRequest(graphql`
+      query QueryResourceTest9Query($id: ID!) {
         node(id: $id) {
           ... on User {
             id
           }
         }
       }
-    `,
-    ).UserQuery;
+    `);
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     environment.commitPayload(query, {
       node: {
@@ -2807,7 +2804,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
         fragmentRef: {
           __id: ROOT_ID,
           __fragments: {
-            UserQuery: variables,
+            QueryResourceTest9Query: variables,
           },
           __fragmentOwner: query.request,
         },

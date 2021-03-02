@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cce375bd2ac345641ea7b4e271d0ad71>>
+ * @generated SignedSource<<5c3229b04f7816ed46671702db62500f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,9 @@ export type RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotM
 export type RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataActorQueryResponse = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile$ref
-    |}
-  |}
+      +$fragmentRefs: RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile$ref,
+    |},
+  |},
 |};
 export type RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataActorQuery = {|
   variables: RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataActorQueryVariables,
@@ -99,13 +99,6 @@ var node/*: ConcreteRequest*/ = {
                 "storageKey": null
               },
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              },
-              {
                 "kind": "InlineFragment",
                 "selections": [
                   {
@@ -118,6 +111,13 @@ var node/*: ConcreteRequest*/ = {
                 ],
                 "type": "User",
                 "abstractKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
               }
             ],
             "storageKey": null

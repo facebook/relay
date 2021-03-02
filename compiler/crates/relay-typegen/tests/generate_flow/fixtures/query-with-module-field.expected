@@ -22,14 +22,14 @@ import type { Test_user$ref } from "Test_user.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
-    +$fragmentRefs: Test_user$ref
-  |}
+    +$fragmentRefs: Test_user$ref,
+  |},
 |};
 export type Test_userRenderer = {|
   +user: ?{|
     +username: ?string,
     +id: string,
-  |}
+  |},
 |};
 export type TestRawResponse = {|
   +node: ?({|
@@ -39,12 +39,13 @@ export type TestRawResponse = {|
       +__module_operation_Test_user: ?any,
       +__module_component_Test_user: ?any,
       ...Test_userRenderer,
-    |} | Local3DPayload<"Test_user", {| ...Test_userRenderer
+    |} | Local3DPayload<"Test_user", {|
+      ...Test_userRenderer,
     |}>),
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type Test = {|
   variables: TestVariables,
@@ -76,7 +77,7 @@ declare export opaque type Test_userRenderer$ref: FragmentReference;
 declare export opaque type Test_userRenderer$fragmentType: Test_userRenderer$ref;
 export type Test_userRenderer = {|
   +user: ?{|
-    +username: ?string
+    +username: ?string,
   |},
   +$refType: Test_userRenderer$ref,
 |};

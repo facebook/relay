@@ -34,9 +34,7 @@ fragment ChildFragment on User
                     ),
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:53:61,
-                        item: FieldID(
-                            451,
-                        ),
+                        item: FieldID(451),
                     },
                     arguments: [
                         Argument {
@@ -64,9 +62,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:92:97,
-                                item: FieldID(
-                                    57,
-                                ),
+                                item: FieldID(57),
                             },
                             arguments: [],
                             directives: [],
@@ -140,9 +136,7 @@ fragment ChildFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:253:261,
-                        item: FieldID(
-                            451,
-                        ),
+                        item: FieldID(451),
                     },
                     arguments: [
                         Argument {
@@ -178,9 +172,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:297:302,
-                                item: FieldID(
-                                    57,
-                                ),
+                                item: FieldID(57),
                             },
                             arguments: [],
                             directives: [],

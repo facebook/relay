@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ad059f9f315399ee827d4acd7926edfe>>
+ * @generated SignedSource<<3caa3d3b5d39fe5a7a5e6070067aa328>>
  */
 
 mod generate_flow;
@@ -94,6 +94,13 @@ fn mutation_with_response_on_inline_fragments() {
     let input = include_str!("generate_flow/fixtures/mutation-with-response-on-inline-fragments.graphql");
     let expected = include_str!("generate_flow/fixtures/mutation-with-response-on-inline-fragments.expected");
     test_fixture(transform_fixture, "mutation-with-response-on-inline-fragments.graphql", "generate_flow/fixtures/mutation-with-response-on-inline-fragments.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/no-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/no-inline-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-fragment.graphql", "generate_flow/fixtures/no-inline-fragment.expected", input, expected);
 }
 
 #[test]

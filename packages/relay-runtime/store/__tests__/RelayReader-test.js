@@ -147,15 +147,15 @@ describe('RelayReader', () => {
         },
       },
     });
-    expect(Object.keys(seenRecords)).toEqual([
+    expect(Array.from(seenRecords.values()).sort()).toEqual([
       '1',
       '2',
       '3',
-      'client:root',
       'client:1',
       'client:2',
       'client:3',
       'client:4',
+      'client:root',
     ]);
   });
 
@@ -218,7 +218,7 @@ describe('RelayReader', () => {
         uri: 'https://example.com/32.png',
       },
     });
-    expect(Object.keys(seenRecords)).toEqual([
+    expect(Array.from(seenRecords.values()).sort()).toEqual([
       '1',
       '2',
       '3',
@@ -271,7 +271,7 @@ describe('RelayReader', () => {
       __fragmentOwner: owner.request,
     });
     expect(data.__fragmentOwner).toBe(owner.request);
-    expect(Object.keys(seenRecords)).toEqual(['1']);
+    expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
 
   it('creates fragment pointers with variable @arguments', () => {
@@ -315,7 +315,7 @@ describe('RelayReader', () => {
       },
       __fragmentOwner: owner.request,
     });
-    expect(Object.keys(seenRecords)).toEqual(['1']);
+    expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
 
   it('creates fragment pointers with literal @arguments', () => {
@@ -357,7 +357,7 @@ describe('RelayReader', () => {
       },
       __fragmentOwner: owner.request,
     });
-    expect(Object.keys(seenRecords)).toEqual(['1']);
+    expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
 
   describe('@inline', () => {
@@ -397,7 +397,10 @@ describe('RelayReader', () => {
           },
         },
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:4']);
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
+        '1',
+        'client:4',
+      ]);
     });
   });
 
@@ -414,7 +417,7 @@ describe('RelayReader', () => {
       createReaderSelector(UserProfile, '4', {}),
     );
     expect(data).toBe(null);
-    expect(Object.keys(seenRecords)).toEqual(['4']);
+    expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
   });
 
   it('reads data when the root is unfetched', () => {
@@ -429,7 +432,7 @@ describe('RelayReader', () => {
       createReaderSelector(UserProfile, '4', {}),
     );
     expect(data).toBe(undefined);
-    expect(Object.keys(seenRecords)).toEqual(['4']);
+    expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
   });
 
   it('reads "handle" fields for query root fragments', () => {
@@ -503,7 +506,7 @@ describe('RelayReader', () => {
         },
       },
     });
-    expect(Object.keys(seenRecords).sort()).toEqual([
+    expect(Array.from(seenRecords.values()).sort()).toEqual([
       '1',
       '2',
       'client:bestFriends',
@@ -570,7 +573,7 @@ describe('RelayReader', () => {
         ],
       },
     });
-    expect(Object.keys(seenRecords).sort()).toEqual([
+    expect(Array.from(seenRecords.values()).sort()).toEqual([
       '1',
       '2',
       'client:bestFriends',
@@ -663,7 +666,7 @@ describe('RelayReader', () => {
           __module_component: 'PlainUserNameRenderer.react',
         },
       });
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
         'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
       ]);
@@ -717,7 +720,7 @@ describe('RelayReader', () => {
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       });
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
         'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
       ]);
@@ -756,7 +759,7 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: {}, // type doesn't match selections, no data provided
       });
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
         'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
       ]);
@@ -786,7 +789,7 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: null,
       });
-      expect(Object.keys(seenRecords)).toEqual(['1']);
+      expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
       expect(isMissingData).toBe(false);
     });
 
@@ -812,7 +815,7 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: undefined,
       });
-      expect(Object.keys(seenRecords)).toEqual(['1']);
+      expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
       expect(isMissingData).toBe(true);
     });
   });
@@ -900,7 +903,10 @@ describe('RelayReader', () => {
           __module_component: 'PlainUserNameRenderer.react',
         },
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1:nameRenderer']);
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+      ]);
       expect(isMissingData).toBe(false);
     });
 
@@ -948,7 +954,10 @@ describe('RelayReader', () => {
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1:nameRenderer']);
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+      ]);
       expect(isMissingData).toBe(false);
     });
 
@@ -983,7 +992,10 @@ describe('RelayReader', () => {
         id: '1',
         nameRenderer: {}, // type doesn't match selections, no data provided
       });
-      expect(Object.keys(seenRecords)).toEqual(['1', 'client:1:nameRenderer']);
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
+        '1',
+        'client:1:nameRenderer',
+      ]);
       expect(isMissingData).toBe(false);
     });
   });
@@ -1725,7 +1737,10 @@ describe('RelayReader', () => {
       });
       expect(snapshot.isMissingData).toBe(true); // missing discriminator
       // does *not* include userTypeID/pageTypeID
-      expect(Object.keys(snapshot.seenRecords)).toEqual(['1', '2']);
+      expect(Array.from(snapshot.seenRecords.values()).sort()).toEqual([
+        '1',
+        '2',
+      ]);
     });
   });
 
@@ -1814,10 +1829,10 @@ describe('RelayReader', () => {
           },
         }
       `);
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:root',
         'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
       ]);
     });
 
@@ -1858,10 +1873,10 @@ describe('RelayReader', () => {
             },
           }
         `);
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:root',
         'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
       ]);
     });
 
@@ -1902,10 +1917,10 @@ describe('RelayReader', () => {
           },
         }
       `);
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:root',
         'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
       ]);
     });
 
@@ -1945,10 +1960,10 @@ describe('RelayReader', () => {
           },
         }
       `);
-      expect(Object.keys(seenRecords)).toEqual([
+      expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:root',
         'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+        'client:root',
       ]);
     });
   });

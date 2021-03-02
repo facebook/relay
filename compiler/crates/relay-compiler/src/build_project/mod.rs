@@ -16,6 +16,7 @@ mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod is_operation_preloadable;
+mod log_program_stats;
 mod persist_operations;
 mod source_control;
 mod validate;
@@ -23,6 +24,7 @@ mod validate;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
+use crate::watchman::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;
@@ -38,16 +40,22 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
-use log::info;
+use log::{debug, info};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
-pub use validate::validate;
+pub use validate::{validate, AdditionalValidations};
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
     Cancelled,
+}
+
+impl From<BuildProjectError> for BuildProjectFailure {
+    fn from(err: BuildProjectError) -> BuildProjectFailure {
+        BuildProjectFailure::Error(err)
+    }
 }
 
 /// This program doesn't have IR transforms applied to it, so it's not optimized.
@@ -58,15 +66,34 @@ pub fn build_raw_program(
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
+    is_incremental_build: bool,
 ) -> Result<Program, BuildProjectError> {
     let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, false)
+        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     Ok(log_event.time("build_program_time", || {
         Program::from_definitions(schema, ir)
     }))
+}
+
+pub fn validate_program(
+    config: &Config,
+    program: &Program,
+    log_event: &impl PerfLogEvent,
+) -> Result<(), BuildProjectError> {
+    let timer = log_event.start("validate_time");
+    let result = validate(
+        program,
+        &config.connection_interface,
+        &config.additional_validations,
+    )
+    .map_err(|errors| BuildProjectError::ValidationErrors { errors });
+
+    log_event.stop(timer);
+
+    result
 }
 
 fn build_programs(
@@ -79,8 +106,13 @@ fn build_programs(
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(Programs, Arc<SourceHashes>), BuildProjectFailure> {
     let project_name = project_config.name;
-    let is_incremental_build =
-        compiler_state.has_processed_changes() && !compiler_state.has_breaking_schema_change();
+    let is_incremental_build = compiler_state.has_processed_changes()
+        && !compiler_state.has_breaking_schema_change(project_name)
+        && if let Some(base) = project_config.base {
+            !compiler_state.has_breaking_schema_change(base)
+        } else {
+            true
+        };
 
     // Build a type aware IR.
     let BuildIRResult {
@@ -98,16 +130,13 @@ fn build_programs(
         Program::from_definitions(schema, ir)
     });
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 
     // Call validation rules that go beyond type checking.
-    log_event.time("validate_time", || {
-        validate(&program, &config.connection_interface).map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
-        })
-    })?;
+    validate_program(&config, &program, log_event)?;
 
     // Apply various chains of transforms to create a set of output programs.
     let programs = log_event.time("apply_transforms_time", || {
@@ -116,7 +145,13 @@ fn build_programs(
             Arc::new(program),
             Arc::new(base_fragment_names),
             &config.connection_interface,
-            Arc::new(project_config.feature_flags.unwrap_or(config.feature_flags)),
+            Arc::new(
+                project_config
+                    .feature_flags
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or(config.feature_flags.clone()),
+            ),
             perf_logger,
         )
         .map_err(|errors| {
@@ -149,7 +184,8 @@ pub fn build_project(
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
         })?;
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 
@@ -164,7 +200,8 @@ pub fn build_project(
         Arc::clone(&perf_logger),
     )?;
 
-    if compiler_state.has_pending_file_source_changes() {
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 
@@ -196,10 +233,16 @@ pub async fn commit_project(
     removed_definition_names: Vec<StringKey>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
-) -> Result<ArtifactMap, BuildProjectError> {
+    source_control_update_status: Arc<SourceControlUpdateStatus>,
+) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
+
+    if source_control_update_status.is_started() {
+        debug!("commit_project cancelled before persisting due to source control updates");
+        return Err(BuildProjectFailure::Cancelled);
+    }
 
     if let Some(ref operation_persister) = config.operation_persister {
         if let Some(ref persist_config) = project_config.persist {
@@ -217,19 +260,39 @@ pub async fn commit_project(
         }
     }
 
+    if source_control_update_status.is_started() {
+        debug!(
+            "commit_project cancelled before generating extra artifacts due to source control updates"
+        );
+        return Err(BuildProjectFailure::Cancelled);
+    }
+
     // In some cases we need to create additional (platform specific) artifacts
-    // For that, we will use `generate_extra_operation_artifacts` from the configs
-    if let Some(generate_extra_operation_artifacts_fn) = &config.generate_extra_operation_artifacts
-    {
-        log_event.time("generate_extra_operation_artifacts_time", || {
+    // For that, we will use `generate_extra_artifacts` from the configs
+    if let Some(generate_extra_artifacts_fn) = &config.generate_extra_artifacts {
+        log_event.time("generate_extra_artifacts_time", || {
             generate_extra_artifacts(
                 schema,
                 project_config,
                 &mut artifacts,
-                generate_extra_operation_artifacts_fn,
+                generate_extra_artifacts_fn,
             )
         });
     }
+
+    if source_control_update_status.is_started() {
+        debug!("commit_project cancelled before writing artifacts due to source control updates");
+        return Err(BuildProjectFailure::Cancelled);
+    }
+
+    let should_stop_updating_artifacts = || {
+        if source_control_update_status.is_started() {
+            debug!("artifact_writer updates cancelled due source control updates");
+            true
+        } else {
+            false
+        }
+    };
 
     // Write the generated artifacts to disk. This step is separate from
     // generating artifacts or persisting to avoid partial writes in case of
@@ -237,55 +300,69 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::with_dedupe();
-
-            log_event.time("write_artifacts_time", || {
-                for artifact in &artifacts {
-                    if !existing_artifacts.remove(&artifact.path) {
-                        info!(
-                            "[{}] NEW: {:?} -> {:?}",
-                            project_config.name, &artifact.source_definition_names, &artifact.path
-                        );
-                    }
-
-                    let path = config.root_dir.join(&artifact.path);
-                    let content =
-                        artifact
-                            .content
-                            .as_bytes(config, project_config, &mut printer, schema);
-                    config.artifact_writer.write_if_changed(path, content)?;
+            let mut printer = Printer::with_dedupe(project_config.js_module_format);
+            let write_artifacts_time = log_event.start("write_artifacts_time");
+            for artifact in &artifacts {
+                if should_stop_updating_artifacts() {
+                    break;
                 }
-                Ok(())
-            })?;
-
-            log_event.time("delete_artifacts_time", || {
-                for remaining_artifact in &existing_artifacts {
-                    let path = config.root_dir.join(remaining_artifact);
-                    config.artifact_writer.remove(path)?;
+                if !existing_artifacts.remove(&artifact.path) {
+                    info!(
+                        "[{}] NEW: {:?} -> {:?}",
+                        project_config.name, &artifact.source_definition_names, &artifact.path
+                    );
                 }
-                Ok(())
-            })?;
 
+                let path = config.root_dir.join(&artifact.path);
+                let content = artifact.content.as_bytes(
+                    config,
+                    project_config,
+                    &mut printer,
+                    schema,
+                    artifact.source_file,
+                );
+                if config.artifact_writer.should_write(&path, &content)? {
+                    config.artifact_writer.write(path, content)?;
+                }
+            }
+            log_event.stop(write_artifacts_time);
+            let delete_artifacts_time = log_event.start("delete_artifacts_time");
+            for remaining_artifact in &existing_artifacts {
+                if should_stop_updating_artifacts() {
+                    break;
+                }
+                let path = config.root_dir.join(remaining_artifact);
+                config.artifact_writer.remove(path)?;
+            }
+            log_event.stop(delete_artifacts_time);
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::with_dedupe();
+            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
+            let write_artifacts_incremental_time =
+                log_event.start("write_artifacts_incremental_time");
 
-            log_event.time("write_artifacts_incremental_time", || {
-                // Write or update artifacts
-                for artifact in artifacts {
-                    let path = config.root_dir.join(&artifact.path);
-                    let content =
-                        artifact
-                            .content
-                            .as_bytes(config, project_config, &mut printer, schema);
-                    config.artifact_writer.write_if_changed(path, content)?;
-                    current_paths_map.insert(artifact);
+            // Write or update artifacts
+            for artifact in artifacts {
+                if should_stop_updating_artifacts() {
+                    break;
                 }
-                Ok(())
-            })?;
+                let path = config.root_dir.join(&artifact.path);
+                let content = artifact.content.as_bytes(
+                    config,
+                    project_config,
+                    &mut printer,
+                    schema,
+                    artifact.source_file,
+                );
+                if config.artifact_writer.should_write(&path, &content)? {
+                    config.artifact_writer.write(path, content)?;
+                }
+                current_paths_map.insert(artifact);
+            }
+            log_event.stop(write_artifacts_incremental_time);
 
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
@@ -320,18 +397,32 @@ pub async fn commit_project(
                     }
                 }
             });
-
-            log_event.time("delete_artifacts_incremental_time", || {
-                // The remaining dirty artifacts are no longer required
-                for path in artifacts_to_remove {
-                    config.artifact_writer.remove(config.root_dir.join(path))?;
+            let delete_artifacts_incremental_time =
+                log_event.start("delete_artifacts_incremental_time");
+            // The remaining dirty artifacts are no longer required
+            for path in artifacts_to_remove {
+                if should_stop_updating_artifacts() {
+                    break;
                 }
-                Ok(())
-            })?;
+                config.artifact_writer.remove(config.root_dir.join(path))?;
+            }
+            log_event.stop(delete_artifacts_incremental_time);
 
             artifact_map
         }
     };
+
+    if source_control_update_status.is_started() {
+        log_event.number("update_artifacts_after_source_control_update", 1);
+        debug!(
+            "We just updated artifacts after source control update happened. Most likely we have outdated artifacts now..."
+        );
+    } else {
+        // For now, lets log how often this is happening, so we can decide if we want to
+        // adjust the way we write artifacts. For example, we could write them to the temp
+        // directory first, then move to a correct destination.
+        log_event.number("update_artifacts_after_source_control_update", 0);
+    }
 
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",

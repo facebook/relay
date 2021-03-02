@@ -89,6 +89,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).toThrow(
       'Relay Environment Configuration Error (dev only): `@required(action: LOG)` requires that the Relay Environment be configured with a `requiredFieldLogger`',
@@ -103,6 +104,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).not.toThrow();
   });

@@ -21,10 +21,9 @@ lazy_static! {
         "__ReactFlightMetadata".intern();
     pub static ref REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY: StringKey =
         "__ReactFlightMetadataComponent".intern();
-    pub static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
         "react_flight".intern();
-    pub static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey =
-        "components".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
     pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: StringKey =
         "__ReactFlightComponent".intern();
     static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
@@ -49,10 +48,9 @@ pub fn react_flight(program: &Program) -> DiagnosticsResult<Program> {
         _ => return Ok(program.clone()),
     };
     let mut transform = ReactFlightTransform::new(program, props_type, component_type);
+    let transform_result = transform.transform_program(program);
     if transform.errors.is_empty() {
-        Ok(transform
-            .transform_program(program)
-            .replace_or_else(|| program.clone()))
+        Ok(transform_result.replace_or_else(|| program.clone()))
     } else {
         Err(transform.errors)
     }

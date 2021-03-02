@@ -4,7 +4,7 @@ title: Relay Store
 original_id: relay-store
 ---
 
-The Relay Store can be used to programatically update client-side data inside [`updater` functions](./mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.
+The Relay Store can be used to programatically update client-side data inside [`updater` functions](./classic-mutations.html#using-updater-and-optimisticupdater). The following is a reference of the Relay Store interface.
 
 Table of Contents:
 - [RecordSourceSelectorProxy](#recordsourceselectorproxy)
@@ -13,7 +13,7 @@ Table of Contents:
 
 ## RecordSourceSelectorProxy
 
-The `RecordSourceSelectorProxy` is the type of the `store` that [`updater` functions](./mutations.html#using-updater-and-optimisticupdater) receive as an argument. The following is the `RecordSourceSelectorProxy` interface:
+The `RecordSourceSelectorProxy` is the type of the `store` that [`updater` functions](./classic-mutations.html#using-updater-and-optimisticupdater) receive as an argument. The following is the `RecordSourceSelectorProxy` interface:
 
 ```javascript
 interface RecordSourceSelectorProxy {
@@ -439,7 +439,7 @@ const friends = user && user.getLinkedRecord(user, 'friends');
 const edges = friends.getLinkedRecords('edges');
 ```
 
-In a [pagination container](./pagination-container.html), we usually annotate the actual connection field with `@connection` to tell Relay which part needs to be paginated:
+In a [pagination container](./classic-pagination-container.html), we usually annotate the actual connection field with `@connection` to tell Relay which part needs to be paginated:
 ```graphql
 fragment FriendsFragment on User {
   friends(first: 10, orderby: "firstname") @connection(

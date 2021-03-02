@@ -24,11 +24,11 @@ const {
   createRefetchContainer,
 } = require('react-relay');
 const {
+  graphql,
   commitMutation,
   requestSubscription,
   DefaultHandlerProvider,
 } = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 const {useState, useEffect} = React;
 
@@ -43,14 +43,16 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {TestQuery} = generateAndCompile(`
-        query TestQuery($id: ID = "<default>") {
+      const TestQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestFantasticEffortQuery(
+          $id: ID = "<default>"
+        ) {
           user: node(id: $id) {
             id
             name
           }
         }
-      `);
+      `;
       const TestComponent = () => (
         <QueryRenderer
           environment={environment}
@@ -77,7 +79,9 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should return most recent operation', () => {
       const operation = environment.mock.getMostRecentOperation();
-      expect(operation.request.node.operation.name).toBe('TestQuery');
+      expect(operation.request.node.operation.name).toBe(
+        'RelayMockEnvironmentWithComponentsTestFantasticEffortQuery',
+      );
       expect(operation.request.variables).toEqual({
         id: '<default>',
       });
@@ -118,7 +122,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         node => node.props.testID === 'error',
       );
       // Should render error
-      expect(errorMessage.props.children).toBe('Uh-oh: TestQuery');
+      expect(errorMessage.props.children).toBe(
+        'Uh-oh: RelayMockEnvironmentWithComponentsTestFantasticEffortQuery',
+      );
     });
 
     it('should throw if it unable to find operation', () => {
@@ -134,22 +140,27 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {UserQuery, ProfilePictureFragment} = generateAndCompile(`
-        query UserQuery($id: ID = "<default>", $scale: Float = 1) {
+      const UserQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestImpossibleAwesomenessQuery(
+          $id: ID = "<default>"
+          $scale: Float = 1
+        ) {
           user: node(id: $id) {
             id
             name
-            ...ProfilePictureFragment
+            ...RelayMockEnvironmentWithComponentsTestProminentSolutionFragment
           }
         }
+      `;
 
-        fragment ProfilePictureFragment on User {
+      const ProfilePictureFragment = graphql`
+        fragment RelayMockEnvironmentWithComponentsTestProminentSolutionFragment on User {
           name
           profile_picture(scale: $scale) {
             uri
           }
         }
-      `);
+      `;
       const ProfilePicture = createFragmentContainer(
         props => {
           return (
@@ -219,18 +230,25 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {UserQuery, UserFriendsFragment} = generateAndCompile(`
-        query UserQuery($id: ID = "<default>", $first: Int = 5, $cursor: String = "") {
+      const UserQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery(
+          $id: ID = "<default>"
+          $first: Int = 5
+          $cursor: String = ""
+        ) {
           user: node(id: $id) {
             id
             name
-            ...UserFriendsFragment
+            ...RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment
           }
         }
+      `;
 
-        fragment UserFriendsFragment on User {
+      const UserFriendsFragment = graphql`
+        fragment RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment on User {
           id
-          friends(first: $first, after: $cursor) @connection (key: "User_friends") {
+          friends(first: $first, after: $cursor)
+            @connection(key: "User_friends") {
             edges {
               node {
                 id
@@ -242,7 +260,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             }
           }
         }
-      `);
+      `;
       function FriendsListComponent(props) {
         const [isLoading, setIsLoading] = useState(props.relay.isLoading());
         return (
@@ -442,29 +460,37 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {UserQuery, PageQuery, PageFragment} = generateAndCompile(`
-        query UserQuery($id: ID = "<default>") {
+      const UserQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery(
+          $id: ID = "<default>"
+        ) {
           user: node(id: $id) {
             id
             name
             hometown {
-              ...PageFragment
+              ...RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment
             }
           }
         }
+      `;
 
-        query PageQuery($id: ID!) @relay_test_operation {
+      const PageQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestImpressiveResultQuery(
+          $id: ID!
+        ) @relay_test_operation {
           node(id: $id) {
-            ...PageFragment
+            ...RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment
           }
         }
+      `;
 
-        fragment PageFragment on Page {
+      const PageFragment = graphql`
+        fragment RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment on Page {
           id
           name
           websites
         }
-      `);
+      `;
       function UserHometownComponent(props) {
         const [isLoading, setIsLoading] = useState(false);
         return (
@@ -556,7 +582,9 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       // Verify the query params
       const operation = environment.mock.getMostRecentOperation();
-      expect(operation.request.node.operation.name).toBe('PageQuery');
+      expect(operation.request.node.operation.name).toBe(
+        'RelayMockEnvironmentWithComponentsTestImpressiveResultQuery',
+      );
       expect(operation.request.variables).toEqual({id: 'my-page-id'});
 
       // Resolve refetch query
@@ -586,26 +614,30 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {
-        FeedbackQuery,
-        FeedbackFragment,
-        FeedbackLikeMutation,
-      } = generateAndCompile(`
-        query FeedbackQuery($id: ID!) {
+      const FeedbackQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery(
+          $id: ID!
+        ) {
           feedback: node(id: $id) {
-            ...FeedbackFragment
+            ...RelayMockEnvironmentWithComponentsTestNoticeableResultFragment
           }
         }
+      `;
 
-        fragment FeedbackFragment on Feedback {
+      const FeedbackFragment = graphql`
+        fragment RelayMockEnvironmentWithComponentsTestNoticeableResultFragment on Feedback {
           id
           message {
             text
           }
           doesViewerLike
         }
+      `;
 
-        mutation FeedbackLikeMutation($input: FeedbackLikeInput) {
+      const FeedbackLikeMutation = graphql`
+        mutation RelayMockEnvironmentWithComponentsTestDisruptiveSuccessMutation(
+          $input: FeedbackLikeInput
+        ) {
           feedbackLike(input: $input) {
             feedback {
               id
@@ -613,7 +645,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             }
           }
         }
-      `);
+      `;
 
       function FeedbackComponent(props) {
         const [busy, setBusy] = useState(false);
@@ -789,15 +821,16 @@ describe('ReactRelayTestMocker with Containers', () => {
           }
         },
       });
-      const {ViewerQuery} = generateAndCompile(`
-        query ViewerQuery @relay_test_operation {
+      const ViewerQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery
+          @relay_test_operation {
           viewer {
             actor {
               name @__clientField(handle: "hello")
             }
           }
         }
-      `);
+      `;
       const TestComponent = () => (
         <QueryRenderer
           environment={environment}
@@ -840,26 +873,30 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {
-        FeedbackQuery,
-        FeedbackFragment,
-        FeedbackLikeSubscription,
-      } = generateAndCompile(`
-        query FeedbackQuery($id: ID!) {
+      const FeedbackQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestRemarkableImpactQuery(
+          $id: ID!
+        ) {
           feedback: node(id: $id) {
-            ...FeedbackFragment
+            ...RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment
           }
         }
+      `;
 
-        fragment FeedbackFragment on Feedback {
+      const FeedbackFragment = graphql`
+        fragment RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment on Feedback {
           id
           message {
             text
           }
           doesViewerLike
         }
+      `;
 
-        subscription FeedbackLikeSubscription($input: FeedbackLikeInput) {
+      const FeedbackLikeSubscription = graphql`
+        subscription RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription(
+          $input: FeedbackLikeInput
+        ) {
           feedbackLikeSubscribe(input: $input) {
             feedback {
               id
@@ -867,7 +904,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             }
           }
         }
-      `);
+      `;
 
       function FeedbackComponent(props) {
         useEffect(() => {
@@ -954,7 +991,9 @@ describe('ReactRelayTestMocker with Containers', () => {
       expect(reaction.props.reactionType).toBe('Viewer does not like it');
 
       const operation = environment.mock.getMostRecentOperation();
-      expect(operation.fragment.node.name).toBe('FeedbackLikeSubscription');
+      expect(operation.fragment.node.name).toBe(
+        'RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription',
+      );
       expect(operation.request.variables).toEqual({
         input: {
           feedbackId: 'my-feedback-id',
@@ -982,21 +1021,27 @@ describe('ReactRelayTestMocker with Containers', () => {
     let testComponentTree;
 
     beforeEach(() => {
-      const {UserQuery, PageQuery} = generateAndCompile(`
-        query UserQuery($userId: ID!) @relay_test_operation {
+      const UserQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery(
+          $userId: ID!
+        ) @relay_test_operation {
           user: node(id: $userId) {
             id
             name
           }
         }
+      `;
 
-        query PageQuery($pageId: ID!) @relay_test_operation {
+      const PageQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery(
+          $pageId: ID!
+        ) @relay_test_operation {
           page: node(id: $pageId) {
             id
             name
           }
         }
-      `);
+      `;
 
       const TestComponent = () => (
         <>
@@ -1035,10 +1080,14 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     it('should resolve both queries', () => {
       const userQuery = environment.mock.findOperation(
-        operation => operation.fragment.node.name === 'UserQuery',
+        operation =>
+          operation.fragment.node.name ===
+          'RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery',
       );
       const pageQuery = environment.mock.findOperation(
-        operation => operation.fragment.node.name === 'PageQuery',
+        operation =>
+          operation.fragment.node.name ===
+          'RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery',
       );
       environment.mock.resolve(
         userQuery,
@@ -1074,14 +1123,16 @@ describe('ReactRelayTestMocker with Containers', () => {
     let TestComponent;
 
     beforeEach(() => {
-      const {UserQuery} = generateAndCompile(`
-        query UserQuery($userId: ID!) @relay_test_operation {
+      const UserQuery = graphql`
+        query RelayMockEnvironmentWithComponentsTestWorldClassFeatureQuery(
+          $userId: ID!
+        ) @relay_test_operation {
           user: node(id: $userId) {
             id
             name
           }
         }
-      `);
+      `;
 
       TestComponent = () => (
         <QueryRenderer

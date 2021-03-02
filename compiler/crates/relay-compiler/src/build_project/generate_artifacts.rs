@@ -50,6 +50,14 @@ pub fn generate_artifacts(
                 .expect("Expected the source document for the SplitOperation to exist.");
             let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
             let source_file = source_fragment.name.location.source_location();
+            let typegen_operation = if metadata.raw_response_type {
+                programs
+                    .normalization
+                    .operation(normalization_operation.name.item)
+                    .map(Arc::clone)
+            } else {
+                None
+            };
 
             artifacts.push(Artifact {
                 source_definition_names: metadata.parent_sources.into_iter().collect(),
@@ -60,6 +68,7 @@ pub fn generate_artifacts(
                 ),
                 content: ArtifactContent::SplitOperation {
                     normalization_operation: Arc::clone(normalization_operation),
+                    typegen_operation,
                     source_hash,
                 },
                 source_file,
@@ -113,10 +122,10 @@ pub fn generate_artifacts(
     Ok(artifacts)
 }
 
-fn generate_normalization_artifact<'a>(
+fn generate_normalization_artifact(
     source_definition_name: StringKey,
     project_config: &ProjectConfig,
-    programs: &'a Programs,
+    programs: &Programs,
     normalization_operation: &Arc<OperationDefinition>,
     source_hash: String,
     source_file: SourceLocationKey,
@@ -182,37 +191,28 @@ pub fn create_path_for_artifact(
     project_config: &ProjectConfig,
     source_file: SourceLocationKey,
     artifact_file_name: String,
-    use_extra_artifact_dir: bool,
 ) -> PathBuf {
-    // For artifacts output dir, first, we will check if we need to use extra output dir
-    // and if it's specified in the options, we will return that path
-    if use_extra_artifact_dir {
-        if let Some(extra_artifacts_output) = &project_config.extra_artifacts_output {
-            return extra_artifacts_output.join(artifact_file_name);
-        }
-    }
-
-    // Otherwise, we will use default project output dif (and settings)
-    match &project_config.output {
-        Some(output) => {
-            if project_config.shard_output {
-                if let Some(ref regex) = project_config.shard_strip_regex {
-                    let full_source_path = regex.replace_all(source_file.path(), "");
-                    let mut output = output.join(full_source_path.to_string());
-                    output.pop();
-                    output
-                } else {
-                    output.join(source_file.get_dir())
-                }
-                .join(artifact_file_name)
+    if let Some(output) = &project_config.output {
+        // If an output directory is specified, output into that directory.
+        if project_config.shard_output {
+            if let Some(ref regex) = project_config.shard_strip_regex {
+                let full_source_path = regex.replace_all(source_file.path(), "");
+                let mut output = output.join(full_source_path.to_string());
+                output.pop();
+                output
             } else {
-                output.join(artifact_file_name)
+                output.join(source_file.get_dir())
             }
+            .join(artifact_file_name)
+        } else {
+            output.join(artifact_file_name)
         }
-        None => {
-            let path = source_file.get_dir();
-            path.join(format!("__generated__/{}", artifact_file_name))
-        }
+    } else {
+        // Otherwise, output into a file relative to the source.
+        source_file
+            .get_dir()
+            .join("__generated__")
+            .join(artifact_file_name)
     }
 }
 
@@ -221,13 +221,13 @@ fn path_for_artifact(
     source_file: SourceLocationKey,
     definition_name: StringKey,
 ) -> PathBuf {
-    create_path_for_artifact(
-        project_config,
-        source_file,
+    let filename = if let Some(filename_for_artifact) = &project_config.filename_for_artifact {
+        filename_for_artifact(source_file, definition_name)
+    } else {
         match &project_config.typegen_config.language {
             TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
             TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
-        },
-        false,
-    )
+        }
+    };
+    create_path_for_artifact(project_config, source_file, filename)
 }

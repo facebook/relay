@@ -1,0 +1,37 @@
+{
+  "repository": "facebook/relay",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "update-spec": "spec-md spec/Connections.md > static/graphql/connections.htm && spec-md spec/ObjectIdentification.md > static/graphql/objectidentification.htm",
+    "start": "docusaurus start",
+    "build": "docusaurus build",
+    "examples": "docusaurus-examples",
+    "version": "docusaurus-version",
+    "rename-version": "docusaurus-rename-version",
+    "publish-gh-pages": "docusaurus-publish",
+    "write-translations": "docusaurus-write-translations",
+    "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
+    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master",
+    "swizzle": "docusaurus swizzle",
+    "deploy": "docusaurus deploy",
+    "docusaurus": "docusaurus"
+  },
+  "dependencies": {
+    "classnames": "^2.2.6",
+    "docusaurus-plugin-internaldocs-fb": "^0.7.0",
+    "react": "^16.10.2",
+    "react-syntax-highlighter": "15.3.1",
+    "spec-md": "^1.1.1",
+    "@docusaurus/core": "2.0.0-alpha.70",
+    "@docusaurus/preset-classic": "2.0.0-alpha.70",
+    "clsx": "^1.1.1",
+    "react-dom": "^16.10.2"
+  },
+  "devDependencies": {
+    "docusaurus": "^2.0.0-alpha.70"
+  },
+  "resolutions": {
+    "highlight.js": "^10.4.1"
+  }
+}

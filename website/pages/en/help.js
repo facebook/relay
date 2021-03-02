@@ -7,32 +7,61 @@
  * @format
  */
 
-const CompLibrary = require('../../core/CompLibrary.js');
 const React = require('react');
-const Container = CompLibrary.Container;
-const GridBlock = CompLibrary.GridBlock;
+const Container = require(process.cwd() + '/core/AltContainer');
+const GridBlock = require(process.cwd() + '/core/AltGridBlock');
 
 class Help extends React.Component {
   render() {
     const supportLinks = [
       {
-        content:
-          "Relay is worked on full-time by Facebook's product infrastructure engineering teams. They're often around and available for questions.",
+        content: (
+          <span>
+            Relay is worked on full-time by Facebook's product infrastructure
+            engineering teams. They're often around and available for questions.
+          </span>
+        ),
         title: 'Need help?',
       },
       {
-        content:
-          'Many members of the community use Stack Overflow to ask questions. Read through the [existing questions](https://stackoverflow.com/questions/tagged/relayjs?sort=active) tagged with **#relayjs** or [ask your own](https://stackoverflow.com/questions/ask?tags=relayjs)!',
+        content: (
+          <span>
+            Many members of the community use Stack Overflow to ask questions.
+            Read through the{' '}
+            <a href="https://stackoverflow.com/questions/tagged/relayjs?sort=active">
+              existing questions
+            </a>{' '}
+            tagged with <b>#relayjs</b> or{' '}
+            <a href="https://stackoverflow.com/questions/ask?tags=relayjs">
+              ask your own
+            </a>
+            !
+          </span>
+        ),
         title: 'Stack Overflow',
       },
       {
-        content:
-          'Many developers and users idle on Slack in the [#relay](https://graphql.slack.com/messages/relay) channel of [the GraphQL Slack community](https://graphql-slack.herokuapp.com/).',
+        content: (
+          <span>
+            Many developers and users idle on Slack in the{' '}
+            <a href="https://graphql.slack.com/messages/relay">#relay</a>{' '}
+            channel of{' '}
+            <a href="https://graphql-slack.herokuapp.com/">
+              the GraphQL Slack community
+            </a>
+            .
+          </span>
+        ),
         title: 'Slack',
       },
       {
-        content:
-          'Hashtag [#relayjs](https://twitter.com/search?q=%23relayjs) is used on Twitter to keep up with the latest Relay news.',
+        content: (
+          <span>
+            Hashtag{' '}
+            <a href="https://twitter.com/search?q=%23relayjs">#relayjs</a> is
+            used on Twitter to keep up with the latest Relay news.
+          </span>
+        ),
         title: 'Twitter',
       },
     ];

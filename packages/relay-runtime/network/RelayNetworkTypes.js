@@ -132,14 +132,25 @@ export type ReactFlightPayloadQuery = {|
   +response: GraphQLSingularResponse,
   +variables: Variables,
 |};
+export type ReactFlightServerError = {
+  +message: string,
+  +stack: string,
+  ...
+};
 /**
  * Data that is returned by a Flight compliant GraphQL server.
  *
- * - tree: an array of values that will be iterated and fed into
- *     ReactFlightDOMRelayClient.
+ * - status: string representing status of the server response.
+ * - tree: React Server Components written into a row protocol that can be later
+ *         read on the client. If this is null, this indicates that no rows were
+ *         were written on the server.
  * - queries: an array of queries that the server preloaded for the client.
+ * - errors: an array of errors that were encountered while rendering the
+ *           Server Component.
  */
 export type ReactFlightPayloadData = {|
-  +tree: Array<ReactFlightServerTree>,
+  +status: string,
+  +tree: ?Array<ReactFlightServerTree>,
   +queries: Array<ReactFlightPayloadQuery>,
+  +errors: Array<ReactFlightServerError>,
 |};

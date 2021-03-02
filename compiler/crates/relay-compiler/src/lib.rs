@@ -24,14 +24,18 @@ mod watchman;
 
 pub use build_project::{
     add_to_mercurial, apply_transforms,
-    artifact_writer::{ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter},
+    artifact_writer::{
+        ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter, NoopArtifactWriter,
+    },
     build_schema, create_path_for_artifact, generate_artifacts,
-    generate_extra_artifacts::{GenerateExtraArtifactArgs, GenerateExtraArtifactsFn},
-    is_operation_preloadable, validate, Artifact, ArtifactContent, Programs, SourceHashes,
+    generate_extra_artifacts::GenerateExtraArtifactsFn,
+    is_operation_preloadable, validate, validate_program, Artifact, ArtifactContent, Programs,
+    SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
 pub use graphql_asts::GraphQLAsts;
 pub use watchman::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
-    FileSourceSubscription, FsSourceReader, SourceReader,
+    FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
+    SourceControlUpdateStatus, SourceReader,
 };

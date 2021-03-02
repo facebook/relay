@@ -8,7 +8,6 @@
 use crate::compiler_state::ProjectName;
 use common::Diagnostic;
 use persist_query::PersistError;
-use serde_json::error::Error as SerdeError;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
@@ -69,10 +68,16 @@ pub enum Error {
     WriteFileError { file: PathBuf, source: io::Error },
 
     #[error("Unable to serialize state to file: `{file}`, because of `{source}`.")]
-    SerializationError { file: PathBuf, source: SerdeError },
+    SerializationError {
+        file: PathBuf,
+        source: Box<bincode::ErrorKind>,
+    },
 
     #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
-    DeserializationError { file: PathBuf, source: SerdeError },
+    DeserializationError {
+        file: PathBuf,
+        source: Box<bincode::ErrorKind>,
+    },
 
     #[error("Failed to canonicalize root: `{root}`.")]
     CanonicalizeRoot {
@@ -111,6 +116,9 @@ pub enum Error {
 
     #[error("IO error {0}")]
     IOError(std::io::Error),
+
+    #[error("Watchman subscription canceled")]
+    WatchmanSubscriptionCanceled,
 }
 
 #[derive(Debug, Error)]

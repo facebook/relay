@@ -21,7 +21,9 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{
     lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{NodeKind, NodeResolutionInfo},
+    resolution_path::{
+        IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
+    },
     server::LSPState,
 };
 
@@ -36,21 +38,20 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
         text_document: params.text_document,
         position: params.range.start,
     };
+    let definitions = state.resolve_executable_definitions(&text_document_position_params)?;
 
-    let node_resolution_info = state.resolve_node(text_document_position_params.clone())?;
-    let definitions = state.resolve_executable_definitions(text_document_position_params)?;
-    let current_definition_names = get_definition_names(&definitions);
-    Ok(get_code_actions(
-        node_resolution_info,
-        current_definition_names,
-        uri,
-        range,
-    ))
+    let (document, position_span, _project_name) =
+        state.extract_executable_document_from_text(text_document_position_params, 1)?;
+
+    let path = document.resolve((), position_span);
+
+    let used_definition_names = get_definition_names(&definitions);
+    Ok(get_code_actions(path, used_definition_names, uri, range))
 }
 
 struct FragmentAndOperationNames {
     operation_names: HashSet<String>,
-    fragment_names: HashSet<String>,
+    _fragment_names: HashSet<String>,
 }
 
 fn get_definition_names(definitions: &[ExecutableDefinition]) -> FragmentAndOperationNames {
@@ -71,37 +72,43 @@ fn get_definition_names(definitions: &[ExecutableDefinition]) -> FragmentAndOper
 
     FragmentAndOperationNames {
         operation_names,
-        fragment_names,
+        _fragment_names: fragment_names,
     }
 }
 
 fn get_code_actions(
-    node_resolution_info: NodeResolutionInfo,
-    definition_names: FragmentAndOperationNames,
+    path: ResolutionPath<'_>,
+    used_definition_names: FragmentAndOperationNames,
     url: Url,
     range: Range,
 ) -> Option<Vec<CodeActionOrCommand>> {
-    match node_resolution_info.kind {
-        NodeKind::OperationDefinition(operation) => {
-            let operation_name = operation.name?;
-            let (_, operation_kind) = operation.operation?;
+    match path {
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::OperationDefinitionName(OperationDefinitionPath {
+                    inner: operation_definition,
+                    parent: _,
+                }),
+        }) => {
+            let suffix = if let Some((_, operation_kind)) = operation_definition.operation {
+                DefinitionNameSuffix::from(&operation_kind)
+            } else {
+                return None;
+            };
+
+            let operation_name = if let Some(operation_name) = &operation_definition.name {
+                operation_name
+            } else {
+                return None;
+            };
+
             let code_action_range = get_code_action_range(range, &operation_name.span);
             Some(create_code_actions(
                 "Rename Operation",
                 operation_name.value.lookup(),
-                definition_names.operation_names,
-                DefinitionNameSuffix::from(operation_kind),
-                &url,
-                code_action_range,
-            ))
-        }
-        NodeKind::FragmentDefinition(fragment) => {
-            let code_action_range = get_code_action_range(range, &fragment.name.span);
-            Some(create_code_actions(
-                "Rename Fragment",
-                fragment.name.value.lookup(),
-                definition_names.fragment_names,
-                DefinitionNameSuffix::Fragment,
+                used_definition_names.operation_names,
+                suffix,
                 &url,
                 code_action_range,
             ))

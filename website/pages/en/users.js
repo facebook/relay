@@ -7,15 +7,16 @@
  * @format
  */
 
-const CompLibrary = require('../../core/CompLibrary.js');
+'use strict';
+
+const Container = require(process.cwd() + '/core/AltContainer');
 const React = require('react');
-const Container = CompLibrary.Container;
 
 const siteConfig = require(process.cwd() + '/siteConfig.js');
 
 class Users extends React.Component {
   render() {
-    const showcase = siteConfig.users.map(user => {
+    const showcase = siteConfig.customFields.users.map(user => {
       return (
         <a href={user.infoLink} key={user.caption}>
           <img src={user.image} title={user.caption} />

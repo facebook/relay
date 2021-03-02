@@ -16,7 +16,7 @@ use lazy_static::lazy_static;
 use schema::{ArgumentDefinitions, Schema};
 
 lazy_static! {
-    pub static ref FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
+    static ref FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
 }
 
 pub fn validate_required_arguments(program: &Program) -> DiagnosticsResult<()> {

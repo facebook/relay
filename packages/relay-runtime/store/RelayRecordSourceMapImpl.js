@@ -16,7 +16,11 @@ const RelayRecordState = require('./RelayRecordState');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {RecordState} from './RelayRecordState';
-import type {MutableRecordSource, Record, RecordMap} from './RelayStoreTypes';
+import type {
+  MutableRecordSource,
+  Record,
+  RecordObjectMap,
+} from './RelayStoreTypes';
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
@@ -27,7 +31,7 @@ const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 class RelayMapRecordSourceMapImpl implements MutableRecordSource {
   _records: Map<DataID, ?Record>;
 
-  constructor(records?: RecordMap) {
+  constructor(records?: RecordObjectMap) {
     this._records = new Map();
     if (records != null) {
       Object.keys(records).forEach(key => {

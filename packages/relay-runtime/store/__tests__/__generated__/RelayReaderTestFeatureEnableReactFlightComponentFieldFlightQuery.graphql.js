@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ec4a4b1dde3d9e947bebefb990bb0022>>
+ * @generated SignedSource<<b1622e376b4e0468ab7c4cb311afef9a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVari
 |};
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryResponse = {|
   +node: ?{|
-    +flightComponent?: ?any
-  |}
+    +flightComponent?: ?any,
+  |},
 |};
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery = {|
   variables: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVariables,
@@ -139,14 +139,14 @@ return {
             "name": "__typename",
             "storageKey": null
           },
+          (v4/*: any*/),
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          (v4/*: any*/)
+          }
         ],
         "storageKey": null
       }

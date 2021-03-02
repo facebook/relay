@@ -15,6 +15,7 @@
 const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 
 const areEqual = require('areEqual');
 
@@ -24,6 +25,7 @@ const {
   getRequest,
 } = require('relay-runtime');
 
+import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
 import type {
   CacheConfig,
   GraphQLTaggedNode,
@@ -56,6 +58,10 @@ export type RenderProps<T> = {|
  * constructor, just reuse the query fetcher and wait for the response.
  */
 const requestCache = {};
+
+const queryRendererContext: ReactRelayQueryRendererContextType = {
+  rootIsQueryRenderer: true,
+};
 
 export type Props = {|
   cacheConfig?: ?CacheConfig,
@@ -266,7 +272,9 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
 
     return (
       <ReactRelayContext.Provider value={relayContext}>
-        {this.props.render(renderProps)}
+        <ReactRelayQueryRendererContext.Provider value={queryRendererContext}>
+          {this.props.render(renderProps)}
+        </ReactRelayQueryRendererContext.Provider>
       </ReactRelayContext.Provider>
     );
   }

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::INTERNAL_METADATA_DIRECTIVE;
+use crate::{DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program, Selection,
@@ -74,7 +74,7 @@ impl<'s> Transformer for GenerateTestOperationMetadata<'s> {
                                 operation.name.location,
                                 Value::Constant(ConstantValue::Object(From::from(
                                     RelayTestOperationMetadata::new(
-                                        &self.program.schema,
+                                        &self.program,
                                         &operation.selections,
                                     ),
                                 ))),
@@ -170,7 +170,8 @@ pub struct RelayTestOperationMetadata {
 }
 
 impl RelayTestOperationMetadata {
-    pub fn new(schema: &SDLSchema, selections: &[Selection]) -> Self {
+    pub fn new(program: &Program, selections: &[Selection]) -> Self {
+        let schema = program.schema.as_ref();
         let mut selection_type_info: IndexMap<StringKey, RelayTestOperationSelectionTypeInfo> =
             Default::default();
 
@@ -209,10 +210,20 @@ impl RelayTestOperationMetadata {
                         Selection::InlineFragment(inline_fragment) => {
                             processing_queue.push((path, &inline_fragment.selections));
                         }
-                        Selection::FragmentSpread(_fragment_spread) => {
-                            panic!(
-                                "We do not expect to visit fragment spreads in the test operation"
+                        Selection::FragmentSpread(spread) => {
+                            // Must be a shared normalization fragment
+                            let operation =
+                                program.operation(spread.fragment.item).unwrap_or_else(|| {
+                                    panic!("Expected fragment '{}' to exist.", spread.fragment.item)
+                                });
+                            assert!(
+                                operation
+                                    .directives
+                                    .named(*DIRECTIVE_SPLIT_OPERATION)
+                                    .is_some(),
+                                "Expected normalization fragment spreads to reference shared normalization asts (SplitOperation)"
                             );
+                            processing_queue.push((path, &operation.selections));
                         }
                     }
                 }

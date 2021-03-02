@@ -25,11 +25,11 @@ export type TestStreamResponse = {|
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +id: string
-        |}
-      |}>
+          +id: string,
+        |},
+      |}>,
     |},
-  |}
+  |},
 |};
 export type TestStreamRawResponse = {|
   +node: ?({|
@@ -52,7 +52,7 @@ export type TestStreamRawResponse = {|
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type TestStream = {|
   variables: TestStreamVariables,

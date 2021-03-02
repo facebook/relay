@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d003339b18df6653f23d283d6532e7cb>>
+ * @generated SignedSource<<cf0f7fb8ae57cf36fdb7c419bae883ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,8 +23,8 @@ export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment 
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
-        +id: string
-      |}
+        +id: string,
+      |},
     |}>,
     +pageInfo: ?{|
       +endCursor: ?string,

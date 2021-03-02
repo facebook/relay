@@ -22,12 +22,10 @@ const {
   createOperationDescriptor,
   createReaderSelector,
   createRequestDescriptor,
+  graphql,
   ROOT_ID,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayPaginationContainer with fragment ownership', () => {
   let TestChildComponent;
@@ -105,8 +103,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    ({UserFragment, UserFriendFragment, UserQuery} = generateAndCompile(`
-      query UserQuery(
+
+    UserQuery = graphql`
+      query ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery(
         $after: ID
         $count: Int!
         $id: ID!
@@ -116,39 +115,45 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         node(id: $id) {
           id
           __typename
-          ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+          ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
+    `;
 
-      fragment UserFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-        ) {
-        id
-        friends(
-          after: $after,
-          first: $count,
-          orderby: $orderby,
-          isViewerFriend: $isViewerFriendLocal
-        ) @connection(key: "UserFragment_friends") {
-          edges {
-            node {
-              id
-              ...UserFriendFragment @arguments(isViewerFriendLocal: $isViewerFriendLocal)
-            }
-          }
-        }
-      }
-
-      fragment UserFriendFragment on User
+    UserFriendFragment = graphql`
+      fragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment on User
         @argumentDefinitions(
           isViewerFriendLocal: {type: "Boolean", defaultValue: false}
         ) {
         id
         name @include(if: $isViewerFriendLocal)
       }
-    `));
+    `;
+
+    UserFragment = graphql`
+      fragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment on User
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+        ) {
+        id
+        friends(
+          after: $after
+          first: $count
+          orderby: $orderby
+          isViewerFriend: $isViewerFriendLocal
+        ) @connection(key: "UserFragment_friends") {
+          edges {
+            node {
+              id
+              ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment
+                @arguments(isViewerFriendLocal: $isViewerFriendLocal)
+            }
+          }
+        }
+      }
+    `;
 
     TestChildComponent = jest.fn(() => <div />);
     TestChildContainer = ReactRelayFragmentContainer.createContainer(
@@ -252,7 +257,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      UserFriendFragment: {isViewerFriendLocal: false},
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                        isViewerFriendLocal: false,
+                      },
                     },
                     __fragmentOwner: ownerUser1.request,
                   },
@@ -303,7 +310,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      UserFriendFragment: {isViewerFriendLocal: false},
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                        isViewerFriendLocal: false,
+                      },
                     },
                     __fragmentOwner: ownerUser1.request,
                   },
@@ -415,7 +424,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             id: 'node:1',
             __id: 'node:1',
             __fragments: {
-              UserFriendFragment: {isViewerFriendLocal: false},
+              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                isViewerFriendLocal: false,
+              },
             },
             __fragmentOwner: expectedOwner.request,
           },
@@ -427,7 +438,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             id: 'node:2',
             __id: 'node:2',
             __fragments: {
-              UserFriendFragment: {isViewerFriendLocal: false},
+              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                isViewerFriendLocal: false,
+              },
             },
             __fragmentOwner: expectedOwner.request,
           },
@@ -487,7 +500,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      UserFriendFragment: {isViewerFriendLocal: false},
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                        isViewerFriendLocal: false,
+                      },
                     },
                     __fragmentOwner: ownerUser1.request,
                   },
@@ -608,7 +623,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:2',
                   __id: 'node:2',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: false},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                      isViewerFriendLocal: false,
+                    },
                   },
                   __fragmentOwner: expectedOwner.request,
                 },
@@ -779,7 +796,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: false},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                      isViewerFriendLocal: false,
+                    },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                 },
@@ -858,7 +877,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: true},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                      isViewerFriendLocal: true,
+                    },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                 },
@@ -944,7 +965,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: true},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                      isViewerFriendLocal: true,
+                    },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                 },
@@ -956,7 +979,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:8',
                   __id: 'node:8',
                   __fragments: {
-                    UserFriendFragment: {isViewerFriendLocal: true},
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
+                      isViewerFriendLocal: true,
+                    },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                 },

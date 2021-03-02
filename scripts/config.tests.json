@@ -15,14 +15,18 @@
   ],
   "projects": {
     "tests": {
-      "enumModuleSuffix": ".tests",
+      "enumModuleSuffix": null,
       "schema": "packages/relay-test-utils-internal/testschema.graphql",
       "extensions": [
         "packages/relay-test-utils-internal/schema-extension"
       ],
+      "jsModuleFormat": "commonjs",
       "featureFlags": {
         "enable_flight_transform": true,
-        "enable_required_transform_for_prefix": ""
+        "enable_required_transform_for_prefix": "",
+        "no_inline": {
+          "kind": "enabled"
+        }
       }
     }
   }

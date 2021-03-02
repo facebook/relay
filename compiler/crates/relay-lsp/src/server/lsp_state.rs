@@ -6,89 +6,66 @@
  */
 
 use crate::{
-    lsp_process_error::{LSPProcessError, LSPProcessResult},
+    diagnostic_reporter::DiagnosticReporter,
+    lsp_process_error::LSPProcessResult,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
+    utils::extract_project_name_from_url,
     utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
 };
-use common::{PerfLogEvent, PerfLogger, Span};
-use graphql_ir::Program;
-use graphql_syntax::{ExecutableDefinition, ExecutableDocument, GraphQLSource};
-use interner::StringKey;
-use lsp_types::{TextDocumentPositionParams, Url};
-use relay_compiler::{
-    compiler::Compiler, compiler_state::CompilerState, config::Config, FileCategorizer, FileSource,
-    FileSourceSubscription,
+use crate::{ExtensionConfig, LSPExtraDataProvider};
+use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
+use crossbeam::Sender;
+use fnv::FnvHashMap;
+use graphql_ir::{
+    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
 };
+use graphql_syntax::{
+    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
+};
+use interner::StringKey;
+use log::info;
+use lsp_server::Message;
+use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
+use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::SDLSchema;
-use schema_documentation::SchemaDocumentation;
 use std::{
-    collections::{HashMap, HashSet},
-    fmt,
+    collections::HashMap,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
-#[derive(Debug)]
-pub enum LSPStateError {
-    BuildSchemaError,
-    /// For the initial build, if we have validation errors in the program -
-    /// we won't be able to create a correct state
-    InitialBuildError,
-    /// But for the `watch` mode - it may break, only there were infra errors (IO, De/Serialization).
-    /// IR, GraphQL validation errors won't be reported here.
-    WatchBuildError,
-}
+use tokio::task;
 
-impl fmt::Display for LSPStateError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                LSPStateError::BuildSchemaError =>
-                    "Unable to parse/create an instance of the GraphQL Schema for Relay LSP Server State.",
-                LSPStateError::InitialBuildError =>
-                    "Validation errors in documents. Please, fix the errors reported in the diagnostics panel.",
-                LSPStateError::WatchBuildError =>
-                    "Incremental changes broke the internal Relay LSP Server State. This is probably a transient issue; try restarting the Relay VSCode extension.",
-            }
-        )
-    }
-}
+use super::lsp_state_resources::LSPStateResources;
 
-pub trait LSPExtraDataProvider {
-    fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
-    fn resolve_field_definition(
-        &self,
-        project_name: String,
-        root_dir: &PathBuf,
-        parent_type: String,
-        field_name: Option<String>,
-    ) -> Option<Result<(String, u64), String>>;
-    fn get_schema_documentation(&self, schema_name: String) -> Arc<SchemaDocumentation>;
-}
-
+/// This structure contains all available resources that we may use in the Relay LSP message/notification
+/// handlers. Such as schema, programs, extra_data_providers, etc...
 pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
-    schemas: Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
-    source_programs: Arc<RwLock<HashMap<StringKey, Program>>>,
+    schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
+    source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
-    errors: Arc<RwLock<Vec<LSPStateError>>>,
+    perf_logger: Arc<TPerfLogger>,
+    diagnostic_reporter: Arc<DiagnosticReporter>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     /// Private constructor
     fn new(
         config: Arc<Config>,
+        perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
+        sender: Sender<Message>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
         let root_dir = &config.root_dir.clone();
+        let diagnostic_reporter =
+            Arc::new(DiagnosticReporter::new(config.root_dir.clone(), sender));
+
         Self {
             config,
             compiler: None,
@@ -98,143 +75,64 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             schemas: Default::default(),
             source_programs: Default::default(),
             synced_graphql_documents: Default::default(),
-            errors: lsp_state_errors,
+            perf_logger,
+            diagnostic_reporter,
         }
     }
 
     /// This method is responsible for creating schema/source_programs for LSP internal state
     /// - so the LSP can provide these to Hover/Completion/GoToDefinition requests.
     /// It also creates a watchman subscription that is responsible for keeping these resources up-to-date.
-    pub(crate) async fn create_state(
+    pub(crate) fn create_state(
         config: Arc<Config>,
-        lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>>,
-        extra_data_provider: Box<dyn LSPExtraDataProvider>,
         perf_logger: Arc<TPerfLogger>,
+        extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        extensions_config: &ExtensionConfig,
+        sender: Sender<Message>,
     ) -> LSPProcessResult<Self> {
-        let mut lsp_state = Self::new(config, extra_data_provider, lsp_state_errors);
-
-        let setup_event = perf_logger.create_event("lsp_state_initialize_resources");
-        let log_time = setup_event.start("lsp_state_initialize_resources_time");
-
-        let file_source = FileSource::connect(&lsp_state.config, &setup_event)
-            .await
-            .map_err(LSPProcessError::CompilerError)?;
-        let (mut compiler_state, file_source_subscription) = file_source
-            .subscribe(&setup_event, perf_logger.as_ref())
-            .await
-            .map_err(LSPProcessError::CompilerError)?;
-
-        lsp_state.initial_build(&mut compiler_state, &setup_event, Arc::clone(&perf_logger))?;
+        info!("Creating lsp_state...");
+        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
 
-        // Finally, start a dedicated watchman subscription, just for LSP to update schemas/programs in lsp_state
-        lsp_state.watch_and_update_schemas(
-            compiler_state,
-            file_source_subscription,
-            Arc::clone(&perf_logger),
-        );
+        let config_clone = Arc::clone(&lsp_state.config);
+        let perf_logger_clone = Arc::clone(&lsp_state.perf_logger);
+        let schemas = Arc::clone(&lsp_state.schemas);
+        let source_programs = Arc::clone(&lsp_state.source_programs);
+        let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
 
-        // This is an instance of a regular Relay compiler that we will run in
-        // watch mode in a separate future (it will report errors)
-        setup_event.stop(log_time);
-        perf_logger.complete_event(setup_event);
-        perf_logger.flush();
+        task::spawn(async move {
+            let resources = LSPStateResources::new(
+                config_clone,
+                perf_logger_clone,
+                schemas,
+                source_programs,
+                sender,
+                diagnostic_reporter,
+            );
+            resources.watch().await.unwrap();
+        });
 
-        lsp_state.compiler = Some(Compiler::new(Arc::clone(&lsp_state.config), perf_logger));
+        lsp_state.compiler = if extensions_config.enable_compiler {
+            info!("extensions_config.enable_compiler = true");
+            Some(Compiler::new(
+                Arc::clone(&lsp_state.config),
+                Arc::clone(&lsp_state.perf_logger),
+            ))
+        } else {
+            None
+        };
 
+        info!("Creating lsp_state created!");
         Ok(lsp_state)
     }
 
-    fn watch_and_update_schemas(
-        &mut self,
-        mut compiler_state: CompilerState,
-        mut subscription: FileSourceSubscription,
-        perf_logger: Arc<TPerfLogger>,
-    ) {
-        let config = Arc::clone(&self.config);
-        let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
-        let source_programs = Arc::clone(&self.source_programs);
-        let schemas = self.get_schemas();
-        let errors = Arc::clone(&self.errors);
-
-        tokio::spawn(async move {
-            loop {
-                if let Some(file_source_changes) = subscription.next_change().await.unwrap() {
-                    let log_event = perf_logger.create_event("lsp_state_watchman_event");
-                    let log_time = log_event.start("lsp_state_watchman_event_time");
-
-                    compiler_state
-                        .pending_file_source_changes
-                        .write()
-                        .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on pending_file_source_changes")
-                        .push(file_source_changes);
-
-                    let has_new_changes = compiler_state
-                        .merge_file_source_changes(&config, &log_event, perf_logger.as_ref(), false)
-                        .unwrap_or_else(|err| {
-                            Self::log_error(
-                                &perf_logger,
-                                format!("Unable to merge_file_source_changes: {:?}", err),
-                            );
-                            false
-                        });
-
-                    let mut errors_write_lock = errors.write().unwrap();
-
-                    if has_new_changes {
-                        errors_write_lock.clear();
-                    }
-
-                    // If changes contains schema files we need to rebuild schemas
-                    if has_new_changes && compiler_state.has_schema_changes() {
-                        log_event.number("has_schema_change", 1);
-                        let (next_schemas, build_schema_errors) =
-                            compiler.build_schemas(&compiler_state, &log_event);
-                        if !build_schema_errors.is_empty() {
-                            Self::log_errors(&perf_logger, &build_schema_errors);
-                            errors_write_lock.push(LSPStateError::BuildSchemaError);
-                        };
-
-                        schemas.write().expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas").clone_from(&next_schemas);
-                    } else {
-                        log_event.number("has_schema_change", 0);
-                    }
-
-                    // Rebuilding programs
-                    if has_new_changes {
-                        Self::build_in_watch_mode(
-                            &config,
-                            &compiler,
-                            &mut compiler_state,
-                            &schemas,
-                            &source_programs,
-                            Arc::clone(&perf_logger),
-                            &log_event,
-                        )
-                        .unwrap_or_else(|err| {
-                            Self::log_error(
-                                &perf_logger,
-                                format!("Error in build_in_watch_mode: {:?}", err),
-                            );
-                            errors_write_lock.push(LSPStateError::WatchBuildError);
-                        });
-                    }
-
-                    log_event.stop(log_time);
-                    perf_logger.complete_event(log_event);
-                    perf_logger.flush();
-                }
-            }
-        });
-    }
-
-    pub(crate) fn get_schemas(&self) -> Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>> {
+    pub(crate) fn get_schemas(&self) -> Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>> {
         self.schemas.clone()
     }
 
-    pub(crate) fn get_source_programs_ref(&self) -> &Arc<RwLock<HashMap<StringKey, Program>>> {
+    pub(crate) fn get_source_programs_ref(&self) -> &Arc<RwLock<FnvHashMap<StringKey, Program>>> {
         &self.source_programs
     }
 
@@ -252,7 +150,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn resolve_executable_definitions(
         &self,
-        params: TextDocumentPositionParams,
+        params: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
         extract_executable_definitions_from_text(params, &self.synced_graphql_documents)
     }
@@ -268,6 +166,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn remove_synced_sources(&mut self, url: &Url) {
         self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
     }
 
     pub(crate) fn extract_executable_document_from_text(
@@ -284,104 +184,63 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         )
     }
 
-    pub(crate) fn get_errors(&self) -> &Arc<RwLock<Vec<LSPStateError>>> {
-        &self.errors
+    pub(crate) fn validate_synced_sources(
+        &mut self,
+        url: Url,
+        graphql_sources: &[GraphQLSource],
+    ) -> LSPRuntimeResult<()> {
+        let mut diagnostics = vec![];
+
+        let url_str = url.to_string();
+        let project_name =
+            extract_project_name_from_url(&self.file_categorizer, &url, &self.root_dir)?;
+
+        for graphql_source in graphql_sources {
+            let result = parse_executable_with_error_recovery(
+                &graphql_source.text,
+                SourceLocationKey::standalone(&url_str),
+            );
+
+            diagnostics.extend(
+                result
+                    .errors
+                    .into_iter()
+                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+            );
+            if let Some(schema) = self
+                .schemas
+                .read()
+                .expect(
+                    "validate_synced_sources: could not acquire read lock for state.get_schemas",
+                )
+                .get(&project_name)
+            {
+                if let Err(errors) = build_ir_with_extra_features(
+                    schema,
+                    &result.item.definitions,
+                    BuilderOptions {
+                        allow_undefined_fragment_spreads: true,
+                        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                        relay_mode: true,
+                    },
+                ) {
+                    diagnostics.extend(
+                        errors
+                            .into_iter()
+                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+                    );
+                }
+            }
+        }
+        self.diagnostic_reporter
+            .update_quick_diagnostics_for_url(url, diagnostics);
+        Ok(())
     }
 
     fn start_compiler_once(&mut self) {
         if let Some(compiler) = self.compiler.take() {
             tokio::spawn(async move { compiler.watch().await });
         }
-    }
-
-    fn initial_build(
-        &mut self,
-        compiler_state: &mut CompilerState,
-        setup_event: &impl PerfLogEvent,
-        perf_logger: Arc<TPerfLogger>,
-    ) -> LSPProcessResult<()> {
-        let compiler = Compiler::new(Arc::clone(&self.config), Arc::clone(&perf_logger));
-
-        let (schemas, build_schema_errors) = compiler.build_schemas(&compiler_state, setup_event);
-
-        if !build_schema_errors.is_empty() {
-            Self::log_errors(&perf_logger, &build_schema_errors);
-            self.errors
-                .write()
-                .unwrap()
-                .push(LSPStateError::BuildSchemaError);
-        }
-
-        // This will build programs, but won't apply any transformations to them
-        // that should be enough for LSP to start showing fragments information
-        let (source_programs, build_raw_program_errors) =
-            compiler.build_raw_programs(&compiler_state, &schemas, None, setup_event)?;
-
-        if !build_raw_program_errors.is_empty() {
-            Self::log_errors(&perf_logger, &build_raw_program_errors);
-            self.errors
-                .write()
-                .unwrap()
-                .push(LSPStateError::InitialBuildError);
-        }
-
-        compiler_state.complete_compilation();
-
-        self.schemas = Arc::new(RwLock::new(schemas));
-        self.source_programs = Arc::new(RwLock::new(source_programs));
-
-        Ok(())
-    }
-
-    /// This function should handle internal watchman builds that will
-    /// update schemas/source_programs every time those are created/updated
-    fn build_in_watch_mode(
-        config: &Arc<Config>,
-        compiler: &Compiler<TPerfLogger>,
-        compiler_state: &mut CompilerState,
-        schemas: &Arc<RwLock<HashMap<StringKey, Arc<SDLSchema>>>>,
-        source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
-        perf_logger: Arc<TPerfLogger>,
-        log_event: &impl PerfLogEvent,
-    ) -> LSPProcessResult<()> {
-        // we should trigger build only for changed projects
-        // this set will be used in the `build_raw_programs` to ignore unchanged projects
-        let affected_projects = config
-            .projects
-            .keys()
-            .filter(|project_name| compiler_state.project_has_pending_changes(**project_name))
-            .collect::<HashSet<_>>();
-
-        // This will build programs, but won't apply any transformations to them
-        // that should be enough for LSP to start showing fragments information
-        let (programs, build_raw_programs_errors) = compiler.build_raw_programs(
-            &compiler_state,
-            &schemas
-                .read()
-                .expect("LSPState::build_in_watch_mode: expect to acquire read lock on schemas"),
-            Some(affected_projects),
-            log_event,
-        )?;
-
-        if !build_raw_programs_errors.is_empty() {
-            Self::log_errors(&perf_logger, &build_raw_programs_errors)
-        }
-        let timer = log_event.start("lsp_build_in_watch_writing_programs_time");
-
-        let mut source_programs_write_lock = source_programs.write().expect(
-            "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
-        );
-        for (program_name, program) in programs {
-            // NOTE: Currently, we rely on the fact that `build_raw_programs`
-            // will always return a full program, so we can safely replace it in the current
-            // list of source_programs
-            source_programs_write_lock.insert(program_name, program);
-        }
-
-        compiler_state.complete_compilation();
-
-        log_event.stop(timer);
-        Ok(())
     }
 
     fn preload_documentation(&self) {
@@ -403,23 +262,23 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
         panic!("Expected to find project with name {}", project_name)
     }
+}
 
-    fn log_errors<T: core::fmt::Debug>(logger: &Arc<TPerfLogger>, errors: &[T]) {
-        Self::log_error(
-            logger,
-            errors
-                .iter()
-                .map(|err| format!("{:?}", err))
-                .collect::<Vec<String>>()
-                .join("\n"),
-        );
-    }
-
-    /// A quick helper so we can unwrap things and log, if somethings isn't right
-    fn log_error(logger: &Arc<TPerfLogger>, error_message: String) {
-        let error_event = logger.create_event("lsp_state_error");
-        error_event.string("error", error_message);
-        logger.complete_event(error_event);
-        logger.flush();
+fn convert_diagnostic(
+    graphql_source: &GraphQLSource,
+    diagnostic: CompilerDiagnostic,
+) -> Diagnostic {
+    Diagnostic {
+        code: None,
+        message: diagnostic.message().to_string(),
+        range: diagnostic.location().span().to_range(
+            &graphql_source.text,
+            graphql_source.line_index,
+            graphql_source.column_index,
+        ),
+        related_information: None,
+        severity: Some(DiagnosticSeverity::Error),
+        source: None,
+        tags: None,
     }
 }

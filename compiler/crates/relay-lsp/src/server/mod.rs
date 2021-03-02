@@ -5,28 +5,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod lsp_notification_dispatch;
+mod lsp_request_dispatch;
+mod lsp_state;
+mod lsp_state_resources;
+
 use crate::{
     code_action::on_code_action,
     completion::on_completion,
     goto_definition::on_goto_definition,
     hover::on_hover,
     lsp::{
-        set_actual_server_status, set_starting_status, CompletionOptions, Connection,
-        GotoDefinition, HoverRequest, InitializeParams, Message, ServerCapabilities,
-        ServerResponse, TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
+        set_initializing_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
+        InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
+        TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     references::on_references,
     shutdown::{on_exit, on_shutdown},
     status_reporting::LSPStatusReporter,
+    status_reporting::StatusReportingArtifactWriter,
     text_documents::on_did_save_text_document,
     text_documents::{
         on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
     },
+    ExtensionConfig,
 };
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::{SendError, Sender};
-use log::info;
+use log::debug;
+use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
     notification::{
@@ -35,15 +43,13 @@ use lsp_types::{
     request::{CodeActionRequest, Completion, References, Shutdown},
     CodeActionProviderCapability,
 };
-use relay_compiler::config::Config;
-use std::sync::{Arc, RwLock};
-mod lsp_request_dispatch;
-use lsp_request_dispatch::LSPRequestDispatch;
-mod lsp_notification_dispatch;
+use relay_compiler::{config::Config, NoopArtifactWriter};
+use std::sync::Arc;
+
 use lsp_notification_dispatch::LSPNotificationDispatch;
-mod lsp_state;
-pub use lsp_state::LSPExtraDataProvider;
-pub(crate) use lsp_state::{LSPState, LSPStateError};
+
+pub use crate::LSPExtraDataProvider;
+pub(crate) use lsp_state::LSPState;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -55,7 +61,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 
     server_capabilities.completion_provider = Some(CompletionOptions {
         resolve_provider: Some(true),
-        trigger_characters: Some(vec!["(".into(), "{".into(), "\n".into(), ",".into()]),
+        trigger_characters: Some(vec!["(".into(), "\n".into(), ",".into(), "@".into()]),
         work_done_progress_options: WorkDoneProgressOptions {
             work_done_progress: None,
         },
@@ -76,6 +82,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 pub async fn run<TPerfLogger: PerfLogger + 'static>(
     connection: Connection,
     mut config: Config,
+    extension_config: ExtensionConfig,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
@@ -83,32 +90,36 @@ pub async fn run<TPerfLogger: PerfLogger + 'static>(
 where
     TPerfLogger: PerfLogger + 'static,
 {
-    info!(
+    debug!(
         "Running language server with config root {:?}",
         config.root_dir
     );
-    set_starting_status(&connection.sender);
+    set_initializing_status(&connection.sender);
 
-    let lsp_state_errors: Arc<RwLock<Vec<LSPStateError>>> = Default::default();
 
+    config.artifact_writer = if extension_config.no_artifacts {
+        Box::new(NoopArtifactWriter)
+    } else {
+        Box::new(StatusReportingArtifactWriter::new(
+            connection.sender.clone(),
+            config.artifact_writer,
+        ))
+    };
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),
-        Arc::clone(&lsp_state_errors),
     ));
 
     let mut lsp_state = LSPState::create_state(
         Arc::new(config),
-        lsp_state_errors,
-        extra_data_provider,
         Arc::clone(&perf_logger),
-    )
-    .await?;
-
-    set_actual_server_status(&connection.sender, &lsp_state.get_errors());
+        extra_data_provider,
+        &extension_config,
+        connection.sender.clone(),
+    )?;
 
     for msg in connection.receiver {
-        info!("LSP message received {:?}", msg);
+        debug!("LSP message received {:?}", msg);
         match msg {
             Message::Request(req) => {
                 handle_request(&mut lsp_state, req, &connection.sender, &perf_logger)
@@ -232,7 +243,7 @@ fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
         .notification();
 
     // If we have gotten here, we have not handled the notification
-    info!(
+    debug!(
         "Error: no handler registered for notification '{}'",
         notification.method
     );

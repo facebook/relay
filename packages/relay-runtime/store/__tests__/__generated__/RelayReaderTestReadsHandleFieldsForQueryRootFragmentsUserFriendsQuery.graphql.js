@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5dda18d41766424073df522fc674c32e>>
+ * @generated SignedSource<<9ea62cc14e26da17d239a26338077a94>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables = {|
-  id: string
+  id: string,
 |};
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryResponse = {|
   +node: ?{|
@@ -28,9 +28,9 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
           +id: string,
           +name: ?string,
         |},
-      |}>
-    |}
-  |}
+      |}>,
+    |},
+  |},
 |};
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery = {|
   variables: RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQueryVariables,
@@ -166,7 +166,6 @@ return {
             "name": "__typename",
             "storageKey": null
           },
-          (v3/*: any*/),
           {
             "kind": "InlineFragment",
             "selections": [
@@ -233,7 +232,8 @@ return {
             ],
             "type": "User",
             "abstractKey": null
-          }
+          },
+          (v3/*: any*/)
         ],
         "storageKey": null
       }

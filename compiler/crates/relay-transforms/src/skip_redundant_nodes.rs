@@ -156,7 +156,7 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::LinkedField(selection) => {
-                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                let should_cache = is_empty && Arc::strong_count(selection) > 2;
                 if should_cache {
                     let key = PointerAddress::new(selection);
                     if let Some(cached) = self.cache.get(&key) {
@@ -207,7 +207,7 @@ impl<'s> SkipRedundantNodesTransform {
                 }
             }
             Selection::InlineFragment(selection) => {
-                let should_cache = is_empty && Arc::strong_count(selection) > 1;
+                let should_cache = is_empty && Arc::strong_count(selection) > 2;
                 if should_cache {
                     let key = PointerAddress::new(selection);
                     if let Some(cached) = self.cache.get(&key) {
@@ -365,7 +365,7 @@ impl<'s> SkipRedundantNodesTransform {
         if has_changes {
             TransformedValue::Replace(result)
         } else {
-            TransformedValue::Replace(selections.iter().map(|&x| x.clone()).collect())
+            TransformedValue::Keep
         }
     }
 

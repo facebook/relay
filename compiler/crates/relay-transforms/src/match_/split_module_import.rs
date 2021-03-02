@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{get_normalization_operation_name, SplitOperationMetadata, MATCH_CONSTANTS};
+use super::{SplitOperationMetadata, MATCH_CONSTANTS};
+use crate::util::get_normalization_operation_name;
 use common::{NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
@@ -99,15 +100,13 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 .value
                 .item
                 .expect_string_literal();
-            let mut normalization_name_string = String::new();
-            get_normalization_operation_name(&mut normalization_name_string, name);
-            let normalization_name = normalization_name_string.intern();
+            let normalization_name = get_normalization_operation_name(name).intern();
             let schema = &self.program.schema;
             let created_split_operation = self
                 .split_operations
                 .entry(normalization_name)
                 .or_insert_with(|| {
-                    // Exclude `__module_operation/module: js` field selections from `SplitOperation`
+                    // Exclude `__module_operation/__module_component: js` field selections from `SplitOperation`
                     let mut next_selections = Vec::with_capacity(fragment.selections.len() - 2);
                     for selection in &fragment.selections {
                         match selection {
@@ -126,6 +125,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                         SplitOperationMetadata {
                             derived_from: name,
                             parent_sources: Default::default(),
+                            raw_response_type: false,
                         },
                         OperationDefinition {
                             name: WithLocation::new(

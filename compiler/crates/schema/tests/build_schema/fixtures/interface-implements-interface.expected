@@ -1,4 +1,12 @@
 ==================================== INPUT ====================================
+schema {
+  query: Query
+}
+
+type Query {
+  node: Node
+}
+
 interface BaseNode {
   id: ID!
 }
@@ -20,7 +28,9 @@ interface Image implements Resource & Node {
 }
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
- query_type: None
+ query_type: Some(
+    ObjectID(0),
+)
  mutation_type: None
  subscription_type: None
  directives: [
@@ -75,11 +85,24 @@ Text Schema:Schema {
     "Image": Interface(3),
     "Int": Scalar(0),
     "Node": Interface(1),
+    "Query": Object(0),
     "Resource": Interface(2),
     "String": Scalar(2),
 }
  enums: []
  fields: [
+    Field {
+        name: "node",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Interface(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
     Field {
         name: "id",
         is_extension: false,
@@ -230,9 +253,7 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                0,
-            ),
+            FieldID(1),
         ],
         directives: [],
         interfaces: [],
@@ -242,15 +263,11 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                1,
-            ),
+            FieldID(2),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
+            InterfaceID(0),
         ],
     },
     Interface {
@@ -258,21 +275,13 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                2,
-            ),
-            FieldID(
-                3,
-            ),
-            FieldID(
-                4,
-            ),
+            FieldID(3),
+            FieldID(4),
+            FieldID(5),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(
-                1,
-            ),
+            InterfaceID(1),
         ],
     },
     Interface {
@@ -280,28 +289,28 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(
-                5,
-            ),
-            FieldID(
-                6,
-            ),
-            FieldID(
-                7,
-            ),
+            FieldID(6),
+            FieldID(7),
+            FieldID(8),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                1,
-            ),
+            InterfaceID(2),
+            InterfaceID(1),
         ],
     },
 ]
- objects: []
+ objects: [
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+]
  scalars: [
     Scalar {
         name: "Int",
@@ -378,43 +387,191 @@ directives: [
     },
 ]
 enums: []
-fields: []
+fields: [
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "thumbnail",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(1),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(3),
+        ),
+    },
+    Field {
+        name: "node",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Interface(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
+        name: "id",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "name",
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(3),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+    Field {
+        name: "url",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Interface(2),
+        ),
+    },
+]
 input_objects: []
 interfaces: [
     Interface {
         name: "BaseNode",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(0),
+        ],
         directives: [],
         interfaces: [],
     },
     Interface {
-        name: "BaseNode",
+        name: "Image",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(1),
+            FieldID(2),
+            FieldID(3),
+        ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(2),
+            InterfaceID(3),
+        ],
     },
     Interface {
-        name: "BaseNode",
+        name: "Node",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(7),
+        ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(0),
+        ],
     },
     Interface {
-        name: "BaseNode",
+        name: "Resource",
         is_extension: false,
         implementing_objects: [],
-        fields: [],
+        fields: [
+            FieldID(4),
+            FieldID(5),
+            FieldID(6),
+        ],
         directives: [],
-        interfaces: [],
+        interfaces: [
+            InterfaceID(3),
+        ],
     },
 ]
-objects: []
+objects: [
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(8),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+]
 scalars: [
     Scalar {
         name: "Boolean",

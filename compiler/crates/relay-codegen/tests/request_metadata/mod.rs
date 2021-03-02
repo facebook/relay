@@ -13,7 +13,7 @@ use graphql_ir::{
 };
 use graphql_syntax::parse_executable;
 use interner::Intern;
-use relay_codegen::{build_request_params, print_fragment, print_request};
+use relay_codegen::{build_request_params, print_fragment, print_request, JsModuleFormat};
 use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -65,10 +65,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                             &operation,
                             &operation_fragment,
                             request_parameters,
+                            JsModuleFormat::Haste,
                         )
                     }
                     ExecutableDefinition::Fragment(fragment) => {
-                        print_fragment(&TEST_SCHEMA, fragment)
+                        print_fragment(&TEST_SCHEMA, fragment, JsModuleFormat::Haste)
                     }
                 })
                 .collect::<Vec<_>>()

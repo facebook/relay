@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+type User {
+  id: ID
+}
+
+type Page {
+  token: ID
+}
+
+union Union = User | Page
+
+input InvalidInput {
+  value: Boolean
+  union: Union
+}
+==================================== ERROR ====================================
+✖︎ Expected a field of the input object to be a valid input object, scalar, or enum. Got 'Union'.
+
+  <generated>:15:10
+   14 │   value: Boolean
+   15 │   union: Union
+      │          ^^^^^
+   16 │ }

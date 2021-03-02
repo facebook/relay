@@ -14,9 +14,11 @@
 pub mod definitions;
 mod errors;
 mod flatbuffer;
-pub mod graphql_schema;
-pub mod sdl;
+mod graphql_schema;
+mod schema;
+mod sdl;
 
+pub use crate::schema::SDLSchema;
 use common::{DiagnosticsResult, SourceLocationKey};
 pub use definitions::{
     Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
@@ -24,13 +26,14 @@ pub use definitions::{
     ObjectID, Scalar, ScalarID, Type, TypeReference, TypeWithFields, Union, UnionID,
 };
 pub use errors::{Result, SchemaError};
-pub use flatbuffer::graphqlschema::*;
 use flatbuffer::FlatBufferSchema;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use sdl::SDLSchema;
+pub use sdl::SDLSchemaImpl;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
+
+pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
     build_schema_with_extensions::<_, &str>(&[sdl], &[])

@@ -25,6 +25,7 @@ const {
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -73,6 +74,7 @@ import type {
   NormalizationSelector,
   ReactFlightReachableQuery,
   ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
 } from './RelayStoreTypes';
@@ -87,6 +89,7 @@ export type NormalizationOptions = {|
   +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
 |};
 
 /**
@@ -125,6 +128,7 @@ class RelayResponseNormalizer {
   _recordSource: MutableRecordSource;
   _variables: Variables;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -143,6 +147,7 @@ class RelayResponseNormalizer {
     this._variables = variables;
     this._reactFlightPayloadDeserializer =
       options.reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = options.reactFlightServerErrorHandler;
   }
 
   normalizeResponse(
@@ -204,6 +209,10 @@ class RelayResponseNormalizer {
             this._traverseSelections(selection, record, data);
           }
           break;
+        case FRAGMENT_SPREAD: {
+          this._traverseSelections(selection.fragment, record, data);
+          break;
+        }
         case INLINE_FRAGMENT: {
           const {abstractKey} = selection;
           if (abstractKey == null) {
@@ -523,8 +532,9 @@ class RelayResponseNormalizer {
 
     invariant(
       reactFlightPayload != null,
-      'RelayResponseNormalizer(): Expected React Flight payload data ' +
-        'to be an object with `tree` and `queries` properties, got `%s`.',
+      'RelayResponseNormalizer: Expected React Flight payload data to be an ' +
+        'object with `status`, tree`, `queries` and `errors` properties, got ' +
+        '`%s`.',
       fieldValue,
     );
     invariant(
@@ -533,6 +543,39 @@ class RelayResponseNormalizer {
         'be a function, got `%s`.',
       this._reactFlightPayloadDeserializer,
     );
+
+    if (reactFlightPayload.errors.length > 0) {
+      if (typeof this._reactFlightServerErrorHandler === 'function') {
+        this._reactFlightServerErrorHandler(
+          reactFlightPayload.status,
+          reactFlightPayload.errors,
+        );
+      } else {
+        warning(
+          false,
+          'RelayResponseNormalizer: Received server errors for field `%s`.\n\n' +
+            '%s\n%s',
+          responseKey,
+          reactFlightPayload.errors[0].message,
+          reactFlightPayload.errors[0].stack,
+        );
+      }
+    }
+
+    // This typically indicates that a fatal server error prevented rows from
+    // being written. When this occurs, we should not continue normalization of
+    // the Flight field because the row response is malformed.
+    //
+    // Receiving empty rows is OK because it can indicate the start of a stream.
+    if (reactFlightPayload.tree == null) {
+      warning(
+        false,
+        'RelayResponseNormalizer: Expected `tree` not to be null. This ' +
+          'typically indicates that a fatal server error prevented any Server ' +
+          'Component rows from being written.',
+      );
+      return;
+    }
 
     // We store the deserialized reactFlightClientResponse in a separate
     // record and link it to the parent record. This is so we can GC the Flight

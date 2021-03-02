@@ -16,6 +16,7 @@ use crate::{
     utils::span_to_range_offset,
 };
 use common::{Location, PerfLogger};
+use fnv::FnvHashMap;
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use interner::StringKey;
 use lsp_types::{
@@ -23,14 +24,13 @@ use lsp_types::{
     Range,
 };
 use std::{
-    collections::HashMap,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
 
 fn get_references_response(
     node_resolution_info: NodeResolutionInfo,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<Vec<lsp_types::Location>> {
     match node_resolution_info.kind {
@@ -70,7 +70,7 @@ fn transform_reference_locations_to_lsp_locations(
 
     let range_offset =
         span_to_range_offset(*location.span(), &contents).ok_or(LSPRuntimeError::ExpectedError)?;
-    log::info!("range offset {:?}", range_offset);
+    log::debug!("range offset {:?}", range_offset);
 
     lsp_location.range = Range {
         start: lsp_location.range.start + range_offset.start,

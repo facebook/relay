@@ -10,6 +10,7 @@ use crate::errors::{Error, Result};
 use common::SourceLocationKey;
 use graphql_syntax::GraphQLSource;
 use std::{
+    convert::TryInto,
     fs,
     path::{Path, PathBuf},
 };
@@ -48,7 +49,7 @@ pub fn source_for_location(
             let absolute_path = root_dir.join(path.lookup());
             let contents = source_reader.read_to_string(&absolute_path).ok()?;
             let file_sources = extract_graphql_strings_from_string(&contents).ok()?;
-            file_sources.into_iter().nth(index)
+            file_sources.into_iter().nth(index.try_into().unwrap())
         }
         SourceLocationKey::Standalone { path } => {
             let absolute_path = root_dir.join(path.lookup());

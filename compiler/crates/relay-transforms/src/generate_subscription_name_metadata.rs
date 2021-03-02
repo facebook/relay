@@ -17,7 +17,7 @@ use lazy_static::lazy_static;
 use schema::Schema;
 
 lazy_static! {
-    pub static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
+    static ref SUBSCRITION_NAME_METADATA_KEY: StringKey = "subscriptionName".intern();
 }
 
 pub fn generate_subscription_name_metadata(program: &Program) -> DiagnosticsResult<Program> {

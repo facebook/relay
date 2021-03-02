@@ -6,6 +6,7 @@
  */
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
+use fnv::FnvHashMap;
 use indexmap::IndexMap;
 use interner::StringKey;
 use rayon::{iter::ParallelIterator, prelude::*};
@@ -88,6 +89,12 @@ impl Program {
         self.operations.par_iter()
     }
 
+    pub fn par_operations_mut(
+        &mut self,
+    ) -> impl ParallelIterator<Item = &mut Arc<OperationDefinition>> {
+        self.operations.par_iter_mut()
+    }
+
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
     }
@@ -96,7 +103,39 @@ impl Program {
         self.fragments.par_values()
     }
 
+    pub fn par_fragments_mut(
+        &mut self,
+    ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
+        self.fragments.par_values_mut()
+    }
+
     pub fn document_count(&self) -> usize {
         self.fragments.len() + self.operations.len()
+    }
+
+    pub fn merge_program(
+        &mut self,
+        other_program: Self,
+        removed_definition_names: Option<&[StringKey]>,
+    ) {
+        let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
+            .operations
+            .drain(..)
+            .map(|op| (op.name.item, op))
+            .collect();
+        for (key, fragment) in other_program.fragments {
+            self.fragments.insert(key, fragment);
+        }
+        for operation in other_program.operations {
+            operations.insert(operation.name.item, operation);
+        }
+        if let Some(removed_definition_names) = removed_definition_names {
+            for removed in removed_definition_names {
+                self.fragments.remove(removed);
+                operations.remove(removed);
+            }
+        }
+        self.operations
+            .extend(operations.into_iter().map(|(_, op)| op));
     }
 }

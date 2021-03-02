@@ -239,7 +239,7 @@ input CheckinSearchInput {
 
 input StoryUpdateInput {
   clientMutationId: String
-  body: Text
+  body: InputText
 }
 
 type PlainCommentBody {
@@ -895,6 +895,11 @@ type SubscribersEdge {
 }
 
 type Text {
+  text: String
+  ranges: [String]
+}
+
+input InputText {
   text: String
   ranges: [String]
 }

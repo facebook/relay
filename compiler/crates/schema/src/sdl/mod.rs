@@ -8,7 +8,7 @@
 use crate::definitions::{Argument, Directive, *};
 use crate::errors::SchemaError;
 use crate::graphql_schema::Schema;
-use common::{Diagnostic, DiagnosticsResult, Location};
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
 use graphql_syntax::*;
 use interner::{Intern, StringKey};
 use std::collections::{BTreeMap, HashMap, HashSet};
@@ -19,7 +19,7 @@ fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
 }
 
 #[derive(Debug)]
-pub struct SDLSchema {
+pub struct SDLSchemaImpl {
     query_type: Option<ObjectID>,
     mutation_type: Option<ObjectID>,
     subscription_type: Option<ObjectID>,
@@ -49,7 +49,7 @@ pub struct SDLSchema {
     unions: Vec<Union>,
 }
 
-impl Schema for SDLSchema {
+impl Schema for SDLSchemaImpl {
     fn query_type(&self) -> Option<Type> {
         self.query_type.map(Type::Object)
     }
@@ -143,8 +143,10 @@ impl Schema for SDLSchema {
     fn named_field(&self, parent_type: Type, name: StringKey) -> Option<FieldID> {
         // Special case for __typename and __id fields, which should not be in the list of type fields
         // but should be fine to select.
-        let can_have_typename =
-            matches!(parent_type, Type::Object(_) | Type::Interface(_) | Type::Union(_));
+        let can_have_typename = matches!(
+            parent_type,
+            Type::Object(_) | Type::Interface(_) | Type::Union(_)
+        );
         if can_have_typename {
             if name == self.typename_field_name {
                 return Some(self.typename_field);
@@ -193,7 +195,7 @@ impl Schema for SDLSchema {
         self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
-    fn snapshot_print(self) -> String {
+    fn snapshot_print(&self) -> String {
         let Self {
             query_type,
             mutation_type,
@@ -217,10 +219,7 @@ impl Schema for SDLSchema {
             scalars,
             unions,
         } = self;
-        let ordered_type_map: BTreeMap<String, Type> = type_map
-            .into_iter()
-            .map(|(key, value)| (key.lookup().to_owned(), value))
-            .collect();
+        let ordered_type_map: BTreeMap<_, _> = type_map.iter().collect();
 
         let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
         ordered_directives.sort_by_key(|dir| dir.name.lookup());
@@ -256,7 +255,7 @@ impl Schema for SDLSchema {
     }
 }
 
-impl SDLSchema {
+impl SDLSchemaImpl {
     pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
         self.directives.get_mut(&name)
     }
@@ -571,8 +570,8 @@ impl SDLSchema {
     /// Creates an uninitialized, invalid schema which can then be added to using the add_*
     /// methods. Note that we still bake in some assumptions about the clientid and typename
     /// fields, but in practice this is not an issue.
-    pub fn create_uninitialized() -> SDLSchema {
-        SDLSchema {
+    pub fn create_uninitialized() -> SDLSchemaImpl {
+        SDLSchemaImpl {
             query_type: None,
             mutation_type: None,
             subscription_type: None,
@@ -673,14 +672,18 @@ impl SDLSchema {
         }
 
         // Step 2: define operation types, directives, and types
-        let string_type = *type_map.get(&"String".intern()).unwrap();
-        let id_type = *type_map.get(&"ID".intern()).unwrap();
+        let string_type = *type_map
+            .get(&"String".intern())
+            .expect("Missing String type");
+        let id_type = *type_map.get(&"ID".intern()).expect("Missing ID type");
 
         let unchecked_argument_type_sentinel = Some(TypeReference::Named(
-            *type_map.get(&"Boolean".intern()).unwrap(),
+            *type_map
+                .get(&"Boolean".intern())
+                .expect("Missing Boolean type"),
         ));
 
-        let mut schema = SDLSchema {
+        let mut schema = SDLSchemaImpl {
             query_type: None,
             mutation_type: None,
             subscription_type: None,
@@ -772,7 +775,10 @@ impl SDLSchema {
     }
 
     fn load_default_typename_field(&mut self) {
-        let string_type = *self.type_map.get(&"String".intern()).unwrap();
+        let string_type = *self
+            .type_map
+            .get(&"String".intern())
+            .expect("Missing String type");
         let typename_field_id = self.fields.len();
         self.typename_field = FieldID(typename_field_id.try_into().unwrap());
         self.fields.push(Field {
@@ -786,7 +792,7 @@ impl SDLSchema {
     }
 
     fn load_default_fetch_token_field(&mut self) {
-        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let fetch_token_field_id = self.fields.len();
         self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
         self.fields.push(Field {
@@ -800,7 +806,7 @@ impl SDLSchema {
     }
 
     fn load_default_clientid_field(&mut self) {
-        let id_type = *self.type_map.get(&"ID".intern()).unwrap();
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
         let clientid_field_id = self.fields.len();
         self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         self.fields.push(Field {
@@ -1199,7 +1205,7 @@ impl SDLSchema {
                 .map(|arg_def| {
                     Ok(Argument {
                         name: arg_def.name.value,
-                        type_: self.build_type_reference(&arg_def.type_)?,
+                        type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
                     })
                 })
@@ -1208,6 +1214,36 @@ impl SDLSchema {
         } else {
             Ok(ArgumentDefinitions(Vec::new()))
         }
+    }
+
+    fn build_input_object_reference(
+        &mut self,
+        ast_type: &TypeAnnotation,
+    ) -> DiagnosticsResult<TypeReference> {
+        Ok(match ast_type {
+            TypeAnnotation::Named(name) => {
+                let type_ = self.type_map.get(&name.value).ok_or_else(|| {
+                    vec![Diagnostic::error(
+                        SchemaError::UndefinedType(name.value),
+                        Location::new(SourceLocationKey::generated(), name.span),
+                    )]
+                })?;
+                if !(type_.is_enum() || type_.is_scalar() || type_.is_input_object()) {
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExpectedInputType(name.value),
+                        Location::new(SourceLocationKey::generated(), name.span),
+                    )]);
+                }
+
+                TypeReference::Named(*type_)
+            }
+            TypeAnnotation::NonNull(of_type) => {
+                TypeReference::NonNull(Box::new(self.build_input_object_reference(&of_type.type_)?))
+            }
+            TypeAnnotation::List(of_type) => {
+                TypeReference::List(Box::new(self.build_input_object_reference(&of_type.type_)?))
+            }
+        })
     }
 
     fn build_type_reference(

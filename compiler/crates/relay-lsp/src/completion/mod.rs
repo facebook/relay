@@ -14,6 +14,7 @@ use crate::{
 };
 use common::{NamedItem, PerfLogger, Span};
 
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
 use graphql_syntax::{
     Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
@@ -22,14 +23,13 @@ use graphql_syntax::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use log::info;
+use log::debug;
 use lsp_types::request::{Completion, Request};
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
 use std::{
-    collections::{HashMap, HashSet},
     iter::once,
     sync::{Arc, RwLock},
 };
@@ -48,7 +48,7 @@ pub enum CompletionKind {
     },
     ArgumentName {
         has_colon: bool,
-        existing_names: HashSet<StringKey>,
+        existing_names: FnvHashSet<StringKey>,
         kind: ArgumentKind,
     },
     ArgumentValue {
@@ -152,7 +152,7 @@ impl CompletionRequestBuilder {
                         let (_, kind) = operation.operation.clone()?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 
-                        info!(
+                        debug!(
                             "Completion request is within operation: {:?}",
                             operation.name
                         );
@@ -481,7 +481,8 @@ impl CompletionRequestBuilder {
                     None
                 }
             } else {
-                None
+                // The directive doesn't have a name `@|`
+                Some(self.new_request(CompletionKind::DirectiveName { location }, type_path))
             };
         }
         None
@@ -513,11 +514,11 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let project_name = request.project_name;
-    info!("completion_items_for_request: {:?}", kind);
+    debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
@@ -528,7 +529,7 @@ fn completion_items_for_request(
                 )
                 .get(&project_name)
             {
-                info!("has source program");
+                debug!("has source program");
                 let items =
                     resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
                 Some(items)
@@ -652,7 +653,7 @@ fn completion_items_for_request(
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
     arguments: impl Iterator<Item = T>,
     schema: &SDLSchema,
-    existing_names: HashSet<StringKey>,
+    existing_names: FnvHashSet<StringKey>,
     has_colon: bool,
 ) -> Vec<CompletionItem> {
     arguments
@@ -908,7 +909,7 @@ fn resolve_completion_items_for_fragment_spread(
             }
         }
     }
-    info!("get_valid_fragments_for_type {:#?}", valid_fragments);
+    debug!("get_valid_fragments_for_type {:#?}", valid_fragments);
     valid_fragments
 }
 
@@ -1015,7 +1016,7 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);

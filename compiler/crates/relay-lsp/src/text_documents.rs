@@ -34,10 +34,11 @@ pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
         None => return Ok(()),
     };
 
+    let validate_result = lsp_state.validate_synced_sources(uri.clone(), &graphql_sources);
     // Track the GraphQL sources for this document
     lsp_state.insert_synced_sources(uri, graphql_sources);
 
-    Ok(())
+    validate_result
 }
 
 pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
@@ -74,9 +75,10 @@ pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
         }
     };
 
+    let validate_result = lsp_state.validate_synced_sources(uri.clone(), &graphql_sources);
     // Update the GraphQL sources for this document
     lsp_state.insert_synced_sources(uri, graphql_sources);
-    Ok(())
+    validate_result
 }
 
 /// Returns a set of *non-empty* GraphQL sources if they exist in a file. Returns `None`

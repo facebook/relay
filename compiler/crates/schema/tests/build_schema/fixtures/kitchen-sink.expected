@@ -60,9 +60,7 @@ extend type User {
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
  query_type: Some(
-    ObjectID(
-        0,
-    ),
+    ObjectID(0),
 )
  mutation_type: None
  subscription_type: None
@@ -476,14 +474,10 @@ Text Schema:Schema {
         name: "Node",
         is_extension: false,
         implementing_objects: [
-            ObjectID(
-                1,
-            ),
+            ObjectID(1),
         ],
         fields: [
-            FieldID(
-                2,
-            ),
+            FieldID(2),
         ],
         directives: [],
         interfaces: [],
@@ -494,12 +488,8 @@ Text Schema:Schema {
         name: "Query",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
+            FieldID(0),
+            FieldID(1),
         ],
         interfaces: [],
         directives: [],
@@ -508,23 +498,13 @@ Text Schema:Schema {
         name: "User",
         is_extension: false,
         fields: [
-            FieldID(
-                3,
-            ),
-            FieldID(
-                4,
-            ),
-            FieldID(
-                8,
-            ),
-            FieldID(
-                9,
-            ),
+            FieldID(3),
+            FieldID(4),
+            FieldID(8),
+            FieldID(9),
         ],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
+            InterfaceID(0),
         ],
         directives: [],
     },
@@ -532,12 +512,8 @@ Text Schema:Schema {
         name: "Page",
         is_extension: false,
         fields: [
-            FieldID(
-                5,
-            ),
-            FieldID(
-                6,
-            ),
+            FieldID(5),
+            FieldID(6),
         ],
         interfaces: [],
         directives: [],
@@ -546,9 +522,7 @@ Text Schema:Schema {
         name: "ClientType",
         is_extension: true,
         fields: [
-            FieldID(
-                7,
-            ),
+            FieldID(7),
         ],
         interfaces: [],
         directives: [],
@@ -636,12 +610,8 @@ Text Schema:Schema {
         name: "Actor",
         is_extension: false,
         members: [
-            ObjectID(
-                1,
-            ),
-            ObjectID(
-                2,
-            ),
+            ObjectID(1),
+            ObjectID(2),
         ],
         directives: [],
     },
@@ -767,33 +737,7 @@ enums: [
 ]
 fields: [
     Field {
-        name: "id",
-        is_extension: false,
-        arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(0),
-            ),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(1),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "nickname",
+        name: "clientName",
         is_extension: true,
         arguments: [],
         type_: Named(
@@ -801,19 +745,7 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "client",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Object(0),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
+            Object(1),
         ),
     },
     Field {
@@ -827,93 +759,85 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(1),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "nickname",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(1),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "client",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Object(0),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
+            Interface(0),
         ),
     },
     Field {
         name: "id",
         is_extension: false,
         arguments: [],
+        type_: Named(
+            Scalar(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+    },
+    Field {
+        name: "type",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Enum(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(2),
+        ),
+    },
+    Field {
+        name: "node",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "id",
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
+        type_: Named(
+            Interface(0),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+    },
+    Field {
+        name: "nodes",
+        is_extension: false,
+        arguments: [
+            Argument {
+                name: "ids",
+                type_: NonNull(
+                    List(
+                        NonNull(
+                            Named(
+                                Scalar(0),
+                            ),
+                        ),
+                    ),
+                ),
+                default_value: None,
+            },
+        ],
         type_: NonNull(
-            Named(
-                Scalar(0),
+            List(
+                NonNull(
+                    Named(
+                        Interface(0),
+                    ),
+                ),
             ),
         ),
         directives: [],
         parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "name",
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(1),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "nickname",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(1),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-    },
-    Field {
-        name: "client",
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Object(0),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
+            Object(3),
         ),
     },
     Field {
@@ -959,7 +883,7 @@ fields: [
         is_extension: true,
         arguments: [],
         type_: Named(
-            Object(0),
+            Object(1),
         ),
         directives: [],
         parent_type: Some(
@@ -1052,142 +976,57 @@ interfaces: [
     Interface {
         name: "Node",
         is_extension: false,
-        implementing_objects: [],
-        fields: [],
+        implementing_objects: [
+            ObjectID(0),
+        ],
+        fields: [
+            FieldID(5),
+        ],
         directives: [],
         interfaces: [],
     },
 ]
 objects: [
     Object {
-        name: "User",
+        name: "ClientType",
+        is_extension: true,
+        fields: [
+            FieldID(3),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+    Object {
+        name: "Page",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
-            FieldID(
-                4,
-            ),
+            FieldID(6),
+            FieldID(7),
         ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                4,
-            ),
+        interfaces: [],
+        directives: [],
+    },
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(8),
+            FieldID(9),
         ],
+        interfaces: [],
         directives: [],
     },
     Object {
         name: "User",
         is_extension: false,
         fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
-            FieldID(
-                4,
-            ),
+            FieldID(0),
+            FieldID(1),
+            FieldID(2),
+            FieldID(4),
         ],
         interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                4,
-            ),
-        ],
-        directives: [],
-    },
-    Object {
-        name: "User",
-        is_extension: false,
-        fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
-            FieldID(
-                4,
-            ),
-        ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                4,
-            ),
-        ],
-        directives: [],
-    },
-    Object {
-        name: "User",
-        is_extension: false,
-        fields: [
-            FieldID(
-                0,
-            ),
-            FieldID(
-                1,
-            ),
-            FieldID(
-                2,
-            ),
-            FieldID(
-                4,
-            ),
-        ],
-        interfaces: [
-            InterfaceID(
-                0,
-            ),
-            InterfaceID(
-                1,
-            ),
-            InterfaceID(
-                2,
-            ),
-            InterfaceID(
-                4,
-            ),
+            InterfaceID(0),
         ],
         directives: [],
     },
@@ -1258,7 +1097,10 @@ unions: [
     Union {
         name: "Actor",
         is_extension: false,
-        members: [],
+        members: [
+            ObjectID(0),
+            ObjectID(2),
+        ],
         directives: [],
     },
 ]

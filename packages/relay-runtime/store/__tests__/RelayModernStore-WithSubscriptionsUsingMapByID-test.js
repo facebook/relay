@@ -19,13 +19,12 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
-const {getRequest} = require('../../query/GraphQLTag');
+const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {INVALIDATED_AT_KEY, REF_KEY} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
@@ -41,6 +40,21 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
       assertIsDeeplyFrozen(value[key]);
     }
   }
+}
+
+function cloneEventWithSets(event) {
+  const nextEvent = {};
+  for (const key in event) {
+    if (event.hasOwnProperty(key)) {
+      const val = event[key];
+      if (val instanceof Set) {
+        nextEvent[key] = new Set(val);
+      } else {
+        nextEvent[key] = val;
+      }
+    }
+  }
+  return nextEvent;
 }
 
 [
@@ -93,24 +107,28 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
           log: event => {
-            logEvents.push(event);
+            logEvents.push(cloneEventWithSets(event));
           },
+          gcReleaseBufferSize: 0,
         });
-        ({UserFragment, UserQuery} = generateAndCompile(`
-          fragment UserFragment on User {
+        UserFragment = getFragment(graphql`
+          fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
             emailAddresses
           }
-
-          query UserQuery($size: Int) {
+        `);
+        UserQuery = getRequest(graphql`
+          query RelayModernStoreWithSubscriptionsUsingMapByIDTest1Query(
+            $size: Int
+          ) {
             me {
-              ...UserFragment
+              ...RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment
             }
           }
-        `));
+        `);
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -145,42 +163,32 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com'],
           },
-          seenRecords: {
-            '4': {
-              __id: '4',
-              id: '4',
-              __typename: 'User',
-              name: 'Zuck',
-              'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-              emailAddresses: ['a@b.com'],
-            },
-            'client:1': {
-              ...data['client:1'],
-              uri: 'https://photo2.jpg',
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
       });
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        ({UserQuery, UserFragment} = generateAndCompile(`
-          query UserQuery($size: Float!) {
+        UserQuery = getRequest(graphql`
+          query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(
+            $size: Float!
+          ) {
             me {
-              ...UserFragment
+              ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment
             }
           }
-
-          fragment UserFragment on User {
+        `);
+        UserFragment = getFragment(graphql`
+          fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
             emailAddresses
           }
-        `));
-        const queryNode = getRequest(UserQuery);
-        const owner = createOperationDescriptor(queryNode, {size: 32});
+        `);
+
+        const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(
           UserFragment,
           '4',
@@ -212,20 +220,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com'],
           },
-          seenRecords: {
-            '4': {
-              __id: '4',
-              id: '4',
-              __typename: 'User',
-              name: 'Zuck',
-              'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-              emailAddresses: ['a@b.com'],
-            },
-            'client:1': {
-              ...data['client:1'],
-              uri: 'https://photo2.jpg',
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
         expect(callback.mock.calls[0][0].selector).toBe(selector);
       });
@@ -302,17 +297,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com', 'c@d.net'],
           },
-          seenRecords: {
-            '4': {
-              ...data['4'],
-              name: 'Mark',
-              emailAddresses: ['a@b.com', 'c@d.net'],
-            },
-            'client:1': {
-              ...data['client:1'],
-              uri: 'https://photo3.jpg',
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
       });
 
@@ -366,15 +351,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
             },
             emailAddresses: ['a@b.com'],
           },
-          seenRecords: {
-            '4': {
-              ...data['4'],
-              emailAddresses: ['a@b.com'],
-            },
-            'client:1': {
-              ...data['client:1'],
-            },
-          },
+          seenRecords: new Set(['client:1', '4']),
         });
       });
 
@@ -410,7 +387,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           },
           missingRequiredFields: null,
           isMissingData: true,
-          seenRecords: nextSource.toJSON(),
+          seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
 
@@ -449,7 +426,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           },
           missingRequiredFields: null,
           isMissingData: true,
-          seenRecords: nextSource.toJSON(),
+          seenRecords: new Set(['842472']),
         });
       });
 
@@ -703,11 +680,97 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
           // ...and before notify.complete
           {
             name: 'store.notify.complete',
-            updatedRecordIDs: {'client:1': true},
+            updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
           },
         ]);
         expect(callback).toBeCalledTimes(1);
+      });
+
+      describe('with subscription notifications enabled', () => {
+        beforeAll(() => {
+          RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION = true;
+        });
+
+        afterAll(() => {
+          RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION = false;
+        });
+
+        it('emits log events for publish and notify', () => {
+          const owner = createOperationDescriptor(UserQuery, {});
+          const selector = createReaderSelector(
+            UserFragment,
+            '4',
+            {size: 32},
+            owner.request,
+          );
+          const snapshot = store.lookup(selector);
+          const callback = jest.fn(nextSnapshot => {
+            logEvents.push({
+              kind: 'test_only_callback',
+              data: nextSnapshot.data,
+            });
+          });
+          store.subscribe(snapshot, callback);
+
+          const nextSource = getRecordSourceImplementation({
+            'client:1': {
+              __id: 'client:1',
+              uri: 'https://photo2.jpg',
+            },
+          });
+          store.publish(nextSource);
+          expect(logEvents).toEqual([
+            {name: 'store.publish', source: nextSource, optimistic: false},
+          ]);
+          expect(callback).toBeCalledTimes(0);
+          logEvents.length = 0;
+          store.notify(owner);
+          expect(logEvents).toEqual([
+            {
+              name: 'store.notify.start',
+              sourceOperation: owner,
+            },
+            // callbacks occur after notify.start...
+            {
+              name: 'store.notify.subscription',
+              sourceOperation: owner,
+              snapshot: expect.objectContaining({
+                data: {
+                  emailAddresses: ['a@b.com'],
+                  name: 'Zuck',
+                  profilePicture: {uri: 'https://photo1.jpg'},
+                },
+                selector,
+              }),
+              nextSnapshot: expect.objectContaining({
+                data: {
+                  emailAddresses: ['a@b.com'],
+                  name: 'Zuck',
+                  profilePicture: {uri: 'https://photo2.jpg'},
+                },
+                selector,
+              }),
+            },
+            {
+              // not a real LogEvent, this is for testing only
+              kind: 'test_only_callback',
+              data: {
+                emailAddresses: ['a@b.com'],
+                name: 'Zuck',
+                profilePicture: {uri: 'https://photo2.jpg'},
+              },
+            },
+            // ...and before notify.complete
+            {
+              name: 'store.notify.complete',
+              sourceOperation: owner,
+              updatedRecordIDs: new Set(['client:1']),
+              invalidatedRecordIDs: new Set(),
+            },
+          ]);
+          expect(callback).toBeCalledTimes(1);
+        });
       });
     });
   });

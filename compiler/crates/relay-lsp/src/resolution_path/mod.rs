@@ -14,6 +14,7 @@ use graphql_syntax::{
     NonNullTypeAnnotation, OperationDefinition, OperationKind, ScalarField, Selection, StringNode,
     Token, TypeAnnotation, TypeCondition, Value, VariableDefinition, VariableIdentifier,
 };
+pub mod utils;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which
 /// enumerates the types of AST nodes which have a "surface area", meaning a
@@ -35,7 +36,7 @@ use graphql_syntax::{
 /// parent in multiple different fields. For example, an `Identifier` might
 /// appear as either the name _or_ the alias of a `ScalarField`. In this case
 /// the `IdentParent` enum should include two variants for `ScalarField`, one
-/// for name and one for alais. This allows consumers to undersand exactly where
+/// for name and one for alias. This allows consumers to understand exactly where
 /// the AST this `Identifier` appears.
 ///
 /// ## Implementation Details
@@ -57,13 +58,13 @@ use graphql_syntax::{
 /// assume that _it itself_ is the leaf node and return its own variant of
 /// `ResolutionPath`.
 ///
-/// This approach is not ideal becase there is an implicit (not enforced by the
+/// This approach is not ideal because there is an implicit (not enforced by the
 /// compiler) contract that each parent node must check the result of
 /// `.contains()` on a child before calling that child's `.resolve()` method.
 /// Ideally `.resolve()` could return an `Option`, however calling `.resolve()`
 /// moves the parent into child's method which means we need to convince the
 /// compiler that we are only ever going to return the result of one child's
-/// `.resolve()`. This pattern of `.contains()` followed by uncontionally
+/// `.resolve()`. This pattern of `.contains()` followed by unconditionally
 /// returning the result of the child's `.resolve()` allows us to prove this to
 /// the compiler.
 
@@ -142,7 +143,7 @@ type OperationKindPath<'a> = Path<&'a (Token, OperationKind), OperationKindParen
 
 type OperationKindParent<'a> = OperationDefinitionPath<'a>;
 
-type FragmentDefinitionPath<'a> = Path<&'a FragmentDefinition, FragmentDefinitionParent<'a>>;
+pub type FragmentDefinitionPath<'a> = Path<&'a FragmentDefinition, FragmentDefinitionParent<'a>>;
 
 type FragmentDefinitionParent<'a> = ExecutableDefinitionPath<'a>;
 
@@ -363,7 +364,7 @@ impl<'a> ResolvePosition<'a> for NonNullTypeAnnotation {
     }
 }
 
-type OperationDefinitionPath<'a> = Path<&'a OperationDefinition, OperationDefinitionParent<'a>>;
+pub type OperationDefinitionPath<'a> = Path<&'a OperationDefinition, OperationDefinitionParent<'a>>;
 type OperationDefinitionParent<'a> = ExecutableDefinitionPath<'a>;
 
 impl<'a> ResolvePosition<'a> for OperationDefinition {
@@ -578,7 +579,7 @@ impl<'a> ResolvePosition<'a> for Directive {
     }
 }
 
-type ScalarFieldPath<'a> = Path<&'a ScalarField, SelectionPath<'a>>;
+pub type ScalarFieldPath<'a> = Path<&'a ScalarField, SelectionPath<'a>>;
 
 impl<'a> ResolvePosition<'a> for ScalarField {
     type Parent = SelectionPath<'a>;
@@ -620,7 +621,7 @@ impl<'a> ResolvePosition<'a> for ScalarField {
     }
 }
 
-type LinkedFieldPath<'a> = Path<&'a LinkedField, Box<SelectionPath<'a>>>;
+pub type LinkedFieldPath<'a> = Path<&'a LinkedField, Box<SelectionPath<'a>>>;
 
 impl<'a> ResolvePosition<'a> for LinkedField {
     type Parent = Box<SelectionPath<'a>>;
@@ -670,7 +671,7 @@ impl<'a> ResolvePosition<'a> for LinkedField {
     }
 }
 
-type InlineFragmentPath<'a> = Path<&'a InlineFragment, Box<SelectionPath<'a>>>;
+pub type InlineFragmentPath<'a> = Path<&'a InlineFragment, Box<SelectionPath<'a>>>;
 
 impl<'a> ResolvePosition<'a> for InlineFragment {
     type Parent = Box<SelectionPath<'a>>;
@@ -707,7 +708,7 @@ impl<'a> ResolvePosition<'a> for InlineFragment {
     }
 }
 
-type TypeConditionPath<'a> = Path<&'a TypeCondition, TypeConditionParent<'a>>;
+pub type TypeConditionPath<'a> = Path<&'a TypeCondition, TypeConditionParent<'a>>;
 #[derive(Debug)]
 pub enum TypeConditionParent<'a> {
     InlineFragment(InlineFragmentPath<'a>),

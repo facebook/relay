@@ -7,7 +7,8 @@
 
 use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
-use crate::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
@@ -133,7 +134,14 @@ impl<'program> MatchTransform<'program> {
         &self,
         fragment: &FragmentDefinition,
         spread: &FragmentSpread,
-    ) -> Result<(FieldID, bool /* has_js_field_id_arg */), Diagnostic> {
+    ) -> Result<
+        (
+            FieldID,
+            bool, /* has_js_field_id_arg */
+            bool, /* has_js_branch_arg */
+        ),
+        Diagnostic,
+    > {
         match fragment.type_condition {
             Type::Object(id) => {
                 let object = self.program.schema.object(id);
@@ -174,8 +182,30 @@ impl<'program> MatchTransform<'program> {
                         }
                     };
 
-                    if is_module_valid && is_id_valid {
-                        return Ok((js_field_id, js_field_id_arg.is_some()));
+                    let js_field_branch_arg = js_field
+                        .arguments
+                        .named(MATCH_CONSTANTS.js_field_branch_arg);
+                    let is_branch_valid = {
+                        if let Some(js_field_branch_arg) = js_field_branch_arg {
+                            if let Some(branch_non_list_type) =
+                                js_field_branch_arg.type_.non_list_type()
+                            {
+                                self.program.schema.is_string(branch_non_list_type)
+                            } else {
+                                false
+                            }
+                        } else {
+                            // `id` field is optional
+                            true
+                        }
+                    };
+
+                    if is_module_valid && is_id_valid && is_branch_valid {
+                        return Ok((
+                            js_field_id,
+                            js_field_id_arg.is_some(),
+                            js_field_branch_arg.is_some(),
+                        ));
                     }
                 }
                 Err(Diagnostic::error(
@@ -258,7 +288,8 @@ impl<'program> MatchTransform<'program> {
             }
 
             let module_name = get_module_name(module_directive, spread.fragment.location)?;
-            let (js_field_id, has_js_field_id_arg) = self.get_js_field_args(fragment, spread)?;
+            let (js_field_id, has_js_field_id_arg, has_js_field_branch_arg) =
+                self.get_js_field_args(fragment, spread)?;
 
             let parent_name = self.path.last();
             let module_key = self.module_key.unwrap_or(self.document_name);
@@ -306,10 +337,10 @@ impl<'program> MatchTransform<'program> {
             if module_key != matches.key {
                 // The user can't override the key locally (per @module),
                 // so this is just an internal sanity check
-                panic!(format!(
+                panic!(
                     "Invalid @module selection: expected all selections at path '{:?} to have the same 'key', got '{}' and '{}'.",
                     &self.path, module_key, matches.key
-                ));
+                );
             }
 
             let previous_match_for_type = matches.types.get(&fragment.type_condition);
@@ -343,8 +374,7 @@ impl<'program> MatchTransform<'program> {
                 },
             );
 
-            let mut normalization_name = String::new();
-            get_normalization_operation_name(&mut normalization_name, spread.fragment.item);
+            let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
             normalization_name.push_str(".graphql");
 
             let mut component_field_arguments = vec![build_string_literal_argument(
@@ -367,6 +397,19 @@ impl<'program> MatchTransform<'program> {
                 );
                 component_field_arguments.push(id_arg.clone());
                 operation_field_arguments.push(id_arg);
+            }
+
+            if has_js_field_branch_arg {
+                let branch_arg = build_string_literal_argument(
+                    MATCH_CONSTANTS.js_field_branch_arg,
+                    self.program
+                        .schema
+                        .as_ref()
+                        .get_type_name(fragment.type_condition),
+                    module_directive.name.location,
+                );
+                component_field_arguments.push(branch_arg.clone());
+                operation_field_arguments.push(branch_arg);
             }
 
             let component_field = Selection::ScalarField(Arc::new(ScalarField {

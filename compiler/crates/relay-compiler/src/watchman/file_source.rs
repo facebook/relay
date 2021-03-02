@@ -10,7 +10,7 @@ use super::{Clock, WatchmanFile};
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
-use log::{info, warn};
+use log::{debug, info, warn};
 use serde_bser::value::Value;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
@@ -19,6 +19,14 @@ pub struct FileSource<'config> {
     client: Client,
     config: &'config Config,
     resolved_root: ResolvedRoot,
+}
+
+#[derive(Debug)]
+pub enum FileSourceSubscriptionNextChange {
+    Result(FileSourceResult),
+    SourceControlUpdateEnter,
+    SourceControlUpdateLeave,
+    None,
 }
 
 #[derive(Debug)]
@@ -137,6 +145,7 @@ impl<'config> FileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<(CompilerState, FileSourceSubscription)> {
+        let timer = perf_logger_event.start("file_source_subscribe_time");
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
         let expression = get_watchman_expr(&self.config);
@@ -152,10 +161,13 @@ impl<'config> FileSource<'config> {
                 SubscribeRequest {
                     expression: Some(expression),
                     since: Some(file_source_result.clock.clone()),
+                    drop: vec!["hg.update"],
                     ..Default::default()
                 },
             )
             .await?;
+
+        perf_logger_event.stop(timer);
 
         Ok((
             compiler_state,
@@ -251,7 +263,11 @@ impl<'config> FileSource<'config> {
                 perf_logger.flush();
                 "failed to deserialize"
             })?;
-        if compiler_state.saved_state_version != saved_state_version {
+        // For cases, where we want to debug saved state integration, that doesn't include
+        // saved_state format changes we may need to disable this by adding this env variable
+        if std::env::var("RELAY_COMPILER_IGNORE_SAVED_STATE_VERSION").is_err()
+            && compiler_state.saved_state_version != saved_state_version
+        {
             return Err("Saved state version doesn't match.");
         }
         compiler_state
@@ -282,18 +298,35 @@ pub struct FileSourceSubscription {
 impl FileSourceSubscription {
     /// Awaits changes from Watchman and provides the next set of changes
     /// if there were any changes to files
-    pub async fn next_change(&mut self) -> Result<Option<FileSourceResult>> {
-        let update = self.subscription.next().await?;
-        if let SubscriptionData::FilesChanged(changes) = update {
-            if let Some(files) = changes.files {
-                return Ok(Some(FileSourceResult {
-                    files,
-                    resolved_root: self.resolved_root.clone(),
-                    clock: changes.clock,
-                    saved_state_info: None,
-                }));
+    pub async fn next_change(&mut self) -> Result<FileSourceSubscriptionNextChange> {
+        match self.subscription.next().await? {
+            SubscriptionData::FilesChanged(changes) => {
+                if let Some(files) = changes.files {
+                    debug!("number of files in this update: {}", files.len());
+                    return Ok(FileSourceSubscriptionNextChange::Result(FileSourceResult {
+                        files,
+                        resolved_root: self.resolved_root.clone(),
+                        clock: changes.clock,
+                        saved_state_info: None,
+                    }));
+                }
+            }
+            SubscriptionData::StateEnter { state_name, .. } => {
+                if state_name == "hg.update" {
+                    debug!("hg.update started");
+                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter);
+                }
+            }
+            SubscriptionData::StateLeave { state_name, .. } => {
+                if state_name == "hg.update" {
+                    debug!("hg.update completed");
+                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave);
+                }
+            }
+            SubscriptionData::Canceled => {
+                return Err(Error::WatchmanSubscriptionCanceled);
             }
         }
-        Ok(None)
+        Ok(FileSourceSubscriptionNextChange::None)
     }
 }

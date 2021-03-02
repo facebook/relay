@@ -35,14 +35,14 @@ pub fn transform_declarative_connection(
 }
 
 lazy_static! {
-    pub static ref APPEND_EDGE: StringKey = "appendEdge".intern();
-    pub static ref APPEND_NODE: StringKey = "appendNode".intern();
-    pub static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
-    pub static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
-    pub static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
-    pub static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
-    pub static ref PREPEND_NODE: StringKey = "prependNode".intern();
-    pub static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
+    static ref APPEND_EDGE: StringKey = "appendEdge".intern();
+    static ref APPEND_NODE: StringKey = "appendNode".intern();
+    static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
+    static ref DELETE_RECORD: StringKey = "deleteRecord".intern();
+    static ref DELETE_EDGE: StringKey = "deleteEdge".intern();
+    static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
+    static ref PREPEND_NODE: StringKey = "prependNode".intern();
+    static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
 }
 
 struct DeclarativeConnectionMutationTransform<'s, 'c> {

@@ -90,6 +90,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).toThrowError(
       "Relay: Missing @required value at path 'name' in 'UserFragment'.",
@@ -103,6 +104,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     resolver.resolve();
     expect(requiredFieldLogger).toHaveBeenCalledWith({
@@ -118,6 +120,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     const data = resolver.resolve();
     expect(data.user.name).toBe('Zuck');

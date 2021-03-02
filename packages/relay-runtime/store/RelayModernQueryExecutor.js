@@ -48,6 +48,7 @@ import type {
   OptimisticUpdate,
   PublishQueue,
   ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
@@ -75,6 +76,7 @@ export type ExecuteConfig = {|
   +optimisticConfig: ?OptimisticResponseConfig,
   +publishQueue: PublishQueue,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +scheduler?: ?TaskScheduler,
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
@@ -132,6 +134,7 @@ class Executor {
   _pendingModulePayloadsCount: number;
   _publishQueue: PublishQueue;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
@@ -161,6 +164,7 @@ class Executor {
     getDataID,
     isClientPayload,
     reactFlightPayloadDeserializer,
+    reactFlightServerErrorHandler,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
@@ -184,6 +188,7 @@ class Executor {
     this._updater = updater;
     this._isClientPayload = isClientPayload === true;
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -491,6 +496,7 @@ class Executor {
           getDataID: this._getDataID,
           path: [],
           reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull,
         },
       );
@@ -569,6 +575,7 @@ class Executor {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -645,6 +652,7 @@ class Executor {
           getDataID: this._getDataID,
           path: [],
           reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         },
       );
@@ -1020,6 +1028,7 @@ class Executor {
         getDataID: this._getDataID,
         path: placeholder.path,
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
     );
@@ -1235,6 +1244,7 @@ class Executor {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
       reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
     });
     return {

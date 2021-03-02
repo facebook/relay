@@ -51,7 +51,7 @@ describe('executeMutation() with @match', () => {
   let queryOperation;
   let operationCallback;
   let operationLoader: {|
-    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let resolveFragment;

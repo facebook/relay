@@ -7,11 +7,10 @@
  * @format
  */
 
-const CompLibrary = require('../../core/CompLibrary.js');
 const React = require('react');
 const Code = require(process.cwd() + '/core/Code.js');
-const Container = CompLibrary.Container;
-const GridBlock = CompLibrary.GridBlock;
+const Container = require(process.cwd() + '/core/AltContainer');
+const GridBlock = require(process.cwd() + '/core/AltGridBlock');
 
 const siteConfig = require(process.cwd() + '/siteConfig.js');
 
@@ -57,7 +56,7 @@ class HomeSplash extends React.Component {
 class Index extends React.Component {
   render() {
     let language = this.props.language || 'en';
-    const showcase = siteConfig.users
+    const showcase = siteConfig.customFields.users
       .filter(user => {
         return user.pinned;
       })
@@ -93,18 +92,68 @@ class Index extends React.Component {
               contents={[
                 {
                   title: 'Quick iteration',
-                  content:
-                    '<p>Relay is built upon <em>locally</em> declaring data dependencies for components. This means each component declares <em>what</em> data that it needs, without worrying about <em>how</em> to fetch it; Relay guarantees that the data each component needs is fetched and available.</p><p>This allows components and their data dependencies to be modified <b><em>quickly</em></b> and in <b><em>isolation</em></b>, without needing to update other parts of the system or, worrying about breaking other components</p>',
+                  content: (
+                    <span>
+                      <p>
+                        Relay is built upon <em>locally</em> declaring data
+                        dependencies for components. This means each component
+                        declares <em>what</em> data that it needs, without
+                        worrying about <em>how</em> to fetch it; Relay
+                        guarantees that the data each component needs is fetched
+                        and available.
+                      </p>
+                      <p>
+                        This allows components and their data dependencies to be
+                        modified{' '}
+                        <b>
+                          <em>quickly</em>
+                        </b>{' '}
+                        and in{' '}
+                        <b>
+                          <em>isolation</em>
+                        </b>
+                        , without needing to update other parts of the system
+                        or, worrying about breaking other components
+                      </p>
+                    </span>
+                  ),
                 },
                 {
                   title: 'Minimal round trips',
-                  content:
-                    '<p>Relay automatically aggregates the data requirements for your entire application, so that they can be fetched in a single GraphQL request.</p><p>Relay will handle all of the heavy lifting to ensure the data declared by your components is fetched in the most efficient way, for example by deduplicating identical fields, fetching as early as possible, among other optimizations.</p>',
+                  content: (
+                    <span>
+                      <p>
+                        Relay automatically aggregates the data requirements for
+                        your entire application, so that they can be fetched in
+                        a single GraphQL request.
+                      </p>
+                      <p>
+                        Relay will handle all of the heavy lifting to ensure the
+                        data declared by your components is fetched in the most
+                        efficient way, for example by deduplicating identical
+                        fields, fetching as early as possible, among other
+                        optimizations.
+                      </p>
+                    </span>
+                  ),
                 },
                 {
                   title: 'Automatic data consistency',
-                  content:
-                    '<p>Relay automatically keeps all of your components up to date whenever data that affects them changes, and efficiently update them only when strictly necessary.</p><p>Relay also supports executing GraphQL Mutations, optionally with optimistic updates, and updates to local data, while ensuring that visible data on the screen is always kept up to date.</p>',
+                  content: (
+                    <span>
+                      <p>
+                        Relay automatically keeps all of your components up to
+                        date whenever data that affects them changes, and
+                        efficiently update them only when strictly necessary.
+                      </p>
+                      <p>
+                        Relay also supports executing GraphQL Mutations,
+                        optionally with optimistic updates, and updates to local
+                        data, while ensuring that visible data on the screen is
+                        always kept up to date.
+                      </p>
+                    </span>
+                  ),
                 },
               ]}
             />
@@ -260,24 +309,109 @@ export default createFragmentContainer(ArtistHeader, {
               contents={[
                 {
                   title: 'Fragments',
-                  content: `<p>A GraphQL <a href="https://graphql.org/learn/queries/#fragments" target="_blank">Fragment</a> is a reusable selection of fields for a given GraphQL type. It can be composed by including it in other Fragments, or including it as part of GraphQL Queries.</p><p>Relay uses Fragments to declare data requirements for components, and compose data requirements together.</p><p>See the <a href=${siteConfig.baseUrl +
-                    'docs/' +
-                    this.props.language +
-                    '/fragment-container'}>Fragment Container docs</a></p>`,
+                  content: (
+                    <div>
+                      <p>
+                        A GraphQL{' '}
+                        <a
+                          href="https://graphql.org/learn/queries/#fragments"
+                          target="_blank">
+                          Fragment
+                        </a>{' '}
+                        is a reusable selection of fields for a given GraphQL
+                        type. It can be composed by including it in other
+                        Fragments, or including it as part of GraphQL Queries.
+                      </p>
+                      <p>
+                        Relay uses Fragments to declare data requirements for
+                        components, and compose data requirements together.
+                      </p>
+                      <p>
+                        See the{' '}
+                        <a
+                          href={
+                            siteConfig.baseUrl +
+                            'docs/' +
+                            this.props.language +
+                            '/fragment-container'
+                          }>
+                          Fragment Container docs
+                        </a>
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Connections',
-                  content: `<p>GraphQL <a href="https://graphql.org/learn/pagination/#complete-connection-model" target="_blank">Connections</a> are a model for representing lists of data in GraphQL, so that they can easily be paginated in any direction, as well as to be able to encode rich relationship data.</p><p>GraphQL Connections are considered a best practice for <a href="https://graphql.org/learn/pagination/">Pagination in GraphQL</a>, and Relay provides first class support for these, as long as your GraphQL server supports them.</p><p>See the <a href=${siteConfig.baseUrl +
-                    'docs/' +
-                    this.props.language +
-                    '/graphql-server-specification.html#connections'}>Connections</a> docs</p>`,
+                  content: (
+                    <div>
+                      <p>
+                        GraphQL{' '}
+                        <a
+                          href="https://graphql.org/learn/pagination/#complete-connection-model"
+                          target="_blank">
+                          Connections
+                        </a>{' '}
+                        are a model for representing lists of data in GraphQL,
+                        so that they can easily be paginated in any direction,
+                        as well as to be able to encode rich relationship data.
+                      </p>
+                      <p>
+                        GraphQL Connections are considered a best practice for{' '}
+                        <a href="https://graphql.org/learn/pagination/">
+                          Pagination in GraphQL
+                        </a>
+                        , and Relay provides first class support for these, as
+                        long as your GraphQL server supports them.
+                      </p>
+                      <p>
+                        See the{' '}
+                        <a
+                          href={
+                            siteConfig.baseUrl +
+                            'docs/' +
+                            this.props.language +
+                            '/graphql-server-specification.html#connections'
+                          }>
+                          Connections
+                        </a>{' '}
+                        docs
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Global Object Identification',
-                  content: `<p>Relay relies on <a href="https://graphql.org/learn/global-object-identification/" target="_blank">Global Object Identification</a> to provide reliable caching and refetching, and to make it possible to automatically merge updates for objects.</p><p>Global Object Identification consists on providing globally unique ids across your entire schema for every type, built using the Node GraphQL interface.</p><p><a href=${siteConfig.baseUrl +
-                    'docs/' +
-                    this.props.language +
-                    '/graphql-server-specification.html#object-identification'}>See the Object Identification docs</a></p>`,
+                  content: (
+                    <div>
+                      <p>
+                        Relay relies on{' '}
+                        <a
+                          href="https://graphql.org/learn/global-object-identification/"
+                          target="_blank">
+                          Global Object Identification
+                        </a>{' '}
+                        to provide reliable caching and refetching, and to make
+                        it possible to automatically merge updates for objects.
+                      </p>
+                      <p>
+                        Global Object Identification consists on providing
+                        globally unique ids across your entire schema for every
+                        type, built using the Node GraphQL interface.
+                      </p>
+                      <p>
+                        <a
+                          href={
+                            siteConfig.baseUrl +
+                            'docs/' +
+                            this.props.language +
+                            '/graphql-server-specification.html#object-identification'
+                          }>
+                          See the Object Identification docs
+                        </a>
+                      </p>
+                    </div>
+                  ),
                 },
               ]}
             />
@@ -292,18 +426,46 @@ export default createFragmentContainer(ArtistHeader, {
               contents={[
                 {
                   title: 'Describe data changing',
-                  content:
-                    '<p>Using GraphQL mutations, you can declaratively define and request the data that will be affected by executing a mutation in a <em>single round trip</em>, and Relay will automatically merge and propagate those changes.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        Using GraphQL mutations, you can declaratively define
+                        and request the data that will be affected by executing
+                        a mutation in a <em>single round trip</em>, and Relay
+                        will automatically merge and propagate those changes.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Automatic updates',
-                  content:
-                    '<p>Using Global Object Identification, Relay is capable of automatically merging mutation updates for any affected objects, and updating only the affected components.</p><p>For more complex cases where updates cannot automatically be merged, Relay provides apis to manually update the local Relay data in response to a mutation.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        Using Global Object Identification, Relay is capable of
+                        automatically merging mutation updates for any affected
+                        objects, and updating only the affected components.
+                      </p>
+                      <p>
+                        For more complex cases where updates cannot
+                        automatically be merged, Relay provides apis to manually
+                        update the local Relay data in response to a mutation.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Designed for great UX',
-                  content:
-                    "<p>Relay's mutation API supports making optimistic updates to show immediate feedback to users, as well as error handling and automatically reverting changes when mutations fail.</p>",
+                  content: (
+                    <div>
+                      <p>
+                        Relay's mutation API supports making optimistic updates
+                        to show immediate feedback to users, as well as error
+                        handling and automatically reverting changes when
+                        mutations fail.
+                      </p>
+                    </div>
+                  ),
                 },
               ]}
             />
@@ -316,18 +478,42 @@ export default createFragmentContainer(ArtistHeader, {
               contents={[
                 {
                   title: 'Peace of mind',
-                  content:
-                    '<p>While you work on a Relay project, the Relay compiler will guide you to ensure project-wide consistency and correctness against your GraphQL schema.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        While you work on a Relay project, the Relay compiler
+                        will guide you to ensure project-wide consistency and
+                        correctness against your GraphQL schema.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Optimized runtime',
-                  content:
-                    '<p>Relay pre-computes a lot of work (like processing and optimizing queries) ahead of time, during build time, in order to make the runtime on the browser or device as efficient as possible.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        Relay pre-computes a lot of work (like processing and
+                        optimizing queries) ahead of time, during build time, in
+                        order to make the runtime on the browser or device as
+                        efficient as possible.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Type safety',
-                  content:
-                    '<p>Relay generates Flow or TypeScript types for each of your React components that use Relay, which represent the data that each component receives, so you can make changes more quickly and safely while knowing that correctness is guaranteed.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        Relay generates Flow or TypeScript types for each of
+                        your React components that use Relay, which represent
+                        the data that each component receives, so you can make
+                        changes more quickly and safely while knowing that
+                        correctness is guaranteed.
+                      </p>
+                    </div>
+                  ),
                 },
               ]}
             />
@@ -340,23 +526,65 @@ export default createFragmentContainer(ArtistHeader, {
               contents={[
                 {
                   title: 'Adopt Incrementally',
-                  content:
-                    '<p>If you already can render React components, you’re most of the way there. Relay requires a Babel plugin, and to also run the Relay Compiler.</p><p>You can use Relay out of the box with Create React App and Next.js.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        If you already can render React components, you’re most
+                        of the way there. Relay requires a Babel plugin, and to
+                        also run the Relay Compiler.
+                      </p>
+                      <p>
+                        You can use Relay out of the box with Create React App
+                        and Next.js.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Make Complexity Explicit',
-                  content:
-                    '<p>Relay requires a bit more up-front setup and tools, in favour of supporting an architecture of isolated components which <a href="#">can scale</a> with your team and app complexity.</p><p>Learn these principles once, then spend more time working on business logic instead of pipelining data.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        Relay requires a bit more up-front setup and tools, in
+                        favour of supporting an architecture of isolated
+                        components which can scale with your team and app
+                        complexity.
+                      </p>
+                      <p>
+                        Learn these principles once, then spend more time
+                        working on business logic instead of pipelining data.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Used at Facebook Scale',
-                  content:
-                    '<p>Relay is critical infrastructure in Facebook,  there are tens of thousands of components using it. Relay was built in tandem with GraphQL and has full-time staff working to improve it.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        Relay is critical infrastructure in Facebook, there are
+                        tens of thousands of components using it. Relay was
+                        built in tandem with GraphQL and has full-time staff
+                        working to improve it.
+                      </p>
+                    </div>
+                  ),
                 },
                 {
                   title: 'Not Just for Big Apps',
-                  content:
-                    '<p>If you’re the sort of team that believes in using Flow or TypeScript to move error detection to dev-time, then Relay is likely a good fit for you.</p><p>It’s probable you’d otherwise re-create a lot of Relay’s caching, and UI best practices independently.</p>',
+                  content: (
+                    <div>
+                      <p>
+                        If you’re the sort of team that believes in using Flow
+                        or TypeScript to move error detection to dev-time, then
+                        Relay is likely a good fit for you.
+                      </p>
+                      <p>
+                        It’s probable you’d otherwise re-create a lot of Relay’s
+                        caching, and UI best practices independently.
+                      </p>
+                    </div>
+                  ),
                 },
               ]}
             />

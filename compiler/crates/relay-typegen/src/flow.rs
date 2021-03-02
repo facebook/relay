@@ -132,17 +132,6 @@ impl FlowPrinter {
             return Ok(());
         }
 
-        // Replication of babel printer oddity: objects only containing a spread
-        // are missing a newline.
-        if props.len() == 1 && props[0].key == *SPREAD_KEY {
-            write!(writer, "{{| ...")?;
-            self.write(writer, &props[0].value)?;
-            writeln!(writer)?;
-            self.write_indentation(writer)?;
-            write!(writer, "|}}")?;
-            return Ok(());
-        }
-
         if exact {
             writeln!(writer, "{{|")?;
         } else {
@@ -150,7 +139,6 @@ impl FlowPrinter {
         }
         self.indentation += 1;
 
-        let mut first = true;
         for prop in props {
             self.write_indentation(writer)?;
             if prop.key == *SPREAD_KEY {
@@ -177,12 +165,7 @@ impl FlowPrinter {
             }
             write!(writer, ": ")?;
             self.write(writer, &prop.value)?;
-            if first && props.len() == 1 && exact {
-                writeln!(writer)?;
-            } else {
-                writeln!(writer, ",")?;
-            }
-            first = false;
+            writeln!(writer, ",")?;
         }
         if !exact {
             self.write_indentation(writer)?;
@@ -337,7 +320,7 @@ mod tests {
                 value: AST::String,
             },])),
             r"{|
-  single: string
+  single: string,
 |}"
             .to_string()
         );
@@ -465,7 +448,7 @@ mod tests {
             r#"{|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  with_comment: "%other"
+  with_comment: "%other",
 |}"#
             .to_string()
         );

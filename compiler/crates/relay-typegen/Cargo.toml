@@ -6,17 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
-[[test]]
-name = "generate_flow_test"
-path = "tests/generate_flow_test.rs"
-
-[[test]]
-name = "generate_typescript_test"
-path = "tests/generate_typescript_test.rs"
-
 [dependencies]
 common = { path = "../common" }
 fnv = "1.0"

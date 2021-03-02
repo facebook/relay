@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[test]]
 name = "dependency_analyzer_ast"
 path = "tests/ast_test.rs"

@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[test]]
 name = "graphql_ir_test"
 path = "tests/parse_test.rs"

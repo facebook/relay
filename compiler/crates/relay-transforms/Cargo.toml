@@ -6,36 +6,9 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[bin]]
 name = "relay_transforms_benchmark"
 path = "benches/transforms.rs"
-
-[[test]]
-name = "apply_fragment_arguments_test"
-path = "tests/apply_fragment_arguments_test.rs"
-
-[[test]]
-name = "client_extensions_test"
-path = "tests/client_extensions_test.rs"
-
-[[test]]
-name = "declarative_connection_test"
-path = "tests/declarative_connection_test.rs"
-
-[[test]]
-name = "disallow_typename_on_root_test"
-path = "tests/disallow_typename_on_root_test.rs"
-
-[[test]]
-name = "generate_data_driven_dependency_metadata_test"
-path = "tests/generate_data_driven_dependency_metadata_test.rs"
-
-[[test]]
-name = "generate_live_query_metadata_test"
-path = "tests/generate_live_query_metadata_test.rs"
 
 [[test]]
 name = "graphql_defer_stream_test"
@@ -120,42 +93,6 @@ path = "tests/validate_server_only_directives_test.rs"
 [[test]]
 name = "graphql_validate_unused_variables_test"
 path = "tests/validate_unused_variables_test.rs"
-
-[[test]]
-name = "inline_data_fragment_test"
-path = "tests/inline_data_fragment_test.rs"
-
-[[test]]
-name = "relay_client_component_test"
-path = "tests/relay_client_component_test.rs"
-
-[[test]]
-name = "relay_test_operation_test"
-path = "tests/relay_test_operation_test.rs"
-
-[[test]]
-name = "required_directive_test"
-path = "tests/required_directive_test.rs"
-
-[[test]]
-name = "skip_unused_variables_test"
-path = "tests/skip_unused_variables_test.rs"
-
-[[test]]
-name = "transform_connections_test"
-path = "tests/transform_connections_test.rs"
-
-[[test]]
-name = "validate_connections_schema_test"
-path = "tests/validate_connections_schema_test.rs"
-
-[[test]]
-name = "validate_connections_test"
-path = "tests/validate_connections_test.rs"
-
-[[test]]
-name = "validate_global_variables_test"
-path = "tests/validate_global_variables_test.rs"
 
 [dependencies]
 common = { path = "../common" }

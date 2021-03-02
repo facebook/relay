@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[test]]
 name = "graphql_text_printer_operation_printer_test"
 path = "tests/operation_printer_test.rs"
@@ -16,10 +13,6 @@ path = "tests/operation_printer_test.rs"
 [[test]]
 name = "graphql_text_printer_test"
 path = "tests/print_test.rs"
-
-[[test]]
-name = "print_ast_test"
-path = "tests/print_ast_test.rs"
 
 [dependencies]
 common = { path = "../common" }

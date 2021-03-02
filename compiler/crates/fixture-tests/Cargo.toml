@@ -6,9 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
 [[bin]]
 name = "fixture_tests_bin"
 path = "src/main.rs"

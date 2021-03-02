@@ -6,13 +6,6 @@ authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
 
-[lib]
-path = "src/lib.rs"
-
-[[test]]
-name = "react_flight_codegen_test"
-path = "tests/react_flight_codegen_test.rs"
-
 [[test]]
 name = "relay_codegen_client_extensions"
 path = "tests/client_extensions_test.rs"
@@ -32,14 +25,6 @@ path = "tests/defer_stream_test.rs"
 [[test]]
 name = "relay_codegen_json_codegen_test"
 path = "tests/json_codegen_test.rs"
-
-[[test]]
-name = "request_metadata_test"
-path = "tests/request_metadata_test.rs"
-
-[[test]]
-name = "required_directive_codegen_test"
-path = "tests/required_directive_codegen_test.rs"
 
 [dependencies]
 common = { path = "../common" }

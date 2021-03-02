@@ -962,9 +962,11 @@ describe('connection edge mutations', () => {
 
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
-      expect(callback.mock.calls.length).toBe(1);
-      // $FlowExpectedError[incompatible-use]
-      expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      expect(callback.mock.calls.length).toBe(0);
+      expect(
+        // $FlowExpectedError[incompatible-use]
+        environment.lookup(operation.fragment).data.node.comments.edges,
+      ).toEqual([
         {
           __typename: 'CommentsEdge',
           cursor: 'cursor-1',
@@ -1703,9 +1705,11 @@ describe('connection node mutations', () => {
 
     expect(complete).toBeCalled();
     expect(error).not.toBeCalled();
-    expect(callback.mock.calls.length).toBe(1);
-    // $FlowExpectedError[incompatible-use]
-    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+    expect(callback.mock.calls.length).toBe(0);
+    expect(
+      // $FlowExpectedError[incompatible-use]
+      environment.lookup(operation.fragment).data.node.comments.edges,
+    ).toEqual([
       {
         __typename: 'CommentsEdge',
         cursor: 'cursor-1',

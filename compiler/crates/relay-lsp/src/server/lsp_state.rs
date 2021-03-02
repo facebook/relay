@@ -166,6 +166,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn remove_synced_sources(&mut self, url: &Url) {
         self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
     }
 
     pub(crate) fn extract_executable_document_from_text(
@@ -232,13 +234,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
-        self.diagnostic_reporter.commit_diagnostics();
         Ok(())
-    }
-
-    pub(crate) fn clear_quick_diagnostics_for_url(&self, url: &Url) {
-        self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url)
     }
 
     fn start_compiler_once(&mut self) {

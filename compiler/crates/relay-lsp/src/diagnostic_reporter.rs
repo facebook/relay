@@ -18,7 +18,7 @@ use relay_compiler::{
     source_for_location, FsSourceReader, SourceReader,
 };
 use std::{
-    collections::HashMap,
+    collections::{hash_map::Entry, HashMap},
     path::PathBuf,
     sync::{Arc, RwLock},
 };
@@ -97,17 +97,7 @@ impl DiagnosticReporter {
             .expect("commit_diagnostic: could not acquire read lock for self.active_diagnostics")
             .iter()
         {
-            let params = PublishDiagnosticsParams {
-                diagnostics: diagnostics
-                    .quick_diagnostics
-                    .iter()
-                    .chain(diagnostics.regular_diagnostics.iter())
-                    .cloned()
-                    .collect(),
-                uri: url.clone(),
-                version: None,
-            };
-            publish_diagnostic(params, &self.sender).ok();
+            self.publish_diangostics_set(url, diagnostics)
         }
     }
 
@@ -122,21 +112,58 @@ impl DiagnosticReporter {
     }
 
     pub fn update_quick_diagnostics_for_url(&self, url: Url, diagnostics: Vec<Diagnostic>) {
-        self.active_diagnostics
+        match self.active_diagnostics
             .write()
             .expect("update_quick_diagnostics_for_url: could not acquire write lock for self.active_diagnostics")
-            .entry(url)
-            .or_default()
-            .regular_diagnostics = diagnostics;
+            .entry(url.clone()) {
+                Entry::Occupied(mut e) => {
+                    let data = e.get_mut();
+                    if data.quick_diagnostics != diagnostics {
+                        data.quick_diagnostics = diagnostics;
+                        self.publish_diangostics_set(&url, data);
+                    }
+                }
+                Entry::Vacant(e) => {
+                    if !diagnostics.is_empty() {
+                        let data = DiagnosticSet {
+                            regular_diagnostics: vec![],
+                            quick_diagnostics: diagnostics
+                        };
+                        self.publish_diangostics_set(&url, &data);
+                        e.insert(data);
+                    }
+                }
+            }
     }
 
     pub fn clear_quick_diagnostics_for_url(&self, url: &Url) {
-        if let Some(diagnostics) =  self.active_diagnostics
+        if let Some(diagnostics) = self.active_diagnostics
             .write()
             .expect("update_quick_diagnostics_for_url: could not acquire write lock for self.active_diagnostics")
             .get_mut(url) {
-                diagnostics.quick_diagnostics.clear();
+                if !diagnostics.quick_diagnostics.is_empty() {
+                    diagnostics.quick_diagnostics.clear();
+                    self.publish_diangostics_set(url, diagnostics)
+                }
             }
+    }
+
+    fn publish_diangostics_set(&self, url: &Url, diagnostics: &DiagnosticSet) {
+        let mut next_diagnostics = diagnostics.quick_diagnostics.clone();
+        for diagnostic in &diagnostics.regular_diagnostics {
+            if !next_diagnostics
+                .iter()
+                .any(|prev_diag| prev_diag.eq(&diagnostic))
+            {
+                next_diagnostics.push(diagnostic.clone());
+            }
+        }
+        let params = PublishDiagnosticsParams {
+            diagnostics: next_diagnostics,
+            uri: url.clone(),
+            version: None,
+        };
+        publish_diagnostic(params, &self.sender).ok();
     }
 
     #[cfg(test)]

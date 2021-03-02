@@ -47,7 +47,6 @@ pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
     lsp_state.remove_synced_sources(&uri);
-    lsp_state.clear_quick_diagnostics_for_url(&uri);
     Ok(())
 }
 

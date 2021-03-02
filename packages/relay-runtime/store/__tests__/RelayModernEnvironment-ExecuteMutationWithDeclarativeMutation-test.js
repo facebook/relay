@@ -1626,6 +1626,54 @@ describe('connection node mutations', () => {
     ]);
   });
 
+  it('does not insert nodes into connections where that node already exists', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(1);
+    // $FlowExpectedError[incompatible-use]
+    expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
+        },
+      },
+    ]);
+  });
+
   it('works when the edge name is a literal', () => {
     const snapshot = environment.lookup(operation.fragment);
     const callback = jest.fn();

@@ -17,21 +17,35 @@ import Layout from '@theme/Layout';
 import * as React from 'react';
 /* eslint-enable lint/no-value-import */
 
-class Button extends React.Component {
-  render() {
-    return (
-      <div className="pluginWrapper buttonWrapper">
-        <a className="button" href={this.props.href} target={this.props.target}>
-          {this.props.children}
-        </a>
-      </div>
-    );
-  }
+function LoadQueryLink() {
+  return (
+    <a href={useBaseUrl('/docs/api-reference/load-query/')}>
+      <code>loadQuery</code>
+    </a>
+  );
 }
 
-Button.defaultProps = {
-  target: '_self',
-};
+function UsePreloadedQueryLink() {
+  return (
+    <a href={useBaseUrl('/docs/api-reference/use-preloaded-query/')}>
+      <code>usePreloadedQuery</code>
+    </a>
+  );
+}
+
+function QueriesLink() {
+  return (
+    <a href={useBaseUrl('/docs/guided-tour/rendering/queries/')}>Queries</a>
+  );
+}
+
+function UseFragmentLink() {
+  return (
+    <a href={useBaseUrl('/docs/guided-tour/use-fragment/')}>
+      <code>useFragment</code>
+    </a>
+  );
+}
 
 const HomeSplash = () => {
   const {siteConfig} = useDocusaurusContext();
@@ -163,26 +177,20 @@ const Index = () => {
         <Container className="exampleSection">
           <div className="wrapperInner">
             <div className="radiusRight">
-              <h2>Query Renderer</h2>
+              <h2>Fetching query data</h2>
               <p>
-                When creating a new screen, you start with a{' '}
-                <a href="/docs/query-renderer">
-                  <code>QueryRenderer</code>
-                </a>
-                .
+                The simplest way to fetch query data is to directly call{' '}
+                <LoadQueryLink />.
               </p>
               <p>
-                A <code>QueryRenderer</code> is a React Component which is the
-                root of a Relay component tree. It handles fetching your query,
-                and uses the <code>render</code> prop to render the resulting
-                data.
+                Later, you can read the data from the store in a functional
+                React component by calling the <UsePreloadedQueryLink /> hook.
               </p>
               <p>
-                As React components, <code>QueryRenderers</code> can be rendered
-                anywhere that a React component can be rendered, i.e. not just
-                at the top level but *within* other components or containers.
-                For example, you could use a <code>QueryRenderer</code> to
-                lazily fetch additional data for a popover.
+                Relay encourages you to call <LoadQueryLink /> in response to an
+                event, such as when a user presses on a link to navigate to a
+                particular page or presses a button. See the guided tour section
+                on <QueriesLink /> for more.
               </p>
             </div>
 
@@ -190,107 +198,116 @@ const Index = () => {
               <pre>
                 <Code>
                   {`
-import React from "react"
-import { createFragmentContainer, graphql, QueryRenderer } from "react-relay"
-import environment from "./lib/createRelayEnvironment"
-import ArtistHeader from "./ArtistHeader"
+// Artist.react.js
+import React from "react";
+import {
+  EnvironmentProvider,
+  loadQuery,
+  graphql,
+  usePreloadedQuery,
+} from "react-relay";
+import environment from "./environment";
+import ArtistCard from "./ArtistCard";
+import {LoadingIndicator, Name} from "./views";
 
-// Below you can usually use one query renderer per page
-// and it represents the root of a query
-export default function ArtistRenderer({artistID}) {
+const artistsQuery = graphql\`
+  query ArtistQuery($artistID: String!) {
+    artist(id: $artistID) {
+      name
+      ...ArtistDescription_artist
+    }
+  }
+\`;
+const artistsQueryReference = loadQuery(
+  environment,
+  artistsQuery,
+  {artistId: "1"}
+);
+
+export default function ArtistPage() {
   return (
-    <QueryRenderer
-      environment={environment}
-      query={graphql\`
-        query QueryRenderersArtistQuery($artistID: String!) {
-          # The root field for the query
-          artist(id: $artistID) {
-            # A reference to your fragment container
-            ...ArtistHeader_artist
-          }
-        }
-      \`}
-      variables={{artistID}}
-      render={({error, props}) => {
-        if (error) {
-          return <div>{error.message}</div>;
-        } else if (props) {
-          return <ArtistHeader artist={props.artist} />;
-        }
-        return <div>Loading</div>;
-      }}
-    />
-  );
+    <EnvironmentProvider environment={environment}>
+      <React.Suspense fallback={<LoadingIndicator />}>
+        <ArtistView />
+      </React.Suspense>
+    </EnvironmentProvider>
+  )
 }
-                  `}
+
+function ArtistView() {
+  const data = usePreloadedQuery(artistsQuery, artistsQueryReference);
+  return <>
+    <Name>{data?.artist?.name}</Name>
+    {data?.artist && <ArtistCard artist={data?.artist} />}
+  </>
+}
+`}
                 </Code>
               </pre>
             </div>
 
             <div>
-              <h2>Fragment Container</h2>
+              <h2>Fragments</h2>
               <p>
                 Step two is to render a tree of React components powered by
-                Relay, which may include <code>FragmentContainers</code>,{' '}
-                <code>PaginationContainers</code>, or{' '}
-                <code>RefetchContainers</code>.
+                Relay. Components use fragments to declare their data
+                dependencies, and read data from the Relay store by calling{' '}
+                <UseFragmentLink />.
               </p>
               <p>
-                The most common are <code>FragmentContainers</code>, which you
-                can use to declare a <em>specification</em> of the data that a
-                Component will need in order to render. Note that a{' '}
-                <code>FragmentContainer</code> won't directly fetch the data;
-                instead, the data will be fetched by a QueryRenderer ancestor at
-                the root, which will aggregate all of the data needed for a tree
-                of Relay components, and fetch it in a *single round trip*.
+                A fragment is a snippet of GraphQL that is tied to a GraphQL
+                type (like <code>Artist</code>) and which specifies <i>what</i>{' '}
+                data to read from an item of that type.
               </p>
               <p>
-                Relay will then guarantee that the data declared by a
-                <code>FragmentContainer</code> is available *before* rendering
-                the component.
+                <UseFragmentLink /> takes two parameters: a fragment literal and
+                a fragment reference. A fragment reference specifies{' '}
+                <i>which</i> entity to read that data from.
+              </p>
+              <p>
+                Fragments cannot be fetched by themselves; instead, they must
+                ultimately be included in a parent query. The Relay compiler
+                will then ensure that the data dependencies declared in such
+                fragments are fetched as part of that parent query.
               </p>
             </div>
             <div>
               <pre>
                 <Code>
                   {`
-import React from "react"
-import { createFragmentContainer, graphql } from "react-relay"
-import { Link, Image, Name, Bio, View,} from "./views"
+// ArtistCard.react.js
+import React from "react";
+import {
+  graphql,
+  useFragment,
+} from "react-relay";
+import {Bio, Card, Link, Image, Name} from "./views";
 
-function ArtistHeader(props) {
-  const {name, href, image, bio} = props.artist;
+export default function ArtistHeader(props) {
+  const {href, image, bio} = useFragment(
+    graphql\`
+      fragment ArtistHeader_artist on Artist {
+        href
+        bio
+        image {
+          url
+        }
+      }
+    \`,
+    props.artist
+  );
   const imageUrl = image && image.url;
 
   return (
-    <Link href={href}>
-      <Image imageUrl={imageUrl} />
-      <View>
-        <Name>{name}</Name>
+    <Card>
+      <Link href={href}>
+        <Image imageUrl={imageUrl} />
         <Bio>{bio}</Bio>
-      </View>
-    </Link>
+      </Link>
+    </Card>
   );
 }
-
-export default createFragmentContainer(ArtistHeader, {
-  artist: graphql\`
-    # This fragment is declaring that this component
-    # needs an Artist, and these specific fields on
-    # the Artist in order to render. Relay will
-    # guarantee that this data is fetched and available
-    # for this component.
-    fragment ArtistHeader_artist on Artist {
-      href
-      bio
-      name
-      image {
-        url
-      }
-    }
-  \`,
-});
-                  `}
+                    `}
                 </Code>
               </pre>
             </div>
@@ -301,7 +318,7 @@ export default createFragmentContainer(ArtistHeader, {
           <h2>GraphQL best practices baked in</h2>
           <h3>
             Relay applies and relies on GraphQL best practices. To get the most
-            from Relay’s features, you’ll want your GraphQL server to conform to
+            from Relay's features, you'll want your GraphQL server to conform to
             these standard practices.
           </h3>
           <GridBlock
@@ -326,7 +343,10 @@ export default createFragmentContainer(ArtistHeader, {
                       Relay uses Fragments to declare data requirements for
                       components, and compose data requirements together.
                     </p>
-                    <p>See the Fragment Container docs</p>
+                    <p>
+                      See the{' '}
+                      <a href={useBaseUrl('/docs/guided-tour/')}>guided tour</a>
+                    </p>
                   </div>
                 ),
               },
@@ -512,7 +532,7 @@ export default createFragmentContainer(ArtistHeader, {
                 content: (
                   <div>
                     <p>
-                      If you already can render React components, you’re most of
+                      If you already can render React components, you're most of
                       the way there. Relay requires a Babel plugin, and to also
                       run the Relay Compiler.
                     </p>
@@ -558,12 +578,12 @@ export default createFragmentContainer(ArtistHeader, {
                 content: (
                   <div>
                     <p>
-                      If you’re the sort of team that believes in using Flow or
+                      If you're the sort of team that believes in using Flow or
                       TypeScript to move error detection to dev-time, then Relay
                       is likely a good fit for you.
                     </p>
                     <p>
-                      It’s probable you’d otherwise re-create a lot of Relay’s
+                      It's probable you'd otherwise re-create a lot of Relay's
                       caching, and UI best practices independently.
                     </p>
                   </div>

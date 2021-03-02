@@ -84,6 +84,7 @@ pub fn validate_program(
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
+    log_event.number("validate_documents_count", program.document_count());
     let result = validate(
         program,
         &config.connection_interface,

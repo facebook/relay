@@ -7,9 +7,37 @@
  * @format
  */
 
+html[data-theme="light"] {
+  --main-bg-color: var(--ifm-color-primary);
+  --light-bg-color: #f9f6ef;
+  --dark-bg-color: #f6f3e6;
+  --container-box-shadow: rgba(0, 0, 0, 0.9) 0px 1px 2px 0px;
+  --pre-box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px -1px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
+  --pre-border-color: #EAEAEA;
+  --ifm-menu-color-background-active: transparent;
+  --ifm-menu-color-background-hover: transparent;
+  --pre-background-color: var(--light-bg-color);
+  --blockquote-background-color: #e9e3e3;
+  --ifm-blockquote-color: #3a434d;
+}
+
+html[data-theme="dark"] {
+  --main-bg-color: black;
+  --light-bg-color: #111;
+  --dark-bg-color: black;
+  --pre-background-color: #1A1A1A;
+  --pre-border-color: #222;
+  --blockquote-background-color: #262626;
+  --ifm-blockquote-color: var(--ifm-font-color-base);
+}
+
 /* Navbar */
 .navigationSlider .slidingNav ul li a {
   font-weight: normal;
+}
+
+html[data-theme="dark"] .navbar {
+  background-color: var(--main-bg-color);
 }
 
 /* INDEX PAGE */
@@ -18,6 +46,7 @@
   text-align: left;
   overflow: hidden;
   position: relative;
+  background-color: var(--main-bg-color);
 }
 
 .homeContainer .homeWrapper {
@@ -50,6 +79,7 @@
 
 .projectTitle {
   font-size: 4rem;
+  color: white;
 }
 
 .projectTitle > small {
@@ -77,6 +107,35 @@
   padding: 0 1em;
 }
 
+.lightBackground {
+  background-color: var(--light-bg-color);
+}
+
+.darkBackground {
+  background-color: var(--dark-bg-color);
+}
+
+html[data-theme="light"] .homePage .container {
+  box-shadow: var(--container-box-shadow);
+}
+
+.homePage .container {
+  max-width: none;
+}
+
+.footer .container {
+  box-shadow: none;
+  max-width: var(--ifm-container-width);
+}
+
+.footer {
+  background-color: var(--light-bg-color);
+}
+
+.homePage .footer {
+  background-color: var(--light-bg-color);
+}
+
 .introSection p {
   font-size: 1.8rem;
   width: 70%;
@@ -84,7 +143,7 @@
 
 /* Example section */
 .exampleSection .wrapper {
-  padding: 0;
+  padding: 64px 0;
 }
 
 .exampleSection .wrapperInner {
@@ -108,6 +167,16 @@
 
 .exampleSection .wrapperInner > div:nth-child(even) pre {
   margin-left: 3em;
+  padding-top: 0;
+}
+
+pre {
+  background-color: var(--pre-background-color);
+}
+
+pre.outerPre {
+  box-shadow: var(--pre-box-shadow);
+  border: 1px solid var(--pre-border-color);
 }
 
 .exampleSection p {
@@ -150,7 +219,6 @@
 .graphqlSection .wrapper {
   background-position: 43.1% 0;
   background-repeat: no-repeat;
-  position: relative;
 }
 
 .graphqlSection:after {
@@ -177,14 +245,8 @@
   padding-bottom: 8em;
 }
 
-/* Ahead section */
-.aheadSection {
-  position: relative;
-}
-
 .aheadSection .wrapper {
-  position: relative;
-  z-index: 1;
+  /* z-index: 1; */
 }
 
 .aheadSection .wrapper:before {
@@ -230,11 +292,6 @@
 }
 
 .aheadSection .gridBlock {
-  position: relative;
-}
-
-/* Relay section */
-.relaySection {
   position: relative;
 }
 
@@ -450,11 +507,28 @@
    from docusaurus v1 to v2 */
 
 .exampleSection pre {
-  background-color: white;
   padding-left: 0.75em;
 }
 
 .more-users a.button {
   color: var(--ifm-color-primary);
   border-color: var(--ifm-color-primary);
+}
+
+a.hash-link {
+  margin-left: 0;
+}
+
+.menu::-webkit-scrollbar {
+  display: none;
+}
+
+.menu {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+blockquote {
+  background-color: var(--blockquote-background-color);
+  border-radius: var(--ifm-global-radius);
 }

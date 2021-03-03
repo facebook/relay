@@ -174,7 +174,7 @@ const Index = () => {
             ]}
           />
         </Container>
-        <Container className="exampleSection">
+        <Container className="exampleSection darkBackground">
           <div className="wrapperInner">
             <div className="radiusRight">
               <h2>Fetching query data</h2>
@@ -195,7 +195,7 @@ const Index = () => {
             </div>
 
             <div className="radiusLeft">
-              <pre>
+              <pre className="outerPre">
                 <Code>
                   {`
 // Artist.react.js
@@ -245,7 +245,10 @@ function ArtistView() {
                 </Code>
               </pre>
             </div>
-
+          </div>
+        </Container>
+        <Container className="exampleSection lightBackground">
+          <div className="wrapperInner">
             <div>
               <h2>Fragments</h2>
               <p>
@@ -272,7 +275,7 @@ function ArtistView() {
               </p>
             </div>
             <div>
-              <pre>
+              <pre className="outerPre">
                 <Code>
                   {`
 // ArtistCard.react.js
@@ -314,7 +317,7 @@ export default function ArtistHeader(props) {
           </div>
         </Container>
 
-        <Container className="textSection graphqlSection" background="light">
+        <Container className="textSection graphqlSection" background="dark">
           <h2>GraphQL best practices baked in</h2>
           <h3>
             Relay applies and relies on GraphQL best practices. To get the most
@@ -474,7 +477,7 @@ export default function ArtistHeader(props) {
           />
         </Container>
 
-        <Container className="textSection aheadSection">
+        <Container className="textSection aheadSection" background="dark">
           <h2>Ahead-of-time Safety</h2>
           <GridBlock
             layout="threeColumn"
@@ -522,7 +525,7 @@ export default function ArtistHeader(props) {
           />
         </Container>
 
-        <Container className="textSection relaySection">
+        <Container className="textSection relaySection" background="light">
           <h2>Can Relay Work For Me?</h2>
           <GridBlock
             layout="twoColumn"
@@ -593,7 +596,7 @@ export default function ArtistHeader(props) {
           />
         </Container>
 
-        <Container className="textSection" background="light">
+        <Container className="textSection" background="dark">
           <h2>Proudly Used Elsewhere</h2>
           <h3>
             Relay was originally created for the React Native sections of the

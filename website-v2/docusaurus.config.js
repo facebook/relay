@@ -224,6 +224,8 @@ module.exports = {
   themeConfig: {
     navbar: {
       title: 'Relay',
+      style: 'primary',
+      hideOnScroll: false,
       items: [
         {
           to: 'docs/',

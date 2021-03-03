@@ -14,14 +14,6 @@ const {fbContent} = require('internaldocs-fb-helpers');
 const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
-    'guides/network-layer',
-    // TODO(T84712342) convert entrypoints guide
-    // 'guides/entrypoints',
-    {
-      type: 'link',
-      label: 'Entrypoints',
-      href: 'https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/',
-    },
     'guides/client-schema-extensions',
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
@@ -46,8 +38,6 @@ const Guides = fbContent({
     'guides/graphql-server-specification',
     'guides/persisted-queries',
     'guides/network-layer',
-    // TODO(T84712342) convert entry points to a guide
-    // 'guides/entrypoints',
     'guides/client-schema-extensions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',
@@ -116,11 +106,22 @@ module.exports = {
           internal: {
             'Advanced Data Fetching': [
               'guided-tour/advanced-data-fetching/fb/preloading-data',
+              {
+                EntryPoints: [
+                  'guided-tour/advanced-data-fetching/fb/entrypoints/entrypoints',
+                  'guided-tour/advanced-data-fetching/fb/entrypoints/using-entrypoints',
+                  'guided-tour/advanced-data-fetching/fb/entrypoints/using-entrypoints-at-facebook',
+                  'guided-tour/advanced-data-fetching/fb/entrypoints/migrating-from-lazy-fetching',
+                  'guided-tour/advanced-data-fetching/fb/entrypoints/entrypoints-faq',
+                ],
+              },
               'guided-tour/advanced-data-fetching/fb/data-driven-dependencies',
               'guided-tour/advanced-data-fetching/fb/image-prefetching',
             ],
           },
-          external: {},
+          external: {
+            // TODO(T85915654): Release entrypoints guide externally
+          },
         }),
         {
           'Updating Data': [

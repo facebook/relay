@@ -384,7 +384,7 @@ fn write_schema_definition_helper(
     write!(f, "schema")?;
     write_directives(f, directives)?;
     write_fields(f, operation_types)?;
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_object_helper(
@@ -408,7 +408,7 @@ fn write_object_helper(
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;
     }
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_interface_helper(
@@ -427,7 +427,7 @@ fn write_interface_helper(
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;
     }
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_union_type_definition_helper(
@@ -440,7 +440,7 @@ fn write_union_type_definition_helper(
     write_directives(f, directives)?;
     write!(f, " = ")?;
     write_list(f, members, " | ")?;
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_directive_definition_helper(
@@ -456,7 +456,7 @@ fn write_directive_definition_helper(
     }
     write!(f, " on ")?;
     write_list(f, locations, " | ")?;
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_input_object_type_definition_helper(
@@ -470,7 +470,7 @@ fn write_input_object_type_definition_helper(
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;
     }
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_enum_type_definition_helper(
@@ -485,7 +485,7 @@ fn write_enum_type_definition_helper(
         write_fields(f, &values.items)?;
     }
 
-    write!(f, "\n")
+    writeln!(f)
 }
 
 fn write_scalar_type_definition_helper(
@@ -495,7 +495,7 @@ fn write_scalar_type_definition_helper(
 ) -> fmt::Result {
     write!(f, "scalar {}", name)?;
     write_directives(f, directives)?;
-    write!(f, "\n")
+    writeln!(f)
 }
 
 impl fmt::Display for ConstantDirective {

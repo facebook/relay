@@ -39,11 +39,9 @@ impl GraphQLSource {
         while let Some(chr) = chars.next() {
             let is_newline = match chr {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
-                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => match (chr, chars.peek()) {
-                    // <CLRF>
-                    ('\u{000D}', Some('\u{000D}')) => false,
-                    _ => true,
-                },
+                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
+                    !matches!((chr, chars.peek()), ('\u{000D}', Some('\u{000D}')))
+                }
                 _ => false,
             };
 

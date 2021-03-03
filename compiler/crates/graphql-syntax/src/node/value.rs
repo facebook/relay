@@ -67,10 +67,7 @@ impl fmt::Display for Value {
 
 impl Value {
     pub fn is_constant(&self) -> bool {
-        match self {
-            Value::Constant(..) => true,
-            _ => false,
-        }
+        matches!(self, Value::Constant(..))
     }
 
     pub fn span(&self) -> Span {

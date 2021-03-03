@@ -30,13 +30,12 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
+  graphql,
+  getRequest,
 } = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
-import type {ConcreteRequest} from 'relay-runtime';
-
-const query: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query EntryPointContainerTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -44,7 +43,7 @@ const query: ConcreteRequest = generateAndCompile(`
       }
     }
   }
-`).TestQuery;
+`);
 const params = {
   kind: 'PreloadableConcreteRequest',
   params: query.params,

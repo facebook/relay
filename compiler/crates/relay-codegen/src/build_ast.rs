@@ -836,7 +836,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     );
                 }
                 let values = extract_values_from_handle_field_directive(&handle_field_directive);
-                alias = alias.or_else(|| Some(name));
+                alias = alias.or(Some(name));
                 name = if values.key == CODEGEN_CONSTANTS.default_handle_key {
                     format!("__{}_{}", name, values.handle).intern()
                 } else {
@@ -1302,7 +1302,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
-        let mut sorted_args: Vec<&Argument> = arguments.iter().map(|arg| arg).collect();
+        let mut sorted_args: Vec<&Argument> = arguments.iter().collect();
         sorted_args.sort_unstable_by_key(|arg| arg.name.item);
 
         let args = sorted_args

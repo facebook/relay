@@ -102,10 +102,8 @@ impl<'schema> ValidationContext<'schema> {
                     ValidationContextType::TypeNode(type_name),
                 );
             }
-        } else {
-            if type_name == *QUERY {
-                self.add_error(SchemaValidationError::MissingRootType(type_name));
-            }
+        } else if type_name == *QUERY {
+            self.add_error(SchemaValidationError::MissingRootType(type_name));
         }
     }
 
@@ -312,7 +310,7 @@ impl<'schema> ValidationContext<'schema> {
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        type_.name().clone(),
+                        type_.name(),
                         interface.name,
                     ),
                     ValidationContextType::TypeNode(type_.name()),
@@ -490,7 +488,7 @@ impl<'schema> ValidationContext<'schema> {
         if name.len() > 1 && chars.next() == Some('_') && chars.next() == Some('_') {
             self.report_error(
                 SchemaValidationError::InvalidNamePrefix(name.to_string()),
-                context.clone(),
+                context,
             );
         }
         if !TYPE_NAME_REGEX.is_match(name) {

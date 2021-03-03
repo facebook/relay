@@ -19,19 +19,17 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {getRequest, getFragment, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeMutation() with global invalidation', () => {
   let callbacks;
   let commentID;
   let CommentFragment;
-  let CommentQuery;
   let complete;
-  let CreateCommentMutation;
   let environment;
   let error;
   let fetch;
@@ -47,36 +45,15 @@ describe('executeMutation() with global invalidation', () => {
     jest.resetModules();
     commentID = 'comment-id';
 
-    ({
-      CreateCommentMutation,
-      CommentFragment,
-      CommentQuery,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
-            }
-          }
+    CommentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment on Comment {
+        id
+        body {
+          text
         }
+      }
+    `);
 
-        fragment CommentFragment on Comment {
-          id
-          body {
-            text
-          }
-        }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...CommentFragment
-          }
-        }
-      `));
     variables = {
       input: {
         clientMutationId: '0',
@@ -86,8 +63,36 @@ describe('executeMutation() with global invalidation', () => {
     queryVariables = {
       id: commentID,
     };
-    operation = createOperationDescriptor(CreateCommentMutation, variables);
-    queryOperation = createOperationDescriptor(CommentQuery, queryVariables);
+    operation = createOperationDescriptor(
+      getRequest(graphql`
+        mutation RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation(
+          $input: CommentCreateInput!
+        ) {
+          commentCreate(input: $input) {
+            comment {
+              id
+              body {
+                text
+              }
+            }
+          }
+        }
+      `),
+      variables,
+    );
+    queryOperation = createOperationDescriptor(
+      getRequest(graphql`
+        query RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery(
+          $id: ID!
+        ) {
+          node(id: $id) {
+            id
+            ...RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment
+          }
+        }
+      `),
+      queryVariables,
+    );
 
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
       RelayObservable.create(sink => {

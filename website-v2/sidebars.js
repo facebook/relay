@@ -72,7 +72,7 @@ module.exports = {
         'introduction/installation-and-setup',
         'introduction/step-by-step-guide',
       ],
-      'Guided Tour': [
+      'A Guided Tour': [
         'guided-tour/introduction',
         {
           'Setup and Workflow': [
@@ -166,6 +166,11 @@ module.exports = {
           GraphQL: ['api-reference/graphql/graphql-and-directives'],
         },
         'api-reference/legacy-apis/legacy-apis',
+      ],
+      'Migration and Compatibility': [
+        'migration-and-compatibility/upgrading-to-relay-hooks',
+        'migration-and-compatibility/suspense-compatibility',
+        'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
       ],
       Guides,
     },

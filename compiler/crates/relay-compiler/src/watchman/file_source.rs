@@ -255,7 +255,7 @@ impl<'config> FileSource<'config> {
             .ok_or("no saved state in watchman response")?;
         let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
             saved_state_loader
-                .load(&saved_state_info)
+                .load(&saved_state_info, self.config)
                 .ok_or("unable to load")
         })?;
         let mut compiler_state = perf_logger_event

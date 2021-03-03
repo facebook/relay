@@ -447,13 +447,12 @@ impl CompilerState {
                         )?;
                     }
                     FileGroup::Generated { project_name } => {
-                        if !should_collect_changed_artifacts {
-                            break;
+                        if should_collect_changed_artifacts {
+                            self.dirty_artifact_paths.insert(
+                                project_name,
+                                files.iter().map(|f| (*f.name).clone()).collect(),
+                            );
                         }
-                        self.dirty_artifact_paths.insert(
-                            project_name,
-                            files.iter().map(|f| (*f.name).clone()).collect(),
-                        );
                     }
                 }
             }

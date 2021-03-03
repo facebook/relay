@@ -40,7 +40,7 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
-use log::{debug, info};
+use log::{debug, info, warn};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
@@ -418,6 +418,12 @@ pub async fn commit_project(
         debug!(
             "We just updated artifacts after source control update happened. Most likely we have outdated artifacts now..."
         );
+        warn!(
+            r#"
+Build canceled due to a source control update while we're writing artifacts.
+The compiler may produce outdated artifacts, but it will regenerate the correct set after the update is completed."#
+        );
+        return Err(BuildProjectFailure::Cancelled);
     } else {
         // For now, lets log how often this is happening, so we can decide if we want to
         // adjust the way we write artifacts. For example, we could write them to the temp

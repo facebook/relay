@@ -33,4 +33,7 @@ impl SourceControlUpdateStatus {
     pub fn is_completed(&self) -> bool {
         self.value.load(Ordering::Relaxed) == 2
     }
+    pub fn set_to_default(&self) {
+        self.value.store(Default::default(), Ordering::Relaxed);
+    }
 }

@@ -117,9 +117,15 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             notify_sender.notify_one();
                         }
                         Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
+                            info!("hg.update started...");
                             source_control_update_status.mark_as_started();
                         }
                         Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
+                            info!("hg.update completed.");
+                            source_control_update_status.set_to_default();
+                        }
+                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
+                            info!("hg.update completed. Detected new base revision...");
                             source_control_update_status.mark_as_completed();
                             notify_sender.notify_one();
                             break;
@@ -163,6 +169,10 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         loop {
             notify_receiver.notified().await;
 
+            if compiler_state.source_control_update_status.is_started() {
+                continue;
+            }
+
             if compiler_state.source_control_update_status.is_completed() {
                 subscription_handle.abort();
                 return Ok(());
@@ -172,9 +182,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
-            if compiler_state.has_pending_file_source_changes()
-                && !compiler_state.is_source_control_update_in_progress()
-            {
+            if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =

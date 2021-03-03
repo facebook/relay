@@ -928,15 +928,7 @@ input#search_input_react:active {
   }
 
   .gridBlock > * {
-    margin: 0 12px;
-  }
-
-  .gridBlock > *:first-child {
-    margin-left: 0;
-  }
-
-  .gridBlock > *:last-child {
-    margin-right: 0;
+    margin: 0 24px 0 0;
   }
 
   .gridBlock .twoByGridBlock {

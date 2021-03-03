@@ -205,7 +205,7 @@ impl TypeScriptPrinter {
     fn write_import_type(
         &mut self,
         writer: &mut dyn Write,
-        types: &Vec<StringKey>,
+        types: &[StringKey],
         from: &StringKey,
     ) -> Result {
         writeln!(

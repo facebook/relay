@@ -1366,6 +1366,8 @@ fn selections_to_map(
     map
 }
 
+// TODO: T85950736 Fix these clippy errors
+#[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
 fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
     let mut refs = None;
     let mut props = props.into_iter();

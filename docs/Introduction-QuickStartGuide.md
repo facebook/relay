@@ -30,9 +30,9 @@ Fortunately, we are going to be using this [example todo list app](https://githu
 type Query {
   viewer: User
 
-  # Fetches an object given its ID
+  """Fetches an object given its ID"""
   node(
-    # The ID of an object
+    """The ID of an object"""
     id: ID!
   ): Node
 }

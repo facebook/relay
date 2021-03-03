@@ -1201,7 +1201,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // be called twice here, and we verify the request is in flight.
         expectToHaveFetched(environment, queryWithDefer, {count: 2});
         expect(environment.retain).toHaveBeenCalledTimes(2);
-        expect(instance.toJSON()).toEqual(['Fallback']);
+        expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
         // Assert render state of component
         expect(renderLogs).toEqual([
@@ -1213,6 +1213,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           // Note that render doesn't happen in between:
           'cleanup: Alice 1',
           'commit: Alice 1',
+
+          // Assert final re-render triggered by query.
+          // It does not trigger a commit since the name didn't change.
+          'render: Alice 1',
         ]);
 
         // Resolve response for second request

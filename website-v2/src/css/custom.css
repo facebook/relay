@@ -77,11 +77,6 @@ html[data-theme="dark"] .navbar {
   width: 100%;
 }
 
-.projectTitle {
-  font-size: 4rem;
-  color: white;
-}
-
 .projectTitle > small {
   font-size: 2.5rem;
   margin: 1em 0 0.5em 0;

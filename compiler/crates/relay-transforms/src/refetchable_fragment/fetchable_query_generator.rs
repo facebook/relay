@@ -107,9 +107,9 @@ fn build_refetch_operation(
     }
 }
 
-fn get_fetchable_field_name<'schema>(
+fn get_fetchable_field_name(
     fragment: &FragmentDefinition,
-    schema: &'schema SDLSchema,
+    schema: &SDLSchema,
 ) -> DiagnosticsResult<Option<StringKey>> {
     if let Type::Object(id) = fragment.type_condition {
         let object = schema.object(id);

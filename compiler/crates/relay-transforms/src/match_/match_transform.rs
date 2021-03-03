@@ -252,21 +252,20 @@ impl<'program> MatchTransform<'program> {
             }
 
             // no other directives are allowed
-            if spread.directives.len() != 1 {
-                if !(spread.directives.len() == 2
+            if spread.directives.len() != 1
+                && !(spread.directives.len() == 2
                     && spread
                         .directives
                         .named(DEFER_STREAM_CONSTANTS.defer_name)
                         .is_some())
-                {
-                    // allow @defer and @module in typegen transforms
-                    return Err(Diagnostic::error(
-                        ValidationMessage::InvalidModuleWithAdditionalDirectives {
-                            spread_name: spread.fragment.item,
-                        },
-                        spread.directives[1].name.location,
-                    ));
-                }
+            {
+                // allow @defer and @module in typegen transforms
+                return Err(Diagnostic::error(
+                    ValidationMessage::InvalidModuleWithAdditionalDirectives {
+                        spread_name: spread.fragment.item,
+                    },
+                    spread.directives[1].name.location,
+                ));
             }
 
             self.validate_js_module_type(spread.fragment.location)?;
@@ -300,7 +299,7 @@ impl<'program> MatchTransform<'program> {
                 let mut str = String::new();
                 str.push_str(self.document_name.lookup());
                 for path in &self.path {
-                    str.push_str(".");
+                    str.push('.');
                     str.push_str(path.item.lookup());
                 }
                 str.intern()

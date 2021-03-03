@@ -85,11 +85,10 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     &module_directive,
                                     MATCH_CONSTANTS.js_field_module_arg,
                                 );
-                                let fragment_spread =
-                                    inline_fragment.selections.iter().find(|item| match item {
-                                        Selection::FragmentSpread(_) => true,
-                                        _ => false,
-                                    });
+                                let fragment_spread = inline_fragment
+                                    .selections
+                                    .iter()
+                                    .find(|item| matches!(item, Selection::FragmentSpread(_)));
                                 // This is expected to be a fragment spread
                                 let fragment_name = match fragment_spread {
                                     Some(Selection::FragmentSpread(spread)) => spread.fragment.item,

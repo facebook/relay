@@ -345,10 +345,10 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
 
 fn is_literal_false_arg(arg: Option<&Argument>) -> bool {
     if let Some(arg) = arg {
-        match arg.value.item {
-            Value::Constant(ConstantValue::Boolean(false)) => true,
-            _ => false,
-        }
+        matches!(
+            arg.value.item,
+            Value::Constant(ConstantValue::Boolean(false))
+        )
     } else {
         false
     }

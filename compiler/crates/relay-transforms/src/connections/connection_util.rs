@@ -178,12 +178,7 @@ pub fn extract_connection_metadata_from_directive(
 
         if let Some(metadata_arg) = metadata_arg {
             let metadata_values = match &metadata_arg.value.item {
-                Value::Constant(value) => match value {
-                    ConstantValue::List(list) => list,
-                    _ => unreachable!(
-                        "Expected connection metadata to be a list of metadata objects."
-                    ),
-                },
+                Value::Constant(ConstantValue::List(list)) => list,
                 _ => unreachable!("Expected connection metadata to be a list of metadata objects."),
             };
 

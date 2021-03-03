@@ -75,7 +75,7 @@ fn get_hover_response_contents(
     schema: &SDLSchema,
     schema_documentation: &Arc<SchemaDocumentation>,
     source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
-    extra_data_provider: &Box<dyn LSPExtraDataProvider>,
+    extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
 
@@ -297,7 +297,7 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
             schemas,
             &schema_documentation,
             state.get_source_programs_ref(),
-            &state.extra_data_provider,
+            state.extra_data_provider.as_ref(),
         )
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Unable to get hover contents".to_string())

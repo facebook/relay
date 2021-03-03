@@ -54,23 +54,24 @@ pub(crate) use lsp_state::LSPState;
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
 pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
-    let mut server_capabilities = ServerCapabilities::default();
-    // Enable text document syncing so we can know when files are opened/changed/saved/closed
-    server_capabilities.text_document_sync =
-        Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
+    let server_capabilities = ServerCapabilities {
+        // Enable text document syncing so we can know when files are opened/changed/saved/closed
+        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full)),
 
-    server_capabilities.completion_provider = Some(CompletionOptions {
-        resolve_provider: Some(true),
-        trigger_characters: Some(vec!["(".into(), "\n".into(), ",".into(), "@".into()]),
-        work_done_progress_options: WorkDoneProgressOptions {
-            work_done_progress: None,
-        },
-    });
+        completion_provider: Some(CompletionOptions {
+            resolve_provider: Some(true),
+            trigger_characters: Some(vec!["(".into(), "\n".into(), ",".into(), "@".into()]),
+            work_done_progress_options: WorkDoneProgressOptions {
+                work_done_progress: None,
+            },
+        }),
 
-    server_capabilities.hover_provider = Some(true);
-    server_capabilities.definition_provider = Some(true);
-    server_capabilities.references_provider = Some(true);
-    server_capabilities.code_action_provider = Some(CodeActionProviderCapability::Simple(true));
+        hover_provider: Some(true),
+        definition_provider: Some(true),
+        references_provider: Some(true),
+        code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        ..Default::default()
+    };
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -116,7 +117,7 @@ where
         extra_data_provider,
         &extension_config,
         connection.sender.clone(),
-    )?;
+    );
 
     for msg in connection.receiver {
         debug!("LSP message received {:?}", msg);

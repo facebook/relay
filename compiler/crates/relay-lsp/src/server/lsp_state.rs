@@ -7,7 +7,6 @@
 
 use crate::{
     diagnostic_reporter::DiagnosticReporter,
-    lsp_process_error::LSPProcessResult,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::extract_project_name_from_url,
@@ -91,7 +90,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
-    ) -> LSPProcessResult<Self> {
+    ) -> Self {
         info!("Creating lsp_state...");
         let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
 
@@ -127,7 +126,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         };
 
         info!("Creating lsp_state created!");
-        Ok(lsp_state)
+        lsp_state
     }
 
     pub(crate) fn get_schemas(&self) -> Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>> {

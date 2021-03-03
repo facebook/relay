@@ -44,6 +44,7 @@ pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
     validate_result
 }
 
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
     lsp_state: &mut LSPState<TPerfLogger>,
     params: <DidCloseTextDocument as Notification>::Params,
@@ -106,6 +107,7 @@ fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
     }
 }
 
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn on_did_save_text_document<TPerfLogger: PerfLogger + 'static>(
     _lsp_state: &mut LSPState<TPerfLogger>,
     _params: <DidSaveTextDocument as Notification>::Params,

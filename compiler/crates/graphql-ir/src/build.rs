@@ -1363,7 +1363,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if required_fields.is_empty() {
             Ok(Value::Object(fields?))
         } else {
-            let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
+            let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
@@ -1492,7 +1492,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if required_fields.is_empty() {
             Ok(ConstantValue::Object(fields?))
         } else {
-            let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
+            let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
@@ -1601,10 +1601,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     ) -> Option<FieldID> {
         if let Some(field_id) = self.schema.named_field(parent_type, field_name) {
             return Some(field_id);
-        };
+        }
+
+        #[allow(clippy::question_mark)]
         if directives.named(*FIXME_FAT_INTERFACE).is_none() {
             return None;
-        };
+        }
+
         // Handle @fixme_fat_interface: if present and the parent type is abstract, see
         // if one of the implementors has this field and if so use that definition.
         let possible_types = match parent_type {

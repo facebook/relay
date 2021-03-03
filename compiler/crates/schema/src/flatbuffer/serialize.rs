@@ -552,6 +552,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.type_map.insert(name, type_args);
     }
 
+    #[allow(clippy::field_reassign_with_default)]
     fn build_type_args(&mut self, id: u32, kind: flatbuffer::TypeKind) -> flatbuffer::TypeArgs {
         let mut type_args = flatbuffer::TypeArgs::default();
         type_args.kind = kind;

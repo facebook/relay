@@ -37,7 +37,7 @@ content = (
  * \x40generated
  */
 
-#![allow(unused_imports, dead_code)]
+#![allow(unused_imports, dead_code, clippy::redundant_static_lifetimes, clippy::redundant_field_names)]
 """.format(
         flatc_version
     )

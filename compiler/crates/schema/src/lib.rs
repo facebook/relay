@@ -47,7 +47,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
         combined_sdl.push_str(server_sdl.as_ref());
-        combined_sdl.push_str("\n");
+        combined_sdl.push('\n');
     }
     server_definitions.extend(
         graphql_syntax::parse_schema_document(&combined_sdl, SourceLocationKey::generated())?

@@ -19,22 +19,19 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {
-  generateAndCompile,
-  createMockEnvironment,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
-import type {ConcreteRequest} from 'relay-runtime';
-
-const query: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query loadQueryStoreBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       name
       id
     }
   }
-`).TestQuery;
+`);
 
 // Only queries with an ID are preloadable
 const ID = '12345';

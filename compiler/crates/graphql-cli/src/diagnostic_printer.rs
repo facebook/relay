@@ -53,7 +53,7 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
 
     /// Writes the file path and slice of the source code for the given location.
     fn write_source<W: Write>(&self, writer: &mut W, location: Location) -> std::fmt::Result {
-        let source_printer = SourcePrinter::new();
+        let source_printer = SourcePrinter::default();
         if let Some(source) = self.sources.get(location.source_location()) {
             let range = location.span().to_range(&source, 0, 0);
             writeln!(

@@ -89,7 +89,7 @@ pub fn generate_artifacts(
                 normalization_operation,
                 source_hash,
                 source_fragment.name.location.source_location(),
-            )?);
+            ));
         } else {
             let source_hash = source_hashes
                 .get(&normalization_operation.name.item)
@@ -102,7 +102,7 @@ pub fn generate_artifacts(
                 normalization_operation,
                 source_hash,
                 normalization_operation.name.location.source_location(),
-            )?);
+            ));
         }
     }
 
@@ -129,7 +129,7 @@ fn generate_normalization_artifact(
     normalization_operation: &Arc<OperationDefinition>,
     source_hash: String,
     source_file: SourceLocationKey,
-) -> Result<Artifact, BuildProjectError> {
+) -> Artifact {
     let name = normalization_operation.name.item;
     let print_operation = programs
         .operation_text
@@ -144,7 +144,8 @@ fn generate_normalization_artifact(
         .typegen
         .operation(name)
         .expect("a type fragment should be generated for this operation");
-    Ok(Artifact {
+
+    Artifact {
         source_definition_names: vec![source_definition_name],
         path: path_for_artifact(project_config, source_file, name),
         content: ArtifactContent::Operation {
@@ -156,7 +157,7 @@ fn generate_normalization_artifact(
             id_and_text_hash: None,
         },
         source_file: normalization_operation.name.location.source_location(),
-    })
+    }
 }
 
 fn generate_reader_artifact(

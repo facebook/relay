@@ -116,7 +116,7 @@ impl<'config> FileSource<'config> {
                     perf_logger,
                     perf_logger_event,
                     saved_state_config.clone(),
-                    saved_state_loader,
+                    saved_state_loader.as_ref(),
                     saved_state_version,
                 )
                 .await
@@ -220,7 +220,7 @@ impl<'config> FileSource<'config> {
             .await?;
         perf_logger_event.stop(query_timer);
 
-        let files = query_result.files.ok_or_else(|| Error::EmptyQueryResult)?;
+        let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
         Ok(FileSourceResult {
             files,
             resolved_root: self.resolved_root.clone(),
@@ -238,7 +238,7 @@ impl<'config> FileSource<'config> {
         perf_logger: &impl PerfLogger,
         perf_logger_event: &impl PerfLogEvent,
         saved_state_config: ScmAwareClockData,
-        saved_state_loader: &Box<dyn SavedStateLoader + Send + Sync>,
+        saved_state_loader: &'_ (dyn SavedStateLoader + Send + Sync),
         saved_state_version: &str,
     ) -> std::result::Result<Result<CompilerState>, &'static str> {
         let scm_since = Clock::ScmAware(FatClockData {

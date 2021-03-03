@@ -151,7 +151,7 @@ fn build_programs(
                     .feature_flags
                     .as_ref()
                     .cloned()
-                    .unwrap_or(config.feature_flags.clone()),
+                    .unwrap_or_else(|| config.feature_flags.clone()),
             ),
             perf_logger,
         )
@@ -222,6 +222,7 @@ pub fn build_project(
     Ok((project_config.name, schema, programs, artifacts))
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn commit_project(
     config: &Config,
     project_config: &ProjectConfig,
@@ -253,7 +254,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
-                &operation_persister,
+                operation_persister.as_ref(),
                 &log_event,
             )
             .await?;

@@ -328,6 +328,7 @@ fn generate_split_operation(
     sign_file(&content).into_bytes()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn generate_fragment(
     config: &Config,
     project_config: &ProjectConfig,

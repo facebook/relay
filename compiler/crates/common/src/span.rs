@@ -32,6 +32,8 @@ impl Span {
         (self.start as usize, self.end as usize)
     }
 
+    // clippy suggest to use `subspan.start < self.start` :-)
+    #[allow(clippy::suspicious_operation_groupings)]
     pub fn contains(self, subspan: Span) -> bool {
         subspan.start >= self.start && subspan.start < self.end && subspan.end <= self.end
     }
@@ -55,11 +57,10 @@ impl Span {
         while let Some((index, chr)) = chars.next() {
             let is_newline = match chr {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
-                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => match (chr, chars.peek()) {
+                '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
                     // <CLRF>
-                    ('\u{000D}', Some((_, '\u{000D}'))) => false,
-                    _ => true,
-                },
+                    !matches!((chr, chars.peek()), ('\u{000D}', Some((_, '\u{000D}'))))
+                }
                 _ => false,
             };
 

@@ -27,6 +27,7 @@ pub use definitions::{
 };
 pub use errors::{Result, SchemaError};
 use flatbuffer::FlatBufferSchema;
+pub use flatbuffer::SchemaWrapper;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
 pub use in_memory::InMemorySchema;
@@ -66,6 +67,10 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     }
 
     SDLSchema::build(&server_definitions, &extension_definitions)
+}
+
+pub fn build_schema_with_flat_buffer(bytes: Vec<u8>) -> SDLSchema {
+    SDLSchema::FlatBuffer(SchemaWrapper::from_vec(bytes))
 }
 
 pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBufferSchema<'_>> {

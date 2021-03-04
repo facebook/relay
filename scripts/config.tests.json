@@ -27,7 +27,8 @@
         "no_inline": {
           "kind": "enabled"
         }
-      }
+      },
+      "haste": false
     }
   }
 }

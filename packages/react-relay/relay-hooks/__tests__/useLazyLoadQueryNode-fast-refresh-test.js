@@ -22,7 +22,10 @@ const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 const {
   createOperationDescriptor,
   __internal: {fetchQuery},
+  graphql,
+  getRequest,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToBeRendered(renderFn, readyState) {
   // Ensure useEffect is called before other timers
@@ -57,8 +60,6 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
   let environment;
   let gqlQuery;
   let renderFn;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
 
@@ -66,27 +67,22 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     environment = createMockEnvironment();
 
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
+    graphql`
+      fragment useLazyLoadQueryNodeFastRefreshTestUserFragment on User {
         name
       }
-
-      query UserQuery($id: ID) {
+    `;
+    gqlQuery = getRequest(graphql`
+      query useLazyLoadQueryNodeFastRefreshTestUserQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
+          ...useLazyLoadQueryNodeFastRefreshTestUserFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');

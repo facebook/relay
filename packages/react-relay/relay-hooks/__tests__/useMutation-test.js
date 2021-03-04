@@ -19,11 +19,12 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
 const useMutation = require('../useMutation');
 
-const {createOperationDescriptor} = require('relay-runtime');
 const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+  createOperationDescriptor,
+  graphql,
+  getRequest,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 import type {PayloadData, PayloadError} from 'relay-runtime';
 
@@ -65,10 +66,8 @@ beforeEach(() => {
   environment = createMockEnvironment();
   isInFlightFn = jest.fn();
 
-  ({CommentCreateMutation} = generateAndCompile(`
-    mutation CommentCreateMutation(
-      $input: CommentCreateInput
-    ) {
+  CommentCreateMutation = getRequest(graphql`
+    mutation useMutationTest1Mutation($input: CommentCreateInput) {
       commentCreate(input: $input) {
         feedbackCommentEdge {
           cursor
@@ -80,7 +79,8 @@ beforeEach(() => {
           }
         }
       }
-  }`));
+    }
+  `);
 
   function Renderer({initialMutation, commitInRender}) {
     const [mutation, setMutationFn] = useState(initialMutation);
@@ -374,10 +374,8 @@ describe('change useMutation input', () => {
 
   beforeEach(() => {
     newEnv = createMockEnvironment();
-    ({CommentCreateMutation2} = generateAndCompile(`
-      mutation CommentCreateMutation2(
-        $input: CommentCreateInput
-      ) {
+    CommentCreateMutation2 = getRequest(graphql`
+      mutation useMutationTest2Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           feedbackCommentEdge {
             cursor
@@ -389,7 +387,8 @@ describe('change useMutation input', () => {
             }
           }
         }
-    }`));
+      }
+    `);
   });
 
   it('resets in-flight state when the environment changes', () => {

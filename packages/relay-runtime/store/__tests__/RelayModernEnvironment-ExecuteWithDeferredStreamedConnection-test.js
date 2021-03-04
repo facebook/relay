@@ -20,12 +20,12 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   let callback;
@@ -49,39 +49,45 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({FeedQuery: query, FeedFragment: feedFragment} = generateAndCompile(`
-        query FeedQuery($enableStream: Boolean!, $after: ID) {
-          viewer {
-            __typename
-            ...FeedFragment @defer(label: "FeedFragment")
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery(
+        $enableStream: Boolean!
+        $after: ID
+      ) {
+        viewer {
+          __typename
+          ...RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment
+            @defer(label: "FeedFragment")
         }
+      }
+    `);
 
-        fragment FeedFragment on Viewer {
-          newsFeed(first: 10, after: $after)
+    feedFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment on Viewer {
+        newsFeed(first: 10, after: $after)
           @connection(key: "RelayModernEnvironment_newsFeed") {
-            edges
+          edges
             @stream(label: "newsFeed", if: $enableStream, initial_count: 0) {
-              cursor
-              node {
-                __typename
+            cursor
+            node {
+              __typename
+              id
+              feedback {
                 id
-                feedback {
+                actors {
                   id
-                  actors {
-                    id
-                    name @__clientField(handle: "name_handler")
-                  }
+                  name @__clientField(handle: "name_handler")
                 }
               }
             }
-            pageInfo {
-              endCursor
-              hasNextPage
-            }
+          }
+          pageInfo {
+            endCursor
+            hasNextPage
           }
         }
-      `));
+      }
+    `);
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(
@@ -175,7 +181,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           edges: [],
         },
       },
-      label: 'FeedQuery$defer$FeedFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$defer$FeedFragment',
       path: ['viewer'],
     });
     expect(next).toBeCalledTimes(1);
@@ -212,7 +219,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           edges: [],
         },
       },
-      label: 'FeedQuery$defer$FeedFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$defer$FeedFragment',
       path: ['viewer'],
     });
     jest.runAllTimers();
@@ -237,7 +245,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$stream$newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -287,7 +296,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           edges: [],
         },
       },
-      label: 'FeedQuery$defer$FeedFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$defer$FeedFragment',
       path: ['viewer'],
     });
     jest.runAllTimers();
@@ -313,7 +323,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$stream$newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 0],
     });
     // second edge should be appended, not replace first edge
@@ -335,7 +346,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$stream$newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
@@ -414,7 +426,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           ],
         },
       },
-      label: 'FeedQuery$defer$FeedFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$defer$FeedFragment',
       path: ['viewer'],
     });
     jest.runAllTimers();
@@ -440,7 +453,8 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
           },
         },
       },
-      label: 'FeedFragment$stream$newsFeed',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$stream$newsFeed',
       path: ['viewer', 'newsFeed', 'edges', 1],
     });
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);

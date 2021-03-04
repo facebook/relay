@@ -21,15 +21,13 @@ const RelayRecordSource = require('../../store/RelayRecordSource');
 
 const requestSubscription = require('../requestSubscription');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
   it('Config: `RANGE_ADD`', () => {
@@ -41,24 +39,25 @@ describe('requestSubscription-test', () => {
     const firstCommentId = 'comment-1';
     const firstCommentBody = 'first comment';
     const secondCommentId = 'comment-2';
-    const {FeedbackCommentQuery} = generateAndCompile(`
-			query FeedbackCommentQuery($id: ID) {
-					node(id: $id) {
-						...on Feedback {
-							comments(first: 2)@connection(key: "FeedbackCommentQuery_comments") {
-								edges {
-									node {
-                    id
-                    body {
-                      text
-                    }
-									}
-								}
-							}
-						}
-					}
-				}
-			`);
+    const FeedbackCommentQuery = getRequest(graphql`
+      query requestSubscriptionTestFeedbackCommentQuery($id: ID) {
+        node(id: $id) {
+          ... on Feedback {
+            comments(first: 2)
+              @connection(key: "FeedbackCommentQuery_comments") {
+              edges {
+                node {
+                  id
+                  body {
+                    text
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -93,8 +92,8 @@ describe('requestSubscription-test', () => {
     );
     environment.commitPayload(operationDescriptor, payload);
 
-    const {CommentCreateSubscription} = generateAndCompile(`
-      subscription CommentCreateSubscription(
+    const CommentCreateSubscription = getRequest(graphql`
+      subscription requestSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput
       ) {
         commentCreateSubscribe(input: $input) {
@@ -212,22 +211,22 @@ describe('requestSubscription-test', () => {
     };
 
     beforeEach(() => {
-      ({CommentCreateSubscription} = generateAndCompile(`
-      subscription CommentCreateSubscription(
-        $input: CommentCreateSubscriptionInput
-      ) {
-        commentCreateSubscribe(input: $input) {
-          feedbackCommentEdge {
-            node {
-              id
-              body {
-                text
+      CommentCreateSubscription = getRequest(graphql`
+        subscription requestSubscriptionTest1CommentCreateSubscription(
+          $input: CommentCreateSubscriptionInput
+        ) {
+          commentCreateSubscribe(input: $input) {
+            feedbackCommentEdge {
+              node {
+                id
+                body {
+                  text
+                }
               }
             }
           }
         }
-      }
-    `));
+      `);
 
       cacheMetadata = undefined;
       const fetch = jest.fn((_query, _variables, _cacheConfig) => {

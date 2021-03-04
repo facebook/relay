@@ -10,7 +10,7 @@
 html[data-theme="light"] {
   --main-bg-color: var(--ifm-color-primary);
   --light-bg-color: #f9f6ef;
-  --dark-bg-color: #f6f3e6;
+  --dark-bg-color: #EAEAE2;
   --container-box-shadow: rgba(0, 0, 0, 0.9) 0px 1px 2px 0px;
   --pre-box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px -1px, rgba(0, 0, 0, 0.1) 0px 1px 2px -1px;
   --pre-border-color: #EAEAEA;
@@ -19,6 +19,12 @@ html[data-theme="light"] {
   --pre-background-color: var(--light-bg-color);
   --blockquote-background-color: #e9e3e3;
   --ifm-blockquote-color: #3a434d;
+  --ifm-navbar-link-color: white;
+  --ifm-code-font-size: 16px;
+}
+
+html[data-theme="light"] .navbar__title {
+  color: white;
 }
 
 html[data-theme="dark"] {
@@ -29,6 +35,7 @@ html[data-theme="dark"] {
   --pre-border-color: #222;
   --blockquote-background-color: #262626;
   --ifm-blockquote-color: var(--ifm-font-color-base);
+  --ifm-code-font-size: 16px;
 }
 
 /* Navbar */

@@ -16,13 +16,13 @@ import * as React from 'react';
 // Light theme
 
 /* eslint-disable lint/fb-fds-usage-colors */
-const tag = '#aa0982';
-const attribute = '#4876d6';
-const value = '#c96765';
+const tag = '#6a0352';
+const attribute = '#081686';
+const value = '#590000';
 const punctuation = '#403f53';
 const plainText = '#403f53';
-const meta = '#aaa';
-const other = '#c96765';
+const meta = '#444';
+const other = '#793735';
 /* eslint-enable lint/fb-fds-usage-colors */
 
 const lightTheme = {

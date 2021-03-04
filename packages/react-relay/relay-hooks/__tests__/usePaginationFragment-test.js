@@ -23,11 +23,16 @@ const TestRenderer = require('react-test-renderer');
 const invariant = require('invariant');
 const usePaginationFragmentOriginal = require('../usePaginationFragment');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const {createMockEnvironment} = require('relay-test-utils');
+
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  graphql,
+  getRequest,
+  getFragment,
   createOperationDescriptor,
 } = require('relay-runtime');
 
@@ -56,8 +61,6 @@ describe('usePaginationFragment', () => {
   let setOwner;
   let renderFragment;
   let renderSpy;
-  let createMockEnvironment;
-  let generateAndCompile;
   let loadNext;
   let refetch;
   let Renderer;
@@ -119,15 +122,52 @@ describe('usePaginationFragment', () => {
     renderSpy.mockClear();
   }
 
-  function createFragmentRef(id, owner) {
+  function createFragmentRef(
+    id,
+    owner,
+    fragmentName: string = 'usePaginationFragmentTestNestedUserFragment',
+  ) {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
-        NestedUserFragment: {},
+        [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
     };
   }
+
+  const unsubscribe = jest.fn();
+  jest.doMock('relay-runtime', () => {
+    const originalRuntime = jest.requireActual('relay-runtime');
+    const originalInternal = originalRuntime.__internal;
+    return {
+      ...originalRuntime,
+      __internal: {
+        ...originalInternal,
+        fetchQuery: jest.fn((...args) => {
+          const observable = originalInternal.fetchQuery(...args);
+          return {
+            subscribe: observer => {
+              return observable.subscribe({
+                ...observer,
+                start: originalSubscription => {
+                  const observerStart = observer?.start;
+                  observerStart &&
+                    observerStart({
+                      ...originalSubscription,
+                      unsubscribe: () => {
+                        originalSubscription.unsubscribe();
+                        unsubscribe();
+                      },
+                    });
+                },
+              });
+            },
+          };
+        }),
+      },
+    };
+  });
 
   beforeEach(() => {
     // Set up mocks
@@ -135,154 +175,10 @@ describe('usePaginationFragment', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
     renderSpy = jest.fn();
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     // Set up environment and base data
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    const generated = generateAndCompile(
-      `
-        fragment NestedUserFragment on User {
-          username
-        }
-
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentPaginationQuery")
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
-          id
-          name
-          friends(
-            after: $after,
-            first: $first,
-            before: $before,
-            last: $last,
-            orderby: $orderby,
-            isViewerFriend: $isViewerFriendLocal
-            scale: $scale
-          ) @connection(key: "UserFragment_friends", filters: ["orderby", "isViewerFriend"]) {
-            edges {
-              node {
-                id
-                name
-                ...NestedUserFragment
-              }
-            }
-          }
-        }
-
-        fragment UserFragmentWithStreaming on User
-        @refetchable(queryName: "UserFragmentStreamingPaginationQuery")
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-          scale: {type: "Float"}
-        ) {
-          id
-          name
-          friends(
-            after: $after,
-            first: $first,
-            before: $before,
-            last: $last,
-            orderby: $orderby,
-            isViewerFriend: $isViewerFriendLocal
-            scale: $scale
-          ) @stream_connection(
-              initial_count: 1
-              key: "UserFragment_friends",
-              filters: ["orderby", "isViewerFriend"]
-            ) {
-            edges {
-              node {
-                id
-                name
-                ...NestedUserFragment
-              }
-            }
-          }
-        }
-
-        query UserQuery(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          node(id: $id) {
-            ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-          }
-        }
-
-        query UserQueryNestedFragment(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          node(id: $id) {
-            actor {
-              ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-            }
-          }
-        }
-
-        query UserQueryWithoutID(
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          viewer {
-            actor {
-              ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-            }
-          }
-        }
-
-        query UserQueryWithLiteralArgs(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-        ) {
-          node(id: $id) {
-            ...UserFragment @arguments(isViewerFriendLocal: true, orderby: ["name"])
-          }
-        }
-
-        query UserQueryWithStreaming(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          node(id: $id) {
-            ...UserFragmentWithStreaming @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-          }
-        }
-      `,
-    );
     variablesWithoutID = {
       after: null,
       first: 1,
@@ -299,30 +195,171 @@ describe('usePaginationFragment', () => {
       ...variablesWithoutID,
       id: '<feedbackid>',
     };
-    gqlQuery = generated.UserQuery;
-    gqlQueryNestedFragment = generated.UserQueryNestedFragment;
-    gqlQueryWithoutID = generated.UserQueryWithoutID;
-    gqlQueryWithLiteralArgs = generated.UserQueryWithLiteralArgs;
-    gqlQueryWithStreaming = generated.UserQueryWithStreaming;
-    gqlPaginationQuery = generated.UserFragmentPaginationQuery;
-    gqlPaginationQueryWithStreaming =
-      generated.UserFragmentStreamingPaginationQuery;
-    gqlFragment = generated.UserFragment;
-    gqlFragmentWithStreaming = generated.UserFragmentWithStreaming;
-    invariant(
-      gqlFragment.metadata?.refetch?.operation ===
-        '@@MODULE_START@@UserFragmentPaginationQuery.graphql@@MODULE_END@@',
-      'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-    );
-    invariant(
-      gqlFragmentWithStreaming.metadata?.refetch?.operation ===
-        '@@MODULE_START@@UserFragmentStreamingPaginationQuery.graphql@@MODULE_END@@',
-      'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-    );
-    // Manually set the refetchable operation for the test.
-    gqlFragment.metadata.refetch.operation = gqlPaginationQuery;
-    // Manually set the refetchable operation for the test.
-    gqlFragmentWithStreaming.metadata.refetch.operation = gqlPaginationQueryWithStreaming;
+    graphql`
+      fragment usePaginationFragmentTestNestedUserFragment on User {
+        username
+      }
+    `;
+
+    gqlQuery = getRequest(graphql`
+      query usePaginationFragmentTestUserQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        node(id: $id) {
+          ...usePaginationFragmentTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+        }
+      }
+    `);
+    gqlQueryNestedFragment = getRequest(graphql`
+      query usePaginationFragmentTestUserQueryNestedFragmentQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        node(id: $id) {
+          actor {
+            ...usePaginationFragmentTestUserFragment
+              @arguments(
+                isViewerFriendLocal: $isViewerFriend
+                orderby: $orderby
+              )
+          }
+        }
+      }
+    `);
+    gqlQueryWithoutID = getRequest(graphql`
+      query usePaginationFragmentTestUserQueryWithoutIDQuery(
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        viewer {
+          actor {
+            ...usePaginationFragmentTestUserFragment
+              @arguments(
+                isViewerFriendLocal: $isViewerFriend
+                orderby: $orderby
+              )
+          }
+        }
+      }
+    `);
+    gqlQueryWithLiteralArgs = getRequest(graphql`
+      query usePaginationFragmentTestUserQueryWithLiteralArgsQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+      ) {
+        node(id: $id) {
+          ...usePaginationFragmentTestUserFragment
+            @arguments(isViewerFriendLocal: true, orderby: ["name"])
+        }
+      }
+    `);
+    gqlQueryWithStreaming = getRequest(graphql`
+      query usePaginationFragmentTestUserQueryWithStreamingQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        node(id: $id) {
+          ...usePaginationFragmentTestUserFragmentWithStreaming
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+        }
+      }
+    `);
+    gqlFragment = getFragment(graphql`
+      fragment usePaginationFragmentTestUserFragment on User
+        @refetchable(
+          queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
+        )
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+          scale: {type: "Float"}
+        ) {
+        id
+        name
+        friends(
+          after: $after
+          first: $first
+          before: $before
+          last: $last
+          orderby: $orderby
+          isViewerFriend: $isViewerFriendLocal
+          scale: $scale
+        )
+          @connection(
+            key: "UserFragment_friends"
+            filters: ["orderby", "isViewerFriend"]
+          ) {
+          edges {
+            node {
+              id
+              name
+              ...usePaginationFragmentTestNestedUserFragment
+            }
+          }
+        }
+      }
+    `);
+    gqlFragmentWithStreaming = getFragment(graphql`
+      fragment usePaginationFragmentTestUserFragmentWithStreaming on User
+        @refetchable(
+          queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
+        )
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+          scale: {type: "Float"}
+        ) {
+        id
+        name
+        friends(
+          after: $after
+          first: $first
+          before: $before
+          last: $last
+          orderby: $orderby
+          isViewerFriend: $isViewerFriendLocal
+          scale: $scale
+        )
+          @stream_connection(
+            initial_count: 1
+            key: "UserFragment_friends"
+            filters: ["orderby", "isViewerFriend"]
+          ) {
+          edges {
+            node {
+              id
+              name
+              ...usePaginationFragmentTestNestedUserFragment
+            }
+          }
+        }
+      }
+    `);
+    gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestUserFragmentPaginationQuery.graphql');
 
     query = createOperationDescriptor(gqlQuery, variables);
     queryNestedFragment = createOperationDescriptor(
@@ -436,7 +473,6 @@ describe('usePaginationFragment', () => {
     }) => {
       // We need a render a component to run a Hook
       const [owner, _setOwner] = useState(props.owner);
-      const [_, _setCount] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const nodeUserRef = useMemo(
         () => environment.lookup(owner.fragment).data?.node,
@@ -535,17 +571,26 @@ describe('usePaginationFragment', () => {
   });
 
   describe('initial render', () => {
+    let getPromiseForActiveRequestSpy;
+    beforeEach(() => {
+      getPromiseForActiveRequestSpy = jest.spyOn(
+        require('relay-runtime').__internal,
+        'getPromiseForActiveRequest',
+      );
+    });
+
     // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User @relay(plural: true) {
+      const UserFragment = getFragment(graphql`
+        fragment usePaginationFragmentTest1Fragment on User
+          @relay(plural: true) {
           id
         }
       `);
-      const renderer = renderFragment({fragment: generated.UserFragment});
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -556,12 +601,12 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = getFragment(graphql`
+        fragment usePaginationFragmentTest2Fragment on User {
           id
         }
       `);
-      const renderer = renderFragment({fragment: generated.UserFragment});
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -574,15 +619,15 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is missing @connection directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentRefetchQuery") {
+      const UserFragment = getFragment(graphql`
+        fragment usePaginationFragmentTest3Fragment on User
+          @refetchable(
+            queryName: "usePaginationFragmentTest3FragmentRefetchQuery"
+          ) {
           id
         }
       `);
-      generated.UserFragment.metadata.refetch.operation =
-        generated.UserFragmentRefetchQuery;
-      const renderer = renderFragment({fragment: generated.UserFragment});
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -709,12 +754,9 @@ describe('usePaginationFragment', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      jest
-        .spyOn(
-          require('relay-runtime').__internal,
-          'getPromiseForActiveRequest',
-        )
-        .mockImplementationOnce(() => Promise.resolve());
+      getPromiseForActiveRequestSpy.mockImplementationOnce(() =>
+        Promise.resolve(),
+      );
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
@@ -728,7 +770,6 @@ describe('usePaginationFragment', () => {
           id: '4',
         },
       });
-
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');
     });
@@ -738,8 +779,6 @@ describe('usePaginationFragment', () => {
     let release;
 
     beforeEach(() => {
-      jest.resetModules();
-
       release = jest.fn();
       environment.retain.mockImplementation((...args) => {
         return {
@@ -800,6 +839,9 @@ describe('usePaginationFragment', () => {
 
       it('does not load more if component has unmounted', () => {
         const warning = require('warning');
+        // $FlowFixMe[prop-missing]
+        warning.mockClear();
+
         const renderer = renderFragment();
         expectFragmentResults([
           {
@@ -829,6 +871,9 @@ describe('usePaginationFragment', () => {
 
       it('does not load more if fragment ref passed to usePaginationFragment() was null', () => {
         const warning = require('warning');
+        // $FlowFixMe[prop-missing]
+        warning.mockClear();
+
         renderFragment({userRef: null});
         expectFragmentResults([
           {
@@ -929,39 +974,7 @@ describe('usePaginationFragment', () => {
       });
 
       it('cancels load more if component unmounts', () => {
-        const unsubscribe = jest.fn();
-        jest.doMock('relay-runtime', () => {
-          const originalRuntime = jest.requireActual('relay-runtime');
-          const originalInternal = originalRuntime.__internal;
-          return {
-            ...originalRuntime,
-            __internal: {
-              ...originalInternal,
-              fetchQuery: (...args) => {
-                const observable = originalInternal.fetchQuery(...args);
-                return {
-                  subscribe: observer => {
-                    return observable.subscribe({
-                      ...observer,
-                      start: originalSubscription => {
-                        const observerStart = observer?.start;
-                        observerStart &&
-                          observerStart({
-                            ...originalSubscription,
-                            unsubscribe: () => {
-                              originalSubscription.unsubscribe();
-                              unsubscribe();
-                            },
-                          });
-                      },
-                    });
-                  },
-                };
-              },
-            },
-          };
-        });
-
+        unsubscribe.mockClear();
         const callback = jest.fn();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -1006,39 +1019,7 @@ describe('usePaginationFragment', () => {
       });
 
       it('cancels load more if refetch is called', () => {
-        const unsubscribe = jest.fn();
-        jest.doMock('relay-runtime', () => {
-          const originalRuntime = jest.requireActual('relay-runtime');
-          const originalInternal = originalRuntime.__internal;
-          return {
-            ...originalRuntime,
-            __internal: {
-              ...originalInternal,
-              fetchQuery: (...args) => {
-                const observable = originalInternal.fetchQuery(...args);
-                return {
-                  subscribe: observer => {
-                    return observable.subscribe({
-                      ...observer,
-                      start: originalSubscription => {
-                        const observerStart = observer?.start;
-                        observerStart &&
-                          observerStart({
-                            ...originalSubscription,
-                            unsubscribe: () => {
-                              originalSubscription.unsubscribe();
-                              unsubscribe();
-                            },
-                          });
-                      },
-                    });
-                  },
-                };
-              },
-            },
-          };
-        });
-
+        unsubscribe.mockClear();
         const callback = jest.fn();
         const renderer = renderFragment();
         expectFragmentResults([
@@ -2183,44 +2164,8 @@ describe('usePaginationFragment', () => {
       });
 
       describe('disposing', () => {
-        let unsubscribe;
         beforeEach(() => {
-          unsubscribe = jest.fn();
-          jest.doMock('relay-runtime', () => {
-            const originalRuntime = jest.requireActual('relay-runtime');
-            const originalInternal = originalRuntime.__internal;
-            return {
-              ...originalRuntime,
-              __internal: {
-                ...originalInternal,
-                fetchQuery: (...args) => {
-                  const observable = originalInternal.fetchQuery(...args);
-                  return {
-                    subscribe: observer => {
-                      return observable.subscribe({
-                        ...observer,
-                        start: originalSubscription => {
-                          const observerStart = observer?.start;
-                          observerStart &&
-                            observerStart({
-                              ...originalSubscription,
-                              unsubscribe: () => {
-                                originalSubscription.unsubscribe();
-                                unsubscribe();
-                              },
-                            });
-                        },
-                      });
-                    },
-                  };
-                },
-              },
-            };
-          });
-        });
-
-        afterEach(() => {
-          jest.dontMock('relay-runtime');
+          unsubscribe.mockClear();
         });
 
         it('disposes ongoing request if environment changes', () => {
@@ -2550,7 +2495,6 @@ describe('usePaginationFragment', () => {
 
       describe('when parent query is streaming', () => {
         beforeEach(() => {
-          ({createMockEnvironment} = require('relay-test-utils-internal'));
           environment = createMockEnvironment({
             handlerProvider: () => ConnectionHandler,
           });
@@ -2665,7 +2609,7 @@ describe('usePaginationFragment', () => {
                 },
               },
               label:
-                'UserFragmentWithStreaming$defer$UserFragment_friends$pageInfo',
+                'usePaginationFragmentTestUserFragmentWithStreaming$defer$UserFragment_friends$pageInfo',
               path: ['node', 'friends'],
               extensions: {
                 is_final: true,
@@ -4004,42 +3948,35 @@ describe('usePaginationFragment', () => {
       let gqlRefetchQuery;
 
       beforeEach(() => {
-        const generated = generateAndCompile(
-          `
-            fragment StoryFragment on NonNodeStory
+        const fetchVariables = {id: 'a'};
+        gqlQuery = getRequest(graphql`
+          query usePaginationFragmentTestStoryQuery($id: ID!) {
+            nonNodeStory(id: $id) {
+              ...usePaginationFragmentTestStoryFragment
+            }
+          }
+        `);
+
+        gqlFragment = getFragment(graphql`
+          fragment usePaginationFragmentTestStoryFragment on NonNodeStory
             @argumentDefinitions(
-              count: {type: "Int", defaultValue: 10},
+              count: {type: "Int", defaultValue: 10}
               cursor: {type: "ID"}
             )
-            @refetchable(queryName: "StoryFragmentRefetchQuery") {
-              comments(first: $count, after: $cursor) @connection(key: "StoryFragment_comments") {
-                edges {
-                  node {
-                    id
-                  }
+            @refetchable(
+              queryName: "usePaginationFragmentTestStoryFragmentRefetchQuery"
+            ) {
+            comments(first: $count, after: $cursor)
+              @connection(key: "StoryFragment_comments") {
+              edges {
+                node {
+                  id
                 }
               }
             }
-
-            query StoryQuery($id: ID!) {
-              nonNodeStory(id: $id) {
-                ...StoryFragment
-              }
-            }
-          `,
-        );
-        const fetchVariables = {id: 'a'};
-        gqlQuery = generated.StoryQuery;
-        gqlRefetchQuery = generated.StoryFragmentRefetchQuery;
-        gqlPaginationQuery = generated.StoryFragmentRefetchQuery;
-        gqlFragment = generated.StoryFragment;
-        invariant(
-          gqlFragment.metadata?.refetch?.operation ===
-            '@@MODULE_START@@StoryFragmentRefetchQuery.graphql@@MODULE_END@@',
-          'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-        );
-        // Manually set the refetchable operation for the test.
-        gqlFragment.metadata.refetch.operation = gqlRefetchQuery;
+          }
+        `);
+        gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestStoryFragmentRefetchQuery.graphql');
 
         query = createOperationDescriptor(gqlQuery, fetchVariables);
 

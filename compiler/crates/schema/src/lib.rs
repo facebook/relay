@@ -15,8 +15,8 @@ pub mod definitions;
 mod errors;
 mod flatbuffer;
 mod graphql_schema;
+mod in_memory;
 mod schema;
-mod sdl;
 
 pub use crate::schema::SDLSchema;
 use common::{DiagnosticsResult, SourceLocationKey};
@@ -29,7 +29,7 @@ pub use errors::{Result, SchemaError};
 use flatbuffer::FlatBufferSchema;
 pub use graphql_schema::Schema;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
-pub use sdl::SDLSchemaImpl;
+pub use in_memory::InMemorySchema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");
 

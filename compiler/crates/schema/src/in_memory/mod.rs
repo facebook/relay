@@ -19,7 +19,7 @@ fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
 }
 
 #[derive(Debug)]
-pub struct SDLSchemaImpl {
+pub struct InMemorySchema {
     query_type: Option<ObjectID>,
     mutation_type: Option<ObjectID>,
     subscription_type: Option<ObjectID>,
@@ -49,7 +49,7 @@ pub struct SDLSchemaImpl {
     unions: Vec<Union>,
 }
 
-impl Schema for SDLSchemaImpl {
+impl Schema for InMemorySchema {
     fn query_type(&self) -> Option<Type> {
         self.query_type.map(Type::Object)
     }
@@ -255,7 +255,7 @@ impl Schema for SDLSchemaImpl {
     }
 }
 
-impl SDLSchemaImpl {
+impl InMemorySchema {
     pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
         self.directives.get_mut(&name)
     }
@@ -570,8 +570,8 @@ impl SDLSchemaImpl {
     /// Creates an uninitialized, invalid schema which can then be added to using the add_*
     /// methods. Note that we still bake in some assumptions about the clientid and typename
     /// fields, but in practice this is not an issue.
-    pub fn create_uninitialized() -> SDLSchemaImpl {
-        SDLSchemaImpl {
+    pub fn create_uninitialized() -> InMemorySchema {
+        InMemorySchema {
             query_type: None,
             mutation_type: None,
             subscription_type: None,
@@ -683,7 +683,7 @@ impl SDLSchemaImpl {
                 .expect("Missing Boolean type"),
         ));
 
-        let mut schema = SDLSchemaImpl {
+        let mut schema = InMemorySchema {
             query_type: None,
             mutation_type: None,
             subscription_type: None,

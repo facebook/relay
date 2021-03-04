@@ -21,12 +21,12 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('@connection', () => {
   let callbacks;
@@ -44,25 +44,28 @@ describe('@connection', () => {
     // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 
-    ({FeedbackQuery: query, FeedbackFragment: fragment} = generateAndCompile(`
-      query FeedbackQuery($id: ID!) {
+    query = getRequest(graphql`
+      query RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery(
+        $id: ID!
+      ) {
         node(id: $id) {
-          ...FeedbackFragment
+          ...RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment
         }
       }
-
-      fragment FeedbackFragment on Feedback @argumentDefinitions(
-        count: {type: "Int", defaultValue: 2},
-        cursor: {type: "ID"}
-      ) {
+    `);
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment on Feedback
+        @argumentDefinitions(
+          count: {type: "Int", defaultValue: 2}
+          cursor: {type: "ID"}
+        ) {
         id
         comments(after: $cursor, first: $count, orderby: "date")
           @connection(
-            key: "FeedbackFragment_comments"
+            key: "RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment_comments"
             filters: ["orderby"]
           )
-          @required(action: LOG)
-        {
+          @required(action: LOG) {
           edges {
             node {
               id
@@ -70,7 +73,7 @@ describe('@connection', () => {
           }
         }
       }
-    `));
+    `);
     const variables = {
       id: '<feedbackid>',
     };
@@ -118,7 +121,13 @@ describe('@connection', () => {
     const snapshot = environment.lookup(selector);
     expect(snapshot.missingRequiredFields).toEqual({
       action: 'LOG',
-      fields: [{owner: 'FeedbackFragment', path: 'comments'}],
+      fields: [
+        {
+          owner:
+            'RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment',
+          path: 'comments',
+        },
+      ],
     });
     expect(snapshot.data).toEqual(null);
   });

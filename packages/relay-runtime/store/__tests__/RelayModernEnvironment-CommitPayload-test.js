@@ -20,11 +20,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('commitPayload()', () => {
   let ActorQuery;
@@ -36,13 +36,13 @@ describe('commitPayload()', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.mock('warning');
-    ({ActorQuery} = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name
-          }
+    ActorQuery = getRequest(graphql`
+      query RelayModernEnvironmentCommitPayloadTestActorQuery {
+        me {
+          name
         }
-      `));
+      }
+    `);
     operation = createOperationDescriptor(ActorQuery, {});
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
@@ -75,19 +75,19 @@ describe('commitPayload()', () => {
   });
 
   it('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
-    const query = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name
-            birthdate {
-              day
-              month
-              year
-            }
+    const query = getRequest(graphql`
+      query RelayModernEnvironmentCommitPayloadTest2ActorQuery {
+        me {
+          name
+          birthdate {
+            day
+            month
+            year
           }
         }
-      `);
-    operation = createOperationDescriptor(query.ActorQuery, {});
+      }
+    `);
+    operation = createOperationDescriptor(query, {});
     const callback = jest.fn();
     const snapshot = environment.lookup(operation.fragment);
     environment.subscribe(snapshot, callback);
@@ -118,19 +118,19 @@ describe('commitPayload()', () => {
       treatMissingFieldsAsNull: true,
     });
 
-    const query = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name
-            birthdate {
-              day
-              month
-              year
-            }
+    const query = getRequest(graphql`
+      query RelayModernEnvironmentCommitPayloadTest3ActorQuery {
+        me {
+          name
+          birthdate {
+            day
+            month
+            year
           }
         }
-      `);
-    operation = createOperationDescriptor(query.ActorQuery, {});
+      }
+    `);
+    operation = createOperationDescriptor(query, {});
     const callback = jest.fn();
     const snapshot = environment.lookup(operation.fragment);
     environment.subscribe(snapshot, callback);
@@ -189,26 +189,22 @@ describe('commitPayload()', () => {
 
   it('applies payload on @defer fragments', () => {
     const id = '4';
-    const query = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name
-            ...UserFragment @defer
-          }
+    const query = getRequest(graphql`
+      query RelayModernEnvironmentCommitPayloadTest4ActorQuery {
+        me {
+          name
+          ...RelayModernEnvironmentCommitPayloadTest4UserFragment @defer
         }
+      }
+    `);
+    const fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentCommitPayloadTest4UserFragment on User {
+        username
+      }
+    `);
+    operation = createOperationDescriptor(query, {});
 
-        fragment UserFragment on User {
-          username
-        }
-      `);
-    operation = createOperationDescriptor(query.ActorQuery, {});
-
-    const selector = createReaderSelector(
-      query.UserFragment,
-      id,
-      {},
-      operation.request,
-    );
+    const selector = createReaderSelector(fragment, id, {}, operation.request);
 
     const queryCallback = jest.fn();
     const fragmentCallback = jest.fn();
@@ -231,7 +227,7 @@ describe('commitPayload()', () => {
       me: {
         name: 'Zuck',
         __id: id,
-        __fragments: {UserFragment: {}},
+        __fragments: {RelayModernEnvironmentCommitPayloadTest4UserFragment: {}},
         __fragmentOwner: operation.request,
       },
     });
@@ -244,49 +240,52 @@ describe('commitPayload()', () => {
       expect.stringContaining(
         'RelayModernEnvironment: Operation `%s` contains @defer/@stream directives',
       ),
-      'ActorQuery',
+      'RelayModernEnvironmentCommitPayloadTest4ActorQuery',
     );
   });
 
   it('applies payload on @defer fragments in a query with modules', () => {
     const id = '4';
-    const query = generateAndCompile(`
-        query ActorQuery {
-          me {
-            name
-            nameRenderer {
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
-            ...UserFragment @defer
+    const query = getRequest(graphql`
+      query RelayModernEnvironmentCommitPayloadTest6ActorQuery {
+        me {
+          name
+          nameRenderer {
+            ...RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
+          ...RelayModernEnvironmentCommitPayloadTest6UserFragment @defer
         }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-        }
-
-        fragment UserFragment on User {
-          username
-        }
-      `);
+      }
+    `);
+    const nameFragmentNormalizationNode = require('./__generated__/RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$normalization.graphql');
+    graphql`
+      fragment RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+      }
+    `;
+    const userFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentCommitPayloadTest6UserFragment on User {
+        username
+      }
+    `);
 
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
       operationLoader: {
         get: () => {
-          return query.MarkdownUserNameRenderer_name;
+          return nameFragmentNormalizationNode;
         },
         load: jest.fn(),
       },
     });
 
-    operation = createOperationDescriptor(query.ActorQuery, {});
+    operation = createOperationDescriptor(query, {});
 
     const selector = createReaderSelector(
-      query.UserFragment,
+      userFragment,
       id,
       {},
       operation.request,
@@ -306,9 +305,10 @@ describe('commitPayload()', () => {
         __typename: 'User',
         nameRenderer: {
           __typename: 'MarkdownUserNameRenderer',
-          __module_component_ActorQuery: 'MarkdownUserNameRenderer.react',
-          __module_operation_ActorQuery:
-            'MarkdownUserNameRenderer_name$normalization.graphql',
+          __module_component_RelayModernEnvironmentCommitPayloadTest6ActorQuery:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayModernEnvironmentCommitPayloadTest6ActorQuery:
+            'RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$normalization.graphql',
           markdown: 'markdown payload',
         },
         name: 'Zuck',
@@ -328,7 +328,7 @@ describe('commitPayload()', () => {
       expect.stringContaining(
         'RelayModernEnvironment: Operation `%s` contains @defer/@stream directives',
       ),
-      'ActorQuery',
+      'RelayModernEnvironmentCommitPayloadTest6ActorQuery',
     );
   });
 

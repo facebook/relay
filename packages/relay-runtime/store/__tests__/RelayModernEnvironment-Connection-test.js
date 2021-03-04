@@ -19,14 +19,15 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {getHandleStorageKey} = require('../../store/RelayStoreUtils');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('@connection', () => {
   let callbacks;
@@ -48,36 +49,37 @@ describe('@connection', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({
-      FeedbackQuery: query,
-      FeedbackFragment: fragment,
-      PaginationQuery: paginationQuery,
-    } = generateAndCompile(`
-      query FeedbackQuery($id: ID!) {
+    query = getRequest(graphql`
+      query RelayModernEnvironmentConnectionTestFeedbackQuery($id: ID!) {
         node(id: $id) {
-          ...FeedbackFragment
+          ...RelayModernEnvironmentConnectionTestFeedbackFragment
         }
       }
-
-      query PaginationQuery(
+    `);
+    paginationQuery = getRequest(graphql`
+      query RelayModernEnvironmentConnectionTestPaginationQuery(
         $id: ID!
         $count: Int!
         $cursor: ID!
       ) {
         node(id: $id) {
-          ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+          ...RelayModernEnvironmentConnectionTestFeedbackFragment
+            @arguments(count: $count, cursor: $cursor)
         }
       }
-
-      fragment FeedbackFragment on Feedback @argumentDefinitions(
-        count: {type: "Int", defaultValue: 2},
-        cursor: {type: "ID"}
-      ) {
-        id
-        comments(after: $cursor, first: $count, orderby: "date") @connection(
-          key: "FeedbackFragment_comments"
-          filters: ["orderby"]
+    `);
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentConnectionTestFeedbackFragment on Feedback
+        @argumentDefinitions(
+          count: {type: "Int", defaultValue: 2}
+          cursor: {type: "ID"}
         ) {
+        id
+        comments(after: $cursor, first: $count, orderby: "date")
+          @connection(
+            key: "RelayModernEnvironmentConnectionTestFeedbackFragment_comments"
+            filters: ["orderby"]
+          ) {
           edges {
             node {
               id
@@ -85,7 +87,7 @@ describe('@connection', () => {
           }
         }
       }
-    `));
+    `);
     const variables = {
       id: '<feedbackid>',
     };
@@ -155,7 +157,7 @@ describe('@connection', () => {
         __id: '<feedbackid>',
 
         __fragments: {
-          FeedbackFragment: {},
+          RelayModernEnvironmentConnectionTestFeedbackFragment: {},
         },
 
         __fragmentOwner: operation.request,
@@ -299,22 +301,28 @@ describe('@connection', () => {
         cursor: 'cursor-2',
       };
       environment.commitUpdate(storeProxy => {
-        const handleField = paginationQuery.operation.selections
-          .find(
-            selection =>
-              selection.kind === 'LinkedField' && selection.name === 'node',
-          )
-          .selections.find(
-            selection =>
-              selection.kind === 'InlineFragment' &&
-              selection.type === 'Feedback',
-          )
-          .selections.find(
-            selection =>
-              selection.kind === 'LinkedHandle' &&
-              selection.name === 'comments',
-          );
-        expect(handleField).toBeTruthy();
+        const nodeField = paginationQuery.operation.selections.find(
+          selection =>
+            selection.kind === 'LinkedField' && selection.name === 'node',
+        );
+        invariant(nodeField?.kind === 'LinkedField', 'expected a LinkedField');
+        const feedbackFragment = nodeField.selections.find(
+          selection =>
+            selection.kind === 'InlineFragment' &&
+            selection.type === 'Feedback',
+        );
+        invariant(
+          feedbackFragment?.kind === 'InlineFragment',
+          'expected an InlineFragment',
+        );
+        const handleField = feedbackFragment.selections.find(
+          selection =>
+            selection.kind === 'LinkedHandle' && selection.name === 'comments',
+        );
+        invariant(
+          handleField?.kind === 'LinkedHandle',
+          'expected a LinkedHandle',
+        );
         const handleKey = getHandleStorageKey(handleField, variables);
         const feedback = storeProxy.get('<feedbackid>');
         expect(feedback).toBeTruthy();

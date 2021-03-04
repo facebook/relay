@@ -153,7 +153,12 @@ module.exports = {
             'api-reference/hooks/use-fragment',
             'api-reference/hooks/use-refetchable-fragment',
             'api-reference/hooks/use-pagination-fragment',
-            'api-reference/hooks/use-blocking-pagination-fragment',
+            ...fbContent({
+              internal: [
+                'api-reference/hooks/fb/use-blocking-pagination-fragment',
+              ],
+              external: [],
+            }),
             'api-reference/hooks/use-mutation',
             'api-reference/hooks/use-subscription',
           ],

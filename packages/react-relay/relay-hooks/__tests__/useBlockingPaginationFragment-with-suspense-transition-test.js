@@ -30,7 +30,12 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  graphql,
+  getRequest,
+  getFragment,
 } = require('relay-runtime');
+
+const {createMockEnvironment} = require('relay-test-utils');
 
 const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
 
@@ -53,8 +58,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     let variablesWithoutID;
     let setOwner;
     let renderFragment;
-    let createMockEnvironment;
-    let generateAndCompile;
     let loadNext;
     let refetch;
     let forceUpdate;
@@ -181,7 +184,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          NestedUserFragment: {},
+          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
       };
@@ -207,11 +210,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         originalLogError(message, ...args);
       });
 
-      ({
-        createMockEnvironment,
-        generateAndCompile,
-      } = require('relay-test-utils-internal'));
-
       // Set up environment and base data
       environment = createMockEnvironment({
         handlerProvider: () => ConnectionHandler,
@@ -222,39 +220,45 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           dispose: release,
         };
       });
-      const generated = generateAndCompile(
-        `
-          fragment NestedUserFragment on User {
-            username
-          }
+      graphql`
+        fragment useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment on User {
+          username
+        }
+      `;
 
-          fragment UserFragment on User
-          @refetchable(queryName: "UserFragmentPaginationQuery")
+      gqlFragment = getFragment(graphql`
+        fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
+          @refetchable(
+            queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
+          )
           @argumentDefinitions(
             isViewerFriendLocal: {type: "Boolean", defaultValue: false}
             orderby: {type: "[String]"}
           ) {
-            id
-            name
-            friends(
-              after: $after,
-              first: $first,
-              before: $before,
-              last: $last,
-              orderby: $orderby,
-              isViewerFriend: $isViewerFriendLocal
-            ) @connection(key: "UserFragment_friends") {
-              edges {
-                node {
-                  id
-                  name
-                  ...NestedUserFragment
-                }
+          id
+          name
+          friends(
+            after: $after
+            first: $first
+            before: $before
+            last: $last
+            orderby: $orderby
+            isViewerFriend: $isViewerFriendLocal
+          ) @connection(key: "UserFragment_friends") {
+            edges {
+              node {
+                id
+                name
+                ...useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment
               }
             }
           }
+        }
+      `);
 
-          query UserQuery(
+      gqlQuery = getRequest(
+        graphql`
+          query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
             $id: ID!
             $after: ID
             $first: Int
@@ -265,27 +269,38 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           ) {
             node(id: $id) {
               actor {
-                ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-              }
-            }
-          }
-
-          query UserQueryWithoutID(
-            $after: ID
-            $first: Int
-            $before: ID
-            $last: Int
-            $orderby: [String]
-            $isViewerFriend: Boolean
-          ) {
-            viewer {
-              actor {
-                ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+                ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                  @arguments(
+                    isViewerFriendLocal: $isViewerFriend
+                    orderby: $orderby
+                  )
               }
             }
           }
         `,
       );
+
+      gqlQueryWithoutID = getRequest(graphql`
+        query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery(
+          $after: ID
+          $first: Int
+          $before: ID
+          $last: Int
+          $orderby: [String]
+          $isViewerFriend: Boolean
+        ) {
+          viewer {
+            actor {
+              ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                @arguments(
+                  isViewerFriendLocal: $isViewerFriend
+                  orderby: $orderby
+                )
+            }
+          }
+        }
+      `);
+
       variablesWithoutID = {
         after: null,
         first: 1,
@@ -298,17 +313,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         ...variablesWithoutID,
         id: '<feedbackid>',
       };
-      gqlQuery = generated.UserQuery;
-      gqlQueryWithoutID = generated.UserQueryWithoutID;
-      gqlPaginationQuery = generated.UserFragmentPaginationQuery;
-      gqlFragment = generated.UserFragment;
-      invariant(
-        gqlFragment.metadata?.refetch?.operation ===
-          '@@MODULE_START@@UserFragmentPaginationQuery.graphql@@MODULE_END@@',
-        'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-      );
-      // Manually set the refetchable operation for the test.
-      gqlFragment.metadata.refetch.operation = gqlPaginationQuery;
+      gqlPaginationQuery = require('./__generated__/useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery.graphql');
 
       query = createOperationDescriptor(gqlQuery, variables);
       queryWithoutID = createOperationDescriptor(

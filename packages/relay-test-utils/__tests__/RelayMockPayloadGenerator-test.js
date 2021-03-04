@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @emails oncall+relay
+ * @flow
  * @format
  */
 
@@ -12,45 +13,34 @@
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
 
-const {parse, print} = require('graphql');
-const {getRequest, createOperationDescriptor} = require('relay-runtime');
-const {FIXTURE_TAG, generateAndCompile} = require('relay-test-utils-internal');
+const {
+  getRequest,
+  graphql,
+  createOperationDescriptor,
+} = require('relay-runtime');
+const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
-
-function compile(text) {
-  return generateAndCompile(text);
-}
+import type {GraphQLTaggedNode} from 'relay-runtime';
 
 function testGeneratedData(
-  graphql: string,
-  mockResolvers: ?MockResolvers | ((compiledGraphQL: mixed) => MockResolvers),
+  query: GraphQLTaggedNode,
+  mockResolvers: ?MockResolvers,
 ): void {
-  const compiledGraphQL = compile(graphql);
-  const {TestQuery: query} = compiledGraphQL;
-  const operation = createOperationDescriptor(getRequest(query), {});
-  const payload = RelayMockPayloadGenerator.generate(
-    operation,
-    typeof mockResolvers === 'function'
-      ? mockResolvers(compiledGraphQL)
-      : mockResolvers,
-  );
+  const request = getRequest(query);
+  const operation = createOperationDescriptor(request, {});
+  const payload = RelayMockPayloadGenerator.generate(operation, mockResolvers);
+
   expect({
     [FIXTURE_TAG]: true,
-    input: print(parse(graphql)),
+    input: request.params?.text,
     output: JSON.stringify(payload, null, 2),
   }).toMatchSnapshot();
 }
 
 test('generate mock for simple fragment', () => {
-  testGeneratedData(`
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTestFragment on User {
       id
       name
       profile_picture {
@@ -58,21 +48,20 @@ test('generate mock for simple fragment', () => {
         width
         height
       }
-  }`);
+    }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest1Query {
+      node(id: "my-id") {
+        ...RelayMockPayloadGeneratorTestFragment
+      }
+    }
+  `);
 });
 
 test('generate mock with abstract inline fragment', () => {
-  testGeneratedData(`
-    query TestQuery {
-      viewer {
-        actor {
-          # abstract fragment spread
-          ...TestFragment
-        }
-      }
-    }
-
-    fragment TestFragment on Actor {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest1Fragment on Actor {
       id
       # abstract inline fragment
       ... on Named {
@@ -86,18 +75,22 @@ test('generate mock with abstract inline fragment', () => {
         websites
       }
     }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest2Query {
+      viewer {
+        actor {
+          # abstract fragment spread
+          ...RelayMockPayloadGeneratorTest1Fragment
+        }
+      }
+    }
   `);
 });
 
 test('generate mock with inline fragment', () => {
-  testGeneratedData(`
-    query TestQuery ($condition: Boolean) {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest2Fragment on User {
       id
       name
       author {
@@ -123,23 +116,19 @@ test('generate mock with inline fragment', () => {
         }
       }
     }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest3Query($condition: Boolean) {
+      node(id: "my-id") {
+        ...RelayMockPayloadGeneratorTest2Fragment
+      }
+    }
   `);
 });
 
 test('generate mock with condition (and other complications)', () => {
-  testGeneratedData(`
-    query TestQuery (
-      $showProfilePicture: Boolean,
-      $hideBirthday: Boolean,
-      $showBirthdayMonth:  Boolean,
-      $hideAuthorUsername: Boolean
-    ) {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest3Fragment on User {
       id
       name
       customId: id
@@ -170,58 +159,67 @@ test('generate mock with condition (and other complications)', () => {
         uri
       }
     }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest4Query(
+      $showProfilePicture: Boolean
+      $hideBirthday: Boolean
+      $showBirthdayMonth: Boolean
+      $hideAuthorUsername: Boolean
+    ) {
+      node(id: "my-id") {
+        ...RelayMockPayloadGeneratorTest3Fragment
+      }
+    }
   `);
 });
 
 test('generate mock with connection', () => {
-  testGeneratedData(`
-    query TestQuery($first: Int, $skipUserInConnection: Boolean) {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment UserFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest4Fragment on User {
       name
       username
       emailAddresses
     }
-
-    fragment TestFragment on Page {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest5Fragment on Page {
       actor {
         ... on User {
           id
           myType: __typename
           myName: name
           name
-          friends(first: $first)
-            @connection(key: "FriendsConnection_friends") {
+          friends(first: $first) @connection(key: "FriendsConnection_friends") {
             edges {
               cursor
               node {
                 id
-                ...UserFragment
+                ...RelayMockPayloadGeneratorTest4Fragment
                   @skip(if: $skipUserInConnection)
               }
             }
           }
-          ...UserFragment
+          ...RelayMockPayloadGeneratorTest4Fragment
         }
+      }
+    }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest5Query(
+      $first: Int
+      $skipUserInConnection: Boolean
+    ) {
+      node(id: "my-id") {
+        ...RelayMockPayloadGeneratorTest5Fragment
       }
     }
   `);
 });
 
 test('generate basic mock data', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest6Fragment on User {
       id
       name
       author {
@@ -229,28 +227,37 @@ test('generate basic mock data', () => {
         name
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest6Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest6Fragment
+        }
+      }
+    `,
     null, // Mock Resolvers
   );
 });
 
 test('generate mock using custom mock functions', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest7Fragment on User {
       id
       name
       profile_picture {
         uri
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest7Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest7Fragment
+        }
+      }
+    `,
     {
       ID(context, generateId) {
         return `my-id-${String(generateId() + 1000)}`;
@@ -265,15 +272,8 @@ test('generate mock using custom mock functions', () => {
 });
 
 test('generate mock using custom mock functions for object type', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on Page {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest8Fragment on Page {
       actor {
         id
         name
@@ -283,7 +283,15 @@ test('generate mock using custom mock functions for object type', () => {
         uri
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest8Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest8Fragment
+        }
+      }
+    `,
     {
       Image: () => {
         return {
@@ -297,21 +305,22 @@ test('generate mock using custom mock functions for object type', () => {
 });
 
 test('generate mock for objects without concrete type', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on Page {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest9Fragment on Page {
       actor {
         id
         name
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest9Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest9Fragment
+        }
+      }
+    `,
     {
       Actor: () => {
         return {
@@ -324,15 +333,8 @@ test('generate mock for objects without concrete type', () => {
 });
 
 test('generate mock using custom mock functions for object type (multiple object)', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest10Fragment on User {
       name
       actor {
         ... on User {
@@ -348,7 +350,15 @@ test('generate mock using custom mock functions for object type (multiple object
         uri
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest10Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest10Fragment
+        }
+      }
+    `,
     {
       User: () => {
         return {
@@ -368,15 +378,8 @@ test('generate mock using custom mock functions for object type (multiple object
 
 test('check context in the mock resolver', () => {
   let checkContext;
-  testGeneratedData(
-    `
-    query TestQuery {
-      viewer {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on Viewer {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest11Fragment on Viewer {
       actor {
         ... on User {
           id
@@ -388,7 +391,15 @@ test('check context in the mock resolver', () => {
         }
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest11Query {
+        viewer {
+          ...RelayMockPayloadGeneratorTest11Fragment
+        }
+      }
+    `,
     {
       Image: context => {
         checkContext = context;
@@ -416,15 +427,8 @@ test('check context in the mock resolver', () => {
 });
 
 test('generate mock with manual mock for objects', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on Page {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest12Fragment on Page {
       id
       name
       body {
@@ -455,7 +459,15 @@ test('generate mock with manual mock for objects', () => {
         }
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest12Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest12Fragment
+        }
+      }
+    `,
     {
       Page: (context, generateId) => {
         return {
@@ -483,15 +495,8 @@ test('generate mock with manual mock for objects', () => {
 });
 
 test('generate mock with multiple spreads', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      viewer {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on Viewer {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest13Fragment on Viewer {
       actor {
         ... on User {
           id
@@ -509,20 +514,19 @@ test('generate mock with multiple spreads', () => {
         }
       }
     }
-  `,
-  );
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest13Query {
+      viewer {
+        ...RelayMockPayloadGeneratorTest13Fragment
+      }
+    }
+  `);
 });
 
 test('generate mock and verify arguments in the context', () => {
-  testGeneratedData(
-    `
-    query TestQuery($smallScale: Int = 1, $bigScale: Int = 100) {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest14Fragment on User {
       ... on User {
         id
         name
@@ -534,7 +538,18 @@ test('generate mock and verify arguments in the context', () => {
         }
       }
     }
-  `,
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest14Query(
+        $smallScale: Int = 1
+        $bigScale: Int = 100
+      ) {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest14Fragment
+        }
+      }
+    `,
     {
       Image: context => {
         if (context?.args?.scale === 100) {
@@ -552,15 +567,9 @@ test('generate mock and verify arguments in the context', () => {
 });
 
 test('generate mock for fragment with @argumentsDefinition', () => {
-  testGeneratedData(
-    `
-    query TestQuery($scale: Int = 1) {
-      node(id: "my-id") {
-        ...TestFragment @arguments(withName: true)
-      }
-    }
-
-    fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"}) {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest15Fragment on User
+      @argumentDefinitions(withName: {type: "Boolean!"}) {
       id
       name @include(if: $withName)
       profile_picture(scale: $scale) {
@@ -568,7 +577,16 @@ test('generate mock for fragment with @argumentsDefinition', () => {
         width
         height
       }
-  }`,
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest15Query($scale: Int = 1) {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest15Fragment @arguments(withName: true)
+        }
+      }
+    `,
     {
       Image() {
         return {
@@ -581,51 +599,48 @@ test('generate mock for fragment with @argumentsDefinition', () => {
 });
 
 test('generate mock for plural fragment', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      nodes {
-        ...TestFragment
-      }
-    }
-
-    fragment TestFragment on Comment @relay(plural: true) {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest16Fragment on Comment
+      @relay(plural: true) {
       id
       body {
         text
       }
-  }`,
-  );
+    }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest16Query {
+      nodes {
+        ...RelayMockPayloadGeneratorTest16Fragment
+      }
+    }
+  `);
 });
 
 test('generate mock for multiple fragment spreads', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment ActorUser on Page {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest17Fragment on Page {
       id
       pageName: name
     }
-
-    fragment UserData on User {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest18Fragment on User {
       id
       name
       username
     }
-
-    fragment ProfilePicture on User {
-      ...UserData,
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest19Fragment on User {
+      ...RelayMockPayloadGeneratorTest18Fragment
       profile_picture {
         uri
       }
     }
-
-    fragment TestFragment on User {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest20Fragment on User {
       body {
         text
       }
@@ -634,34 +649,32 @@ test('generate mock for multiple fragment spreads', () => {
         id
       }
       myActor: actor {
-        ...ActorUser
+        ...RelayMockPayloadGeneratorTest17Fragment
       }
-      ...UserData
-      ...ProfilePicture
-  }`,
-  );
+      ...RelayMockPayloadGeneratorTest18Fragment
+      ...RelayMockPayloadGeneratorTest19Fragment
+    }
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest17Query {
+      node(id: "my-id") {
+        ...RelayMockPayloadGeneratorTest20Fragment
+      }
+    }
+  `);
 });
 
 test('generate mock for with directives and handlers', () => {
-  testGeneratedData(
-    `
-    query TestQuery(
-      $first: Int = 10,
-      $picturePreset: PhotoSize,
-      $RELAY_INCREMENTAL_DELIVERY: Boolean = false
-    ) {
-      node(id: "my-id") {
-        ...TestFragment @arguments(condition: true)
-      }
-    }
-
-    fragment OneMoreFragmentSpread on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest21Fragment on User {
       birthdate {
         month
       }
     }
-
-    fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}) {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest22Fragment on User
+      @argumentDefinitions(condition: {type: "Boolean!"}) {
       id
       name
       myActor: actor {
@@ -687,7 +700,7 @@ test('generate mock for with directives and handlers', () => {
       profilePicture(preset: $picturePreset) @include(if: $condition) {
         uri
       }
-      ...OneMoreFragmentSpread
+      ...RelayMockPayloadGeneratorTest21Fragment
       actor {
         ... on User {
           id
@@ -702,7 +715,8 @@ test('generate mock for with directives and handlers', () => {
             comments {
               edges {
                 node {
-                  ... DeferFragment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel")
+                  ...RelayMockPayloadGeneratorTest23Fragment
+                    @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel")
                 }
               }
             }
@@ -715,45 +729,52 @@ test('generate mock for with directives and handlers', () => {
         username @__clientField(handle: "MyUserName")
       }
     }
-
-    fragment DeferFragment on Comment {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest23Fragment on Comment {
       body {
         text
       }
     }
-    `,
-  );
+  `;
+  testGeneratedData(graphql`
+    query RelayMockPayloadGeneratorTest18Query(
+      $first: Int = 10
+      $picturePreset: PhotoSize
+      $RELAY_INCREMENTAL_DELIVERY: Boolean = false
+    ) {
+      node(id: "my-id") {
+        ...RelayMockPayloadGeneratorTest22Fragment @arguments(condition: true)
+      }
+    }
+  `);
 });
 
 test('should return `null` for selection if that is specified in default values', () => {
-  testGeneratedData(
-    `
-    query TestQuery {
-      node(id: "my-id") {
-        ...TestFragment
-      }
-    }
-
-    fragment ActorUser on User {
+  graphql`
+    fragment RelayMockPayloadGeneratorTest24Fragment on User {
       id
       name
     }
-
-    fragment UserData on User {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest25Fragment on User {
       id
       name
       profile_picture {
-        ...ProfilePicture
+        ...RelayMockPayloadGeneratorTest26Fragment
       }
     }
-
-    fragment ProfilePicture on Image {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest26Fragment on Image {
       uri
       width
       height
     }
-
-    fragment TestFragment on User {
+  `;
+  graphql`
+    fragment RelayMockPayloadGeneratorTest27Fragment on User {
       body {
         text
       }
@@ -762,10 +783,19 @@ test('should return `null` for selection if that is specified in default values'
         id
       }
       myActor: actor {
-        ...ActorUser
+        ...RelayMockPayloadGeneratorTest24Fragment
       }
-      ...UserData
-  }`,
+      ...RelayMockPayloadGeneratorTest25Fragment
+    }
+  `;
+  testGeneratedData(
+    graphql`
+      query RelayMockPayloadGeneratorTest19Query {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest27Fragment
+        }
+      }
+    `,
     {
       User() {
         return {
@@ -778,8 +808,8 @@ test('should return `null` for selection if that is specified in default values'
 
 describe('with @relay_test_operation', () => {
   test('generate mock for simple query', () => {
-    testGeneratedData(`
-      query TestQuery @relay_test_operation {
+    testGeneratedData(graphql`
+      query RelayMockPayloadGeneratorTest20Query @relay_test_operation {
         me {
           id
           name
@@ -795,14 +825,8 @@ describe('with @relay_test_operation', () => {
   });
 
   test('generate mock for simple fragment', () => {
-    testGeneratedData(`
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ...TestFragment
-        }
-      }
-
-      fragment TestFragment on User {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest28Fragment on User {
         id
         name
         profile_picture {
@@ -810,12 +834,20 @@ describe('with @relay_test_operation', () => {
           width
           height
         }
-    }`);
+      }
+    `;
+    testGeneratedData(graphql`
+      query RelayMockPayloadGeneratorTest21Query @relay_test_operation {
+        node(id: "my-id") {
+          ...RelayMockPayloadGeneratorTest28Fragment
+        }
+      }
+    `);
   });
 
   test('generate mock with Enums', () => {
-    testGeneratedData(`
-      query TestQuery @relay_test_operation {
+    testGeneratedData(graphql`
+      query RelayMockPayloadGeneratorTest22Query @relay_test_operation {
         node(id: "my-id") {
           ... on User {
             id
@@ -829,16 +861,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with Mock Resolvers for Concrete Type', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            name
+      graphql`
+        query RelayMockPayloadGeneratorTest23Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              name
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User() {
           return {
@@ -852,16 +884,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with Mock Resolvers for Interface Type', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            name
+      graphql`
+        query RelayMockPayloadGeneratorTest24Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              name
+            }
           }
         }
-      }
-    `,
+      `,
       {
         Node() {
           return {
@@ -875,20 +907,20 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with Mock Resolvers for Interface Type with multiple fragment spreads', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            name
-          }
-          ... on Page {
-            id
-            pageName: name
+      graphql`
+        query RelayMockPayloadGeneratorTest25Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              name
+            }
+            ... on Page {
+              id
+              pageName: name
+            }
           }
         }
-      }
-    `,
+      `,
       {
         Node() {
           return {
@@ -902,25 +934,28 @@ describe('with @relay_test_operation', () => {
   });
 
   test('generate mock with Mock Resolvers for Interface Type with multiple fragments', () => {
-    testGeneratedData(
-      `
-      fragment PageDetails on Page {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest29Fragment on Page {
         id
         pageName: name
       }
+    `;
 
-      fragment UserDetails on User {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest30Fragment on User {
         id
         userName: name
       }
-
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ...PageDetails
-          ...UserDetails
+    `;
+    testGeneratedData(
+      graphql`
+        query RelayMockPayloadGeneratorTest26Query @relay_test_operation {
+          node(id: "my-id") {
+            ...RelayMockPayloadGeneratorTest29Fragment
+            ...RelayMockPayloadGeneratorTest30Fragment
+          }
         }
-      }
-    `,
+      `,
       {
         Node() {
           return {
@@ -935,16 +970,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with Mock Resolvers for Interface Type with Concrete Type mock resolver', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            name
+      graphql`
+        query RelayMockPayloadGeneratorTest27Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              name
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User() {
           return {
@@ -958,16 +993,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with Mock Resolvers for Scalar field as null', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            name
+      graphql`
+        query RelayMockPayloadGeneratorTest28Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              name
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User() {
           return {
@@ -981,16 +1016,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with multiple items in arrays for scalar field', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            emailAddresses
+      graphql`
+        query RelayMockPayloadGeneratorTest29Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              emailAddresses
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User(_, generateId) {
           return {
@@ -1005,16 +1040,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with empty array for scalar field ', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            emailAddresses
+      graphql`
+        query RelayMockPayloadGeneratorTest30Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              emailAddresses
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User(_, generateId) {
           return {
@@ -1027,8 +1062,8 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with multiple items in arrays for linked field with default data', () => {
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest31Query @relay_test_operation {
           node(id: "my-id") {
             ... on User {
               id
@@ -1061,8 +1096,8 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with multiple items in arrays including null', () => {
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest32Query @relay_test_operation {
           node(id: "my-id") {
             ... on User {
               id
@@ -1095,28 +1130,28 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with multiple items in arrays for linked field with custom data', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            friends {
-              edges {
-                node {
-                  id
-                  name
-                  profile_picture {
-                    uri
-                    width
-                    height
+      graphql`
+        query RelayMockPayloadGeneratorTest33Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                    profile_picture {
+                      uri
+                      width
+                      height
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
-    `,
+      `,
       {
         FriendsConnection(_, generateId) {
           return {
@@ -1142,28 +1177,28 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with multiple items in arrays for linked field with custom data and additional mock resolver', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            friends {
-              edges {
-                node {
-                  id
-                  name
-                  profile_picture {
-                    uri
-                    width
-                    height
+      graphql`
+        query RelayMockPayloadGeneratorTest34Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                    profile_picture {
+                      uri
+                      width
+                      height
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
-    `,
+      `,
       {
         Image(_, generateId) {
           return {
@@ -1188,26 +1223,26 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock data with mock resolver for ID that may return `undefined`', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            friends {
-              edges {
-                node {
-                  id
-                  name
+      graphql`
+        query RelayMockPayloadGeneratorTest35Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                  }
                 }
               }
             }
           }
         }
-      }
-    `,
+      `,
       {
         ID(context) {
-          if (context.path.join('.') === 'node.id') {
+          if (context.path?.join('.') === 'node.id') {
             return 'this-is-my-id';
           }
         },
@@ -1224,23 +1259,23 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with default value for object in plural field', () => {
     testGeneratedData(
-      `
-    query TestQuery @relay_test_operation {
-      node(id: "my-id") {
-        ... on User {
-          id
-          friends {
-            edges {
-              node {
-                id
-                name
+      graphql`
+        query RelayMockPayloadGeneratorTest36Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
               }
             }
           }
         }
-      }
-    }
-  `,
+      `,
       {
         FriendsEdge() {
           return {
@@ -1255,23 +1290,23 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with default value for plural field and its object', () => {
     testGeneratedData(
-      `
-    query TestQuery @relay_test_operation {
-      node(id: "my-id") {
-        ... on User {
-          id
-          friends {
-            edges {
-              node {
-                id
-                name
+      graphql`
+        query RelayMockPayloadGeneratorTest37Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              friends {
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
               }
             }
           }
         }
-      }
-    }
-  `,
+      `,
       {
         FriendsConnection() {
           return {
@@ -1291,16 +1326,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with default value for scalar plural field', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            emailAddresses
+      graphql`
+        query RelayMockPayloadGeneratorTest38Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              emailAddresses
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User(context) {
           return {
@@ -1313,8 +1348,8 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock for enum with different case should be OK', () => {
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest39Query @relay_test_operation {
           node(id: "my-id") {
             ... on User {
               id
@@ -1335,8 +1370,8 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock for enum in arrays', () => {
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest40Query @relay_test_operation {
           node(id: "my-id") {
             ... on User {
               id
@@ -1358,16 +1393,16 @@ describe('with @relay_test_operation', () => {
   test('generate mock with invalid value for enum', () => {
     expect(() => {
       testGeneratedData(
-        `
-        query TestQuery @relay_test_operation {
-          node(id: "my-id") {
-            ... on User {
-              id
-              environment
+        graphql`
+          query RelayMockPayloadGeneratorTest41Query @relay_test_operation {
+            node(id: "my-id") {
+              ... on User {
+                id
+                environment
+              }
             }
           }
-        }
-      `,
+        `,
         {
           User(context) {
             return {
@@ -1383,16 +1418,16 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock with null for enum', () => {
     testGeneratedData(
-      `
-      query TestQuery @relay_test_operation {
-        node(id: "my-id") {
-          ... on User {
-            id
-            environment
+      graphql`
+        query RelayMockPayloadGeneratorTest42Query @relay_test_operation {
+          node(id: "my-id") {
+            ... on User {
+              id
+              environment
+            }
           }
         }
-      }
-    `,
+      `,
       {
         User(context) {
           return {
@@ -1405,13 +1440,8 @@ describe('with @relay_test_operation', () => {
 
   test('generate mock for client extensions', () => {
     testGeneratedData(
-      `
-        extend type User {
-          client_name: String
-          client_code: Int
-        }
-
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest43Query @relay_test_operation {
           node(id: "my-id") {
             ... on User {
               id
@@ -1425,154 +1455,163 @@ describe('with @relay_test_operation', () => {
   });
 
   test('should generate data for @module', () => {
+    graphql`
+      fragment RelayMockPayloadGeneratorTestNameRendererFragment on User {
+        id
+        nameRenderer {
+          ...RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+        data {
+          markup
+        }
+      }
+    `;
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest44Query @relay_test_operation {
           node(id: "my-id") {
-            ...NameRendererFragment
-          }
-        }
-
-        fragment NameRendererFragment on User {
-          id
-          nameRenderer {
-            ...MarkdownUserNameRenderer_name
-              @module(name: "MarkdownUserNameRenderer.react")
-          }
-        }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+            ...RelayMockPayloadGeneratorTestNameRendererFragment
           }
         }
       `,
-      compiledGraphQL => ({
+      {
         UserNameRenderer() {
           return {
             __typename: 'MarkdownUserNameRenderer',
-            __module_operation:
-              compiledGraphQL.MarkdownUserNameRenderer_name$normalization,
+            __module_operation: require('./__generated__/RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$normalization.graphql'),
           };
         },
-      }),
+      },
     );
   });
 
   test('should generate data for @match with MarkdownUserNameRenderer_name', () => {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest31Fragment on User {
+        id
+        nameRenderer @match {
+          ...RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name
+            @module(name: "PlainUserNameRenderer.react")
+          ...RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+        data {
+          markup
+        }
+      }
+    `;
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest45Query @relay_test_operation {
           node(id: "my-id") {
-            ...NameRendererFragment
-          }
-        }
-
-        fragment NameRendererFragment on User {
-          id
-          nameRenderer @match {
-            ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-            ...MarkdownUserNameRenderer_name
-              @module(name: "MarkdownUserNameRenderer.react")
-          }
-        }
-
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
-          }
-        }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+            ...RelayMockPayloadGeneratorTest31Fragment
           }
         }
       `,
-      compiledGraphQL => ({
+      {
         UserNameRenderer() {
           return {
             __typename: 'MarkdownUserNameRenderer',
-            __module_operation:
-              compiledGraphQL.MarkdownUserNameRenderer_name$normalization,
+            __module_operation: require('./__generated__/RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$normalization.graphql'),
           };
         },
-      }),
+      },
     );
   });
 
   test('should generate data for @match with PlainUserNameRenderer_name', () => {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest32Fragment on User {
+        id
+        nameRenderer @match {
+          ...RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name
+            @module(name: "PlainUserNameRenderer.react")
+          ...RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+        data {
+          markup
+        }
+      }
+    `;
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest46Query @relay_test_operation {
           node(id: "my-id") {
-            ...NameRendererFragment
-          }
-        }
-
-        fragment NameRendererFragment on User {
-          id
-          nameRenderer @match {
-            ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-            ...MarkdownUserNameRenderer_name
-              @module(name: "MarkdownUserNameRenderer.react")
-          }
-        }
-
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
-          }
-        }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+            ...RelayMockPayloadGeneratorTest32Fragment
           }
         }
       `,
-      compiledGraphQL => ({
+      {
         UserNameRenderer() {
           return {
             __typename: 'PlainUserNameRenderer',
-            __module_operation:
-              compiledGraphQL.PlainUserNameRenderer_name$normalization,
+            __module_operation: require('./__generated__/RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name$normalization.graphql'),
           };
         },
-      }),
+      },
     );
   });
 
   test('should throw if invalid default value provide for __module_operation.', () => {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest33Fragment on User {
+        id
+        nameRenderer {
+          ...RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+        data {
+          markup
+        }
+      }
+    `;
     expect(() => {
       testGeneratedData(
-        `
-        query TestQuery @relay_test_operation {
-          node(id: "my-id") {
-            ...NameRendererFragment
+        graphql`
+          query RelayMockPayloadGeneratorTest47Query @relay_test_operation {
+            node(id: "my-id") {
+              ...RelayMockPayloadGeneratorTest33Fragment
+            }
           }
-        }
-
-        fragment NameRendererFragment on User {
-          id
-          nameRenderer {
-            ...MarkdownUserNameRenderer_name
-              @module(name: "MarkdownUserNameRenderer.react")
-          }
-        }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
-          }
-        }
-      `,
+        `,
         {
           UserNameRenderer() {
             return {
@@ -1588,34 +1627,36 @@ describe('with @relay_test_operation', () => {
   });
 
   test('should generate data for @module with `null` in mock resolvers', () => {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest34Fragment on User {
+        id
+        nameRenderer {
+          ...RelayMockPayloadGeneratorTest5MarkdownUserNameRenderer_name
+            @module(name: "MarkdownUserNameRenderer.react")
+        }
+      }
+    `;
+    graphql`
+      fragment RelayMockPayloadGeneratorTest5MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        markdown
+        data {
+          markup
+        }
+      }
+    `;
     testGeneratedData(
-      `
-        query TestQuery @relay_test_operation {
+      graphql`
+        query RelayMockPayloadGeneratorTest48Query @relay_test_operation {
           node(id: "my-id") {
-            ...NameRendererFragment
-          }
-        }
-
-        fragment NameRendererFragment on User {
-          id
-          nameRenderer {
-            ...MarkdownUserNameRenderer_name
-              @module(name: "MarkdownUserNameRenderer.react")
-          }
-        }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+            ...RelayMockPayloadGeneratorTest34Fragment
           }
         }
       `,
-      compiledGraphQL => ({
+      {
         UserNameRenderer() {
           return null;
         },
-      }),
+      },
     );
   });
 });

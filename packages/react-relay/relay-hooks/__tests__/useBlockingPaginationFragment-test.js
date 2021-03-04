@@ -30,7 +30,12 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  graphql,
+  getRequest,
+  getFragment,
 } = require('relay-runtime');
+
+const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useBlockingPaginationFragment', () => {
   let environment;
@@ -53,8 +58,6 @@ describe('useBlockingPaginationFragment', () => {
   let setOwner;
   let renderFragment;
   let renderSpy;
-  let createMockEnvironment;
-  let generateAndCompile;
   let loadNext;
   let refetch;
   let forceUpdate;
@@ -114,11 +117,15 @@ describe('useBlockingPaginationFragment', () => {
     renderSpy.mockClear();
   }
 
-  function createFragmentRef(id, owner) {
+  function createFragmentRef(
+    id,
+    owner,
+    fragmentName: string = 'useBlockingPaginationFragmentTestNestedUserFragment',
+  ) {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
-        NestedUserFragment: {},
+        [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
     };
@@ -131,107 +138,122 @@ describe('useBlockingPaginationFragment', () => {
     jest.mock('warning');
     renderSpy = jest.fn();
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     // Set up environment and base data
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    const generated = generateAndCompile(
-      `
-        fragment NestedUserFragment on User {
-          username
-        }
-
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentPaginationQuery")
+    graphql`
+      fragment useBlockingPaginationFragmentTestNestedUserFragment on User {
+        username
+      }
+    `;
+    gqlFragment = getFragment(graphql`
+      fragment useBlockingPaginationFragmentTestUserFragment on User
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentTestUserFragmentPaginationQuery"
+        )
         @argumentDefinitions(
           isViewerFriendLocal: {type: "Boolean", defaultValue: false}
           orderby: {type: "[String]"}
           scale: {type: "Float"}
         ) {
-          id
-          name
-          friends(
-            after: $after,
-            first: $first,
-            before: $before,
-            last: $last,
-            orderby: $orderby,
-            isViewerFriend: $isViewerFriendLocal
-            scale: $scale
-          ) @connection(key: "UserFragment_friends", filters: ["orderby", "isViewerFriend"]) {
-            edges {
-              node {
-                id
-                name
-                ...NestedUserFragment
-              }
+        id
+        name
+        friends(
+          after: $after
+          first: $first
+          before: $before
+          last: $last
+          orderby: $orderby
+          isViewerFriend: $isViewerFriendLocal
+          scale: $scale
+        )
+          @connection(
+            key: "UserFragment_friends"
+            filters: ["orderby", "isViewerFriend"]
+          ) {
+          edges {
+            node {
+              id
+              name
+              ...useBlockingPaginationFragmentTestNestedUserFragment
             }
           }
         }
-
-        query UserQuery(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          node(id: $id) {
-            ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+      }
+    `);
+    gqlQuery = getRequest(graphql`
+      query useBlockingPaginationFragmentTestUserQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        node(id: $id) {
+          ...useBlockingPaginationFragmentTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+        }
+      }
+    `);
+    gqlQueryNestedFragment = getRequest(graphql`
+      query useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        node(id: $id) {
+          actor {
+            ...useBlockingPaginationFragmentTestUserFragment
+              @arguments(
+                isViewerFriendLocal: $isViewerFriend
+                orderby: $orderby
+              )
           }
         }
+      }
+    `);
 
-        query UserQueryNestedFragment(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          node(id: $id) {
-            actor {
-              ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-            }
+    gqlQueryWithoutID = getRequest(graphql`
+      query useBlockingPaginationFragmentTestUserQueryWithoutIDQuery(
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+        $orderby: [String]
+        $isViewerFriend: Boolean
+      ) {
+        viewer {
+          actor {
+            ...useBlockingPaginationFragmentTestUserFragment
+              @arguments(
+                isViewerFriendLocal: $isViewerFriend
+                orderby: $orderby
+              )
           }
         }
-
-        query UserQueryWithoutID(
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-          $orderby: [String]
-          $isViewerFriend: Boolean
-        ) {
-          viewer {
-            actor {
-              ...UserFragment @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-            }
-          }
+      }
+    `);
+    gqlQueryWithLiteralArgs = getRequest(graphql`
+      query useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery(
+        $id: ID!
+        $after: ID
+        $first: Int
+        $before: ID
+        $last: Int
+      ) {
+        node(id: $id) {
+          ...useBlockingPaginationFragmentTestUserFragment
+            @arguments(isViewerFriendLocal: true, orderby: ["name"])
         }
-
-        query UserQueryWithLiteralArgs(
-          $id: ID!
-          $after: ID
-          $first: Int
-          $before: ID
-          $last: Int
-        ) {
-          node(id: $id) {
-            ...UserFragment @arguments(isViewerFriendLocal: true, orderby: ["name"])
-          }
-        }
-      `,
-    );
+      }
+    `);
     variablesWithoutID = {
       after: null,
       first: 1,
@@ -248,19 +270,8 @@ describe('useBlockingPaginationFragment', () => {
       ...variablesWithoutID,
       id: '<feedbackid>',
     };
-    gqlQuery = generated.UserQuery;
-    gqlQueryNestedFragment = generated.UserQueryNestedFragment;
-    gqlQueryWithoutID = generated.UserQueryWithoutID;
-    gqlQueryWithLiteralArgs = generated.UserQueryWithLiteralArgs;
-    gqlPaginationQuery = generated.UserFragmentPaginationQuery;
-    gqlFragment = generated.UserFragment;
-    invariant(
-      gqlFragment.metadata?.refetch?.operation ===
-        '@@MODULE_START@@UserFragmentPaginationQuery.graphql@@MODULE_END@@',
-      'useRefetchableFragment-test: Expected refetchable fragment metadata to contain operation.',
-    );
-    // Manually set the refetchable operation for the test.
-    gqlFragment.metadata.refetch.operation = gqlPaginationQuery;
+
+    gqlPaginationQuery = require('./__generated__/useBlockingPaginationFragmentTestUserFragmentPaginationQuery.graphql');
 
     query = createOperationDescriptor(gqlQuery, variables);
     queryNestedFragment = createOperationDescriptor(
@@ -461,12 +472,13 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User @relay(plural: true) {
+      const UserFragment = graphql`
+        fragment useBlockingPaginationFragmentTest1Fragment on User
+          @relay(plural: true) {
           id
         }
-      `);
-      const renderer = renderFragment({fragment: generated.UserFragment});
+      `;
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -477,16 +489,18 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw error if fragment uses stream', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentPaginationQuery") {
+      const UserFragment = graphql`
+        fragment useBlockingPaginationFragmentTest2Fragment on User
+          @refetchable(
+            queryName: "useBlockingPaginationFragmentTest2FragmentPaginationQuery"
+          ) {
           id
           friends(
-            after: $after,
-            first: $first,
-            before: $before,
-            last: $last,
-            orderby: $orderby,
+            after: $after
+            first: $first
+            before: $before
+            last: $last
+            orderby: $orderby
             isViewerFriend: $isViewerFriendLocal
           ) @stream_connection(key: "UserFragment_friends", initial_count: 1) {
             edges {
@@ -496,12 +510,9 @@ describe('useBlockingPaginationFragment', () => {
             }
           }
         }
-      `);
-      // Manually set the refetchable operation for the test.
-      generated.UserFragment.metadata.refetch.operation =
-        generated.UserFragmentPaginationQuery;
+      `;
 
-      const renderer = renderFragment({fragment: generated.UserFragment});
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -512,12 +523,12 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User {
+      const UserFragment = getFragment(graphql`
+        fragment useBlockingPaginationFragmentTest3Fragment on User {
           id
         }
       `);
-      const renderer = renderFragment({fragment: generated.UserFragment});
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()
@@ -530,15 +541,16 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw error if fragment is missing @connection directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const generated = generateAndCompile(`
-        fragment UserFragment on User
-        @refetchable(queryName: "UserFragmentRefetchQuery") {
+      const UserFragment = getFragment(graphql`
+        fragment useBlockingPaginationFragmentTest4Fragment on User
+          @refetchable(
+            queryName: "useBlockingPaginationFragmentTest4FragmentRefetchQuery"
+          ) {
           id
         }
       `);
-      generated.UserFragment.metadata.refetch.operation =
-        generated.UserFragmentRefetchQuery;
-      const renderer = renderFragment({fragment: generated.UserFragment});
+
+      const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
           .toJSON()

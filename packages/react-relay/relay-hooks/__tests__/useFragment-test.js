@@ -24,12 +24,14 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
+  graphql,
+  getRequest,
+  getFragment,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useFragment', () => {
   let environment;
-  let createMockEnvironment;
-  let generateAndCompile;
   let gqlSingularQuery;
   let gqlSingularFragment;
   let gqlPluralQuery;
@@ -65,7 +67,7 @@ describe('useFragment', () => {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
-        NestedUserFragment: {},
+        useFragmentTestNestedUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
     };
@@ -76,50 +78,43 @@ describe('useFragment', () => {
     jest.resetModules();
     renderSpy = jest.fn();
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     // Set up environment and base data
     environment = createMockEnvironment();
-    const generated = generateAndCompile(
-      `
-        fragment NestedUserFragment on User {
-          username
-        }
-
-        fragment UserFragment on User  {
-          id
-          name
-          ...NestedUserFragment
-        }
-
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            ...UserFragment
-          }
-        }
-
-        fragment UsersFragment on User @relay(plural: true) {
-          id
-          name
-          ...NestedUserFragment
-        }
-
-        query UsersQuery($ids: [ID!]!) {
-          nodes(ids: $ids) {
-            ...UsersFragment
-          }
-        }
-    `,
-    );
+    graphql`
+      fragment useFragmentTestNestedUserFragment on User {
+        username
+      }
+    `;
     singularVariables = {id: '1'};
     pluralVariables = {ids: ['1', '2']};
-    gqlSingularQuery = generated.UserQuery;
-    gqlSingularFragment = generated.UserFragment;
-    gqlPluralQuery = generated.UsersQuery;
-    gqlPluralFragment = generated.UsersFragment;
+    gqlSingularQuery = getRequest(graphql`
+      query useFragmentTestUserQuery($id: ID!) {
+        node(id: $id) {
+          ...useFragmentTestUserFragment
+        }
+      }
+    `);
+    gqlSingularFragment = getFragment(graphql`
+      fragment useFragmentTestUserFragment on User {
+        id
+        name
+        ...useFragmentTestNestedUserFragment
+      }
+    `);
+    gqlPluralQuery = getRequest(graphql`
+      query useFragmentTestUsersQuery($ids: [ID!]!) {
+        nodes(ids: $ids) {
+          ...useFragmentTestUsersFragment
+        }
+      }
+    `);
+    gqlPluralFragment = getFragment(graphql`
+      fragment useFragmentTestUsersFragment on User @relay(plural: true) {
+        id
+        name
+        ...useFragmentTestNestedUserFragment
+      }
+    `);
     singularQuery = createOperationDescriptor(
       gqlSingularQuery,
       singularVariables,
@@ -167,7 +162,7 @@ describe('useFragment', () => {
         : {
             [ID_KEY]: owner.request.variables.id,
             [FRAGMENTS_KEY]: {
-              UserFragment: {},
+              useFragmentTestUserFragment: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
           };
@@ -187,7 +182,7 @@ describe('useFragment', () => {
         : owner.request.variables.ids.map(id => ({
             [ID_KEY]: id,
             [FRAGMENTS_KEY]: {
-              UsersFragment: {},
+              useFragmentTestUsersFragment: {},
             },
             [FRAGMENT_OWNER_KEY]: owner.request,
           }));

@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeSubscrption() with @defer', () => {
   let callbacks;
@@ -50,33 +50,37 @@ describe('executeSubscrption() with @defer', () => {
     jest.resetModules();
     commentID = '1';
 
-    ({
-      CommentFragment: commentFragment,
-      CommentQuery: commentQuery,
-      CommentCreateSubscription: subscription,
-    } = generateAndCompile(`
-        subscription CommentCreateSubscription($input: CommentCreateSubscriptionInput!) {
-          commentCreateSubscribe(input: $input) {
-            comment {
-              id
-              ...CommentFragment @defer
-            }
-          }
-        }
-        fragment CommentFragment on Comment {
-          id
-          actor {
-            name @__clientField(handle: "name_handler")
-          }
-        }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
+    subscription = getRequest(graphql`
+      subscription RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          comment {
             id
-            ...CommentFragment
+            ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
+              @defer
           }
         }
-      `));
+      }
+    `);
+    commentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {
+        id
+        actor {
+          name @__clientField(handle: "name_handler")
+        }
+      }
+    `);
+    commentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          id
+          ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
+        }
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',
@@ -205,7 +209,8 @@ describe('executeSubscrption() with @defer', () => {
           name: 'actor-name',
         },
       },
-      label: 'CommentCreateSubscription$defer$CommentFragment',
+      label:
+        'RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment',
       path: ['commentCreateSubscribe', 'comment'],
       extensions: {
         is_final: true,
@@ -266,7 +271,8 @@ describe('executeSubscrption() with @defer', () => {
           name: 'actor-name',
         },
       },
-      label: 'CommentCreateSubscription$defer$CommentFragment',
+      label:
+        'RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment',
       path: ['commentCreateSubscribe', 'comment'],
       extensions: {
         is_final: true,

@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute() a query with @defer', () => {
   let callbacks;
@@ -49,18 +49,20 @@ describe('execute() a query with @defer', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({UserQuery: query, UserFragment: fragment} = generateAndCompile(`
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            ...UserFragment @defer(label: "UserFragment")
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithDeferTestUserQuery($id: ID!) {
+        node(id: $id) {
+          ...RelayModernEnvironmentExecuteWithDeferTestUserFragment
+            @defer(label: "UserFragment")
         }
-
-        fragment UserFragment on User {
-          id
-          name @__clientField(handle: "name_handler")
-        }
-      `));
+      }
+    `);
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithDeferTestUserFragment on User {
+        id
+        name @__clientField(handle: "name_handler")
+      }
+    `);
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -155,7 +157,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'joe',
       },
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
       path: ['node'],
     });
 
@@ -202,7 +205,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'joe',
       },
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
       path: ['node'],
     });
 
@@ -288,7 +292,8 @@ describe('execute() a query with @defer', () => {
           __typename: 'User',
           name: 'joe',
         },
-        label: 'UserQuery$defer$UserFragment',
+        label:
+          'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
         path: ['node'],
       });
       expect(next).toBeCalledTimes(0);
@@ -332,7 +337,8 @@ describe('execute() a query with @defer', () => {
             __typename: 'User',
             name: 'joe',
           },
-          label: 'UserQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
           path: ['node'],
           extensions: {
             is_final: true,
@@ -397,7 +403,8 @@ describe('execute() a query with @defer', () => {
           __typename: 'User',
           name: 'joe',
         },
-        label: 'UserQuery$defer$UserFragment',
+        label:
+          'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
         path: ['node'],
       });
       expect(next).toBeCalledTimes(0);
@@ -435,7 +442,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'joe',
       },
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
       path: ['node'],
     });
 
@@ -503,7 +511,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'joe',
       },
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
       path: ['node'],
     });
 
@@ -582,14 +591,15 @@ describe('execute() a query with @defer', () => {
           severity: 'ERROR',
         },
       ],
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferTestUserQuery$defer$UserFragment',
       path: ['node'],
     });
 
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(1);
     expect(error.mock.calls[0][0].message).toContain(
-      'No data returned for operation `UserQuery`',
+      'No data returned for operation `RelayModernEnvironmentExecuteWithDeferTestUserQuery`',
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
@@ -637,7 +647,7 @@ describe('execute() a query with @defer', () => {
       'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
         'directives but was executed in non-streaming mode. See ' +
         'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-      'UserQuery',
+      'RelayModernEnvironmentExecuteWithDeferTestUserQuery',
     );
   });
 
@@ -683,7 +693,7 @@ describe('execute() a query with @defer', () => {
       'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
         'directives but was executed in non-streaming mode. See ' +
         'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-      'UserQuery',
+      'RelayModernEnvironmentExecuteWithDeferTestUserQuery',
     );
   });
 });

@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeMutation() with local invalidation', () => {
   let callbacks;
@@ -47,36 +47,40 @@ describe('executeMutation() with local invalidation', () => {
     jest.resetModules();
     commentID = 'comment-id';
 
-    ({
-      CreateCommentMutation,
-      CommentFragment,
-      CommentQuery,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    CreateCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCreateCommentMutation(
+        $input: CommentCreateInput!
+      ) {
+        commentCreate(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
+      }
+    `);
 
-        fragment CommentFragment on Comment {
+    CommentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+
+    CommentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
           id
-          body {
-            text
-          }
+          ...RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment
         }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...CommentFragment
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',

@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute() a query with @stream', () => {
   let actorFragment;
@@ -50,29 +50,32 @@ describe('execute() a query with @stream', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({
-      FeedbackQuery: query,
-      FeedbackFragment: fragment,
-      ActorFragment: actorFragment,
-    } = generateAndCompile(`
-        query FeedbackQuery($id: ID!, $enableStream: Boolean!) {
-          node(id: $id) {
-            ...FeedbackFragment
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery(
+        $id: ID!
+        $enableStream: Boolean!
+      ) {
+        node(id: $id) {
+          ...RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment
         }
+      }
+    `);
 
-        fragment FeedbackFragment on Feedback {
-          id
-          actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
-            name @__clientField(handle: "name_handler")
-          }
-        }
-
-        # keep in sync with above
-        fragment ActorFragment on Actor {
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment on Feedback {
+        id
+        actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
           name @__clientField(handle: "name_handler")
         }
-      `));
+      }
+    `);
+
+    actorFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamTestActorFragment on Actor {
+        # keep in sync with above
+        name @__clientField(handle: "name_handler")
+      }
+    `);
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -176,7 +179,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -194,7 +198,8 @@ describe('execute() a query with @stream', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 1],
     });
     expect(next).toBeCalledTimes(2);
@@ -242,7 +247,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -283,7 +289,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       },
       {
@@ -292,7 +299,8 @@ describe('execute() a query with @stream', () => {
           id: '3',
           name: 'Bob',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 1],
       },
     ]);
@@ -333,7 +341,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       },
       {
@@ -344,7 +353,8 @@ describe('execute() a query with @stream', () => {
             severity: 'ERROR',
           },
         ],
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 1],
       },
     ]);
@@ -377,7 +387,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       },
     ]);
@@ -411,7 +422,8 @@ describe('execute() a query with @stream', () => {
           id: '3',
           name: 'Bob',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 1],
       },
       {
@@ -420,7 +432,8 @@ describe('execute() a query with @stream', () => {
           id: '4',
           name: 'Clair',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 2],
       },
     ]);
@@ -460,7 +473,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       },
     ]);
@@ -469,7 +483,7 @@ describe('execute() a query with @stream', () => {
       'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
         'directives but was executed in non-streaming mode. See ' +
         'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-      'FeedbackQuery',
+      'RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery',
     );
     expect(next).toBeCalledTimes(1);
     // Here is the nuance: For the mix of initial and incremental payloads
@@ -551,7 +565,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(0);
@@ -572,7 +587,8 @@ describe('execute() a query with @stream', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 1],
     });
     expect(next).toBeCalledTimes(1);
@@ -650,7 +666,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(0);
@@ -695,7 +712,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -754,7 +772,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -820,7 +839,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       });
       expect(next).toBeCalledTimes(1);
@@ -869,7 +889,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       });
       expect(next).toBeCalledTimes(1);
@@ -907,7 +928,8 @@ describe('execute() a query with @stream', () => {
           id: '3',
           name: 'Bob',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 1],
       });
       expect(next).toBeCalledTimes(2);
@@ -955,7 +977,8 @@ describe('execute() a query with @stream', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 1],
     });
     expect(next).toBeCalledTimes(1);
@@ -974,7 +997,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(2);
@@ -1030,7 +1054,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -1074,7 +1099,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
@@ -1180,7 +1206,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
@@ -1261,14 +1288,15 @@ describe('execute() a query with @stream', () => {
           severity: 'ERROR',
         },
       ],
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(1);
     expect(error.mock.calls[0][0].message).toContain(
-      'No data returned for operation `FeedbackQuery`',
+      'No data returned for operation `RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery`',
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
@@ -1303,7 +1331,8 @@ describe('execute() a query with @stream', () => {
           id: '2',
           name: 'Bob',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 1],
       },
       {
@@ -1314,7 +1343,8 @@ describe('execute() a query with @stream', () => {
             severity: 'ERROR',
           },
         ],
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       },
     ]);
@@ -1322,7 +1352,7 @@ describe('execute() a query with @stream', () => {
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(1);
     expect(error.mock.calls[0][0].message).toContain(
-      'No data returned for operation `FeedbackQuery`',
+      'No data returned for operation `RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery`',
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);
@@ -1359,7 +1389,8 @@ describe('execute() a query with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
@@ -1379,7 +1410,8 @@ describe('execute() a query with @stream', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 1],
     });
 
@@ -1434,7 +1466,7 @@ describe('execute() a query with @stream', () => {
       'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
         'directives but was executed in non-streaming mode. See ' +
         'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-      'FeedbackQuery',
+      'RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery',
     );
   });
 });

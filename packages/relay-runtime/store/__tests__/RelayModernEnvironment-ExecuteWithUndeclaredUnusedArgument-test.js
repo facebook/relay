@@ -22,10 +22,10 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const invariant = require('invariant');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 // Regression test
 describe('query with undeclared, unused fragment argument', () => {
@@ -42,34 +42,41 @@ describe('query with undeclared, unused fragment argument', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({
-      QueryWithUnusedFragmentArgumentDefinition: query,
-      Profile: fragment,
-      ProfilePhotoWrapper: innerFragment,
-    } = generateAndCompile(`
-        query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
-          node(id: $id) {
-            ...Profile
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestQueryWithUnusedFragmentArgumentDefinitionQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
         }
+      }
+    `);
 
-        fragment Profile on User {
-          id
-          name
-          ...ProfilePhotoWrapper @arguments(size: $size)
-        }
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile on User {
+        id
+        name
+        ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper
+          @arguments(size: $size)
+      }
+    `);
 
-        fragment ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
-          __typename
-          ...ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
-        }
+    innerFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper on User
+        @argumentDefinitions(size: {type: "Int"}) {
+        __typename
+        ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto
+          @uncheckedArguments_DEPRECATED(size: $size)
+      }
+    `);
 
-        fragment ProfilePhoto on User {
-          profilePicture(size: [100]) {
-            uri
-          }
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto on User {
+        profilePicture(size: [100]) {
+          uri
         }
-      `));
+      }
+    `;
     operation = createOperationDescriptor(query, {id: '4'});
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
       RelayObservable.create(sink => {
@@ -106,7 +113,7 @@ describe('query with undeclared, unused fragment argument', () => {
         __fragmentOwner: operation.request,
 
         __fragments: {
-          Profile: {},
+          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile: {},
         },
 
         __id: '4',
@@ -124,7 +131,9 @@ describe('query with undeclared, unused fragment argument', () => {
       __fragmentOwner: operation.request,
 
       __fragments: {
-        ProfilePhotoWrapper: {size: undefined},
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper: {
+          size: undefined,
+        },
       },
 
       id: '4',
@@ -142,7 +151,9 @@ describe('query with undeclared, unused fragment argument', () => {
       __fragmentOwner: operation.request,
 
       __fragments: {
-        ProfilePhoto: {size: undefined},
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto: {
+          size: undefined,
+        },
       },
 
       __typename: 'User',

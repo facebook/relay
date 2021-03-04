@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute() with Flight field', () => {
   let callbacks;
@@ -52,32 +52,28 @@ describe('execute() with Flight field', () => {
     // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
-    ({InnerQuery, FlightQuery} = generateAndCompile(`
-      query FlightQuery($id: ID!, $count: Int!) {
+    FlightQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithFlightTestFlightQuery(
+        $id: ID!
+        $count: Int!
+      ) {
         node(id: $id) {
           ... on Story {
             flightComponent(condition: true, count: $count, id: $id)
           }
         }
       }
+    `);
 
-      query InnerQuery($id: ID!) {
+    InnerQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithFlightTestInnerQuery($id: ID!) {
         node(id: $id) {
           ... on User {
             name
           }
         }
       }
-
-      extend type Story {
-        flightComponent(
-          condition: Boolean!
-          count: Int!
-          id: ID!
-        ): ReactFlightComponent
-          @react_flight_component(name: "FlightComponent.server")
-      }
-      `));
+    `);
 
     reactFlightPayloadDeserializer = jest.fn(payload => {
       return {

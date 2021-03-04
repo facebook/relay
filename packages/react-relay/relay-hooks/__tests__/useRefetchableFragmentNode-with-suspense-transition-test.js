@@ -22,7 +22,7 @@ const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -301,11 +301,10 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useRefetchableFragmentNode does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment}), []);
         return (
-          <ReactRelayContext.Provider value={relayContext}>
+          <RelayEnvironmentProvider environment={environment}>
             {children}
-          </ReactRelayContext.Provider>
+          </RelayEnvironmentProvider>
         );
       };
 

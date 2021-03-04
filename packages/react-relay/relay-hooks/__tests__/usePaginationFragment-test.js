@@ -22,7 +22,7 @@ const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
 const usePaginationFragmentOriginal = require('../usePaginationFragment');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
@@ -33,6 +33,7 @@ const {
 
 describe('usePaginationFragment', () => {
   let environment;
+  let newEnvironment;
   let initialUser;
   let gqlQuery;
   let gqlQueryNestedFragment;
@@ -143,6 +144,11 @@ describe('usePaginationFragment', () => {
 
     // Set up environment and base data
     environment = createMockEnvironment({
+      handlerProvider: () => ConnectionHandler,
+    });
+    
+    // Set up new environment
+    newEnvironment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
     const generated = generateAndCompile(
@@ -468,15 +474,13 @@ describe('usePaginationFragment', () => {
 
     const ContextProvider = ({children}) => {
       const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
-
       setEnvironment = _setEnv;
 
       return (
-        <ReactRelayContext.Provider value={relayContext}>
-          {children}
-        </ReactRelayContext.Provider>
-      );
+          <RelayEnvironmentProvider environment={env}>
+            {children}
+          </RelayEnvironmentProvider>
+        );
     };
 
     renderFragment = (args?: {
@@ -2260,10 +2264,6 @@ describe('usePaginationFragment', () => {
           });
           expect(callback).toBeCalledTimes(0);
 
-          // Set new environment
-          const newEnvironment = createMockEnvironment({
-            handlerProvider: () => ConnectionHandler,
-          });
           newEnvironment.commitPayload(query, {
             node: {
               __typename: 'User',

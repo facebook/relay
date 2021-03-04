@@ -64,7 +64,7 @@ function usePreloadedQuery<TQuery: OperationType>(
         environment,
         operation.request.identifier,
         () => {
-          if (environment === preloadedQuery.environment && source != null) {
+          if (environment.id === preloadedQuery.environment.id && source != null) {
             return environment.executeWithSource({operation, source});
           } else {
             return environment.execute({operation});
@@ -86,13 +86,13 @@ function usePreloadedQuery<TQuery: OperationType>(
 
     const fallbackFetchObservable = fetchQuery(environment, operation);
     let fetchObservable;
-    if (source != null && environment === preloadedQuery.environment) {
+    if (source != null && environment.id === preloadedQuery.environment.id) {
       // If the source observable exists and the environments match, reuse
       // the source observable.
       // If the source observable happens to be empty, we need to fall back
       // and re-execute and de-dupe the query (at render time).
       fetchObservable = source.ifEmpty(fallbackFetchObservable);
-    } else if (environment !== preloadedQuery.environment) {
+    } else if (environment.id !== preloadedQuery.environment.id) {
       // If a call to loadQuery is made with a particular environment, and that
       // preloaded query is passed to usePreloadedQuery in a different environment
       // context, we cannot re-use the existing preloaded query.

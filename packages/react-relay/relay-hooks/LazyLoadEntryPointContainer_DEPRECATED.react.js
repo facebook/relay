@@ -196,7 +196,7 @@ function LazyLoadEntryPointContainer_DEPRECATED<
     );
     // NOTE: stableParams encodes the information from params
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [environment, environmentProvider, getPreloadProps, entryPointParamsHash]);
+  }, [environment.id, environmentProvider, getPreloadProps, entryPointParamsHash]);
   const Component = useMemo(() => {
     return getComponent();
   }, [getComponent]);
@@ -208,7 +208,7 @@ function LazyLoadEntryPointContainer_DEPRECATED<
       profilerContext,
       rootModuleID,
     });
-  }, [environment, profilerContext, rootModuleID]);
+  }, [environment.id, profilerContext, rootModuleID]);
   return (
     <Component
       entryPoints={entryPoints}

@@ -67,7 +67,7 @@ function EntryPointContainer<
       profilerContext,
       rootModuleID,
     });
-  }, [environment, profilerContext, rootModuleID]);
+  }, [environment.id, profilerContext, rootModuleID]);
   return (
     <Component
       entryPoints={entryPoints}

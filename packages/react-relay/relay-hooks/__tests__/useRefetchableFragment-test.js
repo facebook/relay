@@ -19,7 +19,7 @@ const TestRenderer = require('react-test-renderer');
 
 const invariant = require('invariant');
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -163,12 +163,10 @@ describe('useRefetchableFragment', () => {
     };
 
     const ContextProvider = ({children}) => {
-      const relayContext = useMemo(() => ({environment}), []);
-
       return (
-        <ReactRelayContext.Provider value={relayContext}>
+        <RelayEnvironmentProvider environment={environment}>
           {children}
-        </ReactRelayContext.Provider>
+        </RelayEnvironmentProvider>
       );
     };
 

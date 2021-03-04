@@ -22,7 +22,7 @@ const TestRenderer = require('react-test-renderer');
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
-const ReactRelayContext = require('react-relay/ReactRelayContext');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -36,6 +36,8 @@ import type {OperationDescriptor, Variables} from 'relay-runtime';
 
 describe('useRefetchableFragmentNode', () => {
   let environment;
+  let newEnvironment;
+  let anotherNewEnvironment;
   let gqlQuery;
   let gqlQueryNestedFragment;
   let gqlRefetchQuery;
@@ -135,6 +137,12 @@ describe('useRefetchableFragmentNode', () => {
 
     // Set up environment and base data
     environment = createMockEnvironment();
+
+    // Set new environment
+    newEnvironment = createMockEnvironment();
+    
+    // Set another new environment
+    anotherNewEnvironment = createMockEnvironment();
     const generated = generateAndCompile(
       `
         fragment NestedUserFragment on User {
@@ -290,14 +298,12 @@ describe('useRefetchableFragmentNode', () => {
     const ContextProvider = ({children}) => {
       useTrackLoadQueryInRender();
       const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
-
       setEnvironment = _setEnv;
 
       return (
-        <ReactRelayContext.Provider value={relayContext}>
+        <RelayEnvironmentProvider environment={env}>
           {children}
-        </ReactRelayContext.Provider>
+        </RelayEnvironmentProvider>
       );
     };
 
@@ -1107,8 +1113,6 @@ describe('useRefetchableFragmentNode', () => {
       expect(environment.retain).toBeCalledTimes(2);
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
-      // Set new environment
-      const newEnvironment = createMockEnvironment();
       newEnvironment.commitPayload(query, {
         node: {
           __typename: 'User',
@@ -2957,7 +2961,6 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: refetchingUser}]);
 
         // Set new environment
-        const newEnvironment = createMockEnvironment();
         newEnvironment.commitPayload(query, {
           node: {
             __typename: 'User',
@@ -3714,11 +3717,8 @@ describe('useRefetchableFragmentNode', () => {
 
     describe('internal environment option', () => {
       let newRelease;
-      let newEnvironment;
 
       beforeEach(() => {
-        ({createMockEnvironment} = require('relay-test-utils-internal'));
-        newEnvironment = createMockEnvironment();
         newRelease = jest.fn();
         newEnvironment.retain.mockImplementation((...args) => {
           return {
@@ -3825,7 +3825,6 @@ describe('useRefetchableFragmentNode', () => {
         // Refetch on another enironment afterwards should work
         renderSpy.mockClear();
         environment.executeWithSource.mockClear();
-        const anotherNewEnvironment = createMockEnvironment();
         TestRenderer.act(() => jest.runAllImmediates());
 
         TestRenderer.act(() => {

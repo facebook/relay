@@ -542,6 +542,11 @@ export type LogRequestInfoFunction = mixed => void;
  */
 export interface IEnvironment {
   /**
+   * id of the environment instance
+   */
+  id: number;
+
+  /**
    * Extra information attached to the environment instance
    */
   +options: mixed;
@@ -550,6 +555,8 @@ export interface IEnvironment {
    * **UNSTABLE** Event based logging API thats scoped to the environment.
    */
   __log: LogFunction;
+
+  dispose(): void;
 
   /**
    * Determine if the operation can be resolved with data in the store (i.e. no

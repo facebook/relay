@@ -142,7 +142,7 @@ function useQueryLoader<TQuery: OperationType>(
         setQueryReference(updatedQueryReference);
       }
     },
-    [environment, preloadableRequest, setQueryReference, isMountedRef],
+    [environment.id, preloadableRequest, setQueryReference, isMountedRef],
   );
 
   const maybeHiddenOrFastRefresh = useRef(false);

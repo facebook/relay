@@ -992,13 +992,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_stream(&mut self, linked_field: &LinkedField, stream: &Directive) -> Primitive {
-        let next_selections = vec![self.build_linked_field(&LinkedField {
+        let next_selections = self.build_linked_field_and_handles(&LinkedField {
             directives: remove_directive(
                 &linked_field.directives,
                 DEFER_STREAM_CONSTANTS.stream_name,
             ),
             ..linked_field.to_owned()
-        })];
+        });
         let next_selections = Primitive::Key(self.array(next_selections));
         Primitive::Key(match self.variant {
             CodegenVariant::Reader => self.object(vec![

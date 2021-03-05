@@ -122,6 +122,15 @@ fragment streamAndHandleFragment on Feedback {
                       }
                     ],
                     "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "filters": null,
+                    "handle": "actors_handler",
+                    "key": "",
+                    "kind": "LinkedHandle",
+                    "name": "actors"
                   }
                 ],
                 "useCustomizedBatch": null

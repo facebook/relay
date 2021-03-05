@@ -26,7 +26,6 @@ const Guides = fbContent({
         'guides/fb/image-prefetching',
         'guides/fb/comet-route-prefetching',
         'guides/fb/web-query-preloading',
-        'guides/fb/render-from-hack',
         'guides/fb/production-graphql-endpoint-in-sandboxes',
         'guides/fb/react-flight',
         'guides/fb/native-fetch',
@@ -105,7 +104,6 @@ module.exports = {
         fbContent({
           internal: {
             'Advanced Data Fetching': [
-              'guided-tour/advanced-data-fetching/fb/preloading-data',
               {
                 EntryPoints: [
                   'guided-tour/advanced-data-fetching/fb/entrypoints/entrypoints',

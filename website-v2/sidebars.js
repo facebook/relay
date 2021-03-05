@@ -72,8 +72,8 @@ module.exports = {
             }),
           ],
           'Rendering Data Basics': [
-            'guided-tour/rendering/fragments',
             'guided-tour/rendering/queries',
+            'guided-tour/rendering/fragments',
             'guided-tour/rendering/variables',
             'guided-tour/rendering/loading-states',
             'guided-tour/rendering/error-states',

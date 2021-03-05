@@ -7,9 +7,9 @@ slug: /guided-tour/rendering/fragments/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Fragments
+The main building block for declaring data dependencies for React Components in Relay are [GraphQL Fragments](https://graphql.github.io/learn/queries/#fragments). Fragments are reusable units in GraphQL that repesent a set of data to query from a GraphQL type exposed in the [schema](https://graphql.github.io/learn/schema/).
 
-The main building block for declaring data dependencies for React Components in Relay are GraphQL fragments, which are essentially a selection of fields on a GraphQL Type:
+In practice, they are a selection of fields on a GraphQL Type:
 
 ```graphql
 fragment UserFragment on User {
@@ -22,7 +22,7 @@ fragment UserFragment on User {
 ```
 
 
-In order to declare a fragment inside your Javascript code, you must use the `graphql` tag:
+In order to declare a fragment inside your JavaScript code, you must use the `graphql` tag:
 
 ```js
 const {graphql} = require('react-relay');
@@ -38,11 +38,7 @@ const userFragment = graphql`
 `;
 ```
 
-### Fetching data for a fragment
-
-Fragments in Relay allow declaring data dependencies for a component, but they can't be fetched by themselves; they need to be included by a query, either directly or transitively. This implies that *all fragments must belong to a query when they are rendered*, or in other words, they must be *rooted* under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific *instance* of a fragment component, it must have been included as part of a specific query request.
-
-### Rendering Fragments
+## Rendering Fragments
 
 In order to *render* the data for a fragment, you can use the `useFragment` Hook:
 
@@ -147,9 +143,7 @@ function UserComponent(props: Props) {
 module.exports = UserComponent;
 ```
 
-
-
-### Composing Fragments
+## Composing Fragments
 
 In GraphQL, fragments are reusable units, which means they can include *other* fragments, and consequently a fragment can be included within other fragments or [queries](../queries/):
 
@@ -263,5 +257,89 @@ There are a few things to note here:
 *  Note that in this case the `user` passed to `UsernameSection`, i.e. the fragment reference, *doesn't actually contain any of the data declared by the child `UsernameSection` component*; instead, `UsernameSection` will use the fragment reference to read the data *it* declared internally, using `useFragment`. This prevents the parent from implicitly creating dependencies on data declared by its children, and vice-versa, which allows us to reason locally about our components and modify them without worrying about affecting other components. If this wasn't the case, and the parent had access to the child's data, modifying the data declared by the child could break the parent. This is known as [*data masking*](../../../principles-and-architecture/thinking-in-relay/).
 * The *fragment reference* that the child (i.e.  `UsernameSection`) expects is the result of reading a parent fragment that *includes* the child ** fragment. In our particular example, that means the result of reading a fragment that includes `...UsernameSection_user` will be the fragment reference that `UsernameSection` expects. In other words, the data obtained as a result of reading a fragment via `useFragment` also serves as the fragment reference for any child fragments included in that fragment.
 
+
+## Composing Fragments into Queries
+
+Fragments in Relay allow declaring data dependencies for a component, but they ***can't be fetched by themselves***. Instead, they need to be included in a query, either directly or transitively. This means that *all fragments must belong to a query when they are rendered*, or in other words, they must be "rooted" under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific *instance* of a fragment component, it must have been included as part of a specific query request.
+
+To fetch and render a query that includes a fragment, you can compose them in the same way fragments are composed, as shown in the [Composing Fragments](#composing-fragments) section:
+
+```js
+/**
+ * UserComponent.react.js
+ *
+ * Fragment Component
+ */
+
+import type {UserComponent_user$key} from 'UserComponent_user.graphql';
+
+const React = require('React');
+const {graphql, useFragment} = require('react-relay');
+
+type Props = {
+  user: UserComponent_user$key,
+};
+
+function UserComponent(props: Props) {
+  const data = useFragment(
+    graphql`...`,
+    props.user,
+  );
+
+  return (...);
+}
+
+module.exports = UserComponent;
+```
+
+```js
+/**
+ * App.react.js
+ *
+ * Query Component
+ */
+
+import type {AppQuery} from 'AppQuery.graphql';
+import type {PreloadedQuery} from 'react-relay';
+
+const React = require('React');
+const {graphql, usePreloadedQuery} = require('react-relay');
+
+const UserComponent = require('./UserComponent.react');
+
+type Props = {
+  appQueryRef: PreloadedQuery<AppQuery>,
+}
+
+function App() {
+  const data = usePreloadedQuery<AppQuery>(
+    graphql`
+      query AppQuery($id: ID!) {
+        user(id: $id) {
+          name
+
+          # Include child fragment:
+          ...UserComponent_user
+        }
+      }
+    `,
+    appQueryRef,
+  );
+
+  return (
+    <>
+      <h1>{data.user?.name}</h1>
+      {/* Render child component, passing the fragment reference: */}
+      <UserComponent user={data.user} />
+    </>
+  );
+}
+
+```
+
+Note that:
+
+* The *fragment reference* that  `UserComponent` expects is is the result of reading a parent query that includes its fragment, which in our case means a query that includes `...UsernameSection_user`. In other words, the `data` obtained as a result of `usePreloadedQuery` also serves as the fragment reference for any child fragments included in that query.
+* As mentioned previously, *all fragments must belong to a query when they are rendered,* which means that all fragment components *must* be descendants of a query. This guarantees that you will always be able to provide a fragment reference for `useFragment`, by starting from the result of reading a root query with `usePreloadedQuery`.
 
 <DocsRating />

@@ -31,14 +31,35 @@ function buildRefetchOperation(
     return null;
   }
 
+  const {directives} = fragment.metadata || {}
+
+  const a = ([]: Array<Directive>)
+  const args = ([]: Array<LocalArgumentDefinition>)
+  if (directives != null) {
+    a.push(...((directives:any): Array<Directive>))
+    a.forEach(d=>{
+      d.args.forEach(aa=>{
+        if (aa.value.kind == 'Variable' && null != aa.value.variableName && null != aa.value.type) {
+          args.push({
+            defaultValue:   null,
+            kind: 'LocalArgumentDefinition',
+            loc: aa.value.loc,
+            name: aa.value.variableName,
+            type: aa.value.type,
+          })
+        }
+      })
+    })
+  }
+
   return {
     identifierField: null,
     path: [],
     node: {
-      argumentDefinitions: buildOperationArgumentDefinitions(
+      argumentDefinitions: [...buildOperationArgumentDefinitions(
         fragment.argumentDefinitions,
-      ),
-      directives: [],
+      ), ...args],
+      directives: [...a],
       kind: 'Root',
       loc: {kind: 'Derived', source: fragment.loc},
       metadata: null,

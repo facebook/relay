@@ -29,6 +29,7 @@ import type {
   Root,
   SplitOperation,
   Stream,
+  Directive,
 } from './IR';
 
 type ArgumentMap = Map<string, ArgumentDefinition>;
@@ -61,6 +62,30 @@ function inferRootArgumentDefinitions(
   // Because @argument values don't matter (only variable names/types),
   // each reachable fragment only has to be checked once.
   const transformed = new Map<string, ArgumentMap>();
+  // collect root directives
+  const transformedDirective = new Map<string, Array<Directive>>();
+  Array.from(context.documents(), node => {
+    switch (node.kind) { 
+      case 'Root': {
+        transformedDirective.set(node.name, [...node.directives]);
+        IRVisitor.visit(node, {
+          FragmentSpread(fragmentSpread: FragmentSpread) {
+            const fragment = context.getFragment(
+              fragmentSpread.name,
+              fragmentSpread.loc,
+            );
+            const rootDirectives = transformedDirective.get(node.name)
+            if (rootDirectives) {
+              transformedDirective.set(fragment.name, rootDirectives)
+            } 
+          },
+        })
+      }
+    }
+  });
+
+
+
   const nextContext = new CompilerContext(context.getSchema());
   return nextContext.addAll(
     Array.from(context.documents(), node => {
@@ -71,8 +96,29 @@ function inferRootArgumentDefinitions(
             transformed,
             node,
           );
+
+
+          const refetchableDirective = node.directives.find(
+            directive => directive.name === 'refetchable',
+          );
+
+          // take the collected directive from root
+          const directives = []
+          if (refetchableDirective != null) {
+            const rootDirectives = transformedDirective.get(node.name)
+            if (rootDirectives) { 
+              directives.push(...rootDirectives)
+            }
+          }
+          const metadata = node.metadata || {}
+
+
           return ({
             ...node,
+            metadata: {
+              ...metadata,
+              directives: (directives:Array<Directive>),
+            },
             argumentDefinitions: Array.from(argumentDefinitions.values()),
           }: Fragment);
         }
@@ -96,6 +142,7 @@ function inferRootArgumentDefinitions(
 function transformRoot(
   context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
+  transformedDirective: Map<string, Array<Directive>>,
   root: Root,
 ): Root {
   // Ignore argument definitions, determine what root variables are
@@ -107,7 +154,7 @@ function transformRoot(
       localArgumentDefinitions.set(name, argDef);
     }
   }
-  visit(context, transformed, argumentDefinitions, root);
+  visit(context, transformed, transformedDirective, argumentDefinitions, root);
   return {
     ...root,
     argumentDefinitions: Array.from(argumentDefinitions.values(), argDef => {
@@ -133,6 +180,7 @@ function transformRoot(
 function transformFragmentArguments(
   context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
+  transformedDirective: Map<string, Array<Directive>>,
   fragment: Fragment,
 ): ArgumentMap {
   const name = fragment.name;
@@ -154,7 +202,7 @@ function transformFragmentArguments(
   // find any root variables and update the cached version of the
   // fragment.
   transformed.set(name, argumentDefinitions);
-  visit(context, transformed, argumentDefinitions, fragment);
+  visit(context, transformed, transformedDirective, argumentDefinitions, fragment);
   transformed.set(name, argumentDefinitions);
   return argumentDefinitions;
 }
@@ -162,6 +210,7 @@ function transformFragmentArguments(
 function visit(
   context: CompilerContext,
   transformed: Map<string, ArgumentMap>,
+  transformedDirective: Map<string, Array<Directive>>,
   argumentDefinitions: ArgumentMap,
   node: Fragment | Root,
 ): void {
@@ -171,6 +220,15 @@ function visit(
         fragmentSpread.name,
         fragmentSpread.loc,
       );
+
+
+      const rootDirectives = transformedDirective.get(node.name)
+      if (rootDirectives) {
+        transformedDirective.set(fragment.name, rootDirectives)
+      }
+      //todo: spread root directives to more places
+
+
       const referencedFragmentArguments = transformFragmentArguments(
         context,
         transformed,

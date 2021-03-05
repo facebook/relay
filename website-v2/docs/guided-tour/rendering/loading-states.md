@@ -5,6 +5,7 @@ slug: /guided-tour/rendering/loading-states/
 ---
 
 import DocsRating from '../../../src/core/DocsRating';
+import FbCometPlaceholder from '../../fb/FbCometPlaceholder.md';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 
@@ -75,12 +76,7 @@ function App() {
 }
 ```
 
-<FbInternalOnly>
-
-> NOTE: In Comet, we use the `CometPlaceholder` component instead of using `Suspense` directly.
-
-</FbInternalOnly>
-
+<FbCometPlaceholder />
 
 Let's distill what's going on here:
 
@@ -112,11 +108,7 @@ function App() {
 }
 ```
 
-<FbInternalOnly>
-
-> NOTE: In Comet, we use the `CometPlaceholder` component instead of using `Suspense` directly.
-
-</FbInternalOnly>
+<FbCometPlaceholder />
 
 * In this case, both `MainContent` and `SecondaryContent` may suspend while they load their asynchronous resources; by wrapping both in a `Suspense`, we can show a single loading state up until they are *all* ready, and then render the entire content in a single paint, after everything has successfully loaded.
 * In fact, `MainContent` and `SecondaryContent` may suspend for different reasons other than fetching data, but the same `Suspense` component can be used to render a fallback up until *all* components in the subtree are ready to be rendered. Note that this also transitively includes descendants of `MainContent` or `SecondaryContent`, which might also suspend.
@@ -157,11 +149,7 @@ function App() {
 }
 ```
 
-<FbInternalOnly>
-
-> NOTE: In Comet, we use the `CometPlaceholder` component instead of using `Suspense` directly.
-
-</FbInternalOnly>
+<FbCometPlaceholder />
 
 * In this case, we're showing 2 separate loading UIs:
     * One to be shown until the `LeftColumn` becomes ready
@@ -334,11 +322,7 @@ function App() {
 }
 ```
 
-<FbInternalOnly>
-
-> NOTE: In Comet, we use the `CometPlaceholder` component instead of using `Suspense` directly.
-
-</FbInternalOnly>
+<FbCometPlaceholder />
 
 Let's distill what's going on here:
 

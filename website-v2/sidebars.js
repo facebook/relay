@@ -113,7 +113,6 @@ module.exports = {
                   'guided-tour/advanced-data-fetching/fb/entrypoints/entrypoints-faq',
                 ],
               },
-              'guided-tour/advanced-data-fetching/fb/data-driven-dependencies',
               'guided-tour/advanced-data-fetching/fb/image-prefetching',
             ],
           },

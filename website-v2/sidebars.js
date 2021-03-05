@@ -85,6 +85,13 @@ module.exports = {
             'guided-tour/rendering/error-states',
             'guided-tour/rendering/environment',
           ],
+          'Refetching and Rendering With Different Data': [
+            'guided-tour/refetching/introduction',
+            'guided-tour/refetching/refetching-queries',
+            'guided-tour/refetching/refetching-queries-with-different-data',
+            'guided-tour/refetching/refetching-fragments',
+            'guided-tour/refetching/refetching-fragments-with-different-data',
+          ],
           'Reusing Cached Data for Rendering': [
             'guided-tour/reusing-cached-data/introduction',
             'guided-tour/reusing-cached-data/fetch-policies',

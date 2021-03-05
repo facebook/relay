@@ -8,8 +8,6 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbPushViews from './fb/FbPushViews.md';
 
-## Staleness of Data
-
 Assuming our data is [present in the store](../presence-of-data/), we still need to consider the staleness of such data.
 
 By default, Relay will not consider data in the store to be stale (regardless of how long it has been cached for), unless it's explicitly marked as stale using our data invalidation apis or if it is older than the query cache expiration time.
@@ -18,7 +16,7 @@ Marking data as stale is useful for cases when we explicitly know that some data
 
 Relay exposes the following APIs to mark data as stale within an update to the store:
 
-### Globally Invalidating the Relay Store
+## Globally Invalidating the Relay Store
 
 The coarsest type of data invalidation we can perform is invalidating the *whole* store, meaning that all currently cached data will be considered stale after invalidation.
 
@@ -33,7 +31,7 @@ function updater(store) {
 * Calling `invalidateStore()` will cause *all* data that was written to the store before invalidation occurred to be considered stale, and will require any query to be refetched again the next time it's evaluated.
 * Note that an updater function can be specified as part of a [mutation](../../updating-data/graphql-mutations/), [subscription](../../updating-data/graphql-subscriptions/) or just a [local store update](../../updating-data/local-data-updates/).
 
-### Invalidating Specific Data In The Store
+## Invalidating Specific Data In The Store
 
 We can also be more granular about which data we invalidate and only invalidate *specific records* in the store; compared to global invalidation, only queries that reference the invalidated records will be considered stale after invalidation.
 
@@ -51,7 +49,7 @@ function updater(store) {
 * Calling `invalidateRecord()` on the `user` record will mark *that* specific user in the store as stale. That means that any query that is cached and references that invalidated user will now be considered stale, and will require to be refetched again the next time it's evaluated.
 * Note that an updater function can be specified as part of a [mutation](../../updating-data/graphql-mutations/), [subscription](../../updating-data/graphql-subscriptions/) or just a [local store update](../../updating-data/local-data-updates/).
 
-### Subscribing to Data Invalidation
+## Subscribing to Data Invalidation
 
 Just marking the store or records as stale will cause queries to be refetched they next time they are evaluated; so for example, the next time you navigate back to a page that renders a stale query, the query will be refetched even if the data is cached, since the query references stale data.
 
@@ -91,8 +89,7 @@ function ProfilePage(props) {
 * Inside the callback, we can react accordingly and refetch and/or update any current views that are rendering stale data. As an example, we could re-execute the top-level `usePreloadedQuery` by keeping the `preloadedQuery` in state and setting a new one here; since that query is stale at that point, the query will be refetched even if the data is cached in the store.
 
 
-
-### Query Cache Expiration Time
+## Query Cache Expiration Time
 
 In addition, the query cache expiration time affects whether certain operations (i.e. a query and variables) can be fulfilled with data that is already present in the store, i.e. whether the data for a query has become stale.
 

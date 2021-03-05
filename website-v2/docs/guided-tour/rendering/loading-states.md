@@ -8,8 +8,6 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 
-## Loading States with Suspense
-
 As you may have noticed, we mentioned that using `usePreloadedQuery` will render data from a query that was (or is) being fetched from the server, but we didn't elaborate on how to render a loading UI while and if that data is still being fetched when we try to render it. We will cover that in this section.
 
 <FbInternalOnly>
@@ -33,7 +31,7 @@ For a lot more details on Suspense, check out our [Suspense in Comet docs](https
 
 </FbInternalOnly>
 
-### Loading fallbacks with Suspense Boundaries
+## Loading fallbacks with Suspense Boundaries
 
 When a component is suspended, we need to render a *fallback* in place of the component while we wait for it to become *"ready"*. In order to do so, we use the `Suspense` component provided by React:
 
@@ -172,7 +170,7 @@ function App() {
 
 
 
-### Transitions and Updates that Suspend
+## Transitions and Updates that Suspend
 
 `Suspense` boundary fallbacks allow us to describe our loading states when initially rendering some content, but our applications will also have transitions between different content. Specifically, when switching between two components within an already mounted boundary, the new component you're switching to might not have loaded all of its async dependencies, which means that it will also suspend.
 
@@ -286,7 +284,7 @@ For more details, check out the [Suspense in Comet docs](https://our.internmc.fa
 </FbInternalOnly>
 
 
-### How We Use Suspense in Relay
+## How We Use Suspense in Relay
 
 _Queries_
 

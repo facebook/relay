@@ -10,8 +10,6 @@ import FbErrorBoundary from './fb/FbErrorBoundary.md';
 
 <FbErrorBoundary />
 
-## Error States with Error Boundaries
-
 As you may have noticed, we mentioned that using `usePreloadedQuery` will render data from a query that was (or is) being fetched from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.
 
 We can use [Error Boundary](https://reactjs.org/docs/error-boundaries.html) components to catch errors that occur during render (due to a network error, or any kind of error), and render an alternative error UI when that occurs. The way it works is similar to how `Suspense` works, by wrapping a component tree in an error boundary, we can specify how we want to react when an error occurs, for example by rendering a fallback UI.
@@ -59,7 +57,7 @@ function App() {
 
 
 
-### Retrying after an Error
+## Retrying after an Error
 
 In order to retry fetching a query after an error has occurred, we can attempt to re-mount the query component that produced an error:
 
@@ -130,7 +128,7 @@ function App() {
 
 
 
-### Accessing errors in GraphQL Responses
+## Accessing errors in GraphQL Responses
 
 
 By default, internally at fb, Relay will *only* surface errors to React that are returned in the top-level [`errors` field](https://graphql.org/learn/validation/) if they are ether:

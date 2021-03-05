@@ -7,14 +7,12 @@ slug: /guided-tour/list-data/adding-and-removing-items/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Adding and Removing Items From a Connection
-
 Usually when you're rendering a connection, you'll also want to be able to add or remove items to/from the connection in response to user actions.
 
 As explained in our [Updating Data](../../updating-data/) section, Relay holds a local in-memory store of normalized GraphQL data, where records are stored by their IDs.  When creating mutations, subscriptions, or local data updates with Relay, you must provide an `updater` function, inside which you can access and read records, as well as write and make updates to them. When records are updated, any components affected by the updated data will be notified and re-rendered.
 
 
-### Connection Records
+## Connection Records
 
 In Relay, connection fields that are marked with the `@connection` directive are stored as special records in the store, and they hold and accumulate *all* of the items that have been fetched for the connection so far. In order to add or remove items from a connection, we need to access the connection record using the connection `*key*`, which was provided when declaring a `@connection`; specifically, this allows us to access a connection inside an `updater` function using the `ConnectionHandler` APIs.
 
@@ -53,9 +51,7 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-
-
-### Adding Edges
+## Adding Edges
 
 Once we have a connection record, we also need a record for the new edge that we want to add to the connection. Usually, mutation or subscription payloads will contain the new edge that was added; if not, you can also construct a new edge from scratch.
 
@@ -182,7 +178,7 @@ function updater(store: RecordSourceSelectorProxy) {
 
 
 
-### Removing Edges
+## Removing Edges
 
 `ConnectionHandler` provides a similar API to remove an edge from a connection, via `ConnectionHandler.deleteNode`:
 
@@ -213,9 +209,7 @@ function updater(store: RecordSourceSelectorProxy) {
 > Remember: When performing any of the operations described here to mutate a connection, any fragment or query components that are rendering the affected connection will be notified and re-render with the latest version of the connection.
 
 
-
-
-### Connection Identity With Filters
+## Connection Identity With Filters
 
 In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, *each of the values passed in as connection filters will be used to identify the connection in the Relay store.*
 
@@ -366,8 +360,6 @@ const storyFragment = graphql`
 
 
 > TBD
-
-
 
 
 

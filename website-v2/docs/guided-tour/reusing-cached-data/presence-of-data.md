@@ -9,15 +9,13 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbGarbageCollection from './fb/FbGarbageCollection.md';
 
 
-## Presence of Data
-
 An important thing to keep in mind when attempting to reuse data that is cached in the Relay store is to understand the lifetime of that data; that is, if it is present in the store, and for how long it will be.
 
 Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we've never fetched data for a specific query, then it will be missing from the store.
 
 However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using:
 
-### Garbage Collection in Relay
+## Garbage Collection in Relay
 
 Specifically, Relay runs garbage collection on the local in-memory store by deleting any data that is no longer being referenced by any component in the app.
 
@@ -30,7 +28,7 @@ However, this can be at odds with reusing cached data; if the data is deleted to
 
 
 
-#### Query Retention
+## Query Retention
 
 Retaining a query indicates to Relay that the data for that query and variables shouldn't be deleted (i.e. garbage collected). Multiple callers might retain a single query, and as long as there is at least one caller retaining a query, it won't be deleted from the store.
 
@@ -52,10 +50,11 @@ disposable.dispose();
 * As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
 
 
-Controlling Relay's Garbage Collection Policy
+## Controlling Relay's Garbage Collection Policy
+
 There are currently 2 options you can provide to your Relay Store in to control the behavior of garbage collection:
 
-#### GC Scheduler
+### GC Scheduler
 
 The `gcScheduler` is a function you can provide to the Relay Store which will determine when a GC execution should be scheduled to run:
 
@@ -73,7 +72,7 @@ const store = new Store(source, {gcScheduler});
 * You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
 
-#### GC Release Buffer Size
+### GC Release Buffer Size
 
 The Relay Store internally holds a release buffer to keep a specific (configurable) number of queries temporarily retained even *after* they have been released by their original owner  (which will happen by default when a component rendering that query unmounts). This makes it possible (and more likely) to be able to reuse data when navigating back to a page, tab or piece of content that has been visited before.
 

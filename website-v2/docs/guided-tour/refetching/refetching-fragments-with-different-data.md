@@ -7,8 +7,6 @@ slug: /guided-tour/refetching/refetching-fragments-with-different-data/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Refetching Fragments with Different Data
-
 Sometimes, upon an event or user interaction, we'd like to render the *same* exact fragment that was originally rendered under the initial query, but with a different data. Conceptually, this means fetching and rendering the currently rendered fragment again, but under a new query with different variables; or in other words, *making the rendered fragment a new query root*. Remember that *fragments can't be fetched by themselves: they need to be part of a query,* so we can't just "fetch" the fragment again by itself.
 
 To do so, we can also use the `useRefetchableFragment` hook in combination with the `@refetchable` directive, in order to *refetch* a fragment under new query and variables, using the `refetch` function:

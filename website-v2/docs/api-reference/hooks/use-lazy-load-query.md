@@ -66,7 +66,7 @@ function App() {
     * If the component is re-rendered with *different query variables,* that will cause the query to be fetched again with the new variables, and potentially re-render with different data.
     * If the component *unmounts and remounts*, that will cause the current query and variables to be refetched (depending on the `fetchPolicy` and the state of the cache).
 
-### DIfferences with `QueryRenderer`
+### Differences with `QueryRenderer`
 
 * `useLazyLoadQuery` no longer takes a Relay environment as a parameter, and thus no longer sets the environment in React Context, like `QueryRenderer` did. Instead, `useLazyLoadQuery` should be used as a descendant of a [`RelayEnvironmentProvider`](../relay-environment-provider), which now sets the Relay environment in Context. Usually, you should render a single `RelayEnvironmentProvider` at the very root of the application, to set a single Relay environment for the whole application.
 * `useLazyLoadQuery` will use [Suspense](../../guided-tour/rendering/loading-states) to allow developers to render loading states using Suspense boundaries, and will throw errors if network errors occur, which can be caught and rendered with Error Boundaries. This as opposed to providing error objects or null props to the `QueryRenderer` render function to indicate errors or loading states.

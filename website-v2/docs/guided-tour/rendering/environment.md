@@ -9,9 +9,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbActorsAndEnvironments from './fb/FbActorsAndEnvironments.md';
 import FbEnvironmentSetup from './fb/FbEnvironmentSetup.md';
 
-## Environment
-
-### Relay Environment Provider
+## Relay Environment Provider
 
 In order to render Relay components, you need to render a `RelayEnvironmentProvider` component at the root of the app:
 
@@ -34,7 +32,7 @@ function Root() {
 
 <FbEnvironmentSetup />
 
-### Accessing the Relay Environment
+## Accessing the Relay Environment
 
 If you want to access the *current* Relay Environment within a descendant of a `RelayEnvironmentProvider` component, you can use the `useRelayEnvironment` Hook:
 

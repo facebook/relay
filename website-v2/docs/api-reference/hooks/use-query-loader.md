@@ -6,9 +6,6 @@ slug: /api-reference/use-query-loader/
 
 import DocsRating from '../../../src/core/DocsRating';
 
-
-
-
 ## `useQueryLoader`
 
 Hook used to make it easy to safely load queries, while avoiding data leaking into the Relay store. It will keep a query reference stored in state, and dispose of it when it is no longer accessible via state.

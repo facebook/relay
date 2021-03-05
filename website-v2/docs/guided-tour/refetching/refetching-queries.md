@@ -7,8 +7,6 @@ slug: /guided-tour/refetching/refetching-queries/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Refetching Queries
-
 To refresh a query, we can also use the `useQueryLoader` Hook described in our [Fetching Queries for Rendering](../../rendering/queries/) section:
 
 ```js

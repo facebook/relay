@@ -7,8 +7,6 @@ slug: /guided-tour/list-data/streaming-pagination/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Streaming Pagination
-
 <FbInternalOnly>
 
 Additionally, we can combine `usePaginationFragment` with Relay's [Incremental Data Delivery](https://our.internmc.facebook.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream) capabilities in order to fetch a connection and incrementally receive each item in the connection as it becomes ready, instead of waiting for the whole list of items to be returned in a single payload. This can be useful when for example computing each item in the connection is an expensive operation in the server, and we want to be able to show the first item(s) in the list as soon as possible without blocking on *all* the items that we need to become available; for example, on News Feed a user could ideally see and start interacting with the first story while additional stories loaded in below.

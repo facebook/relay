@@ -1,13 +1,11 @@
 ---
 id: refetching-connections
-title: Refetching Connections
+title: Refetching Connections (Using and Changing Filters)
 slug: /guided-tour/list-data/refetching-connections/
 ---
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-
-## Refetching Connections (Using and Changing Filters)
 
 Often times when querying for a list of data, you can provide different values in the query which serve as filters that change the result set, or sort it differently.
 

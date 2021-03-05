@@ -1,6 +1,6 @@
 ---
-id: graphql-and-directives
-title: GraphQL and Directives
+id: graphql-directives
+title: GraphQL Directives
 slug: /api-reference/graphql-and-directives/
 ---
 

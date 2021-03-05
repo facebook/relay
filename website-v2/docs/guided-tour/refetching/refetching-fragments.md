@@ -7,10 +7,6 @@ slug: /guided-tour/refetching/refetching-fragments/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-
-
-## Refetching Fragments
-
 In order to refresh the data for a fragment, we need a query to refetch the fragment under; remember, *fragments can't be fetched by themselves: they need to be part of a query,* so we can't just "fetch" the fragment again by itself.
 
 To do so, we can also use the `useRefetchableFragment` Hook in combination with the `@refetchable` directive, which will automatically generate a query to refetch the fragment under, and which we can fetch using the `refetch` function:

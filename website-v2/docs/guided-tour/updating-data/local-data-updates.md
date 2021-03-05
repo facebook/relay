@@ -8,13 +8,11 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbLocalDataUpdatesFlow from './fb/FbLocalDataUpdatesFlow.md';
 
-## Local data updates
-
 There are a couple of APIs that Relay provides in order to make purely local updates to the Relay store (i.e. updates not tied to a server operation).
 
 Note that local data updates can be made both on [client-only data](../client-only-data/), or on regular data that was fetched from the server via an operation.
 
-### commitLocalUpdate
+## commitLocalUpdate
 
 To make updates using an [`updater`](../graphql-mutations/#updater-functions) function, you can use the `commitLocalUpdate` API:
 
@@ -61,7 +59,7 @@ module.exports = {commit: commitCommentCreateLocally};
 * In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items from a Connection](../../list-data/adding-and-removing-items/) section.
 * Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-### commitPayload
+## commitPayload
 
 `commitPayload` takes an `OperationDescriptor` and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query, and will also resolve Data Driven Dependencies that are passed as `JSResource`, `requireDefer`, etc.
 

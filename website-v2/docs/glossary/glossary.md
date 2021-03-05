@@ -7,8 +7,6 @@ slug: /glossary/
 import DocsRating from '../../src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
-# Glossary
-
 ## 3D
 
 Data-Driven Dependencies. Facebook's way of including the code to render a particular component if and only if it will actually be rendered. Canonical use cases are

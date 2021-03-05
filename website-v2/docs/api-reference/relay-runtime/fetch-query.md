@@ -9,7 +9,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 ## `fetchQuery`
 
-If you want to fetch a query outside of React, you can use the `fetchQuery` function from `react-realy`:
+If you want to fetch a query outside of React, you can use the `fetchQuery` function from `react-relay`:
 
 ```js
 import type {AppQuery} from 'AppQuery.graphql';
@@ -48,7 +48,7 @@ fetchQuery<AppQuery>(
 
 ### Flow Type Parameters
 
-* `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`.
+* `TQuery`: Type parameter that should correspond to the Flow type for the specified query. This type is available to import from the the auto-generated file: `<query_name>.graphql.js`. It will ensure that the type of the data provided by the observable matches the shape of the query, and enforces that the `variables` passed as input to `fetchQuery` match the type of the variables expected by the query.
 
 ### Return Value
 
@@ -65,7 +65,7 @@ fetchQuery<AppQuery>(
             * `subscription`: Object representing a subscription to the observable. Calling `subscription.unsubscribe()` will cancel the network request.
     * `toPromise`:
         * Return Value:
-            * `promise`: Returns a promise that will resolve when the network request fully completes. Cannot be canceled.
+            * `promise`: Returns a promise that will resolve when the first network response is received from the server. If the request fails, the promise will reject. Cannot be cancelled.
 
 <FbInternalOnly>
 
@@ -76,9 +76,35 @@ fetchQuery<AppQuery>(
 ### Behavior
 
 * `fetchQuery` will automatically save the fetched data to the in-memory Relay store, and notify any components subscribed to the relevant data.
-* `fetchQuery` will *NOT* retain the data for the query, meaning that it is not guaranteed that the data will remain saved in the Relay store at any point after the request completes. If you wish to make sure that the data is retained outside of the scope of the request, you need to call `environment.retain()` directly on the query to ensure it doesn't get deleted. See our section on [Controlling Relay's GC Policy](../../guided-tour/reusing-cached-data/availability-of-data) for more details.
+* `fetchQuery` will **NOT** retain the data for the query, meaning that it is not guaranteed that the data will remain saved in the Relay store at any point after the request completes. If you wish to make sure that the data is retained outside of the scope of the request, you need to call `environment.retain()` directly on the query to ensure it doesn't get deleted. See our section on [Controlling Relay's GC Policy](../../guided-tour/reusing-cached-data/availability-of-data) for more details.
 * `fetchQuery` will automatically de-dupe identical network requests (same query and variables) that are in flight at the same time, and that were initiated with `fetchQuery`.
 
 
+### Behavior with `.toPromise()`
+
+If desired, you can convert the request into a Promise using `**.toPromise()**`. Note that toPromise will start the query and return a Promise that will resolve when the *first* piece of data returns from the server and *cancel further processing*. That means any deferred or 3D data in the query may not be processed. **We generally recommend against using toPromise() for this reason.**
+
+```js
+import type {AppQuery} from 'AppQuery.graphql';
+
+const {fetchQuery} = require('react-relay');
+
+fetchQuery<AppQuery>(
+  environment,
+  graphql`
+    query AppQuery($id: ID!) {
+      user(id: $id) {
+        name
+      }
+    }
+  `,
+  {id: 4},
+)
+.toPromise() // NOTE: don't use, this can cause data to be missing!
+.then(data => {...})
+.catch(error => {...};
+```
+
+* `toPromise` Returns a promise that will resolve when the first network response is received from the server. If the request fails, the promise will reject. Cannot be cancelled.
 
 <DocsRating />

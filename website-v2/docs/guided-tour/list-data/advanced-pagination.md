@@ -7,12 +7,10 @@ slug: /guided-tour/list-data/advanced-pagination/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Advanced Pagination Use Cases
-
 In this section we're going to cover how to implement more advanced pagination use cases than the default cases covered by `usePaginationFragment`.
 
 
-### Pagination Over Multiple Connections
+## Pagination Over Multiple Connections
 
 If you need to paginate over multiple connections within the same component, you can use `usePaginationFragment` multiple times:
 
@@ -83,7 +81,7 @@ However, we recommend trying to keep a single connection per component, to keep 
 
 
 
-### Bi-directional Pagination
+## Bi-directional Pagination
 
 In the [Pagination](../pagination/) section we covered how to use `usePaginationFragment` to paginate in a single *"forward"* direction. However, connections also allow paginating in the opposite *"backward"* direction. The meaning of *"forward"* and *"backward"* directions will depend on how the items in the connection are sorted, for example  *"forward"* could mean more recent*, and "backward"* could mean less recent.
 
@@ -156,7 +154,7 @@ function FriendsListComponent(props: Props) {
 
 
 
-### Custom Connection State
+## Custom Connection State
 
 By default, when using `usePaginationFragment` and `@connection`, Relay will *append* new pages of items to the connection when paginating *"forward",* and *prepend* new pages of items when paginating *"backward"*. This means that your component will always render the *full* connection, with *all* of the items that have been accumulated so far via pagination, and/or items that have been added or removed via mutations or subscriptions.
 
@@ -175,21 +173,21 @@ To address these more complex use cases, Relay is still working on a solution:
 
 
 
-### Refreshing connections
+## Refreshing connections
 
 > TBD
 
 
 
 
-### Prefetching Pages of a Connection
+## Prefetching Pages of a Connection
 
 > TBD
 
 
 
 
-### Rendering One Page of Items at a Time
+## Rendering One Page of Items at a Time
 
 > TBD
 

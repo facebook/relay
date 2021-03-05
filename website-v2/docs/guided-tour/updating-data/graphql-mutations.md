@@ -7,8 +7,6 @@ slug: /guided-tour/updating-data/graphql-mutations/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## GraphQL Mutations
-
 In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
 
 A GraphQL mutation looks very similar to a query, with the exception that it uses the `mutation` keyword:

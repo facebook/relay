@@ -11,7 +11,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 <FbInternalOnly>
 
-For more information, see the [Defining EntryPoints](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/#defining-entrypoints) and [Consuming EntryPoints](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/#consuming-entrypoints) guides.
+For more information, see the [Defining EntryPoints](../../guided-tour/advanced-data-fetching/entrypoints/using-entrypoints/#defining-entrypoints) and [Consuming EntryPoints](../../guided-tour/advanced-data-fetching/entrypoints/using-entrypoints/#-entrypoints) guides.
 
 </FbInternalOnly>
 

@@ -1,6 +1,6 @@
 ---
 id: introduction
-title: Updating Data
+title: Introduction
 slug: /guided-tour/updating-data/
 ---
 

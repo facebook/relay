@@ -7,8 +7,6 @@ slug: /guided-tour/rendering/variables/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## Variables
-
 You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.github.io/learn/queries/#variables).
 
 GraphQL variables are a construct that allows referencing dynamic values inside a GraphQL query. When fetching a query from the server, we also need to provide as input the actual set of values to use for the variables declared inside the query:
@@ -117,7 +115,7 @@ function UserComponent(props: Props) {
 
 
 
-### @arguments and @argumentDefinitions
+## @arguments and @argumentDefinitions
 
 However, in order to prevent bloating queries with global variable declarations, Relay also provides a way to declare variables that are scoped locally to a fragment using  the `@arguments` and `@argumentDefinitions` directives:
 
@@ -236,7 +234,7 @@ function UserComponent(props) {
 
 
 
-### Accessing GraphQL Variables At Runtime
+## Accessing GraphQL Variables At Runtime
 
 
 If you want to access the variables that were set at the query root, the recommended approach is to pass the variables down the component tree in your application, using props, or your own application-specific context.

@@ -1,6 +1,6 @@
 ---
 id: filling-in-missing-data
-title: Filling in Missing Data
+title: Filling in Missing Data (Missing Field Handlers)
 slug: /guided-tour/reusing-cached-data/filling-in-missing-data/
 ---
 
@@ -8,8 +8,6 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbMissingFieldHandlers from './fb/FbMissingFieldHandlers.md';
-
-## Filling in Missing Data (Missing Field Handlers)
 
 In the previous section we covered how to reuse data that is fully or partially cached, however there are cases in which Relay can't automatically tell that it can reuse some of the data it already has from other queries in order to fulfill a specific query. Specifically, Relay knows how to reuse data that is cached for a query that has been fetched before; that is, if you fetch the exact same query twice, Relay will know that it has the data cached for that query the second time it tries to evaluate it.
 

@@ -7,8 +7,6 @@ slug: /guided-tour/updating-data/graphql-subscriptions/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-## GraphQL Subscriptions
-
 <FbInternalOnly>
 
 [GraphQL Subscriptions](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/) (GQLS) are a mechanism which allow clients to subscribe to changes in a piece of data from the server, and get notified whenever that data changes.
@@ -74,7 +72,7 @@ const feedbackLikeSubscription = graphql`
 
 There are two ways of *executing* a subscription against the server. The `requestSubscription` API and using hooks.
 
-### Request subscription API
+## Request subscription API
 
 In order to execute a subscription against the server in Relay, we can use the `requestSubscription` API:
 
@@ -194,7 +192,7 @@ Let's distill this example:
 * Note that the subscription payload is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create_subcribe` root field, which is a root field in the subscription response.
 * Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-### Requesting a subscription with Hooks
+## Requesting a subscription with Hooks
 
 You can also use hooks to subscribe to a *subscription query*.
 
@@ -220,7 +218,7 @@ This is only a thin wrapper around the `requestSubscription` API. It's behavior:
 If you have the need to do something more complicated, such as imperatively requesting a subscription, please use the `requestSubscription` API directly.
 
 
-### Delaying subscription updates (aka Forking data)
+## Delaying subscription updates (aka Forking data)
 
 Sometimes when subscribing to real-time updates from the server, we just want to show an indication that there's new data available, but not immediately update our source of truth in the client, since it could cause a jarring experience. In these cases, we'd like only to apply the latest updates after some user interaction.
 
@@ -232,7 +230,7 @@ Sometimes when subscribing to real-time updates from the server, we just want to
 <FbInternalOnly>
 
 
-### Writing Subscriptions at FB
+## Writing Subscriptions at FB
 
 For more details about writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/).
 

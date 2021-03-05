@@ -6,8 +6,6 @@ slug: /api-reference/use-fragment/
 
 import DocsRating from '../../../src/core/DocsRating';
 
-
-
 ## `useFragment`
 
 ```js

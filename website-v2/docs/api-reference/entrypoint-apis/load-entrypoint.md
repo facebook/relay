@@ -15,7 +15,7 @@ EntryPoint references returned from `loadEntryPoint` will leak data to the Relay
 
 <FbInternalOnly>
 
-For more information, see the [Loading EntryPoints](https://www.internalfb.com/intern/wiki/Relay/Guides/entry-points/#loading-entrypoints) guide.
+For more information, see the [Loading EntryPoints](../../guided-tour/advanced-data-fetching/entrypoints/using-entrypoints/#loading-entrypoints) guide.
 
 </FbInternalOnly>
 

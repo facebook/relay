@@ -30,11 +30,12 @@ const {
   RecordSource,
   Store,
   createOperationDescriptor,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
-const query = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query LazyLoadEntryPointContainerDEEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -42,9 +43,10 @@ const query = generateAndCompile(`
       }
     }
   }
-`).TestQuery;
+`);
 
 // Only queries with an ID are preloadable
+// $FlowFixMe[cannot-write]
 query.params.id = '12345';
 
 const response = {
@@ -438,7 +440,10 @@ it('renders synchronously when the query data and ast are cached, without fetchi
     },
   });
   // "load" the query ast
-  PreloadableQueryRegistry.set(query.params.id, query);
+  PreloadableQueryRegistry.set(
+    query.params.id === null ? query.params.cacheID : query.params.id,
+    query,
+  );
   const otherProps = {version: 0};
   let receivedProps = null;
   function Component(props) {

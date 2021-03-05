@@ -20,6 +20,13 @@ const Guides = fbContent({
     'guides/testing-relay-with-preloaded-components',
     'guides/fb/required-directive',
     {
+      EntryPoints: [
+        'guides/fb/entrypoints/entrypoints',
+        'guides/fb/entrypoints/using-entrypoints',
+        'guides/fb/entrypoints/using-entrypoints-at-facebook',
+        'guides/fb/entrypoints/migrating-from-lazy-fetching',
+        'guides/fb/entrypoints/entrypoints-faq',
+      ],
       'Web-Only': [
         'guides/fb/incremental-data-delivery',
         'guides/fb/data-driven-dependencies',
@@ -101,25 +108,6 @@ module.exports = {
             'guided-tour/list-data/advanced-pagination',
           ],
         },
-        fbContent({
-          internal: {
-            'Advanced Data Fetching': [
-              {
-                EntryPoints: [
-                  'guided-tour/advanced-data-fetching/fb/entrypoints/entrypoints',
-                  'guided-tour/advanced-data-fetching/fb/entrypoints/using-entrypoints',
-                  'guided-tour/advanced-data-fetching/fb/entrypoints/using-entrypoints-at-facebook',
-                  'guided-tour/advanced-data-fetching/fb/entrypoints/migrating-from-lazy-fetching',
-                  'guided-tour/advanced-data-fetching/fb/entrypoints/entrypoints-faq',
-                ],
-              },
-              'guided-tour/advanced-data-fetching/fb/image-prefetching',
-            ],
-          },
-          external: {
-            // TODO(T85915654): Release entrypoints guide externally
-          },
-        }),
         {
           'Updating Data': [
             'guided-tour/updating-data/introduction',
@@ -128,6 +116,14 @@ module.exports = {
             'guided-tour/updating-data/local-data-updates',
             'guided-tour/updating-data/client-only-data',
           ],
+        },
+        ...fbContent({
+          internal: ['guided-tour/fb/advanced-data-fetching'],
+          external: [
+            // TODO(T85915654): Release entrypoints guide externally
+          ],
+        }),
+        {
           'Managing Data Outside React': [
             // 'guided-tour/managing-data-outside-react/prefetching-queries',
             // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
@@ -171,12 +167,12 @@ module.exports = {
         'api-reference/graphql/graphql-directives',
         'api-reference/legacy-apis/legacy-apis',
       ],
+      Guides,
       'Migration and Compatibility': [
         'migration-and-compatibility/upgrading-to-relay-hooks',
         'migration-and-compatibility/suspense-compatibility',
         'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
       ],
-      Guides,
     },
     'glossary/glossary',
     {

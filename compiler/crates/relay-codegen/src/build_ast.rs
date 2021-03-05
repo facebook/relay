@@ -855,10 +855,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         {
             return self.build_normalization_fragment_spread(frag_spread);
         }
-        if frag_spread
-            .directives
-            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
-            .is_some()
+        if self.variant == CodegenVariant::Normalization
+            && frag_spread
+                .directives
+                .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+                .is_some()
         {
             return self.build_relay_client_component_fragment_spread(frag_spread);
         }
@@ -922,12 +923,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .intern();
         Primitive::Key(self.object(vec![
             ObjectEntry {
-                key: CODEGEN_CONSTANTS.kind,
-                value: Primitive::String(CODEGEN_CONSTANTS.client_component),
-            },
-            ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment,
                 value: Primitive::ModuleDependency(normalization_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.client_component),
             },
         ]))
     }

@@ -27,6 +27,9 @@ const {
   Store,
   __internal: {fetchQuery},
   createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 
 let dataSource;
@@ -40,7 +43,6 @@ let query;
 beforeEach(() => {
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   jest.spyOn(console, 'error').mockImplementation(() => {});
-  const {generateAndCompile} = require('relay-test-utils-internal');
   const source = new RecordSource();
   const store = new Store(source);
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -52,21 +54,21 @@ beforeEach(() => {
     network: Network.create((fetch: $FlowFixMe)),
     store,
   });
-  const {UserQuery, UserFragment} = generateAndCompile(`
-    query UserQuery($id: ID!) {
+
+  query = getRequest(graphql`
+    query useIsParentQueryActiveTestUserQuery($id: ID!) {
       node(id: $id) {
-        ...UserFragment
+        ...useIsParentQueryActiveTestUserFragment
       }
     }
-
-    fragment UserFragment on User {
+  `);
+  fragment = getFragment(graphql`
+    fragment useIsParentQueryActiveTestUserFragment on User {
       id
       name
     }
   `);
-  query = UserQuery;
-  fragment = UserFragment;
-  operation = createOperationDescriptor(UserQuery, {id: '4'});
+  operation = createOperationDescriptor(query, {id: '4'});
 
   environment.commitPayload(operation, {
     node: {

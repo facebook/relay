@@ -22,7 +22,13 @@ const useQueryLoader = require('../useQueryLoader');
 
 const {loadQuery} = require('../loadQuery');
 const {useEffect} = require('react');
-const {Observable, createOperationDescriptor} = require('relay-runtime');
+const {
+  Observable,
+  createOperationDescriptor,
+  getRequest,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query, cacheConfig) {
   expect(environment.executeWithSource).toBeCalledTimes(1);
@@ -49,8 +55,6 @@ function expectToHaveFetched(environment, query, cacheConfig) {
 describe.skip('useQueryLoader-react-double-effects', () => {
   let environment;
   let gqlQuery;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
   let release;
@@ -63,11 +67,6 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
   beforeEach(() => {
     jest.mock('scheduler', () => require('scheduler/unstable_mock'));
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
 
@@ -97,20 +96,21 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       });
     });
 
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
+    graphql`
+      fragment useQueryLoaderReactDoubleEffectsTestUserFragment on User {
         name
       }
-
-      query UserQuery($id: ID) {
+    `;
+    gqlQuery = getRequest(graphql`
+      query useQueryLoaderReactDoubleEffectsTestQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
+          ...useQueryLoaderReactDoubleEffectsTestUserFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
+    // $FlowFixMe
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);

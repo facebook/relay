@@ -23,7 +23,13 @@ const useEntryPointLoader = require('../useEntryPointLoader');
 const usePreloadedQuery = require('../usePreloadedQuery');
 
 const {useEffect} = require('react');
-const {Observable, createOperationDescriptor} = require('relay-runtime');
+const {
+  Observable,
+  createOperationDescriptor,
+  graphql,
+  getRequest,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query, cacheConfig) {
   expect(environment.executeWithSource).toBeCalledTimes(1);
@@ -53,8 +59,6 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   let entryPointStoreOrNetwork: $FlowFixMe;
   let entryPointNetworkOnly: $FlowFixMe;
   let gqlQuery;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
   let release;
@@ -73,11 +77,6 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         enableDoubleInvokingEffects: true,
       };
     });
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
     environmentProvider = {
@@ -109,21 +108,22 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         };
       });
     });
-
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
+    graphql`
+      fragment useEntryPointLoaderReactDoubleEffectsTestUserFragment on User {
         name
       }
+    `;
 
-      query UserQuery($id: ID) {
+    gqlQuery = getRequest(graphql`
+      query useEntryPointLoaderReactDoubleEffectsTestUserQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
+          ...useEntryPointLoaderReactDoubleEffectsTestUserFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
+    // $FlowFixMe
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);

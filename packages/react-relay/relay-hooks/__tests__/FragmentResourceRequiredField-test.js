@@ -22,6 +22,7 @@ jest.mock('relay-runtime', () => {
     },
   };
 });
+const {createMockEnvironment} = require('relay-test-utils');
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
@@ -29,6 +30,8 @@ const {
   createOperationDescriptor,
   getFragment,
   RelayFeatureFlags,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 
 beforeEach(() => {
@@ -49,11 +52,6 @@ let requiredFieldLogger;
 const componentDisplayName = 'TestComponent';
 
 beforeEach(() => {
-  const {
-    createMockEnvironment,
-    generateAndCompile,
-  } = require('relay-test-utils-internal');
-
   logger = jest.fn();
   requiredFieldLogger = jest.fn();
 
@@ -63,25 +61,25 @@ beforeEach(() => {
   });
   FragmentResource = getFragmentResourceForEnvironment(environment);
 
-  const sections = generateAndCompile(
-    `
-        fragment UserFragment on User {
-          id
-          name @required(action: THROW)
-          alternate_name @required(action: LOG)
+  UserFragment = getFragment(graphql`
+    fragment FragmentResourceRequiredFieldTestUserFragment on User {
+      id
+      name @required(action: THROW)
+      alternate_name @required(action: LOG)
+    }
+  `);
+
+  query = createOperationDescriptor(
+    getRequest(graphql`
+      query FragmentResourceRequiredFieldTestUserQuery($id: ID!) {
+        node(id: $id) {
+          __typename
+          ...FragmentResourceRequiredFieldTestUserFragment
         }
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            __typename
-            ...UserFragment
-          }
-        }
-    `,
+      }
+    `),
+    {id: '4'},
   );
-
-  UserFragment = sections.UserFragment;
-
-  query = createOperationDescriptor(sections.UserQuery, {id: '4'});
 });
 
 test('Throws if a @required(action: THROW) field is null', () => {
@@ -99,14 +97,14 @@ test('Throws if a @required(action: THROW) field is null', () => {
       {
         __id: '4',
         __fragments: {
-          UserFragment: {},
+          FragmentResourceRequiredFieldTestUserFragment: {},
         },
         __fragmentOwner: query.request,
       },
       componentDisplayName,
     );
   }).toThrowError(
-    "Relay: Missing @required value at path 'name' in 'UserFragment'.",
+    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
   );
 });
 
@@ -124,7 +122,7 @@ test('Logs if a @required(action: LOG) field is null', () => {
     {
       __id: '4',
       __fragments: {
-        UserFragment: {},
+        FragmentResourceRequiredFieldTestUserFragment: {},
       },
       __fragmentOwner: query.request,
     },
@@ -133,7 +131,7 @@ test('Logs if a @required(action: LOG) field is null', () => {
   expect(requiredFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'alternate_name',
     kind: 'missing_field.log',
-    owner: 'UserFragment',
+    owner: 'FragmentResourceRequiredFieldTestUserFragment',
   });
 });
 
@@ -152,7 +150,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
     {
       __id: '4',
       __fragments: {
-        UserFragment: {},
+        FragmentResourceRequiredFieldTestUserFragment: {},
       },
       __fragmentOwner: query.request,
     },
@@ -182,20 +180,20 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
       {
         __id: '4',
         __fragments: {
-          UserFragment: {},
+          FragmentResourceRequiredFieldTestUserFragment: {},
         },
         __fragmentOwner: query.request,
       },
       componentDisplayName,
     ),
   ).toThrowError(
-    "Relay: Missing @required value at path 'name' in 'UserFragment'.",
+    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
   );
 
   expect(requiredFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'name',
     kind: 'missing_field.throw',
-    owner: 'UserFragment',
+    owner: 'FragmentResourceRequiredFieldTestUserFragment',
   });
 
   disposable.dispose();
@@ -208,7 +206,7 @@ it('should throw promise if reading missing data and network request for parent 
   const fragmentRef = {
     __id: '4',
     __fragments: {
-      UserFragment: {},
+      FragmentResourceRequiredFieldTestUserFragment: {},
     },
     __fragmentOwner: query.request,
   };
@@ -242,6 +240,6 @@ it('should throw promise if reading missing data and network request for parent 
       componentDisplayName,
     ),
   ).toThrowError(
-    "Relay: Missing @required value at path 'name' in 'UserFragment'.",
+    "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
   );
 });

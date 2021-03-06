@@ -23,7 +23,14 @@ const usePreloadedQuery = require('../usePreloadedQuery');
 
 const {loadQuery} = require('../loadQuery');
 const {useEffect} = require('react');
-const {Observable, createOperationDescriptor} = require('relay-runtime');
+const {
+  Observable,
+  createOperationDescriptor,
+  getRequest,
+  getFragment,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query, {count} = {}) {
   expect(environment.executeWithSource).toBeCalledTimes(count ?? 1);
@@ -50,8 +57,6 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   let gqlQuery;
   let gqlQueryWithDefer;
   let gqlFragment;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let queryWithDefer;
   let variables;
@@ -70,11 +75,6 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         enableDoubleInvokingEffects: true,
       };
     });
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
 
@@ -104,30 +104,29 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
     });
 
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
-        firstName
-      }
-
-      query UserQuery($id: ID) {
+    gqlQuery = getRequest(graphql`
+      query usePreloadedQueryReactDoubleEffectsTestQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
-        }
-      }
-
-      query UserQueryWithDefer($id: ID) {
-        node(id: $id) {
-          id
-          name
-          ...UserFragment @defer
+          ...usePreloadedQueryReactDoubleEffectsTestFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
-    gqlQueryWithDefer = generated.UserQueryWithDefer;
-    gqlFragment = generated.UserFragment;
+    gqlQueryWithDefer = getRequest(graphql`
+      query usePreloadedQueryReactDoubleEffectsTestDeferQuery($id: ID) {
+        node(id: $id) {
+          id
+          name
+          ...usePreloadedQueryReactDoubleEffectsTestFragment @defer
+        }
+      }
+    `);
+    gqlFragment = getFragment(graphql`
+      fragment usePreloadedQueryReactDoubleEffectsTestFragment on User {
+        firstName
+      }
+    `);
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {

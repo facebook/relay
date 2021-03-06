@@ -21,7 +21,14 @@ const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
 
 const {useEffect} = require('react');
-const {Observable, createOperationDescriptor} = require('relay-runtime');
+const {
+  Observable,
+  createOperationDescriptor,
+  getRequest,
+  getFragment,
+  graphql,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query) {
   expect(environment.execute).toBeCalledTimes(1);
@@ -46,8 +53,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   let gqlQuery;
   let gqlQueryWithDefer;
   let gqlFragment;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let queryWithDefer;
   let variables;
@@ -62,11 +67,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         enableDoubleInvokingEffects: true,
       };
     });
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
 
@@ -95,31 +95,31 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         };
       });
     });
-
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
-        firstName
-      }
-
-      query UserQuery($id: ID) {
+    gqlQuery = getRequest(graphql`
+      query useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
-        }
-      }
-
-      query UserQueryWithDefer($id: ID) {
-        node(id: $id) {
-          id
-          name
-          ...UserFragment @defer
+          ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
         }
       }
     `);
-    gqlQuery = generated.UserQuery;
-    gqlQueryWithDefer = generated.UserQueryWithDefer;
-    gqlFragment = generated.UserFragment;
+    gqlQueryWithDefer = getRequest(graphql`
+      query useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery(
+        $id: ID
+      ) {
+        node(id: $id) {
+          id
+          name
+          ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment @defer
+        }
+      }
+    `);
+    gqlFragment = getFragment(graphql`
+      fragment useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment on User {
+        firstName
+      }
+    `);
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryWithDefer = createOperationDescriptor(gqlQueryWithDefer, variables, {

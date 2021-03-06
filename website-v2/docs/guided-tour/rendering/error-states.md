@@ -115,11 +115,13 @@ const React = require('React');
 
 const MainContent = require('./MainContent.react');
 
+const query = require('__generated__/MainContentQuery.graphql');
+
 // NOTE: This is NOT actual production code;
 // it is only used to illustrate example
 function App(props) {
   // E.g., initialQueryRef provided by router
-  const [queryRef, loadQuery] = useQueryLoader(props.initialQueryRef);
+  const [queryRef, loadQuery] = useQueryLoader(query, props.initialQueryRef);
 
   return (
     <ErrorBoundaryWithRetry

@@ -165,7 +165,7 @@ commitMutation<DeleteCommentMutation>(environment, {
 This directive also works on subscriptions and queries.
 
 
-### Declarative connection mutation directives
+## Declarative connection mutation directives
 
 You can add an `@appendEdge`,  `@prependEdge` , `@prependNode`, `@appendNode` declarative mutation directive to all edge fields within the mutation field. These directives accept a `connections` parameter, which is an array of connection IDs. Connection IDs can be obtained by querying the `__id` field on connections.
 
@@ -330,7 +330,7 @@ commitMutation<CommentsDeleteMutation>(environment, {
 });
 ```
 
-### Updater functions
+## Updater functions
 
 If the updates you wish to perform on the local data are more complex than just updating the values of fields and cannot be handled by the declarative mutation directives, you can provide an `updater` function to `commitMutation` or `useMutation` for full control over how to update the store:
 
@@ -407,7 +407,7 @@ Let's distill this example:
 * Note that the `root` field of the mutation is different from the `root` of queries, and `store.getRootField` in the mutation updater can only get the record from the mutation response. To get records from the root that's not in the mutation response, use `store.getRoot().getLinkedRecord` instead.
 * Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-### Optimistic updates
+## Optimistic updates
 
 Oftentimes, we don't want to wait for the server response to complete before we respond to user interaction. For example, if a user clicks the "Like" button, we don't want to wait until the mutation response comes back before we show them that the post has been liked; ideally, we'd do that instantly.
 
@@ -531,7 +531,7 @@ Let's see what's happening here:
 
 
 
-### Order of execution of updater functions
+## Order of execution of updater functions
 
 In general, execution of the `updater` and optimistic updates will occur in the following order:
 
@@ -654,7 +654,7 @@ Let's distill this example, according to the execution order of the updaters:
 
 
 
-### Invalidating data during a mutation
+## Invalidating data during a mutation
 
 The recommended approach when executing a mutation is to request *all* the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
 
@@ -662,7 +662,7 @@ However, often times it can be unfeasible to know and specify all the possible d
 
 For these types of mutations, it's often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation APIs documented in our [Staleness of Data section](../../reusing-cached-data/staleness-of-data/).
 
-### Mutation queueing
+## Mutation queueing
 
 > TBD: Left to be implemented in user space
 

@@ -193,6 +193,7 @@ describe('usePreloadedQuery', () => {
       expect(dataSource).toBeDefined();
       if (dataSource) {
         dataSource.next(response);
+        // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
 
@@ -280,6 +281,7 @@ describe('usePreloadedQuery', () => {
       expect(dataSource).toBeDefined();
       if (dataSource) {
         dataSource.next(response);
+        // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
       TestRenderer.act(() => jest.runAllImmediates());
@@ -1077,6 +1079,7 @@ describe('usePreloadedQuery', () => {
         expect(dataSource).toBeDefined();
         if (dataSource) {
           dataSource.next(response);
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1130,6 +1133,7 @@ describe('usePreloadedQuery', () => {
               is_final: true,
             },
           });
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1176,6 +1180,7 @@ describe('usePreloadedQuery', () => {
         expect(dataSource).toBeDefined();
         if (dataSource) {
           dataSource.next(response);
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1229,6 +1234,7 @@ describe('usePreloadedQuery', () => {
               is_final: true,
             },
           });
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());

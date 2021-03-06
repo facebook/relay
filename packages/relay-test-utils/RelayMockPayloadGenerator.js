@@ -505,6 +505,7 @@ class RelayMockPayloadGenerator {
           );
       }
     });
+    // $FlowFixMe[incompatible-return]
     return mockData;
   }
 

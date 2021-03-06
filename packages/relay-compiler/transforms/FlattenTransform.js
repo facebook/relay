@@ -436,8 +436,11 @@ function mergeHandles<T: LinkedField | ScalarField>(
   }
   const uniqueItems = new Map();
   nodeA.handles
+    // $FlowFixMe[incompatible-use]
     .concat(nodeB.handles)
+    // $FlowFixMe[incompatible-use]
     .forEach(item => uniqueItems.set(item.name + item.key, item));
+  // $FlowFixMe[incompatible-return]
   return Array.from(uniqueItems.values());
 }
 

@@ -303,6 +303,7 @@ function printFragmentArgumentDefinitions(
       )}`;
     }
     str += '}';
+    // $FlowFixMe[incompatible-use]
     printed.push(str);
   });
   return printed && printed.length

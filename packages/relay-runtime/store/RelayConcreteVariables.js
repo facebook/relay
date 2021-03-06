@@ -51,9 +51,11 @@ function getFragmentVariables(
            * RelayStoreUtils.getStableVariableValue() that variable keys are all
            * present.
            */
+          // $FlowFixMe[incompatible-use]
           variables[definition.name] = undefined;
           break;
         }
+        // $FlowFixMe[incompatible-use]
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:

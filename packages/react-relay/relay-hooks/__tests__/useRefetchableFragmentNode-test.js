@@ -233,6 +233,7 @@ describe('useRefetchableFragmentNode', () => {
     });
     queryWithArgs = createOperationDescriptor(gqlQueryWithArgs, variables);
     queryWithLiteralArgs = createOperationDescriptor(gqlQueryWithLiteralArgs, {
+      // $FlowFixMe[prop-missing]
       id: variables.id,
     });
     refetchQueryWithArgs = createOperationDescriptor(

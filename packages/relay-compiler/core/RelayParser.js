@@ -316,6 +316,7 @@ class RelayParser {
       const typeFromAST = this._schema.getTypeFromAST(parseType(typeString));
       if (typeFromAST == null) {
         throw createUserError(
+          // $FlowFixMe[incompatible-type]
           `Unknown type "${typeString}" referenced in the argument definitions.`,
           null,
           [arg],
@@ -324,6 +325,7 @@ class RelayParser {
       const type = this._schema.asInputType(typeFromAST);
       if (type == null) {
         throw createUserError(
+          // $FlowFixMe[incompatible-type]
           `Expected type "${typeString}" to be an input type in the "${arg.name.value}" argument definitions.`,
           null,
           [arg.value],
@@ -750,6 +752,7 @@ class GraphQLDefinitionParser {
       argumentDefinitions,
       directives,
       selections,
+      // $FlowFixMe[incompatible-return]
       type,
     };
   }

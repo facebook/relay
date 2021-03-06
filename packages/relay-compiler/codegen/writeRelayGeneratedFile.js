@@ -125,12 +125,17 @@ function writeRelayGeneratedFile(
           }
         }
         if (id == null) {
+          // $FlowFixMe[incompatible-call]
           id = await persistQuery(docText);
         }
         nextRequestParams = {
           id,
           metadata: nextMetadata,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           name: generatedNode.params.name,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           operationKind: generatedNode.params.operationKind,
           text: null,
         };
@@ -139,13 +144,19 @@ function writeRelayGeneratedFile(
           cacheID: md5(docText),
           id: null,
           metadata: nextMetadata,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           name: generatedNode.params.name,
+          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-use]
           operationKind: generatedNode.params.operationKind,
           text: docText,
         };
       }
+      // $FlowFixMe[incompatible-type]
       generatedNode = {
         ...generatedNode,
+        // $FlowFixMe[incompatible-type]
         params: nextRequestParams,
       };
     }
@@ -156,6 +167,7 @@ function writeRelayGeneratedFile(
       generatedNode.metadata?.derivedFrom != null
     ) {
       const {derivedFrom: _ignored, ...metadata} = generatedNode.metadata;
+      // $FlowFixMe[incompatible-type]
       generatedNode = {
         ...generatedNode,
         metadata,
@@ -175,6 +187,7 @@ function writeRelayGeneratedFile(
         printModuleDependency,
       ),
       sourceHash,
+      // $FlowFixMe[incompatible-call]
       node: generatedNode,
       schema,
     });
@@ -183,15 +196,18 @@ function writeRelayGeneratedFile(
       writeQueryParameters &&
       queryParametersFilename != null &&
       generatedNode.kind === RelayConcreteNode.REQUEST &&
+      // $FlowFixMe[incompatible-type]
       generatedNode.params.operationKind === 'query'
     ) {
       writeQueryParameters(
         codegenDir,
         queryParametersFilename,
         moduleName,
+        // $FlowFixMe[incompatible-call]
         generatedNode.params,
       );
     }
+    // $FlowFixMe[incompatible-call]
     return generatedNode;
   });
 }

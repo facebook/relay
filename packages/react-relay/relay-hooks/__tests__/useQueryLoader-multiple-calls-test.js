@@ -164,6 +164,7 @@ describe('when loading and disposing same query multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
       queryLoaderCallback(variables);
     });
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Loading');
 
     ReactTestRenderer.act(() => {
@@ -172,6 +173,7 @@ describe('when loading and disposing same query multiple times', () => {
       jest.runAllImmediates();
     });
 
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('4');
   });
 });

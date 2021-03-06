@@ -15,13 +15,23 @@ Hook used to subscribe and unsubscribe to a subscription.
 import {graphql, useSubscription} from 'comet-relay';
 import {useMemo} from 'react';
 
-const subscription = graphql`subscription ...`;
-function MyFunctionalComponent({ id }) {
-  // IMPORTANT: your config should be memoized, or at least not re-computed
-  // every render. Otherwise, useSubscription will re-render too frequently.
-  const config = useMemo(() => { variables: { id }, subscription }, [id]);
+const subscription = graphql`
+  subscription UserDataSubscription($input: InputData!) {
+    # ...
+  }
+`;
+
+function UserComponent({ id }) {
+  // IMPORTANT: your config should be memoized.
+  // Otherwise, useSubscription will re-render too frequently.
+  const config = useMemo(() => ({
+    variables: {id},
+    subscription,
+  }), [id, subscription]);
+
   useSubscription(config);
-  return <div>Move Fast</div>
+
+  return (/* ... */);
 }
 ```
 

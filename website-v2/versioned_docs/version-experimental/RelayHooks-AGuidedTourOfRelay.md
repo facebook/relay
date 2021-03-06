@@ -1517,7 +1517,7 @@ function ProfilePage(props) {
   useSubscribeToInvalidationState([props.userID], () => {
     // Here we can do things like:
     // - re-evaluate the query by passing a new preloadedQuery to usePreloadedQuery.
-    // - imperitavely refetch any data
+    // - imperatively refetch any data
     // - render a loading spinner or gray out the page to indicate that refetch
     //   is happening.
   })

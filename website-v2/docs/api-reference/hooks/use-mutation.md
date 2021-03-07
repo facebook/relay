@@ -6,6 +6,7 @@ slug: /api-reference/use-mutation/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import FbUseMutationParameter from './fb/FbUseMutationParameter.md';
 
 ## `useMutation`
 
@@ -55,9 +56,15 @@ function LikeButton() {
 ### Arguments
 
 * `mutation`: GraphQL mutation specified using a `graphql` template literal.
-* `type`: _*[Optional]*_
-    * Default: `immediate`: use Relay `commitMutation` internally for mutations, mutation will execute immediately.
-    * `enqueue`: use `enqueueMutation` internally for mutations, mutations are queued globally and only one mutation will be in-flight.
+
+<OssOnly>
+
+* `commitMutationFn`: `<T: MutationParameters>(IEnvironment, MutationConfig<T>): Disposable`. *_[Optional]_* A function with the same signature as [`commitMutation`](../commit-mutation), which will be called in its stead. Defaults to `commitMutation`.
+
+</OssOnly>
+
+<FbUseMutationParameter />
+
 
 ### Flow Type Parameters
 

@@ -169,6 +169,7 @@ module.exports = {
           'Relay Runtime': [
             'api-reference/relay-runtime/fetch-query',
             'api-reference/relay-runtime/store',
+            'api-reference/relay-runtime/commit-mutation',
             'api-reference/relay-runtime/request-subscription',
           ],
         },

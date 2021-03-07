@@ -21,6 +21,7 @@ html[data-theme="light"] {
   --ifm-blockquote-color: #3a434d;
   --ifm-navbar-link-color: white;
   --ifm-code-font-size: 16px;
+  --ifm-alert-color: black;
 }
 
 html[data-theme="light"] .navbar__title {

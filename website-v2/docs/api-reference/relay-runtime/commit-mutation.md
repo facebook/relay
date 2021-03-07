@@ -6,8 +6,8 @@ slug: /api-reference/commit-mutation/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-import MutationConfig from '../common-types/MutationConfig.md';
-import Disposable from '../common-types/Disposable.md';
+import MutationConfig from '../types/MutationConfig.md';
+import Disposable from '../types/Disposable.md';
 
 ## `commitMutation`
 

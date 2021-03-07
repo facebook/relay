@@ -6,7 +6,7 @@ slug: /api-reference/use-subscription/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-import GraphQLSubscriptionConfig from '../common-types/GraphQLSubscriptionConfig.md';
+import GraphQLSubscriptionConfig from '../types/GraphQLSubscriptionConfig.md';
 
 ## `useSubscription`
 

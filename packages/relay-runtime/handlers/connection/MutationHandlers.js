@@ -127,7 +127,7 @@ function edgeUpdater(
       if (serverEdge == null) {
         continue;
       }
-      const serverNode = serverEdge.getLinkedRecord('node');
+      const serverNode = serverEdge.getLinkedRecord(NODE);
       if (!serverNode) {
         continue;
       }

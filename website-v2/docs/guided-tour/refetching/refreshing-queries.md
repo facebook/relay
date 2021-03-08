@@ -8,8 +8,9 @@ import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbRefreshingQueriesUsingRealTimeFeatures from './fb/FbRefreshingQueriesUsingRealTimeFeatures.md';
 import FbRefreshingQueriesUsingUseQueryLoader from './fb/FbRefreshingQueriesUsingUseQueryLoader.md';
-import FbRefreshingQueriesAvoidSuspenseCaution from './fb/FbRefreshingQueriesAvoidSuspenseCaution.md';
+import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
 import FbRefreshingQueriesUsingUseLazyLoadQuery from './fb/FbRefreshingQueriesUsingUseLazyLoadQuery.md';
+import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refreshing a query"**, we mean fetching the *exact* same data that was originally rendered by the query, in order to get the most up-to-date version of that data from the server.
 
@@ -107,7 +108,7 @@ function MainContent(props) {
 
 Let's distill what's going on here:
 
-* We call `loadQuery` in the event handler for refreshing, so the network request starts immediately, and then pass the updated `refreshedQueryRef` to the `MainContent` component that uses `usePreloadedQuery`, so it renders the updated data.
+* We call `loadQuery` in the event handler for refreshing, so the network request starts immediately, and then pass the updated `queryRef` to the `MainContent` component that uses `usePreloadedQuery`, so it renders the updated data.
 * We are passing a `fetchPolicy` of `'network-only'` to ensure that we always fetch from the network and skip the local data cache.
 * Calling `loadQuery` will re-render the component and cause `usePreloadedQuery` to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)), since a network request will always be made due to the `fetchPolicy` we are using. This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component, in order to show a fallback loading state.
 
@@ -115,19 +116,17 @@ Let's distill what's going on here:
 
 ### If you need to avoid Suspense
 
-In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
+In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
 <FbInternalOnly>
 
-<FbRefreshingQueriesAvoidSuspenseCaution />
+<FbAvoidSuspenseCaution />
 
 </FbInternalOnly>
 
 <OssOnly>
 
-:::note
-In future versions of React, when concurrent rendering is supported, React will provide a built-in option to support this case and avoid hiding already rendered content with a Suspense fallback when suspending.
-:::
+<OssAvoidSuspenseNote />
 
 </OssOnly>
 
@@ -234,6 +233,7 @@ function App(props: Props) {
       <MainContent
         refresh={refresh}
         queryOptions={refreshedQueryOptions ?? {}}
+        variables={variables}
       />
     </React.Suspense>
   );
@@ -247,7 +247,7 @@ import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 
 // Fetches and renders the query, given the fetch options
 function MainContent(props) {
-  const {refresh, queryOptions} = props;
+  const {refresh, queryOptions, variables} = props;
   const data = useLazyLoadQuery<AppQueryType>(
     graphql`
       query AppQuery($id: ID!) {
@@ -259,6 +259,7 @@ function MainContent(props) {
         }
       }
     `,
+    variables,
     queryOptions,
   );
 
@@ -290,15 +291,13 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 
 <FbInternalOnly>
 
-<FbRefreshingQueriesAvoidSuspenseCaution />
+<FbAvoidSuspenseCaution />
 
 </FbInternalOnly>
 
 <OssOnly>
 
-:::note
-In future versions of React, when concurrent rendering is supported, React will provide a built-in option to support this case and avoid hiding already rendered content with a Suspense fallback when suspending.
-:::
+<OssAvoidSuspenseNote />
 
 </OssOnly>
 
@@ -311,13 +310,13 @@ import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
+  const variables = {id: '4'}
   const environment = useRelayEnvironment();
   const [refreshedQueryOptions, setRefreshedQueryOptions] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   const refresh = () => {
     if (isRefreshing) { return; }
-    const {variables} = props.appQueryRef;
     setIsRefreshing(true);
 
     // fetchQuery will fetch the query and write
@@ -352,6 +351,7 @@ function App(props: Props) {
         isRefreshing={isRefreshing}
         refresh={refresh}
         queryOptions={refreshedQueryOptions ?? {}}
+        variables={variables}
       />
     </React.Suspense>
   );

@@ -85,13 +85,6 @@ module.exports = {
             'guided-tour/rendering/error-states',
             'guided-tour/rendering/environment',
           ],
-          'Refreshing and Refetching': [
-            'guided-tour/refetching/introduction',
-            'guided-tour/refetching/refreshing-queries',
-            'guided-tour/refetching/refreshing-fragments',
-            'guided-tour/refetching/refetching-queries-with-different-data',
-            'guided-tour/refetching/refetching-fragments-with-different-data',
-          ],
           'Reusing Cached Data for Rendering': [
             'guided-tour/reusing-cached-data/introduction',
             'guided-tour/reusing-cached-data/fetch-policies',
@@ -100,6 +93,13 @@ module.exports = {
             'guided-tour/reusing-cached-data/staleness-of-data',
             'guided-tour/reusing-cached-data/rendering-partially-cached-data',
             'guided-tour/reusing-cached-data/filling-in-missing-data',
+          ],
+          'Refreshing and Refetching': [
+            'guided-tour/refetching/introduction',
+            'guided-tour/refetching/refreshing-queries',
+            'guided-tour/refetching/refetching-queries-with-different-data',
+            'guided-tour/refetching/refreshing-fragments',
+            'guided-tour/refetching/refetching-fragments-with-different-data',
           ],
           'Rendering List Data and Pagination': [
             'guided-tour/list-data/connections',

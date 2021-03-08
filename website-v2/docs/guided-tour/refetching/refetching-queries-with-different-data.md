@@ -93,7 +93,7 @@ Let's distill what's going on here:
 
 * We call `loadQuery` in the event handler for refetching, so the network request starts immediately, and then pass the `queryRef` to `usePreloadedQuery`, so it renders the updated data.
 * We are not passing a `fetchPolicy` to `loadQuery`, meaning that it will use the default value of `'store-or-network'`. We could provide a different policy in order to specify whether to use locally cached data (as we covered in [Reusing Cached Data For Render](../../reusing-cached-data/)).
-* Calling `loadQuery` will re-render the component and may cause `usePreloadedQuery` to suspend (as explained in [Transitions and Updates that Suspend](../../rendering/loading-states/)). This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component, in order to show a fallback loading state.
+* Calling `loadQuery` will re-render the component and may cause `usePreloadedQuery` to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)). This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component, in order to show a fallback loading state.
 
 </OssOnly>
 

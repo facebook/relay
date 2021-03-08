@@ -60,7 +60,7 @@ function App() {
 
 * It is expected for `useLazyLoadQuery` to have been rendered under a [`RelayEnvironmentProvider`](../relay-environment-provider), in order to access the correct Relay environment, otherwise an error will be thrown.
 * Calling `useLazyLoadQuery`  will fetch and render the data for this query, and it may [*_suspend_*](../../guided-tour/rendering/loading-states) while the network request is in flight, depending on the specified `fetchPolicy`, and whether cached data is available, or if it needs to send and wait for a network request. If `useLazyLoadQuery` causes the component to suspend, you'll need to make sure that there's a `Suspense` ancestor wrapping this component in order to show the appropriate loading state.
-    * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
+    * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states/) guide.
 * The component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
 * After a component using `useLazyLoadQuery` has committed, re-rendering/updating the component will not cause the query to be fetched again.
     * If the component is re-rendered with *different query variables,* that will cause the query to be fetched again with the new variables, and potentially re-render with different data.

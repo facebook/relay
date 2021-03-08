@@ -28,7 +28,6 @@ import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 const React = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-const {SuspenseList, useTransition} = require('React');
 
 type Props = {
   user: FriendsListComponent_user$key,
@@ -41,7 +40,7 @@ function FriendsListComponent(props: Props) {
     data,
     loadNext,
     hasNext,
-  } = `usePaginationFragment``<``FriendsListPaginationQuery``,`` _``>`(
+  } = usePaginationFragment<FriendsListPaginationQuery, _>(
     graphql`
       fragment FriendsListComponent_user on User
       @refetchable(queryName: "FriendsListPaginationQuery") {

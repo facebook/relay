@@ -138,7 +138,7 @@ Object containing the following properties:
     * Behavior:
         * Calling `refetch` with a new set of variables will fetch the fragment again *with the newly provided variables*. Note that the variables you need to provide are only the ones referenced inside the fragment. In this example, it means fetching the translated body of the currently rendered Comment, by passing a new value to the `lang` variable.
         * Calling `refetch` will re-render your component and may cause it to *[suspend](../../guided-tour/rendering/loading-states)*, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component.
-        * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
+        * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states/) guide.
 
 </OssOnly>
 
@@ -146,7 +146,7 @@ Object containing the following properties:
 
 * The component is automatically subscribed to updates to the fragment data: if the data for this particular `User` is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.
 * The component will suspend if any data for that specific fragment is missing, and the data is currently being fetched by a parent query.
-    * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
+    * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states/) guide.
 * Note that pagination (`loadNext` or `loadPrevious`), *will not* cause the component to suspend.
 
 ### DIfferences with `PaginationContainer`

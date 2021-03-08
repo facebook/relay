@@ -6,6 +6,7 @@ slug: /guided-tour/list-data/refetching-connections/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import FbRefetchingConnectionsUsingUseTransition from './fb/FbRefetchingConnectionsUsingUseTransition.md';
 
 Often times when querying for a list of data, you can provide different values in the query which serve as filters that change the result set, or sort it differently.
 
@@ -18,7 +19,7 @@ Some examples of this are:
 
 Specifically, in GraphQL, connection fields can accept arguments to sort or filter the set of queried results:
 
-```js
+```graphql
 fragment UserFragment on User {
   name
   friends(order_by: DATE_ADDED, search_term: "Alice", first: 10) {
@@ -103,20 +104,24 @@ function FriendsListComponent(props: Props) {
       <h1>Friends of {data.name}:</h1>
       <List items={data.friends?.nodes}>{...}</List>
 
-      /*
+      {/*
        Loading the next items will use the original order_by and search_term
        values used for the initial query
-      */
+      */ }
       <Button onClick={() => loadNext(10)}>Load more friends</Button>
     </>
   );
 }
 ```
-
 * Note that calling `loadNext` will use the original `order_by` and `search_term` values used for the initial query. During pagination, these value won't (*and shouldn't*) change.
 
+If we want to refetch the connection with *different* variables, we can use the `refetch` function provided by `usePaginationFragment`, similarly to how we do so when [Refetching Fragments with Different Data](../../refetching/refetching-fragments-with-different-data/):
 
-If we want to refetch the connection with *different* variables, we can use the `refetch` function provided by `usePaginationFragment`, similarly to how we do so when [re-rendering fragments with different data](../../refetching/refetching-fragments-with-different-data/):
+<FbInternalOnly>
+  <FbRefetchingConnectionsUsingUseTransition />
+</FbInternalOnly>
+
+<OssOnly>
 
 ```js
 /**
@@ -125,7 +130,7 @@ If we want to refetch the connection with *different* variables, we can use the 
 import type {FriendsListComponent_user$ref} from 'FriendsListComponent_user.graphql';
 
 const React = require('React');
-const {useState, useEffect, useTransition} = require('React');
+const {useState, useEffect} = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
 
@@ -137,7 +142,6 @@ type Props = {
 
 function FriendsListComponent(props: Props) {
   const searchTerm = props.searchTerm;
-  const [startTransition] = useTransition();
   const {data, loadNext, refetch} = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User {
@@ -163,9 +167,7 @@ function FriendsListComponent(props: Props) {
   useEffect(() => {
     // When the searchTerm provided via props changes, refetch the connection
     // with the new searchTerm
-    startTransition(() => {
-      refetch({first: 10, search_term: searchTerm}, {fetchPolicy: 'store-or-network'});
-    });
+    refetch({first: 10, search_term: searchTerm}, {fetchPolicy: 'store-or-network'});
   }, [searchTerm])
 
   return (
@@ -175,9 +177,7 @@ function FriendsListComponent(props: Props) {
       {/* When the button is clicked, refetch the connection but sorted differently */}
       <Button
         onClick={() =>
-          startTransition(() => {
-            refetch({first: 10, orderBy: 'DATE_ADDED'});
-          })
+          refetch({first: 10, orderBy: 'DATE_ADDED'});
         }>
         Sort by date added
       </Button>
@@ -193,9 +193,10 @@ Let's distill what's going on here:
 
 * Calling `refetch` and passing a new set of variables will fetch the fragment again *with the newly provided variables*. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
     * In our case, we need to pass the count we want to fetch as the `first` variable, and we can pass different values for our filters, like `orderBy` or `searchTerm`.
-* This will re-render your component and may cause it to suspend (as explained in [Transitions and Updates that Suspend](../../rendering/loading-states/)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
-    * Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+* This will re-render your component and may cause it to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above.
 * Conceptually, when we call refetch, we're fetching the connection *from scratch*. It other words, we're fetching it again from the *beginning* and *"resetting"* our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
+
+</OssOnly>
 
 
 

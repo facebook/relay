@@ -6,6 +6,7 @@ slug: /guided-tour/list-data/rendering-connections/
 
 import DocsRating from '../../../src/core/DocsRating';
 import FbSuspenseListAlternative from './fb/FbSuspenseListAlternative.md';
+import FbRenderingConnectionsUsingSuspenseList from './fb/FbRenderingConnectionsUsingSuspenseList.md';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 In Relay, in order to display a list of data that is backed by a GraphQL connection, first you need to declare a fragment that queries for a connection:
@@ -35,12 +36,18 @@ const userFragment = graphql`
 
 In order to render this fragment which queries for a connection, we can use the `usePaginationFragment` Hook:
 
+<FbInternalOnly>
+  <FbRenderingConnectionsUsingSuspenseList />
+</FbInternalOnly>
+
+<OssOnly>
+
 ```js
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
 const React = require('React');
-const {Suspense, SuspenseList} = require('React');
+const {Suspense} = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
 
@@ -72,7 +79,7 @@ function FriendsListComponent(props: Props) {
     <>
       {data.name != null ? <h1>Friends of {data.name}:</h1> : null}
 
-      <SuspenseList revealOrder="forwards">
+      <div>
         {/* Extract each friend from the resulting data */}
         {(data.friends?.edges ?? []).map(edge => {
           const node = edge.node;
@@ -82,7 +89,7 @@ function FriendsListComponent(props: Props) {
             </Suspense>
           );
         })}
-      </SuspenseList>
+      </div>
     </>
   );
 }
@@ -94,8 +101,8 @@ module.exports = FriendsListComponent;
 * `usePaginationFragment` behaves the same way as a `useFragment` (see the [Fragments](../../rendering/fragments/) section), so our list of friends is available under `data.friends.edges.node`, as declared by the fragment. However, it also has a few additions:
     * It expects a fragment that is a connection field annotated with the `@connection` directive
     * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type. <FbInternalOnly> For more info on `@fetchable` types, see [this post](https://fb.workplace.com/groups/graphql.fyi/permalink/1539541276187011/). </FbInternalOnly>
+* It takes two Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 
-* It takes to Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
-* Note that we're using [`SuspenseList`](https://reactjs.org/docs/concurrent-mode-reference.html#suspenselist) to render the items: this will ensure that the list is rendered in order from top to bottom even if individual items in the list suspend and resolve at different times; that is, it will prevent items from rendering out of order, which prevents content from jumping around after it has been rendered.
+</OssOnly>
 
 <DocsRating />

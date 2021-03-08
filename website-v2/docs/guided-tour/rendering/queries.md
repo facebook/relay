@@ -110,7 +110,7 @@ Lets see what's going on here:
 
 ## Fetching Queries for Render
 
-Apart from *rendering* a query, we also need to fetch it from the server. Usually we want to fetch queries somewhere at the root of our app, and only have **one or a few queries that [*accumulate*](../fragments/#composing-fragments-into-queries)all the data required to render the screen**. Ideally, we'd fetch them as early as possible, before we even start rendering our app.
+Apart from *rendering* a query, we also need to fetch it from the server. Usually we want to fetch queries somewhere at the root of our app, and only have **one or a few queries that [*accumulate*](../fragments/#composing-fragments-into-queries) all the data required to render the screen**. Ideally, we'd fetch them as early as possible, before we even start rendering our app.
 
 In order to *fetch* a query for later rendering it, you can use the `useQueryLoader` Hook:
 
@@ -201,7 +201,7 @@ This is the preferred pattern for fetching data with Relay, and it applies in se
 <FbEntrypointsExtraInfo />
 
 
-## Lazily Fetching Queries During Render
+## Lazily Fetching Queries during Render
 
 Another alternative for fetching a query is to lazily fetch the query when the component is rendered. However, as we've mentioned previously, the preferred pattern is to start fetching queries ahead of rendering. If lazy fetching is used without caution, it can trigger nested or waterfalling round trips, and can degrade performance.
 

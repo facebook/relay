@@ -7,7 +7,7 @@ slug: /guided-tour/refetching/refetching-queries-with-different-data/
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-Similarly to [Refreshing Queries](../refetching-queries/), we can also use the `useQueryLoader` Hook described in our [Fetching Queries for Rendering](../../rendering/queries/) section, but this time passing *different query variables*:
+Similarly to [Refreshing Queries](../refreshing-queries/), we can also use the `useQueryLoader` Hook described in our [Fetching Queries for Rendering](../../rendering/queries/) section, but this time passing *different query variables*:
 
 ```js
 import type {AppQuery as AppQueryType} from 'AppQuery.graphql';

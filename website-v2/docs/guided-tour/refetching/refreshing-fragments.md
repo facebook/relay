@@ -1,7 +1,7 @@
 ---
-id: refetching-fragments
-title: Refetching Fragments
-slug: /guided-tour/refetching/refetching-fragments/
+id: refreshing-fragments
+title: Refreshing Fragments
+slug: /guided-tour/refetching/refreshing-fragments/
 ---
 
 import DocsRating from '../../../src/core/DocsRating';

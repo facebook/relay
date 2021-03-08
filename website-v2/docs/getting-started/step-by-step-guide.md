@@ -1,7 +1,7 @@
 ---
 id: step-by-step-guide
 title: Step-by-step Guide
-slug: /introduction/step-by-step-guide/
+slug: /getting-started/step-by-step-guide/
 ---
 
 import DocsRating from '../../src/core/DocsRating';

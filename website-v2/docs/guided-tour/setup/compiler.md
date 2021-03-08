@@ -31,12 +31,6 @@ The result of using the `graphql` template tag is a `GraphQLTaggedNode`; a runti
 
 Note that `graphql` template tags are **never executed at runtime**. Instead, they are compiled ahead of time by the Relay compiler into generated artifacts that live alongside your source code, and which Relay requires to operate at runtime.
 
-<OssOnly>
-
-The [Relay Babel plugin](../../../introduction/installation-and-setup/#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
-
-</OssOnly>
-
 
 ## Relay Compiler
 
@@ -140,7 +134,7 @@ This would produce three generated files, and two `__generated__` directories:
 
 ### Importing generated definitions
 
-Typically you will not need to import your generated definitions. The [Relay Babel plugin](../../../introduction/installation-and-setup#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
+Typically you will not need to import your generated definitions. The [Relay Babel plugin](../../../getting-started/installation-and-setup#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
 
 However the Relay Compiler also automatically generates [Flow](https://flow.org) types as [type comments](https://flow.org/en/docs/types/comments/). For example, you can import the generated Flow types like so:
 

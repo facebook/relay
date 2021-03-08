@@ -62,11 +62,16 @@ const Guides = fbContent({
 module.exports = {
   docs: [
     {
-      Introduction: [
-        'introduction/introduction',
-        'introduction/prerequisites',
-        'introduction/installation-and-setup',
-        'introduction/step-by-step-guide',
+      'Getting Started': [
+        'getting-started/introduction',
+        ...fbContent({
+          internal: [],
+          external: [
+            'getting-started/prerequisites',
+            'getting-started/installation-and-setup',
+            'getting-started/step-by-step-guide',
+          ],
+        }),
       ],
       'A Guided Tour': [
         'guided-tour/introduction',

@@ -9,11 +9,8 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbCrashCourse from './fb/FbCrashCourse.md';
 
-Relay is a framework for managing and declaratively fetching GraphQL data. Specifically, it provides a set of APIs to fetch and declare data dependencies for React components, in colocation with component definitions themselves.
+In this guided tour, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our **[API Reference](../api-reference/relay-environment-provider/)**.
 
-In this guide, we're going to go over how to use Relay to build out some of the more common use cases in apps. If you're interested in a detailed reference of our APIs, check out our [Relay API Reference](../api-reference/use-fragment/) page.
-
-<FbCrashCourse />
 
 ## Before you read
 
@@ -35,5 +32,6 @@ Before getting started, bear in mind that we assume some level of familiarity wi
 
 </OssOnly>
 
+<FbCrashCourse />
 
 <DocsRating />

@@ -1,12 +1,18 @@
 ---
 id: prerequisites
 title: Prerequisites
-slug: /introduction/prerequisites/
+slug: /getting-started/prerequisites/
 ---
 
 import DocsRating from '../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
+
+Before getting started with Relay, bear in mind that we assume that the following infrastructure has already been set up, as well as some level of familiarity with the topics below.
+
+## JavaScript
+
+Relay is a framework built in JavaScript, so we assume familiarity with the JavaScript language.
 
 ## React
 

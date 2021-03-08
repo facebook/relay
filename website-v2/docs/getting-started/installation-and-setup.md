@@ -1,7 +1,7 @@
 ---
 id: installation-and-setup
 title: Installation and Setup
-slug: /introduction/installation-and-setup/
+slug: /getting-started/installation-and-setup/
 ---
 
 import DocsRating from '../../src/core/DocsRating';

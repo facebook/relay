@@ -10,7 +10,7 @@ In this we will cover how to start using Relay Hooks, what you need to know abou
 
 ## Accessing Relay Hooks
 
-Make sure the latest versions of React and Relay are installed, and that you’ve followed additional setup in our [Installation & Setup](../introduction/installation-and-setup/) guide:
+Make sure the latest versions of React and Relay are installed, and that you’ve followed additional setup in our [Installation & Setup](../getting-started/installation-and-setup/) guide:
 
 ```
 yarn add react react-dom react-relay

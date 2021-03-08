@@ -128,7 +128,7 @@ const React = require('React');
 const {useState, useEffect} = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-const useSuspenseTransition = require('useSuspenseTransition');
+const useTransition = require('useTransition');
 
 
 type Props = {
@@ -138,7 +138,7 @@ type Props = {
 
 function FriendsListComponent(props: Props) {
   const searchTerm = props.searchTerm;
-  const [startTransition] = useSuspenseTransition();
+  const [startTransition] = useTransition();
   const {data, loadNext, refetch} = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User {
@@ -194,7 +194,7 @@ Let's distill what's going on here:
 
 * Calling `refetch` and passing a new set of variables will fetch the fragment again *with the newly provided variables*. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
     * In our case, we need to pass the count we want to fetch as the `first` variable, and we can pass different values for our filters, like `orderBy` or `searchTerm`.
-* This will re-render your component and may cause it to suspend (as explained in [Transitions and Updates that Suspend](../../rendering/loading-states/)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useSuspenseTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
+* This will re-render your component and may cause it to suspend (as explained in [Transitions and Updates that Suspend](../../rendering/loading-states/)) if it needs to send and wait for a network request. If `refetch` causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above, and/or that you are using [`useTransition`](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) with a Suspense config in order to show the appropriate pending or loading state.
     * Note that since `refetch` may cause the component to suspend, regardless of whether we're using a Suspense config to render a pending state, we should always use `startTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 * Conceptually, when we call refetch, we're fetching the connection *from scratch*. It other words, we're fetching it again from the *beginning* and *"resetting"* our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
 

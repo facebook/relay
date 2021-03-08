@@ -141,7 +141,7 @@ Object containing the following properties:
 
 </OssOnly>
 
-* Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useSuspenseTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+* Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
 
 ### Behavior

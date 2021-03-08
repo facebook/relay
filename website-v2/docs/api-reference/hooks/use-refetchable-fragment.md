@@ -18,7 +18,7 @@ import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
 const React = require('React');
-const useSuspenseTransition = require('useSuspenseTransition');
+const useTransition = require('useTransition');
 
 const {graphql, useRefetchableFragment} = require('react-relay');
 
@@ -28,7 +28,7 @@ type Props = {|
 |};
 
 function CommentBody(props: Props) {
-  const [startTransition] = useSuspenseTransition();
+  const [startTransition] = useTransition();
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
       fragment CommentBody_comment on Comment
@@ -100,7 +100,7 @@ Tuple containing the following values
 
 </OssOnly>
 
-* Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useSuspenseTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
+* Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
 * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
 
 ### Behavior

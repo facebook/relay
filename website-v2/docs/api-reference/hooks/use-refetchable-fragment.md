@@ -6,19 +6,24 @@ slug: /api-reference/use-refetchable-fragment/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
-
-import FbRefetchBlurb from './fb/FbRefetchBlurb.md';
+import FbUseRefetchableFragmentApiReferenceCodeExample from './fb/FbUseRefetchableFragmentApiReferenceCodeExample.md';
+import FbUseRefetchableFragmentReturnValue from './fb/FbUseRefetchableFragmentReturnValue.md';
 
 ## `useRefetchableFragment`
 
 You can use `useRefetchableFragment` when you want to fetch and re-render a fragment with different data:
+
+<FbInternalOnly>
+  <FbUseRefetchableFragmentApiReferenceCodeExample />
+</FbInternalOnly>
+
+<OssOnly>
 
 ```js
 import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
 const React = require('React');
-const useTransition = require('useTransition');
 
 const {graphql, useRefetchableFragment} = require('react-relay');
 
@@ -28,7 +33,6 @@ type Props = {|
 |};
 
 function CommentBody(props: Props) {
-  const [startTransition] = useTransition();
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
       fragment CommentBody_comment on Comment
@@ -46,9 +50,7 @@ function CommentBody(props: Props) {
       <p>{data.body?.text}</p>
       <Button
         onClick={() => {
-          startTransition(() => {
-            refetch({lang: 'SPANISH'}, {fetchPolicy: 'store-or-network'})
-          });
+          refetch({lang: 'SPANISH'}, {fetchPolicy: 'store-or-network'})
         }}
       >
         Translate Comment
@@ -59,6 +61,8 @@ function CommentBody(props: Props) {
 
 module.exports = CommentBody;
 ```
+
+</OssOnly>
 
 ### Arguments
 
@@ -74,6 +78,12 @@ module.exports = CommentBody;
 
 ### Return Value
 
+<FbInternalOnly>
+  <FbUseRefetchableFragmentReturnValue />
+</FbInternalOnly>
+
+<OssOnly>
+
 Tuple containing the following values
 
 * [0] `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
@@ -85,23 +95,16 @@ Tuple containing the following values
             * However, only the variables that are intended to change for the refetch request need to be specified; any variables referenced by the fragment that are omitted from this input will fall back to using the value specified in the original parent query. So for example, to refetch the fragment with the exact same variables as it was originally fetched, you can call `refetch({})`.
             * Similarly, passing an `id` value for the `$id` variable is _*optional*_, unless the fragment wants to be refetched with a different `id`. When refetching a `@refetchable` fragment, Relay will already know the id of the rendered object.
         * `options`: *_[Optional]_* options object
-            * `fetchPolicy`: Determines if cached data should be used, and when to send a network request based on cached data that is available. See the [`useLazyLoadQuery`](../use-lazy-load-query) section for full specification.
+            * `fetchPolicy`: Determines if cached data should be used, and when to send a network request based on cached data that is available. See the [Fetch Policies](../../guided-tour/reusing-cached-data/fetch-policies/) section for full specification.
             * `onComplete`: Function that will be called whenever the refetch request has completed, including any incremental data payloads.
     * Return value:
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will cancel the refetch request.
     * Behavior:
         * Calling `refetch` with a new set of variables will fetch the fragment again *with the newly provided variables*. Note that the variables you need to provide are only the ones referenced inside the fragment. In this example, it means fetching the translated body of the currently rendered Comment, by passing a new value to the `lang` variable.
-
-<FbRefetchBlurb />
-
-<OssOnly>
-
-  * Calling `refetch` will re-render your component and may cause it to _*[suspend](../../guided-tour/rendering/loading-states)*_, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above or that you are using `useTransition` with a suspense config in order to show the appropriate pending or loading state.
+        * Calling `refetch` will re-render your component and may cause it to _*[suspend](../../guided-tour/rendering/loading-states)*_, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component.
+        * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states/) guide.
 
 </OssOnly>
-
-* Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
-* For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
 
 ### Behavior
 

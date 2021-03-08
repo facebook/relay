@@ -16,7 +16,7 @@ import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 const React = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-const useTransition = require('useTransition');
+const {useTransition} = require('React');
 
 const {Suspense, SuspenseList} = require('React');
 
@@ -89,10 +89,9 @@ import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphq
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
 const React = require('React');
-const {Suspense, SuspenseList} = require('React');
+const {Suspense, SuspenseList, useTransition} = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-const useTransition = require('useTransition');
 
 type Props = {
   user: FriendsListComponent_user$key,

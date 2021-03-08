@@ -28,8 +28,7 @@ import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 const React = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-const useTransition = require('useTransition');
-const {SuspenseList} = require('React');
+const {SuspenseList, useTransition} = require('React');
 
 type Props = {
   user: FriendsListComponent_user$key,

@@ -125,10 +125,9 @@ If we want to refetch the connection with *different* variables, we can use the 
 import type {FriendsListComponent_user$ref} from 'FriendsListComponent_user.graphql';
 
 const React = require('React');
-const {useState, useEffect} = require('React');
+const {useState, useEffect, useTransition} = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-const useTransition = require('useTransition');
 
 
 type Props = {

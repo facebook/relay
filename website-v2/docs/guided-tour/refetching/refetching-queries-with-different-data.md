@@ -11,7 +11,7 @@ import FbRefetchingQueriesUsingUseLazyLoadQuery from './fb/FbRefetchingQueriesUs
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
 import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
-When referring to **"refetching a query"**, we mean fetching the query again for *different* data than was originally rendered by the query. For example, this might be to change a currently selected item, or to update a list of items being shown.
+When referring to **"refetching a query"**, we mean fetching the query again for *different* data than was originally rendered by the query. For example, this might be to change a currently selected item, to render a different list of items than the one being shown, or more generally to transition the currently rendered content to show new or different content.
 
 ## When using `useQueryLoader` / `loadQuery`
 

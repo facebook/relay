@@ -6,8 +6,7 @@ slug: /api-reference/use-pagination-fragment/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-
-import FbRefetchBlurb from './fb/FbRefetchBlurb.md';
+import FbUsePaginationFragmentReturnValue from './fb/FbUsePaginationFragmentReturnValue.md';
 
 ## `usePaginationFragment`
 
@@ -91,6 +90,12 @@ module.exports = FriendsList;
 
 ### Return Value
 
+<FbInternalOnly>
+  <FbUsePaginationFragmentReturnValue />
+</FbInternalOnly>
+
+<OssOnly>
+
 Object containing the following properties:
 
 * `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
@@ -132,17 +137,10 @@ Object containing the following properties:
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will cancel the refetch request.
     * Behavior:
         * Calling `refetch` with a new set of variables will fetch the fragment again *with the newly provided variables*. Note that the variables you need to provide are only the ones referenced inside the fragment. In this example, it means fetching the translated body of the currently rendered Comment, by passing a new value to the `lang` variable.
-
-<FbRefetchBlurb />
-
-<OssOnly>
-
-  * Calling `refetch` will re-render your component and may cause it to _*[suspend](../../guided-tour/rendering/loading-states)*_, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component from above or that you are using `useTransition` with a suspense config in order to show the appropriate pending or loading state.
+        * Calling `refetch` will re-render your component and may cause it to *[suspend](../../guided-tour/rendering/loading-states)*, depending on the specified `fetchPolicy` and whether cached data is available or if it needs to send and wait for a network request. If refetch causes the component to suspend, you'll need to make sure that there's a `Suspense` boundary wrapping this component.
+        * For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
 
 </OssOnly>
-
-* Note that since `refetch` may cause the component to suspend, regardless of whether we are rendering a pending state, we should use `startTransition` from `useTransition` to schedule that update; any update that may cause a component to suspend should be scheduled using this pattern.
-* For more details on Suspense, see our [Loading States with Suspense](../../guided-tour/rendering/loading-states) guide.
 
 ### Behavior
 

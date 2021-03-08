@@ -103,15 +103,11 @@ Let's distill what's going on here:
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
 <FbInternalOnly>
-
-<FbAvoidSuspenseCaution />
-
+  <FbAvoidSuspenseCaution />
 </FbInternalOnly>
 
 <OssOnly>
-
-<OssAvoidSuspenseNote />
-
+  <OssAvoidSuspenseNote />
 </OssOnly>
 
 ```js
@@ -130,7 +126,7 @@ function App(props: Props) {
   );
   const [isRefetching, setIsRefetching] = useState(false)
 
-  const refetch = () => {
+  const refetch = useCallback(() => {
     if (isRefetching) { return; }
     setIsRefetching(true);
 
@@ -154,8 +150,8 @@ function App(props: Props) {
         error: () => {
           setIsRefetching(false);
         }
-      })
-  };
+      });
+  }, [/* ... */]);
 
   return (
     <React.Suspense fallback="Loading query...">
@@ -275,15 +271,11 @@ Let's distill what's going on here:
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
 <FbInternalOnly>
-
-<FbAvoidSuspenseCaution />
-
+  <FbAvoidSuspenseCaution />
 </FbInternalOnly>
 
 <OssOnly>
-
-<OssAvoidSuspenseNote />
-
+  <OssAvoidSuspenseNote />
 </OssOnly>
 
 ```js
@@ -302,7 +294,7 @@ function App(props: Props) {
     variables: {id: '4'},
   });
 
-  const refresh = () => {
+  const refetch = useCallback(() => {
     if (isRefreshing) { return; }
     setIsRefreshing(true);
 
@@ -332,8 +324,8 @@ function App(props: Props) {
         error: () => {
           setIsRefreshing(false);
         }
-      })
-  };
+      });
+  }, [/* ... */]);
 
   return (
     <React.Suspense fallback="Loading query...">

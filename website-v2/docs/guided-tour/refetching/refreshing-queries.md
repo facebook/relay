@@ -6,7 +6,7 @@ slug: /guided-tour/refetching/refreshing-queries/
 
 import DocsRating from '../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
-import FbRefreshingQueriesUsingRealTimeFeatures from './fb/FbRefreshingQueriesUsingRealTimeFeatures.md';
+import FbRefreshingUsingRealTimeFeatures from './fb/FbRefreshingUsingRealTimeFeatures.md';
 import FbRefreshingQueriesUsingUseQueryLoader from './fb/FbRefreshingQueriesUsingUseQueryLoader.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
 import FbRefreshingQueriesUsingUseLazyLoadQuery from './fb/FbRefreshingQueriesUsingUseLazyLoadQuery.md';
@@ -17,11 +17,11 @@ When referring to **"refreshing a query"**, we mean fetching the *exact* same da
 ## Using real-time features
 
 <FbInternalOnly>
-  <FbRefreshingQueriesUsingRealTimeFeatures />
+  <FbRefreshingUsingRealTimeFeatures />
 </FbInternalOnly>
 
 <OssOnly>
-If we want to keep the query data up to date with the latest data from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
+If we want to keep our data up to date with the latest version from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
 
 One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/en/subscriptions), which will require additional configuration on your server and [network layer](https://relay.dev/docs/en/subscriptions#configure-network).
 </OssOnly>
@@ -110,7 +110,7 @@ Let's distill what's going on here:
 
 * We call `loadQuery` in the event handler for refreshing, so the network request starts immediately, and then pass the updated `queryRef` to the `MainContent` component that uses `usePreloadedQuery`, so it renders the updated data.
 * We are passing a `fetchPolicy` of `'network-only'` to ensure that we always fetch from the network and skip the local data cache.
-* Calling `loadQuery` will re-render the component and cause `usePreloadedQuery` to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)), since a network request will always be made due to the `fetchPolicy` we are using. This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component, in order to show a fallback loading state.
+* Calling `loadQuery` will re-render the component and cause `usePreloadedQuery` to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)), since a network request will always be made due to the `fetchPolicy` we are using. This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component in order to show a fallback loading state.
 
 </OssOnly>
 
@@ -119,15 +119,11 @@ Let's distill what's going on here:
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
 <FbInternalOnly>
-
-<FbAvoidSuspenseCaution />
-
+  <FbAvoidSuspenseCaution />
 </FbInternalOnly>
 
 <OssOnly>
-
-<OssAvoidSuspenseNote />
-
+  <OssAvoidSuspenseNote />
 </OssOnly>
 
 ```js
@@ -146,7 +142,7 @@ function App(props: Props) {
   );
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     if (isRefreshing) { return; }
     const {variables} = props.appQueryRef;
     setIsRefreshing(true);
@@ -171,8 +167,8 @@ function App(props: Props) {
         error: () => {
           setIsRefreshing(false);
         }
-      })
-  };
+      });
+  }, [/* ... */]);
 
   return (
     <React.Suspense fallback="Loading query...">
@@ -281,24 +277,20 @@ Let's distill what's going on here:
 * We update the component in the event handler for refreshing by setting new options in state. This will cause the `MainContent` component that uses `useLazyLoadQuery` to re-render with the new `fetchKey` and `fetchPolicy`, and refetch the query upon rendering.
 * We are passing a new value of `fetchKey` which we increment on every update. Passing a new `fetchKey` to `useLazyLoadQuery` on every update will ensure that the query is fully re-evaluated and refetched.
 * We are passing a `fetchPolicy` of `'network-only'` to ensure that we always fetch from the network and skip the local data cache.
-* The state update in `refresh` will cause the component to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)), since a network request will always be made due to the `fetchPolicy` we are using. This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component, in order to show a fallback loading state.
+* The state update in `refresh` will cause the component to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)), since a network request will always be made due to the `fetchPolicy` we are using. This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component in order to show a fallback loading state.
 
 </OssOnly>
 
 ### If you need to avoid Suspense
 
-In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
+In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
 <FbInternalOnly>
-
-<FbAvoidSuspenseCaution />
-
+  <FbAvoidSuspenseCaution />
 </FbInternalOnly>
 
 <OssOnly>
-
-<OssAvoidSuspenseNote />
-
+  <OssAvoidSuspenseNote />
 </OssOnly>
 
 ```js
@@ -315,7 +307,7 @@ function App(props: Props) {
   const [refreshedQueryOptions, setRefreshedQueryOptions] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     if (isRefreshing) { return; }
     setIsRefreshing(true);
 
@@ -342,8 +334,8 @@ function App(props: Props) {
         error: () => {
           setIsRefreshing(false);
         }
-      })
-  };
+      });
+  }, [/* ... */]);
 
   return (
     <React.Suspense fallback="Loading query...">

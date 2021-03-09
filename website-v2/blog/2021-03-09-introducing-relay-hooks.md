@@ -8,8 +8,6 @@ hide_table_of_contents: false
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-# Introducing Relay Hooks
-
 We are extremely excited to release [Relay Hooks](https://github.com/facebook/relay/releases/tag/v11.0.0), the most developer-friendly version of Relay yet, and [make it available to the OSS community](https://developers.facebook.com/blog/post/2021/03/09/introducing-relay-hooks-improved-react-apis-relay/) today! Relay Hooks is a set of new, rethought APIs for fetching and managing GraphQL data using React Hooks.
 
 The new APIs are fully compatible with the existing, container-based APIs. Though we recommend writing any new code using Relay Hooks, *migrating existing containers to the new APIs is optional and container-based code will continue to work*.
@@ -150,8 +148,10 @@ Please check out the <a href={useBaseUrl('/docs/')}>getting started guide</a>, t
 
 ### Thanks
 
-Releasing Relay Hooks was not just the work of the React Data team. We’d also like to thank the following open source contributors:
+Releasing Relay Hooks was not just the work of the React Data team. We'd like to thank the contributors that helped make it possible:
 
 @0xflotus, @AbdouMoumen, @ahmadrasyidsalim, @alexdunne, @alloy, @andrehsu, @andrewkfiedler, @anikethsaha, @babangsund, @bart88, @bbenoist, @bigfootjon, @bondz, @BorisTB, @captbaritone, @cgriego, @chaytanyasinha, @ckknight, @clucasalcantara, @damassi, @Daniel15, @daniloab, @earvinLi, @EgorShum, @eliperkins, @enisdenjo, @etcinit, @fabriziocucci, @HeroicHitesh, @jaburx, @jamesgeorge007, @janicduplessis, @jaroslav-kubicek, @jaycenhorton, @jaylattice, @JonathanUsername, @jopara94, @jquense, @juffalow, @kafinsalim, @kyarik, @larsonjj, @leoasis, @leonardodino, @levibuzolic, @liamross, @lilianammmatos, @luansantosti, @MaartenStaa, @MahdiAbdi, @MajorBreakfast, @maraisr, @mariusschulz, @martinbooth, @merrywhether, @milosa, @mjm, @morrys, @morwalz, @mrtnzlml, @n1ru4l, @Nilomiranda, @omerzach, @orta, @pauloedurezende, @RDIL, @RicCu, @robrichard, @rsmelo92, @SeshanPillay25, @sibelius, @SiddharthSham, @stefanprobst, @sugarshin, @taion, @thedanielforum, @theill, @thicodes, @tmus, @TrySound, @VinceOPS, @visshaljagtap, @Vrq, @w01fgang, @wincent, @wongmjane, @wyattanderson, @xamgore, @yangshun, @ymittal, @zeyap, @zpao and @zth.
+
+The open source project [`relay-hooks`](https://github.com/relay-tools/relay-hooks) allowed the community to experiment with Relay and React Hooks, and was a source of valuable feedback for us. The idea for the `useSubscription` hook originated in [an issue](https://github.com/relay-tools/relay-hooks/issues/5#issuecomment-603930570) on that repo. Thank you @morrys for driving this project and for playing such an important role in our open source community.
 
 Thank you for helping make this possible!

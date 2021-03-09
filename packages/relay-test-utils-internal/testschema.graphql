@@ -128,6 +128,7 @@ type Subscription {
   commentCreateSubscribe(
     input: CommentCreateSubscriptionInput
   ): CommentCreateResponsePayload
+  configCreateSubscribe: ConfigCreateSubscriptResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -315,6 +316,10 @@ type Comment implements Node {
   websites: [String]
   username: String
   viewerSavedState: String
+}
+
+type ConfigCreateSubscriptResponsePayload {
+  config: Config
 }
 
 type CommentCreateResponsePayload {

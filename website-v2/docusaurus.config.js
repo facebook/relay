@@ -199,8 +199,7 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl:
-            'https://github.com/facebook/relay/edit/master/website-v2/docs/',
+          editUrl: 'https://github.com/facebook/relay/edit/master/website-v2/',
 
           // We are storing the source files in docs/current so that when
           // we make a new version cut, the tree depth of files is maintained

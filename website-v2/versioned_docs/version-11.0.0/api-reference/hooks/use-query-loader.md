@@ -8,14 +8,17 @@ import DocsRating from '../../../../src/core/DocsRating';
 
 ## `useQueryLoader`
 
-Hook used to make it easy to safely load queries, while avoiding data leaking into the Relay store. It will keep a query reference stored in state, and dispose of it when it is no longer accessible via state.
+Hook used to make it easy to safely load and retain queries. It will keep a query reference stored in state, and dispose of it when the component is disposed or it is no longer accessible via state.
 
 This hook is designed to be used with [`usePreloadedQuery`](../use-preloaded-query) to implement the "render-as-you-fetch" pattern. For more information, see the [Fetching Queries for Render](../../guided-tour/rendering/queries/) guide.
 
 ```js
+import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
+import type {PreloadedQuery} from 'react-relay';
+
 const {useQueryLoader, usePreloadedQuery} = require('react-relay');
 
-const query = graphql`
+const AppQuery = graphql`
   query AppQuery($id: ID!) {
     user(id: $id) {
       name
@@ -23,36 +26,40 @@ const query = graphql`
   }
 `;
 
-function QueryFetcherExample(): React.MixedElement {
+type Props = {
+  initialQueryRef: PreloadedQuery<AppQueryType>,
+};
+
+function QueryFetcherExample(props: Props) {
   const [
     queryReference,
     loadQuery,
     disposeQuery,
-  ] = useQueryLoader(query);
+  ] = useQueryLoader(
+    AppQuery,
+    props.initialQueryRef, /* e.g. provided by router */
+  );
 
-  return (<>
-    {
-      queryReference == null && (<Button
-        onClick={() => loadQuery({})}
-      >
-        Click to reveal the name
-      </Button>)
-    }
-    {
-      queryReference != null && (<>
-        <Button onClick={disposeQuery}>
-          Click to hide the name and dispose the query.
-        </Button>
-        <React.Suspense fallback="Loading">
-          <NameDisplay queryReference={queryReference} />
-        </React.Suspense>
-      </>)
-    }
-  </>);
+  if (queryReference == null) {
+    return (
+      <Button onClick={() => loadQuery({})}> Click to reveal the name </Button>
+    );
+  }
+
+  return (
+    <>
+      <Button onClick={disposeQuery}>
+        Click to hide the name and dispose the query.
+      </Button>
+      <React.Suspense fallback="Loading">
+        <NameDisplay queryReference={queryReference} />
+      </React.Suspense>
+    </>
+  );
 }
 
 function NameDisplay({ queryReference }) {
-  const data = usePreloadedQuery<AppQuery>(query, queryReference);
+  const data = usePreloadedQuery<AppQueryType>(query, queryReference);
 
   return <h1>{data.user?.name}</h1>;
 }
@@ -60,7 +67,9 @@ function NameDisplay({ queryReference }) {
 
 ### Arguments
 
-* `query`: the graphql tagged node containing a query.
+* `query`: GraphQL query specified using a `graphql` template literal.
+* `initialQueryRef`: _*[Optional]*_ An initial `PreloadedQuery` to be used as the initial value of the `queryReference` stored in state and returned by `useQueryLoader`.
+
 
 ### Flow Type Parameters
 
@@ -75,7 +84,7 @@ A tuple containing the following values:
     * Parameters
         * `variables`: the variables with which the query is loaded.
         * `options`: `LoadQueryOptions`. An optional options object, containing the following keys:
-            * `fetchPolicy`: Optional. Determines if cached data should be used, and when to send a network request based on the cached data that is currently available in the Relay store (for more details, see our [Fetch Policies](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/reusing-cached-data-for-rendering/#fetch-policies) and [Garbage Collection](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/reusing-cached-data-for-rendering/#garbage-collection-in-re) guides):
+            * `fetchPolicy`: _*[Optional]*_ Determines if cached data should be used, and when to send a network request based on the cached data that is currently available in the Relay store (for more details, see our [Fetch Policies](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/reusing-cached-data-for-rendering/#fetch-policies) and [Garbage Collection](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/reusing-cached-data-for-rendering/#garbage-collection-in-re) guides):
                 * "store-or-network": _*(default)*_ *will* reuse locally cached data and will *only* send a network request if any data for the query is missing. If the query is fully cached, a network request will *not* be made.
                 * "store-and-network": *will* reuse locally cached data and will *always* send a network request, regardless of whether any data was missing from the local cache or not.
                 * "network-only": *will* *not* reuse locally cached data, and will *always* send a network request to fetch the query, ignoring any data that might be locally cached in Relay.

@@ -116,15 +116,24 @@ In order to *fetch* a query for later rendering it, you can use the `useQueryLoa
 
 ```js
 import type {HomeTabQuery as HomeTabQueryType} from 'HomeTabQuery.graphql';
+import type {PreloadedQuery} from 'react-relay';
 
 const HomeTabQuery = require('HomeTabQuery.graphql')
 const {useQueryLoader} = require('react-relay');
 
-function AppTabs() {
+
+type Props = {
+  initialQueryRef: PreloadedQuery<HomeTabQueryType>,
+};
+
+function AppTabs(props) {
   const [
     homeTabQueryRef,
     loadHomeTabQuery,
-  ] = useQueryLoader<HomeTabQueryType>(HomeTabQuery);
+  ] = useQueryLoader<HomeTabQueryType>(
+    HomeTabQuery,
+    props.initialQueryRef, /* e.g. provided by router */
+  );
 
   const onSelectHomeTab = () => {
     // Start loading query for HomeTab immediately in the event handler
@@ -151,6 +160,7 @@ The example above is somewhat contrived, but let's distill what is happening:
 
 * We are calling `useQueryLoader` inside our `AppTabs` component.
     * It takes a query, which in this case is our `HomeTabQuery` (the query that we declared in our previous example), and which we can obtain by requiring the auto-generated file: `‘HomeTabQuery.graphql'`.
+    * It takes an optional initial `PreloadedQuery` to be used as the initial value of the `homeTabQueryRef` that is stored in state and returned by `useQueryLoader`.
     * It also additionally takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQueryType`, which you can also obtain from the auto-generated file: `‘HomeTabQuery.graphql'`.
 * Calling `useQueryLoader` allows us to obtain 2 things:
     * `homeTabQueryRef`: A `?PreloadedQuery`, which is an object that describes and references an *instance* of our query that is being (or was) fetched. This value will be null if we haven't fetched the query, i.e. if we haven't called `loadHomeTabQuery`.

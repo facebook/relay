@@ -15,6 +15,7 @@ const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
     'guides/fb/updating-the-graphql-schema',
+    'guides/fb/flow-typing',
     'guides/client-schema-extensions',
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+    <channel>
+        <title>Relay Blog</title>
+        <link>https://relay.dev/blog</link>
+        <description>Relay Blog</description>
+        <lastBuildDate>Tue, 09 Mar 2021 00:00:00 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>https://github.com/jpmonette/feed</generator>
+        <item>
+            <title><![CDATA[Introducing Relay Hooks]]></title>
+            <link>https://relay.dev/blog/2021/03/09/introducing-relay-hooks</link>
+            <guid>Introducing Relay Hooks</guid>
+            <pubDate>Tue, 09 Mar 2021 00:00:00 GMT</pubDate>
+            <description><![CDATA[Introducing Relay Hooks]]></description>
+        </item>
+    </channel>
+</rss>

@@ -144,7 +144,7 @@ See [Suspense Compatibility](/docs/migration-and-compatibility/suspense-compatib
 
 ### Where to go from here
 
-Please check out the [getting started guide](/docs/introduction/step-by-step-guide/), the [migration guide](/docs/migration-and-compatibility/) and the [guided tour](/docs/guided-tour/).
+Please check out the [getting started section](/docs/), the [migration guide](/docs/migration-and-compatibility/) and our [guided tour](/docs/guided-tour/).
 
 ### Thanks
 

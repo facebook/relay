@@ -14,6 +14,7 @@ const {fbContent} = require('internaldocs-fb-helpers');
 const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
+    'guides/fb/updating-the-graphql-schema',
     'guides/client-schema-extensions',
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',

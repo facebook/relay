@@ -7,8 +7,6 @@ slug: /guides/testing-relay-components/
 import DocsRating from '../../../src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
-# Testing Relay Components
-
 ## Abstract
 
 The purpose of this document is to cover the Relay APIs for testing Relay components.

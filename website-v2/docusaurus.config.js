@@ -15,7 +15,7 @@ const {fbContent} = require('internaldocs-fb-helpers');
 
 module.exports = {
   title: 'Relay',
-  tagline: 'The production-ready GraphQL client for React.',
+  tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
   projectName: 'relay',

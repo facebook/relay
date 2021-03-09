@@ -95,72 +95,64 @@ const Index = () => {
         <Container className="textSection" background="light">
           <h2>Built for scale</h2>
           <h3>
-            Relay was designed to be performant from the ground up, and to
-            support scaling your application to{' '}
-            <b>
-              <em>thousands</em>
-            </b>{' '}
-            of components, while keeping management of data fetching sane, and
-            fast iteration speeds as your application grows and changes.
+            Relay is designed for high performance at any scale. Relay keeps
+            management of data-fetching easy, whether your app has tens,
+            hundreds, or thousands of components. And thanks to Relay’s
+            incremental compiler, it keeps your iteration speed fast even as
+            your app grows.
           </h3>
           <GridBlock
             layout="threeColumn"
             contents={[
               {
-                title: 'Quick iteration',
+                title: 'Keeps iteration quick',
                 content: (
                   <span>
                     <p>
-                      Relay is built upon <em>locally</em> declaring data
-                      dependencies for components. This means each component
-                      declares <em>what</em> data that it needs, without
-                      worrying about <em>how</em> to fetch it; Relay guarantees
-                      that the data each component needs is fetched and
-                      available.
+                      Relay is data-fetching turned <b>declarative</b>.
+                      Components declare their data dependencies, without
+                      worrying about how to fetch them. Relay guarantees that
+                      the data each component needs is fetched and available.
+                      This keeps components decoupled and promotes reuse.
                     </p>
+
                     <p>
-                      This allows components and their data dependencies to be
-                      modified{' '}
-                      <b>
-                        <em>quickly</em>
-                      </b>{' '}
-                      and in{' '}
-                      <b>
-                        <em>isolation</em>
-                      </b>
-                      , without needing to update other parts of the system or,
-                      worrying about breaking other components
+                      With Relay, components and their data dependencies can be
+                      quickly modified without modifying other parts of the
+                      system. That means you won't accidentally break other
+                      components as you refactor or make changes to your app.
                     </p>
                   </span>
                 ),
               },
               {
-                title: 'Minimal round trips',
+                title: 'Automatic optimizations',
                 content: (
                   <span>
                     <p>
-                      Relay automatically aggregates the data requirements for
-                      your entire application, so that they can be fetched in a
-                      single GraphQL request.
+                      Relay's compiler aggregates and optimizes the data
+                      requirements for your entire app, so that they can be
+                      efficiently fetched in a single GraphQL request.
                     </p>
                     <p>
-                      Relay will handle all of the heavy lifting to ensure the
-                      data declared by your components is fetched in the most
-                      efficient way, for example by deduplicating identical
-                      fields, fetching as early as possible, among other
-                      optimizations.
+                      Relay handles the heavy lifting to ensure the data
+                      declared by your components is fetched in the most
+                      efficient way. For example, by deduplicating identical
+                      fields, and precomputing information used at runtime,
+                      among other optimizations.
                     </p>
                   </span>
                 ),
               },
               {
-                title: 'Automatic data consistency',
+                title: 'Data consistency',
                 content: (
                   <span>
                     <p>
                       Relay automatically keeps all of your components up to
-                      date whenever data that affects them changes, and
-                      efficiently update them only when strictly necessary.
+                      date when data that affects them changes, and efficiently
+                      updates them only when strictly necessary. This means no
+                      unnecessary re-renders.
                     </p>
                     <p>
                       Relay also supports executing GraphQL Mutations,

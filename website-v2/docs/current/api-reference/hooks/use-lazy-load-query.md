@@ -54,7 +54,7 @@ function App() {
 ### Return Value
 
 * `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified query.
-    * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{| user: ?{| name: ?string |} |}`.
+    * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{ user: ?{ name: ?string } }`.
 
 ### Behavior
 

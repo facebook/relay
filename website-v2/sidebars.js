@@ -115,7 +115,7 @@ module.exports = {
               external: [],
             }),
             'guided-tour/list-data/refetching-connections',
-            'guided-tour/list-data/adding-and-removing-items',
+            'guided-tour/list-data/updating-connections',
             'guided-tour/list-data/advanced-pagination',
           ],
         },

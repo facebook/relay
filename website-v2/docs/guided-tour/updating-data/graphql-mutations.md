@@ -9,6 +9,9 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are *read-write* server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
 
+
+## Writing Mutations
+
 A GraphQL mutation looks very similar to a query, with the exception that it uses the `mutation` keyword:
 
 ```graphql
@@ -126,7 +129,7 @@ Let's distill what's happening here:
 * When the mutation response is received, any objects in the mutation response with `id` fields that match records in the local store will *automatically* be updated with the new field values from the response. In this case, it would automatically find the existing `Feedback` object matching the given id in the store, and update the values for its `viewer_does_like` and `like_count` fields.
 * Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
 
-### Updating data once a request is complete
+## Updating data once a request is complete
 
 There are four ways in which store data is updated when a request is complete:
 
@@ -137,198 +140,6 @@ There are four ways in which store data is updated when a request is complete:
 * Lastly, for all updates not covered by the previous three bullet points, updater functions give you full control over how the data in the local store is updated when the request completes.
 
 See the [order of execution section](#order-of-execution-of-updater-functions) for information on what happens when Relay encounters multiple ways to update the data in the store.
-
-### Declarative deletion directive
-
-You can add the `@deleteRecord` directive to fields in the response of type `ID` or `[ID]`
-
-Behavior
-
-* If you add the `@deleteRecord` directive to a field with type `ID`, and provide an optimistic response containing that field, then when the request is initiated, the record corresponding to that ID will be removed from the store. The `@deleteRecord` directive is processed after the `optimisticResponse` is merged into the store and after the `optimisticUpdater` function is executed.
-* When the request completes, the record corresponding to the ID in the network response will be removed from the store. The `@deleteRecord` directive is processed after the network response is merged into the store and after the `updater` function is executed.
-
-Example:
-
-```js
-commitMutation<DeleteCommentMutation>(environment, {
-  mutation: graphql`
-    mutation DeleteCommentMutation($input: CommentDeleteInput) {
-      commentDelete(input: $input) {
-        deletedCommentId @deleteRecord
-      }
-    }
-  `,
-  variables,
-});
-```
-
-This directive also works on subscriptions and queries.
-
-
-## Declarative connection mutation directives
-
-You can add an `@appendEdge`,  `@prependEdge` , `@prependNode`, `@appendNode` declarative mutation directive to all edge fields within the mutation field. These directives accept a `connections` parameter, which is an array of connection IDs. Connection IDs can be obtained by querying the `__id` field on connections.
-
-These directives also work on subscriptions and queries.
-
-
-> These directives largely remove the need to manually add and remove items from a connection. However, they do not provide as much control as you can get with an updater, and may not fulfill every use case. For an in-depth example of adding and removing items from a connection using an updater, see the documentation on [adding and removing items from a connection](../../list-data/adding-and-removing-items/).
-
-
-Behavior:
-
-* `@prependEdge` adds the selected edge to the beginning of each connection whose ID is included in the `connections` array, whereas `@appendEdge` adds the selected edge to the end of each connection.
-* When the mutation is initiated, after the optimistic response is handled, and after the optimistic updater function is executed, the `@prependEdge` and `@appendEdge` directives wills be applied to the optimistic response.
-* If the mutation succeeds, after the data from the network response is merged with the existing values in the store, and after the updater function is executed, the `@prependEdge` and `@appendEdge` directives will be applied to the data in the network response.
-* If the mutation failed, the updates from processing the `@prependEdge` and `@appendEdge` directives will be rolled back.
-
-
-_@appendEdge(connections: [String!]!)_
-The directive works on edge fields. It will insert the edge into the end of all connections defined in the `connections` variable.
-
-Arguments:
-
-* connections: An array of connection ids. A connection ID can be queried using `__id` field on a connection.
-
-Example:
-
-```graphql
-query FeedbackQuery($id: ID!) {
-  node(id: $id) {
-    comments(first: 2, orderby: "date") @connection(
-      key: "FeedbackFragment_comments"
-      filters: ["orderby"]
-    ) {
-      __id # Fetch connection ID
-    }
-  }
-}
-```
-
-```js
-const connectionID = queryData.node.comments.__id;
-
-commitMutation<AppendCommentMutation>(environment, {
-  mutation: graphql`
-    mutation AppendCommentMutation(
-      $connections: [String!]!
-      $input: CommentCreateInput
-    ) {
-      commentCreate(input: $input) {
-        feedbackCommentEdge @appendEdge(connections: $connections) {
-          cursor
-          node {
-            id
-          }
-        }
-      }
-    }
-  `,
-  variables: {
-    input,
-    connections: [connectionID],
-  },
-});
-```
-
-_@prependEdge(connections: [String!]!)_
-The directive works on an edge field, it will insert the edge into the beginning of all connections defined in the `connections` variable.
-
-Arguments:
-
-* connections: An array of connection ids. A connection ID can be queried using `__id` field on a connection.
-
-
-_@appendNode(connections: [String!]!, edgeTypeName: String!)_
-_@prependNode(connections: [String!]!, edgeTypeName: String!)_
-
-These directives work on node fields. It will create an edge with the `edgeTypeName` and insert the edge into the end or beginning of all connections defined in the `connections` variable.
-
-Arguments:
-
-* connections: An array of connection ids. A connection ID can be queried using `__id` field on a connection.
-* edgeTypeName: The typename of an edge, corresponding to the edge type argument in `ConnectionHandler.createEdge`
-
-Example:
-
-```graphql
-query FeedbackQuery($id: ID!) {
-  node(id: $id) {
-    comments(first: 2, orderby: "date") @connection(
-      key: "FeedbackFragment_comments"
-      filters: ["orderby"]
-    ) {
-      __id # Fetch connection ID
-    }
-  }
-}
-```
-
-```js
-const connectionID = queryData.node.comments.__id;
-
-commitMutation<AppendCommentWithLiteralEdgeMutation>(environment, {
-  mutation: graphql`
-    mutation AppendCommentWithLiteralEdgeMutation(
-      $connections: [String!]!
-      $input: CommentCreateInput
-    ) {
-      commentCreate(input: $input) {
-        comment
-          @appendNode(connections: $connections, edgeTypeName: "CommentsEdge") {
-          id
-        }
-      }
-    }
-  `,
-  variables: {
-    input,
-    connections: [connectionID],
-  },
-});
-```
-
-_@deleteEdge(connections: [String!]!)_
-Works on `ID` or `[ID]` field Delete the edge with nodes that matches the `id` from given connections
-
-Arguments:
-
-* connections: An array of connection ids. A connection ID can be queried using `__id` field on a connection.
-
-Example:
-
-```graphql
-query FeedbackQuery($id: ID!) {
-  node(id: $id) {
-    comments(first: 2, orderby: "date") @connection(
-      key: "FeedbackFragment_comments"
-      filters: ["orderby"]
-    ) {
-      __id # Fetch connection ID
-    }
-  }
-}
-```
-
-```js
-const connectionID = queryData.node.comments.__id;
-commitMutation<CommentsDeleteMutation>(environment, {
-  mutation: graphql`
-    mutation CommentsDeleteMutation(
-      $input: CommentsDeleteInput
-      $connections: [String!]!
-    ) {
-      commentsDelete(input: $input) {
-        deletedCommentIds @deleteEdge(connections: $connections)
-      }
-    }
-  `,
-  variables: {
-    input,
-    connections: [connectionID],
-  },
-});
-```
 
 ## Updater functions
 
@@ -401,7 +212,7 @@ module.exports = {commit: commitCommentCreateMutation};
 Let's distill this example:
 
 * `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*.
-* In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/adding-and-removing-items/).
+* In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/updating-connections/).
     * There is no need for an updater in this example — it would be a great place to use the `@appendEdge` directive instead!
 * Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
 * Note that the `root` field of the mutation is different from the `root` of queries, and `store.getRootField` in the mutation updater can only get the record from the mutation response. To get records from the root that's not in the mutation response, use `store.getRoot().getLinkedRecord` instead.
@@ -415,7 +226,7 @@ More generally, in these cases we want to immediately ** update our local data *
 
 In order to do this, Relay provides two APIs to specify an optimistic update when executing a mutation:
 
-_Optimistic Response_
+### Optimistic Response
 
 When you can predict what the server response for a mutation is going to be, the simplest way to optimistically update the store is by providing an `optimisticResponse` to `commitMutation`:
 
@@ -467,9 +278,9 @@ Let's see what's happening in this example.
 * If the mutation *fails*, *the optimistic update will be rolled back,* and the error will be communicated via the `onError` callback.
 * Note that by adding `@raw_response_type` directive,  the type for `optimisticResponse` is generated.
 
-_Optimistic updater_
+### Optimistic updater
 
-However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/adding-and-removing-items/). In these cases we can provide an `optimisticUpdater` function to `commitMutation`. For example, in addition to setting `viewer_does_like` to true, we can increment the `like_count` field by using an `optimisticUpdater` instead of an `optimisticResponse`:
+However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/updating-connections/). In these cases we can provide an `optimisticUpdater` function to `commitMutation`. For example, in addition to setting `viewer_does_like` to true, we can increment the `like_count` field by using an `optimisticUpdater` instead of an `optimisticResponse`:
 
 ```js
 import type {Environment} from 'react-relay';
@@ -527,8 +338,9 @@ Let's see what's happening here:
 
 
 
-> NOTE: Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
-
+:::note
+Remember that any updates to local data caused by a mutation will automatically notify and re-render components subscribed to that data.
+:::
 
 
 ## Order of execution of updater functions
@@ -548,9 +360,9 @@ In general, execution of the `updater` and optimistic updates will occur in the 
     * The `onError` callback will be called.
 
 
-_Full example_
+### Full example
 
-This means that in more complicated scenarios you can still provide many options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our [Adding and Removing  Items from a Connection](../../list-data/adding-and-removing-items/) guide):
+This means that in more complicated scenarios you can still provide many options: `optimisticResponse`, `optimisticUpdater` and `updater`. For example, the mutation to add a new comment could like something like the following (for full details on updating connections, check out our [Updating Connections](../../list-data/updating-connections/) guide):
 
 ```js
 import type {Environment} from 'react-relay';
@@ -650,8 +462,6 @@ Let's distill this example, according to the execution order of the updaters:
 * When the mutation succeeds, all of our optimistic updates will be rolled back.
 * The server response will be processed by relay, and this will cause the new value of `viewer_has_commented` to be merged into the existing `Feedback` object, setting it to `true`.
 * Finally, the `updater` function we provided will be executed. The `updater` function is very similar to the `optimisticUpdater` function, however, instead of creating the new data from scratch, it reads it from the mutation payload and adds the new edge to the connection.
-
-
 
 
 ## Invalidating data during a mutation

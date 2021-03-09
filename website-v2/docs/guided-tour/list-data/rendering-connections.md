@@ -31,7 +31,7 @@ const userFragment = graphql`
 
 * In the example above, we're querying for the `friends` field, which is a connection; in other words, it adheres to the connection spec. Specifically, we can query the `edges` and `node`s in the connection; the `edges` usually contain information about the relationship between the entities, while the `node`s are the actual entities at the other end of the relationship; in this case, the `node`s are objects of type `User` representing the user's friends.
 * In order to indicate to Relay that we want to perform pagination over this connection, we need to mark the field with the `@connection` directive. We must also provide a *static* unique identifier for this connection, known as the `key`. We recommend the following naming convention for the connection key: `<fragment_name>_<field_name>`.
-* We will go into more detail later as to why it is necessary to mark the field as a `@connection` and give it a unique `key` in our [Adding and Removing Items from a Connection](../adding-and-removing-items/) section.
+* We will go into more detail later as to why it is necessary to mark the field as a `@connection` and give it a unique `key` in our [Updating Connections](../updating-connections/) section.
 
 
 In order to render this fragment which queries for a connection, we can use the `usePaginationFragment` Hook:

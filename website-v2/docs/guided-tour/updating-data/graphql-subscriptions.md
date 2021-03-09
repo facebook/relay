@@ -120,7 +120,7 @@ Let's distill what's happening here:
 * Note that any local data updates caused by the subscription will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 
-However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/adding-and-removing-items/), you can provide an [`updater`](../graphql-mutations/) function to `requestSubscription` for full control over how to update the store:
+However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [adding and removing items from a connection](../../list-data/updating-connections/), you can provide an [`updater`](../graphql-mutations/) function to `requestSubscription` for full control over how to update the store:
 
 ```js
 import type {Environment} from 'react-relay';
@@ -188,7 +188,7 @@ module.exports = {subscribe: commentCreateSubscribe};
 Let's distill this example:
 
 * `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the subscription payload: you can *create entirely new records*, or *update or delete existing ones*. The full API for reading and writing to the Relay store is available here: https://facebook.github.io/relay/docs/en/relay-store.html
-* In our specific example, we're adding a new comment to our local store when we receive a subscription payload notifying us that a new comment has been created. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items from a Connection](../../list-data/adding-and-removing-items/) section.
+* In our specific example, we're adding a new comment to our local store when we receive a subscription payload notifying us that a new comment has been created. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Updating Connections](../../list-data/updating-connections/) section.
 * Note that the subscription payload is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create_subcribe` root field, which is a root field in the subscription response.
 * Note that any local data updates caused by the mutation `updater` will automatically cause components subscribed to the data to be notified of the change and re-render.
 

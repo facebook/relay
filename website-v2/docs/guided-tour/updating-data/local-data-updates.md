@@ -56,7 +56,7 @@ module.exports = {commit: commitCommentCreateLocally};
 
 * `commitLocalUpdate` update simply takes an environment and an updater function.
     * `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store: you can *create entirely new records*, or *update or delete existing ones*.
-* In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Adding and Removing Items from a Connection](../../list-data/adding-and-removing-items/) section.
+* In our specific example, we're adding a new comment to our local store when. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our [Updating Connections](../../list-data/updating-connections/) section.
 * Note that any local data updates will automatically cause components subscribed to the data to be notified of the change and re-render.
 
 ## commitPayload

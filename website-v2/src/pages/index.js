@@ -94,13 +94,13 @@ const Index = () => {
       <div className="homePage mainContainer">
         <Container className="textSection" background="light">
           <h2>Built for scale</h2>
-          <h3>
+          <p>
             Relay is designed for high performance at any scale. Relay keeps
             management of data-fetching easy, whether your app has tens,
             hundreds, or thousands of components. And thanks to Relay’s
             incremental compiler, it keeps your iteration speed fast even as
             your app grows.
-          </h3>
+          </p>
           <GridBlock
             layout="threeColumn"
             contents={[
@@ -311,11 +311,11 @@ export default function ArtistHeader(props) {
 
         <Container className="textSection graphqlSection" background="dark">
           <h2>GraphQL best practices baked in</h2>
-          <h3>
+          <p>
             Relay applies and relies on GraphQL best practices. To get the most
             from Relay's features, you'll want your GraphQL server to conform to
             these standard practices.
-          </h3>
+          </p>
           <GridBlock
             layout="threeColumn"
             contents={[
@@ -590,11 +590,11 @@ export default function ArtistHeader(props) {
 
         <Container className="textSection" background="dark">
           <h2>Proudly Used Elsewhere</h2>
-          <h3>
+          <p>
             Relay was originally created for the React Native sections of the
             Facebook app, and it has been used adapted and improved by other
             teams internally and externally.
-          </h3>
+          </p>
           <div>
             <div className="logosHomepage">{showcase}</div>
           </div>

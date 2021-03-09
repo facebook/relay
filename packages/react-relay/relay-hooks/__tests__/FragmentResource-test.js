@@ -171,6 +171,26 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual([]);
     });
 
+    it('should return the same empty array for multiple calls for the same plural fragment when plural field is empty', () => {
+      UsersFragment = graphql`
+        fragment FragmentResourceTest8Fragment on User @relay(plural: true) {
+          id
+        }
+      `;
+
+      const firstResult = FragmentResource.read(
+        getFragment(UsersFragment),
+        [],
+        componentDisplayName,
+      );
+      const secondResult = FragmentResource.read(
+        getFragment(UsersFragment),
+        [],
+        componentDisplayName,
+      );
+      expect(firstResult.data).toBe(secondResult.data);
+    });
+
     it('should correctly read fragment data when dataID changes', () => {
       let result = FragmentResource.read(
         getFragment(UserFragment),

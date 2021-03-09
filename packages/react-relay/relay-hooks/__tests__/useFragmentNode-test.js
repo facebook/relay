@@ -378,6 +378,15 @@ it('should render plural fragment without error when plural field is empty', () 
   ]);
 });
 
+it('should render plural fragment with a constant reference when plural field is empty', () => {
+  renderPluralFragment({usersRef: []});
+  renderPluralFragment({usersRef: []});
+
+  expect(renderSpy.mock.calls).toHaveLength(2);
+  const [[firstRender], [secondRender]] = renderSpy.mock.calls;
+  expect(firstRender).toBe(secondRender);
+});
+
 it('should update when fragment data changes', () => {
   renderSingularFragment();
   assertFragmentResults([

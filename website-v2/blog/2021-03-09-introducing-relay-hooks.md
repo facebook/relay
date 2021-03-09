@@ -6,21 +6,23 @@ description: Introducing Relay Hooks
 hide_table_of_contents: t
 ---
 
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 # Introducing Relay Hooks
 
-We are extremely excited to release [Relay Hooks](https://github.com/facebook/relay/releases/tag/v11.0.0) and [make it available to the OSS community](https://developers.facebook.com/blog/open_source/), the most developer-friendly version of Relay yet! Relay Hooks is a set of new, rethought APIs for fetching and managing GraphQL data using React Hooks.
+We are extremely excited to release [Relay Hooks](https://github.com/facebook/relay/releases/tag/v11.0.0) and [make it available to the OSS community](https://developers.facebook.com/blog/post/2021/03/09/introducing-relay-hooks-improved-react-apis-relay/), the most developer-friendly version of Relay yet! Relay Hooks is a set of new, rethought APIs for fetching and managing GraphQL data using React Hooks.
 
 The new APIs are fully compatible with the existing, container-based APIs. Though we recommend writing any new code using Relay Hooks, *migrating existing containers to the new APIs is optional and container-based code will continue to work*.
 
 Although these APIs are newly released, they are not untested: the rewritten [Facebook.com](https://www.facebook.com) is entirely powered by Relay Hooks and these APIs have been the recommended way to use Relay at Facebook since mid-2019.
 
-In addition, we are also releasing a rewritten [guided tour](/docs/guided-tour) and [updated documentation](/docs/) that distill the best practices for building maintainable, data-driven applications that we have learned since first developing Relay.
+In addition, we are also releasing a rewritten <a href={useBaseUrl('/docs/guided-tour/')}>guided tour</a> and <a href={useBaseUrl('/docs/')}>updated documentation</a> that distill the best practices for building maintainable, data-driven applications that we have learned since first developing Relay.
 
 Though we still have a ways to go before getting started with Relay is as easy as we’d like, we believe these steps will make the Relay developer experience substantially better.
 
 ## What was released?
 
-We released Relay Hooks, a set of React Hooks-based APIs for working with GraphQL data. We also took the opportunity to ship other improvements, like a more stable version of [fetchQuery](/docs/api-reference/fetch-query/) and a the ability to customize object identifiers in the Relay using getDataID (which is useful if your server does not have globally unique IDs.)
+We released Relay Hooks, a set of React Hooks-based APIs for working with GraphQL data. We also took the opportunity to ship other improvements, like a more stable version of <a href={useBaseUrl('/docs/api-reference/fetch-query/')}><code>fetchQuery</code></a> and a the ability to customize object identifiers in the Relay using <code>getDataID</code> (which is useful if your server does not have globally unique IDs.)
 
  See the [release notes](https://github.com/facebook/relay/releases/tag/v11.0.0) for a complete list of what was released.
 
@@ -140,11 +142,11 @@ Although Relay Hooks uses Suspense for some of its APIs, *support, general guida
 
 Nonetheless, we released Relay Hooks now because we know these APIs are on the right trajectory for supporting upcoming releases of React. Even though parts of Relay’s Suspense implementation may still change, the Relay Hooks APIs themselves are stable; they have been widely adopted internally, and have been in use in production for over a year.
 
-See [Suspense Compatibility](/docs/migration-and-compatibility/suspense-compatibility/) and [Loading States with Suspense](/docs/guided-tour/rendering/loading-states/) for deeper treatments of this topic.
+See <a href={useBaseUrl('/docs/migration-and-compatibility/suspense-compatibility/')}>Suspense Compatibility</a> and <a href={useBaseUrl('/docs/guided-tour/rendering/loading-states/')}>Loading States with Suspense</a> for deeper treatments of this topic.
 
 ### Where to go from here
 
-Please check out the [getting started section](/docs/), the [migration guide](/docs/migration-and-compatibility/) and our [guided tour](/docs/guided-tour/).
+Please check out the <a href={useBaseUrl('/docs/')}>getting started guide</a>, the <a href={useBaseUrl('/docs/migration-and-compatibility/')}>migration guide</a> and the <a href={useBaseUrl('/docs/guided-tour/')}>guided tour</a>.
 
 ### Thanks
 

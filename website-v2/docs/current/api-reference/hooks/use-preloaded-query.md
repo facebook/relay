@@ -8,7 +8,7 @@ import DocsRating from '../../../../src/core/DocsRating';
 
 ## `usePreloadedQuery`
 
-Hook used to access data fetched by an earlier call to [`loadQuery`](../load-query) or with the help of `[`useQueryLoader`](../use-query-loader). This implements the "render-as-you-fetch" pattern:
+Hook used to access data fetched by an earlier call to [`loadQuery`](../load-query) or with the help of [`useQueryLoader`](../use-query-loader). This implements the "render-as-you-fetch" pattern:
 
 * Call the `loadQuery` callback returned from `useQueryLoader`. This will store a query reference in React state.
     * You can also call the imported `loadQuery` directly, which returns a query reference. In that case, store the item in state or in a React ref, and call `dispose()` on the value when you are no longer using it.

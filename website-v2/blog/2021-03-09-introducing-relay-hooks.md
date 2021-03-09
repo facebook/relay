@@ -46,6 +46,7 @@ First, let’s take a look at how we might refetch a fragment with different var
 type Props = {
   comment: CommentBody_comment$key,
 };
+
 function CommentBody(props: Props) {
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
@@ -63,7 +64,7 @@ function CommentBody(props: Props) {
     <CommentText text={data?.text} />
     <Button
       onClick={() =>
-        refetch({ lang: 'SPANISH' }, {fetchPolicy: 'store-or-network'})
+        refetch({ lang: 'SPANISH' }, { fetchPolicy: 'store-or-network' })
       }>
     >
       Translate

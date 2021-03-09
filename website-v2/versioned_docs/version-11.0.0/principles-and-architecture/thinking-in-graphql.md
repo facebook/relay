@@ -1,6 +1,6 @@
 ---
 id: thinking-in-graphql
-title: Thining in GraphQL
+title: Thinking in GraphQL
 slug: /principles-and-architecture/thinking-in-graphql/
 ---
 

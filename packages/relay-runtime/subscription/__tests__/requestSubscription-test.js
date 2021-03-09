@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -30,6 +31,7 @@ const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
+  RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
   it('Config: `RANGE_ADD`', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
@@ -259,6 +261,142 @@ describe('requestSubscription-test', () => {
       });
 
       expect(cacheMetadata).toEqual(undefined);
+    });
+  });
+
+  it('does not overwrite existing data', () => {
+    const ConfigsQuery = getRequest(graphql`
+      query requestSubscriptionTestConfigsQuery {
+        viewer {
+          configs {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const ConfigCreateSubscription = getRequest(graphql`
+      subscription requestSubscriptionTestConfigCreateSubscription {
+        configCreateSubscribe {
+          config {
+            name
+          }
+        }
+      }
+    `);
+
+    const operationDescriptor = createOperationDescriptor(ConfigsQuery, {});
+    const environment = createMockEnvironment();
+    const store = environment.getStore();
+
+    environment.commitPayload(operationDescriptor, {
+      viewer: {
+        configs: {
+          edges: [],
+        },
+      },
+    });
+
+    const selector = createReaderSelector(
+      ConfigsQuery.fragment,
+      ROOT_ID,
+      {},
+      operationDescriptor.request,
+    );
+    const onNext = jest.fn();
+
+    let id = 0;
+    requestSubscription(environment, {
+      subscription: ConfigCreateSubscription,
+      variables: {},
+      updater: storeProxy => {
+        const configs = storeProxy
+          .getRoot()
+          .getLinkedRecord('viewer')
+          ?.getLinkedRecord('configs');
+        if (configs == null) {
+          throw Error('Expected edges to exist');
+        }
+        const config = storeProxy
+          .getRootField('configCreateSubscribe')
+          ?.getLinkedRecord('config');
+
+        if (config == null) {
+          throw Error('Expected config to exist');
+        }
+        const edge = storeProxy.create(String(id++), 'ConfigsConnectionEdge');
+        edge.setLinkedRecord(config, 'node');
+        const edges = configs.getLinkedRecords('edges');
+        if (edges == null) {
+          throw Error('Expected edges to exist');
+        }
+        edges.push(edge);
+        configs.setLinkedRecords(edges, 'edges');
+      },
+      onNext,
+    });
+
+    environment.mock.nextValue(ConfigCreateSubscription, {
+      data: {
+        configCreateSubscribe: {
+          config: {
+            name: 'Mark',
+          },
+        },
+      },
+    });
+    expect(store.lookup(selector).data).toEqual({
+      viewer: {
+        configs: {
+          edges: [
+            {
+              node: {
+                name: 'Mark',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext.mock.calls[0][0]).toEqual({
+      configCreateSubscribe: {config: {name: 'Mark'}},
+    });
+
+    environment.mock.nextValue(ConfigCreateSubscription, {
+      data: {
+        configCreateSubscribe: {
+          config: {
+            name: 'Zuck',
+          },
+        },
+      },
+    });
+    expect(store.lookup(selector).data).toEqual({
+      viewer: {
+        configs: {
+          edges: [
+            {
+              node: {
+                name: 'Mark',
+              },
+            },
+            {
+              node: {
+                name: 'Zuck',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(onNext).toBeCalledTimes(2);
+    expect(onNext.mock.calls[1][0]).toEqual({
+      configCreateSubscribe: {config: {name: 'Zuck'}},
     });
   });
 });

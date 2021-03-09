@@ -14,6 +14,7 @@
 'use strict';
 
 const RelayError = require('../util/RelayError');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('./RelayRecordSource');
@@ -24,8 +25,11 @@ const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
 
-const {generateClientID} = require('./ClientID');
-const {createNormalizationSelector} = require('./RelayModernSelector');
+const {generateClientID, generateUniqueClientID} = require('./ClientID');
+const {
+  createNormalizationSelector,
+  createReaderSelector,
+} = require('./RelayModernSelector');
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
@@ -147,6 +151,7 @@ class Executor {
   _updater: ?SelectorStoreUpdater;
   _retainDisposable: ?Disposable;
   +_isClientPayload: boolean;
+  +_isSubscriptionOperation: boolean;
 
   constructor({
     operation,
@@ -189,6 +194,8 @@ class Executor {
     this._isClientPayload = isClientPayload === true;
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
+    this._isSubscriptionOperation =
+      this._operation.request.node.params.operationKind === 'subscription';
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -741,9 +748,7 @@ class Executor {
   }
 
   _maybeCompleteSubscriptionOperationTracking() {
-    const isSubscriptionOperation =
-      this._operation.request.node.params.operationKind === 'subscription';
-    if (!isSubscriptionOperation) {
+    if (!this._isSubscriptionOperation) {
       return;
     }
     if (
@@ -751,6 +756,23 @@ class Executor {
       this._incrementalPayloadsPending === false
     ) {
       this._completeOperationTracker();
+    }
+    if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
+      const nextID = generateUniqueClientID();
+      this._operation = {
+        request: this._operation.request,
+        fragment: createReaderSelector(
+          this._operation.fragment.node,
+          nextID,
+          this._operation.fragment.variables,
+          this._operation.fragment.owner,
+        ),
+        root: createNormalizationSelector(
+          this._operation.root.node,
+          nextID,
+          this._operation.root.variables,
+        ),
+      };
     }
   }
 

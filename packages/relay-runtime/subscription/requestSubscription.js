@@ -13,10 +13,12 @@
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const warning = require('warning');
 
 const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
@@ -64,6 +66,9 @@ function requestSubscription<TSubscriptionPayload>(
     subscription,
     variables,
     cacheConfig,
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
+      ? generateUniqueClientID()
+      : undefined,
   );
 
   warning(
@@ -85,7 +90,17 @@ function requestSubscription<TSubscriptionPayload>(
       operation,
       updater,
     })
-    .map(() => {
+    .map(responses => {
+      if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
+        if (Array.isArray(responses)) {
+          // $FlowFixMe[incompatible-cast]
+          return (responses.map(
+            response => response.data,
+          ): TSubscriptionPayload);
+        }
+        // $FlowFixMe[incompatible-cast]
+        return (responses.data: TSubscriptionPayload);
+      }
       const data = environment.lookup(operation.fragment).data;
       // $FlowFixMe[incompatible-cast]
       return (data: TSubscriptionPayload);

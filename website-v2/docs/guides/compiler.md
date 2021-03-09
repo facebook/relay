@@ -1,13 +1,14 @@
 ---
 id: compiler
-title: Compiler
-slug: /guided-tour/setup/compiler/
+title: Relay Compiler
+slug: /guides/compiler/
 ---
 
+import DocsRating from '../../src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
-import DocsRating from '../../../src/core/DocsRating';
-
-<!-- This file is OSS only -->
+import FbRunningCompiler from './fb/FbRunningCompiler.md';
+import FbGraphQLSchema from './fb/FbGraphQLSchema.md';
+import FbImportingGeneratedDefinitions from './fb/FbImportingGeneratedDefinitions.md';
 
 ## `graphql`
 
@@ -32,11 +33,11 @@ The result of using the `graphql` template tag is a `GraphQLTaggedNode`; a runti
 Note that `graphql` template tags are **never executed at runtime**. Instead, they are compiled ahead of time by the Relay compiler into generated artifacts that live alongside your source code, and which Relay requires to operate at runtime.
 
 
-## Relay Compiler
+## Compiler
 
 Relay uses the Relay Compiler to convert [`graphql`](#graphql) literals into generated files that live alongside your source files.
 
-A query like the following:
+A fragment like the following:
 
 ```javascript
 
@@ -48,7 +49,7 @@ graphql`
 
 ```
 
-Will cause a generated file to appear in `./__generated__/MyComponent.graphql`,
+Will cause a generated file to appear in `./__generated__/MyComponent.graphql.js`,
 with both runtime artifacts (which help to read and write from the Relay Store)
 and [Flow types](https://flow.org/) to help you write type-safe code.
 
@@ -56,7 +57,13 @@ The Relay Compiler is responsible for generating code as part of a build step wh
 
 ### GraphQL Schema
 
-To use the Relay Compiler, you need either a .graphql or .json GraphQL schema file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
+<FbInternalOnly>
+  <FbGraphQLSchema />
+</FbInternalOnly>
+
+<OssOnly>
+
+To use the Relay Compiler, you need either a `.graphql` or `.json` [GraphQL Schema](https://graphql.org/learn/schema/) file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
 
 ```graphql
 
@@ -80,7 +87,15 @@ type WordDefinition {
 
 ```
 
-### Source files
+</OssOnly>
+
+### Running the Compiler
+
+<FbInternalOnly>
+  <FbRunningCompiler />
+</FbInternalOnly>
+
+<OssOnly>
 
 Additionally, you need a directory containing `.js` files that use the `graphql` tag to describe GraphQL queries and fragments. Let's call this `./src`.
 
@@ -132,7 +147,17 @@ This would produce three generated files, and two `__generated__` directories:
 -   `src/Components/__generated__/DictionaryComponent_definition.graphql.js`
 -   `src/Queries/__generated__/DictionaryQuery.graphql.js`
 
+</OssOnly>
+
+
 ### Importing generated definitions
+
+<FbInternalOnly>
+  <FbImportingGeneratedDefinitions />
+
+</FbInternalOnly>
+
+<OssOnly>
 
 Typically you will not need to import your generated definitions. The [Relay Babel plugin](../../../getting-started/installation-and-setup#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
 
@@ -149,5 +174,8 @@ More rarely, you may need to access a query, mutation, fragment or subscription 
 ```js
 import DictionaryComponent_word from './__generated__/DictionaryComponent_word.graphql';
 ```
+
+</OssOnly>
+
 
 <DocsRating />

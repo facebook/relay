@@ -14,13 +14,14 @@ const {fbContent} = require('internaldocs-fb-helpers');
 const Guides = fbContent({
   internal: [
     'guides/graphql-server-specification',
+    'guides/compiler',
     'guides/fb/updating-the-graphql-schema',
     'guides/fb/flow-typing',
-    'guides/client-schema-extensions',
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-components',
     'guides/fb/required-directive',
+    'guides/client-schema-extensions',
     {
       EntryPoints: [
         'guides/fb/entrypoints/entrypoints',
@@ -44,6 +45,7 @@ const Guides = fbContent({
   ],
   external: [
     'guides/graphql-server-specification',
+    'guides/compiler',
     'guides/persisted-queries',
     'guides/network-layer',
     'guides/client-schema-extensions',
@@ -77,13 +79,8 @@ module.exports = {
       ],
       'A Guided Tour': [
         'guided-tour/introduction',
+        'guided-tour/workflow',
         {
-          'Setup and Workflow': [
-            ...fbContent({
-              internal: ['guided-tour/setup/fb/build-script'],
-              external: ['guided-tour/setup/compiler'],
-            }),
-          ],
           'Rendering Data Basics': [
             'guided-tour/rendering/queries',
             'guided-tour/rendering/fragments',

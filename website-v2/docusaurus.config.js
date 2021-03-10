@@ -234,7 +234,26 @@ module.exports = {
       },
     ],
   ],
-  plugins: [],
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            to: '/docs/',
+            from: [
+              '/docs/en/introduction-to-relay',
+              '/docs/introduction-to-relay',
+            ],
+          },
+          {
+            to: '/docs/getting-started/step-by-step-guide/',
+            from: ['/docs/en/quick-start-guide', '/docs/quick-start-guide'],
+          },
+        ],
+      },
+    ],
+  ],
   themeConfig: {
     navbar: {
       title: 'Relay',

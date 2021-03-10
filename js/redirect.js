@@ -8,3 +8,11 @@
  */
 
 // File to help with client-side redirect. No-op on relay.dev
+
+'use strict';
+
+// redirect all paths of the form /docs/en/... to docs/...
+if (window.location.pathname.startsWith('/docs/en/')) {
+  const newPath = window.location.pathname.replace(/^\/docs\/en\//, '/docs/');
+  window.location.pathname = newPath;
+}

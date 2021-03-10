@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<03fd90926d9a9b40e06babac122def45>>
+ * @generated SignedSource<<fbdd7152d7e55defdaa0fc1684c75660>>
  */
 
 mod skip_client_extensions;
@@ -87,6 +87,13 @@ fn client_scalar_fields() {
     let input = include_str!("skip_client_extensions/fixtures/client-scalar-fields.graphql");
     let expected = include_str!("skip_client_extensions/fixtures/client-scalar-fields.expected");
     test_fixture(transform_fixture, "client-scalar-fields.graphql", "skip_client_extensions/fixtures/client-scalar-fields.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_metadata() {
+    let input = include_str!("skip_client_extensions/fixtures/relay-resolver-metadata.graphql");
+    let expected = include_str!("skip_client_extensions/fixtures/relay-resolver-metadata.expected");
+    test_fixture(transform_fixture, "relay-resolver-metadata.graphql", "skip_client_extensions/fixtures/relay-resolver-metadata.expected", input, expected);
 }
 
 #[test]

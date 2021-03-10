@@ -20,7 +20,7 @@ Though we still have a ways to go before getting started with Relay is as easy a
 
 ## What was released?
 
-We released Relay Hooks, a set of React Hooks-based APIs for working with GraphQL data. We also took the opportunity to ship other improvements, like a more stable version of <a href={useBaseUrl('/docs/api-reference/fetch-query/')}><code>fetchQuery</code></a> and a the ability to customize object identifiers in the Relay using <code>getDataID</code> (which is useful if your server does not have globally unique IDs.)
+We released Relay Hooks, a set of React Hooks-based APIs for working with GraphQL data. We also took the opportunity to ship other improvements, like a more stable version of <a href={useBaseUrl('/docs/api-reference/fetch-query/')}><code>fetchQuery</code></a> and the ability to customize object identifiers in Relay using <code>getDataID</code> (which is useful if your server does not have globally unique IDs.)
 
  See the [release notes](https://github.com/facebook/relay/releases/tag/v11.0.0) for a complete list of what was released.
 
@@ -44,6 +44,7 @@ First, let’s take a look at how we might refetch a fragment with different var
 type Props = {
   comment: CommentBody_comment$key,
 };
+
 function CommentBody(props: Props) {
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
@@ -61,7 +62,7 @@ function CommentBody(props: Props) {
     <CommentText text={data?.text} />
     <Button
       onClick={() =>
-        refetch({ lang: 'SPANISH' }, {fetchPolicy: 'store-or-network'})
+        refetch({ lang: 'SPANISH' }, { fetchPolicy: 'store-or-network' })
       }>
     >
       Translate

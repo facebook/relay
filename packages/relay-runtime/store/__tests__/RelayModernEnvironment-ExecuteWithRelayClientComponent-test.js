@@ -50,9 +50,6 @@ describe('execute() with @relay_client_component', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    // Note: This must come after `jest.resetModules()`.
-    RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
-
     ClientFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment on Story {
         name

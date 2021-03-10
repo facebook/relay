@@ -16,7 +16,7 @@ Query references returned from `loadQuery` will leak data into the Relay store i
 See the [`usePreloadedQuery`](../use-preloaded-query) docs for a more complete example.
 
 ```js
-const environment = require('MyEnvironment');
+const MyEnvironment = require('MyEnvironment');
 const {loadQuery} = require('react-relay');
 
 const query = graphql`
@@ -31,7 +31,7 @@ const query = graphql`
 // Instead, it should be called in response to an event (such a route navigation,
 // click, etc.).
 const queryReference = loadQuery(
-  RelayFBEnvironment,
+  MyEnvironment,
   query,
   {id: '4'},
   {fetchPolicy: 'store-or-network'},

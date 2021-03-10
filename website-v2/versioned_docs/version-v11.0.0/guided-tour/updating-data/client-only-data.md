@@ -6,6 +6,7 @@ slug: /guided-tour/updating-data/client-only-data/
 
 import DocsRating from '../../../../src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import FbClientOnlyDataDir from './fb/FbClientOnlyDataDir.md';
 
 ## Client-Only Data (Client Schema Extensions)
 
@@ -16,7 +17,18 @@ Client schema extensions allows you to modify existing types on the schema (e.g.
 
 ### Extending Existing Types
 
+<FbInternalOnly>
+
 In order to extend an existing type, add a `.graphql` file to the appropriate schema extension directory (depending on the repo):
+
+</FbInternalOnly>
+
+<OssOnly>
+
+In order to extend an existing type, add a `.graphql` file to your appropriate source (`--src`) directory:
+
+</OssOnly>
+
 
 ```graphql
 
@@ -25,10 +37,17 @@ extend type Comment {
 }
 ```
 
+<FbInternalOnly>
+
+  <FbClientOnlyDataDir />
+
+</FbInternalOnly>
+
+<OssOnly>
+
 * In this example, we're using the `extend` keyword to extend an existing type, and we're adding a new field, `is_new_comment` to the existing `Comment` type, which we will be able to [read](#reading-client-only-data) in our components, and [update](#updating-client-only-data) when necessary using normal Relay APIs; you might imagine that we might use this field to render a different visual treatment for a comment if it's new, and we might set it when creating a new comment.
-* Note that in order for Relay to pick up this extension, the file needs to be inside `html/js/relay/schema/` in www or `xplat/js/RKJSModules/Libraries/Relay/native/schema/facebook` in fbsource.  The file can be named anything, but we recommend naming it the same as the type you're extending; in this case: `Comment.graphql`.
 
-
+</OssOnly>
 
 ### Adding New Types
 

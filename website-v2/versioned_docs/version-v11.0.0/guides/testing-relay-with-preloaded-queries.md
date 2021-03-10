@@ -1,7 +1,7 @@
 ---
-id: testing-relay-with-preloaded-components
-title: Testing Relay with Preloaded Components
-slug: /guides/testing-relay-with-preloaded-components/
+id: testing-relay-with-preloaded-queries
+title: Testing Relay with Preloaded Queries
+slug: /guides/testing-relay-with-preloaded-queries/
 ---
 
 import DocsRating from '../../../src/core/DocsRating';
@@ -16,7 +16,7 @@ In short, there are two steps that need to be performed **before rendering the c
 
 ## Symptoms that something is wrong
 
-1. The test doesn't do what is expected from it (sincerely yours, Captain Obvious :) )
+1. The test doesn't do what is expected from it.
 2. The query seems to be blocking instead of executing
    1. E.g. the `Suspend` doesn't switch from "waiting" to "data loaded" state
 3. If you add the `console.log` before and after `usePreloadedQuery`, only the "before" call is hit
@@ -88,7 +88,10 @@ The tricky thing here is to obtain the name of the GraphQL type and fields to re
 
 * This is somewhat intense - P139017123 is the output for [this query](https://fburl.com/diffusion/irqurgj9). Rule of thumb - one nested call in the query produces one nested object in the output.
 * Look up the type in the graphiql (bunnylol graphiql), then specify the fields listed on the query.
-**Note:** the type you need seems to be the type returned by the *innermost function call* (or calls, if you have multiple functions called in one query - see D23078476). This needs to be confirmed - in both example diffs the target types was also leafs.
+
+:::note
+The type you need seems to be the type returned by the *innermost function call* (or calls, if you have multiple functions called in one query - see D23078476). This needs to be confirmed - in both example diffs the target types was also leafs.
+:::
 
 </FbInternalOnly>
 
@@ -132,18 +135,17 @@ This is more straightforward - it is done via a call to `environment.mock.queueP
 * If `loadQuery` is not called - make sure to issue the triggering event. Depending on your component implementation it could be a user-action (like button click or key press), javascript event (via event emitter mechanisms) or a simple "delayed execution" with `useEffect`.
    * The `useEffect` case is probably easiest to miss - make sure to call `act(() => jest.runAllImmediates())` **after** rendering the component
 * If "before" `usePreloadedQuery` is hit, but "after" is not - the query suspends. This entire guide is written to resolve it - you might want to re-read it. But most likely it is either:
-
-<FbInternalOnly>
-
-* Facepalm warning: make sure the component and the test use the same environment (i.e. there's no `<RelayEnvironmentProvider environment={RelayFBEnvironment}>` somewhere nested in your test React tree.
-
-</FbInternalOnly>
-
    * Used a different query - the query resolver would not be called, `currentOperation` will be `null`
    * Query variables don't match - the query resolver would not be called, `currentOperation` will be `null` (make sure to inspect the `variables`).
       * Also, make sure arrays are in the same order, if any (or better yet, use sets, if at all possible).
 * If data returned rom the query is not what you expect, make sure you're generating the right graphql type.
    * You can tell you're mocking the wrong one if the return values look something like `<mock-value-for-field-"formatted_amount">`
+
+
+:::note
+Make sure the component and the test use the same environment (i.e. there's no `<RelayEnvironmentProvider environment={RelayFBEnvironment}>` somewhere nested in your test React tree.
+:::
+
 
 ## Epilogue
 

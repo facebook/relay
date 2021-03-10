@@ -19,7 +19,7 @@ const Guides = fbContent({
     'guides/fb/flow-typing',
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
-    'guides/testing-relay-with-preloaded-components',
+    'guides/testing-relay-with-preloaded-queries',
     'guides/fb/required-directive',
     'guides/client-schema-extensions',
     {
@@ -49,7 +49,7 @@ const Guides = fbContent({
     'guides/network-layer',
     'guides/client-schema-extensions',
     'guides/testing-relay-components',
-    'guides/testing-relay-with-preloaded-components',
+    'guides/testing-relay-with-preloaded-queries',
     // TODO(T84714692) release required guide externally
     // 'guides/required-directive',
     // TODO(T84797602) release incremental data delivery externally
@@ -186,18 +186,24 @@ module.exports = {
         'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
       ],
     },
-    'glossary/glossary',
     {
       Debugging: [
-        'debugging/relay-devtools',
-        'debugging/inconsistent-typename-error',
         ...fbContent({
           internal: [
+            'debugging/fb/debugging-and-troubleshooting',
+            'debugging/relay-devtools',
             'debugging/fb/network-logger',
+            'debugging/inconsistent-typename-error',
+            'debugging/declarative-mutation-directives',
             'debugging/fb/debugging-phps',
             'debugging/fb/vscode-extension',
+            'debugging/fb/debugging-faq',
           ],
-          external: [],
+          external: [
+            'debugging/relay-devtools',
+            'debugging/inconsistent-typename-error',
+            'debugging/declarative-mutation-directives',
+          ],
         }),
       ],
       'Principles and Architecture': [
@@ -210,5 +216,6 @@ module.exports = {
       ],
     },
     'community/learning-resources',
+    'glossary/glossary',
   ],
 };

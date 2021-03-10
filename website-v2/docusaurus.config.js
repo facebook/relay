@@ -250,6 +250,44 @@ module.exports = {
             to: '/docs/getting-started/step-by-step-guide/',
             from: ['/docs/en/quick-start-guide', '/docs/quick-start-guide'],
           },
+          {
+            to: '/docs/getting-started/step-by-step-guide/',
+            from: [
+              '/docs/en/experimental/step-by-step',
+              '/docs/experimental/step-by-step',
+            ],
+          },
+          {
+            to: '/docs/guides/testing-relay-with-preloaded-queries/',
+            from: ['/docs/guides/testing-relay-with-preloaded-components/'],
+          },
+          {
+            to: '/docs/guides/compiler/',
+            from: [
+              '/docs/en/graphql-in-relay.html',
+              '/docs/en/graphql-in-relay',
+              '/docs/graphql-in-relay.html',
+              '/docs/graphql-in-relay',
+            ],
+          },
+          {
+            to: '/docs/principles-and-architecture/thinking-in-graphql/',
+            from: [
+              '/docs/en/thinking-in-graphql.html',
+              '/docs/en/thinking-in-graphql',
+              '/docs/thinking-in-graphql.html',
+              '/docs/thinking-in-graphql',
+            ],
+          },
+          {
+            to: '/docs/principles-and-architecture/thinking-in-relay/',
+            from: [
+              '/docs/en/thinking-in-relay.html',
+              '/docs/en/thinking-in-relay',
+              '/docs/thinking-in-relay.html',
+              '/docs/thinking-in-relay',
+            ],
+          },
         ],
       },
     ],
@@ -280,17 +318,20 @@ module.exports = {
           label: 'GitHub',
           position: 'left',
         },
-        {
-          type: 'docsVersionDropdown',
-          position: 'right',
-          dropdownActiveClassDisabled: true,
-          dropdownItemsAfter: [
-            {
-              to: '/versions',
-              label: 'All versions',
-            },
-          ],
-        },
+        fbContent({
+          internal: {},
+          external: {
+            type: 'docsVersionDropdown',
+            position: 'right',
+            dropdownActiveClassDisabled: true,
+            dropdownItemsAfter: [
+              {
+                to: '/versions',
+                label: 'All versions',
+              },
+            ],
+          },
+        }),
       ],
     },
     image: 'img/relay.png',

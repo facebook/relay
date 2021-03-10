@@ -343,7 +343,7 @@
         },
         {
           "type": "doc",
-          "id": "version-v11.0.0/guides/testing-relay-with-preloaded-components"
+          "id": "version-v11.0.0/guides/testing-relay-with-preloaded-queries"
         }
       ]
     },
@@ -367,10 +367,6 @@
       ]
     },
     {
-      "type": "doc",
-      "id": "version-v11.0.0/glossary/glossary"
-    },
-    {
       "collapsed": true,
       "type": "category",
       "label": "Debugging",
@@ -382,6 +378,10 @@
         {
           "type": "doc",
           "id": "version-v11.0.0/debugging/inconsistent-typename-error"
+        },
+        {
+          "type": "doc",
+          "id": "version-v11.0.0/debugging/declarative-mutation-directives"
         }
       ]
     },
@@ -419,6 +419,10 @@
     {
       "type": "doc",
       "id": "version-v11.0.0/community/learning-resources"
+    },
+    {
+      "type": "doc",
+      "id": "version-v11.0.0/glossary/glossary"
     }
   ]
 }

@@ -7,7 +7,7 @@ slug: /debugging/inconsistent-typename-error/
 import DocsRating from '../../../src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
-# Inconsistent __typename error
+## Inconsistent `__typename` error
 
 The GraphQL server likely violated the globally unique ID requirement by returning the same ID for different objects.
 
@@ -23,7 +23,7 @@ The most common reason for this error is that 2 objects backed by an ID are usin
 
 Less common reasons could be using array indices or auto-increment IDs from some database that might not be unique to this type.
 
-# Fix: Make your type spec compliant
+## Fix: Make your type spec compliant
 
 The best way to fix this is to make your type spec compliant. For the case of 2 different types backed by the same ID, a common solution is to prefix the ID of the less widely used type with a unique string and then base64 encode the result. This can be accomplished fairly easily by implementing a `NodeTokenResolver` using the helper trait `NodeTokenResolverWithPrefix`.  When the `NodeTokenResolver` is registered is allows you to load your type using `node(id: $yourID)` GraphQL call and your type can return an encoded ID.
 

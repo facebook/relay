@@ -6,7 +6,9 @@ slug: /guides/client-schema-extensions/
 
 import DocsRating from '../../../src/core/DocsRating';
 
-> See also [the local data updates section](../../guided-tour/updating-data/local-data-updates/) of the guided tour.
+:::note
+See also [the local data updates](../../guided-tour/updating-data/local-data-updates/) and [client-only data](../../guided-tour/updating-data/client-only-data/) sections of the guided tour.
+:::note
 
 Relay can be used to read and write local data, and act as a single source of truth for _all_ data in your client application.
 

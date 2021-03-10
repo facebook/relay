@@ -30,9 +30,11 @@ function LikeButton() {
       }
     }
   `);
+
   if (isInFlight) {
     return <Spinner />;
   }
+
   return (
     <button
       onClick={() => {

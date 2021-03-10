@@ -141,6 +141,11 @@ fn apply_common_transforms(
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
+
+    if feature_flags.enable_relay_resolver_transform {
+        program = log_event.time("relay_resolvers", || relay_resolvers(&program))?;
+    }
+
     if feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
         program = log_event.time("relay_client_component", || {

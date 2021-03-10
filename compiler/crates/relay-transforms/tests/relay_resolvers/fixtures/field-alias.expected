@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  poppy: pop_star_name
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  ...PopStarNameResolverFragment_name @__relayResolver(js_return_type: "string", import_path: "PopStarNameResolver", field_name: "pop_star_name", field_alias: "poppy")
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}

@@ -39,6 +39,7 @@ mod refetchable_fragment;
 mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
+mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
 mod root_variables;
@@ -112,6 +113,9 @@ pub use relay_client_component::{
 };
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
+pub use relay_resolvers::{
+    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+};
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{
     required_directive, RequiredAction, ACTION_ARGUMENT, CHILDREN_CAN_BUBBLE_METADATA_KEY,

@@ -19,6 +19,9 @@ pub struct FeatureFlags {
     pub enable_required_transform_for_prefix: Option<StringKey>,
 
     #[serde(default)]
+    pub enable_relay_resolver_transform: bool,
+
+    #[serde(default)]
     pub no_inline: NoInlineFeature,
 }
 
@@ -27,6 +30,7 @@ impl Default for FeatureFlags {
         FeatureFlags {
             enable_flight_transform: false,
             enable_required_transform_for_prefix: None,
+            enable_relay_resolver_transform: false,
             no_inline: Default::default(),
         }
     }

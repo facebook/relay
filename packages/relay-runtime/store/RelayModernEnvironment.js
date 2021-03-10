@@ -82,6 +82,7 @@ export type EnvironmentConfig = {|
   +options?: mixed,
   +isServer?: boolean,
   +requiredFieldLogger?: ?RequiredFieldLogger,
+  +shouldProcessClientComponents?: ?boolean,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -90,6 +91,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationLoader: ?OperationLoader;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: ?boolean;
   _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
@@ -181,6 +183,7 @@ class RelayModernEnvironment implements IEnvironment {
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
+    this._shouldProcessClientComponents = config.shouldProcessClientComponents;
   }
 
   getStore(): Store {
@@ -255,6 +258,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -297,6 +301,7 @@ class RelayModernEnvironment implements IEnvironment {
         getDataID: this._getDataID,
         isClientPayload: true,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -390,6 +395,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     });
@@ -452,6 +458,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     });
@@ -489,6 +496,7 @@ class RelayModernEnvironment implements IEnvironment {
         store: this._store,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     });

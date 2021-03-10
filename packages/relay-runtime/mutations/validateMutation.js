@@ -34,6 +34,7 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 const {
   CONDITION,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
@@ -115,6 +116,7 @@ if (__DEV__) {
       case CONDITION:
         validateSelections(optimisticResponse, selection.selections, context);
         return;
+      case CLIENT_COMPONENT:
       case FRAGMENT_SPREAD:
         validateSelections(
           optimisticResponse,

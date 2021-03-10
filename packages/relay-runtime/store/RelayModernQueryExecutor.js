@@ -87,6 +87,7 @@ export type ExecuteConfig = {|
   +store: Store,
   +updater?: ?SelectorStoreUpdater,
   +isClientPayload?: boolean,
+  +shouldProcessClientComponents?: ?boolean,
 |};
 
 export type ActiveState = 'active' | 'inactive';
@@ -139,6 +140,7 @@ class Executor {
   _publishQueue: PublishQueue;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: ?boolean;
   _scheduler: ?TaskScheduler;
   _sink: Sink<GraphQLResponse>;
   _source: Map<
@@ -170,6 +172,7 @@ class Executor {
     isClientPayload,
     reactFlightPayloadDeserializer,
     reactFlightServerErrorHandler,
+    shouldProcessClientComponents,
   }: ExecuteConfig): void {
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
@@ -196,6 +199,7 @@ class Executor {
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
     this._isSubscriptionOperation =
       this._operation.request.node.params.operationKind === 'subscription';
+    this._shouldProcessClientComponents = shouldProcessClientComponents;
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -504,6 +508,7 @@ class Executor {
           path: [],
           reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
+          shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
         },
       );
@@ -584,6 +589,7 @@ class Executor {
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
     );
   }
@@ -661,6 +667,7 @@ class Executor {
           reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+          shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
       );
       this._publishQueue.commitPayload(
@@ -1052,6 +1059,7 @@ class Executor {
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
@@ -1268,6 +1276,7 @@ class Executor {
       reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
       reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      shouldProcessClientComponents: this._shouldProcessClientComponents,
     });
     return {
       fieldPayloads,

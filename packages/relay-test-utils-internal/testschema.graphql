@@ -24,6 +24,8 @@ directive @stream(
 
 directive @fetchable(field_name: String!) on OBJECT
 
+directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings

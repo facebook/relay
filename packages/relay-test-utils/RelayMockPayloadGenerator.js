@@ -23,6 +23,7 @@ const {
 } = require('relay-runtime');
 
 const {
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
@@ -310,6 +311,7 @@ class RelayMockPayloadGenerator {
           break;
         }
 
+        case CLIENT_COMPONENT:
         case FRAGMENT_SPREAD: {
           mockData = this._traverseSelections(
             selection.fragment.selections,

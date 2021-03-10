@@ -43,6 +43,7 @@ import type {
 
 const {
   CONDITION,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
@@ -63,6 +64,7 @@ function mark(
   selector: NormalizationSelector,
   references: DataIDSet,
   operationLoader: ?OperationLoader,
+  shouldProcessClientComponents: ?boolean,
 ): void {
   const {dataID, node, variables} = selector;
   const marker = new RelayReferenceMarker(
@@ -70,6 +72,7 @@ function mark(
     variables,
     references,
     operationLoader,
+    shouldProcessClientComponents,
   );
   marker.mark(node, dataID);
 }
@@ -83,18 +86,21 @@ class RelayReferenceMarker {
   _recordSource: RecordSource;
   _references: DataIDSet;
   _variables: Variables;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
     references: DataIDSet,
     operationLoader: ?OperationLoader,
+    shouldProcessClientComponents: ?boolean,
   ) {
     this._operationLoader = operationLoader ?? null;
     this._operationName = null;
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
+    this._shouldProcessClientComponents = shouldProcessClientComponents;
   }
 
   mark(node: NormalizationNode, dataID: DataID): void {
@@ -209,6 +215,15 @@ class RelayReferenceMarker {
           } else {
             throw new Error('Flight fields are not yet supported.');
           }
+          break;
+        case CLIENT_COMPONENT:
+          if (!RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            throw new Error('Client components are not yet supported.');
+          }
+          if (this._shouldProcessClientComponents === false) {
+            break;
+          }
+          this._traverseSelections(selection.fragment.selections, record);
           break;
         default:
           (selection: empty);

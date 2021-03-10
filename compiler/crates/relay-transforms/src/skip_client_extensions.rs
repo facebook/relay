@@ -74,7 +74,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         {
             Transformed::Delete
         } else {
-            Transformed::Keep
+            self.default_transform_fragment_spread(spread)
         }
     }
 

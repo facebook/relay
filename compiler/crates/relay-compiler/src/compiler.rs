@@ -268,6 +268,7 @@ pub fn build_raw_programs(
     compiler_state: &CompilerState,
     schemas: &FnvHashMap<ProjectName, Arc<SDLSchema>>,
     log_event: &impl PerfLogEvent,
+    compile_everything: bool,
 ) -> Result<(
     ProgramMap,
     AstMap,
@@ -295,7 +296,8 @@ pub fn build_raw_programs(
         })
         .map(|project_config| {
             let project_name = project_config.name;
-            let is_incremental_build = compiler_state.has_processed_changes()
+            let is_incremental_build = !compile_everything
+                && compiler_state.has_processed_changes()
                 && !compiler_state.has_breaking_schema_change(project_name)
                 && if let Some(base) = project_config.base {
                     !compiler_state.has_breaking_schema_change(base)

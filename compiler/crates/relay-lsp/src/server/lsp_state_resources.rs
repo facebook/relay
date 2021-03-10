@@ -117,10 +117,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.diagnostic_reporter.clear_regular_diagnostics();
 
             // Run initial build, before entering the watch changes loop
-            if let Err(err) = self.initial_build(&compiler_state, &setup_event) {
+            if let Err(err) = self.initial_build(&mut compiler_state, &setup_event) {
                 self.report_error(err);
             }
-            compiler_state.complete_compilation();
 
             setup_event.stop(timer);
             self.perf_logger.complete_event(setup_event);
@@ -208,7 +207,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
     fn initial_build(
         &self,
-        compiler_state: &CompilerState,
+        compiler_state: &mut CompilerState,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
         debug!("Initial build started...");
@@ -217,6 +216,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         // if update detected
         self.build_schemas(compiler_state, log_event)?;
         self.build_source_programs(compiler_state, log_event)?;
+        compiler_state.complete_compilation();
 
         Ok(())
     }
@@ -286,6 +286,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 .read()
                 .expect("LSPState::build_in_watch_mode: expect to acquire read lock on schemas"),
             log_event,
+            // When the source programs is empty, we need to compile all source programs once
+            self.source_programs
+                .read()
+                .expect(
+                    "LSPState::build_in_watch_mode: expect to acquire read lock on source_programs",
+                )
+                .is_empty(),
         )?;
 
         self.validate_programs(&programs, base_fragment_names_map, log_event)?;

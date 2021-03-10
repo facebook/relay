@@ -21,9 +21,10 @@ use crate::{
     watchman::FileSourceSubscriptionNextChange,
 };
 use common::{Diagnostic, PerfLogEvent, PerfLogger};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use futures::future::join_all;
 use graphql_ir::Program;
+use interner::StringKey;
 use log::{debug, info};
 use rayon::prelude::*;
 use schema::SDLSchema;
@@ -260,13 +261,19 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
 type AstMap = FnvHashMap<ProjectName, GraphQLAsts>;
 type ProgramMap = FnvHashMap<ProjectName, Program>;
+type BaseFragmentNamesMap = FnvHashMap<ProjectName, FnvHashSet<StringKey>>;
 
 pub fn build_raw_programs(
     config: &Config,
     compiler_state: &CompilerState,
     schemas: &FnvHashMap<ProjectName, Arc<SDLSchema>>,
     log_event: &impl PerfLogEvent,
-) -> Result<(ProgramMap, AstMap, Vec<BuildProjectError>)> {
+) -> Result<(
+    ProgramMap,
+    AstMap,
+    BaseFragmentNamesMap,
+    Vec<BuildProjectError>,
+)> {
     let graphql_asts = log_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
@@ -316,12 +323,14 @@ pub fn build_raw_programs(
         .collect();
 
     let mut errors: Vec<BuildProjectError> = vec![];
-    let mut program_map: FnvHashMap<ProjectName, Program> = Default::default();
+    let mut program_map: ProgramMap = Default::default();
+    let mut base_fragment_names_map: BaseFragmentNamesMap = Default::default();
 
     for (program_name, program_result) in programs {
         match program_result {
-            Ok(program) => {
+            Ok((program, base_fragment_names)) => {
                 program_map.insert(program_name, program);
+                base_fragment_names_map.insert(program_name, base_fragment_names);
             }
             Err(error) => {
                 errors.push(error);
@@ -331,7 +340,7 @@ pub fn build_raw_programs(
 
     log_event.stop(timer);
 
-    Ok((program_map, graphql_asts, errors))
+    Ok((program_map, graphql_asts, base_fragment_names_map, errors))
 }
 
 async fn build_projects<TPerfLogger: PerfLogger + 'static>(

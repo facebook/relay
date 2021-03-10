@@ -67,14 +67,18 @@ pub fn build_raw_program(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<Program, BuildProjectError> {
-    let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
+) -> Result<(Program, FnvHashSet<StringKey>), BuildProjectError> {
+    let BuildIRResult {
+        ir,
+        base_fragment_names,
+        ..
+    } = log_event.time("build_ir_time", || {
         build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     Ok(log_event.time("build_program_time", || {
-        Program::from_definitions(schema, ir)
+        (Program::from_definitions(schema, ir), base_fragment_names)
     }))
 }
 

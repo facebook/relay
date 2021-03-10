@@ -12,15 +12,16 @@ use std::{
 
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::Program;
 use interner::StringKey;
 use log::{debug, info};
 use lsp_server::Message;
 use relay_compiler::{
     build_schema, compiler::build_raw_programs, compiler_state::CompilerState, config::Config,
-    errors::Error, validate_program, FileSource, FileSourceResult, FileSourceSubscription,
-    FileSourceSubscriptionNextChange, SourceControlUpdateStatus,
+    errors::Error, transform_program, validate_program, BuildProjectFailure, FileSource,
+    FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
+    SourceControlUpdateStatus,
 };
 use schema::SDLSchema;
 use tokio::{sync::Notify, task, task::JoinHandle};
@@ -277,7 +278,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
         // This will build programs, but won't apply any transformations to them
         // that should be enough for LSP to start showing fragments information
-        let (programs, graphql_asts, build_errors) = build_raw_programs(
+        let (programs, graphql_asts, base_fragment_names_map, build_errors) = build_raw_programs(
             &self.config,
             compiler_state,
             &self
@@ -287,7 +288,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             log_event,
         )?;
 
-        self.validate_programs(&programs, log_event)?;
+        self.validate_programs(&programs, base_fragment_names_map, log_event)?;
 
         let mut source_programs = self.source_programs.write().expect(
             "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
@@ -324,13 +325,34 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     fn validate_programs(
         &self,
         programs: &FnvHashMap<StringKey, Program>,
+        base_fragment_names_map: FnvHashMap<StringKey, FnvHashSet<StringKey>>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
         let mut errors = vec![];
 
-        for program in programs.values() {
+        for (project_name, program) in programs {
             if let Err(err) = validate_program(&self.config, program, log_event) {
+                // First, lets report validation errors
                 errors.push(err);
+            } else {
+                // If programs seem valid, let try transform them, this should report additional validation errors
+                let project_config = self.config.projects.get(project_name).unwrap_or_else(|| {
+                    panic!("Expect to get project config for {}", &project_name)
+                });
+                let base_fragment_names = base_fragment_names_map
+                    .get(project_name)
+                    .map(|v| v.to_owned())
+                    .unwrap_or_default();
+                if let Err(BuildProjectFailure::Error(err)) = transform_program(
+                    &self.config,
+                    project_config,
+                    Arc::new(program.clone()),
+                    Arc::new(base_fragment_names),
+                    Arc::clone(&self.perf_logger),
+                    log_event,
+                ) {
+                    errors.push(err);
+                }
             }
         }
 

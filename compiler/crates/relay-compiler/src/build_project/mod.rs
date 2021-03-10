@@ -97,6 +97,37 @@ pub fn validate_program(
     result
 }
 
+/// Apply various chains of transforms to create a set of output programs.
+pub fn transform_program(
+    config: &Config,
+    project_config: &ProjectConfig,
+    program: Arc<Program>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger + 'static>,
+    log_event: &impl PerfLogEvent,
+) -> Result<Programs, BuildProjectFailure> {
+    let timer = log_event.start("apply_transforms_time");
+    let result = apply_transforms(
+        project_config.name,
+        program,
+        base_fragment_names,
+        &config.connection_interface,
+        Arc::new(
+            project_config
+                .feature_flags
+                .as_ref()
+                .cloned()
+                .unwrap_or_else(|| config.feature_flags.clone()),
+        ),
+        perf_logger,
+    )
+    .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
+
+    log_event.stop(timer);
+
+    result
+}
+
 fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
@@ -139,26 +170,14 @@ fn build_programs(
     // Call validation rules that go beyond type checking.
     validate_program(&config, &program, log_event)?;
 
-    // Apply various chains of transforms to create a set of output programs.
-    let programs = log_event.time("apply_transforms_time", || {
-        apply_transforms(
-            project_name,
-            Arc::new(program),
-            Arc::new(base_fragment_names),
-            &config.connection_interface,
-            Arc::new(
-                project_config
-                    .feature_flags
-                    .as_ref()
-                    .cloned()
-                    .unwrap_or_else(|| config.feature_flags.clone()),
-            ),
-            perf_logger,
-        )
-        .map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
-        })
-    })?;
+    let programs = transform_program(
+        config,
+        project_config,
+        Arc::new(program),
+        Arc::new(base_fragment_names),
+        Arc::clone(&perf_logger),
+        log_event,
+    )?;
 
     Ok((programs, Arc::new(source_hashes)))
 }

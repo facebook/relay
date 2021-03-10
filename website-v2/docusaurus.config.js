@@ -18,6 +18,7 @@ module.exports = {
   tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  organizationName: 'facebook',
   projectName: 'relay',
   scripts: ['/js/redirect.js'],
   favicon: 'img/favicon.png',
@@ -214,6 +215,12 @@ module.exports = {
             internal: 'current',
             external: versions[0],
           }),
+          onlyIncludeVersions: ['current', ...versions.slice(0, 2)],
+          versions: {
+            current: {
+              label: 'Next 🚧',
+            },
+          },
         },
         blog: {},
         theme: {
@@ -255,132 +262,14 @@ module.exports = {
           position: 'left',
         },
         {
-          label: 'Version',
-          to: 'docs',
+          type: 'docsVersionDropdown',
           position: 'right',
-          items: [
-            ...fbContent({
-              internal: [
-                {
-                  label: 'Current',
-                  to: 'docs/',
-                  activeBaseRegex: `docs/(?!${versions.join('|')})`,
-                },
-              ],
-              external: [],
-            }),
+          dropdownActiveClassDisabled: true,
+          dropdownItemsAfter: [
             {
-              label: 'v10.1.3',
-              to: fbContent({
-                internal: 'docs/v10.1.3/',
-                external: 'docs/',
-              }),
-              activeBaseRegex: fbContent({
-                internal: undefined,
-                external: `docs/(?!${versions.concat('next').join('|')})`,
-              }),
+              to: '/versions',
+              label: 'All versions',
             },
-            {
-              label: 'v10.1.2',
-              to: 'docs/v10.1.2/',
-            },
-            {
-              label: 'v10.1.1',
-              to: 'docs/v10.1.1/',
-            },
-            {
-              label: 'v10.1.0',
-              to: 'docs/v10.1.0/',
-            },
-            {
-              label: 'v10.0.1',
-              to: 'docs/v10.0.1/',
-            },
-            {
-              label: 'v10.0.0',
-              to: 'docs/v10.0.0/',
-            },
-            {
-              label: 'v9.1.0',
-              to: 'docs/v9.1.0/',
-            },
-            {
-              label: 'v9.0.0',
-              to: 'docs/v9.0.0/',
-            },
-            {
-              label: 'v8.0.0',
-              to: 'docs/v8.0.0/',
-            },
-            {
-              label: 'v7.1.0',
-              to: 'docs/v7.1.0/',
-            },
-            {
-              label: 'v7.0.0',
-              to: 'docs/v7.0.0/',
-            },
-            {
-              label: 'v6.0.0',
-              to: 'docs/v6.0.0/',
-            },
-            {
-              label: 'v5.0.0',
-              to: 'docs/v5.0.0/',
-            },
-            {
-              label: 'v4.0.0',
-              to: 'docs/v4.0.0/',
-            },
-            {
-              label: 'v3.0.0',
-              to: 'docs/v3.0.0/',
-            },
-            {
-              label: 'v2.0.0',
-              to: 'docs/v2.0.0/',
-            },
-            {
-              label: 'v1.7.0',
-              to: 'docs/v1.7.0/',
-            },
-            {
-              label: 'v1.6.2',
-              to: 'docs/v1.6.2/',
-            },
-            {
-              label: 'v1.6.1',
-              to: 'docs/v1.6.1/',
-            },
-            {
-              label: 'v1.6.0',
-              to: 'docs/v1.6.0/',
-            },
-            {
-              label: 'v1.5.0',
-              to: 'docs/v1.5.0/',
-            },
-            {
-              label: 'v1.4.1',
-              to: 'docs/v1.4.1/',
-            },
-            {
-              label: 'experimental',
-              to: 'docs/experimental/',
-            },
-            {
-              label: 'classic',
-              to: 'docs/classic/',
-            },
-            ...fbContent({
-              internal: [],
-              external: [
-                {
-                  label: 'Unreleased',
-                  to: 'docs/next/',
-                },
-              ],
-            }),
           ],
         },
       ],

@@ -38,7 +38,6 @@ const Guides = fbContent({
         'guides/fb/web-query-preloading',
         'guides/fb/production-graphql-endpoint-in-sandboxes',
         'guides/fb/react-flight',
-        'guides/fb/native-fetch',
       ],
       'React-Native-Only': ['guides/fb/native-fetch'],
     },

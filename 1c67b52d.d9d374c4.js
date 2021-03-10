@@ -1,0 +1,1 @@
+(window.webpackJsonp=window.webpackJsonp||[]).push([[38],{126:function(o){o.exports=JSON.parse('{"allTagsPath":"/blog/tags","slug":"relay-hooks","name":"relay-hooks","count":1,"permalink":"/blog/tags/relay-hooks"}')}}]);

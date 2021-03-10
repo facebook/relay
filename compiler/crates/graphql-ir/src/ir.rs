@@ -33,6 +33,13 @@ impl ExecutableDefinition {
                 .any(|d| d.name.item == directive_name),
         }
     }
+
+    pub fn name_with_location(&self) -> WithLocation<StringKey> {
+        match self {
+            ExecutableDefinition::Operation(node) => node.name,
+            ExecutableDefinition::Fragment(node) => node.name,
+        }
+    }
 }
 
 /// A fully-typed mutation, query, or subscription definition

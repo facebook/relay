@@ -32,6 +32,23 @@ const warning = require('warning');
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
+const {
+  CONDITION,
+  CLIENT_COMPONENT,
+  CLIENT_EXTENSION,
+  DEFER,
+  FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
+  INLINE_FRAGMENT,
+  LINKED_FIELD,
+  LINKED_HANDLE,
+  MODULE_IMPORT,
+  SCALAR_FIELD,
+  SCALAR_HANDLE,
+  STREAM,
+  TYPE_DISCRIMINATOR,
+} = require('../util/RelayConcreteNode');
+
 let validateMutation = () => {};
 if (__DEV__) {
   const addFieldToDiff = (path: string, diff: Object, isScalar) => {
@@ -96,21 +113,22 @@ if (__DEV__) {
     context: ValidationContext,
   ) => {
     switch (selection.kind) {
-      case 'Condition':
+      case CONDITION:
         validateSelections(optimisticResponse, selection.selections, context);
         return;
-      case 'FragmentSpread':
+      case CLIENT_COMPONENT:
+      case FRAGMENT_SPREAD:
         validateSelections(
           optimisticResponse,
           selection.fragment.selections,
           context,
         );
         return;
-      case 'ScalarField':
-      case 'LinkedField':
-      case 'FlightField':
+      case SCALAR_FIELD:
+      case LINKED_FIELD:
+      case FLIGHT_FIELD:
         return validateField(optimisticResponse, selection, context);
-      case 'InlineFragment':
+      case INLINE_FRAGMENT:
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;
         selection.selections.forEach(subselection => {
@@ -120,18 +138,18 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case 'ClientExtension':
+      case CLIENT_EXTENSION:
         selection.selections.forEach(subselection => {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case 'ModuleImport':
+      case MODULE_IMPORT:
         return validateModuleImport(context);
-      case 'LinkedHandle':
-      case 'ScalarHandle':
-      case 'Defer':
-      case 'Stream':
-      case 'TypeDiscriminator': {
+      case LINKED_HANDLE:
+      case SCALAR_HANDLE:
+      case DEFER:
+      case STREAM:
+      case TYPE_DISCRIMINATOR: {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
@@ -154,12 +172,12 @@ if (__DEV__) {
     const path = `${context.path}.${fieldName}`;
     context.visitedPaths.add(path);
     switch (field.kind) {
-      case 'ScalarField':
+      case SCALAR_FIELD:
         if (hasOwnProperty.call(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;
-      case 'LinkedField':
+      case LINKED_FIELD:
         const selections = field.selections;
         if (
           optimisticResponse[fieldName] === null ||
@@ -195,7 +213,7 @@ if (__DEV__) {
             return;
           }
         }
-      case 'FlightField':
+      case FLIGHT_FIELD:
         if (
           optimisticResponse[fieldName] === null ||
           (hasOwnProperty.call(optimisticResponse, fieldName) &&

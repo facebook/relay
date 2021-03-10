@@ -21,6 +21,7 @@ use crate::{
         TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     lsp_process_error::{LSPProcessError, LSPProcessResult},
+    lsp_runtime_error::LSPRuntimeError,
     references::on_references,
     shutdown::{on_exit, on_shutdown},
     status_reporting::LSPStatusReporter,
@@ -54,23 +55,24 @@ pub(crate) use lsp_state::LSPState;
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
 pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
-    let mut server_capabilities = ServerCapabilities::default();
-    // Enable text document syncing so we can know when files are opened/changed/saved/closed
-    server_capabilities.text_document_sync =
-        Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full));
+    let server_capabilities = ServerCapabilities {
+        // Enable text document syncing so we can know when files are opened/changed/saved/closed
+        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full)),
 
-    server_capabilities.completion_provider = Some(CompletionOptions {
-        resolve_provider: Some(true),
-        trigger_characters: Some(vec!["(".into(), "\n".into(), ",".into(), "@".into()]),
-        work_done_progress_options: WorkDoneProgressOptions {
-            work_done_progress: None,
-        },
-    });
+        completion_provider: Some(CompletionOptions {
+            resolve_provider: Some(true),
+            trigger_characters: Some(vec!["(".into(), "\n".into(), ",".into(), "@".into()]),
+            work_done_progress_options: WorkDoneProgressOptions {
+                work_done_progress: None,
+            },
+        }),
 
-    server_capabilities.hover_provider = Some(true);
-    server_capabilities.definition_provider = Some(true);
-    server_capabilities.references_provider = Some(true);
-    server_capabilities.code_action_provider = Some(CodeActionProviderCapability::Simple(true));
+        hover_provider: Some(true),
+        definition_provider: Some(true),
+        references_provider: Some(true),
+        code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        ..Default::default()
+    };
 
     let server_capabilities = serde_json::to_value(&server_capabilities)?;
     let params = connection.initialize(server_capabilities)?;
@@ -96,7 +98,6 @@ where
     );
     set_initializing_status(&connection.sender);
 
-
     config.artifact_writer = if extension_config.no_artifacts {
         Box::new(NoopArtifactWriter)
     } else {
@@ -116,7 +117,7 @@ where
         extra_data_provider,
         &extension_config,
         connection.sender.clone(),
-    )?;
+    );
 
     for msg in connection.receiver {
         debug!("LSP message received {:?}", msg);
@@ -193,6 +194,9 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
             lsp_request_event.string("lsp_outcome", "success".to_string());
         } else if let Some(error) = &response.error {
             lsp_request_event.string("lsp_outcome", "error".to_string());
+            if error.code != ErrorCode::RequestCanceled as i32 {
+                lsp_request_event.string("lsp_error_message", error.message.to_string());
+            }
             if let Some(data) = &error.data {
                 lsp_request_event.string("lsp_error_data", data.to_string());
             }
@@ -220,10 +224,21 @@ fn handle_notification<TPerfLogger: PerfLogger + 'static>(
 
     let notification_result = dispatch_notification(notification, lsp_state);
 
-    // The only possible error (for now) is not handling the notification.
-    // N.B. is_ok is correct here.
-    if notification_result.is_ok() {
-        lsp_notification_event.string("lsp_outcome", "error".to_string());
+    match notification_result {
+        Ok(()) => {
+            // The notification is not handled
+            lsp_notification_event.string("lsp_outcome", "error".to_string());
+        }
+        Err(err) => {
+            if let Some(err) = err {
+                lsp_notification_event.string("lsp_outcome", "error".to_string());
+                if let LSPRuntimeError::UnexpectedError(message) = err {
+                    lsp_notification_event.string("lsp_error_message", message);
+                }
+            } else {
+                lsp_notification_event.string("lsp_outcome", "success".to_string());
+            }
+        }
     }
 
     lsp_notification_event.stop(lsp_notification_processing_time);
@@ -233,7 +248,7 @@ fn handle_notification<TPerfLogger: PerfLogger + 'static>(
 fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
     notification: lsp_server::Notification,
     lsp_state: &mut LSPState<TPerfLogger>,
-) -> Result<(), ()> {
+) -> Result<(), Option<LSPRuntimeError>> {
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?
         .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?

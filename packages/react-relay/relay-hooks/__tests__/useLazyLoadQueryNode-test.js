@@ -26,7 +26,10 @@ const {
   RecordSource,
   Store,
   __internal,
+  graphql,
+  getRequest,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 import type {FetchPolicy} from 'relay-runtime';
 
@@ -65,8 +68,6 @@ describe('useLazyLoadQueryNode', () => {
   let renderFn;
   let render;
   let release;
-  let createMockEnvironment;
-  let generateAndCompile;
   let query;
   let variables;
   let Container;
@@ -76,11 +77,6 @@ describe('useLazyLoadQueryNode', () => {
   beforeEach(() => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
 
     class ErrorBoundary extends React.Component<any, any> {
       state = {error: null};
@@ -147,32 +143,21 @@ describe('useLazyLoadQueryNode', () => {
       };
     });
 
-    const generated = generateAndCompile(`
-      fragment UserFragment on User {
-        name
-      }
-
-      query UserQuery($id: ID) {
+    gqlQuery = getRequest(graphql`
+      query useLazyLoadQueryNodeTestUserQuery($id: ID) {
         node(id: $id) {
           id
           name
-          ...UserFragment
+          ...useLazyLoadQueryNodeTestUserFragment
         }
-      }
-
-      fragment RootFragment on Query {
-        node(id: $id) {
-          id
-          name
-          ...UserFragment
-        }
-      }
-
-      query OnlyFragmentsQuery($id: ID) {
-        ...RootFragment
       }
     `);
-    gqlQuery = generated.UserQuery;
+    graphql`
+      fragment useLazyLoadQueryNodeTestUserFragment on User {
+        name
+      }
+    `;
+
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
@@ -586,20 +571,19 @@ describe('useLazyLoadQueryNode', () => {
 
   describe('partial rendering', () => {
     it('does not suspend at the root if query does not have direct data dependencies', () => {
-      const generated = generateAndCompile(`
-      fragment RootFragment on Query {
-        node(id: $id) {
-          id
-          name
+      const gqlFragment = graphql`
+        fragment useLazyLoadQueryNodeTestRootFragment on Query {
+          node(id: $id) {
+            id
+            name
+          }
         }
-      }
-
-      query OnlyFragmentsQuery($id: ID) {
-        ...RootFragment
-      }
-    `);
-      const gqlOnlyFragmentsQuery = generated.OnlyFragmentsQuery;
-      const gqlFragment = generated.RootFragment;
+      `;
+      const gqlOnlyFragmentsQuery = getRequest(graphql`
+        query useLazyLoadQueryNodeTestOnlyFragmentsQuery($id: ID) {
+          ...useLazyLoadQueryNodeTestRootFragment
+        }
+      `);
       const onlyFragsQuery = createOperationDescriptor(
         gqlOnlyFragmentsQuery,
         variables,

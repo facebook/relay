@@ -116,7 +116,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
         Argument {
             name: WithLocation::generated(*DYNAMIC_KEY_ARG_NAME),
             value: WithLocation::generated(
-                dynamic_key.unwrap_or_else(|| Value::Constant(ConstantValue::Null())),
+                dynamic_key.unwrap_or(Value::Constant(ConstantValue::Null())),
             ),
         },
     ];

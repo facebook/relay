@@ -39,8 +39,7 @@ fn get_goto_definition_response<'a>(
     project_name: StringKey,
     source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
-    // https://github.com/rust-lang/rust-clippy/issues/3971
-    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
+    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     match node_path {
         ResolutionPath::Ident(IdentPath {
@@ -135,8 +134,7 @@ fn resolve_field<'a>(
     project_name: StringKey,
     source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     root_dir: &PathBuf,
-    // https://github.com/rust-lang/rust-clippy/issues/3971
-    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
+    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     let programs = source_programs
         .read()
@@ -180,7 +178,7 @@ pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
         project_name,
         state.get_source_programs_ref(),
         state.root_dir(),
-        &state.extra_data_provider,
+        state.extra_data_provider.as_ref(),
     )?;
 
     Ok(Some(goto_definition_response))

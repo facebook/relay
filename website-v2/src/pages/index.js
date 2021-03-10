@@ -94,73 +94,65 @@ const Index = () => {
       <div className="homePage mainContainer">
         <Container className="textSection" background="light">
           <h2>Built for scale</h2>
-          <h3>
-            Relay was designed to be performant from the ground up, and to
-            support scaling your application to{' '}
-            <b>
-              <em>thousands</em>
-            </b>{' '}
-            of components, while keeping management of data fetching sane, and
-            fast iteration speeds as your application grows and changes.
-          </h3>
+          <p>
+            Relay is designed for high performance at any scale. Relay keeps
+            management of data-fetching easy, whether your app has tens,
+            hundreds, or thousands of components. And thanks to Relay’s
+            incremental compiler, it keeps your iteration speed fast even as
+            your app grows.
+          </p>
           <GridBlock
             layout="threeColumn"
             contents={[
               {
-                title: 'Quick iteration',
+                title: 'Keeps iteration quick',
                 content: (
                   <span>
                     <p>
-                      Relay is built upon <em>locally</em> declaring data
-                      dependencies for components. This means each component
-                      declares <em>what</em> data that it needs, without
-                      worrying about <em>how</em> to fetch it; Relay guarantees
-                      that the data each component needs is fetched and
-                      available.
+                      Relay is data-fetching turned <b>declarative</b>.
+                      Components declare their data dependencies, without
+                      worrying about how to fetch them. Relay guarantees that
+                      the data each component needs is fetched and available.
+                      This keeps components decoupled and promotes reuse.
                     </p>
+
                     <p>
-                      This allows components and their data dependencies to be
-                      modified{' '}
-                      <b>
-                        <em>quickly</em>
-                      </b>{' '}
-                      and in{' '}
-                      <b>
-                        <em>isolation</em>
-                      </b>
-                      , without needing to update other parts of the system or,
-                      worrying about breaking other components
+                      With Relay, components and their data dependencies can be
+                      quickly modified without modifying other parts of the
+                      system. That means you won't accidentally break other
+                      components as you refactor or make changes to your app.
                     </p>
                   </span>
                 ),
               },
               {
-                title: 'Minimal round trips',
+                title: 'Automatic optimizations',
                 content: (
                   <span>
                     <p>
-                      Relay automatically aggregates the data requirements for
-                      your entire application, so that they can be fetched in a
-                      single GraphQL request.
+                      Relay's compiler aggregates and optimizes the data
+                      requirements for your entire app, so that they can be
+                      efficiently fetched in a single GraphQL request.
                     </p>
                     <p>
-                      Relay will handle all of the heavy lifting to ensure the
-                      data declared by your components is fetched in the most
-                      efficient way, for example by deduplicating identical
-                      fields, fetching as early as possible, among other
-                      optimizations.
+                      Relay handles the heavy lifting to ensure the data
+                      declared by your components is fetched in the most
+                      efficient way. For example, by deduplicating identical
+                      fields, and precomputing information used at runtime,
+                      among other optimizations.
                     </p>
                   </span>
                 ),
               },
               {
-                title: 'Automatic data consistency',
+                title: 'Data consistency',
                 content: (
                   <span>
                     <p>
                       Relay automatically keeps all of your components up to
-                      date whenever data that affects them changes, and
-                      efficiently update them only when strictly necessary.
+                      date when data that affects them changes, and efficiently
+                      updates them only when strictly necessary. This means no
+                      unnecessary re-renders.
                     </p>
                     <p>
                       Relay also supports executing GraphQL Mutations,
@@ -174,7 +166,7 @@ const Index = () => {
             ]}
           />
         </Container>
-        <Container className="exampleSection">
+        <Container className="exampleSection darkBackground">
           <div className="wrapperInner">
             <div className="radiusRight">
               <h2>Fetching query data</h2>
@@ -195,7 +187,7 @@ const Index = () => {
             </div>
 
             <div className="radiusLeft">
-              <pre>
+              <pre className="outerPre">
                 <Code>
                   {`
 // Artist.react.js
@@ -245,7 +237,10 @@ function ArtistView() {
                 </Code>
               </pre>
             </div>
-
+          </div>
+        </Container>
+        <Container className="exampleSection lightBackground">
+          <div className="wrapperInner">
             <div>
               <h2>Fragments</h2>
               <p>
@@ -272,7 +267,7 @@ function ArtistView() {
               </p>
             </div>
             <div>
-              <pre>
+              <pre className="outerPre">
                 <Code>
                   {`
 // ArtistCard.react.js
@@ -314,13 +309,13 @@ export default function ArtistHeader(props) {
           </div>
         </Container>
 
-        <Container className="textSection graphqlSection" background="light">
+        <Container className="textSection graphqlSection" background="dark">
           <h2>GraphQL best practices baked in</h2>
-          <h3>
+          <p>
             Relay applies and relies on GraphQL best practices. To get the most
             from Relay's features, you'll want your GraphQL server to conform to
             these standard practices.
-          </h3>
+          </p>
           <GridBlock
             layout="threeColumn"
             contents={[
@@ -474,7 +469,7 @@ export default function ArtistHeader(props) {
           />
         </Container>
 
-        <Container className="textSection aheadSection">
+        <Container className="textSection aheadSection" background="dark">
           <h2>Ahead-of-time Safety</h2>
           <GridBlock
             layout="threeColumn"
@@ -522,7 +517,7 @@ export default function ArtistHeader(props) {
           />
         </Container>
 
-        <Container className="textSection relaySection">
+        <Container className="textSection relaySection" background="light">
           <h2>Can Relay Work For Me?</h2>
           <GridBlock
             layout="twoColumn"
@@ -593,13 +588,13 @@ export default function ArtistHeader(props) {
           />
         </Container>
 
-        <Container className="textSection" background="light">
+        <Container className="textSection" background="dark">
           <h2>Proudly Used Elsewhere</h2>
-          <h3>
+          <p>
             Relay was originally created for the React Native sections of the
             Facebook app, and it has been used adapted and improved by other
             teams internally and externally.
-          </h3>
+          </p>
           <div>
             <div className="logosHomepage">{showcase}</div>
           </div>

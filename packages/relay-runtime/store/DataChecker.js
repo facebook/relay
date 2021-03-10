@@ -58,6 +58,7 @@ export type Availability = {|
 
 const {
   CONDITION,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
@@ -95,6 +96,7 @@ function check(
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
+  shouldProcessClientComponents: ?boolean,
 ): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
@@ -104,6 +106,7 @@ function check(
     handlers,
     operationLoader,
     getDataID,
+    shouldProcessClientComponents,
   );
   return checker.check(node, dataID);
 }
@@ -121,6 +124,7 @@ class DataChecker {
   _recordWasMissing: boolean;
   _source: RecordSource;
   _variables: Variables;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     source: RecordSource,
@@ -129,6 +133,7 @@ class DataChecker {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
+    shouldProcessClientComponents: ?boolean,
   ) {
     const mutator = new RelayRecordSourceMutator(source, target);
     this._mostRecentlyInvalidatedAt = null;
@@ -139,6 +144,7 @@ class DataChecker {
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;
+    this._shouldProcessClientComponents = shouldProcessClientComponents;
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
@@ -417,6 +423,15 @@ class DataChecker {
           } else {
             throw new Error('Flight fields are not yet supported.');
           }
+          break;
+        case CLIENT_COMPONENT:
+          if (!RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            throw new Error('Client components are not yet supported.');
+          }
+          if (this._shouldProcessClientComponents === false) {
+            break;
+          }
+          this._traverseSelections(selection.fragment.selections, dataID);
           break;
         default:
           (selection: empty);

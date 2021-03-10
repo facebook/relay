@@ -339,13 +339,27 @@ impl<'a> TypeGenerator<'a> {
         let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
         let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
         if let Some(refetchable_metadata) = refetchable_metadata {
-            write_ast!(
-                self,
-                AST::ImportFragmentType(
-                    vec![old_fragment_type_name, new_fragment_type_name],
-                    format!("{}.graphql", refetchable_metadata.operation_name).intern(),
-                )
-            )?;
+            if self.typegen_config.haste {
+                // TODO(T22653277) support non-haste environments when importing
+                // fragments
+                write_ast!(
+                    self,
+                    AST::ImportFragmentType(
+                        vec![old_fragment_type_name, new_fragment_type_name],
+                        format!("{}.graphql", refetchable_metadata.operation_name).intern()
+                    )
+                )?;
+            } else {
+                write_ast!(
+                    self,
+                    AST::DefineType(old_fragment_type_name, Box::new(AST::Any))
+                )?;
+                write_ast!(
+                    self,
+                    AST::DefineType(new_fragment_type_name, Box::new(AST::Any))
+                )?;
+            }
+
             write_ast!(
                 self,
                 AST::ExportFragmentList(vec![old_fragment_type_name, new_fragment_type_name,])
@@ -1366,6 +1380,8 @@ fn selections_to_map(
     map
 }
 
+// TODO: T85950736 Fix these clippy errors
+#[allow(clippy::while_let_on_iterator, clippy::useless_conversion)]
 fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item = TypeSelection> {
     let mut refs = None;
     let mut props = props.into_iter();

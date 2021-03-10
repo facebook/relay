@@ -34,6 +34,11 @@ use std::{
 };
 use watchman_client::pdu::ScmAwareClockData;
 
+type PostArtifactsWriter = Box<
+    dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
+        + Send
+        + Sync,
+>;
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -75,13 +80,7 @@ pub struct Config {
     /// Function that is called to save operation text (e.g. to a database) and to generate an id.
     pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
 
-    pub post_artifacts_write: Option<
-        Box<
-            dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
-                + Send
-                + Sync,
-        >,
-    >,
+    pub post_artifacts_write: Option<PostArtifactsWriter>,
 
     /// Validations that can be added to the config that will be called in addition to default
     /// validation rules.

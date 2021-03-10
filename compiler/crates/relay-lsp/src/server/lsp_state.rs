@@ -7,7 +7,6 @@
 
 use crate::{
     diagnostic_reporter::DiagnosticReporter,
-    lsp_process_error::LSPProcessResult,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::extract_project_name_from_url,
@@ -44,6 +43,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
+    root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
     schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
@@ -71,6 +71,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             compiler: None,
             extra_data_provider,
             file_categorizer,
+            root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Default::default(),
             source_programs: Default::default(),
@@ -89,7 +90,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
-    ) -> LSPProcessResult<Self> {
+    ) -> Self {
         info!("Creating lsp_state...");
         let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
 
@@ -125,7 +126,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         };
 
         info!("Creating lsp_state created!");
-        Ok(lsp_state)
+        lsp_state
     }
 
     pub(crate) fn get_schemas(&self) -> Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>> {
@@ -159,6 +160,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         &self.root_dir
     }
 
+    pub(crate) fn root_dir_str(&self) -> &str {
+        &self.root_dir_str
+    }
+
     pub(crate) fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {
         self.start_compiler_once();
         self.synced_graphql_documents.insert(url, sources);
@@ -166,6 +171,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn remove_synced_sources(&mut self, url: &Url) {
         self.synced_graphql_documents.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
     }
 
     pub(crate) fn extract_executable_document_from_text(
@@ -232,13 +239,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
-        self.diagnostic_reporter.commit_diagnostics();
         Ok(())
-    }
-
-    pub(crate) fn clear_quick_diagnostics_for_url(&self, url: &Url) {
-        self.diagnostic_reporter
-            .clear_quick_diagnostics_for_url(url)
     }
 
     fn start_compiler_once(&mut self) {

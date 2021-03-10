@@ -36,7 +36,7 @@ fn main() {
         // outer {} block
         25..60,
     ];
-    let printer = SourcePrinter::new();
+    let printer = SourcePrinter::default();
     for test_case in test_cases.into_iter() {
         let mut res = String::new();
         printer

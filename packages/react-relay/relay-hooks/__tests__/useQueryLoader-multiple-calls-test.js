@@ -25,21 +25,18 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {
-  generateAndCompile,
-  createMockEnvironment,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils');
 
-import type {ConcreteRequest} from 'relay-runtime';
-
-const query: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query useQueryLoaderMultipleCallsTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`).TestQuery;
+`);
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',
@@ -167,6 +164,7 @@ describe('when loading and disposing same query multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
       queryLoaderCallback(variables);
     });
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Loading');
 
     ReactTestRenderer.act(() => {
@@ -175,6 +173,7 @@ describe('when loading and disposing same query multiple times', () => {
       jest.runAllImmediates();
     });
 
+    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('4');
   });
 });

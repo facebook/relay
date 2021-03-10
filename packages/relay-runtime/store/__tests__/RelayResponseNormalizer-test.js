@@ -3253,6 +3253,7 @@ describe('RelayResponseNormalizer', () => {
   describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
     let FlightQuery;
     let recordSource;
+    let ServerOrClientQuery;
     const dummyReactFlightPayloadDeserializer = () => {
       return {
         readRoot() {
@@ -3276,6 +3277,22 @@ describe('RelayResponseNormalizer', () => {
             ... on Story {
               flightComponent(condition: true, count: $count, id: $id)
             }
+          }
+        }
+      `;
+      graphql`
+        fragment RelayResponseNormalizerTest_clientFragment on Story {
+          name
+          body {
+            text
+          }
+        }
+      `;
+      ServerOrClientQuery = graphql`
+        query RelayResponseNormalizerTestServerOrClientQuery($id: ID!) {
+          node(id: $id) {
+            ...RelayResponseNormalizerTest_clientFragment
+              @relay_client_component
           }
         }
       `;
@@ -3342,41 +3359,41 @@ describe('RelayResponseNormalizer', () => {
           },
         );
         expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-        Object {
-          "1": Object {
-            "__id": "1",
-            "__typename": "Story",
-            "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-              "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-            },
-            "id": "1",
-          },
-          "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-            "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-            "__typename": "ReactFlightComponent",
-            "queries": Array [
-              Object {
-                "module": Object {
-                  "__dr": "RelayFlightExampleQuery.graphql",
-                },
-                "variables": Object {
-                  "id": "2",
-                },
-              },
-            ],
-            "tree": Object {
-              "readRoot": [Function],
-            },
-          },
-          "client:root": Object {
-            "__id": "client:root",
-            "__typename": "__Root",
-            "node(id:\\"1\\")": Object {
-              "__ref": "1",
-            },
-          },
-        }
-      `);
+                  Object {
+                    "1": Object {
+                      "__id": "1",
+                      "__typename": "Story",
+                      "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+                        "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+                      },
+                      "id": "1",
+                    },
+                    "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+                      "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+                      "__typename": "ReactFlightComponent",
+                      "queries": Array [
+                        Object {
+                          "module": Object {
+                            "__dr": "RelayFlightExampleQuery.graphql",
+                          },
+                          "variables": Object {
+                            "id": "2",
+                          },
+                        },
+                      ],
+                      "tree": Object {
+                        "readRoot": [Function],
+                      },
+                    },
+                    "client:root": Object {
+                      "__id": "client:root",
+                      "__typename": "__Root",
+                      "node(id:\\"1\\")": Object {
+                        "__ref": "1",
+                      },
+                    },
+                  }
+              `);
       });
 
       it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
@@ -3573,6 +3590,155 @@ describe('RelayResponseNormalizer', () => {
             'RelayResponseNormalizer: Expected `tree` not to be null.',
           ),
         );
+      });
+    });
+
+    describe('when the query contains @relay_client_component spreads', () => {
+      let options;
+      describe('and client component processing is enabled', () => {
+        beforeEach(() => {
+          options = {
+            ...defaultOptions,
+            shouldProcessClientComponents: true,
+          };
+        });
+        it('normalizes', () => {
+          const payload = {
+            node: {
+              id: '1',
+              __typename: 'Story',
+              name: 'React Server Components: The Musical',
+              body: {
+                text:
+                  'Presenting a new musical from the director of Cats (2019)!',
+              },
+            },
+          };
+          normalize(
+            recordSource,
+            createNormalizationSelector(
+              getRequest(ServerOrClientQuery).operation,
+              ROOT_ID,
+              {
+                id: '1',
+              },
+            ),
+            payload,
+            options,
+          );
+          expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+            Object {
+              "1": Object {
+                "__id": "1",
+                "__typename": "Story",
+                "body": Object {
+                  "__ref": "client:1:body",
+                },
+                "id": "1",
+                "name": "React Server Components: The Musical",
+              },
+              "client:1:body": Object {
+                "__id": "client:1:body",
+                "__typename": "Text",
+                "text": "Presenting a new musical from the director of Cats (2019)!",
+              },
+              "client:root": Object {
+                "__id": "client:root",
+                "__typename": "__Root",
+                "node(id:\\"1\\")": Object {
+                  "__ref": "1",
+                },
+              },
+            }
+          `);
+        });
+      });
+
+      describe('and client component processing is disabled', () => {
+        beforeEach(() => {
+          options = {
+            ...defaultOptions,
+            shouldProcessClientComponents: false,
+          };
+        });
+        it('does not normalize', () => {
+          const payload = {
+            node: {
+              id: '1',
+              __typename: 'Story',
+            },
+          };
+          normalize(
+            recordSource,
+            createNormalizationSelector(
+              getRequest(ServerOrClientQuery).operation,
+              ROOT_ID,
+              {
+                id: '1',
+              },
+            ),
+            payload,
+            options,
+          );
+          expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+            Object {
+              "1": Object {
+                "__id": "1",
+                "__typename": "Story",
+                "id": "1",
+              },
+              "client:root": Object {
+                "__id": "client:root",
+                "__typename": "__Root",
+                "node(id:\\"1\\")": Object {
+                  "__ref": "1",
+                },
+              },
+            }
+          `);
+        });
+
+        it('does not normalize client fragment data even if present', () => {
+          const payload = {
+            node: {
+              id: '1',
+              __typename: 'Story',
+              name: 'React Server Components: The Musical',
+              body: {
+                text:
+                  'Presenting a new musical from the director of Cats (2019)!',
+              },
+            },
+          };
+          normalize(
+            recordSource,
+            createNormalizationSelector(
+              getRequest(ServerOrClientQuery).operation,
+              ROOT_ID,
+              {
+                id: '1',
+              },
+            ),
+            payload,
+            options,
+          );
+          expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+            Object {
+              "1": Object {
+                "__id": "1",
+                "__typename": "Story",
+                "id": "1",
+              },
+              "client:root": Object {
+                "__id": "client:root",
+                "__typename": "__Root",
+                "node(id:\\"1\\")": Object {
+                  "__ref": "1",
+                },
+              },
+            }
+          `);
+        });
       });
     });
   });

@@ -15,7 +15,7 @@ name = "relay_compiler_compile_relay_artifacts_test"
 path = "tests/compile_relay_artifacts_test.rs"
 
 [dependencies]
-async-trait = "0.1.29"
+async-trait = "0.1.45"
 bincode = "1.2"
 common = { path = "../common" }
 dependency-analyzer = { path = "../dependency-analyzer" }
@@ -23,7 +23,7 @@ env_logger = "0.7"
 errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
-futures = { version = "0.3.5", features = ["async-await", "compat"] }
+futures = { version = "0.3.13", features = ["async-await", "compat"] }
 graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }

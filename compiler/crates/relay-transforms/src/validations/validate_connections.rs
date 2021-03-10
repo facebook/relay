@@ -461,10 +461,9 @@ impl<'s> ConnectionValidation<'s> {
         if let Some((arg, filters_val)) = constant_filters_arg {
             match filters_val {
                 ConstantValue::List(list_val) => {
-                    let non_string_value = list_val.iter().find(|val| match val {
-                        ConstantValue::String(_) => false,
-                        _ => true,
-                    });
+                    let non_string_value = list_val
+                        .iter()
+                        .find(|val| !matches!(val, ConstantValue::String(_)));
 
                     if non_string_value.is_some() {
                         return Err(vec![

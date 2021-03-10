@@ -12,7 +12,6 @@ use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
 use interner::StringKey;
-use std::iter::FromIterator;
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
@@ -103,13 +102,12 @@ impl VariablesVisitor<'_, '_> {
             self.visited_fragments
                 .insert(fragment.name.item, Default::default());
 
-            // Avoid collecting local variables usages as root varaibles
-            let local_variables = FnvHashSet::from_iter(
-                fragment
-                    .variable_definitions
-                    .iter()
-                    .map(|var| var.name.item),
-            );
+            // Avoid collecting local variables usages as root variables
+            let local_variables = fragment
+                .variable_definitions
+                .iter()
+                .map(|var| var.name.item)
+                .collect::<FnvHashSet<_>>();
             let transitive_local_variables = if fragment
                 .directives
                 .named(*NO_INLINE_DIRECTIVE_NAME)
@@ -125,7 +123,7 @@ impl VariablesVisitor<'_, '_> {
                 local_variables,
                 transitive_local_variables
                     .as_ref()
-                    .unwrap_or_else(|| &self.transitive_local_variables),
+                    .unwrap_or(&self.transitive_local_variables),
             );
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;

@@ -30,14 +30,13 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils');
 
-const query = generateAndCompile(`
-  query TestQuery($id: ID! = 4) {
+const query = getRequest(graphql`
+  query usePreloadedQueryTestQuery($id: ID! = 4) {
     node(id: $id) {
       id
       ... on User {
@@ -45,7 +44,8 @@ const query = generateAndCompile(`
       }
     }
   }
-`).TestQuery;
+`);
+
 // Only queries with an ID are preloadable
 const ID = '12345';
 (query.params: $FlowFixMe).id = ID;
@@ -193,6 +193,7 @@ describe('usePreloadedQuery', () => {
       expect(dataSource).toBeDefined();
       if (dataSource) {
         dataSource.next(response);
+        // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
 
@@ -280,6 +281,7 @@ describe('usePreloadedQuery', () => {
       expect(dataSource).toBeDefined();
       if (dataSource) {
         dataSource.next(response);
+        // $FlowFixMe[incompatible-use]
         dataSource.complete();
       }
       TestRenderer.act(() => jest.runAllImmediates());
@@ -1077,6 +1079,7 @@ describe('usePreloadedQuery', () => {
         expect(dataSource).toBeDefined();
         if (dataSource) {
           dataSource.next(response);
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1130,6 +1133,7 @@ describe('usePreloadedQuery', () => {
               is_final: true,
             },
           });
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1176,6 +1180,7 @@ describe('usePreloadedQuery', () => {
         expect(dataSource).toBeDefined();
         if (dataSource) {
           dataSource.next(response);
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());
@@ -1229,6 +1234,7 @@ describe('usePreloadedQuery', () => {
               is_final: true,
             },
           });
+          // $FlowFixMe[incompatible-use]
           dataSource.complete();
         }
         TestRenderer.act(() => jest.runAllImmediates());

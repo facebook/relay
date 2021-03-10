@@ -10,9 +10,9 @@
 
 use super::graphqlschema_generated as flatbuffer;
 use crate::{
-    sdl::SDLSchemaImpl, Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue,
-    EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID, Schema, Type,
-    TypeReference, UnionID,
+    in_memory::InMemorySchema, Argument, ArgumentDefinitions, ArgumentValue, Directive,
+    DirectiveValue, EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID,
+    Schema, Type, TypeReference, UnionID,
 };
 use flatbuffers::{FlatBufferBuilder, WIPOffset};
 use fnv::FnvHashMap;
@@ -21,13 +21,13 @@ use interner::StringKey;
 use std::collections::BTreeMap;
 use std::convert::TryInto;
 
-pub fn serialize_as_flatbuffer(schema: &SDLSchemaImpl) -> Vec<u8> {
+pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(&schema);
     serializer.serialize_schema()
 }
 
 struct Serializer<'fb, 'schema> {
-    schema: &'schema SDLSchemaImpl,
+    schema: &'schema InMemorySchema,
     bldr: FlatBufferBuilder<'fb>,
     scalars: Vec<WIPOffset<flatbuffer::Scalar<'fb>>>,
     input_objects: Vec<WIPOffset<flatbuffer::InputObject<'fb>>>,
@@ -42,7 +42,7 @@ struct Serializer<'fb, 'schema> {
 }
 
 impl<'fb, 'schema> Serializer<'fb, 'schema> {
-    fn new(schema: &'schema SDLSchemaImpl) -> Self {
+    fn new(schema: &'schema InMemorySchema) -> Self {
         Self {
             schema,
             bldr: FlatBufferBuilder::new(),
@@ -552,6 +552,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.type_map.insert(name, type_args);
     }
 
+    #[allow(clippy::field_reassign_with_default)]
     fn build_type_args(&mut self, id: u32, kind: flatbuffer::TypeKind) -> flatbuffer::TypeArgs {
         let mut type_args = flatbuffer::TypeArgs::default();
         type_args.kind = kind;

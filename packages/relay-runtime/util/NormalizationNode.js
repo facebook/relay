@@ -154,6 +154,11 @@ export type NormalizationFlightField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationClientComponent = {|
+  +kind: 'ClientComponent',
+  +fragment: NormalizationNode,
+|};
+
 export type NormalizationTypeDiscriminator = {|
   +kind: 'TypeDiscriminator',
   +abstractKey: string,
@@ -161,6 +166,7 @@ export type NormalizationTypeDiscriminator = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationClientComponent
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField

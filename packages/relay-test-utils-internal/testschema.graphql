@@ -24,6 +24,8 @@ directive @stream(
 
 directive @fetchable(field_name: String!) on OBJECT
 
+directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings
@@ -128,6 +130,7 @@ type Subscription {
   commentCreateSubscribe(
     input: CommentCreateSubscriptionInput
   ): CommentCreateResponsePayload
+  configCreateSubscribe: ConfigCreateSubscriptResponsePayload
 }
 
 input ActorSubscribeInput {
@@ -315,6 +318,10 @@ type Comment implements Node {
   websites: [String]
   username: String
   viewerSavedState: String
+}
+
+type ConfigCreateSubscriptResponsePayload {
+  config: Config
 }
 
 type CommentCreateResponsePayload {

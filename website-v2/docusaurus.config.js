@@ -15,9 +15,10 @@ const {fbContent} = require('internaldocs-fb-helpers');
 
 module.exports = {
   title: 'Relay',
-  tagline: 'The production-ready GraphQL client for React.',
+  tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  organizationName: 'facebook',
   projectName: 'relay',
   scripts: ['/js/redirect.js'],
   favicon: 'img/favicon.png',
@@ -199,14 +200,27 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl:
-            'https://github.com/facebook/relay/edit/master/website-v2/docs/',
-          path: './docs',
+          editUrl: 'https://github.com/facebook/relay/edit/master/website-v2/',
+
+          // We are storing the source files in docs/current so that when
+          // we make a new version cut, the tree depth of files is maintained
+          // between the old, unversioned path and the versioned path,
+          // and thus relative imports
+          // (e.g. import DocsRating from '../../src/core/DocsRating')
+          // continue to work, and no search-and-replace is required.
+          path: './docs/current/',
+
           sidebarPath: require.resolve('./sidebars.js'),
           lastVersion: fbContent({
             internal: 'current',
             external: versions[0],
           }),
+          onlyIncludeVersions: ['current', ...versions.slice(0, 2)],
+          versions: {
+            current: {
+              label: 'Next 🚧',
+            },
+          },
         },
         blog: {},
         theme: {
@@ -220,10 +234,31 @@ module.exports = {
       },
     ],
   ],
-  plugins: [],
+  plugins: [
+    [
+      '@docusaurus/plugin-client-redirects',
+      {
+        redirects: [
+          {
+            to: '/docs/',
+            from: [
+              '/docs/en/introduction-to-relay',
+              '/docs/introduction-to-relay',
+            ],
+          },
+          {
+            to: '/docs/getting-started/step-by-step-guide/',
+            from: ['/docs/en/quick-start-guide', '/docs/quick-start-guide'],
+          },
+        ],
+      },
+    ],
+  ],
   themeConfig: {
     navbar: {
       title: 'Relay',
+      style: 'primary',
+      hideOnScroll: false,
       items: [
         {
           to: 'docs/',
@@ -246,132 +281,14 @@ module.exports = {
           position: 'left',
         },
         {
-          label: 'Version',
-          to: 'docs',
+          type: 'docsVersionDropdown',
           position: 'right',
-          items: [
-            ...fbContent({
-              internal: [
-                {
-                  label: 'Current',
-                  to: 'docs/',
-                  activeBaseRegex: `docs/(?!${versions.join('|')})`,
-                },
-              ],
-              external: [],
-            }),
+          dropdownActiveClassDisabled: true,
+          dropdownItemsAfter: [
             {
-              label: 'v10.1.3',
-              to: fbContent({
-                internal: 'docs/v10.1.3/',
-                external: 'docs/',
-              }),
-              activeBaseRegex: fbContent({
-                internal: undefined,
-                external: `docs/(?!${versions.concat('next').join('|')})`,
-              }),
+              to: '/versions',
+              label: 'All versions',
             },
-            {
-              label: 'v10.1.2',
-              to: 'docs/v10.1.2/',
-            },
-            {
-              label: 'v10.1.1',
-              to: 'docs/v10.1.1/',
-            },
-            {
-              label: 'v10.1.0',
-              to: 'docs/v10.1.0/',
-            },
-            {
-              label: 'v10.0.1',
-              to: 'docs/v10.0.1/',
-            },
-            {
-              label: 'v10.0.0',
-              to: 'docs/v10.0.0/',
-            },
-            {
-              label: 'v9.1.0',
-              to: 'docs/v9.1.0/',
-            },
-            {
-              label: 'v9.0.0',
-              to: 'docs/v9.0.0/',
-            },
-            {
-              label: 'v8.0.0',
-              to: 'docs/v8.0.0/',
-            },
-            {
-              label: 'v7.1.0',
-              to: 'docs/v7.1.0/',
-            },
-            {
-              label: 'v7.0.0',
-              to: 'docs/v7.0.0/',
-            },
-            {
-              label: 'v6.0.0',
-              to: 'docs/v6.0.0/',
-            },
-            {
-              label: 'v5.0.0',
-              to: 'docs/v5.0.0/',
-            },
-            {
-              label: 'v4.0.0',
-              to: 'docs/v4.0.0/',
-            },
-            {
-              label: 'v3.0.0',
-              to: 'docs/v3.0.0/',
-            },
-            {
-              label: 'v2.0.0',
-              to: 'docs/v2.0.0/',
-            },
-            {
-              label: 'v1.7.0',
-              to: 'docs/v1.7.0/',
-            },
-            {
-              label: 'v1.6.2',
-              to: 'docs/v1.6.2/',
-            },
-            {
-              label: 'v1.6.1',
-              to: 'docs/v1.6.1/',
-            },
-            {
-              label: 'v1.6.0',
-              to: 'docs/v1.6.0/',
-            },
-            {
-              label: 'v1.5.0',
-              to: 'docs/v1.5.0/',
-            },
-            {
-              label: 'v1.4.1',
-              to: 'docs/v1.4.1/',
-            },
-            {
-              label: 'experimental',
-              to: 'docs/experimental/',
-            },
-            {
-              label: 'classic',
-              to: 'docs/classic/',
-            },
-            ...fbContent({
-              internal: [],
-              external: [
-                {
-                  label: 'Unreleased',
-                  to: 'docs/next/',
-                },
-              ],
-            }),
           ],
         },
       ],
@@ -428,9 +345,7 @@ module.exports = {
     algolia: {
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',
-      algoliaOptions: {
-        facetFilters: ['version:VERSION'],
-      },
+      contextualSearch: true,
     },
     gtag: {
       trackingID: 'UA-44373548-50',

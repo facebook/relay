@@ -20,7 +20,7 @@ use lsp_types::{
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     resolution_path::{
         IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
     },
@@ -32,6 +32,9 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
+    if !uri.path().starts_with(state.root_dir_str()) {
+        return Err(LSPRuntimeError::ExpectedError);
+    }
     let range = params.range;
 
     let text_document_position_params = TextDocumentPositionParams {

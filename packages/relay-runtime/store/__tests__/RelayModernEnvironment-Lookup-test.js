@@ -18,13 +18,12 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const {getRequest} = require('../../query/GraphQLTag');
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('lookup()', () => {
   let ParentQuery;
@@ -33,19 +32,21 @@ describe('lookup()', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    ({ParentQuery} = generateAndCompile(`
-        query ParentQuery {
-          me {
-            id
-            name
-            ...ChildFragment
-          }
-        }
-        fragment ChildFragment on User {
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentLookupTestParentQuery {
+        me {
           id
           name
+          ...RelayModernEnvironmentLookupTestChildFragment
         }
-      `));
+      }
+    `);
+    graphql`
+      fragment RelayModernEnvironmentLookupTestChildFragment on User {
+        id
+        name
+      }
+    `;
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
@@ -75,7 +76,7 @@ describe('lookup()', () => {
         id: '4',
         name: 'Zuck',
         __id: '4',
-        __fragments: {ChildFragment: {}},
+        __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: operation.request,
       },
     });
@@ -92,7 +93,7 @@ describe('lookup()', () => {
         id: '4',
         name: 'Zuck',
         __id: '4',
-        __fragments: {ChildFragment: {}},
+        __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: owner.request,
       },
     });
@@ -101,8 +102,8 @@ describe('lookup()', () => {
   });
 
   it('reads __id fields', () => {
-    const {TestQuery} = generateAndCompile(`
-      query TestQuery($id: ID!) {
+    const TestQuery = getRequest(graphql`
+      query RelayModernEnvironmentLookupTestQuery($id: ID!) {
         __id # ok on query type
         me {
           __id # ok on object type with 'id'

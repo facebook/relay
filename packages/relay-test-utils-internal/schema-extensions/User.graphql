@@ -7,4 +7,6 @@ extend type User {
   client_actor_field: String
   client_foo: Foo
   foo: Foo
+  client_name: String
+  client_code: Int
 }

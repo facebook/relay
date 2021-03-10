@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute()', () => {
   let callbacks;
@@ -48,36 +48,38 @@ describe('execute()', () => {
     jest.resetModules();
     commentID = 'comment-id';
 
-    ({
-      CommentCreateSubscription,
-      CommentFragment,
-      CommentQuery,
-    } = generateAndCompile(`
-        subscription CommentCreateSubscription($input: CommentCreateSubscriptionInput!) {
-          commentCreateSubscribe(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
+    CommentCreateSubscription = getRequest(graphql`
+      subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          comment {
+            id
+            body {
+              text
             }
           }
         }
-
-        fragment CommentFragment on Comment {
+      }
+    `);
+    CommentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionTestCommentFragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+    CommentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteSubscriptionTestCommentQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
           id
-          body {
-            text
-          }
+          ...RelayModernEnvironmentExecuteSubscriptionTestCommentFragment
         }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...CommentFragment
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',

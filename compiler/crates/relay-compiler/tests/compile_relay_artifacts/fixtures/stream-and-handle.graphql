@@ -1,0 +1,13 @@
+query streamAndHandleQuery {
+  node(id: "<id>") {
+    ...streamAndHandleFragment
+  }
+}
+
+fragment streamAndHandleFragment on Feedback {
+  actors
+    @stream(label: "actors", if: true, initial_count: 0)
+    @__clientField(handle: "actors_handler") {
+    name @__clientField(handle: "name_handler")
+  }
+}

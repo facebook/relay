@@ -26,6 +26,9 @@ pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
+    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+        return Ok(());
+    }
 
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = match extract_graphql_sources(&text) {
@@ -41,13 +44,16 @@ pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
     validate_result
 }
 
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
     lsp_state: &mut LSPState<TPerfLogger>,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
+    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+        return Ok(());
+    }
     lsp_state.remove_synced_sources(&uri);
-    lsp_state.clear_quick_diagnostics_for_url(&uri);
     Ok(())
 }
 
@@ -60,6 +66,9 @@ pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
         text_document,
     } = params;
     let uri = text_document.uri;
+    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+        return Ok(());
+    }
 
     // We do full text document syncing, so the new text will be in the first content change event.
     let content_change = content_changes
@@ -98,6 +107,7 @@ fn extract_graphql_sources(source: &str) -> Option<Vec<GraphQLSource>> {
     }
 }
 
+#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn on_did_save_text_document<TPerfLogger: PerfLogger + 'static>(
     _lsp_state: &mut LSPState<TPerfLogger>,
     _params: <DidSaveTextDocument as Notification>::Params,

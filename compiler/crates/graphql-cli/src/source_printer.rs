@@ -9,15 +9,12 @@ use colored::*;
 use common::Span;
 use std::fmt::Write;
 
+#[derive(Default)]
 pub struct SourcePrinter;
 
 const PRINT_WHITESPACE: bool = false;
 
 impl SourcePrinter {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub fn write_span<W: Write>(
         &self,
         writer: &mut W,
@@ -124,7 +121,7 @@ impl SourcePrinter {
 
                 if currently_hightlighted {
                     write!(writer, "{}", chr.to_string().red()).unwrap();
-                    marker.push_str("^");
+                    marker.push('^');
                     something_highlighted_on_line = true;
                     if start_byte_index == end_byte_index {
                         currently_hightlighted = false;

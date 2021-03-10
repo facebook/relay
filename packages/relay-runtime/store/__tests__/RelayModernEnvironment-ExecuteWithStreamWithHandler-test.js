@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute() a query with @stream with handler', () => {
   let actorFragment;
@@ -47,31 +47,32 @@ describe('execute() a query with @stream with handler', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({
-      FeedbackQuery: query,
-      FeedbackFragment: fragment,
-      ActorFragment: actorFragment,
-    } = generateAndCompile(`
-        query FeedbackQuery($id: ID!, $enableStream: Boolean!) {
-          node(id: $id) {
-            ...FeedbackFragment
-          }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery(
+        $id: ID!
+        $enableStream: Boolean!
+      ) {
+        node(id: $id) {
+          ...RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment
         }
-
-        fragment FeedbackFragment on Feedback {
-          id
-          actors
+      }
+    `);
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment on Feedback {
+        id
+        actors
           @stream(label: "actors", if: $enableStream, initial_count: 0)
           @__clientField(handle: "actors_handler") {
-            name @__clientField(handle: "name_handler")
-          }
-        }
-
-        # keep in sync with above
-        fragment ActorFragment on Actor {
           name @__clientField(handle: "name_handler")
         }
-      `));
+      }
+    `);
+    actorFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on Actor {
+        # keep in sync with above
+        name @__clientField(handle: "name_handler")
+      }
+    `);
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -187,7 +188,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -205,7 +207,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 1],
     });
     expect(next).toBeCalledTimes(2);
@@ -254,7 +257,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -307,7 +311,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -376,7 +381,8 @@ describe('execute() a query with @stream with handler', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       });
       expect(next).toBeCalledTimes(1);
@@ -433,7 +439,8 @@ describe('execute() a query with @stream with handler', () => {
           id: '2',
           name: 'Alice',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 0],
       });
       expect(next).toBeCalledTimes(1);
@@ -465,7 +472,8 @@ describe('execute() a query with @stream with handler', () => {
           id: '3',
           name: 'Bob',
         },
-        label: 'FeedbackFragment$stream$actors',
+        label:
+          'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
         path: ['node', 'actors', 1],
       });
       expect(next).toBeCalledTimes(2);
@@ -520,7 +528,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 1],
     });
     expect(next).toBeCalledTimes(1);
@@ -539,7 +548,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(2);
@@ -595,7 +605,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
     expect(next).toBeCalledTimes(1);
@@ -639,7 +650,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
@@ -709,7 +721,8 @@ describe('execute() a query with @stream with handler', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
@@ -790,14 +803,15 @@ describe('execute() a query with @stream with handler', () => {
           severity: 'ERROR',
         },
       ],
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors',
       path: ['node', 'actors', 0],
     });
 
     expect(complete).toBeCalledTimes(0);
     expect(error).toBeCalledTimes(1);
     expect(error.mock.calls[0][0].message).toContain(
-      'No data returned for operation `FeedbackQuery`',
+      'No data returned for operation `RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery`',
     );
     expect(next).toBeCalledTimes(1);
     expect(callback).toBeCalledTimes(1);

@@ -103,6 +103,7 @@ class RelayModernStore implements Store {
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -113,6 +114,7 @@ class RelayModernStore implements Store {
       getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      shouldProcessClientComponents?: ?boolean,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -148,6 +150,8 @@ class RelayModernStore implements Store {
         ? new RelayStoreSubscriptionsUsingMapByID(options?.log)
         : new RelayStoreSubscriptions(options?.log);
     this._updatedRecordIDs = new Set();
+    this._shouldProcessClientComponents =
+      options?.shouldProcessClientComponents;
 
     initializeRecordSource(this._recordSource);
   }
@@ -192,6 +196,7 @@ class RelayModernStore implements Store {
       handlers,
       this._operationLoader,
       this._getDataID,
+      this._shouldProcessClientComponents,
     );
 
     return getAvailabilityStatus(
@@ -574,6 +579,7 @@ class RelayModernStore implements Store {
           selector,
           references,
           this._operationLoader,
+          this._shouldProcessClientComponents,
         );
         // Yield for other work after each operation
         yield;
@@ -672,6 +678,7 @@ function updateTargetFromSource(
         currentWriteEpoch,
       );
       invalidatedRecordIDs.add(dataID);
+      // $FlowFixMe[incompatible-call]
       target.set(dataID, nextRecord);
     });
   }

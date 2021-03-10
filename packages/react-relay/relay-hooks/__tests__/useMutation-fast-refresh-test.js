@@ -19,11 +19,12 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
 const useMutation = require('../useMutation');
 
+const {graphql, getRequest} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
+
 describe('useLazyLoadQueryNode', () => {
   let environment;
   let isInFlightFn;
-  let createMockEnvironment;
-  let generateAndCompile;
   let CommentCreateMutation;
 
   const data = {
@@ -52,15 +53,10 @@ describe('useLazyLoadQueryNode', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
 
-    ({
-      createMockEnvironment,
-      generateAndCompile,
-    } = require('relay-test-utils-internal'));
-
     environment = createMockEnvironment();
 
-    ({CommentCreateMutation} = generateAndCompile(`
-      mutation CommentCreateMutation(
+    CommentCreateMutation = getRequest(graphql`
+      mutation useMutationFastRefreshTestCommentCreateMutation(
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
@@ -74,7 +70,8 @@ describe('useLazyLoadQueryNode', () => {
             }
           }
         }
-    }`));
+      }
+    `);
     isInFlightFn = jest.fn(val => val);
   });
 

@@ -836,7 +836,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     );
                 }
                 let values = extract_values_from_handle_field_directive(&handle_field_directive);
-                alias = alias.or_else(|| Some(name));
+                alias = alias.or(Some(name));
                 name = if values.key == CODEGEN_CONSTANTS.default_handle_key {
                     format!("__{}_{}", name, values.handle).intern()
                 } else {
@@ -855,10 +855,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         {
             return self.build_normalization_fragment_spread(frag_spread);
         }
-        if frag_spread
-            .directives
-            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
-            .is_some()
+        if self.variant == CodegenVariant::Normalization
+            && frag_spread
+                .directives
+                .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+                .is_some()
         {
             return self.build_relay_client_component_fragment_spread(frag_spread);
         }
@@ -922,12 +923,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .intern();
         Primitive::Key(self.object(vec![
             ObjectEntry {
-                key: CODEGEN_CONSTANTS.kind,
-                value: Primitive::String(CODEGEN_CONSTANTS.client_component),
-            },
-            ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment,
                 value: Primitive::ModuleDependency(normalization_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.client_component),
             },
         ]))
     }
@@ -991,13 +992,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_stream(&mut self, linked_field: &LinkedField, stream: &Directive) -> Primitive {
-        let next_selections = vec![self.build_linked_field(&LinkedField {
+        let next_selections = self.build_linked_field_and_handles(&LinkedField {
             directives: remove_directive(
                 &linked_field.directives,
                 DEFER_STREAM_CONSTANTS.stream_name,
             ),
             ..linked_field.to_owned()
-        })];
+        });
         let next_selections = Primitive::Key(self.array(next_selections));
         Primitive::Key(match self.variant {
             CodegenVariant::Reader => self.object(vec![
@@ -1302,7 +1303,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_arguments(&mut self, arguments: &[Argument]) -> Option<AstKey> {
-        let mut sorted_args: Vec<&Argument> = arguments.iter().map(|arg| arg).collect();
+        let mut sorted_args: Vec<&Argument> = arguments.iter().collect();
         sorted_args.sort_unstable_by_key(|arg| arg.name.item);
 
         let args = sorted_args

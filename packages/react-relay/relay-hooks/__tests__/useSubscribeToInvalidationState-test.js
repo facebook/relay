@@ -21,10 +21,7 @@ const useSubscribeToInvalidationState = require('../useSubscribeToInvalidationSt
 
 const {useEffect, useState} = require('react');
 const {RecordSource, Store, REF_KEY} = require('relay-runtime');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils');
 
 let environment;
 let render;
@@ -33,7 +30,6 @@ let setDataIDs;
 let setCallback;
 let disposable;
 let renderedInstance;
-let UserQuery;
 let data;
 let callback;
 
@@ -70,20 +66,7 @@ beforeEach(() => {
   };
   const source = new RecordSource(data);
   const store = new Store(source);
-  ({UserQuery} = generateAndCompile(`
-    fragment UserFragment on User {
-      name
-      profilePicture(size: $size) {
-        uri
-      }
-    }
 
-    query UserQuery($id: ID!, $size: [Int]) {
-      node(id: $id) {
-        ...UserFragment
-      }
-    }
-  `));
   environment = createMockEnvironment({store});
   callback = jest.fn();
 

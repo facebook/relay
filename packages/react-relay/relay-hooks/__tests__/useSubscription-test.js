@@ -17,15 +17,13 @@ const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {getRequest, graphql} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
 
-const {CommentCreateSubscription} = generateAndCompile(`
-  subscription CommentCreateSubscription(
+const CommentCreateSubscription = getRequest(graphql`
+  subscription useSubscriptionTestCommentCreateSubscription(
     $input: CommentCreateSubscriptionInput
   ) {
     commentCreateSubscribe(input: $input) {

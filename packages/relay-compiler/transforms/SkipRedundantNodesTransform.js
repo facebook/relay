@@ -234,6 +234,7 @@ function transformNode<T: Node>(
     // $FlowFixMe[escaped-generic]
     cache.set(node, result);
   }
+  // $FlowFixMe[incompatible-return]
   return result;
 }
 

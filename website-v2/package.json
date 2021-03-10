@@ -18,15 +18,16 @@
     "docusaurus": "docusaurus"
   },
   "dependencies": {
+    "@docusaurus/core": "2.0.0-alpha.70",
+    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.70",
+    "@docusaurus/preset-classic": "2.0.0-alpha.70",
     "classnames": "^2.2.6",
+    "clsx": "^1.1.1",
     "docusaurus-plugin-internaldocs-fb": "^0.7.0",
     "react": "^16.10.2",
+    "react-dom": "^16.10.2",
     "react-syntax-highlighter": "15.3.1",
-    "spec-md": "^1.1.1",
-    "@docusaurus/core": "2.0.0-alpha.70",
-    "@docusaurus/preset-classic": "2.0.0-alpha.70",
-    "clsx": "^1.1.1",
-    "react-dom": "^16.10.2"
+    "spec-md": "^1.1.1"
   },
   "devDependencies": {
     "docusaurus": "^2.0.0-alpha.70"

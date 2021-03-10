@@ -68,6 +68,7 @@ export type GeneratedNode =
 
 const RelayConcreteNode = {
   CONDITION: 'Condition',
+  CLIENT_COMPONENT: 'ClientComponent',
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',

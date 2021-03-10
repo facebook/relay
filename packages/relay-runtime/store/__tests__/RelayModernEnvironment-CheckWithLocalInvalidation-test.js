@@ -19,10 +19,10 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('check() with local invalidation', () => {
   let environment;
@@ -39,17 +39,19 @@ describe('check() with local invalidation', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    ({ParentQuery} = generateAndCompile(`
-        query ParentQuery($size: [Int]!) {
-          me {
-            id
-            name
-            profilePicture(size: $size) {
-              uri
-            }
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery(
+        $size: [Int]!
+      ) {
+        me {
+          id
+          name
+          profilePicture(size: $size) {
+            uri
           }
         }
-      `));
+      }
+    `);
     operation = createOperationDescriptor(ParentQuery, {size: 32});
 
     complete = jest.fn();
@@ -304,21 +306,25 @@ describe('check() with local invalidation', () => {
 
   describe('when query has incremental payloads', () => {
     beforeEach(() => {
-      ({ParentQuery} = generateAndCompile(`
-        query ParentQuery($size: [Int]!) {
+      ParentQuery = getRequest(graphql`
+        query RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery(
+          $size: [Int]!
+        ) {
           me {
             id
             name
-            ...UserFragment @defer(label: "UserFragment")
+            ...RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment
+              @defer(label: "UserFragment")
           }
         }
-
-        fragment UserFragment on User {
+      `);
+      graphql`
+        fragment RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment on User {
           profilePicture(size: $size) {
             uri
           }
         }
-      `));
+      `;
       operation = createOperationDescriptor(ParentQuery, {size: 32});
     });
 
@@ -357,7 +363,8 @@ describe('check() with local invalidation', () => {
               uri: 'https://...',
             },
           },
-          label: 'ParentQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
           path: ['me'],
         });
         dataSource.complete();
@@ -402,7 +409,8 @@ describe('check() with local invalidation', () => {
               uri: undefined,
             },
           },
-          label: 'ParentQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
           path: ['me'],
         });
         dataSource.complete();
@@ -450,7 +458,8 @@ describe('check() with local invalidation', () => {
               uri: 'https://...',
             },
           },
-          label: 'ParentQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
           path: ['me'],
         });
         dataSource.complete();
@@ -497,7 +506,8 @@ describe('check() with local invalidation', () => {
               uri: undefined,
             },
           },
-          label: 'ParentQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
           path: ['me'],
         });
         dataSource.complete();
@@ -535,7 +545,8 @@ describe('check() with local invalidation', () => {
               uri: 'https://...',
             },
           },
-          label: 'ParentQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
           path: ['me'],
         });
         dataSource.complete();
@@ -582,7 +593,8 @@ describe('check() with local invalidation', () => {
               uri: undefined,
             },
           },
-          label: 'ParentQuery$defer$UserFragment',
+          label:
+            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
           path: ['me'],
         });
         dataSource.complete();

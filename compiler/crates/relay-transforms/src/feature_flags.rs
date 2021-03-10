@@ -65,10 +65,7 @@ impl NoInlineFeature {
     }
 
     pub fn enable_fragment_variables(&self) -> bool {
-        match self {
-            NoInlineFeature::Enabled => true,
-            _ => false,
-        }
+        matches!(self, NoInlineFeature::Enabled)
     }
 }
 

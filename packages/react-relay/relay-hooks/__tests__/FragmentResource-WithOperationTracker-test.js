@@ -18,13 +18,16 @@ const {createFragmentResource} = require('../FragmentResource');
 const {
   createOperationDescriptor,
   createReaderSelector,
+  graphql,
+  getRequest,
+  getFragment,
 } = require('relay-runtime');
 const RelayOperationTracker = require('relay-runtime/store/RelayOperationTracker');
-const {MockPayloadGenerator} = require('relay-test-utils');
 const {
+  MockPayloadGenerator,
   createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+} = require('relay-test-utils');
+
 const warning = require('warning');
 
 describe('FragmentResource with Operation Tracker and Missing Data', () => {
@@ -52,76 +55,84 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       operationTracker,
       operationLoader,
     });
-    const compiled = generateAndCompile(`
-      query NodeQuery($id: ID!) @relay_test_operation {
+    NodeQuery = getRequest(graphql`
+      query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!)
+        @relay_test_operation {
         node(id: $id) {
-          ...UserFragment
+          ...FragmentResourceWithOperationTrackerTestUserFragment
         }
       }
-
-      query ViewerFriendsQuery @relay_test_operation {
+    `);
+    ViewerFriendsQuery = getRequest(graphql`
+      query FragmentResourceWithOperationTrackerTestViewerFriendsQuery
+        @relay_test_operation {
         viewer {
           actor {
             friends(first: 1) @connection(key: "Viewer_friends") {
               edges {
                 node {
-                  ...UserFragment
+                  ...FragmentResourceWithOperationTrackerTestUserFragment
                 }
               }
             }
           }
         }
       }
-
-      query FriendsPaginationQuery($id: ID!) @relay_test_operation {
+    `);
+    FriendsPaginationQuery = getRequest(graphql`
+      query FragmentResourceWithOperationTrackerTestFriendsPaginationQuery(
+        $id: ID!
+      ) @relay_test_operation {
         node(id: $id) {
           ... on User {
             friends(first: 1) @connection(key: "Viewer_friends") {
               edges {
                 node {
-                  ...UserFragment
+                  ...FragmentResourceWithOperationTrackerTestUserFragment
                 }
               }
             }
           }
         }
       }
-
-      fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+    `);
+    PlainUserNameRenderer_name = getFragment(graphql`
+      fragment FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
         plaintext
         data {
           text
         }
       }
-
-      fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+    `);
+    graphql`
+      fragment FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         markdown
         data {
           markup
         }
       }
-
-      fragment UserFragment on User {
+    `;
+    PlainUserNameRenderer_name$normalization = require('./__generated__/FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql');
+    UserFragment = getFragment(graphql`
+      fragment FragmentResourceWithOperationTrackerTestUserFragment on User {
         id
         name
         nameRenderer @match {
-          ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-          ...MarkdownUserNameRenderer_name
+          ...FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name
+            @module(name: "PlainUserNameRenderer.react")
+          ...FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name
             @module(name: "MarkdownUserNameRenderer.react")
         }
-        plainNameRenderer: nameRenderer @match(key: "UserFragment_plainNameRenderer") {
-          ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+        plainNameRenderer: nameRenderer
+          @match(
+            key: "FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer"
+          ) {
+          ...FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name
+            @module(name: "PlainUserNameRenderer.react")
         }
       }
     `);
-    ({
-      NodeQuery,
-      ViewerFriendsQuery,
-      FriendsPaginationQuery,
-      PlainUserNameRenderer_name,
-      PlainUserNameRenderer_name$normalization,
-      UserFragment,
-    } = compiled);
+
     FragmentResource = createFragmentResource(environment);
     viewerOperation = createOperationDescriptor(ViewerFriendsQuery, {});
     nodeOperation = createOperationDescriptor(NodeQuery, {
@@ -182,9 +193,10 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           name: 'Alice',
           nameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment: 'PlainUserNameRenderer.react',
-            __module_operation_UserFragment:
-              'PlainUserNameRenderer_name$normalization.graphql',
+            __module_component_FragmentResourceWithOperationTrackerTestUserFragment:
+              'PlainUserNameRenderer.react',
+            __module_operation_FragmentResourceWithOperationTrackerTestUserFragment:
+              'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
               text: 'Data Text',
@@ -192,10 +204,10 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           },
           plainNameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment_plainNameRenderer:
+            __module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer:
               'PlainUserNameRenderer.react',
-            __module_operation_UserFragment_plainNameRenderer:
-              'PlainUserNameRenderer_name$normalization.graphql',
+            __module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer:
+              'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
               text: 'Data Text',
@@ -215,7 +227,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       __id:
         'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
       __fragments: {
-        PlainUserNameRenderer_name: {},
+        FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
       },
       __fragmentOwner: viewerOperation.request,
     };
@@ -263,8 +275,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           name: 'Alice',
           nameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment: 'PlainUserNameRenderer.react',
-            __module_operation_UserFragment:
+            __module_component_FragmentResourceWithOperationTrackerTestUserFragment:
+              'PlainUserNameRenderer.react',
+            __module_operation_FragmentResourceWithOperationTrackerTestUserFragment:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
@@ -273,9 +286,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           },
           plainNameRenderer: {
             __typename: 'PlainUserNameRenderer',
-            __module_component_UserFragment_plainNameRenderer:
+            __module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer:
               'PlainUserNameRenderer.react',
-            __module_operation_UserFragment_plainNameRenderer:
+            __module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer:
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
@@ -297,7 +310,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
         __id:
           'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
         __fragments: {
-          PlainUserNameRenderer_name: {},
+          FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
         },
         __fragmentOwner: viewerOperation.request,
       },
@@ -338,9 +351,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                   name: 'Bob',
                   nameRenderer: {
                     __typename: 'PlainUserNameRenderer',
-                    __module_component_UserFragment:
+                    __module_component_FragmentResourceWithOperationTrackerTestUserFragment:
                       'PlainUserNameRenderer.react',
-                    __module_operation_UserFragment:
+                    __module_operation_FragmentResourceWithOperationTrackerTestUserFragment:
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {
@@ -349,9 +362,9 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                   },
                   plainNameRenderer: {
                     __typename: 'PlainUserNameRenderer',
-                    __module_component_UserFragment_plainNameRenderer:
+                    __module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer:
                       'PlainUserNameRenderer.react',
-                    __module_operation_UserFragment_plainNameRenderer:
+                    __module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer:
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {
@@ -370,7 +383,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       __id:
         'client:user-id-2:nameRenderer(supported:["PlainUserNameRenderer"])',
       __fragments: {
-        PlainUserNameRenderer_name: {},
+        FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
       },
       __fragmentOwner: viewerOperation.request,
     };

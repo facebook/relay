@@ -23,18 +23,20 @@ const {
   RecordSource,
   Store,
   createOperationDescriptor,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
-const query = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query preloadQueryDEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`).TestQuery;
+`);
 
 // Only queries with an ID are preloadable
+// $FlowFixMe[cannot-write]
 query.params.id = '12345';
 
 const params = {
@@ -128,7 +130,10 @@ describe('with an environment not set for SSR', () => {
     });
 
     it('fetches from the network if data is not available but query is', () => {
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
       expect(preloaded.source).toEqual(expect.any(Observable));
@@ -241,7 +246,10 @@ describe('with an environment not set for SSR', () => {
         fetchTime,
       });
       check.mockClear();
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
       expect(preloaded.source).toBe(null);
@@ -265,7 +273,10 @@ describe('with an environment not set for SSR', () => {
         fetchTime,
       });
       check.mockClear();
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
       expect(preloaded.source).toBe(null);
@@ -290,7 +301,10 @@ describe('with an environment not set for SSR', () => {
         fetchTime,
       });
       check.mockClear();
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
       expect(preloaded.source).toBe(null);
@@ -340,7 +354,10 @@ describe('with an environment not set for SSR', () => {
         fetchTime,
       });
       check.mockClear();
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
       expect(check).toBeCalledTimes(1);
@@ -360,7 +377,10 @@ describe('with an environment not set for SSR', () => {
       });
       expect(environment.check(operation)).toEqual({status: 'stale'});
       check.mockClear();
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       const preloaded = preloadQuery_DEPRECATED(environment, params, variables);
       expect(preloaded.source).toEqual(expect.any(Observable));
@@ -380,7 +400,10 @@ describe('with an environment not set for SSR', () => {
         fetchTime,
       });
       check.mockClear();
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
 
       preloadQuery_DEPRECATED(environment, params, variables);
       check.mockClear();
@@ -400,7 +423,10 @@ describe('with an environment not set for SSR', () => {
       jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
       environment.commitPayload(operation, response.data);
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
       expect(environment.check(operation)).toEqual({
         status: 'available',
         fetchTime,
@@ -531,7 +557,10 @@ describe('with an environment not set for SSR', () => {
       jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
       environment.commitPayload(operation, response.data);
-      PreloadableQueryRegistry.set(query.params.id, query);
+      PreloadableQueryRegistry.set(
+        query.params.id === null ? query.params.cacheID : query.params.id,
+        query,
+      );
       expect(environment.check(operation)).toEqual({
         status: 'available',
         fetchTime,

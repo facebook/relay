@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<455aa0f55db78048dbac13d74d348649>>
+ * @generated SignedSource<<9d347864a5996ef297d32db922ed7ad0>>
  */
 
 mod compile_relay_artifacts;
@@ -850,6 +850,13 @@ fn stable_literals() {
     let input = include_str!("compile_relay_artifacts/fixtures/stable-literals.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stable-literals.expected");
     test_fixture(transform_fixture, "stable-literals.graphql", "compile_relay_artifacts/fixtures/stable-literals.expected", input, expected);
+}
+
+#[test]
+fn stream_and_handle() {
+    let input = include_str!("compile_relay_artifacts/fixtures/stream-and-handle.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/stream-and-handle.expected");
+    test_fixture(transform_fixture, "stream-and-handle.graphql", "compile_relay_artifacts/fixtures/stream-and-handle.expected", input, expected);
 }
 
 #[test]

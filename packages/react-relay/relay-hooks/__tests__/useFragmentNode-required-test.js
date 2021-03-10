@@ -25,7 +25,11 @@ const {
   ID_KEY,
   createOperationDescriptor,
   RelayFeatureFlags,
+  getRequest,
+  getFragment,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 let environment;
 let singularQuery;
@@ -49,29 +53,25 @@ beforeEach(() => {
   jest.mock('warning');
   renderSpy = jest.fn();
 
-  const {
-    createMockEnvironment,
-    generateAndCompile,
-  } = require('relay-test-utils-internal');
   RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 
   // Set up environment and base data
   environment = createMockEnvironment();
-  const generated = generateAndCompile(`
-    fragment UserFragment on User  {
-      id
-      name @required(action: NONE)
-    }
 
-    query UserQuery($id: ID!) {
+  const singularVariables = {id: '1'};
+  const gqlSingularQuery = getRequest(graphql`
+    query useFragmentNodeRequiredTestUserQuery($id: ID!) {
       node(id: $id) {
-        ...UserFragment
+        ...useFragmentNodeRequiredTestUserFragment
       }
     }
   `);
-  const singularVariables = {id: '1'};
-  const gqlSingularQuery = generated.UserQuery;
-  const gqlSingularFragment = generated.UserFragment;
+  const gqlSingularFragment = getFragment(graphql`
+    fragment useFragmentNodeRequiredTestUserFragment on User {
+      id
+      name @required(action: NONE)
+    }
+  `);
   singularQuery = createOperationDescriptor(
     gqlSingularQuery,
     singularVariables,
@@ -97,7 +97,7 @@ beforeEach(() => {
     const userRef = {
       [ID_KEY]: singularQuery.request.variables.id,
       [FRAGMENTS_KEY]: {
-        UserFragment: {},
+        useFragmentNodeRequiredTestUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: singularQuery.request,
     };

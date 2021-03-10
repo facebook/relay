@@ -19,29 +19,24 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
-const {
-  generateAndCompile,
-  createMockEnvironment,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils');
 
 import type {
   LoadQueryOptions,
   PreloadableConcreteRequest,
 } from '../EntryPointTypes.flow';
-import type {
-  ConcreteRequest,
-  OperationType,
-  GraphQLTaggedNode,
-} from 'relay-runtime';
+import type {OperationType, GraphQLTaggedNode} from 'relay-runtime';
 
-const query: ConcreteRequest = generateAndCompile(`
-  query TestQuery($id: ID!) {
+const query = getRequest(graphql`
+  query loadQuerySourceBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`).TestQuery;
+`);
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',

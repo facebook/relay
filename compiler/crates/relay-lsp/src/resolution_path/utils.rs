@@ -13,8 +13,8 @@ use super::{
     SelectionParent,
 };
 
-pub fn find_selection_parent_type<'a>(
-    selection_parent: SelectionParent<'a>,
+pub fn find_selection_parent_type(
+    selection_parent: SelectionParent<'_>,
     schema: &SDLSchema,
 ) -> Option<Type> {
     match selection_parent {

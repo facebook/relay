@@ -15,14 +15,14 @@ const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSour
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {SCALAR_FIELD, SCALAR_HANDLE} = require('../../util/RelayConcreteNode');
-const {generateWithTransforms} = require('relay-test-utils-internal');
+const {getRequest, graphql} = require('relay-runtime');
 
 describe('cloneRelayScalarHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const {TestQuery} = generateWithTransforms(`
-      query TestQuery {
+    const TestQuery = getRequest(graphql`
+      query cloneRelayScalarHandleSourceFieldTestQuery {
         me {
           address {
             street @__clientField(handle: "test")
@@ -31,13 +31,14 @@ describe('cloneRelayScalarHandleSourceField()', () => {
       }
     `);
     // Get the selections on `me.addresss`.
+    // $FlowFixMe
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
-      handleField,
+      (handleField: $FlowFixMe),
       selections,
       {},
     );
@@ -52,7 +53,11 @@ describe('cloneRelayScalarHandleSourceField()', () => {
     selections = selections.filter(node => node.kind === SCALAR_HANDLE);
 
     expect(() =>
-      cloneRelayScalarHandleSourceField(handleField, selections, {}),
+      cloneRelayScalarHandleSourceField(
+        (handleField: $FlowFixMe),
+        selections,
+        {},
+      ),
     ).toThrowError(
       'cloneRelayScalarHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',

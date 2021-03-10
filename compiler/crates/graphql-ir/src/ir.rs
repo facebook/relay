@@ -296,10 +296,7 @@ pub enum ConstantValue {
 
 impl ConstantValue {
     pub fn is_null(&self) -> bool {
-        match self {
-            ConstantValue::Null() => true,
-            _ => false,
-        }
+        matches!(self, ConstantValue::Null())
     }
 
     pub fn is_non_null(&self) -> bool {

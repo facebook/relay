@@ -141,7 +141,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                         Some("Waiting for source control update"),
                         &self.sender,
                     );
-                    break 'inner;
+                    continue 'inner;
                 }
 
                 // SC Update completed, we need to abort current subscription, and re-initialize resource for LSP
@@ -357,11 +357,14 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     Ok(FileSourceSubscriptionNextChange::None) => {}
                     Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
                         source_code_update_status.mark_as_started();
-                        notify_sender.notify_one();
                     }
                     Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
+                        source_code_update_status.set_to_default();
+                    }
+                    Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
                         source_code_update_status.mark_as_completed();
                         notify_sender.notify_one();
+                        break;
                     }
                     Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
                         pending_file_source_changes

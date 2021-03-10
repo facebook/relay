@@ -92,8 +92,9 @@ fragment queryWithRelayClientComponent_ClientComponentFragment on User {
             "storageKey": null
           },
           {
-            "kind": "ClientComponent",
-            "fragment": require('queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql')
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "queryWithRelayClientComponent_ClientComponentFragment"
           }
         ],
         "storageKey": null
@@ -148,8 +149,8 @@ fragment queryWithRelayClientComponent_ClientComponentFragment on User {
             "storageKey": null
           },
           {
-            "kind": "ClientComponent",
-            "fragment": require('queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql')
+            "fragment": require('queryWithRelayClientComponent_ClientComponentFragment$normalization.graphql'),
+            "kind": "ClientComponent"
           }
         ],
         "storageKey": null

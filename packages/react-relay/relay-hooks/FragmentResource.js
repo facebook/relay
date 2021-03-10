@@ -58,6 +58,9 @@ opaque type FragmentResult: {data: mixed, ...} = {|
 // identity even if data hasn't changed.
 const CACHE_CAPACITY = 1000000;
 
+// this is frozen so that users don't accidentally push data into the array
+const CONSTANT_READONLY_EMPTY_ARRAY = Object.freeze([]);
+
 function isMissingData(snapshot: SingularOrPluralSnapshot) {
   if (Array.isArray(snapshot)) {
     return snapshot.some(s => s.isMissingData);
@@ -148,7 +151,11 @@ class FragmentResourceImpl {
         fragmentNode.name,
       );
       if (fragmentRef.length === 0) {
-        return {cacheKey: fragmentIdentifier, data: [], snapshot: []};
+        return {
+          cacheKey: fragmentIdentifier,
+          data: CONSTANT_READONLY_EMPTY_ARRAY,
+          snapshot: CONSTANT_READONLY_EMPTY_ARRAY,
+        };
       }
     }
 

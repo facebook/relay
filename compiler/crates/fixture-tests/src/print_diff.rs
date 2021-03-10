@@ -31,8 +31,5 @@ pub(crate) fn print_diff(expected: &str, actual: &str) {
 }
 
 fn is_change<T>(result: &diff::Result<T>) -> bool {
-    match result {
-        Left(_) | Right(_) => true,
-        _ => false,
-    }
+    matches!(result, Left(_) | Right(_))
 }

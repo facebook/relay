@@ -22,6 +22,7 @@ const warning = require('warning');
 
 const {
   CONDITION,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
@@ -90,6 +91,7 @@ export type NormalizationOptions = {|
   +path?: $ReadOnlyArray<string>,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
+  +shouldProcessClientComponents?: ?boolean,
 |};
 
 /**
@@ -129,6 +131,7 @@ class RelayResponseNormalizer {
   _variables: Variables;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -148,6 +151,7 @@ class RelayResponseNormalizer {
     this._reactFlightPayloadDeserializer =
       options.reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = options.reactFlightServerErrorHandler;
+    this._shouldProcessClientComponents = options.shouldProcessClientComponents;
   }
 
   normalizeResponse(
@@ -301,6 +305,15 @@ class RelayResponseNormalizer {
           this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
+          break;
+        case CLIENT_COMPONENT:
+          if (!RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
+            throw new Error('Client components are not yet supported.');
+          }
+          if (this._shouldProcessClientComponents === false) {
+            break;
+          }
+          this._traverseSelections(selection.fragment, record, data);
           break;
         case FLIGHT_FIELD:
           if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {

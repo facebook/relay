@@ -299,6 +299,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       const networkObservable =
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
+        // $FlowFixMe[incompatible-call]
         queryId,
         preloadedModule => {
           cancelOnLoadCallback();

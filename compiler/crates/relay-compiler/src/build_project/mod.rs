@@ -40,7 +40,7 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
-use log::{debug, info};
+use log::{debug, info, warn};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
@@ -84,6 +84,7 @@ pub fn validate_program(
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
+    log_event.number("validate_documents_count", program.document_count());
     let result = validate(
         program,
         &config.connection_interface,
@@ -150,7 +151,7 @@ fn build_programs(
                     .feature_flags
                     .as_ref()
                     .cloned()
-                    .unwrap_or(config.feature_flags.clone()),
+                    .unwrap_or_else(|| config.feature_flags.clone()),
             ),
             perf_logger,
         )
@@ -221,6 +222,7 @@ pub fn build_project(
     Ok((project_config.name, schema, programs, artifacts))
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn commit_project(
     config: &Config,
     project_config: &ProjectConfig,
@@ -252,7 +254,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
-                &operation_persister,
+                operation_persister.as_ref(),
                 &log_event,
             )
             .await?;
@@ -417,6 +419,12 @@ pub async fn commit_project(
         debug!(
             "We just updated artifacts after source control update happened. Most likely we have outdated artifacts now..."
         );
+        warn!(
+            r#"
+Build canceled due to a source control update while we're writing artifacts.
+The compiler may produce outdated artifacts, but it will regenerate the correct set after the update is completed."#
+        );
+        return Err(BuildProjectFailure::Cancelled);
     } else {
         // For now, lets log how often this is happening, so we can decide if we want to
         // adjust the way we write artifacts. For example, we could write them to the temp

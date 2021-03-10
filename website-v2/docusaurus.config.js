@@ -437,9 +437,7 @@ module.exports = {
     algolia: {
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',
-      algoliaOptions: {
-        facetFilters: ['version:VERSION'],
-      },
+      contextualSearch: true,
     },
     gtag: {
       trackingID: 'UA-44373548-50',

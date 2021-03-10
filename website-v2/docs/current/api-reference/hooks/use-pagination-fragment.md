@@ -34,7 +34,7 @@ function FriendsList(props: Props) {
     isLoadingNext,
     isLoadingPrevious,
     refetch, // For refetching connection
-  } = usePaginationFragment`<``FriendsListPaginationQuery``,`` _``>`(
+  } = usePaginationFragment<FriendsListPaginationQuery, _>(
     graphql`
       fragment FriendsListComponent_user on User
       @refetchable(queryName: "FriendsListPaginationQuery") {

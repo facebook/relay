@@ -11,6 +11,7 @@ use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
+use interner::StringKey;
 use log::{debug, info};
 use lsp_server::Message;
 use rayon::iter::ParallelIterator;
@@ -31,7 +32,7 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
 };
 
-use super::lsp_state::{Schemas, SourcePrograms};
+use super::lsp_state::{ProjectStatus, ProjectStatusMap, Schemas, SourcePrograms};
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
@@ -44,6 +45,7 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     notify_receiver: Arc<Notify>,
     sender: Sender<Message>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
+    project_status: ProjectStatusMap,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
@@ -54,8 +56,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         source_programs: SourcePrograms,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
+        notify_sender: Arc<Notify>,
+        project_status: ProjectStatusMap,
     ) -> Self {
-        let notify_sender = Arc::new(Notify::new());
         let notify_receiver = notify_sender.clone();
 
         Self {
@@ -68,6 +71,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             notify_sender,
             notify_receiver,
             diagnostic_reporter,
+            project_status,
         }
     }
 
@@ -180,8 +184,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             false,
         )?;
 
-        // If changes contains schema files we need to rebuild schemas
-        if has_new_changes {
+        // Rebuild if there are pending files or if a new project is activated
+        if has_new_changes
+            || self
+                .project_status
+                .iter()
+                .any(|r| r.value() == &ProjectStatus::Activated)
+        {
             info!("LSP server detected changes...");
 
             self.diagnostic_reporter.clear_regular_diagnostics();
@@ -215,15 +224,17 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             return Err(Error::Cancelled);
         }
 
-        // When the source programs is empty, we need to compile all source programs once
-        let compile_everything = self.source_programs.is_empty();
-
         let timer = log_event.start("build_lsp_projects");
         let build_results: Vec<_> = self
             .config
             .par_enabled_projects()
             .filter(|project_config| {
-                if compile_everything {
+                // Filter inactive projects
+                if !self.project_status.contains_key(&project_config.name) {
+                    return false;
+                }
+                // When the source programs is empty, we need to compile all source programs once
+                if !self.source_programs.contains_key(&project_config.name) {
                     return true;
                 }
                 if let Some(base) = project_config.base {
@@ -233,25 +244,23 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 }
                 compiler_state.project_has_pending_changes(project_config.name)
             })
-            .map(|project_config| {
-                self.build_project(
-                    project_config,
-                    compiler_state,
-                    &graphql_asts,
-                    compile_everything,
-                )
-            })
+            .map(|project_config| self.build_project(project_config, compiler_state, &graphql_asts))
             .collect();
         log_event.stop(timer);
 
         let mut errors = vec![];
         for build_result in build_results {
-            if let Err(BuildProjectFailure::Error(err)) = build_result {
-                errors.push(err);
+            match build_result {
+                Err(BuildProjectFailure::Error(err)) => {
+                    errors.push(err);
+                }
+                Ok(project_name) => {
+                    compiler_state.complete_project_compilation(&project_name);
+                }
+                _ => {}
             }
         }
         if errors.is_empty() {
-            compiler_state.complete_compilation();
             Ok(())
         } else {
             Err(Error::BuildProjectsErrors { errors })
@@ -263,8 +272,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
         graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
-        compile_everything: bool,
-    ) -> Result<(), BuildProjectFailure> {
+    ) -> Result<StringKey, BuildProjectFailure> {
+        self.project_status
+            .insert(project_config.name, ProjectStatus::Completed);
         let log_event = self.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
@@ -274,25 +284,16 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.build_schema(compiler_state, project_config)
         })?;
 
-        let is_incremental_build = !compile_everything
-            && compiler_state.has_processed_changes()
-            && !compiler_state.has_breaking_schema_change(project_name)
-            && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base)
-            } else {
-                true
-            };
         self.build_programs(
             project_config,
             compiler_state,
             graphql_asts,
             schema,
             &log_event,
-            is_incremental_build,
         )?;
 
         log_event.stop(build_time);
-        Ok(())
+        Ok(project_name)
     }
 
     fn build_schema(
@@ -324,8 +325,16 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
-        is_incremental_build: bool,
     ) -> Result<(), BuildProjectFailure> {
+        let is_incremental_build = self.source_programs.contains_key(&project_config.name)
+            && compiler_state.has_processed_changes()
+            && !compiler_state.has_breaking_schema_change(project_config.name)
+            && if let Some(base) = project_config.base {
+                !compiler_state.has_breaking_schema_change(base)
+            } else {
+                true
+            };
+
         let (base_program, base_fragment_names, _) = build_raw_program(
             project_config,
             graphql_asts,

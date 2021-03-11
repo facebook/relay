@@ -15,7 +15,7 @@ use crate::{
 use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::Sender;
-use dashmap::DashMap;
+use dashmap::{mapref::entry::Entry, DashMap};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
@@ -30,12 +30,19 @@ use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url}
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::SDLSchema;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
-use tokio::task;
+use tokio::{sync::Notify, task};
 
 use super::lsp_state_resources::LSPStateResources;
 
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
+pub type ProjectStatusMap = Arc<DashMap<StringKey, ProjectStatus, FnvBuildHasher>>;
+
+#[derive(Eq, PartialEq)]
+pub enum ProjectStatus {
+    Activated,
+    Completed,
+}
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
@@ -51,6 +58,8 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
+    notify_sender: Arc<Notify>,
+    project_status: ProjectStatusMap,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
@@ -67,17 +76,19 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             Arc::new(DiagnosticReporter::new(config.root_dir.clone(), sender));
 
         Self {
-            config,
             compiler: None,
+            config,
+            diagnostic_reporter,
             extra_data_provider,
             file_categorizer,
+            notify_sender: Arc::new(Notify::new()),
+            perf_logger,
+            project_status: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
-            perf_logger,
-            diagnostic_reporter,
         }
     }
 
@@ -102,6 +113,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         let schemas = Arc::clone(&lsp_state.schemas);
         let source_programs = Arc::clone(&lsp_state.source_programs);
         let diagnostic_reporter = Arc::clone(&lsp_state.diagnostic_reporter);
+        let notify_sender = Arc::clone(&lsp_state.notify_sender);
+        let project_status = Arc::clone(&lsp_state.project_status);
 
         task::spawn(async move {
             let resources = LSPStateResources::new(
@@ -111,6 +124,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                 source_programs,
                 sender,
                 diagnostic_reporter,
+                notify_sender,
+                project_status,
             );
             resources.watch().await.unwrap();
         });
@@ -164,11 +179,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         &self.root_dir_str
     }
 
-    pub(crate) fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {
-        self.start_compiler_once();
-        self.synced_graphql_documents.insert(url, sources);
-    }
-
     pub(crate) fn remove_synced_sources(&mut self, url: &Url) {
         self.synced_graphql_documents.remove(url);
         self.diagnostic_reporter
@@ -189,21 +199,40 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         )
     }
 
-    pub(crate) fn validate_synced_sources(
+    pub(crate) fn process_synced_sources(
         &mut self,
         url: Url,
-        graphql_sources: &[GraphQLSource],
+        sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()> {
-        let mut diagnostics = vec![];
-
-        let url_str = url.to_string();
         let project_name =
             extract_project_name_from_url(&self.file_categorizer, &url, &self.root_dir)?;
 
+        if let Entry::Vacant(e) = self.project_status.entry(project_name) {
+            e.insert(ProjectStatus::Activated);
+            self.notify_sender.notify_one();
+        }
+
+        self.validate_synced_sources(url.clone(), project_name, &sources);
+        self.insert_synced_sources(url, sources);
+        Ok(())
+    }
+
+    fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {
+        self.start_compiler_once();
+        self.synced_graphql_documents.insert(url, sources);
+    }
+
+    fn validate_synced_sources(
+        &mut self,
+        url: Url,
+        project_name: StringKey,
+        graphql_sources: &[GraphQLSource],
+    ) {
+        let mut diagnostics = vec![];
         for graphql_source in graphql_sources {
             let result = parse_executable_with_error_recovery(
                 &graphql_source.text,
-                SourceLocationKey::standalone(&url_str),
+                SourceLocationKey::standalone(&url.to_string()),
             );
 
             diagnostics.extend(
@@ -232,7 +261,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
-        Ok(())
     }
 
     fn start_compiler_once(&mut self) {

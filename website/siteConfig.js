@@ -167,6 +167,12 @@ const users = [
     infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
     pinned: false,
   },
+  {
+    caption: 'Seasy',
+    image: '/img/logos/seasy.png',
+    infoLink: 'https://www.seasy.at',
+    pinned: false,
+  }
 ];
 
 const siteConfig = {

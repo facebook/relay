@@ -5,7 +5,7 @@ In order to build and run these docs locally, execute the following commands:
 ```sh
 git clone git@github.com:facebook/relay.git
 # or git clone https://github.com/facebook/relay.git
-cd relay/website-v2/
+cd relay/website/
 yarn
 yarn start
 ```

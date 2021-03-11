@@ -114,7 +114,7 @@ function UserLink({ userId, userName }) {
     {isPopoverVisible && queryReference && (
       <Popover>
         <React.Suspense fallback={<Glimmer />}>
-          <UserPopoverContent queryRef={queryRef} />
+          <UserPopoverContent queryRef={queryReference} />
         </React.Suspense>
       </Popover>
     )}

@@ -61,8 +61,9 @@ impl DiagnosticReporter {
             .active_diagnostics
             .write()
             .expect("build_finishes: could not acquire write lock for self.active_diagnostics");
-        for diagnostics in active_diagnostics.values_mut() {
+        for (url, diagnostics) in active_diagnostics.iter_mut() {
             diagnostics.regular_diagnostics.clear();
+            self.publish_diangostics_set(url, diagnostics)
         }
         active_diagnostics.retain(|_, diagnostics| {
             !diagnostics.regular_diagnostics.is_empty() || !diagnostics.quick_diagnostics.is_empty()

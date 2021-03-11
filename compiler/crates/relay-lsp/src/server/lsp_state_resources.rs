@@ -12,15 +12,17 @@ use std::{
 
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
 use graphql_ir::Program;
 use interner::StringKey;
 use log::{debug, info};
 use lsp_server::Message;
+use rayon::iter::ParallelIterator;
 use relay_compiler::{
-    build_schema, compiler::build_raw_programs, compiler_state::CompilerState, config::Config,
-    errors::Error, transform_program, validate_program, BuildProjectFailure, FileSource,
-    FileSourceResult, FileSourceSubscription, FileSourceSubscriptionNextChange,
+    build_raw_program, build_schema, compiler_state::CompilerState, compiler_state::SourceSetName,
+    config::Config, config::ProjectConfig, errors::BuildProjectError, errors::Error,
+    transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
+    FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
     SourceControlUpdateStatus,
 };
 use schema::SDLSchema;
@@ -40,7 +42,6 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
     source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
     errors: Arc<RwLock<Vec<String>>>,
-    source_code_update_status: SourceControlUpdateStatus,
     notify_sender: Arc<Notify>,
     notify_receiver: Arc<Notify>,
     sender: Sender<Message>,
@@ -66,7 +67,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             source_programs,
             errors: Default::default(),
             sender,
-            source_code_update_status: Default::default(),
             notify_sender,
             notify_receiver,
             diagnostic_reporter,
@@ -107,6 +107,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             let subscription_handle = self.watchman_subscription_handler(
                 file_source_subscription,
                 pending_file_source_changes,
+                Arc::clone(&compiler_state.source_control_update_status),
             );
             update_in_progress_status(
                 "Relay: creating state...",
@@ -117,7 +118,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.diagnostic_reporter.clear_regular_diagnostics();
 
             // Run initial build, before entering the watch changes loop
-            if let Err(err) = self.initial_build(&mut compiler_state, &setup_event) {
+            if let Err(err) = self.build_projects(&mut compiler_state, &setup_event) {
                 self.report_error(err);
             }
 
@@ -135,7 +136,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
                 // we may change the status bar to `Source Control Update...`
-                if self.source_code_update_status.is_started() {
+                if compiler_state.source_control_update_status.is_started() {
                     update_in_progress_status(
                         "Relay: hg update...",
                         Some("Waiting for source control update"),
@@ -145,7 +146,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 }
 
                 // SC Update completed, we need to abort current subscription, and re-initialize resource for LSP
-                if self.source_code_update_status.is_completed() {
+                if compiler_state.source_control_update_status.is_completed() {
                     debug!("Watchman indicated the the source control update has completed!");
                     subscription_handle.abort();
                     continue 'outer;
@@ -193,189 +194,196 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 &self.sender,
             );
 
-            if compiler_state.has_schema_changes() {
-                self.build_schemas(compiler_state, log_event)?;
-            }
-
-            self.build_source_programs(&compiler_state, log_event)?;
-
-            compiler_state.complete_compilation();
+            self.build_projects(compiler_state, log_event)?;
         }
 
         Ok(())
     }
 
-    fn initial_build(
+    fn build_projects(
         &self,
         compiler_state: &mut CompilerState,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), Error> {
-        debug!("Initial build started...");
-        // TODO: (from https://fburl.com/diff/m8jg14sy) - pass source code update status to
-        // `compiler.build_schemas` and `compiler.build_source_programs` to cancel build earlier,
-        // if update detected
-        self.build_schemas(compiler_state, log_event)?;
-        self.build_source_programs(compiler_state, log_event)?;
-        compiler_state.complete_compilation();
+        let graphql_asts = log_event.time("parse_sources_time", || {
+            GraphQLAsts::from_graphql_sources_map(
+                &compiler_state.graphql_sources,
+                &compiler_state.get_dirty_definitions(&self.config),
+            )
+        })?;
 
-        Ok(())
-    }
-
-    fn build_schemas(
-        &self,
-        compiler_state: &CompilerState,
-        log_event: &impl PerfLogEvent,
-    ) -> Result<(), Error> {
-        debug!("Building schemas");
-        let timer = log_event.start("build_schemas");
-
-        // Stop building programs if we detect source code update
-        if self.source_code_update_status.is_started() {
-            return Ok(());
+        if compiler_state.should_cancel_current_build() {
+            debug!("Build is cancelled: new file changes are pending.");
+            return Err(Error::Cancelled);
         }
 
-        let mut build_errors = vec![];
-        for project_config in self.config.enabled_projects() {
-            match build_schema(compiler_state, project_config) {
-                Ok(schema) => {
-                    self.schemas
-                        .write()
-                        .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on schemas")
-                        .insert(project_config.name, schema);
+        // When the source programs is empty, we need to compile all source programs once
+        let compile_everything = self
+            .source_programs
+            .read()
+            .expect("LSPState::build_in_watch_mode: expect to acquire read lock on source_programs")
+            .is_empty();
+
+        let timer = log_event.start("build_lsp_projects");
+        let build_results: Vec<_> = self
+            .config
+            .par_enabled_projects()
+            .filter(|project_config| {
+                if compile_everything {
+                    return true;
                 }
-                Err(diagnostics) => {
-                    for err in diagnostics {
-                        build_errors.push(err);
+                if let Some(base) = project_config.base {
+                    if compiler_state.project_has_pending_changes(base) {
+                        return true;
                     }
                 }
-            };
-        }
-
-        let result = if !build_errors.is_empty() {
-            Err(Error::DiagnosticsError {
-                errors: build_errors,
+                compiler_state.project_has_pending_changes(project_config.name)
             })
-        } else {
-            Ok(())
-        };
-
-        log_event.stop(timer);
-
-        result
-    }
-
-    fn build_source_programs(
-        &self,
-        compiler_state: &CompilerState,
-        log_event: &impl PerfLogEvent,
-    ) -> Result<(), Error> {
-        debug!("Building source programs");
-        // Stop building programs if we detect source code update
-        if self.source_code_update_status.is_started() {
-            return Ok(());
-        }
-        let timer = log_event.start("build_source_programs_time");
-
-        // This will build programs, but won't apply any transformations to them
-        // that should be enough for LSP to start showing fragments information
-        let (programs, graphql_asts, base_fragment_names_map, build_errors) = build_raw_programs(
-            &self.config,
-            compiler_state,
-            &self
-                .schemas
-                .read()
-                .expect("LSPState::build_in_watch_mode: expect to acquire read lock on schemas"),
-            log_event,
-            // When the source programs is empty, we need to compile all source programs once
-            self.source_programs
-                .read()
-                .expect(
-                    "LSPState::build_in_watch_mode: expect to acquire read lock on source_programs",
-                )
-                .is_empty(),
-        )?;
-
-        self.validate_programs(&programs, base_fragment_names_map, log_event)?;
-
-        let mut source_programs = self.source_programs.write().expect(
-            "LSPState::build_in_watch_mode: expect to acquire write lock on source_programs",
-        );
-
-        for (program_name, next_program) in programs {
-            match source_programs.entry(program_name) {
-                Entry::Vacant(e) => {
-                    e.insert(next_program);
-                }
-                Entry::Occupied(mut e) => {
-                    let program = e.get_mut();
-                    let removed_definition_names = graphql_asts
-                        .get(&program_name)
-                        .map(|ast| ast.removed_definition_names.as_ref());
-                    program.merge_program(next_program, removed_definition_names);
-                }
-            }
-        }
-
-        let result = if !build_errors.is_empty() {
-            Err(Error::BuildProjectsErrors {
-                errors: build_errors,
-            })
-        } else {
-            Ok(())
-        };
-
-        log_event.stop(timer);
-
-        result
-    }
-
-    fn validate_programs(
-        &self,
-        programs: &FnvHashMap<StringKey, Program>,
-        base_fragment_names_map: FnvHashMap<StringKey, FnvHashSet<StringKey>>,
-        log_event: &impl PerfLogEvent,
-    ) -> Result<(), Error> {
-        let mut errors = vec![];
-
-        for (project_name, program) in programs {
-            if let Err(err) = validate_program(&self.config, program, log_event) {
-                // First, lets report validation errors
-                errors.push(err);
-            } else {
-                // If programs seem valid, let try transform them, this should report additional validation errors
-                let project_config = self.config.projects.get(project_name).unwrap_or_else(|| {
-                    panic!("Expect to get project config for {}", &project_name)
-                });
-                let base_fragment_names = base_fragment_names_map
-                    .get(project_name)
-                    .map(|v| v.to_owned())
-                    .unwrap_or_default();
-                if let Err(BuildProjectFailure::Error(err)) = transform_program(
-                    &self.config,
+            .map(|project_config| {
+                self.build_project(
                     project_config,
-                    Arc::new(program.clone()),
-                    Arc::new(base_fragment_names),
-                    Arc::clone(&self.perf_logger),
-                    log_event,
-                ) {
-                    errors.push(err);
-                }
+                    compiler_state,
+                    &graphql_asts,
+                    compile_everything,
+                )
+            })
+            .collect();
+        log_event.stop(timer);
+
+        let mut errors = vec![];
+        for build_result in build_results {
+            if let Err(BuildProjectFailure::Error(err)) = build_result {
+                errors.push(err);
             }
         }
-
         if errors.is_empty() {
+            compiler_state.complete_compilation();
             Ok(())
         } else {
             Err(Error::BuildProjectsErrors { errors })
         }
     }
 
+    fn build_project(
+        &self,
+        project_config: &ProjectConfig,
+        compiler_state: &CompilerState,
+        graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+        compile_everything: bool,
+    ) -> Result<(), BuildProjectFailure> {
+        let log_event = self.perf_logger.create_event("build_lsp_project");
+        let project_name = project_config.name;
+        let build_time = log_event.start("build_lsp_project_time");
+        log_event.string("project", project_name.to_string());
+
+        let schema = log_event.time("build_schema_time", || {
+            self.build_schema(compiler_state, project_config)
+        })?;
+
+        let is_incremental_build = !compile_everything
+            && compiler_state.has_processed_changes()
+            && !compiler_state.has_breaking_schema_change(project_name)
+            && if let Some(base) = project_config.base {
+                !compiler_state.has_breaking_schema_change(base)
+            } else {
+                true
+            };
+        self.build_programs(
+            project_config,
+            compiler_state,
+            graphql_asts,
+            schema,
+            &log_event,
+            is_incremental_build,
+        )?;
+
+        log_event.stop(build_time);
+        Ok(())
+    }
+
+    fn build_schema(
+        &self,
+        compiler_state: &CompilerState,
+        project_config: &ProjectConfig,
+    ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
+        let mut schema_cache = self
+            .schemas
+            .write()
+            .expect("Expect to acquire write lock on schemas");
+        match schema_cache.get(&project_config.name) {
+            Some(schema)
+                if !compiler_state.project_has_pending_schema_changes(project_config.name) =>
+            {
+                Ok(Arc::clone(schema))
+            }
+            _ => {
+                let schema = build_schema(compiler_state, project_config).map_err(|errors| {
+                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+                })?;
+                schema_cache.insert(project_config.name, Arc::clone(&schema));
+                Ok(schema)
+            }
+        }
+    }
+
+    fn build_programs(
+        &self,
+        project_config: &ProjectConfig,
+        compiler_state: &CompilerState,
+        graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+        schema: Arc<SDLSchema>,
+        log_event: &impl PerfLogEvent,
+        is_incremental_build: bool,
+    ) -> Result<(), BuildProjectFailure> {
+        let (base_program, base_fragment_names, _) = build_raw_program(
+            project_config,
+            graphql_asts,
+            schema,
+            log_event,
+            is_incremental_build,
+        )?;
+
+        if compiler_state.should_cancel_current_build() {
+            debug!("Build is cancelled: updates in source code/or new file changes are pending.");
+            return Err(BuildProjectFailure::Cancelled);
+        }
+
+        let mut source_programs = self
+            .source_programs
+            .write()
+            .expect("Expect to acquire write lock on source_programs");
+        match source_programs.entry(project_config.name) {
+            Entry::Vacant(e) => {
+                e.insert(base_program.clone());
+            }
+            Entry::Occupied(mut e) => {
+                let program = e.get_mut();
+                let removed_definition_names = graphql_asts
+                    .get(&project_config.name)
+                    .map(|ast| ast.removed_definition_names.as_ref());
+                program.merge_program(&base_program, removed_definition_names);
+            }
+        }
+
+        validate_program(&self.config, &base_program, log_event)?;
+
+        transform_program(
+            &self.config,
+            project_config,
+            Arc::new(base_program),
+            Arc::new(base_fragment_names),
+            Arc::clone(&self.perf_logger),
+            log_event,
+        )?;
+        Ok(())
+    }
+
     fn watchman_subscription_handler(
         &self,
         mut file_source_subscription: FileSourceSubscription,
         pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
+        source_code_update_status: Arc<SourceControlUpdateStatus>,
     ) -> JoinHandle<()> {
-        let source_code_update_status = self.source_code_update_status.clone();
         let notify_sender = self.notify_sender.clone();
         task::spawn(async move {
             loop {

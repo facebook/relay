@@ -20,6 +20,7 @@ log = { version = "0.4.8", features = ["kv_unstable"] }
 lsp-server = "0.3.2"
 lsp-types = "0.73.0"
 rand = { version = "0.7", features = ["small_rng"] }
+rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }

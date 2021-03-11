@@ -5,30 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::{build_project, commit_project, BuildProjectFailure};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
 use crate::{
-    build_project::{
-        build_project, build_raw_program, build_schema, commit_project, BuildProjectFailure,
-    },
-    errors::BuildProjectError,
-};
-use crate::{
-    compiler_state::{ArtifactMapKind, CompilerState, ProjectName},
+    compiler_state::{ArtifactMapKind, CompilerState},
     watchman::FileSourceSubscriptionNextChange,
 };
-use common::{Diagnostic, PerfLogEvent, PerfLogger};
-use fnv::{FnvHashMap, FnvHashSet};
+use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use graphql_ir::Program;
-use interner::StringKey;
 use log::{debug, info};
 use rayon::prelude::*;
-use schema::SDLSchema;
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 use tokio::{
     sync::Notify,
     task::{self, JoinHandle},
@@ -62,31 +53,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
         self.perf_logger.complete_event(setup_event);
         Ok(compiler_state)
-    }
-
-    pub fn build_schemas(
-        &self,
-        compiler_state: &CompilerState,
-        setup_event: &impl PerfLogEvent,
-    ) -> (HashMap<ProjectName, Arc<SDLSchema>>, Vec<Diagnostic>) {
-        let mut errors: Vec<Diagnostic> = vec![];
-        let timer = setup_event.start("build_schemas");
-        let mut schemas = HashMap::default();
-        for project_config in self.config.enabled_projects() {
-            match build_schema(compiler_state, project_config) {
-                Ok(schema) => {
-                    schemas.insert(project_config.name, schema);
-                }
-                Err(diagnostics) => {
-                    for err in diagnostics {
-                        errors.push(err);
-                    }
-                }
-            };
-        }
-        setup_event.stop(timer);
-
-        (schemas, errors)
     }
 
     pub async fn watch(&self) -> Result<()> {
@@ -257,92 +223,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         self.config.status_reporter.build_finishes(&result);
         result
     }
-}
-
-type AstMap = FnvHashMap<ProjectName, GraphQLAsts>;
-type ProgramMap = FnvHashMap<ProjectName, Program>;
-type BaseFragmentNamesMap = FnvHashMap<ProjectName, FnvHashSet<StringKey>>;
-
-pub fn build_raw_programs(
-    config: &Config,
-    compiler_state: &CompilerState,
-    schemas: &FnvHashMap<ProjectName, Arc<SDLSchema>>,
-    log_event: &impl PerfLogEvent,
-    compile_everything: bool,
-) -> Result<(
-    ProgramMap,
-    AstMap,
-    BaseFragmentNamesMap,
-    Vec<BuildProjectError>,
-)> {
-    let graphql_asts = log_event.time("parse_sources_time", || {
-        GraphQLAsts::from_graphql_sources_map(
-            &compiler_state.graphql_sources,
-            &compiler_state.get_dirty_definitions(config),
-        )
-    })?;
-
-    let timer = log_event.start("build_raw_programs");
-
-    let programs: Vec<(ProjectName, _)> = config
-        .par_enabled_projects()
-        .filter(|project_config| {
-            if let Some(base) = project_config.base {
-                if compiler_state.project_has_pending_changes(base) {
-                    return true;
-                }
-            }
-            compiler_state.project_has_pending_changes(project_config.name)
-        })
-        .map(|project_config| {
-            let project_name = project_config.name;
-            let is_incremental_build = !compile_everything
-                && compiler_state.has_processed_changes()
-                && !compiler_state.has_breaking_schema_change(project_name)
-                && if let Some(base) = project_config.base {
-                    !compiler_state.has_breaking_schema_change(base)
-                } else {
-                    true
-                };
-            if let Some(schema) = schemas.get(&project_name) {
-                (
-                    project_config.name,
-                    build_raw_program(
-                        project_config,
-                        &graphql_asts,
-                        Arc::clone(schema),
-                        log_event,
-                        is_incremental_build,
-                    ),
-                )
-            } else {
-                (
-                    project_name,
-                    Err(BuildProjectError::SchemaNotFoundForProject { project_name }),
-                )
-            }
-        })
-        .collect();
-
-    let mut errors: Vec<BuildProjectError> = vec![];
-    let mut program_map: ProgramMap = Default::default();
-    let mut base_fragment_names_map: BaseFragmentNamesMap = Default::default();
-
-    for (program_name, program_result) in programs {
-        match program_result {
-            Ok((program, base_fragment_names)) => {
-                program_map.insert(program_name, program);
-                base_fragment_names_map.insert(program_name, base_fragment_names);
-            }
-            Err(error) => {
-                errors.push(error);
-            }
-        };
-    }
-
-    log_event.stop(timer);
-
-    Ok((program_map, graphql_asts, base_fragment_names_map, errors))
 }
 
 async fn build_projects<TPerfLogger: PerfLogger + 'static>(

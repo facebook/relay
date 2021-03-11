@@ -67,19 +67,23 @@ pub fn build_raw_program(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<(Program, FnvHashSet<StringKey>), BuildProjectError> {
+) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
+    // Build a type aware IR.
     let BuildIRResult {
         ir,
         base_fragment_names,
-        ..
+        source_hashes,
     } = log_event.time("build_ir_time", || {
         build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
-    Ok(log_event.time("build_program_time", || {
-        (Program::from_definitions(schema, ir), base_fragment_names)
-    }))
+    // Turn the IR into a base Program.
+    let program = log_event.time("build_program_time", || {
+        Program::from_definitions(schema, ir)
+    });
+
+    Ok((program, base_fragment_names, source_hashes))
 }
 
 pub fn validate_program(
@@ -132,7 +136,7 @@ pub fn transform_program(
     result
 }
 
-fn build_programs(
+pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
@@ -150,21 +154,13 @@ fn build_programs(
             true
         };
 
-    // Build a type aware IR.
-    let BuildIRResult {
-        ir,
-        base_fragment_names,
-        source_hashes,
-    } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build).map_err(
-            |errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }),
-        )
-    })?;
-
-    // Turn the IR into a base Program.
-    let program = log_event.time("build_program_time", || {
-        Program::from_definitions(schema, ir)
-    });
+    let (program, base_fragment_names, source_hashes) = build_raw_program(
+        project_config,
+        graphql_asts,
+        schema,
+        log_event,
+        is_incremental_build,
+    )?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -195,7 +191,7 @@ pub fn build_project(
 ) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
-    let project_name = project_config.name.lookup();
+    let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 

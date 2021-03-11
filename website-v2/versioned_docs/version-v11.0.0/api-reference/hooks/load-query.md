@@ -47,12 +47,12 @@ const queryReference = loadQuery(
 * `environment`: A Relay Environment instance on which to execute the request. If you're starting this request somewhere within a React component, you probably want to use the environment you obtain from using [`useRelayEnvironment`](#userelayenvironment).
 * `query`: GraphQL query to fetch, specified using a `graphql` template literal, or a preloadable concrete request, which can be acquired by requiring the file `<name-of-query>$Parameters.graphql`. Relay will only generate the `$Parameters` file if the query is annotated with `@preloadable`.
 * `variables`: Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.
-* `options`: **[Optional]** options object
+* `options`: *_[Optional]_* options object
     * `fetchPolicy`: Determines if cached data should be used, and whether to send a network request based on the cached data that is currently available in the Relay store (for more details, see our [Fetch Policies](../../guided-tour/reusing-cached-data/fetch-policies) and [Garbage Collection](../../guided-tour/reusing-cached-data/availability-of-data) guides):
         * "store-or-network": **(default)** *will* reuse locally cached data and will *only* send a network request if any data for the query is missing. If the query is fully cached, a network request will *not* be made.
         * "store-and-network": *will* reuse locally cached data and will *always* send a network request, regardless of whether any data was missing from the local cache or not.
         * "network-only": *will not* reuse locally cached data, and will *always* send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
-    * `networkCacheConfig`: **[Optional]** Object containing cache config options for the *network layer.* Note the the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
+    * `networkCacheConfig`: *_[Optional]_* Default value: `{force: true}`. Object containing cache config options for the *network layer*. Note that the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely (which is the default behavior), pass `{force: true}` as the value for this option.
 * `environmentProviderOptions`: *[Optional]* options object
     * Options passed to an `environmentProvider` used in `prepareSurfaceEntryPoint.js`.
 

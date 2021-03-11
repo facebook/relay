@@ -44,7 +44,7 @@ fetchQuery<AppQuery>(
 * `variables`: Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.
 * `options`: *_[Optional]_* options object
     * `networkCacheConfig`: *_[Optional]_ *Object containing cache config options
-        * `force`: Boolean value. If true, will bypass the network response cache.
+        * `force`: Boolean value. If true, will bypass the network response cache. Defaults to true.
 
 ### Flow Type Parameters
 

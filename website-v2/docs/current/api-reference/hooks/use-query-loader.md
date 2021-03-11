@@ -88,8 +88,7 @@ A tuple containing the following values:
                 * "store-or-network": _*(default)*_ *will* reuse locally cached data and will *only* send a network request if any data for the query is missing. If the query is fully cached, a network request will *not* be made.
                 * "store-and-network": *will* reuse locally cached data and will *always* send a network request, regardless of whether any data was missing from the local cache or not.
                 * "network-only": *will* *not* reuse locally cached data, and will *always* send a network request to fetch the query, ignoring any data that might be locally cached in Relay.
-            * `networkCacheConfig`: Optional. Object containing cache config options for the *network layer. *Note the the network layer contains a *additional *query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely, pass `{force: true}` as the value for this option.
-            * `onQueryAstLoadTimeout`: Optional. Callback that is executed if the request to fetch the query AST does not complete in time.
+            * `networkCacheConfig`: *_[Optional]_* Default value: `{force: true}`. Object containing cache config options for the *network layer*. Note that the network layer may contain an *additional* query response cache which will reuse network responses for identical queries. If you want to bypass this cache completely (which is the default behavior), pass `{force: true}` as the value for this option.
 * `disposeQuery`: a callback that, when executed, will set `queryReference` to `null` and call `.dispose()` on it. It has type `() => void`. It should not be called during React's render phase.
 
 ### Behavior

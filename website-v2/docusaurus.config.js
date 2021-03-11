@@ -383,6 +383,10 @@ module.exports = {
         src: 'img/relay.svg',
       },
     },
+    algolia: {
+      apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
+      indexName: 'relay',
+    },
     gtag: {
       trackingID: 'UA-44373548-50',
     },

@@ -15,7 +15,8 @@ use crate::{
 use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::Sender;
-use fnv::FnvHashMap;
+use dashmap::DashMap;
+use fnv::FnvBuildHasher;
 use graphql_ir::{
     build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
 };
@@ -28,14 +29,13 @@ use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
 use schema::SDLSchema;
-use std::{
-    collections::HashMap,
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
+use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::task;
 
 use super::lsp_state_resources::LSPStateResources;
+
+pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
+pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
@@ -46,8 +46,8 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
-    schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
-    source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    schemas: Schemas,
+    source_programs: SourcePrograms,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
@@ -73,8 +73,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             file_categorizer,
             root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
-            schemas: Default::default(),
-            source_programs: Default::default(),
+            schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
+            source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
             perf_logger,
             diagnostic_reporter,
@@ -129,11 +129,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         lsp_state
     }
 
-    pub(crate) fn get_schemas(&self) -> Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>> {
+    pub(crate) fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
     }
 
-    pub(crate) fn get_source_programs_ref(&self) -> &Arc<RwLock<FnvHashMap<StringKey, Program>>> {
+    pub(crate) fn get_source_programs_ref(&self) -> &SourcePrograms {
         &self.source_programs
     }
 
@@ -212,16 +212,9 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                     .into_iter()
                     .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
             );
-            if let Some(schema) = self
-                .schemas
-                .read()
-                .expect(
-                    "validate_synced_sources: could not acquire read lock for state.get_schemas",
-                )
-                .get(&project_name)
-            {
+            if let Some(schema) = self.schemas.get(&project_name) {
                 if let Err(errors) = build_ir_with_extra_features(
-                    schema,
+                    &schema,
                     &result.item.definitions,
                     BuilderOptions {
                         allow_undefined_fragment_spreads: true,

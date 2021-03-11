@@ -12,37 +12,29 @@ use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::NodeKind,
     node_resolution_info::NodeResolutionInfo,
-    server::LSPState,
+    server::{LSPState, SourcePrograms},
     utils::span_to_range_offset,
 };
 use common::{Location, PerfLogger};
-use fnv::FnvHashMap;
 use graphql_ir::{FragmentSpread, Program, Visitor};
 use interner::StringKey;
 use lsp_types::{
     request::{References, Request},
     Range,
 };
-use std::{
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
+use std::path::PathBuf;
 
 fn get_references_response(
     node_resolution_info: NodeResolutionInfo,
-    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    source_programs: &SourcePrograms,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<Vec<lsp_types::Location>> {
     match node_resolution_info.kind {
         NodeKind::FragmentDefinition(fragment) => {
             let project_name = node_resolution_info.project_name;
-            if let Some(source_program) = source_programs
-                .read()
-                .expect("get_references_response: Could not acquire read lock for source_programs")
-                .get(&project_name)
-            {
+            if let Some(source_program) = source_programs.get(&project_name) {
                 let references = ReferenceFinder::get_references_to_fragment(
-                    source_program,
+                    &source_program,
                     fragment.name.value,
                 )
                 .into_iter()

@@ -5,16 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{
-    collections::hash_map::Entry,
-    sync::{Arc, RwLock},
-};
+use std::sync::{Arc, RwLock};
 
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::Sender;
+use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
-use graphql_ir::Program;
-use interner::StringKey;
 use log::{debug, info};
 use lsp_server::Message;
 use rayon::iter::ParallelIterator;
@@ -35,12 +31,14 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
 };
 
+use super::lsp_state::{Schemas, SourcePrograms};
+
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
     perf_logger: Arc<TPerfLogger>,
-    schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
-    source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    schemas: Schemas,
+    source_programs: SourcePrograms,
     errors: Arc<RwLock<Vec<String>>>,
     notify_sender: Arc<Notify>,
     notify_receiver: Arc<Notify>,
@@ -52,8 +50,8 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     pub(crate) fn new(
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
-        schemas: Arc<RwLock<FnvHashMap<StringKey, Arc<SDLSchema>>>>,
-        source_programs: Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+        schemas: Schemas,
+        source_programs: SourcePrograms,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
     ) -> Self {
@@ -218,11 +216,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         }
 
         // When the source programs is empty, we need to compile all source programs once
-        let compile_everything = self
-            .source_programs
-            .read()
-            .expect("LSPState::build_in_watch_mode: expect to acquire read lock on source_programs")
-            .is_empty();
+        let compile_everything = self.source_programs.is_empty();
 
         let timer = log_event.start("build_lsp_projects");
         let build_results: Vec<_> = self
@@ -306,21 +300,18 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        let mut schema_cache = self
-            .schemas
-            .write()
-            .expect("Expect to acquire write lock on schemas");
-        match schema_cache.get(&project_config.name) {
+        match self.schemas.get(&project_config.name) {
             Some(schema)
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) =>
             {
-                Ok(Arc::clone(schema))
+                Ok(Arc::clone(&schema))
             }
             _ => {
                 let schema = build_schema(compiler_state, project_config).map_err(|errors| {
                     BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
                 })?;
-                schema_cache.insert(project_config.name, Arc::clone(&schema));
+                self.schemas
+                    .insert(project_config.name, Arc::clone(&schema));
                 Ok(schema)
             }
         }
@@ -348,11 +339,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             return Err(BuildProjectFailure::Cancelled);
         }
 
-        let mut source_programs = self
-            .source_programs
-            .write()
-            .expect("Expect to acquire write lock on source_programs");
-        match source_programs.entry(project_config.name) {
+        match self.source_programs.entry(project_config.name) {
             Entry::Vacant(e) => {
                 e.insert(base_program.clone());
             }

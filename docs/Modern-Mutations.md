@@ -141,7 +141,7 @@ We can give Relay instructions in the form of a `configs` array on how to use th
 
 Given a `deletedIDFieldName`, Relay will remove the node(s) from the store.
 
-**Note**: this will not remove it from any connection it might be in. If you want to remove a node from a connection, take a look at [RANGE_DELETE](#RANGE_DELETE).
+**Note**: this will not remove it from any connection it might be in. If you want to remove a node from a connection, take a look at [RANGE_DELETE](#range_delete).
 
 #### Arguments
 

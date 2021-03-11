@@ -202,7 +202,7 @@ module.exports = {
           }),
           editUrl: 'https://github.com/facebook/relay/edit/master/website/',
 
-          path: './docs/current/',
+          path: './docs/',
 
           sidebarPath: require.resolve('./sidebars.js'),
           lastVersion: fbContent({

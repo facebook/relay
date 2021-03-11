@@ -327,6 +327,10 @@
         },
         {
           "type": "doc",
+          "id": "version-v11.0.0/guides/type-emission"
+        },
+        {
+          "type": "doc",
           "id": "version-v11.0.0/guides/persisted-queries"
         },
         {

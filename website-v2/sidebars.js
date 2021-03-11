@@ -22,6 +22,7 @@ const Guides = fbContent({
     'guides/testing-relay-with-preloaded-queries',
     'guides/fb/required-directive',
     'guides/client-schema-extensions',
+    'guides/type-emission',
     {
       EntryPoints: [
         'guides/fb/entrypoints/entrypoints',
@@ -45,6 +46,7 @@ const Guides = fbContent({
   external: [
     'guides/graphql-server-specification',
     'guides/compiler',
+    'guides/type-emission',
     'guides/persisted-queries',
     'guides/network-layer',
     'guides/client-schema-extensions',

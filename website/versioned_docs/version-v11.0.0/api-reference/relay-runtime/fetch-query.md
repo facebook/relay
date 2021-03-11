@@ -4,7 +4,7 @@ title: fetchQuery
 slug: /api-reference/fetch-query/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 ## `fetchQuery`

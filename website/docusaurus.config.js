@@ -202,12 +202,6 @@ module.exports = {
           }),
           editUrl: 'https://github.com/facebook/relay/edit/master/website/',
 
-          // We are storing the source files in docs/current so that when
-          // we make a new version cut, the tree depth of files is maintained
-          // between the old, unversioned path and the versioned path,
-          // and thus relative imports
-          // (e.g. import DocsRating from '../../src/core/DocsRating')
-          // continue to work, and no search-and-replace is required.
           path: './docs/current/',
 
           sidebarPath: require.resolve('./sidebars.js'),

@@ -4,7 +4,7 @@ title: useRelayEnvironment
 slug: /api-reference/use-relay-environment/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## `useRelayEnvironment`
 

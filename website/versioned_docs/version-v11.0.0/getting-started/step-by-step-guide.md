@@ -4,7 +4,7 @@ title: Step-by-step Guide
 slug: /getting-started/step-by-step-guide/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 

@@ -4,7 +4,7 @@ title: Refetching Fragments With Different Data
 slug: /guided-tour/refetching/refetching-fragments-with-different-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbRefetchingFragments from './fb/FbRefetchingFragments.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';

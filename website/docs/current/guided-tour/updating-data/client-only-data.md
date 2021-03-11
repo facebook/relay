@@ -4,7 +4,7 @@ title: Client-Only Data
 slug: /guided-tour/updating-data/client-only-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbClientOnlyDataDir from './fb/FbClientOnlyDataDir.md';
 

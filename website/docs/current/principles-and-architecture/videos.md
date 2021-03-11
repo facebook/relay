@@ -4,7 +4,7 @@ title: Videos
 slug: /principles-and-architecture/videos/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## React Conf 2019
 

@@ -4,7 +4,7 @@ title: Testing Relay Components
 slug: /guides/testing-relay-components/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 ## Abstract

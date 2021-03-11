@@ -4,7 +4,7 @@ title: useFragment
 slug: /api-reference/use-fragment/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## `useFragment`
 

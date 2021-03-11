@@ -4,7 +4,7 @@ title: Relay Compiler
 slug: /guides/compiler/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 import FbRunningCompiler from './fb/FbRunningCompiler.md';
 import FbGraphQLSchema from './fb/FbGraphQLSchema.md';

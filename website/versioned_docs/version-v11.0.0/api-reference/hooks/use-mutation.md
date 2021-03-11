@@ -4,7 +4,7 @@ title: useMutation
 slug: /api-reference/use-mutation/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbUseMutationParameter from './fb/FbUseMutationParameter.md';
 

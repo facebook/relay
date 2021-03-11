@@ -4,7 +4,7 @@ title: Type Emission
 slug: /guides/type-emission/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly, fbContent} from 'internaldocs-fb-helpers';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';

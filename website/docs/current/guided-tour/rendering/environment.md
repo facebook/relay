@@ -4,7 +4,7 @@ title: Environment
 slug: /guided-tour/rendering/environment/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbActorsAndEnvironments from './fb/FbActorsAndEnvironments.md';
 import FbEnvironmentSetup from './fb/FbEnvironmentSetup.md';

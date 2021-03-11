@@ -4,7 +4,7 @@ title: Network Layer
 slug: /guides/network-layer/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 <FbInternalOnly>

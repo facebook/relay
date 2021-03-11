@@ -4,7 +4,7 @@ title: Inconsistent Typename Error
 slug: /debugging/inconsistent-typename-error/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 ## Inconsistent `__typename` error

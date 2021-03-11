@@ -4,7 +4,7 @@ title: Reusing Cached Data
 slug: /guided-tour/reusing-cached-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 While an app is in use, Relay will accumulate and cache *(for some time)* the data for the multiple queries that have been fetched throughout usage of our app. Often times, we'll want to be able to reuse and immediately render this data that is locally cached instead of waiting for a network request when fulfilling a query; this is what we'll cover in this section.

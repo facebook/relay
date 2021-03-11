@@ -4,7 +4,7 @@ title: Error States with ErrorBoundaries
 slug: /guided-tour/rendering/error-states/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbErrorBoundary from './fb/FbErrorBoundary.md';
 

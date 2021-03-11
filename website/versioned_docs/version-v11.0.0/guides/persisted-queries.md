@@ -4,7 +4,7 @@ title: Persisted Queries
 slug: /guides/persisted-queries/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 <FbInternalOnly>

@@ -4,7 +4,7 @@ title: Rendering Connections
 slug: /guided-tour/list-data/rendering-connections/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import FbSuspenseListAlternative from './fb/FbSuspenseListAlternative.md';
 import FbRenderingConnectionsUsingSuspenseList from './fb/FbRenderingConnectionsUsingSuspenseList.md';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';

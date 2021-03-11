@@ -4,7 +4,7 @@ title: Client Schema Extensions
 slug: /guides/client-schema-extensions/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 :::note
 See also [the local data updates](../../guided-tour/updating-data/local-data-updates/) and [client-only data](../../guided-tour/updating-data/client-only-data/) sections of the guided tour.

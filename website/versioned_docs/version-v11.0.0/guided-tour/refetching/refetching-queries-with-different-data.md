@@ -4,7 +4,7 @@ title: Refetching Queries with Different Data
 slug: /guided-tour/refetching/refetching-queries-with-different-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbRefetchingQueriesUsingUseQueryLoader from './fb/FbRefetchingQueriesUsingUseQueryLoader.md';
 import FbRefetchingQueriesUsingUseLazyLoadQuery from './fb/FbRefetchingQueriesUsingUseLazyLoadQuery.md';

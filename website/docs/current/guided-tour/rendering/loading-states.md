@@ -4,7 +4,7 @@ title: Loading States with Suspense
 slug: /guided-tour/rendering/loading-states/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbSuspenseDefinition from './fb/FbSuspenseDefinition.md';

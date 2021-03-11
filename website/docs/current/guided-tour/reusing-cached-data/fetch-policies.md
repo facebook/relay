@@ -4,7 +4,7 @@ title: Fetch Policies
 slug: /guided-tour/reusing-cached-data/fetch-policies/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 The first step to reusing locally cached data is to pass a `fetchPolicy` to the `loadQuery` function, which can be provided by `useQueryLoader` (see the [Fetching Queries section](../../rendering/queries/)):

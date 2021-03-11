@@ -4,7 +4,7 @@ title: Glossary
 slug: /glossary/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 ## 3D

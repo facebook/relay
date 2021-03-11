@@ -4,7 +4,7 @@ title: GraphQL Server Specification
 slug: /guides/graphql-server-specification/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.
 

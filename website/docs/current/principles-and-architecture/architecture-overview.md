@@ -4,7 +4,7 @@ title: Architecture Overview
 slug: /principles-and-architecture/architecture-overview/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 This document, together with [Runtime Architecture](../runtime-architecture/) and [Compiler Architecture](../compiler-architecture/), describes the high-level architecture of Relay. The intended audience includes developers interested in contributing to Relay, developers hoping to utilize the building blocks of Relay to create higher-level APIs, and anyone interested in understanding more about Relay internals. For developers wanting to learn more about _using_ Relay to build products, the [Guided Tour](../../guided-tour/) is the best resource.
 

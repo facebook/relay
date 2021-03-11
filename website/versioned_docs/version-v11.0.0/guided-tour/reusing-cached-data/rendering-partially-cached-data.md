@@ -4,7 +4,7 @@ title: Rendering Partially Cached Data
 slug: /guided-tour/reusing-cached-data/rendering-partially-cached-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbProfilePhotoHeaderExample from './fb/FbProfileHeaderExample.md';
 import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';

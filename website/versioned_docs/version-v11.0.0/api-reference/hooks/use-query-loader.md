@@ -4,7 +4,7 @@ title: useQueryLoader
 slug: /api-reference/use-query-loader/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## `useQueryLoader`
 

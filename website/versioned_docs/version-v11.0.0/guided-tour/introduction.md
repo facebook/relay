@@ -4,7 +4,7 @@ title: Introduction
 slug: /guided-tour/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbCrashCourse from './fb/FbCrashCourse.md';

@@ -4,7 +4,7 @@ title: useLazyLoadQuery
 slug: /api-reference/use-lazy-load-query/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## `useLazyLoadQuery`
 

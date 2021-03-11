@@ -4,7 +4,7 @@ title: usePreloadedQuery
 slug: /api-reference/use-preloaded-query/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## `usePreloadedQuery`
 

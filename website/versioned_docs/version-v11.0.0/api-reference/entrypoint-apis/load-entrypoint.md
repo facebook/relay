@@ -4,7 +4,7 @@ title: loadEntryPoint
 slug: /api-reference/load-entrypoint/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 ## `loadEntryPoint`

@@ -4,7 +4,7 @@ title: Pagination
 slug: /guided-tour/list-data/pagination/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbPaginationUsingUseTransition from './fb/FbPaginationUsingUseTransition.md';
 

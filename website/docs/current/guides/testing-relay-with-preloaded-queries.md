@@ -4,7 +4,7 @@ title: Testing Relay with Preloaded Queries
 slug: /guides/testing-relay-with-preloaded-queries/
 ---
 
-import DocsRating from '../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 Components that use preloaded queries (`useQueryLoader` and `usePreloadedQuery` hooks) require slightly different and more convoluted test setup.

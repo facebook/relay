@@ -4,7 +4,7 @@ title: Local Data Updates
 slug: /guided-tour/updating-data/local-data-updates/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbLocalDataUpdatesFlow from './fb/FbLocalDataUpdatesFlow.md';
 

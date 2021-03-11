@@ -4,7 +4,7 @@ title: Refetching Connections (Using and Changing Filters)
 slug: /guided-tour/list-data/refetching-connections/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbRefetchingConnectionsUsingUseTransition from './fb/FbRefetchingConnectionsUsingUseTransition.md';
 

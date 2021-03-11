@@ -4,7 +4,7 @@ title: Filling in Missing Data (Missing Field Handlers)
 slug: /guided-tour/reusing-cached-data/filling-in-missing-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbMissingFieldHandlers from './fb/FbMissingFieldHandlers.md';

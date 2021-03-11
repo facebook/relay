@@ -4,7 +4,7 @@ title: Presence of Data
 slug: /guided-tour/reusing-cached-data/presence-of-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbGarbageCollection from './fb/FbGarbageCollection.md';
 

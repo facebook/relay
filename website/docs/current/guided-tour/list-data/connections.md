@@ -4,7 +4,7 @@ title: Connections
 slug: /guided-tour/list-data/connections/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 

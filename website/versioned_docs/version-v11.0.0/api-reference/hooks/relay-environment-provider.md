@@ -4,7 +4,7 @@ title: RelayEnvironmentProvider
 slug: /api-reference/relay-environment-provider/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 
 ## `RelayEnvironmentProvider`
 

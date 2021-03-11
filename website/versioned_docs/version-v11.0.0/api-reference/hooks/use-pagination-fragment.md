@@ -4,7 +4,7 @@ title: usePaginationFragment
 slug: /api-reference/use-pagination-fragment/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbUsePaginationFragmentReturnValue from './fb/FbUsePaginationFragmentReturnValue.md';
 

@@ -4,7 +4,7 @@ title: Staleness of Data
 slug: /guided-tour/reusing-cached-data/staleness-of-data/
 ---
 
-import DocsRating from '../../../../src/core/DocsRating';
+import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 import FbPushViews from './fb/FbPushViews.md';
 

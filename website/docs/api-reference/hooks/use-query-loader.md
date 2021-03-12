@@ -59,7 +59,7 @@ function QueryFetcherExample(props: Props) {
 }
 
 function NameDisplay({ queryReference }) {
-  const data = usePreloadedQuery<AppQueryType>(query, queryReference);
+  const data = usePreloadedQuery<AppQueryType>(AppQuery, queryReference);
 
   return <h1>{data.user?.name}</h1>;
 }

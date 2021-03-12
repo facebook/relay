@@ -301,19 +301,28 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        match self.schemas.get(&project_config.name) {
-            Some(schema)
-                if !compiler_state.project_has_pending_schema_changes(project_config.name) =>
-            {
-                Ok(Arc::clone(&schema))
-            }
-            _ => {
+        match self.schemas.entry(project_config.name) {
+            Entry::Vacant(e) => {
                 let schema = build_schema(compiler_state, project_config).map_err(|errors| {
                     BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
                 })?;
-                self.schemas
-                    .insert(project_config.name, Arc::clone(&schema));
+                e.insert(Arc::clone(&schema));
                 Ok(schema)
+            }
+            Entry::Occupied(mut e) => {
+                if !compiler_state.project_has_pending_schema_changes(project_config.name) {
+                    Ok(Arc::clone(e.get()))
+                } else {
+                    let schema =
+                        build_schema(compiler_state, project_config).map_err(|errors| {
+                            debug!("build error");
+                            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                                errors,
+                            })
+                        })?;
+                    e.insert(Arc::clone(&schema));
+                    Ok(schema)
+                }
             }
         }
     }

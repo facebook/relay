@@ -64,7 +64,9 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --manifest-path=compiler/Cargo.toml --locked
+          # add --locked back when we have a better way to ensure it's up to
+          # date
+          args: --manifest-path=compiler/Cargo.toml
 
   test-rust:
     name: Test Rust
@@ -78,7 +80,9 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --manifest-path=compiler/Cargo.toml --locked
+          # add --locked back when we have a better way to ensure it's up to
+          # date
+          args: --manifest-path=compiler/Cargo.toml
 
   master-release:
     name: Publish master tag to npm

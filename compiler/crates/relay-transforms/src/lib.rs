@@ -16,7 +16,6 @@ mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
-mod dedupe_type_discriminator;
 mod defer_stream;
 mod errors;
 mod feature_flags;
@@ -72,7 +71,6 @@ pub use connections::{
     ConnectionMetadata,
 };
 pub use declarative_connection::transform_declarative_connection;
-pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };

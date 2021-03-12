@@ -40,9 +40,7 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
     perf_logger: Arc<TPerfLogger>,
     schemas: Schemas,
     source_programs: SourcePrograms,
-    errors: Arc<RwLock<Vec<String>>>,
-    notify_sender: Arc<Notify>,
-    notify_receiver: Arc<Notify>,
+    notify: Arc<Notify>,
     sender: Sender<Message>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
     project_status: ProjectStatusMap,
@@ -56,20 +54,16 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         source_programs: SourcePrograms,
         sender: Sender<Message>,
         diagnostic_reporter: Arc<DiagnosticReporter>,
-        notify_sender: Arc<Notify>,
+        notify: Arc<Notify>,
         project_status: ProjectStatusMap,
     ) -> Self {
-        let notify_receiver = notify_sender.clone();
-
         Self {
             config,
             perf_logger,
             schemas,
             source_programs,
-            errors: Default::default(),
             sender,
-            notify_sender,
-            notify_receiver,
+            notify,
             diagnostic_reporter,
             project_status,
         }
@@ -120,21 +114,20 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.diagnostic_reporter.clear_regular_diagnostics();
 
             // Run initial build, before entering the watch changes loop
-            if let Err(err) = self.build_projects(&mut compiler_state, &setup_event) {
-                self.report_error(err);
+            if let Err(error) = self.build_projects(&mut compiler_state, &setup_event) {
+                self.publish_errors(&error, "lsp_state_error");
             }
+            set_ready_status(&self.sender);
 
             setup_event.stop(timer);
             self.perf_logger.complete_event(setup_event);
-
-            self.publish_errors("lsp_state_error");
-            set_ready_status(&self.sender);
+            self.perf_logger.flush();
 
             info!("LSP server initialization completed!");
 
             // Here we will wait for changes from watchman
             'inner: loop {
-                self.notify_receiver.notified().await;
+                self.notify.notified().await;
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
                 // we may change the status bar to `Source Control Update...`
@@ -158,16 +151,13 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 let log_time = log_event.start("lsp_state_watchman_event_time");
 
                 if let Err(error) = self.incremental_build(&mut compiler_state, &log_event) {
-                    self.report_error(error);
+                    self.publish_errors(&error, "lsp_state_user_error");
                 }
+                set_ready_status(&self.sender);
 
                 log_event.stop(log_time);
                 self.perf_logger.complete_event(log_event);
                 self.perf_logger.flush();
-
-                self.publish_errors("lsp_state_user_error");
-
-                set_ready_status(&self.sender);
             }
         }
     }
@@ -389,7 +379,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
         source_code_update_status: Arc<SourceControlUpdateStatus>,
     ) -> JoinHandle<()> {
-        let notify_sender = self.notify_sender.clone();
+        let notify_sender = self.notify.clone();
         task::spawn(async move {
             loop {
                 match file_source_subscription.next_change().await {
@@ -421,38 +411,16 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         })
     }
 
-    fn report_error(&self, error: Error) {
+    fn log_errors(&self, log_event_name: &str, error: &Error) {
+        let error_event = self.perf_logger.create_event(log_event_name);
+        error_event.string("error", error.to_string());
+        self.perf_logger.complete_event(error_event);
+    }
+
+    /// Log errors and report the diagnostics to IDE
+    fn publish_errors(&self, error: &Error, log_event_name: &str) {
         self.diagnostic_reporter.report_error(&error);
-        self.errors.write().unwrap().push(error.to_string());
-    }
-
-    fn log_errors(&self, log_event_name: &str) {
-        if let Ok(read_lock) = self.errors.try_read() {
-            if !read_lock.is_empty() {
-                let error_message = read_lock
-                    .iter()
-                    .map(|err| format!("{:?}", err))
-                    .collect::<Vec<String>>()
-                    .join("\n");
-                let error_event = self.perf_logger.create_event(log_event_name);
-                error_event.string("error", error_message);
-                self.perf_logger.complete_event(error_event);
-                self.perf_logger.flush();
-            }
-        }
-    }
-
-    fn clear_errors(&self) {
-        if let Ok(mut write_lock) = self.errors.try_write() {
-            write_lock.clear();
-        }
-    }
-
-    /// This method, will log errors (if there were errors)
-    /// and report the diagnostics to IDE
-    fn publish_errors(&self, log_event_name: &str) {
-        self.log_errors(log_event_name);
-        self.clear_errors();
         self.diagnostic_reporter.commit_diagnostics();
+        self.log_errors(log_event_name, error)
     }
 }

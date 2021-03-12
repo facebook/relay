@@ -20,7 +20,7 @@ module.exports = {
   baseUrl: '/',
   organizationName: 'facebook',
   projectName: 'relay',
-  scripts: ['/js/redirect.js'],
+  scripts: [],
   favicon: 'img/favicon.png',
   customFields: {
     users: [
@@ -232,6 +232,12 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
+        createRedirects: function(fullPath) {
+          if (fullPath.startsWith('/docs/')) {
+            const docPath = fullPath.substring(6);
+            return ['/docs/en/' + docPath];
+          }
+        },
         redirects: [
           {
             to: '/docs/',

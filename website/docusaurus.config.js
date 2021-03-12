@@ -282,6 +282,14 @@ module.exports = {
               '/docs/thinking-in-relay',
             ],
           },
+          {
+            to: '/docs/guides/type-emission/',
+            from: [
+              '/docs/en/type-emission',
+              '/docs/v3.0.0/type-emission',
+              '/docs/type-emission',
+            ],
+          },
         ],
       },
     ],

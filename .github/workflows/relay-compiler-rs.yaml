@@ -19,11 +19,15 @@ jobs:
           toolchain: stable
           default: true
           override: true
-      
-      - name: Build
+
+      - name: Test
         working-directory: compiler
         run:
           cargo test --target x86_64-pc-windows-gnu
+
+      - name: Build
+        working-directory: compiler
+        run:
           cargo build --all --release --target x86_64-pc-windows-gnu
 
       - name: Release

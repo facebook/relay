@@ -16,20 +16,20 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable-x86_64-pc-windows-gnu
-          target: x86_64-pc-windows-gnu
+          toolchain: stable-x86_64-pc-windows-msvc
+          target: x86_64-pc-windows-msvc
           default: true
           override: true
 
       - name: Test
         working-directory: compiler
         run:
-          cargo test --target x86_64-pc-windows-gnu
+          cargo test --target x86_64-pc-windows-msvc
 
       - name: Build
         working-directory: compiler
         run:
-          cargo build --all --release --target x86_64-pc-windows-gnu
+          cargo build --all --release --target x86_64-pc-windows-msvc
 
       - name: Release
         uses: softprops/action-gh-release@v1

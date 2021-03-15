@@ -43,16 +43,6 @@ impl Writer for FlowPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::DefineType(name, value) => self.write_type_definition(name, value),
-            AST::DeclareExportFragment(alias, value) => {
-                let default_value = *FRAGMENT_REFERENCE;
-                self.write_declare_export_opaque_type(
-                    alias,
-                    match value {
-                        Some(type_name) => type_name,
-                        None => &default_value,
-                    },
-                )
-            }
             AST::ExportFragmentList(names) => self.write_export_list(names),
             AST::FragmentReference(fragments) => self.write_intersection(
                 fragments
@@ -89,6 +79,16 @@ impl Writer for FlowPrinter {
 
     fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
         self.write_import_type(types, from)
+    }
+
+    fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result {
+        writeln!(
+            &mut self.result,
+            "declare export opaque type {old_name}: FragmentReference;
+declare export opaque type {new_name}: {old_name};",
+            old_name = old_name,
+            new_name = new_name
+        )
     }
 }
 
@@ -222,14 +222,6 @@ impl FlowPrinter {
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
-    }
-
-    fn write_declare_export_opaque_type(&mut self, alias: &StringKey, value: &StringKey) -> Result {
-        writeln!(
-            &mut self.result,
-            "declare export opaque type {}: {};",
-            alias, value
-        )
     }
 
     fn write_type_definition(&mut self, name: &StringKey, value: &AST) -> Result {

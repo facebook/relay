@@ -29,7 +29,6 @@ pub enum AST {
     Any,
     DefineType(StringKey, Box<AST>),
     FragmentReference(Vec<StringKey>),
-    DeclareExportFragment(StringKey, Option<StringKey>),
     ExportFragmentList(Vec<StringKey>),
 }
 
@@ -58,4 +57,6 @@ pub trait Writer {
     fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
 
     fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
+
+    fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result;
 }

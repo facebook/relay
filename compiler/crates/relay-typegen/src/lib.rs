@@ -357,14 +357,8 @@ impl<'a> TypeGenerator<'a> {
                 AST::ExportFragmentList(vec![old_fragment_type_name, new_fragment_type_name,])
             )?;
         } else {
-            write_ast!(
-                self,
-                AST::DeclareExportFragment(old_fragment_type_name, None)
-            )?;
-            write_ast!(
-                self,
-                AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
-            )?;
+            self.writer
+                .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)?;
         }
         self.writer.write_export_type(node.name.item, &type_)?;
         self.writer
@@ -1077,15 +1071,8 @@ impl<'a> TypeGenerator<'a> {
     ) -> Result {
         let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
         let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
-        write_ast!(
-            self,
-            AST::DeclareExportFragment(old_fragment_type_name, None)
-        )?;
-        write_ast!(
-            self,
-            AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
-        )?;
-        Ok(())
+        self.writer
+            .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)
     }
 
     fn write_enum_definitions(&mut self) -> Result {

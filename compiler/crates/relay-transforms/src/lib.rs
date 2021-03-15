@@ -112,7 +112,9 @@ pub use relay_client_component::{
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
 pub use relay_resolvers::{
-    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME,
 };
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{

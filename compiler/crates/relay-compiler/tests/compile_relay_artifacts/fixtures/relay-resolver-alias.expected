@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
-fragment relayResolver_PopStarNameResolverFragment_name on User {
+fragment relayResolverAlias_PopStarNameResolverFragment_name on User {
   name
 }
 
-query relayResolver_Query {
+query relayResolverAlias_Query {
   node(id: "SOME_ID") {
     ... on User {
-      pop_star_name
+      pop_star_name_alias: pop_star_name
     }
   }
 }
@@ -14,7 +14,7 @@ query relayResolver_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverAlias_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
 }
 ==================================== OUTPUT ===================================
 {
@@ -22,7 +22,7 @@ extend type User {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "relayResolver_Query",
+    "name": "relayResolverAlias_Query",
     "selections": [
       {
         "alias": null,
@@ -42,11 +42,11 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "alias": "pop_star_name_alias",
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "relayResolver_PopStarNameResolverFragment_name"
+                  "name": "relayResolverAlias_PopStarNameResolverFragment_name"
                 },
                 "kind": "RelayResolver",
                 "name": "pop_star_name",
@@ -67,7 +67,7 @@ extend type User {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "relayResolver_Query",
+    "name": "relayResolverAlias_Query",
     "selections": [
       {
         "alias": null,
@@ -119,7 +119,7 @@ extend type User {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "relayResolver_Query",
+    "name": "relayResolverAlias_Query",
     "operationKind": "query",
     "text": null
   }
@@ -127,17 +127,17 @@ extend type User {
 
 QUERY:
 
-query relayResolver_Query {
+query relayResolverAlias_Query {
   node(id: "SOME_ID") {
     __typename
     ... on User {
-      ...relayResolver_PopStarNameResolverFragment_name
+      ...relayResolverAlias_PopStarNameResolverFragment_name
     }
     id
   }
 }
 
-fragment relayResolver_PopStarNameResolverFragment_name on User {
+fragment relayResolverAlias_PopStarNameResolverFragment_name on User {
   name
 }
 
@@ -146,7 +146,7 @@ fragment relayResolver_PopStarNameResolverFragment_name on User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "relayResolver_PopStarNameResolverFragment_name",
+  "name": "relayResolverAlias_PopStarNameResolverFragment_name",
   "selections": [
     {
       "alias": null,

@@ -312,9 +312,13 @@ impl<'b> JSONPrinter<'b> {
             Primitive::StorageKey(field_name, key) => {
                 write_static_storage_key(f, &self.builder, *field_name, *key)
             }
-            Primitive::ModuleDependency(key) => match self.js_module_format {
+            Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),
                 JsModuleFormat::Haste => write!(f, "require('{}.graphql')", key),
+            },
+            Primitive::JSModuleDependency(key) => match self.js_module_format {
+                JsModuleFormat::CommonJS => write!(f, "require('./{}')", key),
+                JsModuleFormat::Haste => write!(f, "require('{}')", key),
             },
         }
     }
@@ -458,6 +462,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
-        Primitive::ModuleDependency(_) => panic!("Unexpected ModuleDependency"),
+        Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
+        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
     }
 }

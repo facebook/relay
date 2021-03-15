@@ -25,8 +25,9 @@ use relay_transforms::{
     DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
     NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
     REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -364,7 +365,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 },
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.operation,
-                    value: Primitive::ModuleDependency(refetch_metadata.operation_name),
+                    value: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name),
                 },
             ];
             if let Some(identifier_field) = refetch_metadata.identifier_field {
@@ -864,7 +865,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             return self.build_relay_client_component_fragment_spread(frag_spread);
         }
         let args = self.build_arguments(&frag_spread.arguments);
-        Primitive::Key(self.object(vec![
+        let primitive = Primitive::Key(self.object(vec![
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.args,
                 value: match args {
@@ -879,6 +880,65 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.name,
                 value: Primitive::String(frag_spread.fragment.item),
+            },
+        ]));
+
+        match frag_spread
+            .directives
+            .named(*RELAY_RESOLVER_METADATA_DIRECTIVE_NAME)
+        {
+            Some(directive) => self.build_relay_resolver(primitive, directive),
+            None => primitive,
+        }
+    }
+
+    fn build_relay_resolver(
+        &mut self,
+        fragment_primitive: Primitive,
+        directive: &Directive,
+    ) -> Primitive {
+        let module = directive
+            .arguments
+            .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
+            .unwrap()
+            .value
+            .item
+            .expect_string_literal()
+            .to_string()
+            .intern();
+
+        let field_name = directive
+            .arguments
+            .named(*RELAY_RESOLVER_METADATA_FIELD_NAME)
+            .unwrap()
+            .value
+            .item
+            .expect_string_literal()
+            .to_string()
+            .intern();
+
+        let field_alias = directive
+            .arguments
+            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
+            .map(|arg| arg.value.item.expect_string_literal().to_string().intern());
+
+        Primitive::Key(self.object(vec![
+            build_alias(field_alias, field_name),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment,
+                value: fragment_primitive,
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.relay_resolver),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(field_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.resolver_module,
+                value: Primitive::JSModuleDependency(module),
             },
         ]))
     }
@@ -895,7 +955,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment,
-                value: Primitive::ModuleDependency(frag_spread.fragment.item),
+                value: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,
@@ -924,7 +984,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         Primitive::Key(self.object(vec![
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment,
-                value: Primitive::ModuleDependency(normalization_name),
+                value: Primitive::GraphQLModuleDependency(normalization_name),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,

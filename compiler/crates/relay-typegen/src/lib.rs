@@ -195,14 +195,10 @@ impl<'a> TypeGenerator<'a> {
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(input_variables_identifier, Box::from(input_variables_type),)
-        )?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(response_identifier, Box::from(response_type),)
-        )?;
+        self.writer
+            .write_export_type(input_variables_identifier, &input_variables_type)?;
+        self.writer
+            .write_export_type(response_identifier, &response_type)?;
 
         let mut operation_types = vec![
             Prop {
@@ -221,14 +217,12 @@ impl<'a> TypeGenerator<'a> {
 
         if let Some(raw_response_type) = raw_response_type {
             for (key, ast) in self.match_fields.iter() {
-                write_ast!(self, AST::ExportTypeEquals(*key, Box::from(ast.clone())))?;
+                self.writer.write_export_type(*key, &ast)?;
             }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
-            write_ast!(
-                self,
-                AST::ExportTypeEquals(raw_response_identifier, Box::from(raw_response_type),)
-            )?;
+            self.writer
+                .write_export_type(raw_response_identifier, &raw_response_type)?;
             operation_types.push(Prop {
                 key: *KEY_RAW_RESPONSE,
                 read_only: false,
@@ -237,12 +231,9 @@ impl<'a> TypeGenerator<'a> {
             })
         }
 
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(
-                typegen_operation.name.item,
-                Box::from(AST::ExactObject(operation_types)),
-            )
+        self.writer.write_export_type(
+            typegen_operation.name.item,
+            &AST::ExactObject(operation_types),
         )?;
         Ok(())
     }
@@ -262,13 +253,11 @@ impl<'a> TypeGenerator<'a> {
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         for (key, ast) in self.match_fields.iter() {
-            write_ast!(self, AST::ExportTypeEquals(*key, Box::from(ast.clone())))?;
+            self.writer.write_export_type(*key, &ast)?;
         }
 
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(typegen_operation.name.item, Box::from(raw_response_type))
-        )?;
+        self.writer
+            .write_export_type(typegen_operation.name.item, &raw_response_type)?;
 
         Ok(())
     }
@@ -378,21 +367,11 @@ impl<'a> TypeGenerator<'a> {
                 AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
             )?;
         }
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(node.name.item, Box::from(type_))
-        )?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(
-                data_type_name.intern(),
-                Box::from(AST::RawType(data_type.intern())),
-            )
-        )?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(ref_type_name.intern(), Box::from(ref_type),)
-        )?;
+        self.writer.write_export_type(node.name.item, &type_)?;
+        self.writer
+            .write_export_type(data_type_name.intern(), &AST::RawType(data_type.intern()))?;
+        self.writer
+            .write_export_type(ref_type_name.intern(), &ref_type)?;
 
         Ok(())
     }
@@ -1147,10 +1126,8 @@ impl<'a> TypeGenerator<'a> {
                     .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
                 members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
-                write_ast!(
-                    self,
-                    AST::ExportTypeEquals(enum_type.name, Box::from(AST::Union(members)))
-                )?;
+                self.writer
+                    .write_export_type(enum_type.name, &AST::Union(members))?;
             }
         }
         Ok(())
@@ -1174,13 +1151,8 @@ impl<'a> TypeGenerator<'a> {
         for (type_identifier, input_object_type) in self.generated_input_object_types.iter() {
             match input_object_type {
                 GeneratedInputObject::Resolved(input_object_type) => {
-                    write_ast!(
-                        self,
-                        AST::ExportTypeEquals(
-                            *type_identifier,
-                            Box::from(input_object_type.clone())
-                        )
-                    )?;
+                    self.writer
+                        .write_export_type(*type_identifier, input_object_type)?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),
             }

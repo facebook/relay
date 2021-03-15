@@ -54,7 +54,6 @@ impl Writer for FlowPrinter {
                     },
                 )
             }
-            AST::ExportTypeEquals(name, value) => self.write_export_type_equals(name, value),
             AST::ExportFragmentList(names) => self.write_export_list(names),
             AST::ImportFragmentType(types, from) => self.write_import_type(types, from),
             AST::FragmentReference(fragments) => self.write_intersection(
@@ -69,6 +68,12 @@ impl Writer for FlowPrinter {
 
     fn get_runtime_fragment_import(&self) -> StringKey {
         *FRAGMENT_REFERENCE
+    }
+
+    fn write_export_type(&mut self, name: StringKey, value: &AST) -> Result {
+        write!(&mut self.result, "export type {} = ", name)?;
+        self.write(value)?;
+        writeln!(&mut self.result, ";")
     }
 }
 
@@ -223,12 +228,6 @@ impl FlowPrinter {
             "declare export opaque type {}: {};",
             alias, value
         )
-    }
-
-    fn write_export_type_equals(&mut self, name: &StringKey, value: &AST) -> Result {
-        write!(&mut self.result, "export type {} = ", name)?;
-        self.write(value)?;
-        writeln!(&mut self.result, ";")
     }
 
     fn write_type_definition(&mut self, name: &StringKey, value: &AST) -> Result {

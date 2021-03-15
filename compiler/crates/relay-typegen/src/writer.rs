@@ -33,7 +33,6 @@ pub enum AST {
     ImportFragmentType(Vec<StringKey>, StringKey),
     DeclareExportFragment(StringKey, Option<StringKey>),
     ExportFragmentList(Vec<StringKey>),
-    ExportTypeEquals(StringKey, Box<AST>),
 }
 
 #[derive(Debug, Clone)]
@@ -55,4 +54,6 @@ pub trait Writer {
     fn get_runtime_fragment_import(&self) -> StringKey;
 
     fn write(&mut self, ast: &AST) -> Result;
+
+    fn write_export_type(&mut self, name: StringKey, ast: &AST) -> Result;
 }

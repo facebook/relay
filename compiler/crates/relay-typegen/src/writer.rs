@@ -50,9 +50,7 @@ lazy_static! {
 }
 
 pub trait Writer {
-    fn get_runtime_fragment_import(&self) -> StringKey {
-        "FragmentReference".intern()
-    }
+    fn get_runtime_fragment_import(&self) -> StringKey;
 
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;
 }

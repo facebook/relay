@@ -7,10 +7,15 @@
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
 use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use std::fmt::{Result, Write};
 
 pub struct FlowPrinter {
     indentation: usize,
+}
+
+lazy_static! {
+    static ref FRAGMENT_REFERENCE: StringKey = "FragmentReference".intern();
 }
 
 impl Writer for FlowPrinter {
@@ -35,7 +40,7 @@ impl Writer for FlowPrinter {
             AST::DefineType(name, value) => self.write_type_definition(writer, name, value),
             AST::ImportType(types, from) => self.write_import_type(writer, types, from),
             AST::DeclareExportFragment(alias, value) => {
-                let default_value = "FragmentReference".intern();
+                let default_value = *FRAGMENT_REFERENCE;
                 self.write_declare_export_opaque_type(
                     writer,
                     alias,
@@ -59,6 +64,10 @@ impl Writer for FlowPrinter {
                     .as_slice(),
             ),
         }
+    }
+
+    fn get_runtime_fragment_import(&self) -> StringKey {
+        *FRAGMENT_REFERENCE
     }
 }
 

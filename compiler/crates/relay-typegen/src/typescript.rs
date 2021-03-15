@@ -50,7 +50,6 @@ impl Writer for TypeScriptPrinter {
             // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
             AST::ExportFragmentList(_) => Ok(()),
             AST::DeclareExportFragment(_, _) => Ok(()),
-            AST::ImportFragmentType(_, _) => Ok(()),
         }
     }
 
@@ -76,6 +75,10 @@ impl Writer for TypeScriptPrinter {
                 .join(", "),
             from
         )
+    }
+
+    fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
+        Ok(())
     }
 }
 

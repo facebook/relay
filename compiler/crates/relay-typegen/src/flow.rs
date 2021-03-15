@@ -54,7 +54,6 @@ impl Writer for FlowPrinter {
                 )
             }
             AST::ExportFragmentList(names) => self.write_export_list(names),
-            AST::ImportFragmentType(types, from) => self.write_import_type(types, *from),
             AST::FragmentReference(fragments) => self.write_intersection(
                 fragments
                     .iter()
@@ -86,6 +85,10 @@ impl Writer for FlowPrinter {
                 .join(", "),
             from
         )
+    }
+
+    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+        self.write_import_type(types, from)
     }
 }
 

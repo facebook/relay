@@ -337,12 +337,9 @@ impl<'a> TypeGenerator<'a> {
             if self.typegen_config.haste {
                 // TODO(T22653277) support non-haste environments when importing
                 // fragments
-                write_ast!(
-                    self,
-                    AST::ImportFragmentType(
-                        vec![old_fragment_type_name, new_fragment_type_name],
-                        format!("{}.graphql", refetchable_metadata.operation_name).intern()
-                    )
+                self.writer.write_import_fragment_type(
+                    &[old_fragment_type_name, new_fragment_type_name],
+                    format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                 )?;
             } else {
                 write_ast!(
@@ -1033,12 +1030,9 @@ impl<'a> TypeGenerator<'a> {
                 if self.typegen_config.haste {
                     // TODO(T22653277) support non-haste environments when importing
                     // fragments
-                    write_ast!(
-                        self,
-                        AST::ImportFragmentType(
-                            vec![fragment_type_name],
-                            format!("{}.graphql", used_fragment).intern()
-                        )
+                    self.writer.write_import_fragment_type(
+                        &[fragment_type_name],
+                        format!("{}.graphql", used_fragment).intern(),
                     )?;
                 // } else if (state.useSingleArtifactDirectory) {
                 //   imports.push(
@@ -1062,12 +1056,9 @@ impl<'a> TypeGenerator<'a> {
 
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
             if self.typegen_config.haste {
-                write_ast!(
-                    self,
-                    AST::ImportFragmentType(
-                        vec![imported_raw_response_type],
-                        format!("{}.graphql", imported_raw_response_type).intern()
-                    )
+                self.writer.write_import_fragment_type(
+                    &[imported_raw_response_type],
+                    format!("{}.graphql", imported_raw_response_type).intern(),
                 )?;
             } else {
                 write_ast!(

@@ -352,10 +352,8 @@ impl<'a> TypeGenerator<'a> {
                 )?;
             }
 
-            write_ast!(
-                self,
-                AST::ExportFragmentList(vec![old_fragment_type_name, new_fragment_type_name,])
-            )?;
+            self.writer
+                .write_export_fragment_types(old_fragment_type_name, new_fragment_type_name)?;
         } else {
             self.writer
                 .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)?;

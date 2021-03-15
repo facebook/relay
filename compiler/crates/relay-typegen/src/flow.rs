@@ -43,7 +43,6 @@ impl Writer for FlowPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::DefineType(name, value) => self.write_type_definition(name, value),
-            AST::ExportFragmentList(names) => self.write_export_list(names),
             AST::FragmentReference(fragments) => self.write_intersection(
                 fragments
                     .iter()
@@ -88,6 +87,18 @@ impl Writer for FlowPrinter {
 declare export opaque type {new_name}: {old_name};",
             old_name = old_name,
             new_name = new_name
+        )
+    }
+
+    fn write_export_fragment_types(
+        &mut self,
+        old_fragment_type_name: StringKey,
+        new_fragment_type_name: StringKey,
+    ) -> Result {
+        writeln!(
+            &mut self.result,
+            "export type {{ {}, {} }};",
+            old_fragment_type_name, new_fragment_type_name
         )
     }
 }
@@ -228,18 +239,6 @@ impl FlowPrinter {
         write!(&mut self.result, "type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
-    }
-
-    fn write_export_list(&mut self, names: &[StringKey]) -> Result {
-        writeln!(
-            &mut self.result,
-            "export type {{ {} }};",
-            names
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
-        )
     }
 }
 

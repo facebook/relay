@@ -46,9 +46,6 @@ impl Writer for TypeScriptPrinter {
             }
             AST::DefineType(name, value) => self.write_type_definition(name, value),
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
-
-            // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
-            AST::ExportFragmentList(_) => Ok(()),
         }
     }
 
@@ -76,11 +73,18 @@ impl Writer for TypeScriptPrinter {
         )
     }
 
+    // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
     fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
         Ok(())
     }
-
     fn write_export_fragment_type(&mut self, _old_name: StringKey, _new_name: StringKey) -> Result {
+        Ok(())
+    }
+    fn write_export_fragment_types(
+        &mut self,
+        _old_fragment_type_name: StringKey,
+        _new_fragment_type_name: StringKey,
+    ) -> Result {
         Ok(())
     }
 }

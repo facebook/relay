@@ -47,6 +47,7 @@ pub(crate) struct LSPStateResources<TPerfLogger: PerfLogger + 'static> {
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
+    #[allow(clippy::too_many_arguments)]
     pub(crate) fn new(
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,

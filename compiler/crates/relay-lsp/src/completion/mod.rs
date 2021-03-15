@@ -563,7 +563,7 @@ fn completion_items_for_request(
             kind,
         } => match kind {
             ArgumentKind::Field => {
-                let field = request.type_path.resolve_current_field(schema)?;
+                let (_, field) = request.type_path.resolve_current_field(schema)?;
                 Some(resolve_completion_items_for_argument_name(
                     field.arguments.iter(),
                     schema,
@@ -598,7 +598,7 @@ fn completion_items_for_request(
             if let Some(source_program) = source_programs.get(&project_name) {
                 let argument_type = match kind {
                     ArgumentKind::Field => {
-                        let field = request.type_path.resolve_current_field(schema)?;
+                        let (_, field) = request.type_path.resolve_current_field(schema)?;
                         &field.arguments.named(argument_name)?.type_
                     }
                     ArgumentKind::ArgumentsDirective(fragment_spread_name) => {

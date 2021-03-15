@@ -102,45 +102,56 @@ fn get_hover_response_contents(
             }
         }
         NodeKind::FieldName => {
-            let field = node_resolution_info
+            let (parent_type, field) = node_resolution_info
                 .type_path
                 .resolve_current_field(schema)?;
 
             let type_name = schema.get_type_string(&field.type_);
+            let parent_type_name = schema.get_type_name(parent_type).to_string();
 
-            let mut hover_contents: Vec<MarkedString> = vec![graphql_marked_string(format!(
-                "{}: {}",
-                field.name, type_name
-            ))];
+            let mut hover_contents: Vec<MarkedString> =
+                vec![MarkedString::String(format!("Field: **{}**", field.name))];
 
             if let Some(field_description) =
-                schema_documentation.get_field_description(&type_name, field.name.lookup())
+                schema_documentation.get_field_description(&parent_type_name, field.name.lookup())
             {
                 hover_contents.push(MarkedString::String(field_description.to_string()));
             }
+
+            hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name)));
+
             if let Some(type_description) = schema_documentation.get_type_description(&type_name) {
                 hover_contents.push(MarkedString::String(type_description.to_string()));
             }
 
             if !field.arguments.is_empty() {
-                let mut args_string: Vec<String> =
-                    vec!["This field accepts following arguments:".to_string()];
-                args_string.push("```".to_string());
-                for arg in field.arguments.iter() {
-                    let default_value = match &arg.default_value {
-                        Some(default_value) => format!(" = {}", default_value),
-                        None => "".to_string(),
-                    };
+                hover_contents.push(MarkedString::String(
+                    "This field accepts following arguments".to_string(),
+                ));
 
-                    args_string.push(format!(
-                        "- {}: {}{}",
+                for arg in field.arguments.iter() {
+                    hover_contents.push(MarkedString::from_markdown(format!(
+                        "`{}: {}{}`\n\n{}",
                         arg.name,
                         schema.get_type_string(&arg.type_),
-                        default_value,
-                    ));
+                        if let Some(default_value) = &arg.default_value {
+                            format!(" = {}", default_value)
+                        } else {
+                            "".to_string()
+                        },
+                        if let Some(description) = schema_documentation
+                            .get_field_argument_description(
+                                &parent_type_name,
+                                field.name.lookup(),
+                                arg.name.lookup(),
+                            )
+                        {
+                            description.to_string()
+                        } else {
+                            "".to_string()
+                        }
+                    )));
                 }
-                args_string.push("```".to_string());
-                hover_contents.push(MarkedString::String(args_string.join("\n")))
             }
             Some(HoverContents::Array(hover_contents))
         }

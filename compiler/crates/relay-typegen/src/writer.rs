@@ -50,6 +50,8 @@ lazy_static! {
 }
 
 pub trait Writer {
+    fn into_string(self) -> String;
+
     fn get_runtime_fragment_import(&self) -> StringKey;
 
     fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;

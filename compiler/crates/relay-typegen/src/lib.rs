@@ -59,7 +59,9 @@ lazy_static! {
 }
 
 macro_rules! write_ast {
-    ($self:ident, $ast:expr) => {{ $self.writer.write(&mut $self.result, &$ast) }};
+    ($self:ident, $ast:expr) => {{
+        $self.writer.write(&$ast)
+    }};
 }
 
 pub fn generate_fragment_type(
@@ -69,7 +71,7 @@ pub fn generate_fragment_type(
 ) -> String {
     let mut generator = TypeGenerator::new(schema, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
-    generator.result
+    generator.writer.into_string()
 }
 
 pub fn generate_operation_type(
@@ -110,7 +112,6 @@ struct RuntimeImports {
 }
 
 struct TypeGenerator<'a> {
-    result: String,
     schema: &'a SDLSchema,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
@@ -125,7 +126,6 @@ struct TypeGenerator<'a> {
 impl<'a> TypeGenerator<'a> {
     fn new(schema: &'a SDLSchema, typegen_config: &'a TypegenConfig) -> Self {
         Self {
-            result: String::new(),
             schema,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),

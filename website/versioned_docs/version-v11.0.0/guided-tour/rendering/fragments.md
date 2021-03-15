@@ -311,7 +311,7 @@ type Props = {
   appQueryRef: PreloadedQuery<AppQuery>,
 }
 
-function App() {
+function App({appQueryRef}) {
   const data = usePreloadedQuery<AppQuery>(
     graphql`
       query AppQuery($id: ID!) {

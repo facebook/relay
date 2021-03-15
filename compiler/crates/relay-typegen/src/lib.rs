@@ -48,6 +48,8 @@ lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
+    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
     static ref TYPE_ID: StringKey = "ID".intern();
     static ref TYPE_STRING: StringKey = "String".intern();
@@ -1001,33 +1003,22 @@ impl<'a> TypeGenerator<'a> {
             RuntimeImports {
                 local_3d_payload: true,
                 fragment_reference: true,
-            } => write_ast!(
-                self,
-                AST::ImportType(
-                    vec![
-                        self.writer.get_runtime_fragment_import(),
-                        "Local3DPayload".intern()
-                    ],
-                    "relay-runtime".intern(),
-                )
+            } => self.writer.write_import_type(
+                &vec![self.writer.get_runtime_fragment_import(), *LOCAL_3D_PAYLOAD],
+                *RELAY_RUNTIME,
             ),
             RuntimeImports {
                 local_3d_payload: true,
                 fragment_reference: false,
-            } => write_ast!(
-                self,
-                AST::ImportType(vec!["Local3DPayload".intern()], "relay-runtime".intern(),)
-            ),
+            } => self
+                .writer
+                .write_import_type(&[*LOCAL_3D_PAYLOAD], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: true,
-            } => write_ast!(
-                self,
-                AST::ImportType(
-                    vec![self.writer.get_runtime_fragment_import()],
-                    "relay-runtime".intern(),
-                )
-            ),
+            } => self
+                .writer
+                .write_import_type(&[self.writer.get_runtime_fragment_import()], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: false,
@@ -1112,12 +1103,9 @@ impl<'a> TypeGenerator<'a> {
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
-                write_ast!(
-                    self,
-                    AST::ImportType(
-                        vec![enum_type.name],
-                        format!("{}{}", enum_type.name, enum_module_suffix).intern()
-                    )
+                self.writer.write_import_type(
+                    &[enum_type.name],
+                    format!("{}{}", enum_type.name, enum_module_suffix).intern(),
                 )?;
             } else {
                 let mut members: Vec<AST> = enum_type

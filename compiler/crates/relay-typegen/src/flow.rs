@@ -43,7 +43,6 @@ impl Writer for FlowPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::DefineType(name, value) => self.write_type_definition(name, value),
-            AST::ImportType(types, from) => self.write_import_type(types, from),
             AST::DeclareExportFragment(alias, value) => {
                 let default_value = *FRAGMENT_REFERENCE;
                 self.write_declare_export_opaque_type(
@@ -55,7 +54,7 @@ impl Writer for FlowPrinter {
                 )
             }
             AST::ExportFragmentList(names) => self.write_export_list(names),
-            AST::ImportFragmentType(types, from) => self.write_import_type(types, from),
+            AST::ImportFragmentType(types, from) => self.write_import_type(types, *from),
             AST::FragmentReference(fragments) => self.write_intersection(
                 fragments
                     .iter()
@@ -74,6 +73,19 @@ impl Writer for FlowPrinter {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
+    }
+
+    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+        writeln!(
+            &mut self.result,
+            "import type {{ {} }} from \"{}\";",
+            types
+                .iter()
+                .map(|t| format!("{}", t))
+                .collect::<Vec<_>>()
+                .join(", "),
+            from
+        )
     }
 }
 
@@ -207,19 +219,6 @@ impl FlowPrinter {
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
-    }
-
-    fn write_import_type(&mut self, types: &[StringKey], from: &StringKey) -> Result {
-        writeln!(
-            &mut self.result,
-            "import type {{ {} }} from \"{}\";",
-            types
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
-            from
-        )
     }
 
     fn write_declare_export_opaque_type(&mut self, alias: &StringKey, value: &StringKey) -> Result {

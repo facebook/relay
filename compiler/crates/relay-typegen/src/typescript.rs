@@ -45,7 +45,6 @@ impl Writer for TypeScriptPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::DefineType(name, value) => self.write_type_definition(name, value),
-            AST::ImportType(types, from) => self.write_import_type(types, from),
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
 
             // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
@@ -59,6 +58,24 @@ impl Writer for TypeScriptPrinter {
         write!(&mut self.result, "export type {} = ", name)?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
+    }
+
+    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+        writeln!(
+            &mut self.result,
+            "import {}{{ {} }} from \"{}\";",
+            if self.use_import_type_syntax {
+                "type "
+            } else {
+                ""
+            },
+            types
+                .iter()
+                .map(|t| format!("{}", t))
+                .collect::<Vec<_>>()
+                .join(", "),
+            from
+        )
     }
 }
 
@@ -200,24 +217,6 @@ impl TypeScriptPrinter {
                 .collect(),
         ))?;
         write!(&mut self.result, ">")
-    }
-
-    fn write_import_type(&mut self, types: &[StringKey], from: &StringKey) -> Result {
-        writeln!(
-            &mut self.result,
-            "import {}{{ {} }} from \"{}\";",
-            if self.use_import_type_syntax {
-                "type "
-            } else {
-                ""
-            },
-            types
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
-            from
-        )
     }
 
     fn write_type_definition(&mut self, name: &StringKey, value: &AST) -> Result {
@@ -424,23 +423,19 @@ mod tests {
 
     #[test]
     fn import_type() {
-        assert_eq!(
-            print_type(&AST::ImportType(
-                vec!["A".intern(), "B".intern()],
-                "module".intern()
-            )),
-            "import { A, B } from \"module\";\n"
-        );
+        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        printer
+            .write_import_type(&["A".intern(), "B".intern()], "module".intern())
+            .unwrap();
+        assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
-        assert_eq!(
-            print_type_with_config(
-                &AST::ImportType(vec!["C".intern()], "./foo".intern()),
-                &TypegenConfig {
-                    use_import_type_syntax: true,
-                    ..Default::default()
-                }
-            ),
-            "import type { C } from \"./foo\";\n"
-        );
+        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
+            use_import_type_syntax: true,
+            ..Default::default()
+        }));
+        printer
+            .write_import_type(&["C".intern()], "./foo".intern())
+            .unwrap();
+        assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
     }
 }

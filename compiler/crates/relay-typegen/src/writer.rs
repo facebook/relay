@@ -7,7 +7,7 @@
 
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use std::fmt::{Result, Write};
+use std::fmt::Result;
 
 #[derive(Debug, Clone)]
 pub enum AST {
@@ -50,9 +50,9 @@ lazy_static! {
 }
 
 pub trait Writer {
-    fn into_string(self) -> String;
+    fn into_string(self: Box<Self>) -> String;
 
     fn get_runtime_fragment_import(&self) -> StringKey;
 
-    fn write(&mut self, writer: &mut dyn Write, ast: &AST) -> Result;
+    fn write(&mut self, ast: &AST) -> Result;
 }

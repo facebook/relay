@@ -71,7 +71,7 @@ pub fn generate_fragment_type(
 ) -> String {
     let mut generator = TypeGenerator::new(schema, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
-    generator.writer.into_string()
+    generator.into_string()
 }
 
 pub fn generate_operation_type(
@@ -84,7 +84,7 @@ pub fn generate_operation_type(
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
-    generator.result
+    generator.into_string()
 }
 
 pub fn generate_split_operation_type(
@@ -97,7 +97,7 @@ pub fn generate_split_operation_type(
     generator
         .generate_split_operation_type(typegen_operation, normalization_operation)
         .unwrap();
-    generator.result
+    generator.into_string()
 }
 
 enum GeneratedInputObject {
@@ -137,6 +137,10 @@ impl<'a> TypeGenerator<'a> {
             runtime_imports: RuntimeImports::default(),
             writer: Self::create_writer(typegen_config),
         }
+    }
+
+    fn into_string(self) -> String {
+        self.writer.into_string()
     }
 
     fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {

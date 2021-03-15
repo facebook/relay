@@ -1,0 +1,75 @@
+name: Relay Compiler
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest, macos-latest]
+
+    runs-on: ${{ matrix.platform }}
+  
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+
+      - name: Test
+        working-directory: compiler
+        run:
+          cargo test
+
+      - name: Build
+        working-directory: compiler
+        run:
+          cargo build --all --release
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-win:
+    # build on windows is disabled, we need to fix watchman client on windows
+    if: "false"
+    runs-on: windows-latest
+     
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable-x86_64-pc-windows-msvc
+          target: x86_64-pc-windows-msvc
+          default: true
+          override: true
+
+      - name: Test
+        working-directory: compiler
+        run:
+          cargo test --target x86_64-pc-windows-msvc
+
+      - name: Build
+        working-directory: compiler
+        run:
+          cargo build --all --release --target x86_64-pc-windows-msvc
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

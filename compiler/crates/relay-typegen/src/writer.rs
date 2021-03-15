@@ -27,7 +27,6 @@ pub enum AST {
     Number,
     Boolean,
     Any,
-    DefineType(StringKey, Box<AST>),
     FragmentReference(Vec<StringKey>),
 }
 
@@ -64,4 +63,6 @@ pub trait Writer {
         old_fragment_type_name: StringKey,
         new_fragment_type_name: StringKey,
     ) -> Result;
+
+    fn write_any_type_definition(&mut self, name: StringKey) -> Result;
 }

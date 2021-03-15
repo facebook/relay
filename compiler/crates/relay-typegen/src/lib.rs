@@ -60,12 +60,6 @@ lazy_static! {
     static ref JS_FIELD_NAME: StringKey = "js".intern();
 }
 
-macro_rules! write_ast {
-    ($self:ident, $ast:expr) => {{
-        $self.writer.write(&$ast)
-    }};
-}
-
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
@@ -279,12 +273,14 @@ impl<'a> TypeGenerator<'a> {
         }
         self.generated_fragments.insert(node.name.item);
 
-        let ref_type_name = format!("{}$key", node.name.item);
+        let data_type = node.name.item;
+        let data_type_name = format!("{}$data", data_type).intern();
+
         let ref_type_data_property = Prop {
             key: *KEY_DATA,
             optional: true,
             read_only: true,
-            value: AST::Identifier(format!("{}$data", node.name.item).intern()),
+            value: AST::Identifier(data_type_name),
         };
         let old_fragment_type_name = node.name.item;
         let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
@@ -300,9 +296,6 @@ impl<'a> TypeGenerator<'a> {
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
-
-        let data_type_name = format!("{}$data", node.name.item);
-        let data_type = node.name.item.lookup();
 
         let unmasked = RelayDirective::is_unmasked_fragment_definition(&node);
 
@@ -342,14 +335,10 @@ impl<'a> TypeGenerator<'a> {
                     format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                 )?;
             } else {
-                write_ast!(
-                    self,
-                    AST::DefineType(old_fragment_type_name, Box::new(AST::Any))
-                )?;
-                write_ast!(
-                    self,
-                    AST::DefineType(new_fragment_type_name, Box::new(AST::Any))
-                )?;
+                self.writer
+                    .write_any_type_definition(old_fragment_type_name)?;
+                self.writer
+                    .write_any_type_definition(new_fragment_type_name)?;
             }
 
             self.writer
@@ -358,11 +347,12 @@ impl<'a> TypeGenerator<'a> {
             self.writer
                 .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)?;
         }
-        self.writer.write_export_type(node.name.item, &type_)?;
+
+        self.writer.write_export_type(data_type, &type_)?;
         self.writer
-            .write_export_type(data_type_name.intern(), &AST::RawType(data_type.intern()))?;
+            .write_export_type(data_type_name, &AST::RawType(data_type))?;
         self.writer
-            .write_export_type(ref_type_name.intern(), &ref_type)?;
+            .write_export_type(format!("{}$key", node.name.item).intern(), &ref_type)?;
 
         Ok(())
     }
@@ -1031,10 +1021,7 @@ impl<'a> TypeGenerator<'a> {
                 //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
                 //   );
                 } else {
-                    write_ast!(
-                        self,
-                        AST::DefineType(fragment_type_name, Box::new(AST::Any))
-                    )?;
+                    self.writer.write_any_type_definition(fragment_type_name)?;
                 }
             }
         }
@@ -1053,10 +1040,8 @@ impl<'a> TypeGenerator<'a> {
                     format!("{}.graphql", imported_raw_response_type).intern(),
                 )?;
             } else {
-                write_ast!(
-                    self,
-                    AST::DefineType(imported_raw_response_type, Box::new(AST::Any))
-                )?;
+                self.writer
+                    .write_any_type_definition(imported_raw_response_type)?;
             }
         }
 

@@ -44,7 +44,6 @@ impl Writer for TypeScriptPrinter {
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
-            AST::DefineType(name, value) => self.write_type_definition(name, value),
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
         }
     }
@@ -71,6 +70,10 @@ impl Writer for TypeScriptPrinter {
                 .join(", "),
             from
         )
+    }
+
+    fn write_any_type_definition(&mut self, name: StringKey) -> Result {
+        writeln!(&mut self.result, "type {} = any;", name)
     }
 
     // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
@@ -227,12 +230,6 @@ impl TypeScriptPrinter {
                 .collect(),
         ))?;
         write!(&mut self.result, ">")
-    }
-
-    fn write_type_definition(&mut self, name: &StringKey, value: &AST) -> Result {
-        write!(&mut self.result, "type {} = ", name)?;
-        self.write(value)?;
-        writeln!(&mut self.result, ";")
     }
 }
 

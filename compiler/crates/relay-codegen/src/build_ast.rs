@@ -221,7 +221,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 key: CODEGEN_CONSTANTS.kind,
                 value: Primitive::String(CODEGEN_CONSTANTS.fragment_value),
             },
-            // TODO(T63303840) include correct fragment metadata
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.metadata,
                 value: if skip_metadata {

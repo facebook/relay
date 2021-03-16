@@ -35,8 +35,8 @@ lazy_static! {
     pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
     pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: StringKey = "fragment_name".intern();
     pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
-    pub static ref RELAY_RESOLVER_JS_RETURN_TYPE_ARGUMENT_NAME: StringKey =
-        "js_return_type".intern();
+    pub static ref RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE: StringKey =
+        "field_parent_type".intern();
     pub static ref RELAY_RESOLVER_METADATA_FIELD_NAME: StringKey = "field_name".intern();
     pub static ref RELAY_RESOLVER_METADATA_FIELD_ALIAS: StringKey = "field_alias".intern();
     pub static ref RELAY_RESOLVER_METADATA_DIRECTIVE_NAME: StringKey = "__relayResolver".intern();
@@ -66,7 +66,7 @@ impl Transformer for ClientResolverTransform<'_> {
         match get_resolver_info(field_type, field.definition.location) {
             Some(info) => {
                 match info {
-                    Ok((fragment_name, import_path, js_return_type)) => {
+                    Ok((fragment_name, import_path)) => {
                         if let Some(directive) = field.directives.first() {
                             self.errors.push(Diagnostic::error(
                                 ValidationMessage::RelayResolverUnexpectedDirective {},
@@ -83,6 +83,7 @@ impl Transformer for ClientResolverTransform<'_> {
                             ));
                             return Transformed::Keep;
                         }
+                        let parent_type = field_type.parent_type.unwrap();
                         Transformed::Replace(
                             // Note: Using a fragment spread with a metadata
                             // directive to represent a Relay Resolver field is
@@ -101,7 +102,7 @@ impl Transformer for ClientResolverTransform<'_> {
                                 fragment: WithLocation::generated(fragment_name),
                                 directives: vec![get_metadata_directive(
                                     import_path,
-                                    js_return_type,
+                                    self.program.schema.get_type_name(parent_type),
                                     self.program.schema.field(field.definition.item).name,
                                     field.alias.map(|alias| alias.item),
                                 )],
@@ -125,7 +126,7 @@ impl Transformer for ClientResolverTransform<'_> {
 fn get_resolver_info(
     field_type: &Field,
     error_location: Location,
-) -> Option<DiagnosticsResult<(StringKey, StringKey, StringKey)>> {
+) -> Option<DiagnosticsResult<(StringKey, StringKey)>> {
     if !field_type.is_extension {
         return None;
     }
@@ -144,13 +145,8 @@ fn get_resolver_info(
                 *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
                 error_location,
             )?;
-            let js_return_type = get_argument_value(
-                arguments,
-                *RELAY_RESOLVER_JS_RETURN_TYPE_ARGUMENT_NAME,
-                error_location,
-            )?;
 
-            Ok((fragment_name, import_path, js_return_type))
+            Ok((fragment_name, import_path))
         })
 }
 
@@ -184,14 +180,16 @@ fn get_argument_value(
 
 fn get_metadata_directive(
     resolver_import_path: StringKey,
-    js_return_type: StringKey,
+    field_parent_type: StringKey,
     field_name: StringKey,
     field_alias: Option<StringKey>,
 ) -> Directive {
     let mut arguments = vec![
         Argument {
-            name: WithLocation::generated(*RELAY_RESOLVER_JS_RETURN_TYPE_ARGUMENT_NAME),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(js_return_type))),
+            name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE),
+            value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                field_parent_type,
+            ))),
         },
         Argument {
             name: WithLocation::generated(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME),

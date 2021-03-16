@@ -16,11 +16,11 @@ fragment PopStarNameResolverFragment_name on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ...PopStarNameResolverFragment_name @__relayResolver(js_return_type: "string", import_path: "PopStarNameResolver", field_name: "pop_star_name")
+  ...PopStarNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name")
 }
 
 fragment PopStarNameResolverFragment_name on User {

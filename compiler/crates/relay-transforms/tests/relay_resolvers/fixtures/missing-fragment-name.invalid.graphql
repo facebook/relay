@@ -6,5 +6,5 @@ fragment Foo_user on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(import_path: "PopStarNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(import_path: "PopStarNameResolver")
 }

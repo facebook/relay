@@ -21,17 +21,17 @@ fragment HobbitNameResolverFragment_name on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
-  hobbit_name: String @relay_resolver(fragment_name: "HobbitNameResolverFragment_name", import_path: "HobbitNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  hobbit_name: String @relay_resolver(fragment_name: "HobbitNameResolverFragment_name", import_path: "HobbitNameResolver")
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ...HobbitNameResolverFragment_name @__relayResolver(js_return_type: "string", import_path: "HobbitNameResolver", field_name: "hobbit_name")
+  ...HobbitNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "HobbitNameResolver", field_name: "hobbit_name")
 }
 
 fragment HobbitNameResolverFragment_name on User {
   name
-  ...PopStarNameResolverFragment_name @__relayResolver(js_return_type: "string", import_path: "PopStarNameResolver", field_name: "pop_star_name")
+  ...PopStarNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name")
 }
 
 fragment PopStarNameResolverFragment_name on User {

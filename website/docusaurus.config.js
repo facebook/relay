@@ -296,6 +296,33 @@ module.exports = {
               '/docs/type-emission',
             ],
           },
+          {
+            to: '/docs/guides/client-schema-extensions/',
+            from: [
+              '/docs/en/local-state-management',
+              '/docs/en/next/local-state-management',
+              '/docs/local-state-management',
+              '/docs/next/local-state-management',
+            ],
+          },
+          {
+            to: '/docs/api-reference/store/',
+            from: [
+              '/docs/en/relay-store',
+              '/docs/en/next/relay-store',
+              '/docs/relay-store',
+              '/docs/next/relay-store',
+            ],
+          },
+          {
+            to: '/docs/guided-tour/updating-data/graphql-mutations/',
+            from: [
+              '/docs/en/mutations',
+              '/docs/en/next/mutations',
+              '/docs/mutations',
+              '/docs/next/mutations',
+            ],
+          },
         ],
       },
     ],

@@ -990,7 +990,7 @@ export interface PublishQueue {
  */
 export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
 
-export type ReactFlightReachableQuery = {|
+export type ReactFlightReachableExecutableDefinitions = {|
   +module: mixed,
   +variables: Variables,
 |};

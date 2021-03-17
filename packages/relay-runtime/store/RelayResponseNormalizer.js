@@ -40,7 +40,7 @@ const {generateClientID, isClientID} = require('./ClientID');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   refineToReactFlightPayloadData,
-  REACT_FLIGHT_QUERIES_STORAGE_KEY,
+  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
   REACT_FLIGHT_TREE_STORAGE_KEY,
   REACT_FLIGHT_TYPE_NAME,
 } = require('./RelayStoreReactFlightUtils');
@@ -73,7 +73,7 @@ import type {
   ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
-  ReactFlightReachableQuery,
+  ReactFlightReachableExecutableDefinitions,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
   Record,
@@ -610,7 +610,7 @@ class RelayResponseNormalizer {
       REACT_FLIGHT_TREE_STORAGE_KEY,
       reactFlightClientResponse,
     );
-    const reachableQueries: Array<ReactFlightReachableQuery> = [];
+    const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> = [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {
         this._moduleImportPayloads.push({
@@ -622,15 +622,15 @@ class RelayResponseNormalizer {
           variables: query.variables,
         });
       }
-      reachableQueries.push({
+      reachableExecutableDefinitions.push({
         module: query.module,
         variables: query.variables,
       });
     }
     RelayModernRecord.setValue(
       reactFlightClientResponseRecord,
-      REACT_FLIGHT_QUERIES_STORAGE_KEY,
-      reachableQueries,
+      REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
+      reachableExecutableDefinitions,
     );
     RelayModernRecord.setLinkedRecordID(record, storageKey, reactFlightID);
   }

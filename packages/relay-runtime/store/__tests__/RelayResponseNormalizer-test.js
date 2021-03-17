@@ -3359,41 +3359,41 @@ describe('RelayResponseNormalizer', () => {
           },
         );
         expect(recordSource.toJSON()).toMatchInlineSnapshot(`
-                  Object {
-                    "1": Object {
-                      "__id": "1",
-                      "__typename": "Story",
-                      "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-                        "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-                      },
-                      "id": "1",
-                    },
-                    "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
-                      "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
-                      "__typename": "ReactFlightComponent",
-                      "queries": Array [
-                        Object {
-                          "module": Object {
-                            "__dr": "RelayFlightExampleQuery.graphql",
-                          },
-                          "variables": Object {
-                            "id": "2",
-                          },
-                        },
-                      ],
-                      "tree": Object {
-                        "readRoot": [Function],
-                      },
-                    },
-                    "client:root": Object {
-                      "__id": "client:root",
-                      "__typename": "__Root",
-                      "node(id:\\"1\\")": Object {
-                        "__ref": "1",
-                      },
-                    },
-                  }
-              `);
+          Object {
+            "1": Object {
+              "__id": "1",
+              "__typename": "Story",
+              "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+                "__ref": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+              },
+              "id": "1",
+            },
+            "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": Object {
+              "__id": "client:1:flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})",
+              "__typename": "ReactFlightComponent",
+              "executableDefinitions": Array [
+                Object {
+                  "module": Object {
+                    "__dr": "RelayFlightExampleQuery.graphql",
+                  },
+                  "variables": Object {
+                    "id": "2",
+                  },
+                },
+              ],
+              "tree": Object {
+                "readRoot": [Function],
+              },
+            },
+            "client:root": Object {
+              "__id": "client:root",
+              "__typename": "__Root",
+              "node(id:\\"1\\")": Object {
+                "__ref": "1",
+              },
+            },
+          }
+        `);
       });
 
       it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {

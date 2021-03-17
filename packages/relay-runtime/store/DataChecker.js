@@ -46,7 +46,7 @@ import type {
   MutableRecordSource,
   NormalizationSelector,
   OperationLoader,
-  ReactFlightReachableQuery,
+  ReactFlightReachableExecutableDefinitions,
   Record,
   RecordSource,
 } from './RelayStoreTypes';
@@ -534,12 +534,12 @@ class DataChecker {
       linkedID,
       RelayStoreReactFlightUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
     );
-    const reachableQueries = this._mutator.getValue(
+    const reachableExecutableDefinitions = this._mutator.getValue(
       linkedID,
-      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
     );
 
-    if (tree == null || !Array.isArray(reachableQueries)) {
+    if (tree == null || !Array.isArray(reachableExecutableDefinitions)) {
       this._handleMissing();
       return;
     }
@@ -550,13 +550,13 @@ class DataChecker {
       'DataChecker: Expected an operationLoader to be configured when using ' +
         'React Flight.',
     );
-    // In Flight, the variables that are in scope for reachable queries aren't
-    // the same as what's in scope for the outer query.
+    // In Flight, the variables that are in scope for reachable executable
+    // definitions aren't the same as what's in scope for the outer query.
     const prevVariables = this._variables;
     // $FlowFixMe[incompatible-cast]
-    for (const query of (reachableQueries: Array<ReactFlightReachableQuery>)) {
-      this._variables = query.variables;
-      const normalizationRootNode = operationLoader.get(query.module);
+    for (const definition of (reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions>)) {
+      this._variables = definition.variables;
+      const normalizationRootNode = operationLoader.get(definition.module);
       if (normalizationRootNode != null) {
         const operation = getOperation(normalizationRootNode);
         this._traverseSelections(operation.selections, ROOT_ID);

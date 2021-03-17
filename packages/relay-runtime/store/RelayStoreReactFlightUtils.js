@@ -19,7 +19,9 @@ const {getType} = require('./RelayModernRecord');
 import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
 import type {ReactFlightClientResponse, Record} from './RelayStoreTypes';
 
-const REACT_FLIGHT_QUERIES_STORAGE_KEY = 'queries';
+// Reachable (client) executable definitions encountered while server component
+// rendering
+const REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY = 'executableDefinitions';
 const REACT_FLIGHT_TREE_STORAGE_KEY = 'tree';
 const REACT_FLIGHT_TYPE_NAME = 'ReactFlightComponent';
 
@@ -58,7 +60,7 @@ function getReactFlightClientResponse(
 }
 
 module.exports = {
-  REACT_FLIGHT_QUERIES_STORAGE_KEY,
+  REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
   REACT_FLIGHT_TREE_STORAGE_KEY,
   REACT_FLIGHT_TYPE_NAME,
   getReactFlightClientResponse,

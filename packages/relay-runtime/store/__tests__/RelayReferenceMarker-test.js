@@ -1436,7 +1436,7 @@ describe('RelayReferenceMarker', () => {
           __id:
             'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
           __typename: 'ReactFlightComponent',
-          queries: [
+          executableDefinitions: [
             {
               module: {
                 __dr: 'RelayFlightExampleQuery.graphql',

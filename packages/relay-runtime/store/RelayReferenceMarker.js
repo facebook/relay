@@ -24,7 +24,6 @@ const invariant = require('invariant');
 
 const {generateTypeID} = require('./TypeID');
 
-import type {ReactFlightPayloadQuery} from '../network/RelayNetworkTypes';
 import type {
   NormalizationFlightField,
   NormalizationLinkedField,
@@ -39,6 +38,7 @@ import type {
   OperationLoader,
   Record,
   RecordSource,
+  ReactFlightReachableExecutableDefinitions,
 } from './RelayStoreTypes';
 
 const {
@@ -298,12 +298,12 @@ class RelayReferenceMarker {
       return;
     }
 
-    const reachableQueries = RelayModernRecord.getValue(
+    const reachableExecutableDefinitions = RelayModernRecord.getValue(
       reactFlightClientResponseRecord,
-      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
     );
 
-    if (!Array.isArray(reachableQueries)) {
+    if (!Array.isArray(reachableExecutableDefinitions)) {
       return;
     }
 
@@ -313,13 +313,13 @@ class RelayReferenceMarker {
       'DataChecker: Expected an operationLoader to be configured when using ' +
         'React Flight',
     );
-    // In Flight, the variables that are in scope for reachable queries aren't
-    // the same as what's in scope for the outer query.
+    // In Flight, the variables that are in scope for reachable executable
+    // definitions aren't the same as what's in scope for the outer query.
     const prevVariables = this._variables;
     // $FlowFixMe[incompatible-cast]
-    for (const query of (reachableQueries: Array<ReactFlightPayloadQuery>)) {
-      this._variables = query.variables;
-      const operationReference = query.module;
+    for (const definition of (reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions>)) {
+      this._variables = definition.variables;
+      const operationReference = definition.module;
       const normalizationRootNode = operationLoader.get(operationReference);
       if (normalizationRootNode != null) {
         const operation = getOperation(normalizationRootNode);

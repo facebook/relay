@@ -70,13 +70,16 @@ pub fn build_raw_program(
 ) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult {
-        ir,
+        mut ir,
         base_fragment_names,
         source_hashes,
     } = log_event.time("build_ir_time", || {
         build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
+
+    // Sorting the IRs to make sure the transforms have a stable input
+    ir.sort_by_key(|def| def.name_with_location().item);
 
     // Turn the IR into a base Program.
     let program = log_event.time("build_program_time", || {

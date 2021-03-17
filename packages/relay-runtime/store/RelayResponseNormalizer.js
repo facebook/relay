@@ -307,9 +307,6 @@ class RelayResponseNormalizer {
           this._isClientExtension = isClientExtension;
           break;
         case CLIENT_COMPONENT:
-          if (!RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
-            throw new Error('Client components are not yet supported.');
-          }
           if (this._shouldProcessClientComponents === false) {
             break;
           }

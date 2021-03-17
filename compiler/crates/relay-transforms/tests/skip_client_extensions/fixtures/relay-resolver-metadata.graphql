@@ -1,0 +1,15 @@
+fragment HobbitNameResolverFragment_name on User {
+  ...PopStarNameResolverFragment_name @__relayResolver # Test that metadata directives on fragment spreads get stripped.
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+}
+
+%extensions%
+
+# `__relayResolver` is never added to our schema since it's a metadata node
+# (added after validation) but our test does get validated, so we need to add
+# it here. We don't bother defining all the arguments here since that's not
+# revelent to the test.
+directive @__relayResolver on FRAGMENT_SPREAD

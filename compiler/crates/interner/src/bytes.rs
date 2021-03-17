@@ -13,6 +13,7 @@ use parking_lot::RwLock;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::num::NonZeroU32;
+use std::str::FromStr;
 use std::sync::Arc;
 
 /// Slices of bytes intern as BytesKey
@@ -74,6 +75,14 @@ impl Ord for StringKey {
 impl PartialOrd for StringKey {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.lookup().partial_cmp(&other.lookup())
+    }
+}
+
+impl FromStr for StringKey {
+    type Err = std::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(s.intern())
     }
 }
 

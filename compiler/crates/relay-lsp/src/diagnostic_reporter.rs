@@ -12,16 +12,14 @@ use crate::lsp::{
 };
 use common::{Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::crossbeam_channel::Sender;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
 use lsp_server::Message;
 use relay_compiler::{
     errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
 };
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
+use std::path::PathBuf;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
@@ -40,7 +38,7 @@ struct DiagnosticSet {
 }
 
 pub struct DiagnosticReporter {
-    active_diagnostics: Arc<RwLock<HashMap<Url, DiagnosticSet>>>,
+    active_diagnostics: DashMap<Url, DiagnosticSet>,
     sender: Sender<Message>,
     root_dir: PathBuf,
     source_reader: Box<dyn SourceReader + Send + Sync>,
@@ -57,14 +55,12 @@ impl DiagnosticReporter {
     }
 
     pub fn clear_regular_diagnostics(&self) {
-        let mut active_diagnostics = self
-            .active_diagnostics
-            .write()
-            .expect("build_finishes: could not acquire write lock for self.active_diagnostics");
-        for diagnostics in active_diagnostics.values_mut() {
+        for mut r in self.active_diagnostics.iter_mut() {
+            let (url, diagnostics) = r.pair_mut();
             diagnostics.regular_diagnostics.clear();
+            self.publish_diangostics_set(url, diagnostics);
         }
-        active_diagnostics.retain(|_, diagnostics| {
+        self.active_diagnostics.retain(|_, diagnostics| {
             !diagnostics.regular_diagnostics.is_empty() || !diagnostics.quick_diagnostics.is_empty()
         })
     }
@@ -91,20 +87,14 @@ impl DiagnosticReporter {
     }
 
     pub fn commit_diagnostics(&self) {
-        for (url, diagnostics) in self
-            .active_diagnostics
-            .read()
-            .expect("commit_diagnostic: could not acquire read lock for self.active_diagnostics")
-            .iter()
-        {
+        for r in self.active_diagnostics.iter() {
+            let (url, diagnostics) = r.pair();
             self.publish_diangostics_set(url, diagnostics)
         }
     }
 
     fn add_diagnostic(&self, url: Url, diagnostic: Diagnostic) {
         self.active_diagnostics
-            .write()
-            .expect("add_diagnostic: could not acquire write lock for self.active_diagnostics")
             .entry(url)
             .or_default()
             .regular_diagnostics
@@ -112,40 +102,34 @@ impl DiagnosticReporter {
     }
 
     pub fn update_quick_diagnostics_for_url(&self, url: Url, diagnostics: Vec<Diagnostic>) {
-        match self.active_diagnostics
-            .write()
-            .expect("update_quick_diagnostics_for_url: could not acquire write lock for self.active_diagnostics")
-            .entry(url.clone()) {
-                Entry::Occupied(mut e) => {
-                    let data = e.get_mut();
-                    if data.quick_diagnostics != diagnostics {
-                        data.quick_diagnostics = diagnostics;
-                        self.publish_diangostics_set(&url, data);
-                    }
-                }
-                Entry::Vacant(e) => {
-                    if !diagnostics.is_empty() {
-                        let data = DiagnosticSet {
-                            regular_diagnostics: vec![],
-                            quick_diagnostics: diagnostics
-                        };
-                        self.publish_diangostics_set(&url, &data);
-                        e.insert(data);
-                    }
+        match self.active_diagnostics.entry(url.clone()) {
+            Entry::Occupied(mut e) => {
+                let data = e.get_mut();
+                if data.quick_diagnostics != diagnostics {
+                    data.quick_diagnostics = diagnostics;
+                    self.publish_diangostics_set(&url, data);
                 }
             }
+            Entry::Vacant(e) => {
+                if !diagnostics.is_empty() {
+                    let data = DiagnosticSet {
+                        regular_diagnostics: vec![],
+                        quick_diagnostics: diagnostics,
+                    };
+                    self.publish_diangostics_set(&url, &data);
+                    e.insert(data);
+                }
+            }
+        }
     }
 
     pub fn clear_quick_diagnostics_for_url(&self, url: &Url) {
-        if let Some(diagnostics) = self.active_diagnostics
-            .write()
-            .expect("update_quick_diagnostics_for_url: could not acquire write lock for self.active_diagnostics")
-            .get_mut(url) {
-                if !diagnostics.quick_diagnostics.is_empty() {
-                    diagnostics.quick_diagnostics.clear();
-                    self.publish_diangostics_set(url, diagnostics)
-                }
+        if let Some(mut diagnostics) = self.active_diagnostics.get_mut(url) {
+            if !diagnostics.quick_diagnostics.is_empty() {
+                diagnostics.quick_diagnostics.clear();
+                self.publish_diangostics_set(url, &diagnostics)
             }
+        }
     }
 
     fn publish_diangostics_set(&self, url: &Url, diagnostics: &DiagnosticSet) {
@@ -274,12 +258,12 @@ mod tests {
         let source_location = SourceLocationKey::Standalone {
             path: "foo.txt".intern(),
         };
-        assert_eq!(reporter.active_diagnostics.read().unwrap().len(), 0);
+        assert_eq!(reporter.active_diagnostics.len(), 0);
         reporter.report_diagnostic(&Diagnostic::error(
             "test message",
             Location::new(source_location, Span { start: 0, end: 1 }),
         ));
-        assert_eq!(reporter.active_diagnostics.read().unwrap().len(), 1);
+        assert_eq!(reporter.active_diagnostics.len(), 1);
     }
 
     /// This test will assert that the message without URL (with generated source) won't be reported by LSPStatusReporter
@@ -293,6 +277,6 @@ mod tests {
         reporter.set_source_reader(Box::new(MockSourceReader("".to_string())));
 
         reporter.report_diagnostic(&Diagnostic::error("-", Location::generated()));
-        assert_eq!(reporter.active_diagnostics.read().unwrap().len(), 0);
+        assert_eq!(reporter.active_diagnostics.len(), 0);
     }
 }

@@ -1,5 +1,5 @@
 ---
-id: version-v4.0.0-testing-relay-components
+id: testing-relay-components
 title: Testing Relay Components
 original_id: testing-relay-components
 ---
@@ -9,10 +9,10 @@ The content is focused mostly on jest unit-tests (testing individual components)
 
 What are the benefits of writing jest tests:
 
-* In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce and fix those regressions, and prevent them in the future.
-* It simplifies refactoring process: when properly written (testing public interface, not implementation) - tests really helps with changing the internal implementation of the components.
-* It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest —watch mode is really shining in this case.
-* It will simplify the on-boarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.
+-   In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce and fix those regressions, and prevent them in the future.
+-   It simplifies refactoring process: when properly written (testing public interface, not implementation) - tests really helps with changing the internal implementation of the components.
+-   It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest —watch mode is really shining in this case.
+-   It will simplify the on-boarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.
 
 One thing to notice: while jest unit and integration tests will help improve the stability of the system, they should be considered as a part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot, performance tests.
 
@@ -26,9 +26,8 @@ Fortunately, we have tools that aim to simplify the process of writing tests for
 
 There are two main modules that you may using in your tests:
 
-* createMockEnvironment(options): RelayMockEnvironment
-* MockPayloadGenerator and @relay_test_operation directive
-
+-   createMockEnvironment(options): RelayMockEnvironment
+-   MockPayloadGenerator and @relay_test_operation directive
 
 With `createMockEnvironment,` you will be able to create an instance of `RelayMockEnvironment`, a Relay environment specifically for your tests. The instance created by `createMockEnvironment` is implementing the Relay Environment Interface and it also has an additional Mock layer, with methods that allow to resolve/reject and control the flow of operations (queries/mutations/subscriptions).
 
@@ -38,30 +37,26 @@ One of the patterns you may see in the tests for Relay components: 95% of the te
 
 With the MockPayloadGenerator and @relay_test_operation, we want to get rid of this pattern and switch the developer's focus from the preparation of the test to the actual testing.
 
-
 ## RelayMockEnvironment API Overview
 
 RelayMockEnvironment is a special version of Relay Environment with an additional API methods for controlling the operation flow: resolving and rejection operations, providing incremental payloads for subscriptions, working with cache.
 
-
-* Methods for finding operations executed on the environment
-    * `getAllOperations()` - get all operation executed during the test by the current time
-    * `findOperation(findFn => boolean) `- find particular operation in the list of all executed operations, this method will throw, if operation is not available. Maybe useful to find a particular operation when multiple operations executed at the same time
-    * `getMostRecentOperation() -` return the most recent operation, this method will throw if no operations were executed prior this call.
-* Methods for resolving or rejecting operations
-    * `nextValue(request | operation, data)` - provide payload for operation(request), but not complete request. Practically useful when testing incremental updates and subscriptions
-    * `complete(request | operation)`  - complete the operation, no more payloads are expected for this operation, when it's completed.
-    * `resolve(request | operation, data)` - resolve the request with provided GraphQL response. Essentially, it's nextValue(...) and complete(...)
-    * `reject(request | operation, error)` - reject the request with particular error
-    * `resolveMostRecentOperation(operation => data)` - resolve and getMostRecentOperation work together
-    * `rejectMostRecentOperation(operation => error)`  - reject and getMostRecentOperation work together
-    * `queueOperationResolver(operation => data | error)` - adds an OperationResolver function to the queue, those methods will be used to resolve/reject operations as they appear
-* Additional utility methods
-    * `isLoading(request | operation)` - will return `true` if operations has not been completed, yet.
-    * `cachePayload(request | operation, variables, payload)` - will add payload to QueryResponse cache
-    * `clearCache() `- will clear QueryResponse cache
-
-
+-   Methods for finding operations executed on the environment
+    -   `getAllOperations()` - get all operation executed during the test by the current time
+    -   `findOperation(findFn => boolean) `- find particular operation in the list of all executed operations, this method will throw, if operation is not available. Maybe useful to find a particular operation when multiple operations executed at the same time
+    -   `getMostRecentOperation() -` return the most recent operation, this method will throw if no operations were executed prior this call.
+-   Methods for resolving or rejecting operations
+    -   `nextValue(request | operation, data)` - provide payload for operation(request), but not complete request. Practically useful when testing incremental updates and subscriptions
+    -   `complete(request | operation)`  - complete the operation, no more payloads are expected for this operation, when it's completed.
+    -   `resolve(request | operation, data)` - resolve the request with provided GraphQL response. Essentially, it's nextValue(...) and complete(...)
+    -   `reject(request | operation, error)` - reject the request with particular error
+    -   `resolveMostRecentOperation(operation => data)` - resolve and getMostRecentOperation work together
+    -   `rejectMostRecentOperation(operation => error)`  - reject and getMostRecentOperation work together
+    -   `queueOperationResolver(operation => data | error)` - adds an OperationResolver function to the queue, those methods will be used to resolve/reject operations as they appear
+-   Additional utility methods
+    -   `isLoading(request | operation)` - will return `true` if operations has not been completed, yet.
+    -   `cachePayload(request | operation, variables, payload)` - will add payload to QueryResponse cache
+    -   `clearCache() `- will clear QueryResponse cache
 
 ## Mock Payload Generator and @relay_test_operation Directive
 
@@ -70,6 +65,7 @@ MockPayloadGenerator may drastically simplify the process of creating and mainta
 Example of a simple Mock Resolver:
 
 ```javascript
+
 {
   ID() {
     // Return mock value for a scalar filed with type ID
@@ -80,12 +76,13 @@ Example of a simple Mock Resolver:
     return "Lorem Ipsum"
   }
 }
-```
 
+```
 
 It is possible to define more resolvers for Object types
 
 ```javascript
+
 {
   // This will be the default values for User object in the query response
   User() {
@@ -98,14 +95,15 @@ It is possible to define more resolvers for Object types
     };
   },
 }
+
 ```
 
 ### Mock Resolver Context
 
 The first argument of the MockResolver is the object that contains Mock Resolver Context. It is possible to return dynamic values from mock resolvers based on the context - for instance, name or alias of the field, a path in the selection, arguments, or parent type.
 
-
 ```javascript
+
 {
   String(context) {
     if (context.name === 'zip') {
@@ -119,6 +117,7 @@ The first argument of the MockResolver is the object that contains Mock Resolver
     }
   }
 }
+
 ```
 
 ### ID Generation
@@ -126,12 +125,14 @@ The first argument of the MockResolver is the object that contains Mock Resolver
 The second argument of the Mock Resolver its a function that will generate a sequence of integers, usefull to generate unique ids in the tests
 
 ```javascript
+
 {
   // will generate strings "my-id-1", "my-id-2", etc.
   ID(_, generateId) {
      return `my-id-${generateId()}`;
   },
 }
+
 ```
 
 ### @relay_test_operation
@@ -141,6 +142,7 @@ Most of GraphQL type information for a specific field in the selection is not av
 Operation with the @relay_test_operation directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:
 
 ```javascript
+
 {
   Float() {
     return 123.456;
@@ -158,6 +160,7 @@ Operation with the @relay_test_operation directive will have additional metadata
     };
   }
 }
+
 ```
 
 ## Examples
@@ -166,8 +169,8 @@ Operation with the @relay_test_operation directive will have additional metadata
 
 Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from `relay-test-utils`
 
-
 ```javascript
+
 // Say you have a component with the QueryRenderer
 const MyAwesomeViewRoot = require('MyAwesomeViewRoot');
 const {
@@ -220,6 +223,7 @@ test('Error State', () => {
     renderer.root.find(item => (item.props.testID = 'errorMessage')),
   ).toBeDefined();
 });
+
 ```
 
 ### Fragment Container Tests
@@ -227,6 +231,7 @@ test('Error State', () => {
 Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap you fragment container with the QueryRenderer that renders a Query that's spreads fragments from you fragment container.
 
 ```javascript
+
 test('Fragment Container', () => {
   const environment = createMockEnvironment();
   const TestRenderer = () => (
@@ -257,6 +262,7 @@ test('Fragment Container', () => {
 
   expect(renderer).toMatchSnapshot();
 });
+
 ```
 
 ### Pagination Container Test
@@ -264,6 +270,7 @@ test('Fragment Container', () => {
 Essentially, tests for Pagination container are not different from Fragment Container tests. But we can do more here, we can actually see how the pagination works - we can assert the behavior of our components when performing pagination (load more, refetch).
 
 ```javascript
+
 // Pagination Example
 test('Pagionation Container', () => {
   const environment = createMockEnvironment();
@@ -329,6 +336,7 @@ test('Pagionation Container', () => {
   expect(loadMore.props.disabled).toBe(true);
 });
 
+
 ```
 
 ### Refetch Container
@@ -336,6 +344,7 @@ test('Pagionation Container', () => {
 We can use similar approach here with wrapping container with Query Renderer. And for the sake of completeness, we will add example here:
 
 ```javascript
+
 test('Refetch Container', () => {
   const environment = createMockEnvironment();
   const TestRenderer = () => (
@@ -377,16 +386,15 @@ test('Refetch Container', () => {
   );
   // expect(renderer).toMatchSnapshot();
 });
+
 ```
-
-
 
 ### Mutations
 
 Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.
 
-
 ```javascript
+
 // Say, you have a mutation function
 function sendMutation(environment, onCompleted, onError, variables)
   commitMutation(environment, {
@@ -409,6 +417,7 @@ test('it should send mutation', () => {
   );
   expect(onCompleted).toBeCalled();
 });
+
 ```
 
 ### Subscription
@@ -416,6 +425,7 @@ test('it should send mutation', () => {
 We can test subscription in a similar way we test mutations
 
 ```javascript
+
 // Example subscribe function
 function subscribe(environment, onNext, onError, variables)
   requestSubscription(environment, {
@@ -438,14 +448,15 @@ test('it should subscribe', () => {
   );
   expect(onNext).toBeCalled();
 });
+
 ```
 
 ### Example with `queueOperationResolver`
 
-
 With `queueOpeararionResolver` it possible to define responses for operations that will be executed on the environment
 
 ```javascript
+
 // Say you have a component with the QueryRenderer
 const MyAwesomeViewRoot = require('MyAwesomeViewRoot');
 const {
@@ -483,5 +494,6 @@ test('Error State', () => {
     renderer.root.find(item => (item.props.testID = 'errorMessage')),
   ).toBeDefined();
 });
+
 
 ```

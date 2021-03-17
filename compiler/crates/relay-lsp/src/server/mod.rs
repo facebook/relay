@@ -35,6 +35,7 @@ use crate::{
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::{SendError, Sender};
 use log::debug;
+use lsp_notification_dispatch::LSPNotificationDispatch;
 use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
@@ -47,10 +48,9 @@ use lsp_types::{
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use std::sync::Arc;
 
-use lsp_notification_dispatch::LSPNotificationDispatch;
-
 pub use crate::LSPExtraDataProvider;
 pub(crate) use lsp_state::LSPState;
+pub use lsp_state::{Schemas, SourcePrograms};
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.

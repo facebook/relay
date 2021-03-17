@@ -67,15 +67,26 @@ pub fn build_raw_program(
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<Program, BuildProjectError> {
-    let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
+) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
+    // Build a type aware IR.
+    let BuildIRResult {
+        mut ir,
+        base_fragment_names,
+        source_hashes,
+    } = log_event.time("build_ir_time", || {
         build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
-    Ok(log_event.time("build_program_time", || {
+    // Sorting the IRs to make sure the transforms have a stable input
+    ir.sort_by_key(|def| def.name_with_location().item);
+
+    // Turn the IR into a base Program.
+    let program = log_event.time("build_program_time", || {
         Program::from_definitions(schema, ir)
-    }))
+    });
+
+    Ok((program, base_fragment_names, source_hashes))
 }
 
 pub fn validate_program(
@@ -97,7 +108,38 @@ pub fn validate_program(
     result
 }
 
-fn build_programs(
+/// Apply various chains of transforms to create a set of output programs.
+pub fn transform_program(
+    config: &Config,
+    project_config: &ProjectConfig,
+    program: Arc<Program>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger + 'static>,
+    log_event: &impl PerfLogEvent,
+) -> Result<Programs, BuildProjectFailure> {
+    let timer = log_event.start("apply_transforms_time");
+    let result = apply_transforms(
+        project_config.name,
+        program,
+        base_fragment_names,
+        &config.connection_interface,
+        Arc::new(
+            project_config
+                .feature_flags
+                .as_ref()
+                .cloned()
+                .unwrap_or_else(|| config.feature_flags.clone()),
+        ),
+        perf_logger,
+    )
+    .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
+
+    log_event.stop(timer);
+
+    result
+}
+
+pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
@@ -115,21 +157,13 @@ fn build_programs(
             true
         };
 
-    // Build a type aware IR.
-    let BuildIRResult {
-        ir,
-        base_fragment_names,
-        source_hashes,
-    } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build).map_err(
-            |errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }),
-        )
-    })?;
-
-    // Turn the IR into a base Program.
-    let program = log_event.time("build_program_time", || {
-        Program::from_definitions(schema, ir)
-    });
+    let (program, base_fragment_names, source_hashes) = build_raw_program(
+        project_config,
+        graphql_asts,
+        schema,
+        log_event,
+        is_incremental_build,
+    )?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -139,26 +173,14 @@ fn build_programs(
     // Call validation rules that go beyond type checking.
     validate_program(&config, &program, log_event)?;
 
-    // Apply various chains of transforms to create a set of output programs.
-    let programs = log_event.time("apply_transforms_time", || {
-        apply_transforms(
-            project_name,
-            Arc::new(program),
-            Arc::new(base_fragment_names),
-            &config.connection_interface,
-            Arc::new(
-                project_config
-                    .feature_flags
-                    .as_ref()
-                    .cloned()
-                    .unwrap_or_else(|| config.feature_flags.clone()),
-            ),
-            perf_logger,
-        )
-        .map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
-        })
-    })?;
+    let programs = transform_program(
+        config,
+        project_config,
+        Arc::new(program),
+        Arc::new(base_fragment_names),
+        Arc::clone(&perf_logger),
+        log_event,
+    )?;
 
     Ok((programs, Arc::new(source_hashes)))
 }
@@ -172,7 +194,7 @@ pub fn build_project(
 ) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
-    let project_name = project_config.name.lookup();
+    let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 

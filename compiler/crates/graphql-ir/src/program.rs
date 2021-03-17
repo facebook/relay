@@ -115,7 +115,7 @@ impl Program {
 
     pub fn merge_program(
         &mut self,
-        other_program: Self,
+        other_program: &Self,
         removed_definition_names: Option<&[StringKey]>,
     ) {
         let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
@@ -123,11 +123,12 @@ impl Program {
             .drain(..)
             .map(|op| (op.name.item, op))
             .collect();
-        for (key, fragment) in other_program.fragments {
-            self.fragments.insert(key, fragment);
+        for fragment in other_program.fragments() {
+            self.fragments
+                .insert(fragment.name.item, Arc::clone(fragment));
         }
-        for operation in other_program.operations {
-            operations.insert(operation.name.item, operation);
+        for operation in other_program.operations() {
+            operations.insert(operation.name.item, Arc::clone(operation));
         }
         if let Some(removed_definition_names) = removed_definition_names {
             for removed in removed_definition_names {

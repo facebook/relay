@@ -49,7 +49,9 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     let path = document.resolve((), position_span);
 
     let used_definition_names = get_definition_names(&definitions);
-    Ok(get_code_actions(path, used_definition_names, uri, range))
+    let result = get_code_actions(path, used_definition_names, uri, range)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+    Ok(Some(result))
 }
 
 struct FragmentAndOperationNames {

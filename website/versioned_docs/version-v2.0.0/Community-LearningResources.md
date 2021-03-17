@@ -1,13 +1,14 @@
 ---
-id: version-v2.0.0-community-learning-resources
+id: community-learning-resources
 title: Community Learning Resources
 original_id: community-learning-resources
 ---
-
 ## Relay Modern Learning Blog Posts Thread on Twitter
+
 [twitter.com/sseraphini/status/1078595758801203202](https://twitter.com/sseraphini/status/1078595758801203202)
 
 ## Relay examples - common patterns explained via code and videos
+
 [github.com/kiwicom/relay-example](https://github.com/kiwicom/relay-example)
 
 # Basics

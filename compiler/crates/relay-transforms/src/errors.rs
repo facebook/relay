@@ -37,4 +37,24 @@ pub enum ValidationMessage {
 
     #[error("This fragment spread already has a split normalization file generated.")]
     DuplicateRelayClientComponentSplitOperation,
+
+    #[error(
+        "The Relay Resolver backing this field has an `@relay_resolver` directive with an invalid '{key}' argument. Expected a literal string value."
+    )]
+    InvalidRelayResolverKeyArg { key: StringKey },
+
+    #[error(
+        "The Relay Rosolver backing this field is missing a '{key}' argument in its `@relay_resolver` directive."
+    )]
+    MissingRelayResolverKeyArg { key: StringKey },
+
+    #[error(
+        "Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives."
+    )]
+    RelayResolverUnexpectedDirective {},
+
+    #[error(
+        "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
+    )]
+    InvalidRelayResolverFragmentName { fragment_name: StringKey },
 }

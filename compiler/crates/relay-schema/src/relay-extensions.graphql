@@ -74,3 +74,9 @@ directive @prependNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 
 # RelayClientComponentTransform
 directive @relay_client_component on FRAGMENT_SPREAD
+
+# RelayResolver
+directive @relay_resolver(
+  fragment_name: String!
+  import_path: String!
+) on FIELD_DEFINITION

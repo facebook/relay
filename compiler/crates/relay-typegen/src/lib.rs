@@ -48,6 +48,8 @@ lazy_static! {
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
+    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
+    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
     static ref KEY_TYPENAME: StringKey = "__typename".intern();
     static ref TYPE_ID: StringKey = "ID".intern();
     static ref TYPE_STRING: StringKey = "String".intern();
@@ -58,10 +60,6 @@ lazy_static! {
     static ref JS_FIELD_NAME: StringKey = "js".intern();
 }
 
-macro_rules! write_ast {
-    ($self:ident, $ast:expr) => {{ $self.writer.write(&mut $self.result, &$ast) }};
-}
-
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
@@ -69,7 +67,7 @@ pub fn generate_fragment_type(
 ) -> String {
     let mut generator = TypeGenerator::new(schema, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
-    generator.result
+    generator.into_string()
 }
 
 pub fn generate_operation_type(
@@ -82,7 +80,7 @@ pub fn generate_operation_type(
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
-    generator.result
+    generator.into_string()
 }
 
 pub fn generate_split_operation_type(
@@ -95,7 +93,7 @@ pub fn generate_split_operation_type(
     generator
         .generate_split_operation_type(typegen_operation, normalization_operation)
         .unwrap();
-    generator.result
+    generator.into_string()
 }
 
 enum GeneratedInputObject {
@@ -110,7 +108,6 @@ struct RuntimeImports {
 }
 
 struct TypeGenerator<'a> {
-    result: String,
     schema: &'a SDLSchema,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
@@ -125,7 +122,6 @@ struct TypeGenerator<'a> {
 impl<'a> TypeGenerator<'a> {
     fn new(schema: &'a SDLSchema, typegen_config: &'a TypegenConfig) -> Self {
         Self {
-            result: String::new(),
             schema,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
@@ -137,6 +133,10 @@ impl<'a> TypeGenerator<'a> {
             runtime_imports: RuntimeImports::default(),
             writer: Self::create_writer(typegen_config),
         }
+    }
+
+    fn into_string(self) -> String {
+        self.writer.into_string()
     }
 
     fn create_writer(typegen_config: &TypegenConfig) -> Box<dyn Writer> {
@@ -191,14 +191,10 @@ impl<'a> TypeGenerator<'a> {
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(input_variables_identifier, Box::from(input_variables_type),)
-        )?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(response_identifier, Box::from(response_type),)
-        )?;
+        self.writer
+            .write_export_type(input_variables_identifier, &input_variables_type)?;
+        self.writer
+            .write_export_type(response_identifier, &response_type)?;
 
         let mut operation_types = vec![
             Prop {
@@ -217,14 +213,12 @@ impl<'a> TypeGenerator<'a> {
 
         if let Some(raw_response_type) = raw_response_type {
             for (key, ast) in self.match_fields.iter() {
-                write_ast!(self, AST::ExportTypeEquals(*key, Box::from(ast.clone())))?;
+                self.writer.write_export_type(*key, &ast)?;
             }
             let raw_response_identifier =
                 format!("{}RawResponse", typegen_operation.name.item).intern();
-            write_ast!(
-                self,
-                AST::ExportTypeEquals(raw_response_identifier, Box::from(raw_response_type),)
-            )?;
+            self.writer
+                .write_export_type(raw_response_identifier, &raw_response_type)?;
             operation_types.push(Prop {
                 key: *KEY_RAW_RESPONSE,
                 read_only: false,
@@ -233,12 +227,9 @@ impl<'a> TypeGenerator<'a> {
             })
         }
 
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(
-                typegen_operation.name.item,
-                Box::from(AST::ExactObject(operation_types)),
-            )
+        self.writer.write_export_type(
+            typegen_operation.name.item,
+            &AST::ExactObject(operation_types),
         )?;
         Ok(())
     }
@@ -258,13 +249,11 @@ impl<'a> TypeGenerator<'a> {
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         for (key, ast) in self.match_fields.iter() {
-            write_ast!(self, AST::ExportTypeEquals(*key, Box::from(ast.clone())))?;
+            self.writer.write_export_type(*key, &ast)?;
         }
 
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(typegen_operation.name.item, Box::from(raw_response_type))
-        )?;
+        self.writer
+            .write_export_type(typegen_operation.name.item, &raw_response_type)?;
 
         Ok(())
     }
@@ -284,12 +273,14 @@ impl<'a> TypeGenerator<'a> {
         }
         self.generated_fragments.insert(node.name.item);
 
-        let ref_type_name = format!("{}$key", node.name.item);
+        let data_type = node.name.item;
+        let data_type_name = format!("{}$data", data_type).intern();
+
         let ref_type_data_property = Prop {
             key: *KEY_DATA,
             optional: true,
             read_only: true,
-            value: AST::Identifier(format!("{}$data", node.name.item).intern()),
+            value: AST::Identifier(data_type_name),
         };
         let old_fragment_type_name = node.name.item;
         let new_fragment_type_name = format!("{}$fragmentType", node.name.item).intern();
@@ -305,9 +296,6 @@ impl<'a> TypeGenerator<'a> {
         if is_plural_fragment {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
-
-        let data_type_name = format!("{}$data", node.name.item);
-        let data_type = node.name.item.lookup();
 
         let unmasked = RelayDirective::is_unmasked_fragment_definition(&node);
 
@@ -342,53 +330,29 @@ impl<'a> TypeGenerator<'a> {
             if self.typegen_config.haste {
                 // TODO(T22653277) support non-haste environments when importing
                 // fragments
-                write_ast!(
-                    self,
-                    AST::ImportFragmentType(
-                        vec![old_fragment_type_name, new_fragment_type_name],
-                        format!("{}.graphql", refetchable_metadata.operation_name).intern()
-                    )
+                self.writer.write_import_fragment_type(
+                    &[old_fragment_type_name, new_fragment_type_name],
+                    format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                 )?;
             } else {
-                write_ast!(
-                    self,
-                    AST::DefineType(old_fragment_type_name, Box::new(AST::Any))
-                )?;
-                write_ast!(
-                    self,
-                    AST::DefineType(new_fragment_type_name, Box::new(AST::Any))
-                )?;
+                self.writer
+                    .write_any_type_definition(old_fragment_type_name)?;
+                self.writer
+                    .write_any_type_definition(new_fragment_type_name)?;
             }
 
-            write_ast!(
-                self,
-                AST::ExportFragmentList(vec![old_fragment_type_name, new_fragment_type_name,])
-            )?;
+            self.writer
+                .write_export_fragment_types(old_fragment_type_name, new_fragment_type_name)?;
         } else {
-            write_ast!(
-                self,
-                AST::DeclareExportFragment(old_fragment_type_name, None)
-            )?;
-            write_ast!(
-                self,
-                AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
-            )?;
+            self.writer
+                .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)?;
         }
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(node.name.item, Box::from(type_))
-        )?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(
-                data_type_name.intern(),
-                Box::from(AST::RawType(data_type.intern())),
-            )
-        )?;
-        write_ast!(
-            self,
-            AST::ExportTypeEquals(ref_type_name.intern(), Box::from(ref_type),)
-        )?;
+
+        self.writer.write_export_type(data_type, &type_)?;
+        self.writer
+            .write_export_type(data_type_name, &AST::RawType(data_type))?;
+        self.writer
+            .write_export_type(format!("{}$key", node.name.item).intern(), &ref_type)?;
 
         Ok(())
     }
@@ -1018,33 +982,22 @@ impl<'a> TypeGenerator<'a> {
             RuntimeImports {
                 local_3d_payload: true,
                 fragment_reference: true,
-            } => write_ast!(
-                self,
-                AST::ImportType(
-                    vec![
-                        self.writer.get_runtime_fragment_import(),
-                        "Local3DPayload".intern()
-                    ],
-                    "relay-runtime".intern(),
-                )
+            } => self.writer.write_import_type(
+                &[self.writer.get_runtime_fragment_import(), *LOCAL_3D_PAYLOAD],
+                *RELAY_RUNTIME,
             ),
             RuntimeImports {
                 local_3d_payload: true,
                 fragment_reference: false,
-            } => write_ast!(
-                self,
-                AST::ImportType(vec!["Local3DPayload".intern()], "relay-runtime".intern(),)
-            ),
+            } => self
+                .writer
+                .write_import_type(&[*LOCAL_3D_PAYLOAD], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: true,
-            } => write_ast!(
-                self,
-                AST::ImportType(
-                    vec![self.writer.get_runtime_fragment_import()],
-                    "relay-runtime".intern(),
-                )
-            ),
+            } => self
+                .writer
+                .write_import_type(&[self.writer.get_runtime_fragment_import()], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: false,
@@ -1059,22 +1012,16 @@ impl<'a> TypeGenerator<'a> {
                 if self.typegen_config.haste {
                     // TODO(T22653277) support non-haste environments when importing
                     // fragments
-                    write_ast!(
-                        self,
-                        AST::ImportFragmentType(
-                            vec![fragment_type_name],
-                            format!("{}.graphql", used_fragment).intern()
-                        )
+                    self.writer.write_import_fragment_type(
+                        &[fragment_type_name],
+                        format!("{}.graphql", used_fragment).intern(),
                     )?;
                 // } else if (state.useSingleArtifactDirectory) {
                 //   imports.push(
                 //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
                 //   );
                 } else {
-                    write_ast!(
-                        self,
-                        AST::DefineType(fragment_type_name, Box::new(AST::Any))
-                    )?;
+                    self.writer.write_any_type_definition(fragment_type_name)?;
                 }
             }
         }
@@ -1088,18 +1035,13 @@ impl<'a> TypeGenerator<'a> {
 
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
             if self.typegen_config.haste {
-                write_ast!(
-                    self,
-                    AST::ImportFragmentType(
-                        vec![imported_raw_response_type],
-                        format!("{}.graphql", imported_raw_response_type).intern()
-                    )
+                self.writer.write_import_fragment_type(
+                    &[imported_raw_response_type],
+                    format!("{}.graphql", imported_raw_response_type).intern(),
                 )?;
             } else {
-                write_ast!(
-                    self,
-                    AST::DefineType(imported_raw_response_type, Box::new(AST::Any))
-                )?;
+                self.writer
+                    .write_any_type_definition(imported_raw_response_type)?;
             }
         }
 
@@ -1112,15 +1054,8 @@ impl<'a> TypeGenerator<'a> {
     ) -> Result {
         let old_fragment_type_name = format!("{}$ref", refetchable_fragment_name).intern();
         let new_fragment_type_name = format!("{}$fragmentType", refetchable_fragment_name).intern();
-        write_ast!(
-            self,
-            AST::DeclareExportFragment(old_fragment_type_name, None)
-        )?;
-        write_ast!(
-            self,
-            AST::DeclareExportFragment(new_fragment_type_name, Some(old_fragment_type_name))
-        )?;
-        Ok(())
+        self.writer
+            .write_export_fragment_type(old_fragment_type_name, new_fragment_type_name)
     }
 
     fn write_enum_definitions(&mut self) -> Result {
@@ -1129,12 +1064,9 @@ impl<'a> TypeGenerator<'a> {
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
-                write_ast!(
-                    self,
-                    AST::ImportType(
-                        vec![enum_type.name],
-                        format!("{}{}", enum_type.name, enum_module_suffix).intern()
-                    )
+                self.writer.write_import_type(
+                    &[enum_type.name],
+                    format!("{}{}", enum_type.name, enum_module_suffix).intern(),
                 )?;
             } else {
                 let mut members: Vec<AST> = enum_type
@@ -1143,10 +1075,8 @@ impl<'a> TypeGenerator<'a> {
                     .map(|enum_value| AST::StringLiteral(enum_value.value))
                     .collect();
                 members.push(AST::StringLiteral(*FUTURE_ENUM_VALUE));
-                write_ast!(
-                    self,
-                    AST::ExportTypeEquals(enum_type.name, Box::from(AST::Union(members)))
-                )?;
+                self.writer
+                    .write_export_type(enum_type.name, &AST::Union(members))?;
             }
         }
         Ok(())
@@ -1170,13 +1100,8 @@ impl<'a> TypeGenerator<'a> {
         for (type_identifier, input_object_type) in self.generated_input_object_types.iter() {
             match input_object_type {
                 GeneratedInputObject::Resolved(input_object_type) => {
-                    write_ast!(
-                        self,
-                        AST::ExportTypeEquals(
-                            *type_identifier,
-                            Box::from(input_object_type.clone())
-                        )
-                    )?;
+                    self.writer
+                        .write_export_type(*type_identifier, input_object_type)?;
                 }
                 GeneratedInputObject::Pending => panic!("expected a resolved type here"),
             }

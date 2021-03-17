@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment Foo_user on User {
+  pop_star_name
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== ERROR ====================================
+✖︎ The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named 'PopStarNameResolverFragment_name'.
+
+  missing-fragment.invalid.graphql:3:3
+    2 │ fragment Foo_user on User {
+    3 │   pop_star_name
+      │   ^^^^^^^^^^^^^
+    4 │ }

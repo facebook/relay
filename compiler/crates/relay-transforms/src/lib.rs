@@ -16,7 +16,6 @@ mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
-mod dedupe_type_discriminator;
 mod defer_stream;
 mod errors;
 mod feature_flags;
@@ -39,6 +38,7 @@ mod refetchable_fragment;
 mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
+mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
 mod root_variables;
@@ -71,7 +71,6 @@ pub use connections::{
     ConnectionMetadata,
 };
 pub use declarative_connection::transform_declarative_connection;
-pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
@@ -112,6 +111,11 @@ pub use relay_client_component::{
 };
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
+pub use relay_resolvers::{
+    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME,
+};
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{
     required_directive, RequiredAction, ACTION_ARGUMENT, CHILDREN_CAN_BUBBLE_METADATA_KEY,

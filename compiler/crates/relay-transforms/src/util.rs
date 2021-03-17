@@ -14,6 +14,7 @@ use crate::react_flight::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
+use crate::relay_resolvers::RELAY_RESOLVER_METADATA_DIRECTIVE_NAME;
 use crate::required_directive::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
 };
@@ -103,6 +104,7 @@ impl CustomMetadataDirectives {
             || name == *REQUIRED_DIRECTIVE_NAME
             || name == *REQUIRED_METADATA_KEY
             || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
+            || name == *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME
     }
 
     pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {
@@ -116,6 +118,7 @@ impl CustomMetadataDirectives {
             || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
             || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
             || name == *REQUIRED_DIRECTIVE_NAME
+            || name == *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME
     }
 
     pub fn is_handle_field_directive(&self, name: StringKey) -> bool {

@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+import type { ResolvedValueType as UserPopStarNameResolverReturnType } from "PopStarNameResolver";
+export type relayResolver_QueryVariables = {||};
+export type relayResolver_QueryResponse = {|
+  +me: ?{|
+    +pop_star_name: UserPopStarNameResolverReturnType,
+  |},
+|};
+export type relayResolver_Query = {|
+  variables: relayResolver_QueryVariables,
+  response: relayResolver_QueryResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$ref: FragmentReference;
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: relayResolver_PopStarNameResolverFragment_name$ref;
+export type relayResolver_PopStarNameResolverFragment_name = {|
+  +name: ?string,
+  +$refType: relayResolver_PopStarNameResolverFragment_name$ref,
+|};
+export type relayResolver_PopStarNameResolverFragment_name$data = relayResolver_PopStarNameResolverFragment_name;
+export type relayResolver_PopStarNameResolverFragment_name$key = {
+  +$data?: relayResolver_PopStarNameResolverFragment_name$data,
+  +$fragmentRefs: relayResolver_PopStarNameResolverFragment_name$ref,
+  ...
+};

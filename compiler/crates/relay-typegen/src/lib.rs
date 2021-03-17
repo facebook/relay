@@ -31,7 +31,9 @@ use lazy_static::lazy_static;
 use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
-    REQUIRED_METADATA_KEY,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
+    RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::fmt::Result;
@@ -112,6 +114,7 @@ struct TypeGenerator<'a> {
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     imported_raw_response_types: IndexSet<StringKey>,
+    imported_resolver_return_types: IndexMap<StringKey, Vec<ImportTypeName>>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
@@ -126,6 +129,7 @@ impl<'a> TypeGenerator<'a> {
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
+            imported_resolver_return_types: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
             typegen_config,
@@ -188,6 +192,7 @@ impl<'a> TypeGenerator<'a> {
         } else {
             self.write_fragment_imports()?;
         }
+        self.write_relay_resolver_type_imports()?;
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
@@ -391,16 +396,77 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         fragment_spread: &FragmentSpread,
     ) {
-        let name = fragment_spread.fragment.item;
-        self.used_fragments.insert(name);
+        if let Some(module_directive) = fragment_spread
+            .directives
+            .named(*RELAY_RESOLVER_METADATA_DIRECTIVE_NAME)
+        {
+            self.visit_relay_resolver_fragment(type_selections, module_directive);
+        } else {
+            let name = fragment_spread.fragment.item;
+            self.used_fragments.insert(name);
+            type_selections.push(TypeSelection {
+                key: format!("__fragments_{}", name).intern(),
+                schema_name: None,
+                conditional: false,
+                value: None,
+                node_type: None,
+                concrete_type: None,
+                ref_: Some(name),
+                node_selections: None,
+                document_name: None,
+            });
+        }
+    }
+
+    fn visit_relay_resolver_fragment(
+        &mut self,
+        type_selections: &mut Vec<TypeSelection>,
+        metadata_directive: &Directive,
+    ) {
+        let field_name = expect_string_literal_directive_argument_value(
+            metadata_directive,
+            *RELAY_RESOLVER_METADATA_FIELD_NAME,
+        );
+
+        // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
+        let module_path = expect_string_literal_directive_argument_value(
+            metadata_directive,
+            *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+        );
+
+        let field_alias = metadata_directive
+            .arguments
+            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
+            .map(|arg| arg.value.item.expect_string_literal());
+
+        let key = field_alias.unwrap_or(field_name);
+
+        let parent_type = expect_string_literal_directive_argument_value(
+            metadata_directive,
+            *RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
+        );
+
+        let local_type_name = to_pascal_case(format!(
+            "{}_{}_resolver_return_type",
+            parent_type, field_name
+        ))
+        .intern();
+
+        let type_name = ImportTypeName::with_alias("ResolvedValueType".intern(), local_type_name);
+
+        self.imported_resolver_return_types
+            .entry(module_path)
+            .or_default()
+            .push(type_name);
+
         type_selections.push(TypeSelection {
-            key: format!("__fragments_{}", name).intern(),
+            key,
             schema_name: None,
-            conditional: false,
-            value: None,
             node_type: None,
+            value: Some(AST::Identifier(local_type_name)),
+            conditional: false,
             concrete_type: None,
-            ref_: Some(name),
+            ref_: None,
             node_selections: None,
             document_name: None,
         });
@@ -415,13 +481,10 @@ impl<'a> TypeGenerator<'a> {
             .directives
             .named(MATCH_CONSTANTS.custom_module_directive_name)
         {
-            let name = module_directive
-                .arguments
-                .named(MATCH_CONSTANTS.name_arg)
-                .unwrap()
-                .value
-                .item
-                .expect_string_literal();
+            let name = expect_string_literal_directive_argument_value(
+                module_directive,
+                MATCH_CONSTANTS.name_arg,
+            );
             type_selections.push(TypeSelection {
                 key: *FRAGMENT_PROP_NAME,
                 schema_name: None,
@@ -491,20 +554,14 @@ impl<'a> TypeGenerator<'a> {
             .directives
             .named(MATCH_CONSTANTS.custom_module_directive_name)
         {
-            let directive_arg_name = module_directive
-                .arguments
-                .named(MATCH_CONSTANTS.name_arg)
-                .unwrap()
-                .value
-                .item
-                .expect_string_literal();
-            let directive_arg_key = module_directive
-                .arguments
-                .named(MATCH_CONSTANTS.key_arg)
-                .unwrap()
-                .value
-                .item
-                .expect_string_literal();
+            let directive_arg_name = expect_string_literal_directive_argument_value(
+                module_directive,
+                MATCH_CONSTANTS.name_arg,
+            );
+            let directive_arg_key = expect_string_literal_directive_argument_value(
+                module_directive,
+                MATCH_CONSTANTS.key_arg,
+            );
 
             if !self.match_fields.contains_key(&directive_arg_name) {
                 let match_field = self.raw_response_selections_to_babel(
@@ -1037,6 +1094,15 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
+    fn write_relay_resolver_type_imports(&mut self) -> Result {
+        for (from, types) in self.imported_resolver_return_types.iter_mut().sorted() {
+            types.sort();
+            types.dedup();
+            self.writer.write_import_type(types, *from)?
+        }
+        Ok(())
+    }
+
     fn write_split_raw_response_type_imports(&mut self) -> Result {
         if self.imported_raw_response_types.is_empty() {
             return Ok(());
@@ -1370,4 +1436,35 @@ fn apply_required_directive_nullability(
             None => field_type.clone(),
         },
     }
+}
+
+fn expect_string_literal_directive_argument_value(
+    directive: &Directive,
+    argument_name: StringKey,
+) -> StringKey {
+    directive
+        .arguments
+        .named(argument_name)
+        .unwrap()
+        .value
+        .item
+        .expect_string_literal()
+}
+
+/// Converts a `String` to a pascal case `String`
+fn to_pascal_case(non_pascal_string: String) -> String {
+    let mut pascal_string = String::with_capacity(non_pascal_string.len());
+    let mut last_character_was_not_alphanumeric = true;
+    for ch in non_pascal_string.chars() {
+        if !ch.is_alphanumeric() {
+            last_character_was_not_alphanumeric = true;
+        } else if last_character_was_not_alphanumeric {
+            pascal_string.push(ch.to_ascii_uppercase());
+            last_character_was_not_alphanumeric = false;
+        } else {
+            pascal_string.push(ch);
+            last_character_was_not_alphanumeric = false;
+        }
+    }
+    pascal_string
 }

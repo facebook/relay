@@ -1,0 +1,67 @@
+==================================== INPUT ====================================
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+fragment relayResolver_user on User {
+    pop_star_name
+}
+
+query relayResolver_Query @raw_response_type {
+  me {
+    ...relayResolver_user
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+import type { relayResolver_user$ref } from "relayResolver_user.graphql";
+export type relayResolver_QueryVariables = {||};
+export type relayResolver_QueryResponse = {|
+  +me: ?{|
+    +$fragmentRefs: relayResolver_user$ref,
+  |},
+|};
+export type relayResolver_QueryRawResponse = {|
+  +me: ?{|
+    +name: ?string,
+    +id: string,
+  |},
+|};
+export type relayResolver_Query = {|
+  variables: relayResolver_QueryVariables,
+  response: relayResolver_QueryResponse,
+  rawResponse: relayResolver_QueryRawResponse,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$ref: FragmentReference;
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: relayResolver_PopStarNameResolverFragment_name$ref;
+export type relayResolver_PopStarNameResolverFragment_name = {|
+  +name: ?string,
+  +$refType: relayResolver_PopStarNameResolverFragment_name$ref,
+|};
+export type relayResolver_PopStarNameResolverFragment_name$data = relayResolver_PopStarNameResolverFragment_name;
+export type relayResolver_PopStarNameResolverFragment_name$key = {
+  +$data?: relayResolver_PopStarNameResolverFragment_name$data,
+  +$fragmentRefs: relayResolver_PopStarNameResolverFragment_name$ref,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentReference } from "relay-runtime";
+declare export opaque type relayResolver_user$ref: FragmentReference;
+declare export opaque type relayResolver_user$fragmentType: relayResolver_user$ref;
+export type relayResolver_user = {|
+  +pop_star_name: UserPopStarNameResolverReturnType,
+  +$refType: relayResolver_user$ref,
+|};
+export type relayResolver_user$data = relayResolver_user;
+export type relayResolver_user$key = {
+  +$data?: relayResolver_user$data,
+  +$fragmentRefs: relayResolver_user$ref,
+  ...
+};

@@ -38,6 +38,7 @@ pub struct Prop {
     pub optional: bool,
 }
 
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct ImportTypeName {
     pub name: StringKey,
     pub alias: Option<StringKey>,
@@ -48,7 +49,6 @@ impl ImportTypeName {
         Self { name, alias: None }
     }
 
-    #[cfg(test)]
     pub fn with_alias(name: StringKey, alias: StringKey) -> Self {
         Self {
             name,

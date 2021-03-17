@@ -14,16 +14,14 @@ Table of Contents:
 -   [Schema](#schema)
 -   [Object Identification](#object-identification)
 -   [Connections](#connections)
--   [Mutations](#mutations)
 -   [Further Reading](#further-reading)
 
 ## Preface
 
-The three core assumptions that Relay makes about a GraphQL server are that it provides:
+The two core assumptions that Relay makes about a GraphQL server are that it provides:
 
 1.  A mechanism for refetching an object.
 2.  A description of how to page through connections.
-3.  Structure around mutations to make them predictable.
 
 This example demonstrates all three of these assumptions. This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification of the library.
 
@@ -76,21 +74,6 @@ type Query {
   empire: Faction
   node(id: ID!): Node
 }
-
-input IntroduceShipInput {
-  factionId: String!
-  shipNamed: String!
-}
-
-type IntroduceShipPayload {
-  faction: Faction
-  ship: Ship
-}
-
-type Mutation {
-  introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
-}
-
 ```
 
 ## Object Identification
@@ -484,79 +467,10 @@ Relay uses all of this functionality to build out abstractions around connection
 
 Complete details on how the server should behave are available in the [GraphQL Cursor Connections](/graphql/connections.htm) spec.
 
-## Mutations
-
-Relay uses a common pattern for mutations, where there are root fields on the mutation type with a single argument, `input`, and where the input and output both contain a client mutation identifier used to reconcile requests and responses.
-
-By convention, mutations are named as verbs, their inputs are the name with "Input" appended at the end, and they return an object that is the name with "Payload" appended.
-
-So for our `introduceShip` mutation, we create two types: `IntroduceShipInput` and `IntroduceShipPayload`:
-
-```
-
-input IntroduceShipInput {
-  factionId: ID!
-  shipName: String!
-}
-
-type IntroduceShipPayload {
-  faction: Faction
-  ship: Ship
-}
-
-```
-
-With this input and payload, we can issue the following mutation:
-
-```
-
-mutation AddBWingQuery($input: IntroduceShipInput!) {
-  introduceShip(input: $input) {
-    ship {
-      id
-      name
-    }
-    faction {
-      name
-    }
-  }
-}
-
-```
-
-with these params:
-
-```json
-
-{
-  "input": {
-    "shipName": "B-Wing",
-    "factionId": "1"
-  }
-}
-
-```
-
-and we'll get this result:
-
-```json
-
-{
-  "introduceShip": {
-    "ship": {
-      "id": "U2hpcDo5",
-      "name": "B-Wing"
-    },
-    "faction": {
-      "name": "Alliance to Restore the Republic"
-    }
-  }
-}
-
-```
-
 ## Further Reading
 
 This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model, the [GraphQL global object identification](https://graphql.org/learn/global-object-identification/) model are all available.
+
+To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes and connections; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.
 
 <DocsRating />

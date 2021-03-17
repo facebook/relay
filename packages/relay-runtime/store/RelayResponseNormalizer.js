@@ -627,6 +627,22 @@ class RelayResponseNormalizer {
         variables: query.variables,
       });
     }
+    for (const fragment of reactFlightPayload.fragments) {
+      if (fragment.response.data != null) {
+        this._moduleImportPayloads.push({
+          data: fragment.response.data,
+          dataID: fragment.__id,
+          operationReference: fragment.module,
+          path: [],
+          typeName: fragment.__typename,
+          variables: fragment.variables,
+        });
+      }
+      reachableExecutableDefinitions.push({
+        module: fragment.module,
+        variables: fragment.variables,
+      });
+    }
     RelayModernRecord.setValue(
       reactFlightClientResponseRecord,
       REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,

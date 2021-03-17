@@ -34,6 +34,7 @@ function refineToReactFlightPayloadData(
     typeof payload.status !== 'string' ||
     (!Array.isArray(payload.tree) && payload.tree !== null) ||
     !Array.isArray(payload.queries) ||
+    !Array.isArray(payload.fragments) ||
     !Array.isArray(payload.errors)
   ) {
     return null;

@@ -697,6 +697,8 @@ describe('validateOptimisticResponse', () => {
                 },
               ],
               queries: [],
+              errors: [],
+              fragments: [],
             },
           },
         },

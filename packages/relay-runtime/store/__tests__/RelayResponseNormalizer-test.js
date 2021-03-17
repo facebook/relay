@@ -3339,6 +3339,32 @@ describe('RelayResponseNormalizer', () => {
                 },
               ],
               errors: [],
+              fragments: [
+                {
+                  module: {
+                    __dr:
+                      'RelayResponseNormalizerTest_clientFragment$normalization.graphql',
+                  },
+                  __id: '3',
+                  __typename: 'Story',
+                  response: {
+                    data: {
+                      node: {
+                        id: '3',
+                        __typename: 'Story',
+                        name: 'React Server Components: The Musical',
+                        body: {
+                          text:
+                            'Presenting a new musical from the director of Cats (2019)!',
+                        },
+                      },
+                    },
+                  },
+                  variables: {
+                    id: '3',
+                  },
+                },
+              ],
             },
           },
         };
@@ -3380,6 +3406,14 @@ describe('RelayResponseNormalizer', () => {
                     "id": "2",
                   },
                 },
+                Object {
+                  "module": Object {
+                    "__dr": "RelayResponseNormalizerTest_clientFragment$normalization.graphql",
+                  },
+                  "variables": Object {
+                    "id": "3",
+                  },
+                },
               ],
               "tree": Object {
                 "readRoot": [Function],
@@ -3406,6 +3440,7 @@ describe('RelayResponseNormalizer', () => {
               tree: [],
               queries: [],
               errors: [],
+              fragments: [],
             },
           },
         };
@@ -3464,6 +3499,7 @@ describe('RelayResponseNormalizer', () => {
                     stack: 'Error\n    at <anonymous>:1:1',
                   },
                 ],
+                fragments: [],
               },
             },
           };
@@ -3515,6 +3551,7 @@ describe('RelayResponseNormalizer', () => {
                     stack: 'Error\n    at <anonymous>:1:1',
                   },
                 ],
+                fragments: [],
               },
             },
           };
@@ -3563,6 +3600,7 @@ describe('RelayResponseNormalizer', () => {
               tree: null,
               queries: [],
               errors: [],
+              fragments: [],
             },
           },
         };

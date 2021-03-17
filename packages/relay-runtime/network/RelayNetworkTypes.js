@@ -132,6 +132,13 @@ export type ReactFlightPayloadQuery = {|
   +response: GraphQLSingularResponse,
   +variables: Variables,
 |};
+export type ReactFlightPayloadFragment = {|
+  +__id: string,
+  +__typename: string,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
 export type ReactFlightServerError = {
   +message: string,
   +stack: string,
@@ -147,10 +154,12 @@ export type ReactFlightServerError = {
  * - queries: an array of queries that the server preloaded for the client.
  * - errors: an array of errors that were encountered while rendering the
  *           Server Component.
+ * - fragments: an array of fragments that the server preloaded for the client.
  */
 export type ReactFlightPayloadData = {|
   +status: string,
   +tree: ?Array<ReactFlightServerTree>,
   +queries: Array<ReactFlightPayloadQuery>,
   +errors: Array<ReactFlightServerError>,
+  +fragments: Array<ReactFlightPayloadFragment>,
 |};

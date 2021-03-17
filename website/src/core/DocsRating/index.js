@@ -31,7 +31,8 @@ function fileTask() {
     JSON.stringify({
       title: 'Feedback about ' + window.location.pathname,
       description:
-        '**!!! Required !!!**\n\nPlease modify the task description to let us know how the docs can be improved.',
+        '**!!! Required !!!**\n\nPlease modify the task description to let us know how the docs can be improved.\n\n' +
+        '**Please do not ask support questions via this form! Instead, ask in fburl.com/relay_support**',
       tag_ids: {add: [RELAY_DOCS_FEEDBACK_TAG_ID]},
     }),
   );

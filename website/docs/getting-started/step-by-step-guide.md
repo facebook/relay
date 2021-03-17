@@ -233,7 +233,7 @@ import fetchGraphQL from './fetchGraphQL';
 import graphql from 'babel-plugin-relay/macro';
 import {
   RelayEnvironmentProvider,
-  preloadQuery,
+  loadQuery,
   usePreloadedQuery,
 } from 'react-relay/hooks';
 import RelayEnvironment from './RelayEnvironment';
@@ -251,7 +251,7 @@ const RepositoryNameQuery = graphql`
 
 // Immediately load the query as our app starts. For a real app, we'd move this
 // into our routing configuration, preloading data as we transition to new routes.
-const preloadedQuery = preloadQuery(RelayEnvironment, RepositoryNameQuery, {
+const preloadedQuery = loadQuery(RelayEnvironment, RepositoryNameQuery, {
   /* query variables */
 });
 

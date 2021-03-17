@@ -36,7 +36,7 @@ use relay_transforms::{
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::fmt::Result;
 use std::hash::Hash;
-use writer::{Prop, AST, SPREAD_KEY};
+use writer::{ImportTypeName, Prop, AST, SPREAD_KEY};
 
 lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
@@ -331,7 +331,10 @@ impl<'a> TypeGenerator<'a> {
                 // TODO(T22653277) support non-haste environments when importing
                 // fragments
                 self.writer.write_import_fragment_type(
-                    &[old_fragment_type_name, new_fragment_type_name],
+                    &[
+                        ImportTypeName::new(old_fragment_type_name),
+                        ImportTypeName::new(new_fragment_type_name),
+                    ],
                     format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                 )?;
             } else {
@@ -983,7 +986,10 @@ impl<'a> TypeGenerator<'a> {
                 local_3d_payload: true,
                 fragment_reference: true,
             } => self.writer.write_import_type(
-                &[self.writer.get_runtime_fragment_import(), *LOCAL_3D_PAYLOAD],
+                &[
+                    ImportTypeName::new(self.writer.get_runtime_fragment_import()),
+                    ImportTypeName::new(*LOCAL_3D_PAYLOAD),
+                ],
                 *RELAY_RUNTIME,
             ),
             RuntimeImports {
@@ -991,13 +997,16 @@ impl<'a> TypeGenerator<'a> {
                 fragment_reference: false,
             } => self
                 .writer
-                .write_import_type(&[*LOCAL_3D_PAYLOAD], *RELAY_RUNTIME),
+                .write_import_type(&[ImportTypeName::new(*LOCAL_3D_PAYLOAD)], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: true,
-            } => self
-                .writer
-                .write_import_type(&[self.writer.get_runtime_fragment_import()], *RELAY_RUNTIME),
+            } => self.writer.write_import_type(
+                &[ImportTypeName::new(
+                    self.writer.get_runtime_fragment_import(),
+                )],
+                *RELAY_RUNTIME,
+            ),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: false,
@@ -1013,7 +1022,7 @@ impl<'a> TypeGenerator<'a> {
                     // TODO(T22653277) support non-haste environments when importing
                     // fragments
                     self.writer.write_import_fragment_type(
-                        &[fragment_type_name],
+                        &[ImportTypeName::new(fragment_type_name)],
                         format!("{}.graphql", used_fragment).intern(),
                     )?;
                 // } else if (state.useSingleArtifactDirectory) {
@@ -1036,7 +1045,7 @@ impl<'a> TypeGenerator<'a> {
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
             if self.typegen_config.haste {
                 self.writer.write_import_fragment_type(
-                    &[imported_raw_response_type],
+                    &[ImportTypeName::new(imported_raw_response_type)],
                     format!("{}.graphql", imported_raw_response_type).intern(),
                 )?;
             } else {
@@ -1065,7 +1074,7 @@ impl<'a> TypeGenerator<'a> {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 self.writer.write_import_type(
-                    &[enum_type.name],
+                    &[ImportTypeName::new(enum_type.name)],
                     format!("{}{}", enum_type.name, enum_module_suffix).intern(),
                 )?;
             } else {

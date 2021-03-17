@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
+use crate::writer::{ImportTypeName, Prop, Writer, AST, SPREAD_KEY};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::fmt::{Result, Write};
@@ -62,20 +62,27 @@ impl Writer for FlowPrinter {
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result {
         writeln!(
             &mut self.result,
             "import type {{ {} }} from \"{}\";",
             types
                 .iter()
-                .map(|t| format!("{}", t))
+                .map(|t| {
+                    match t.alias {
+                        Some(alias) => {
+                            format!("{} as {}", t.name, alias)
+                        }
+                        None => format!("{}", t.name),
+                    }
+                })
                 .collect::<Vec<_>>()
                 .join(", "),
             from
         )
     }
 
-    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_fragment_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result {
         self.write_import_type(types, from)
     }
 
@@ -435,6 +442,37 @@ mod tests {
   with_comment: "%other",
 |}"#
             .to_string()
+        );
+    }
+
+    #[test]
+    fn import_type() {
+        let mut printer = Box::new(FlowPrinter::new());
+        printer
+            .write_import_type(
+                &[
+                    ImportTypeName::new("A".intern()),
+                    ImportTypeName::new("B".intern()),
+                ],
+                "module".intern(),
+            )
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import type { A, B } from \"module\";\n"
+        );
+
+        let mut printer = Box::new(FlowPrinter::new());
+
+        printer
+            .write_import_type(
+                &[ImportTypeName::with_alias("C".intern(), "CAlias".intern())],
+                "./foo".intern(),
+            )
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import type { C as CAlias } from \"./foo\";\n"
         );
     }
 }

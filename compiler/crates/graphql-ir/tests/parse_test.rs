@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9ab1817b2805a8906400e35dc2ed1ac1>>
+ * @generated SignedSource<<6edeb7c60d829cc3de1ff4cc22131c16>>
  */
 
 mod parse;
@@ -20,10 +20,10 @@ fn argument_complex_object_invalid() {
 }
 
 #[test]
-fn argument_definitions_with_typo_invalid() {
-    let input = include_str!("parse/fixtures/argument-definitions-with-typo.invalid.graphql");
-    let expected = include_str!("parse/fixtures/argument-definitions-with-typo.invalid.expected");
-    test_fixture(transform_fixture, "argument-definitions-with-typo.invalid.graphql", "parse/fixtures/argument-definitions-with-typo.invalid.expected", input, expected);
+fn argument_definitions_invalid() {
+    let input = include_str!("parse/fixtures/argument_definitions.invalid.graphql");
+    let expected = include_str!("parse/fixtures/argument_definitions.invalid.expected");
+    test_fixture(transform_fixture, "argument_definitions.invalid.graphql", "parse/fixtures/argument_definitions.invalid.expected", input, expected);
 }
 
 #[test]

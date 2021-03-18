@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+  ) {
+  ...Foo @arguments(size: $size)
+}
+
+fragment VariableAsType on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: $typeVariable} # needs to be literal
+  ) {
+  ...Foo @arguments(size: $size)
+}
+==================================== ERROR ====================================
+✖︎ Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `defaultValu`
+
+  argument_definitions.invalid.graphql:5:27
+    4 │     id: {type: "ID"}
+    5 │     size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
+      │                           ^^^^^^^^^^^^^^^^^^
+    6 │   ) {
+
+
+✖︎ Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties
+
+  argument_definitions.invalid.graphql:13:11
+   12 │     id: {type: "ID"}
+   13 │     size: {type: $typeVariable} # needs to be literal
+      │           ^^^^^^^^^^^^^^^^^^^^^
+   14 │   ) {

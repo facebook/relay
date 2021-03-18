@@ -86,11 +86,11 @@ pub enum ValidationMessage {
     )]
     VariableDefinitionsAndArgumentDirective(),
     #[error(
-        "Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')"
+        "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
     ExpectedArgumentDefinitionLiteralType(),
     #[error(
-        "Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties"
+        "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
@@ -138,9 +138,9 @@ pub enum ValidationMessage {
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
 
     #[error(
-        "Invalid values passed to '@argumentDefinitions', supported options include 'type' and 'defaultValue', got '{0}'"
+        "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
     )]
-    InvalidArgumentDefinitionsKeys(String),
+    InvalidArgumentDefinitionsKey(StringKey),
 
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),

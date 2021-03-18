@@ -6,3 +6,11 @@ fragment TestFragment on User
   ) {
   ...Foo @arguments(size: $size)
 }
+
+fragment VariableAsType on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: $typeVariable} # needs to be literal
+  ) {
+  ...Foo @arguments(size: $size)
+}

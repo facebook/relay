@@ -11,9 +11,9 @@ use crate::build::{
 use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::ValidationMessage;
 use crate::ir::{ConstantValue, VariableDefinition};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
 use errors::{par_try_map, try2};
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashMap;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type, TypeReference};
@@ -21,12 +21,6 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
-    static ref ARGUMENTS_KEYS: FnvHashSet<StringKey> = {
-        let mut set = FnvHashSet::with_capacity_and_hasher(2, Default::default());
-        set.insert(*TYPE);
-        set.insert(*DEFAULT_VALUE);
-        set
-    };
 }
 
 pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
@@ -174,27 +168,36 @@ fn build_fragment_variable_definitions(
                     object,
                 )) = &variable_arg.value
                 {
+                    let mut extra_items = Vec::new();
+                    let mut type_arg = None;
+                    let mut default_arg = None;
+                    for item in &object.items {
+                        let name = item.name.value;
+                        if name == *TYPE {
+                            type_arg = Some(item);
+                        } else if name == *DEFAULT_VALUE {
+                            default_arg = Some(item);
+                        } else {
+                            extra_items.push(item);
+                        }
+                    }
                     // Check that no extraneous keys were supplied
-                    let keys = object
-                        .items
-                        .iter()
-                        .map(|x| x.name.value)
-                        .collect::<FnvHashSet<_>>();
-                    if contains_extra_items(&keys, &ARGUMENTS_KEYS) {
-                        let mut keys = keys
-                            .difference(&ARGUMENTS_KEYS)
-                            .map(|x| x.lookup().to_owned())
-                            .collect::<Vec<_>>();
-                        keys.sort();
-                        return Err(Diagnostic::error(
-                            ValidationMessage::InvalidArgumentDefinitionsKeys(keys.join(", ")),
-                            fragment.location.with_span(object.span),
-                        )
-                        .into());
+                    if !extra_items.is_empty() {
+                        return Err(extra_items
+                            .iter()
+                            .map(|item| {
+                                Diagnostic::error(
+                                    ValidationMessage::InvalidArgumentDefinitionsKey(
+                                        item.name.value,
+                                    ),
+                                    fragment.location.with_span(item.span),
+                                )
+                            })
+                            .collect());
                     }
 
                     // Convert variable type, validate that it's an input type
-                    let type_ = get_argument_type(schema, fragment.location, &object)?;
+                    let type_ = get_argument_type(schema, fragment.location, type_arg, object)?;
                     if !type_.inner().is_input_type() {
                         return Err(Diagnostic::error(
                             ValidationMessage::ExpectedFragmentArgumentToHaveInputType(
@@ -206,7 +209,7 @@ fn build_fragment_variable_definitions(
                     }
 
                     let default_value =
-                        get_default_value(schema, fragment.location, &object, &type_)?;
+                        get_default_value(schema, fragment.location, default_arg, &type_)?;
                     Ok(VariableDefinition {
                         name: variable_arg
                             .name
@@ -232,9 +235,9 @@ fn build_fragment_variable_definitions(
 fn get_argument_type(
     schema: &SDLSchema,
     location: Location,
+    type_arg: Option<&graphql_syntax::ConstantArgument>,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> DiagnosticsResult<TypeReference> {
-    let type_arg = object.items.named(*TYPE);
     let type_name_and_span = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
@@ -278,16 +281,10 @@ fn get_argument_type(
 fn get_default_value(
     schema: &SDLSchema,
     location: Location,
-    object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
+    default_arg: Option<&graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
 ) -> DiagnosticsResult<Option<ConstantValue>> {
-    Ok(object
-        .items
-        .named(*DEFAULT_VALUE)
+    Ok(default_arg
         .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
         .transpose()?)
-}
-
-fn contains_extra_items(actual: &FnvHashSet<StringKey>, expected: &FnvHashSet<StringKey>) -> bool {
-    actual.iter().any(|x| !expected.contains(x))
 }

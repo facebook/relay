@@ -952,6 +952,59 @@ describe('connection edge mutations', () => {
       ]);
     });
 
+    it('does not insert nodes into connections where that node already exists', () => {
+      const snapshot = environment.lookup(operation.fragment);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment
+        .executeMutation({
+          operation: appendOperation,
+        })
+        .subscribe(callbacks);
+
+      callback.mockClear();
+      subject.next({
+        data: {
+          commentCreate: {
+            feedbackCommentEdge: {
+              cursor: 'cursor-append',
+              node: {
+                __typename: 'Comment',
+                id: 'node-1',
+              },
+            },
+          },
+        },
+      });
+      subject.complete();
+
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(0);
+      expect(
+        // $FlowExpectedError[incompatible-use]
+        environment.lookup(operation.fragment).data.node.comments.edges,
+      ).toEqual([
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-2',
+          },
+        },
+      ]);
+    });
+
     it('commits the mutation and inserts multiple comment edges into the connection', () => {
       const snapshot = environment.lookup(operation.fragment);
       const callback = jest.fn();
@@ -1651,6 +1704,56 @@ describe('connection node mutations', () => {
         node: {
           __typename: 'Comment',
           id: 'node-append',
+        },
+      },
+    ]);
+  });
+
+  it('does not insert nodes into connections where that node already exists', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(0);
+    expect(
+      // $FlowExpectedError[incompatible-use]
+      environment.lookup(operation.fragment).data.node.comments.edges,
+    ).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
         },
       },
     ]);

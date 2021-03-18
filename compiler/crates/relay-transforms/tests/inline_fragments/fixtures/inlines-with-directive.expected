@@ -4,6 +4,9 @@ query DirectiveFirstQuery($id: ID!) {
     ...F1 @customDirective(level: 42)
   }
   b: node {
+    ...F1 @defer
+  }
+  b: node {
     ...F1
   }
 }
@@ -14,6 +17,9 @@ query DirectiveSecondQuery($id: ID!) {
   }
   b: node {
     ...F2 @customDirective(level: 5000)
+  }
+  c: node {
+    ...F2 @defer
   }
 }
 
@@ -34,7 +40,12 @@ query DirectiveFirstQuery(
     }
   }
   b: node {
-    ... on User @customDirective(level: 42) {
+    ... on User @defer {
+      firstName
+    }
+  }
+  b: node {
+    ... on User {
       firstName
     }
   }
@@ -49,7 +60,12 @@ query DirectiveSecondQuery(
     }
   }
   b: node {
-    ... on User {
+    ... on User @customDirective(level: 5000) {
+      firstName
+    }
+  }
+  c: node {
+    ... on User @defer {
       firstName
     }
   }

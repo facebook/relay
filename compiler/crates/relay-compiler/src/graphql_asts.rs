@@ -7,7 +7,7 @@
 
 use crate::compiler_state::{GraphQLSources, SourceSetName};
 use crate::errors::{Error, Result};
-use common::SourceLocationKey;
+use common::{Diagnostic, SourceLocationKey};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::ExecutableDefinition;
 use interner::StringKey;
@@ -66,8 +66,14 @@ impl GraphQLAsts {
                 match graphql_syntax::parse_executable(&graphql_source.text, source_location) {
                     Ok(document) => {
                         for def in &document.definitions {
-                            let name = def.name().expect("Expected operation name to exist.");
-                            pending_definition_names.insert(name);
+                            if let Some(name) = def.name() {
+                                pending_definition_names.insert(name);
+                            } else {
+                                syntax_errors.push(Diagnostic::error(
+                                    "Expected operation to have a name (e.g. 'query <Name>')",
+                                    def.location(),
+                                ))
+                            }
                         }
                         definitions_for_file.extend(document.definitions);
                     }

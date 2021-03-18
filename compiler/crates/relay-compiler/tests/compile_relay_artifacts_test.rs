@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb2791539aaa2cb6cecc5325968f0b0b>>
+ * @generated SignedSource<<7692530c2ec0b6c4195fe354495a5468>>
  */
 
 mod compile_relay_artifacts;
@@ -937,17 +937,17 @@ fn unmasked_fragment_spreads_recursive() {
 }
 
 #[test]
-fn unused_fragment_argdef_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef.invalid.expected");
-    test_fixture(transform_fixture, "unused-fragment-argdef.invalid.graphql", "compile_relay_artifacts/fixtures/unused-fragment-argdef.invalid.expected", input, expected);
+fn unused_fragment_arg_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg.invalid.expected");
+    test_fixture(transform_fixture, "unused_fragment_arg.invalid.graphql", "compile_relay_artifacts/fixtures/unused_fragment_arg.invalid.expected", input, expected);
 }
 
 #[test]
-fn unused_fragment_argdef_unchecked() {
-    let input = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef-unchecked.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef-unchecked.expected");
-    test_fixture(transform_fixture, "unused-fragment-argdef-unchecked.graphql", "compile_relay_artifacts/fixtures/unused-fragment-argdef-unchecked.expected", input, expected);
+fn unused_fragment_arg_unchecked() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg_unchecked.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg_unchecked.expected");
+    test_fixture(transform_fixture, "unused_fragment_arg_unchecked.graphql", "compile_relay_artifacts/fixtures/unused_fragment_arg_unchecked.expected", input, expected);
 }
 
 #[test]

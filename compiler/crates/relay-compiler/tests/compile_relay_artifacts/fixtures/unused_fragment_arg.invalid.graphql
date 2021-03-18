@@ -1,5 +1,5 @@
 # expected-to-throw
-query QueryWithUnusedFragmentArgumentDefinition($id: ID!) {
+query QueryWithUnusedFragmentArgument($id: ID!) {
   node(id: $id) {
     ...Profile
   }

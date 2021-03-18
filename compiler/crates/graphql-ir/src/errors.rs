@@ -138,9 +138,9 @@ pub enum ValidationMessage {
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
 
     #[error(
-        "Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got '{0}'"
+        "Invalid values passed to '@argumentDefinitions', supported options include 'type' and 'defaultValue', got '{0}'"
     )]
-    InvalidArgumentsKeys(String),
+    InvalidArgumentDefinitionsKeys(String),
 
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),

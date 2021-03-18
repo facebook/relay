@@ -187,7 +187,7 @@ fn build_fragment_variable_definitions(
                             .collect::<Vec<_>>();
                         keys.sort();
                         return Err(Diagnostic::error(
-                            ValidationMessage::InvalidArgumentsKeys(keys.join(", ")),
+                            ValidationMessage::InvalidArgumentDefinitionsKeys(keys.join(", ")),
                             fragment.location.with_span(object.span),
                         )
                         .into());

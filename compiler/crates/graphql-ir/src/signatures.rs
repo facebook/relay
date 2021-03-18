@@ -21,6 +21,8 @@ use schema::{SDLSchema, Schema, Type, TypeReference};
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
+    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
+        "unusedLocalVariable_DEPRECATED".intern();
 }
 
 pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
@@ -171,12 +173,15 @@ fn build_fragment_variable_definitions(
                     let mut extra_items = Vec::new();
                     let mut type_arg = None;
                     let mut default_arg = None;
+                    let mut unused_local_variable_arg = None;
                     for item in &object.items {
                         let name = item.name.value;
                         if name == *TYPE {
                             type_arg = Some(item);
                         } else if name == *DEFAULT_VALUE {
                             default_arg = Some(item);
+                        } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
+                            unused_local_variable_arg = Some(item);
                         } else {
                             extra_items.push(item);
                         }
@@ -208,6 +213,35 @@ fn build_fragment_variable_definitions(
                         .into());
                     }
 
+                    let directives =
+                        if let Some(unused_local_variable_arg) = unused_local_variable_arg {
+                            if !matches!(
+                                unused_local_variable_arg,
+                                graphql_syntax::ConstantArgument {
+                                    value: graphql_syntax::ConstantValue::Boolean(
+                                        graphql_syntax::BooleanNode { value: true, .. }
+                                    ),
+                                    ..
+                                }
+                            ) {
+                                return Err(vec![Diagnostic::error(
+                                    ValidationMessage::InvalidUnusedFragmentVariableSuppressionArg,
+                                    fragment
+                                        .location
+                                        .with_span(unused_local_variable_arg.value.span()),
+                                )]);
+                            }
+                            vec![crate::Directive {
+                                name: WithLocation::new(
+                                    fragment.location.with_span(unused_local_variable_arg.span),
+                                    *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+                                ),
+                                arguments: Vec::new(),
+                            }]
+                        } else {
+                            Vec::new()
+                        };
+
                     let default_value =
                         get_default_value(schema, fragment.location, default_arg, &type_)?;
                     Ok(VariableDefinition {
@@ -215,7 +249,7 @@ fn build_fragment_variable_definitions(
                             .name
                             .name_with_location(fragment.location.source_location()),
                         type_,
-                        directives: Default::default(),
+                        directives,
                         default_value,
                     })
                 } else {

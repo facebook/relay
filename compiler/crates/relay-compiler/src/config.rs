@@ -86,6 +86,9 @@ pub struct Config {
     /// validation rules.
     pub additional_validations: Option<AdditionalValidations>,
 
+    /// Do not validate unused @argumentDefinitions
+    pub skip_unused_fragment_variable_validation: bool,
+
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
 }
 
@@ -222,6 +225,8 @@ impl Config {
             repersist_operations: false,
             post_artifacts_write: None,
             additional_validations: None,
+            skip_unused_fragment_variable_validation: config_file
+                .skip_unused_fragment_variable_validation,
         };
 
         let mut validation_errors = Vec::new();
@@ -526,6 +531,10 @@ struct ConfigFile {
 
     /// Watchman saved state config.
     saved_state_config: Option<ScmAwareClockData>,
+
+    /// Do not validate unused @argumentDefinitions
+    #[serde(default)]
+    skip_unused_fragment_variable_validation: bool,
 }
 
 #[derive(Debug, Deserialize)]

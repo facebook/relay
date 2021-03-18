@@ -28,6 +28,7 @@ pub use build::{
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
+pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 pub use transform::{Transformed, TransformedMulti, TransformedValue, Transformer};
 pub use validator::Validator;
 pub use visitor::Visitor;

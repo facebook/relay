@@ -417,6 +417,27 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Variable `${variable_name}` is never used in fragment `{fragment_name}`. `@argumentDefinitions` defines local variables, global variables are implicitly available."
+    )]
+    UnusedFragmentVariable {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Variable `${variable_name}` of fragment `{fragment_name}` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed."
+    )]
+    UselessUnusedFragmentVariableAnnotation {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "`unusedLocalVariable_DEPRECATED` can only be set to a constant `true` value. Remove the `unusedLocalVariable_DEPRECATED` or update the value."
+    )]
+    InvalidUnusedFragmentVariableSuppressionArg,
+
+    #[error(
         "Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'."
     )]
     UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },

@@ -6,7 +6,7 @@
  */
 
 use super::{read_to_string, WatchmanFile};
-use crate::errors::{Error, Result};
+use crate::errors::Result;
 use common::SourceLocationKey;
 use graphql_syntax::GraphQLSource;
 use std::{
@@ -36,7 +36,7 @@ pub fn extract_graphql_strings_from_file(
     file: &WatchmanFile,
 ) -> Result<Vec<GraphQLSource>> {
     let contents = read_to_string(resolved_root, file)?;
-    extract_graphql_strings_from_string(&contents)
+    Ok(extract_graphql::parse_chunks(&contents))
 }
 
 pub fn source_for_location(
@@ -48,7 +48,7 @@ pub fn source_for_location(
         SourceLocationKey::Embedded { path, index } => {
             let absolute_path = root_dir.join(path.lookup());
             let contents = source_reader.read_to_string(&absolute_path).ok()?;
-            let file_sources = extract_graphql_strings_from_string(&contents).ok()?;
+            let file_sources = extract_graphql::parse_chunks(&contents);
             file_sources.into_iter().nth(index.try_into().unwrap())
         }
         SourceLocationKey::Standalone { path } => {
@@ -61,9 +61,4 @@ pub fn source_for_location(
         }
         SourceLocationKey::Generated => None,
     }
-}
-
-/// Reads and extracts `graphql` tagged literals from a string.
-fn extract_graphql_strings_from_string(contents: &str) -> Result<Vec<GraphQLSource>> {
-    extract_graphql::parse_chunks(&contents).map_err(|err| Error::Syntax { error: err })
 }

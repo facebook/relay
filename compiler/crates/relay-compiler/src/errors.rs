@@ -100,9 +100,6 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Syntax error: {error}")]
-    Syntax { error: String },
-
     #[error("A thread that the Relay compiler spun up did not shut down gracefully: {error}")]
     JoinError { error: String },
 

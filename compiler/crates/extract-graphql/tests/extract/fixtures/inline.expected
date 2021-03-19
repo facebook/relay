@@ -6,8 +6,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// expected-to-throw
-
 blah
 
 graphql`
@@ -15,5 +13,11 @@ graphql`
         __typename
     }
 `
-==================================== ERROR ====================================
-graphql literals cannot have string substitutions.
+==================================== OUTPUT ===================================
+[
+    GraphQLSource {
+        text: "\n    fragment Foo on ${type} {\n        __typename\n    }\n",
+        line_index: 9,
+        column_index: 8,
+    },
+]

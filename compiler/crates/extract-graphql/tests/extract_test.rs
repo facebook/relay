@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4e133d7d9c0c72f810c38f929cdc6658>>
+ * @generated SignedSource<<78987ed12f342dc432df8f20ac3ce0a1>>
  */
 
 mod extract;
@@ -20,10 +20,10 @@ fn comments() {
 }
 
 #[test]
-fn inline_invalid() {
-    let input = include_str!("extract/fixtures/inline.invalid.js");
-    let expected = include_str!("extract/fixtures/inline.invalid.expected");
-    test_fixture(transform_fixture, "inline.invalid.js", "extract/fixtures/inline.invalid.expected", input, expected);
+fn inline() {
+    let input = include_str!("extract/fixtures/inline.js");
+    let expected = include_str!("extract/fixtures/inline.expected");
+    test_fixture(transform_fixture, "inline.js", "extract/fixtures/inline.expected", input, expected);
 }
 
 #[test]

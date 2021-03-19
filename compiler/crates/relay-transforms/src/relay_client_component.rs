@@ -18,7 +18,7 @@ use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::Schema;
+use schema::{InterfaceID, Schema, Type};
 use std::sync::Arc;
 
 lazy_static! {
@@ -27,6 +27,8 @@ lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
     static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey = "relay_client_component".intern();
     static ref STRING_TYPE: StringKey = "String".intern();
+    static ref ID_FIELD_NAME: StringKey = "id".intern();
+    static ref NODE_TYPE_NAME: StringKey = "Node".intern();
     static ref DIRECTIVE_COMPATIBILITY_ALLOWLIST: IndexSet<StringKey> = IndexSet::new();
 }
 
@@ -39,8 +41,19 @@ pub fn relay_client_component(program: &Program) -> DiagnosticsResult<Program> {
     {
         return Ok(program.clone());
     }
+    let node_interface_id = program
+        .schema
+        .get_type(*NODE_TYPE_NAME)
+        .and_then(|type_| {
+            if let Type::Interface(id) = type_ {
+                Some(id)
+            } else {
+                None
+            }
+        })
+        .expect("@relay_client_component requires your schema to define the Node interface.");
 
-    let mut transform = RelayClientComponentTransform::new(program);
+    let mut transform = RelayClientComponentTransform::new(program, node_interface_id);
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -70,14 +83,16 @@ struct RelayClientComponentTransform<'program> {
     program: &'program Program,
     errors: Vec<Diagnostic>,
     split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
+    node_interface_id: InterfaceID,
 }
 
 impl<'program> RelayClientComponentTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, node_interface_id: InterfaceID) -> Self {
         Self {
             program,
             errors: Default::default(),
             split_operations: Default::default(),
+            node_interface_id,
         }
     }
 
@@ -98,12 +113,64 @@ impl<'program> RelayClientComponentTransform<'program> {
             ));
         }
 
-        // Generate a SplitOperation AST
-        let normalization_name = get_normalization_operation_name(spread.fragment.item).intern();
         let fragment = self
             .program
             .fragment(spread.fragment.item)
             .unwrap_or_else(|| panic!("Expected to find fragment `{}`", spread.fragment.item));
+        // Validate that the fragment's type condition MUST implement `Node`.
+        let node_interface_id = self.node_interface_id;
+        let implements_node = match fragment.type_condition {
+            // Fragments can be specified on object types, interfaces, and unions.
+            // https://spec.graphql.org/June2018/#sec-Type-Conditions
+            Type::Interface(id) => {
+                id == node_interface_id
+                    || self
+                        .program
+                        .schema
+                        .interface(id)
+                        .implementing_objects
+                        .iter()
+                        .all(|&object_id| {
+                            self.program
+                                .schema
+                                .object(object_id)
+                                .interfaces
+                                .iter()
+                                .any(|interface_id| *interface_id == node_interface_id)
+                        })
+            }
+            Type::Object(id) => self
+                .program
+                .schema
+                .object(id)
+                .interfaces
+                .iter()
+                .any(|interface_id| *interface_id == node_interface_id),
+            Type::Union(id) => self
+                .program
+                .schema
+                .union(id)
+                .members
+                .iter()
+                .all(|&object_id| {
+                    self.program
+                        .schema
+                        .object(object_id)
+                        .interfaces
+                        .iter()
+                        .any(|interface_id| *interface_id == node_interface_id)
+                }),
+            _ => false,
+        };
+        if !implements_node {
+            return Err(Diagnostic::error(
+                ValidationMessage::InvalidRelayClientComponentNonNodeFragment,
+                fragment.name.location,
+            ));
+        }
+
+        // Generate a SplitOperation AST
+        let normalization_name = get_normalization_operation_name(spread.fragment.item).intern();
         let created_split_operation = self
             .split_operations
             .entry(spread.fragment.item)

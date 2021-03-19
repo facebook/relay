@@ -1028,6 +1028,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
+  tasks: [Task]
   topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   traits: [PersonalityTraits]

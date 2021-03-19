@@ -322,6 +322,9 @@ fn apply_operation_text_transforms(
     program = log_event.time("unwrap_custom_directive_selection", || {
         unwrap_custom_directive_selection(&program)
     });
+    program = log_event.time("skip_null_arguments_transform", || {
+        skip_null_arguments_transform(&program)
+    });
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))

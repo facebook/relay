@@ -12,7 +12,7 @@ Relay is a framework for managing and declaratively fetching GraphQL data. It al
 
 ## Step 1: Create React App
 
-For this example we'll use start with a standard install of [Create React App](https://create-react-app.dev). Create React App makes it easy to get a fully configured React app up and running and also supports configuring Relay. To get started, create a new app with:
+For this example we'll start with a standard install of [Create React App](https://create-react-app.dev). Create React App makes it easy to get a fully configured React app up and running and also supports configuring Relay. To get started, create a new app with:
 
 ```bash
 # NPM

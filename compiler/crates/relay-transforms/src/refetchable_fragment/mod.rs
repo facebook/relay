@@ -155,16 +155,22 @@ impl RefetchableFragment<'_> {
                         .existing_refetch_operations
                         .insert(query_name, fragment.name)
                     {
+                        let (first_fragment, second_fragment) =
+                            if fragment.name.item > previous_fragment.item {
+                                (previous_fragment, fragment.name)
+                            } else {
+                                (fragment.name, previous_fragment)
+                            };
                         Err(vec![
                             Diagnostic::error(
                                 ValidationMessage::DuplicateRefetchableOperation {
                                     query_name,
-                                    fragment_name: fragment.name.item,
-                                    previous_fragment_name: previous_fragment.item,
+                                    first_fragment_name: first_fragment.item,
+                                    second_fragment_name: second_fragment.item,
                                 },
-                                fragment.name.location,
+                                first_fragment.location,
                             )
-                            .annotate("previously defined here", previous_fragment.location),
+                            .annotate("also defined here", second_fragment.location),
                         ])
                     } else {
                         Ok(Some((query_name, query_name_arg.value.location)))

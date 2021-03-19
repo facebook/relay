@@ -457,12 +457,12 @@ pub enum ValidationMessage {
     ExpectQueryNameToBeString { query_name_value: String },
 
     #[error(
-        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{fragment_name}' and '{previous_fragment_name}'"
+        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{first_fragment_name}' and '{second_fragment_name}'"
     )]
     DuplicateRefetchableOperation {
         query_name: StringKey,
-        fragment_name: StringKey,
-        previous_fragment_name: StringKey,
+        first_fragment_name: StringKey,
+        second_fragment_name: StringKey,
     },
 
     #[error(

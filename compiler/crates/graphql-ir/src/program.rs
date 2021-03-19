@@ -7,17 +7,16 @@
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use fnv::FnvHashMap;
-use indexmap::IndexMap;
 use interner::StringKey;
 use rayon::{iter::ParallelIterator, prelude::*};
 use schema::SDLSchema;
-use std::sync::Arc;
+use std::{collections::HashMap, sync::Arc};
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    fragments: IndexMap<StringKey, Arc<FragmentDefinition>>,
+    fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
     operations: Vec<Arc<OperationDefinition>>,
 }
 
@@ -35,7 +34,7 @@ impl Program {
         definitions: Vec<ExecutableDefinition>,
     ) -> Self {
         let mut operations = Vec::new();
-        let mut fragments = IndexMap::new();
+        let mut fragments = HashMap::default();
         for definition in definitions {
             match definition {
                 ExecutableDefinition::Operation(operation) => {
@@ -100,13 +99,13 @@ impl Program {
     }
 
     pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
-        self.fragments.par_values()
+        self.fragments.par_iter().map(|(_, v)| v)
     }
 
     pub fn par_fragments_mut(
         &mut self,
     ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
-        self.fragments.par_values_mut()
+        self.fragments.par_iter_mut().map(|(_, v)| v)
     }
 
     pub fn document_count(&self) -> usize {

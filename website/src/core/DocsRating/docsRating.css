@@ -58,8 +58,8 @@
 
 #docsRating .button {
     appearance: none;
-    border-color: var(--ifm-color-primary);
     border-radius: 5px;
+    border: 1px solid var(--ifm-color-primary);
     color: var(--ifm-color-primary);
     background-color: transparent;
     padding: 5px 15px;

@@ -107,8 +107,9 @@ pub use refetchable_fragment::{
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
 };
 pub use relay_client_component::{
-    relay_client_component, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    relay_client_component, RELAY_CLIENT_COMPONENT_METADATA_KEY,
+    RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;

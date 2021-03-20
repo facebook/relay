@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a72d65ac6a9d416a6c7f8351defe7ba>>
+ * @generated SignedSource<<fba6fec1d83c7c22bc224b0b9203a01c>>
  */
 
 mod relay_client_component;
@@ -59,4 +59,11 @@ fn fragment_with_relay_client_component() {
     let input = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component.graphql");
     let expected = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component.expected");
     test_fixture(transform_fixture, "fragment-with-relay-client-component.graphql", "relay_client_component/fixtures/fragment-with-relay-client-component.expected", input, expected);
+}
+
+#[test]
+fn query_with_relay_client_component() {
+    let input = include_str!("relay_client_component/fixtures/query-with-relay-client-component.graphql");
+    let expected = include_str!("relay_client_component/fixtures/query-with-relay-client-component.expected");
+    test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "relay_client_component/fixtures/query-with-relay-client-component.expected", input, expected);
 }

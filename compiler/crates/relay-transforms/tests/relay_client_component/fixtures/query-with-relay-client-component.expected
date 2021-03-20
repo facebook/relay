@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+query QueryWithRelayClientComponent {
+  me {
+    ...ClientFragment @relay_client_component
+  }
+}
+
+fragment ClientFragment on User {
+  id
+  name
+}
+==================================== OUTPUT ===================================
+query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentSources: ["ClientFragment"]) {
+  id
+  name
+}
+
+query QueryWithRelayClientComponent @__RelayClientComponentMetadata(__RelayClientComponentMetadataSplitOperation: ["ClientFragment$normalization.graphql"]) {
+  me {
+    ...ClientFragment @relay_client_component_server(module_id: "ClientFragment$normalization.graphql")
+  }
+}
+
+fragment ClientFragment on User {
+  id
+  name
+}

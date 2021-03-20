@@ -19,7 +19,7 @@ fragment ClientFragment on User {
   name
 }
 
-fragment ServerComponentFragment on User {
+fragment ServerComponentFragment on User @__RelayClientComponentMetadata(__RelayClientComponentMetadataSplitOperation: ["ClientFragment$normalization.graphql"]) {
   id
   ...ClientFragment @relay_client_component_server(module_id: "ClientFragment$normalization.graphql")
 }

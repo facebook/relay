@@ -9,10 +9,10 @@ use super::ValidationMessage;
 use crate::match_::SplitOperationMetadata;
 use crate::util::{get_fragment_filename, get_normalization_operation_name};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentSpread, OperationDefinition, Program, Selection,
-    Transformed, Transformer, Value,
+    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition,
+    Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
@@ -25,6 +25,10 @@ lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: StringKey =
         "relay_client_component_server".intern();
     pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_METADATA_KEY: StringKey =
+        "__RelayClientComponentMetadata".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY: StringKey =
+        "__RelayClientComponentMetadataSplitOperation".intern();
     static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey = "relay_client_component".intern();
     static ref STRING_TYPE: StringKey = "String".intern();
     static ref ID_FIELD_NAME: StringKey = "id".intern();
@@ -84,6 +88,7 @@ struct RelayClientComponentTransform<'program> {
     errors: Vec<Diagnostic>,
     split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
     node_interface_id: InterfaceID,
+    split_operation_filenames: FnvHashSet<StringKey>,
 }
 
 impl<'program> RelayClientComponentTransform<'program> {
@@ -93,6 +98,7 @@ impl<'program> RelayClientComponentTransform<'program> {
             errors: Default::default(),
             split_operations: Default::default(),
             node_interface_id,
+            split_operation_filenames: Default::default(),
         }
     }
 
@@ -216,6 +222,10 @@ impl<'program> RelayClientComponentTransform<'program> {
                 }],
             };
         }
+
+        // Record the SplitOperation so we can emit metadata later
+        self.split_operation_filenames.insert(module_id);
+
         Ok(Transformed::Replace(Selection::FragmentSpread(Arc::new(
             FragmentSpread {
                 directives: next_directives,
@@ -252,12 +262,68 @@ impl<'program> RelayClientComponentTransform<'program> {
             None
         }
     }
+
+    fn generate_relay_client_component_client_metadata_directive(&self) -> Directive {
+        let mut split_operation_filenames: Vec<StringKey> =
+            self.split_operation_filenames.iter().copied().collect();
+        split_operation_filenames.sort();
+        Directive {
+            name: WithLocation::generated(*RELAY_CLIENT_COMPONENT_METADATA_KEY),
+            arguments: vec![Argument {
+                name: WithLocation::generated(
+                    *RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+                ),
+                value: WithLocation::generated(Value::Constant(ConstantValue::List(
+                    split_operation_filenames
+                        .into_iter()
+                        .map(ConstantValue::String)
+                        .collect(),
+                ))),
+            }],
+        }
+    }
 }
 
 impl<'program> Transformer for RelayClientComponentTransform<'program> {
     const NAME: &'static str = "RelayClientComponentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        self.split_operation_filenames.clear();
+        let transformed = self.default_transform_operation(operation);
+        if self.split_operation_filenames.is_empty() {
+            return transformed;
+        }
+
+        let mut operation = transformed.unwrap_or_else(|| operation.clone());
+        operation.directives.reserve_exact(1);
+        operation
+            .directives
+            .push(self.generate_relay_client_component_client_metadata_directive());
+        Transformed::Replace(operation)
+    }
+
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        self.split_operation_filenames.clear();
+        let transformed = self.default_transform_fragment(fragment);
+        if self.split_operation_filenames.is_empty() {
+            return transformed;
+        }
+
+        let mut fragment = transformed.unwrap_or_else(|| fragment.clone());
+        fragment.directives.reserve_exact(1);
+        fragment
+            .directives
+            .push(self.generate_relay_client_component_client_metadata_directive());
+        Transformed::Replace(fragment)
+    }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let relay_client_component_directive = spread

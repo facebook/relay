@@ -28,9 +28,9 @@ const React = require('React');
 const {graphql, useRefetchableFragment} = require('react-relay');
 
 
-type Props = {|
+type Props = {
   comment: CommentBody_comment$key,
-|};
+};
 
 function CommentBody(props: Props) {
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(

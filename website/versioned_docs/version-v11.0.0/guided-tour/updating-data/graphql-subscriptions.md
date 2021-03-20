@@ -254,11 +254,7 @@ const network = Network.create(fetchQuery, subscribe);
 
 <FbInternalOnly>
 
-At Facebook, the Network Layer has already been configured to handle GraphQL Subscriptions.
-
-For more details on writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/).
-
-For a guide on setting up subscriptions on the server side, check out this [wiki](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/).
+At Facebook, the Network Layer has already been configured to handle GraphQL Subscriptions. For more details on writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/). For a guide on setting up subscriptions on the server side, check out this [wiki](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/).
 
 </FbInternalOnly>
 

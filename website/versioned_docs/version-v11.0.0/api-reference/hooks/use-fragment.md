@@ -15,9 +15,9 @@ const React = require('React');
 
 const {graphql, useFragment} = require('react-relay');
 
-type Props = {|
+type Props = {
   user: UserComponent_user$key,
-|};
+};
 
 function UserComponent(props: Props) {
   const data = useFragment(
@@ -52,7 +52,7 @@ function UserComponent(props: Props) {
 ### Return Value
 
 * `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
-    * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{| name: ?string, profile_picture: ?{| uri: ?string |} |}`.
+    * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema. For example, the type of `data` above is: `{ name: ?string, profile_picture: ?{ uri: ?string } }`.
 
 ### Behavior
 

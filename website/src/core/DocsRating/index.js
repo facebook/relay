@@ -27,13 +27,14 @@ function provideFeedbackToGoogleAnalytics(value) {
 
 function fileTask() {
   const RELAY_DOCS_FEEDBACK_TAG_ID = 3036181703276160;
+  const DO_NOT_REAP_TAG_ID = 1759740284290896;
   const queryString = window.encodeURI(
     JSON.stringify({
       title: 'Feedback about ' + window.location.pathname,
       description:
         '**!!! Required !!!**\n\nPlease modify the task description to let us know how the docs can be improved.\n\n' +
         '**Please do not ask support questions via this form! Instead, ask in fburl.com/relay_support**',
-      tag_ids: {add: [RELAY_DOCS_FEEDBACK_TAG_ID]},
+      tag_ids: {add: [RELAY_DOCS_FEEDBACK_TAG_ID, DO_NOT_REAP_TAG_ID]},
     }),
   );
   window.open('https://www.internalfb.com/tasks/?n=' + queryString);

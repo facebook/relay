@@ -58,7 +58,7 @@ impl DiagnosticReporter {
         for mut r in self.active_diagnostics.iter_mut() {
             let (url, diagnostics) = r.pair_mut();
             diagnostics.regular_diagnostics.clear();
-            self.publish_diangostics_set(url, diagnostics);
+            self.publish_diagnostics_set(url, diagnostics);
         }
         self.active_diagnostics.retain(|_, diagnostics| {
             !diagnostics.regular_diagnostics.is_empty() || !diagnostics.quick_diagnostics.is_empty()
@@ -89,7 +89,7 @@ impl DiagnosticReporter {
     pub fn commit_diagnostics(&self) {
         for r in self.active_diagnostics.iter() {
             let (url, diagnostics) = r.pair();
-            self.publish_diangostics_set(url, diagnostics)
+            self.publish_diagnostics_set(url, diagnostics)
         }
     }
 
@@ -107,7 +107,7 @@ impl DiagnosticReporter {
                 let data = e.get_mut();
                 if data.quick_diagnostics != diagnostics {
                     data.quick_diagnostics = diagnostics;
-                    self.publish_diangostics_set(&url, data);
+                    self.publish_diagnostics_set(&url, data);
                 }
             }
             Entry::Vacant(e) => {
@@ -116,7 +116,7 @@ impl DiagnosticReporter {
                         regular_diagnostics: vec![],
                         quick_diagnostics: diagnostics,
                     };
-                    self.publish_diangostics_set(&url, &data);
+                    self.publish_diagnostics_set(&url, &data);
                     e.insert(data);
                 }
             }
@@ -127,12 +127,12 @@ impl DiagnosticReporter {
         if let Some(mut diagnostics) = self.active_diagnostics.get_mut(url) {
             if !diagnostics.quick_diagnostics.is_empty() {
                 diagnostics.quick_diagnostics.clear();
-                self.publish_diangostics_set(url, &diagnostics)
+                self.publish_diagnostics_set(url, &diagnostics)
             }
         }
     }
 
-    fn publish_diangostics_set(&self, url: &Url, diagnostics: &DiagnosticSet) {
+    fn publish_diagnostics_set(&self, url: &Url, diagnostics: &DiagnosticSet) {
         let mut next_diagnostics = diagnostics.quick_diagnostics.clone();
         for diagnostic in &diagnostics.regular_diagnostics {
             if !next_diagnostics

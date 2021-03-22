@@ -372,9 +372,9 @@ fn get_base_revision(commit_hash: Option<String>) -> String {
         .output()
         .expect("Expect `hg` command getting base revision.");
 
-    if !output.stderr.is_empty() {
+    if output.stdout.is_empty() {
         panic!(
-            "Stderr getting base revision hash:\n {:?}",
+            "Failed to get base revision hash:\n {:?}",
             String::from_utf8_lossy(&output.stderr)
         );
     }

@@ -12,7 +12,7 @@ use crossbeam::Sender;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use interner::StringKey;
-use log::{debug, info};
+use log::debug;
 use lsp_server::Message;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
@@ -73,7 +73,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     pub(crate) async fn watch(&self) -> LSPProcessResult<()> {
         'outer: loop {
-            info!("Initializing resources for LSP server");
+            debug!("Initializing resources for LSP server");
 
             update_in_progress_status(
                 "Relay: watchman...",
@@ -124,7 +124,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             self.perf_logger.complete_event(setup_event);
             self.perf_logger.flush();
 
-            info!("LSP server initialization completed!");
+            debug!("LSP server initialization completed!");
 
             // Here we will wait for changes from watchman
             'inner: loop {
@@ -182,7 +182,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 .iter()
                 .any(|r| r.value() == &ProjectStatus::Activated)
         {
-            info!("LSP server detected changes...");
+            debug!("LSP server detected changes...");
 
             self.diagnostic_reporter.clear_regular_diagnostics();
 

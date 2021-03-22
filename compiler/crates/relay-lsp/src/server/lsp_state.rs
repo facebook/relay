@@ -24,7 +24,7 @@ use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
 use interner::StringKey;
-use log::info;
+use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
 use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
@@ -102,7 +102,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
     ) -> Self {
-        info!("Creating lsp_state...");
+        debug!("Creating lsp_state...");
         let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
@@ -131,7 +131,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         });
 
         lsp_state.compiler = if extensions_config.enable_compiler {
-            info!("extensions_config.enable_compiler = true");
+            debug!("extensions_config.enable_compiler = true");
             Some(Compiler::new(
                 Arc::clone(&lsp_state.config),
                 Arc::clone(&lsp_state.perf_logger),
@@ -140,7 +140,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             None
         };
 
-        info!("Creating lsp_state created!");
+        debug!("Creating lsp_state created!");
         lsp_state
     }
 

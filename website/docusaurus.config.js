@@ -11,7 +11,7 @@
 
 const versions = require('./versions.json');
 
-const {fbContent} = require('internaldocs-fb-helpers');
+const {fbContent, isInternal} = require('internaldocs-fb-helpers');
 
 module.exports = {
   title: 'Relay',
@@ -232,10 +232,15 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects: function(fullPath) {
-          if (fullPath.startsWith('/docs/')) {
-            const docPath = fullPath.substring(6);
-            return ['/docs/en/' + docPath];
+        createRedirects: function(toPath) {
+          if (toPath.startsWith('/docs/')) {
+            const docPath = toPath.substring(6);
+            const fromPaths = ['/docs/en/' + docPath];
+            if (isInternal()) {
+              fromPaths.push('/docs/next/' + docPath);
+              fromPaths.push('/docs/en/next/' + docPath);
+            }
+            return fromPaths;
           }
         },
         redirects: [

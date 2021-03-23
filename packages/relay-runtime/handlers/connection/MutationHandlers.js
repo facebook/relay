@@ -51,6 +51,7 @@ const DeleteEdgeHandler = {
     if (record == null) {
       return;
     }
+    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -100,6 +101,7 @@ function edgeUpdater(
     if (record == null) {
       return;
     }
+    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -172,6 +174,7 @@ function nodeUpdater(
     if (record == null) {
       return;
     }
+    // $FlowFixMe[prop-missing]
     const {connections, edgeTypeName} = payload.handleArgs;
     invariant(
       connections != null,

@@ -26,7 +26,7 @@ import type {
 import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-export type Arguments = {+[string]: mixed, ...};
+export type Arguments = interface {+[string]: mixed};
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
@@ -178,6 +178,7 @@ function getStableVariableValue(name: string, variables: Variables): mixed {
     'getVariableValue(): Undefined variable `%s`.',
     name,
   );
+  // $FlowFixMe[cannot-write]
   return stableCopy(variables[name]);
 }
 

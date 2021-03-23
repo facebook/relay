@@ -167,6 +167,7 @@ class DataChecker {
       'RelayAsyncLoader(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

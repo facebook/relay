@@ -105,9 +105,9 @@ describe('useRefetchableFragment', () => {
     `);
     gqlFragment = getFragment(graphql`
       fragment useRefetchableFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {
@@ -137,6 +137,7 @@ describe('useRefetchableFragment', () => {
         // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
+          // $FlowFixMe[prop-missing]
             query.request.variables.id ?? query.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [gqlFragment.name]: {},

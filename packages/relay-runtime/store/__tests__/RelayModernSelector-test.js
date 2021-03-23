@@ -75,7 +75,7 @@ describe('RelayModernSelector', () => {
     `);
     UsersFragment = getFragment(graphql`
       fragment RelayModernSelectorTestUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {
@@ -666,6 +666,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -701,6 +702,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);

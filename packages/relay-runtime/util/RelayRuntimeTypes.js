@@ -21,12 +21,12 @@
  * use-case is as a return value for subscriptions, where calling `dispose()`
  * would cancel the subscription.
  */
-export type Disposable = {dispose(): void, ...};
+export type Disposable = interface {dispose(): void};
 
 export type DataID = string;
 
 // Variables
-export type Variables = {+[string]: $FlowFixMe, ...};
+export type Variables = interface {+[string]: $FlowFixMe};
 
 /**
  * Generated operation flow types are subtypes of this.

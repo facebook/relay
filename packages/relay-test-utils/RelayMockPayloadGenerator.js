@@ -88,7 +88,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
-  ...,
+  ...
 };
 
 function createIdGenerator() {
@@ -144,9 +144,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${context.alias ??
-              context.name ??
-              'undefined'}">`);
+          : `<mock-value-for-field-"${
+              context.alias ?? context.name ?? 'undefined'
+            }">`);
     }
     return mockValue;
   };
@@ -752,6 +752,7 @@ class RelayMockPayloadGenerator {
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

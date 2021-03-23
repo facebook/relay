@@ -1370,6 +1370,7 @@ describe('commitMutation()', () => {
       onCompleted,
       onError,
     });
+    // $FlowFixMe[incompatible-call]
     dataSource.next({
       data: null, // error: missing data
       errors: [

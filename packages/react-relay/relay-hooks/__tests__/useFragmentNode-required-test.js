@@ -95,6 +95,7 @@ beforeEach(() => {
   const SingularContainer = () => {
     // We need a render a component to run a Hook
     const userRef = {
+      // $FlowFixMe[prop-missing]
       [ID_KEY]: singularQuery.request.variables.id,
       [FRAGMENTS_KEY]: {
         useFragmentNodeRequiredTestUserFragment: {},

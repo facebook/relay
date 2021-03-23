@@ -25,9 +25,9 @@ export type INetwork = {|
 |};
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = {[key: string]: mixed, ...};
+export type PayloadData = interface {[key: string]: mixed};
 
-export type PayloadError = {
+export type PayloadError = interface {
   message: string,
   locations?: Array<{
     line: number,
@@ -36,7 +36,6 @@ export type PayloadError = {
   }>,
   // Not officially part of the spec, but used at Facebook
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
-  ...
 };
 
 export type PayloadExtensions = {[key: string]: mixed, ...};
@@ -120,7 +119,7 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {[key: string]: Uploadable, ...};
+export type UploadableMap = interface {[key: string]: Uploadable};
 
 /**
  * React Flight tree created on the server.

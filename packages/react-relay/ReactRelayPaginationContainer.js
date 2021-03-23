@@ -257,6 +257,7 @@ function createGetFragmentVariables(
     'ReactRelayPaginationContainer: Unable to synthesize a ' +
       'getFragmentVariables function.',
   );
+  // $FlowFixMe[cannot-spread-interface]
   return (prevVars: Variables, totalCount: number) => ({
     ...prevVars,
     [countVariable]: totalCount,
@@ -702,7 +703,9 @@ function createContainerWithFragments<
       };
       let fragmentVariables;
       const rootVariables = getRootVariablesForFragments(fragments, restProps);
+      // $FlowFixMe[cannot-spread-interface]
       fragmentVariables = getVariablesFromObject(fragments, restProps);
+      // $FlowFixMe[cannot-spread-interface]
       fragmentVariables = {
         ...rootVariables,
         ...fragmentVariables,
@@ -723,6 +726,7 @@ function createContainerWithFragments<
         fetchVariables,
         componentName,
       );
+      // $FlowFixMe[cannot-spread-interface]
       fetchVariables = {
         ...fetchVariables,
         ...this._refetchVariables,

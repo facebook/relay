@@ -64,7 +64,8 @@ class RelayQueryResponseCache {
     });
     const response = this._responses.get(cacheKey);
     return response != null
-      ? ({
+      ? // $FlowFixMe[speculation-ambiguous]
+        ({
           ...response.payload,
           extensions: {
             ...response.payload.extensions,

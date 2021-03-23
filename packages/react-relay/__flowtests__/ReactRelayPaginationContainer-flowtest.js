@@ -76,6 +76,7 @@ const Foo = createPaginationContainer(
   {
     direction: 'forward',
     getConnectionFromProps: props => props.viewer.all_friends,
+    // $FlowFixMe[cannot-spread-interface]
     getFragmentVariables: (vars, totalCount) => ({
       ...vars,
       count: totalCount,

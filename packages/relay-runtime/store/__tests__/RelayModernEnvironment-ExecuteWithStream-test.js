@@ -95,8 +95,10 @@ describe('execute() a query with @stream', () => {
 
     function getDataID(data, typename) {
       if (typename === 'MessagingParticipant') {
+        // $FlowFixMe[prop-missing]
         return `${typename}:${String(data.id)}`;
       }
+      // $FlowFixMe[prop-missing]
       return data.id;
     }
 

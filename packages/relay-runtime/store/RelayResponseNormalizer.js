@@ -81,7 +81,7 @@ import type {
 } from './RelayStoreTypes';
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed, ...},
+  fieldValue: interface {[string]: mixed},
   typeName: string,
 ) => mixed;
 
@@ -182,6 +182,7 @@ class RelayResponseNormalizer {
       'RelayResponseNormalizer(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

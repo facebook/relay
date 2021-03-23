@@ -190,6 +190,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
       const extraVariables = options?.UNSTABLE_extraVariables;
+      // $FlowFixMe[cannot-spread-interface]
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
@@ -199,6 +200,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
         count,
         cursor,
         baseVariables,
+        // $FlowFixMe[cannot-spread-interface]
         {...extraVariables},
         paginationMetadata,
       );

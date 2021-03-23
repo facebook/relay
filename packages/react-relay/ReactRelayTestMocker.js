@@ -118,6 +118,7 @@ class ReactRelayTestMocker {
    * annoying to test (e.g. client_mutation_id, actor_id)
    */
   static stripUnused(variables: Variables): Variables {
+    // $FlowFixMe[prop-missing]
     if (variables.input) {
       const toRemove = [
         'client_mutation_id',
@@ -125,6 +126,7 @@ class ReactRelayTestMocker {
         'clientMutationId',
         'actorId',
       ];
+      // $FlowFixMe[cannot-spread-interface]
       const strippedVariables = {...variables, input: {...variables.input}};
       toRemove.forEach(item => (strippedVariables.input[item] = undefined));
       return strippedVariables;

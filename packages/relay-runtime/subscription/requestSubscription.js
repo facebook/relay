@@ -22,6 +22,7 @@ const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../store/RelayModernSelector');
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
@@ -91,17 +92,24 @@ function requestSubscription<TSubscriptionPayload>(
       updater,
     })
     .map(responses => {
+      let selector = operation.fragment;
       if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
+        let nextID;
         if (Array.isArray(responses)) {
-          // $FlowFixMe[incompatible-cast]
-          return (responses.map(
-            response => response.data,
-          ): TSubscriptionPayload);
+          nextID = responses[0]?.extensions?.__relay_subscription_root_id;
+        } else {
+          nextID = responses.extensions?.__relay_subscription_root_id;
         }
-        // $FlowFixMe[incompatible-cast]
-        return (responses.data: TSubscriptionPayload);
+        if (typeof nextID === 'string') {
+          selector = createReaderSelector(
+            selector.node,
+            nextID,
+            selector.variables,
+            selector.owner,
+          );
+        }
       }
-      const data = environment.lookup(operation.fragment).data;
+      const data = environment.lookup(selector).data;
       // $FlowFixMe[incompatible-cast]
       return (data: TSubscriptionPayload);
     })

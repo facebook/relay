@@ -31,7 +31,6 @@ const {ROOT_ID} = require('../../store/RelayStoreUtils');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
-  RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
   it('Config: `RANGE_ADD`', () => {
     const environment = createMockEnvironment();
     const store = environment.getStore();
@@ -242,29 +241,37 @@ describe('requestSubscription-test', () => {
         store,
       });
     });
-    it('with cacheConfig', () => {
-      requestSubscription(environment, {
-        subscription: CommentCreateSubscription,
-        variables,
-        cacheConfig: {
-          metadata,
-        },
+
+    function runTests() {
+      it('with cacheConfig', () => {
+        requestSubscription(environment, {
+          subscription: CommentCreateSubscription,
+          variables,
+          cacheConfig: {
+            metadata,
+          },
+        });
+
+        expect(cacheMetadata).toEqual(metadata);
       });
 
-      expect(cacheMetadata).toEqual(metadata);
-    });
+      it('without cacheConfig', () => {
+        requestSubscription(environment, {
+          subscription: CommentCreateSubscription,
+          variables,
+        });
 
-    it('without cacheConfig', () => {
-      requestSubscription(environment, {
-        subscription: CommentCreateSubscription,
-        variables,
+        expect(cacheMetadata).toEqual(undefined);
       });
-
-      expect(cacheMetadata).toEqual(undefined);
-    });
+    }
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = false;
+    runTests();
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
+    runTests();
   });
 
   it('does not overwrite existing data', () => {
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
     const ConfigsQuery = getRequest(graphql`
       query requestSubscriptionTestConfigsQuery {
         viewer {
@@ -279,11 +286,18 @@ describe('requestSubscription-test', () => {
       }
     `);
 
+    graphql`
+      fragment requestSubscriptionTestExtraFragment on Config {
+        isEnabled
+      }
+    `;
+
     const ConfigCreateSubscription = getRequest(graphql`
       subscription requestSubscriptionTestConfigCreateSubscription {
         configCreateSubscribe {
           config {
             name
+            ...requestSubscriptionTestExtraFragment
           }
         }
       }
@@ -364,7 +378,14 @@ describe('requestSubscription-test', () => {
     });
     expect(onNext).toBeCalledTimes(1);
     expect(onNext.mock.calls[0][0]).toEqual({
-      configCreateSubscribe: {config: {name: 'Mark'}},
+      configCreateSubscribe: {
+        config: {
+          name: 'Mark',
+          __id: expect.any(String),
+          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragmentOwner: expect.any(Object),
+        },
+      },
     });
 
     environment.mock.nextValue(ConfigCreateSubscription, {
@@ -396,7 +417,14 @@ describe('requestSubscription-test', () => {
     });
     expect(onNext).toBeCalledTimes(2);
     expect(onNext.mock.calls[1][0]).toEqual({
-      configCreateSubscribe: {config: {name: 'Zuck'}},
+      configCreateSubscribe: {
+        config: {
+          name: 'Zuck',
+          __id: expect.any(String),
+          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragmentOwner: expect.any(Object),
+        },
+      },
     });
   });
 });

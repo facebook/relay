@@ -481,6 +481,21 @@ class Executor {
       this._updateOperationTracker(updatedOwners);
       this._processPayloadFollowups(payloadFollowups);
     }
+    if (
+      this._isSubscriptionOperation &&
+      RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
+    ) {
+      // We attach the id to allow the `requestSubscription` to read from the store using
+      // the current id in its `onNext` callback
+      if (responsesWithData[0].extensions == null) {
+        // $FlowFixMe[cannot-write]
+        responsesWithData[0].extensions = {
+          __relay_subscription_root_id: this._operation.fragment.dataID,
+        };
+      } else {
+        responsesWithData[0].extensions.__relay_subscription_root_id = this._operation.fragment.dataID;
+      }
+    }
     this._sink.next(response);
   }
 

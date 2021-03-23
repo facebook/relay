@@ -52,25 +52,13 @@ jobs:
       - name: Flow
         run: yarn run typecheck
 
-  check-rust:
-    name: Check Rust
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-          # add --locked back when we have a better way to ensure it's up to
-          # date
-          args: --manifest-path=compiler/Cargo.toml
-
   test-rust:
-    name: Test Rust
-    runs-on: ubuntu-latest
+    name: Test Rust (${{ matrix.os }})
+    strategy:
+      matrix:
+        ## TODO: Windows is currently failing in watchman dependency
+        os: [ubuntu-latest, macos-latest] # windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -80,9 +68,35 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          # add --locked back when we have a better way to ensure it's up to
-          # date
+          # add --locked back when we have a better way to ensure it's up to date
           args: --manifest-path=compiler/Cargo.toml
+
+  build-compiler:
+    name: Build Compiler (${{ matrix.os }})
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        file-name: [relay]
+        ## TODO: windows is currently failing in watchman dependency
+        # include:
+        # - os: windows-latest
+        #   file-name: relay.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          # add --locked back when we have a better way to ensure it's up to date
+          args: --manifest-path=compiler/Cargo.toml --release
+      - uses: actions/upload-artifact@v2
+        with:
+          name: compiler (${{ matrix.os }})
+          path: compiler/target/release/${{ matrix.file-name }}
 
   master-release:
     name: Publish master tag to npm

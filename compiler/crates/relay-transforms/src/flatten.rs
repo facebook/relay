@@ -8,7 +8,7 @@
 use crate::handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME};
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::{
-    is_relay_custom_inline_fragment_directive, PointerAddress, CUSTOM_METADATA_DIRECTIVES,
+    is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress,
 };
 use graphql_ir::{
     Argument, Condition, Directive, FragmentDefinition, InlineFragment, LinkedField,
@@ -336,7 +336,7 @@ impl FlattenTransform {
                                 .type_
                                 .inner();
                             let should_merge_handles = selection.directives().iter().any(|d| {
-                                CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
+                                CustomMetadataDirectives::is_handle_field_directive(d.name.item)
                             });
 
                             let flattened_node = Arc::make_mut(flattened_node);
@@ -383,7 +383,7 @@ impl FlattenTransform {
                                 )]);
                             }
                             let should_merge_handles = node.directives.iter().any(|d| {
-                                CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(d.name.item)
+                                CustomMetadataDirectives::is_handle_field_directive(d.name.item)
                             });
                             if should_merge_handles {
                                 let flattened_node = Arc::make_mut(flattened_node);
@@ -459,10 +459,10 @@ fn merge_handle_directives(
 ) -> Vec<Directive> {
     let (mut handles, mut directives): (Vec<_>, Vec<_>) =
         directives_a.iter().cloned().partition(|directive| {
-            CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(directive.name.item)
+            CustomMetadataDirectives::is_handle_field_directive(directive.name.item)
         });
     for directive in directives_b {
-        if CUSTOM_METADATA_DIRECTIVES.is_handle_field_directive(directive.name.item) {
+        if CustomMetadataDirectives::is_handle_field_directive(directive.name.item) {
             if handles.is_empty() {
                 handles.push(directive.clone());
             } else {

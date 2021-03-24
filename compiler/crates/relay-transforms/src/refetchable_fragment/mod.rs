@@ -205,10 +205,7 @@ impl RefetchableFragment<'_> {
     ///
     /// Connection metadata is extracted in `transform_connection`
     fn validate_connection_metadata(&self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(metadatas) = extract_connection_metadata_from_directive(
-            &fragment.directives,
-            self.connection_constants,
-        ) {
+        if let Some(metadatas) = extract_connection_metadata_from_directive(&fragment.directives) {
             // TODO: path or connection field locations in the error messages
             if metadatas.len() > 1 {
                 return Err(vec![Diagnostic::error(

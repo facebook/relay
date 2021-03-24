@@ -257,10 +257,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment_metadata(&mut self, fragment: &FragmentDefinition) -> Primitive {
-        let connection_metadata = extract_connection_metadata_from_directive(
-            &fragment.directives,
-            self.connection_constants,
-        );
+        let connection_metadata = extract_connection_metadata_from_directive(&fragment.directives);
 
         let mut plural = false;
         let mut unmask = false;
@@ -1643,10 +1640,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .collect();
 
         // add connection metadata
-        let connection_metadata = extract_connection_metadata_from_directive(
-            &operation.directives,
-            self.connection_constants,
-        );
+        let connection_metadata = extract_connection_metadata_from_directive(&operation.directives);
         if let Some(connection_metadata) = connection_metadata {
             metadata_items.push(self.build_connection_metadata(&connection_metadata))
         }

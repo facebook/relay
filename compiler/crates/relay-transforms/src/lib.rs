@@ -69,7 +69,7 @@ pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
-    ConnectionMetadata,
+    ConnectionMetadata, CONNECTION_METADATA_ARGUMENT_NAME, CONNECTION_METADATA_DIRECTIVE_NAME,
 };
 pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{

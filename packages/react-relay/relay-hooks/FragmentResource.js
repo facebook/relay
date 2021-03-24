@@ -220,6 +220,7 @@ class FragmentResourceImpl {
     // to suspend.
     const networkPromise = this._getAndSavePromiseForFragmentRequestInFlight(
       fragmentIdentifier,
+      fragmentNode,
       fragmentOwner,
     );
     if (networkPromise != null) {
@@ -410,6 +411,7 @@ class FragmentResourceImpl {
 
   _getAndSavePromiseForFragmentRequestInFlight(
     cacheKey: string,
+    fragmentNode: ReaderFragment,
     fragmentOwner: RequestDescriptor,
   ): Promise<void> | null {
     const environment = this._environment;
@@ -432,8 +434,14 @@ class FragmentResourceImpl {
       });
     this._cache.set(cacheKey, promise);
 
+    const queryName = fragmentOwner.node.params.name;
+    const fragmentName = fragmentNode.name;
+    const promiseDisplayName =
+      queryName === fragmentName
+        ? `Relay(${queryName})`
+        : `Relay(${queryName}:${fragmentName})`;
     // $FlowExpectedError[prop-missing] Expando to annotate Promises.
-    promise.displayName = 'Relay(' + fragmentOwner.node.params.name + ')';
+    promise.displayName = promiseDisplayName;
     return promise;
   }
 

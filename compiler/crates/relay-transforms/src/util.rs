@@ -21,7 +21,6 @@ use crate::required_directive::{
 };
 use crate::{DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 
-use fnv::FnvHashSet;
 use graphql_ir::{
     Argument, Directive, Value, ARGUMENT_DEFINITION, UNUSED_LOCAL_VARIABLE_DEPRECATED,
 };
@@ -87,58 +86,62 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     }
 }
 
+lazy_static! {
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 17] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        *CONNECTION_METADATA_DIRECTIVE_NAME,
+        *HANDLE_FIELD_DIRECTIVE_NAME,
+        MATCH_CONSTANTS.custom_module_directive_name,
+        *DIRECTIVE_SPLIT_OPERATION,
+        REFETCHABLE_CONSTANTS.refetchable_metadata_name,
+        REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name,
+        *INTERNAL_METADATA_DIRECTIVE,
+        *ARGUMENT_DEFINITION,
+        *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+        *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+        *REQUIRED_DIRECTIVE_NAME,
+        *REQUIRED_METADATA_KEY,
+        *CHILDREN_CAN_BUBBLE_METADATA_KEY,
+        *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+        *RELAY_CLIENT_COMPONENT_METADATA_KEY,
+        *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+    ];
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        *CONNECTION_METADATA_DIRECTIVE_NAME,
+        *HANDLE_FIELD_DIRECTIVE_NAME,
+        REFETCHABLE_CONSTANTS.refetchable_metadata_name,
+        REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name,
+        *INTERNAL_METADATA_DIRECTIVE,
+        *ARGUMENT_DEFINITION,
+        *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+        *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+        *REQUIRED_DIRECTIVE_NAME,
+        *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+        *RELAY_CLIENT_COMPONENT_METADATA_KEY,
+    ];
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 4] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        MATCH_CONSTANTS.custom_module_directive_name,
+        INLINE_DATA_CONSTANTS.internal_directive_name,
+        "defer".intern(),
+    ];
+}
+
 pub struct CustomMetadataDirectives;
 
 impl CustomMetadataDirectives {
     pub fn is_custom_metadata_directive(name: StringKey) -> bool {
-        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
-            || name == *CONNECTION_METADATA_DIRECTIVE_NAME
-            || name == *HANDLE_FIELD_DIRECTIVE_NAME
-            || name == MATCH_CONSTANTS.custom_module_directive_name
-            || name == *DIRECTIVE_SPLIT_OPERATION
-            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
-            || name == *INTERNAL_METADATA_DIRECTIVE
-            || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
-            || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
-            || name == *REQUIRED_DIRECTIVE_NAME
-            || name == *REQUIRED_METADATA_KEY
-            || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
-            || name == *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME
-            || name == *RELAY_CLIENT_COMPONENT_METADATA_KEY
-            || name == *UNUSED_LOCAL_VARIABLE_DEPRECATED
+        CUSTOM_METADATA_DIRECTIVES.contains(&name)
     }
 
     pub fn should_skip_in_node_identifier(name: StringKey) -> bool {
-        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
-            || name == *CONNECTION_METADATA_DIRECTIVE_NAME
-            || name == *HANDLE_FIELD_DIRECTIVE_NAME
-            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
-            || name == *INTERNAL_METADATA_DIRECTIVE
-            || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
-            || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
-            || name == *REQUIRED_DIRECTIVE_NAME
-            || name == *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME
-            || name == *RELAY_CLIENT_COMPONENT_METADATA_KEY
+        DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER.contains(&name)
     }
 
     pub fn is_handle_field_directive(name: StringKey) -> bool {
         name == *HANDLE_FIELD_DIRECTIVE_NAME
     }
-}
-
-lazy_static! {
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
-        *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        MATCH_CONSTANTS.custom_module_directive_name,
-        INLINE_DATA_CONSTANTS.internal_directive_name,
-        "defer".intern(),
-    ]
-    .into_iter()
-    .collect();
 }
 
 pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {

@@ -22,7 +22,9 @@ use crate::required_directive::{
 use crate::{DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 
 use fnv::FnvHashSet;
-use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
+use graphql_ir::{
+    Argument, Directive, Value, ARGUMENT_DEFINITION, UNUSED_LOCAL_VARIABLE_DEPRECATED,
+};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type};
@@ -107,6 +109,7 @@ impl CustomMetadataDirectives {
             || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
             || name == *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME
             || name == *RELAY_CLIENT_COMPONENT_METADATA_KEY
+            || name == *UNUSED_LOCAL_VARIABLE_DEPRECATED
     }
 
     pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {

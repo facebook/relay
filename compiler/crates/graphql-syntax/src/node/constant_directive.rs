@@ -7,7 +7,8 @@
 
 use super::constant_value::ConstantArgument;
 use super::primitive::*;
-use common::Span;
+use common::{Named, Span};
+use interner::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ConstantDirective {
@@ -15,4 +16,10 @@ pub struct ConstantDirective {
     pub at: Token,
     pub name: Identifier,
     pub arguments: Option<List<ConstantArgument>>,
+}
+
+impl Named for ConstantDirective {
+    fn name(&self) -> StringKey {
+        self.name.value
+    }
 }

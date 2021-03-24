@@ -9,6 +9,7 @@ use super::constant_directive::ConstantDirective;
 use super::constant_value::ConstantValue;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
+use common::Span;
 use interner::StringKey;
 use std::fmt;
 
@@ -29,6 +30,28 @@ pub enum TypeSystemDefinition {
     ScalarTypeDefinition(ScalarTypeDefinition),
     ScalarTypeExtension(ScalarTypeExtension),
     DirectiveDefinition(DirectiveDefinition),
+}
+
+impl TypeSystemDefinition {
+    pub fn location(&self) -> Span {
+        match self {
+            TypeSystemDefinition::SchemaDefinition(_extension) => Span::empty(), // Not implemented
+            TypeSystemDefinition::SchemaExtension(_extension) => Span::empty(),  // Not implemented
+            TypeSystemDefinition::ObjectTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::ObjectTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::InterfaceTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::InterfaceTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::UnionTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::UnionTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::DirectiveDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::InputObjectTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::InputObjectTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::EnumTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::EnumTypeExtension(extension) => extension.name.span,
+            TypeSystemDefinition::ScalarTypeDefinition(extension) => extension.name.span,
+            TypeSystemDefinition::ScalarTypeExtension(extension) => extension.name.span,
+        }
+    }
 }
 
 impl fmt::Display for TypeSystemDefinition {

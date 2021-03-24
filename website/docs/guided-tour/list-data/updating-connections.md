@@ -68,6 +68,10 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
+:::note
+The `__id` field is not something that your GraphQL API needs to expose. Instead, it's an identifier that Relay automatically adds to identify the connection record.
+:::
+
 ### Accessing connections using `ConnectionHandler.getConnectionID`
 
 If we have access to the ID of the parent record that holds the connection, we can access the connection record by using the `ConnectionHandler.getConnectionID` API:
@@ -117,14 +121,16 @@ There are a couple of alternatives for adding edges to a connection:
 
 ### Using declarative directives
 
-Usually, mutation or subscription payloads will expose the new edge that was added on the server as an edge field. If your mutation or subscription exposes an edge field that you can query for in the response, then you can use the `@appendEdge`,  `@prependEdge` , `@prependNode`, `@appendNode` declarative mutation directives on the edge field in order to add the newly created edge to the connection (note that these directives also work on queries).
+Usually, mutation or subscription payloads will expose the new edges that were added on the server as a field with a single edge or list of edges. If your mutation or subscription exposes an edge or edges field that you can query for in the response, then you can use the `@appendEdge` and `@prependEdge` declarative mutation directives on that field in order to add the newly created edges to the specified connections (note that these directives also work on queries).
+
+Alternatively, mutation or subscription payloads might expose the new nodes that were added on the server as a field with a single node or list of nodes. If your mutation or subscription exposes a node or nodes field that you can query for in the response, then you can use the `@appendNode` and `@prependNode` declarative mutation directives on that field in order to add the newly created nodes, wrapped inside edges, to the specified connections (note that these directives also work on queries).
 
 These directives accept a `connections` parameter, which needs to be a GraphQL variable containing an array of connection IDs. Connection IDs can be obtained either by using the [`__id` field on connections](#accessing-connections-using-__id) or using the [`ConnectionHandler.getConnectionID`](#accessing-connections-using-connectionhandlergetconnectionid) API.
 
 
 #### `@appendEdge` / `@prependEdge`
 
-These directives work on edge fields. `@prependEdge` will add the selected edge to the beginning of each connection defined in the `connections` array, whereas `@appendEdge` will add the selected edge to the end of each connection in the array.
+These directives work on a field with a single edge or list of edges. `@prependEdge` will add the selected edges to the beginning of each connection defined in the `connections` array, whereas `@appendEdge` will add the selected edges to the end of each connection in the array.
 
 **Arguments:**
 - `connections`: An array of connection IDs. Connection IDs can be obtained either by using the [`__id` field on connections](#accessing-connections-using-__id) or using the [`ConnectionHandler.getConnectionID`](#accessing-connections-using-connectionhandlergetconnectionid) API.
@@ -133,10 +139,10 @@ These directives work on edge fields. `@prependEdge` will add the selected edge 
 **Example:**
 
 ```js
-// Get using the `__id` field
+// Get the connection ID using the `__id` field
 const connectionID = fragmentData?.comments?.__id;
 
-// Or get using `ConnectionHandler.getConnectionID()`
+// Or get it using `ConnectionHandler.getConnectionID()`
 const connectionID =  ConnectionHandler.getConnectionID(
   '<story-id>',
   'StoryComponent_story_comments_connection',
@@ -174,18 +180,18 @@ commitMutation<AppendCommentMutation>(environment, {
 
 #### `@appendNode` / `@prependNode`
 
-These directives work on node fields, and will create edges with the specified `edgeTypeName`. `@prependNode` will add the selected node to the beginning of each connection defined in the `connections` array, whereas `@appendNode` will add the selected node to the end of each connection in the array.
+These directives work on a field with a single node or list of nodes, and will create edges with the specified `edgeTypeName`. `@prependNode` will add edges containing the selected nodes to the beginning of each connection defined in the `connections` array, whereas `@appendNode` will add edges containing the selected nodes to the end of each connection in the array.
 
 **Arguments:**
 - `connections`: An array of connection IDs. Connection IDs can be obtained either by using the [`__id` field on connections](#accessing-connections-using-__id) or using the [`ConnectionHandler.getConnectionID`](#accessing-connections-using-connectionhandlergetconnectionid) API.
-- `edgeTypeName`: The typename of an edge, corresponding to the edge type argument in `ConnectionHandler.createEdge`.
+- `edgeTypeName`: The type name of the edge that contains the node, corresponding to the edge type argument in `ConnectionHandler.createEdge`.
 
 **Example:**
 ```js
-// Get using the `__id` field
+// Get the connection ID using the `__id` field
 const connectionID = fragmentData?.comments?.__id;
 
-// Or get using `ConnectionHandler.getConnectionID()`
+// Or get it using `ConnectionHandler.getConnectionID()`
 const connectionID =  ConnectionHandler.getConnectionID(
   '<story-id>',
   'StoryComponent_story_comments_connection',
@@ -370,10 +376,10 @@ Works on GraphQL fields that return an `ID` or `[ID]`. Will delete the edges wit
 **Example:**
 
 ```js
-// Get using the `__id` field
+// Get the connection ID using the `__id` field
 const connectionID = fragmentData?.comments?.__id;
 
-// Or get using `ConnectionHandler.getConnectionID()`
+// Or get it using `ConnectionHandler.getConnectionID()`
 const connectionID =  ConnectionHandler.getConnectionID(
   '<story-id>',
   'StoryComponent_story_comments_connection',

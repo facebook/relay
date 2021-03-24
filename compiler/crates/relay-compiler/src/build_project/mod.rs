@@ -97,7 +97,6 @@ pub fn validate_program(
         program,
         &config.connection_interface,
         &config.additional_validations,
-        config.skip_unused_fragment_variable_validation,
     )
     .map_err(|errors| BuildProjectError::ValidationErrors { errors });
 

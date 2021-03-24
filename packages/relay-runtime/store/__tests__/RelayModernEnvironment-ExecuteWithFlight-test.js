@@ -632,6 +632,15 @@ describe('execute() with Flight field', () => {
           'RelayResponseNormalizer: Expected `tree` not to be null.',
         ),
       );
+
+      // Server Component is read out as null
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.isMissingData).toEqual(false);
+      expect(snapshot.data).toEqual({
+        node: {
+          flightComponent: null,
+        },
+      });
     });
   });
 });

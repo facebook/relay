@@ -489,13 +489,27 @@ describe('executeMutation() with Flight field', () => {
 
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
-      expect(callback).toHaveBeenCalledTimes(0);
+      expect(innerCallback).toHaveBeenCalledTimes(0);
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        node: {flightComponent: null},
+      });
+      expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
       expect(warning).toHaveBeenCalledWith(
         false,
         expect.stringContaining(
           'RelayResponseNormalizer: Expected `tree` not to be null.',
         ),
       );
+
+      // Server Component is read out as null
+      const latestSnapshot = environment.lookup(queryOperation.fragment);
+      expect(latestSnapshot.isMissingData).toEqual(false);
+      expect(latestSnapshot.data).toEqual({
+        node: {
+          flightComponent: null,
+        },
+      });
     });
   });
 });

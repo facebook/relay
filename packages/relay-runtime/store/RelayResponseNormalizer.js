@@ -535,11 +535,40 @@ class RelayResponseNormalizer {
     const fieldValue = data[responseKey];
 
     if (fieldValue == null) {
+      if (fieldValue === undefined) {
+        // Flight field may be missing in the response if:
+        // - It is inside an abstract type refinement where the concrete type does
+        //   not conform to the interface/union.
+        // However an otherwise-required field may also be missing if the server
+        // is configured to skip fields with `null` values, in which case the
+        // client is assumed to be correctly configured with
+        // treatMissingFieldsAsNull=true.
+        if (this._isUnmatchedAbstractType) {
+          // Field not expected to exist regardless of whether the server is pruning null
+          // fields or not.
+          return;
+        } else if (!this._treatMissingFieldsAsNull) {
+          // Not optional and the server is not pruning null fields: field is expected
+          // to be present
+          if (__DEV__) {
+            warning(
+              false,
+              'RelayResponseNormalizer: Payload did not contain a value ' +
+                'for field `%s: %s`. Check that you are parsing with the same ' +
+                'query that was used to fetch the payload.',
+              responseKey,
+              storageKey,
+            );
+          }
+          return;
+        }
+      }
       RelayModernRecord.setValue(record, storageKey, null);
       return;
     }
 
     const reactFlightPayload = refineToReactFlightPayloadData(fieldValue);
+    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
 
     invariant(
       reactFlightPayload != null,
@@ -549,10 +578,10 @@ class RelayResponseNormalizer {
       fieldValue,
     );
     invariant(
-      typeof this._reactFlightPayloadDeserializer === 'function',
+      typeof reactFlightPayloadDeserializer === 'function',
       'RelayResponseNormalizer: Expected reactFlightPayloadDeserializer to ' +
         'be a function, got `%s`.',
-      this._reactFlightPayloadDeserializer,
+      reactFlightPayloadDeserializer,
     );
 
     if (reactFlightPayload.errors.length > 0) {
@@ -573,27 +602,6 @@ class RelayResponseNormalizer {
       }
     }
 
-    // This typically indicates that a fatal server error prevented rows from
-    // being written. When this occurs, we should not continue normalization of
-    // the Flight field because the row response is malformed.
-    //
-    // Receiving empty rows is OK because it can indicate the start of a stream.
-    if (reactFlightPayload.tree == null) {
-      warning(
-        false,
-        'RelayResponseNormalizer: Expected `tree` not to be null. This ' +
-          'typically indicates that a fatal server error prevented any Server ' +
-          'Component rows from being written.',
-      );
-      return;
-    }
-
-    // We store the deserialized reactFlightClientResponse in a separate
-    // record and link it to the parent record. This is so we can GC the Flight
-    // tree later even if the parent record is still reachable.
-    const reactFlightClientResponse = this._reactFlightPayloadDeserializer(
-      reactFlightPayload.tree,
-    );
     const reactFlightID = generateClientID(
       RelayModernRecord.getDataID(record),
       getStorageKey(selection, this._variables),
@@ -606,11 +614,48 @@ class RelayResponseNormalizer {
       );
       this._recordSource.set(reactFlightID, reactFlightClientResponseRecord);
     }
+
+    if (reactFlightPayload.tree == null) {
+      // This typically indicates that a fatal server error prevented rows from
+      // being written. When this occurs, we should not continue normalization of
+      // the Flight field because the row response is malformed.
+      //
+      // Receiving empty rows is OK because it can indicate the start of a stream.
+      warning(
+        false,
+        'RelayResponseNormalizer: Expected `tree` not to be null. This ' +
+          'typically indicates that a fatal server error prevented any Server ' +
+          'Component rows from being written.',
+      );
+      // We create the flight record with a null value for the tree
+      // and empty reachable definitions
+      RelayModernRecord.setValue(
+        reactFlightClientResponseRecord,
+        REACT_FLIGHT_TREE_STORAGE_KEY,
+        null,
+      );
+      RelayModernRecord.setValue(
+        reactFlightClientResponseRecord,
+        REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
+        [],
+      );
+      RelayModernRecord.setLinkedRecordID(record, storageKey, reactFlightID);
+      return;
+    }
+
+    // We store the deserialized reactFlightClientResponse in a separate
+    // record and link it to the parent record. This is so we can GC the Flight
+    // tree later even if the parent record is still reachable.
+    const reactFlightClientResponse = reactFlightPayloadDeserializer(
+      reactFlightPayload.tree,
+    );
+
     RelayModernRecord.setValue(
       reactFlightClientResponseRecord,
       REACT_FLIGHT_TREE_STORAGE_KEY,
       reactFlightClientResponse,
     );
+
     const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> = [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {

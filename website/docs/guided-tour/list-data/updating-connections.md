@@ -16,7 +16,7 @@ As explained in our [Updating Data](../../updating-data/) section, Relay holds a
 
 In Relay, connection fields that are marked with the `@connection` directive are stored as special records in the store, and they hold and accumulate *all* of the items that have been fetched for the connection so far. In order to add or remove items from a connection, we need to access the connection record using the connection `key`, which was provided when declaring a `@connection`; specifically, this allows us to access a connection inside an [`updater`](../../updating-data/graphql-mutations/#updater-functions) function using the `ConnectionHandler` APIs.
 
-For example, given the following fragment that declares a `@connection`, We can access the connection record inside an `updater` function in a few different ways:
+For example, given the following fragment that declares a `@connection`, we can access the connection record inside an `updater` function in a few different ways:
 
 ```js
 const {graphql} = require('react-relay');
@@ -124,7 +124,7 @@ These directives accept a `connections` parameter, which needs to be a GraphQL v
 
 #### `@appendEdge` / `@prependEdge`
 
-These directives work on edge fields. `@prependEdge` will add the selected edge to the beginning of each defined in the `connections` array, whereas `@appendEdge` will add the selected edge to the end of each connection in the array.
+These directives work on edge fields. `@prependEdge` will add the selected edge to the beginning of each connection defined in the `connections` array, whereas `@appendEdge` will add the selected edge to the end of each connection in the array.
 
 **Arguments:**
 - `connections`: An array of connection IDs. Connection IDs can be obtained either by using the [`__id` field on connections](#accessing-connections-using-__id) or using the [`ConnectionHandler.getConnectionID`](#accessing-connections-using-connectionhandlergetconnectionid) API.
@@ -137,7 +137,10 @@ These directives work on edge fields. `@prependEdge` will add the selected edge 
 const connectionID = fragmentData?.comments?.__id;
 
 // Or get using `ConnectionHandler.getConnectionID()`
-const connectionID =  ConnectionHandler.getConnectionID('<story-id>', 'StoryComponent_story_comments_connection')
+const connectionID =  ConnectionHandler.getConnectionID(
+  '<story-id>',
+  'StoryComponent_story_comments_connection',
+);
 
 // ...
 
@@ -146,7 +149,7 @@ commitMutation<AppendCommentMutation>(environment, {
   mutation: graphql`
     mutation AppendCommentMutation(
       # Define a GraphQL variable for the connections array
-      $connections: [String!]!
+      $connections: [ID!]!
       $input: CommentCreateInput
     ) {
       commentCreate(input: $input) {
@@ -171,7 +174,7 @@ commitMutation<AppendCommentMutation>(environment, {
 
 #### `@appendNode` / `@prependNode`
 
-These directives work on Node fields, and will create edges with the specified `edgeTypeName`. `@prependNode` will add the selected node to the beginning of each defined in the `connections` array, whereas `@appendNode` will add the selected node to the end of each connection in the array.
+These directives work on node fields, and will create edges with the specified `edgeTypeName`. `@prependNode` will add the selected node to the beginning of each connection defined in the `connections` array, whereas `@appendNode` will add the selected node to the end of each connection in the array.
 
 **Arguments:**
 - `connections`: An array of connection IDs. Connection IDs can be obtained either by using the [`__id` field on connections](#accessing-connections-using-__id) or using the [`ConnectionHandler.getConnectionID`](#accessing-connections-using-connectionhandlergetconnectionid) API.
@@ -183,7 +186,10 @@ These directives work on Node fields, and will create edges with the specified `
 const connectionID = fragmentData?.comments?.__id;
 
 // Or get using `ConnectionHandler.getConnectionID()`
-const connectionID =  ConnectionHandler.getConnectionID('<story-id>', 'StoryComponent_story_comments_connection')
+const connectionID =  ConnectionHandler.getConnectionID(
+  '<story-id>',
+  'StoryComponent_story_comments_connection',
+);
 
 // ...
 
@@ -192,11 +198,11 @@ commitMutation<AppendCommentMutation>(environment, {
   mutation: graphql`
     mutation AppendCommentMutation(
       # Define a GraphQL variable for the connections array
-      $connections: [String!]!
+      $connections: [ID!]!
       $input: CommentCreateInput
     ) {
       commentCreate(input: $input) {
-        # Use @appendNode or @prependNode on the edge field
+        # Use @appendNode or @prependNode on the node field
         feedbackCommentNode @appendNode(connections: $connections, edgeTypeName: "CommentsEdge") {
           id
         }
@@ -216,9 +222,9 @@ commitMutation<AppendCommentMutation>(environment, {
 
 For all of these directives, they will be executed in the following order within the mutation or subscription, as per the [order of execution of updates](../../updating-data/graphql-mutations/#order-of-execution-of-updater-functions):
 
-* When the mutation is initiated, after the optimistic response is handled, and after the optimistic updater function is executed, the `@prependEdge` and `@appendEdge` directives wills be applied to the optimistic response.
-* If the mutation succeeds, after the data from the network response is merged with the existing values in the store, and after the updater function is executed, the `@prependEdge` and `@appendEdge` directives will be applied to the data in the network response.
-* If the mutation failed, the updates from processing the `@prependEdge` and `@appendEdge` directives will be rolled back.
+* When the mutation is initiated, after the optimistic response is handled, and after the optimistic updater function is executed, the `@prependEdge`, `@appendEdge`, `@prependNode`, and `@appendNode` directives will be applied to the optimistic response.
+* If the mutation succeeds, after the data from the network response is merged with the existing values in the store, and after the updater function is executed, the `@prependEdge`, `@appendEdge`, `@prependNode`, and `@appendNode` directives will be applied to the data in the network response.
+* If the mutation failed, the updates from processing the `@prependEdge`, `@appendEdge`, `@prependNode`, and `@appendNode` directives will be rolled back.
 
 
 ### Manually adding edges
@@ -355,7 +361,7 @@ Similarly to the [directives to add edges](#using-declarative-directives), we ca
 
 #### `@deleteEdge`
 
-Works on GraphQL fields that return an `ID` or `[ID]`. Will delete the edge with nodes that matches the `id` from each connection defined in the `connections` array.
+Works on GraphQL fields that return an `ID` or `[ID]`. Will delete the edges with nodes that match the `id` from each connection defined in the `connections` array.
 
 **Arguments:**
 - `connections`: An array of connection IDs. Connection IDs can be obtained either by using the [`__id` field on connections](#accessing-connections-using-__id) or using the [`ConnectionHandler.getConnectionID`](#accessing-connections-using-connectionhandlergetconnectionid) API.
@@ -368,17 +374,20 @@ Works on GraphQL fields that return an `ID` or `[ID]`. Will delete the edge with
 const connectionID = fragmentData?.comments?.__id;
 
 // Or get using `ConnectionHandler.getConnectionID()`
-const connectionID =  ConnectionHandler.getConnectionID('<story-id>', 'StoryComponent_story_comments_connection')
+const connectionID =  ConnectionHandler.getConnectionID(
+  '<story-id>',
+  'StoryComponent_story_comments_connection',
+);
 
 // ...
 
 // Mutation
-commitMutation<AppendCommentMutation>(environment, {
+commitMutation<DeleteCommentsMutation>(environment, {
   mutation: graphql`
-    mutation AppendCommentMutation(
+    mutation DeleteCommentsMutation(
       # Define a GraphQL variable for the connections array
-      $connections: [String!]!
-      $input: CommentCreateInput
+      $connections: [ID!]!
+      $input: CommentsDeleteInput
     ) {
       commentsDelete(input: $input) {
         deletedCommentIds @deleteEdge(connections: $connections)

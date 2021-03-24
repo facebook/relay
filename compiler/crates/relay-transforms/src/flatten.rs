@@ -29,7 +29,6 @@ type SeenLinkedFields = Arc<RwLock<FnvHashMap<PointerAddress, TransformedValue<A
 type SeenInlineFragments =
     Arc<RwLock<FnvHashMap<(PointerAddress, Type), TransformedValue<Arc<InlineFragment>>>>>;
 
-///
 /// Transform that flattens inline fragments, fragment spreads, merges linked fields selections.
 ///
 /// Inline fragments are inlined (replaced with their selections) when:
@@ -38,7 +37,6 @@ type SeenInlineFragments =
 ///
 /// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).
-///
 pub fn flatten(program: &mut Program, is_for_codegen: bool) -> DiagnosticsResult<()> {
     let transform = FlattenTransform::new(program, is_for_codegen);
     let errors = Arc::new(Mutex::new(Vec::new()));
@@ -426,30 +424,23 @@ impl FlattenTransform {
     }
 }
 
-fn should_flatten_inline_with_directives(directives: &[Directive], is_for_codegen: bool) -> bool {
-    if is_for_codegen {
-        !directives
-            .iter()
-            .any(is_relay_custom_inline_fragment_directive)
-    } else {
-        directives.is_empty()
-    }
-}
-
 fn should_flatten_inline_fragment(
     inline_fragment: &InlineFragment,
     parent_type: Type,
     is_for_codegen: bool,
 ) -> bool {
-    match inline_fragment.type_condition {
-        None => should_flatten_inline_with_directives(&inline_fragment.directives, is_for_codegen),
-        Some(type_condition) => {
-            type_condition == parent_type
-                && should_flatten_inline_with_directives(
-                    &inline_fragment.directives,
-                    is_for_codegen,
-                )
+    if let Some(type_condition) = inline_fragment.type_condition {
+        if type_condition != parent_type {
+            return false;
         }
+    }
+    if is_for_codegen {
+        !inline_fragment
+            .directives
+            .iter()
+            .any(is_relay_custom_inline_fragment_directive)
+    } else {
+        inline_fragment.directives.is_empty()
     }
 }
 

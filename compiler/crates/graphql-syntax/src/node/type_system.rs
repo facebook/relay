@@ -38,18 +38,22 @@ impl fmt::Display for TypeSystemDefinition {
                 directives,
                 operation_types,
             }) => write_schema_definition_helper(f, directives, &operation_types.items),
-            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
-                name,
-                interfaces,
-                fields,
+            TypeSystemDefinition::SchemaExtension(SchemaExtension {
                 directives,
-            }) => write_object_helper(f, &name.value, &interfaces, &fields, directives, true),
+                operation_types,
+            }) => write_schema_extension_helper(f, directives, operation_types),
             TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
                 name,
                 interfaces,
                 fields,
                 directives,
             }) => write_object_helper(f, &name.value, interfaces, &fields, directives, false),
+            TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
+                name,
+                interfaces,
+                fields,
+                directives,
+            }) => write_object_helper(f, &name.value, &interfaces, &fields, directives, true),
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
                 fields,
@@ -66,7 +70,12 @@ impl fmt::Display for TypeSystemDefinition {
                 name,
                 directives,
                 members,
-            }) => write_union_type_definition_helper(f, &name.value, &directives, members),
+            }) => write_union_type_definition_helper(f, &name.value, &directives, members, false),
+            TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
+                name,
+                directives,
+                members,
+            }) => write_union_type_definition_helper(f, &name.value, &directives, members, true),
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
                 arguments,
@@ -79,17 +88,37 @@ impl fmt::Display for TypeSystemDefinition {
                 name,
                 directives,
                 fields,
-            }) => write_input_object_type_definition_helper(f, &name.value, directives, &fields),
+            }) => write_input_object_type_definition_helper(
+                f,
+                &name.value,
+                directives,
+                &fields,
+                false,
+            ),
+            TypeSystemDefinition::InputObjectTypeExtension(InputObjectTypeExtension {
+                name,
+                directives,
+                fields,
+            }) => {
+                write_input_object_type_definition_helper(f, &name.value, directives, &fields, true)
+            }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
                 name,
                 directives,
                 values,
-            }) => write_enum_type_definition_helper(f, &name.value, directives, &values),
+            }) => write_enum_type_definition_helper(f, &name.value, directives, &values, false),
+            TypeSystemDefinition::EnumTypeExtension(EnumTypeExtension {
+                name,
+                directives,
+                values,
+            }) => write_enum_type_definition_helper(f, &name.value, directives, &values, true),
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
-            }) => write_scalar_type_definition_helper(f, &name.value, directives),
-            _ => panic!("Type is not implemented"),
+            }) => write_scalar_type_definition_helper(f, &name.value, directives, false),
+            TypeSystemDefinition::ScalarTypeExtension(ScalarTypeExtension { name, directives }) => {
+                write_scalar_type_definition_helper(f, &name.value, directives, true)
+            }
         }
     }
 }
@@ -387,6 +416,19 @@ fn write_schema_definition_helper(
     writeln!(f)
 }
 
+fn write_schema_extension_helper(
+    f: &mut fmt::Formatter<'_>,
+    directives: &[ConstantDirective],
+    operation_types: &Option<List<OperationTypeDefinition>>,
+) -> fmt::Result {
+    write!(f, "extend schema")?;
+    write_directives(f, directives)?;
+    if let Some(operation_types) = operation_types.as_ref() {
+        write_fields(f, &operation_types.items)?;
+    }
+    writeln!(f)
+}
+
 fn write_object_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
@@ -435,11 +477,18 @@ fn write_union_type_definition_helper(
     name: &StringKey,
     directives: &[ConstantDirective],
     members: &[Identifier],
+    is_extension: bool,
 ) -> fmt::Result {
+    if is_extension {
+        write!(f, "extend ")?;
+    }
+
     write!(f, "union {}", name)?;
     write_directives(f, directives)?;
-    write!(f, " = ")?;
-    write_list(f, members, " | ")?;
+    if !members.is_empty() {
+        write!(f, " = ")?;
+        write_list(f, members, " | ")?;
+    }
     writeln!(f)
 }
 
@@ -464,7 +513,12 @@ fn write_input_object_type_definition_helper(
     name: &StringKey,
     directives: &[ConstantDirective],
     fields: &Option<List<InputValueDefinition>>,
+    is_extension: bool,
 ) -> fmt::Result {
+    if is_extension {
+        write!(f, "extend ")?;
+    }
+
     write!(f, "input {}", name)?;
     write_directives(f, directives)?;
     if let Some(fields) = fields.as_ref() {
@@ -478,7 +532,12 @@ fn write_enum_type_definition_helper(
     name: &StringKey,
     directives: &[ConstantDirective],
     values: &Option<List<EnumValueDefinition>>,
+    is_extension: bool,
 ) -> fmt::Result {
+    if is_extension {
+        write!(f, "extend ")?;
+    }
+
     write!(f, "enum {}", name)?;
     write_directives(f, directives)?;
     if let Some(values) = values.as_ref() {
@@ -492,7 +551,12 @@ fn write_scalar_type_definition_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     directives: &[ConstantDirective],
+    is_extension: bool,
 ) -> fmt::Result {
+    if is_extension {
+        write!(f, "extend ")?;
+    }
+
     write!(f, "scalar {}", name)?;
     write_directives(f, directives)?;
     writeln!(f)

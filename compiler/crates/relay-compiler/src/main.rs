@@ -8,7 +8,7 @@
 use env_logger::Env;
 use log::{error, info};
 use relay_compiler::{compiler::Compiler, config::CliConfig, config::Config};
-use std::{path::PathBuf, sync::Arc};
+use std::{env::current_dir, path::PathBuf, sync::Arc};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
@@ -22,7 +22,9 @@ struct Opt {
     #[structopt(long, short)]
     watch: bool,
 
-    /// Path to the compiler config file
+    /// Compile using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
     config: Option<PathBuf>,
 
     #[structopt(flatten)]
@@ -35,17 +37,18 @@ async fn main() {
 
     let opt = Opt::from_args();
 
-    let config = if let Some(config_path) = opt.config {
-        match Config::load(config_path) {
-            Ok(config) => config,
-            Err(err) => {
-                error!("{}", err);
-                std::process::exit(1);
-            }
-        }
+    let config_result = if let Some(config_path) = opt.config {
+        Config::load(config_path)
+    } else if opt.cli_config.is_defined() {
+        Ok(Config::from(opt.cli_config))
     } else {
-        Config::from(opt.cli_config)
+        Config::search(&current_dir().expect("Unable to get current working directory."))
     };
+
+    let config = config_result.unwrap_or_else(|err| {
+        error!("{}", err);
+        std::process::exit(1);
+    });
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
 

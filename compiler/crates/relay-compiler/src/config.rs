@@ -25,13 +25,11 @@ use regex::Regex;
 use relay_codegen::JsModuleFormat;
 use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
-use std::{
-    collections::{HashMap, HashSet},
-    fmt,
-    path::PathBuf,
-};
+use std::collections::{HashMap, HashSet};
+use std::fmt;
+use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use watchman_client::pdu::ScmAwareClockData;
 
@@ -104,6 +102,12 @@ pub struct CliConfig {
     pub artifact_directory: Option<PathBuf>,
 }
 
+impl CliConfig {
+    pub fn is_defined(&self) -> bool {
+        self.src.is_some() || self.schema.is_some() || self.artifact_directory.is_some()
+    }
+}
+
 /// In the configs we may have a various values: with or without './' prefix at the beginning
 /// This function will use `root_dir` to construct full path, canonicalize it, and then
 /// it will remove the `root_dir` prefix.
@@ -150,7 +154,6 @@ impl From<CliConfig> for Config {
             js_module_format: Default::default(),
         };
 
-
         let mut sources = HashMap::default();
         let src = normalize_path_from_config(
             root_dir.clone(),
@@ -161,7 +164,6 @@ impl From<CliConfig> for Config {
 
         let mut projects = HashMap::default();
         projects.insert(project_config.name, project_config);
-
 
         Config {
             name: None,
@@ -190,19 +192,12 @@ impl From<CliConfig> for Config {
 }
 
 impl Config {
-    /// Iterator over projects that are enabled.
-    pub fn enabled_projects(&self) -> impl Iterator<Item = &ProjectConfig> {
-        self.projects
-            .values()
-            .filter(|project_config| project_config.enabled)
-    }
-
-    /// Rayon parallel iterator over projects that are enabled.
-    pub fn par_enabled_projects(&self) -> impl ParallelIterator<Item = &ProjectConfig> {
-        self.projects
-            .par_iter()
-            .map(|(_project_name, project_config)| project_config)
-            .filter(|project_config| project_config.enabled)
+    pub fn search(start_dir: &Path) -> Result<Self> {
+        match js_config_loader::search("relay", start_dir) {
+            Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
+            Ok(None) => Err(Error::ConfigNotFound),
+            Err(error) => Err(Error::ConfigSearchError { error }),
+        }
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
@@ -231,6 +226,18 @@ impl Config {
                 config_path: config_path.clone(),
                 source: err,
             })?;
+        Self::from_struct(config_path, config_file, validate_fs)
+    }
+
+    /// `validate_fs` disables all filesystem checks for existence of files
+    fn from_struct(
+        config_path: PathBuf,
+        config_file: ConfigFile,
+        validate_fs: bool,
+    ) -> Result<Self> {
+        let mut hash = Sha1::new();
+        serde_json::to_writer(&mut hash, &config_file).unwrap();
+
         let projects = config_file
             .projects
             .into_iter()
@@ -297,9 +304,6 @@ impl Config {
             config_file_dir.to_owned()
         };
 
-        let mut hash = Sha1::new();
-        hash.input(&config_string);
-
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
@@ -337,6 +341,21 @@ impl Config {
                 validation_errors,
             })
         }
+    }
+
+    /// Iterator over projects that are enabled.
+    pub fn enabled_projects(&self) -> impl Iterator<Item = &ProjectConfig> {
+        self.projects
+            .values()
+            .filter(|project_config| project_config.enabled)
+    }
+
+    /// Rayon parallel iterator over projects that are enabled.
+    pub fn par_enabled_projects(&self) -> impl ParallelIterator<Item = &ProjectConfig> {
+        self.projects
+            .par_iter()
+            .map(|(_project_name, project_config)| project_config)
+            .filter(|project_config| project_config.enabled)
     }
 
     /// Validated internal consistency of the config.
@@ -587,7 +606,7 @@ pub enum SchemaLocation {
 }
 
 /// Schema of the compiler configuration JSON file.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFile {
     /// Optional name for this config, might be used for logging or custom extra
@@ -628,7 +647,7 @@ struct ConfigFile {
     saved_state_config: Option<ScmAwareClockData>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
@@ -701,7 +720,7 @@ struct ConfigFileProject {
     js_module_format: JsModuleFormat,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct PersistConfig {
     /// URL to send a POST request to to persist.

@@ -30,6 +30,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 hex = "0.4"
 interner = { path = "../interner" }
+js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
 md-5 = "0.8"

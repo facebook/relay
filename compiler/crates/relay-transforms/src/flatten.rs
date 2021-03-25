@@ -268,10 +268,8 @@ impl FlattenTransform {
                     has_changes = true;
                     match flattened_selection {
                         Selection::InlineFragment(flattened_node) => {
-                            let type_condition = match flattened_node.type_condition {
-                                Some(type_condition) => type_condition,
-                                None => parent_type,
-                            };
+                            let type_condition =
+                                flattened_node.type_condition.unwrap_or(parent_type);
 
                             let node = match selection {
                                 Selection::InlineFragment(node) => node,

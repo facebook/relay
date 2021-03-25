@@ -74,6 +74,12 @@ module.exports = {
         pinned: false,
       },
       {
+        caption: 'Contra',
+        image: '/img/logos/contra.png',
+        infoLink: 'https://contra.com',
+        pinned: false,
+      },
+      {
         caption: 'Friday',
         image: '/img/logos/friday.png',
         infoLink: 'https://friday.work/',

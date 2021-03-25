@@ -121,20 +121,24 @@ pub fn test_fixture<T, U, V>(
         ),
     };
 
-    if actual_result.is_ok() != expect_ok {
-        panic!(if expect_ok {
-            let error_message = match actual_result.err() {
-                Some(err) => format!("{}", err),
-                None => "Unknown error".to_string(),
-            };
-            format!(
-                "Expected transform to succeed but it failed with {:?}, use 'expected-to-throw' if this is expected",
-                error_message
-            )
-        } else {
-            "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected".to_string()
-        });
-    }
+    match actual_result {
+        Ok(_) if !expect_ok => {
+            panic!(
+                "Expected transform to error but it succeeded, remove 'expected-to-throw' if this is expected"
+            );
+        }
+        Err(error) if expect_ok => {
+            panic!(
+                "Expected transform to succeed but it failed with, use 'expected-to-throw' if this is expected. Error:
+#############################################################################
+{}
+#############################################################################
+",
+                error
+            );
+        }
+        _ => {}
+    };
 
     let actual = format!("{}\n", actual.trim_end());
     if actual != expected {

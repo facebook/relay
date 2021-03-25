@@ -38,7 +38,7 @@ use relay_transforms::{
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::fmt::Result;
 use std::hash::Hash;
-use writer::{ImportTypeName, Prop, AST, SPREAD_KEY};
+use writer::{Prop, AST, SPREAD_KEY};
 
 lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
@@ -114,7 +114,7 @@ struct TypeGenerator<'a> {
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     imported_raw_response_types: IndexSet<StringKey>,
-    imported_resolver_return_types: IndexMap<StringKey, Vec<ImportTypeName>>,
+    imported_resolvers: IndexMap<StringKey, StringKey>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
@@ -129,7 +129,7 @@ impl<'a> TypeGenerator<'a> {
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
-            imported_resolver_return_types: Default::default(),
+            imported_resolvers: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
             typegen_config,
@@ -192,7 +192,7 @@ impl<'a> TypeGenerator<'a> {
         } else {
             self.write_fragment_imports()?;
         }
-        self.write_relay_resolver_type_imports()?;
+        self.write_relay_resolver_imports()?;
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
         self.write_input_object_types()?;
@@ -336,10 +336,7 @@ impl<'a> TypeGenerator<'a> {
                 // TODO(T22653277) support non-haste environments when importing
                 // fragments
                 self.writer.write_import_fragment_type(
-                    &[
-                        ImportTypeName::new(old_fragment_type_name),
-                        ImportTypeName::new(new_fragment_type_name),
-                    ],
+                    &[old_fragment_type_name, new_fragment_type_name],
                     format!("{}.graphql", refetchable_metadata.operation_name).intern(),
                 )?;
             } else {
@@ -446,24 +443,18 @@ impl<'a> TypeGenerator<'a> {
             *RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
         );
 
-        let local_type_name = to_pascal_case(format!(
-            "{}_{}_resolver_return_type",
-            parent_type, field_name
-        ))
-        .intern();
+        let local_resolver_name =
+            to_camel_case(format!("{}_{}_resolver", parent_type, field_name)).intern();
 
-        let type_name = ImportTypeName::with_alias("ResolvedValueType".intern(), local_type_name);
-
-        self.imported_resolver_return_types
+        self.imported_resolvers
             .entry(module_path)
-            .or_default()
-            .push(type_name);
+            .or_insert(local_resolver_name);
 
         type_selections.push(TypeSelection {
             key,
             schema_name: None,
             node_type: None,
-            value: Some(AST::Identifier(local_type_name)),
+            value: Some(AST::FunctionReturnType(local_resolver_name)),
             conditional: false,
             concrete_type: None,
             ref_: None,
@@ -1043,10 +1034,7 @@ impl<'a> TypeGenerator<'a> {
                 local_3d_payload: true,
                 fragment_reference: true,
             } => self.writer.write_import_type(
-                &[
-                    ImportTypeName::new(self.writer.get_runtime_fragment_import()),
-                    ImportTypeName::new(*LOCAL_3D_PAYLOAD),
-                ],
+                &[self.writer.get_runtime_fragment_import(), *LOCAL_3D_PAYLOAD],
                 *RELAY_RUNTIME,
             ),
             RuntimeImports {
@@ -1054,16 +1042,13 @@ impl<'a> TypeGenerator<'a> {
                 fragment_reference: false,
             } => self
                 .writer
-                .write_import_type(&[ImportTypeName::new(*LOCAL_3D_PAYLOAD)], *RELAY_RUNTIME),
+                .write_import_type(&[*LOCAL_3D_PAYLOAD], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: true,
-            } => self.writer.write_import_type(
-                &[ImportTypeName::new(
-                    self.writer.get_runtime_fragment_import(),
-                )],
-                *RELAY_RUNTIME,
-            ),
+            } => self
+                .writer
+                .write_import_type(&[self.writer.get_runtime_fragment_import()], *RELAY_RUNTIME),
             RuntimeImports {
                 local_3d_payload: false,
                 fragment_reference: false,
@@ -1079,7 +1064,7 @@ impl<'a> TypeGenerator<'a> {
                     // TODO(T22653277) support non-haste environments when importing
                     // fragments
                     self.writer.write_import_fragment_type(
-                        &[ImportTypeName::new(fragment_type_name)],
+                        &[fragment_type_name],
                         format!("{}.graphql", used_fragment).intern(),
                     )?;
                 // } else if (state.useSingleArtifactDirectory) {
@@ -1094,11 +1079,9 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_relay_resolver_type_imports(&mut self) -> Result {
-        for (from, types) in self.imported_resolver_return_types.iter_mut().sorted() {
-            types.sort();
-            types.dedup();
-            self.writer.write_import_type(types, *from)?
+    fn write_relay_resolver_imports(&mut self) -> Result {
+        for (from, name) in self.imported_resolvers.iter_mut().sorted() {
+            self.writer.write_import_module_default(*name, *from)?
         }
         Ok(())
     }
@@ -1111,7 +1094,7 @@ impl<'a> TypeGenerator<'a> {
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
             if self.typegen_config.haste {
                 self.writer.write_import_fragment_type(
-                    &[ImportTypeName::new(imported_raw_response_type)],
+                    &[imported_raw_response_type],
                     format!("{}.graphql", imported_raw_response_type).intern(),
                 )?;
             } else {
@@ -1140,7 +1123,7 @@ impl<'a> TypeGenerator<'a> {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 self.writer.write_import_type(
-                    &[ImportTypeName::new(enum_type.name)],
+                    &[enum_type.name],
                     format!("{}{}", enum_type.name, enum_module_suffix).intern(),
                 )?;
             } else {
@@ -1451,20 +1434,20 @@ fn expect_string_literal_directive_argument_value(
         .expect_string_literal()
 }
 
-/// Converts a `String` to a pascal case `String`
-fn to_pascal_case(non_pascal_string: String) -> String {
-    let mut pascal_string = String::with_capacity(non_pascal_string.len());
-    let mut last_character_was_not_alphanumeric = true;
-    for ch in non_pascal_string.chars() {
+/// Converts a `String` to a camel case `String`
+fn to_camel_case(non_camelized_string: String) -> String {
+    let mut camelized_string = String::with_capacity(non_camelized_string.len());
+    let mut last_character_was_not_alphanumeric = false;
+    for (i, ch) in non_camelized_string.chars().enumerate() {
         if !ch.is_alphanumeric() {
             last_character_was_not_alphanumeric = true;
         } else if last_character_was_not_alphanumeric {
-            pascal_string.push(ch.to_ascii_uppercase());
+            camelized_string.push(ch.to_ascii_uppercase());
             last_character_was_not_alphanumeric = false;
         } else {
-            pascal_string.push(ch);
+            camelized_string.push(if i == 0 { ch.to_ascii_lowercase() } else { ch });
             last_character_was_not_alphanumeric = false;
         }
     }
-    pascal_string
+    camelized_string
 }

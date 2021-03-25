@@ -56,7 +56,7 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type relayResolver_user$ref: FragmentReference;
 declare export opaque type relayResolver_user$fragmentType: relayResolver_user$ref;
 export type relayResolver_user = {|
-  +pop_star_name: UserPopStarNameResolverReturnType,
+  +pop_star_name: $Call<typeof userPopStarNameResolver>,
   +$refType: relayResolver_user$ref,
 |};
 export type relayResolver_user$data = relayResolver_user;

@@ -18,7 +18,7 @@ use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
 use common::SourceLocationKey;
 use fmt::Debug;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
@@ -32,6 +32,7 @@ use std::{
     fmt,
     path::PathBuf,
 };
+use structopt::StructOpt;
 use watchman_client::pdu::ScmAwareClockData;
 
 type PostArtifactsWriter = Box<
@@ -87,6 +88,105 @@ pub struct Config {
     pub additional_validations: Option<AdditionalValidations>,
 
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+}
+
+#[derive(StructOpt)]
+#[structopt(rename_all = "camel_case")]
+pub struct CliConfig {
+    /// Path for the directory where to search fo a source code
+    #[structopt(long)]
+    pub src: Option<PathBuf>,
+    /// Path to schema file
+    #[structopt(long)]
+    pub schema: Option<PathBuf>,
+    /// Path to a directory, where the compiler should write artifacts
+    #[structopt(long)]
+    pub artifact_directory: Option<PathBuf>,
+}
+
+/// In the configs we may have a various values: with or without './' prefix at the beginning
+/// This function will use `root_dir` to construct full path, canonicalize it, and then
+/// it will remove the `root_dir` prefix.
+fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> PathBuf {
+    let mut src = root_dir.clone();
+    src.push(path_from_config);
+    src = src.canonicalize().unwrap();
+
+    if !src.exists() {
+        panic!("Path '{:?}' does not exits.", &src);
+    }
+
+    src.iter().skip(root_dir.iter().count()).collect()
+}
+
+impl From<CliConfig> for Config {
+    fn from(cli_config: CliConfig) -> Self {
+        let root_dir = std::env::current_dir().unwrap();
+
+        let project_config = ProjectConfig {
+            name: "default_project".intern(),
+            base: None,
+            enabled: true,
+            extensions: vec![],
+            output: cli_config
+                .artifact_directory
+                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
+            extra_artifacts_output: None,
+            shard_output: false,
+            shard_strip_regex: None,
+            schema_name: None,
+            schema_location: SchemaLocation::File(normalize_path_from_config(
+                root_dir.clone(),
+                cli_config.schema.expect("Expect to have the schema path"),
+            )),
+            typegen_config: TypegenConfig::default(),
+            persist: None,
+            variable_names_comment: false,
+            extra: Default::default(),
+            feature_flags: None,
+            filename_for_artifact: None,
+            skip_types_for_artifact: None,
+            rollout: Default::default(),
+            js_module_format: Default::default(),
+        };
+
+
+        let mut sources = HashMap::default();
+        let src = normalize_path_from_config(
+            root_dir.clone(),
+            cli_config.src.expect("Expect to have a `src`"),
+        );
+
+        sources.insert(src, SourceSet::SourceSetName(project_config.name));
+
+        let mut projects = HashMap::default();
+        projects.insert(project_config.name, project_config);
+
+
+        Config {
+            name: None,
+            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
+            root_dir,
+            sources,
+            excludes: vec![],
+            projects,
+            header: vec![],
+            codegen_command: None,
+            load_saved_state_file: None,
+            generate_extra_artifacts: None,
+            saved_state_config: None,
+            saved_state_loader: None,
+            saved_state_version: "MISSING".to_string(),
+            connection_interface: ConnectionInterface::default(),
+            feature_flags: FeatureFlags::default(),
+            operation_persister: None,
+            compile_everything: false,
+            repersist_operations: false,
+            post_artifacts_write: None,
+            additional_validations: None,
+        }
+    }
 }
 
 impl Config {

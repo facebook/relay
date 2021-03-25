@@ -7,14 +7,15 @@
 
 use env_logger::Env;
 use log::{error, info};
-use relay_compiler::{compiler::Compiler, config::Config};
+use relay_compiler::{compiler::Compiler, config::CliConfig, config::Config};
 use std::{path::PathBuf, sync::Arc};
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(
     name = "Relay Compiler",
-    about = "Compiler to produce Relay generated files."
+    about = "Compiler to produce Relay generated files.",
+    rename_all = "camel_case"
 )]
 struct Opt {
     /// Compile and watch for changes
@@ -22,7 +23,10 @@ struct Opt {
     watch: bool,
 
     /// Path to the compiler config file
-    config: PathBuf,
+    config: Option<PathBuf>,
+
+    #[structopt(flatten)]
+    cli_config: CliConfig,
 }
 
 #[tokio::main]
@@ -31,12 +35,16 @@ async fn main() {
 
     let opt = Opt::from_args();
 
-    let config = match Config::load(opt.config) {
-        Ok(config) => config,
-        Err(err) => {
-            error!("{}", err);
-            std::process::exit(1);
+    let config = if let Some(config_path) = opt.config {
+        match Config::load(config_path) {
+            Ok(config) => config,
+            Err(err) => {
+                error!("{}", err);
+                std::process::exit(1);
+            }
         }
+    } else {
+        Config::from(opt.cli_config)
     };
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));

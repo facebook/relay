@@ -143,7 +143,7 @@ These directives work on a field with a single edge or list of edges. `@prependE
 const connectionID = fragmentData?.comments?.__id;
 
 // Or get it using `ConnectionHandler.getConnectionID()`
-const connectionID =  ConnectionHandler.getConnectionID(
+const connectionID = ConnectionHandler.getConnectionID(
   '<story-id>',
   'StoryComponent_story_comments_connection',
 );
@@ -192,7 +192,7 @@ These directives work on a field with a single node or list of nodes, and will c
 const connectionID = fragmentData?.comments?.__id;
 
 // Or get it using `ConnectionHandler.getConnectionID()`
-const connectionID =  ConnectionHandler.getConnectionID(
+const connectionID = ConnectionHandler.getConnectionID(
   '<story-id>',
   'StoryComponent_story_comments_connection',
 );
@@ -380,7 +380,7 @@ Works on GraphQL fields that return an `ID` or `[ID]`. Will delete the edges wit
 const connectionID = fragmentData?.comments?.__id;
 
 // Or get it using `ConnectionHandler.getConnectionID()`
-const connectionID =  ConnectionHandler.getConnectionID(
+const connectionID = ConnectionHandler.getConnectionID(
   '<story-id>',
   'StoryComponent_story_comments_connection',
 );

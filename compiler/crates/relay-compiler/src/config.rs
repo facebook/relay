@@ -86,6 +86,10 @@ pub struct Config {
     pub additional_validations: Option<AdditionalValidations>,
 
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+
+    /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
+    /// This config option is here to define the name of that special variable
+    pub is_dev_variable_name: Option<String>,
 }
 
 #[derive(StructOpt)]
@@ -187,6 +191,7 @@ impl From<CliConfig> for Config {
             repersist_operations: false,
             post_artifacts_write: None,
             additional_validations: None,
+            is_dev_variable_name: None,
         }
     }
 }
@@ -326,6 +331,7 @@ impl Config {
             repersist_operations: false,
             post_artifacts_write: None,
             additional_validations: None,
+            is_dev_variable_name: config_file.is_dev_variable_name,
         };
 
         let mut validation_errors = Vec::new();
@@ -645,6 +651,9 @@ struct ConfigFile {
 
     /// Watchman saved state config.
     saved_state_config: Option<ScmAwareClockData>,
+
+    /// Then name of the global __DEV__ variable to use in generated artifacts
+    is_dev_variable_name: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

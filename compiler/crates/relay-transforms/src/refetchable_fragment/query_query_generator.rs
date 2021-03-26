@@ -8,12 +8,11 @@
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
     build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
-    RefetchableDerivedFromMetadata, RefetchableMetadata,
+    RefetchableMetadata,
 };
 use crate::root_variables::VariableMap;
-use common::{DiagnosticsResult, WithLocation};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_syntax::OperationKind;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
 use interner::StringKey;
 use schema::{SDLSchema, Schema};
 use std::sync::Arc;
@@ -46,16 +45,8 @@ fn build_refetch_operation(
         ..fragment.as_ref().clone()
     });
     Ok(Some(RefetchRoot {
-        operation: Arc::new(OperationDefinition {
-            kind: OperationKind::Query,
-            name: WithLocation::new(fragment.name.location, query_name),
-            type_: query_type,
-            variable_definitions: build_operation_variable_definitions(&fragment),
-            directives: vec![RefetchableDerivedFromMetadata::create_directive(
-                fragment.name,
-            )],
-            selections: vec![build_fragment_spread(&fragment)],
-        }),
+        variable_definitions: build_operation_variable_definitions(&fragment),
+        selections: vec![build_fragment_spread(&fragment)],
         fragment,
     }))
 }

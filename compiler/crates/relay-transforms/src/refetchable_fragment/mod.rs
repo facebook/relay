@@ -18,12 +18,16 @@ use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage};
+use graphql_ir::{
+    FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage,
+    VariableDefinition,
+};
+use graphql_syntax::OperationKind;
 use graphql_text_printer::print_value;
 use interner::StringKey;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
-use schema::SDLSchema;
+use schema::{SDLSchema, Schema};
 use std::fmt::Write;
 use std::sync::Arc;
 use utils::*;
@@ -52,6 +56,7 @@ pub fn transform_refetchable_fragment(
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
+    let query_type = program.schema.query_type().unwrap();
 
     let mut transformer = RefetchableFragment {
         connection_constants: Default::default(),
@@ -67,10 +72,19 @@ pub fn transform_refetchable_fragment(
 
     validate_map(program.fragments(), |fragment| {
         let operation_result = transformer.transform_refetch_fragment(fragment)?;
-        if let Some(operation_result) = operation_result {
+        if let Some((refetch_query_name, operation_result)) = operation_result {
             next_program.insert_fragment(operation_result.fragment);
             if !base_fragment_names.contains(&fragment.name.item) {
-                next_program.insert_operation(operation_result.operation);
+                next_program.insert_operation(Arc::new(OperationDefinition {
+                    kind: OperationKind::Query,
+                    name: WithLocation::new(fragment.name.location, refetch_query_name),
+                    type_: query_type,
+                    variable_definitions: operation_result.variable_definitions,
+                    directives: vec![RefetchableDerivedFromMetadata::create_directive(
+                        fragment.name,
+                    )],
+                    selections: operation_result.selections,
+                }));
             }
         } else {
             next_program.insert_fragment(Arc::clone(fragment));
@@ -95,7 +109,7 @@ impl RefetchableFragment<'_> {
     fn transform_refetch_fragment(
         &mut self,
         fragment: &Arc<FragmentDefinition>,
-    ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    ) -> DiagnosticsResult<Option<(StringKey, RefetchRoot)>> {
         if let Some((refetch_name, refetch_name_location)) =
             self.get_refetch_query_name(fragment)?
         {
@@ -124,7 +138,7 @@ impl RefetchableFragment<'_> {
                     if !self.for_typegen {
                         self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
                     }
-                    return Ok(Some(refetch_root));
+                    return Ok(Some((refetch_name, refetch_root)));
                 }
             }
             let mut descriptions = String::new();
@@ -278,6 +292,7 @@ const GENERATORS: [QueryGenerator; 4] = [
 ];
 
 pub struct RefetchRoot {
-    operation: Arc<OperationDefinition>,
     fragment: Arc<FragmentDefinition>,
+    selections: Vec<Selection>,
+    variable_definitions: Vec<VariableDefinition>,
 }

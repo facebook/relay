@@ -39,7 +39,7 @@ pub enum ValidationMessage {
     DuplicateRelayClientComponentSplitOperation,
 
     #[error(
-        "@relay_client_component can only be used on fragments whose type implements the Node interface. If the fragment's type is a union type, all members of that union must implement Node."
+        "@relay_client_component can only be used on fragments on Viewer or Query, or whose type implements the Node interface. If the fragment's type is a union type, all members of that union must implement Node."
     )]
     InvalidRelayClientComponentNonNodeFragment,
 

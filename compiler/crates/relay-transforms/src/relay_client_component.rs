@@ -33,6 +33,7 @@ lazy_static! {
     static ref STRING_TYPE: StringKey = "String".intern();
     static ref ID_FIELD_NAME: StringKey = "id".intern();
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
+    static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
     static ref DIRECTIVE_COMPATIBILITY_ALLOWLIST: IndexSet<StringKey> = IndexSet::new();
 }
 
@@ -168,7 +169,11 @@ impl<'program> RelayClientComponentTransform<'program> {
                 }),
             _ => false,
         };
-        if !implements_node {
+        let is_fragment_on_query =
+            fragment.type_condition == self.program.schema.query_type().unwrap();
+        let is_fragment_on_viewer =
+            self.program.schema.get_type_name(fragment.type_condition) == *VIEWER_TYPE_NAME;
+        if !implements_node && !is_fragment_on_query && !is_fragment_on_viewer {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidRelayClientComponentNonNodeFragment,
                 fragment.name.location,

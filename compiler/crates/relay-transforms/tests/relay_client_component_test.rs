@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fba6fec1d83c7c22bc224b0b9203a01c>>
+ * @generated SignedSource<<c853392e0d552b83b2d32540f9c74eef>>
  */
 
 mod relay_client_component;
@@ -59,6 +59,20 @@ fn fragment_with_relay_client_component() {
     let input = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component.graphql");
     let expected = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component.expected");
     test_fixture(transform_fixture, "fragment-with-relay-client-component.graphql", "relay_client_component/fixtures/fragment-with-relay-client-component.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_relay_client_component_on_query() {
+    let input = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component-on-query.graphql");
+    let expected = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component-on-query.expected");
+    test_fixture(transform_fixture, "fragment-with-relay-client-component-on-query.graphql", "relay_client_component/fixtures/fragment-with-relay-client-component-on-query.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_relay_client_component_on_viewer() {
+    let input = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component-on-viewer.graphql");
+    let expected = include_str!("relay_client_component/fixtures/fragment-with-relay-client-component-on-viewer.expected");
+    test_fixture(transform_fixture, "fragment-with-relay-client-component-on-viewer.graphql", "relay_client_component/fixtures/fragment-with-relay-client-component-on-viewer.expected", input, expected);
 }
 
 #[test]

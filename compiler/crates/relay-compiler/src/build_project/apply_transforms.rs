@@ -137,7 +137,9 @@ fn apply_common_transforms(
     program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(&program)
     })?;
-    program = log_event.time("transform_match", || transform_match(&program))?;
+    program = log_event.time("transform_match", || {
+        transform_match(&program, &feature_flags)
+    })?;
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
@@ -341,7 +343,9 @@ fn apply_typegen_transforms(
     log_event.string("project", project_name.to_string());
 
     let mut program = log_event.time("mask", || mask(&program));
-    program = log_event.time("transform_match", || transform_match(&program))?;
+    program = log_event.time("transform_match", || {
+        transform_match(&program, &feature_flags)
+    })?;
     program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;

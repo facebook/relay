@@ -7,11 +7,12 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::{generate_data_driven_dependency_metadata, transform_match};
+use relay_transforms::{generate_data_driven_dependency_metadata, transform_match, FeatureFlags};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        let program = transform_match(program)?;
+        let flags = FeatureFlags::default();
+        let program = transform_match(program, &flags)?;
         let program = generate_data_driven_dependency_metadata(&program);
         Ok(program)
     })

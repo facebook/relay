@@ -23,6 +23,9 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub no_inline: NoInlineFeature,
+
+    #[serde(default)]
+    pub enable_3d_branch_arg_generation: bool,
 }
 
 impl Default for FeatureFlags {
@@ -32,6 +35,7 @@ impl Default for FeatureFlags {
             enable_required_transform_for_prefix: None,
             enable_relay_resolver_transform: false,
             no_inline: Default::default(),
+            enable_3d_branch_arg_generation: false,
         }
     }
 }

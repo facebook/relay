@@ -193,7 +193,11 @@ impl<'program> RelayClientComponentTransform<'program> {
                         kind: OperationKind::Query,
                         variable_definitions: fragment.variable_definitions.clone(),
                         directives: fragment.directives.clone(),
-                        selections: fragment.selections.clone(),
+                        selections: vec![Selection::FragmentSpread(Arc::new(FragmentSpread {
+                            arguments: Default::default(),
+                            directives: Default::default(),
+                            fragment: spread.fragment,
+                        }))],
                     },
                 )
             });

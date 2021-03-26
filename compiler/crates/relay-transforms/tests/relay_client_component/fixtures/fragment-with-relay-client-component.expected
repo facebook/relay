@@ -10,8 +10,7 @@ fragment ClientFragment on User {
 }
 ==================================== OUTPUT ===================================
 query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentSources: ["ClientFragment"]) {
-  id
-  name
+  ...ClientFragment
 }
 
 fragment ClientFragment on User {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e576b3d08475ecacac728ca0440ba620>>
+ * @generated SignedSource<<2f045d907338af54e8fbc607f9b7f688>>
  */
 
 mod compile_relay_artifacts;
@@ -703,6 +703,13 @@ fn query_with_relay_client_component() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.expected");
     test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component.expected", input, expected);
+}
+
+#[test]
+fn query_with_relay_client_component_with_argument_definitions() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected");
+    test_fixture(transform_fixture, "query-with-relay-client-component-with-argument-definitions.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected", input, expected);
 }
 
 #[test]

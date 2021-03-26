@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment PageFrag on Page {
+  __typename
+}
+
+fragment Foo on User {
+  ... on Node {
+    ...PageFrag
+  }
+}

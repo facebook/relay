@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6edeb7c60d829cc3de1ff4cc22131c16>>
+ * @generated SignedSource<<2bc00c2b0194ce813522315e73cf18ba>>
  */
 
 mod parse;
@@ -174,6 +174,13 @@ fn fragment_spread_on_wrong_type_invalid() {
 }
 
 #[test]
+fn fragment_spread_within_wrong_parent_type_invalid() {
+    let input = include_str!("parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.expected");
+    test_fixture(transform_fixture, "fragment-spread-within-wrong-parent-type.invalid.graphql", "parse/fixtures/fragment-spread-within-wrong-parent-type.invalid.expected", input, expected);
+}
+
+#[test]
 fn fragment_with_argument_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-with-argument-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-with-argument-type.invalid.expected");
@@ -318,6 +325,27 @@ fn inline_fragment_with_invalid_type() {
     let input = include_str!("parse/fixtures/inline-fragment-with-invalid-type.graphql");
     let expected = include_str!("parse/fixtures/inline-fragment-with-invalid-type.expected");
     test_fixture(transform_fixture, "inline-fragment-with-invalid-type.graphql", "parse/fixtures/inline-fragment-with-invalid-type.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_within_invalid_inline_fragment_grandparent_invalid() {
+    let input = include_str!("parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.graphql");
+    let expected = include_str!("parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.expected");
+    test_fixture(transform_fixture, "inline-fragment-within-invalid-inline-fragment-grandparent.invalid.graphql", "parse/fixtures/inline-fragment-within-invalid-inline-fragment-grandparent.invalid.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_within_linked_field_and_wrong_inline_fragment_invalid() {
+    let input = include_str!("parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql");
+    let expected = include_str!("parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.expected");
+    test_fixture(transform_fixture, "inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.graphql", "parse/fixtures/inline-fragment-within-linked-field-and-wrong-inline-fragment.invalid.expected", input, expected);
+}
+
+#[test]
+fn inline_fragment_within_wrong_parent_type_invalid() {
+    let input = include_str!("parse/fixtures/inline-fragment-within-wrong-parent-type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/inline-fragment-within-wrong-parent-type.invalid.expected");
+    test_fixture(transform_fixture, "inline-fragment-within-wrong-parent-type.invalid.graphql", "parse/fixtures/inline-fragment-within-wrong-parent-type.invalid.expected", input, expected);
 }
 
 #[test]

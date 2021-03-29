@@ -142,7 +142,6 @@ impl From<CliConfig> for Config {
             extra_artifacts_output: None,
             shard_output: false,
             shard_strip_regex: None,
-            schema_name: None,
             schema_location: SchemaLocation::File(normalize_path_from_config(
                 root_dir.clone(),
                 cli_config.schema.expect("Expect to have the schema path"),
@@ -286,7 +285,6 @@ impl Config {
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
-                    schema_name: config_file_project.schema_name,
                     schema_location,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
@@ -531,7 +529,6 @@ pub struct ProjectConfig {
     pub extensions: Vec<PathBuf>,
     pub enabled: bool,
     pub schema_location: SchemaLocation,
-    pub schema_name: Option<String>,
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
@@ -556,7 +553,6 @@ impl Debug for ProjectConfig {
             extensions,
             enabled,
             schema_location,
-            schema_name,
             typegen_config,
             persist,
             variable_names_comment,
@@ -577,7 +573,6 @@ impl Debug for ProjectConfig {
             .field("extensions", extensions)
             .field("enabled", enabled)
             .field("schema_location", schema_location)
-            .field("schema_name", schema_name)
             .field("typegen_config", typegen_config)
             .field("persist", persist)
             .field("variable_names_comment", variable_names_comment)
@@ -696,9 +691,6 @@ struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
-    /// For most cases, project name should be enough for schema identification. But, we may have cases when the schema_name,
-    /// may be different
-    schema_name: Option<String>,
 
     /// If this option is set, the compiler will persist queries using this
     /// config.

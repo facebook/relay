@@ -292,9 +292,9 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
 
     log::debug!("Hovering over {:?}", node_resolution_info);
     if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {
-        let schema_documentation = state.extra_data_provider.get_schema_documentation(
-            state.get_schema_name_for_project(&node_resolution_info.project_name),
-        );
+        let schema_documentation = state
+            .extra_data_provider
+            .get_schema_documentation(node_resolution_info.project_name.to_string());
 
         let contents = get_hover_response_contents(
             node_resolution_info,

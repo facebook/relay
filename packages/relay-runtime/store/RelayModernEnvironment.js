@@ -33,7 +33,6 @@ import type {
   PayloadData,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {Observer} from '../network/RelayObservable';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -78,16 +77,12 @@ export type EnvironmentConfig = {|
   +store: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
-  /**
-   * This method is likely to change in future versions, use at your own risk.
-   * It can potentially break existing calls like store.get(<id>),
-   * because the internal ID might not be the `id` field on the node anymore
-   */
-  +UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+  +getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
   +options?: mixed,
   +isServer?: boolean,
   +requiredFieldLogger?: ?RequiredFieldLogger,
+  +shouldProcessClientComponents?: ?boolean,
 |};
 
 class RelayModernEnvironment implements IEnvironment {
@@ -96,6 +91,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationLoader: ?OperationLoader;
   _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
   _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: ?boolean;
   _network: INetwork;
   _publishQueue: PublishQueue;
   _scheduler: ?TaskScheduler;
@@ -151,7 +147,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
     this._network = this.__wrapNetworkWithLogObserver(config.network);
-    this._getDataID = config.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
       handlerProvider,
@@ -187,6 +183,7 @@ class RelayModernEnvironment implements IEnvironment {
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
+    this._shouldProcessClientComponents = config.shouldProcessClientComponents;
   }
 
   getStore(): Store {
@@ -261,6 +258,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -303,6 +301,7 @@ class RelayModernEnvironment implements IEnvironment {
         getDataID: this._getDataID,
         isClientPayload: true,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     }).subscribe({});
@@ -396,6 +395,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     });
@@ -458,6 +458,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     });
@@ -495,6 +496,7 @@ class RelayModernEnvironment implements IEnvironment {
         store: this._store,
         getDataID: this._getDataID,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
       });
       return () => executor.cancel();
     });
@@ -527,6 +529,7 @@ class RelayModernEnvironment implements IEnvironment {
               transactionID,
               params,
               variables,
+              cacheConfig,
             });
           },
           next: response => {

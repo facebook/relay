@@ -17,41 +17,31 @@ use crate::{
         SelectionParent, TypeConditionPath,
     },
     server::LSPState,
+    server::SourcePrograms,
     LSPExtraDataProvider,
 };
 use common::PerfLogger;
-use graphql_ir::Program;
 use interner::StringKey;
 use lsp_types::{
     request::{GotoDefinition, Request},
     Url,
 };
 use schema::Schema;
-use std::{
-    collections::HashMap,
-    path::PathBuf,
-    str,
-    sync::{Arc, RwLock},
-};
+use std::{path::PathBuf, str};
 
 fn get_goto_definition_response<'a>(
     node_path: ResolutionPath<'a>,
     project_name: StringKey,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &SourcePrograms,
     root_dir: &PathBuf,
-    // https://github.com/rust-lang/rust-clippy/issues/3971
-    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
+    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     match node_path {
         ResolutionPath::Ident(IdentPath {
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => {
-            if let Some(source_program) = source_programs
-                .read()
-                .expect("get_goto_definition_response: expect to acquire a read lock on programs")
-                .get(&project_name)
-            {
+            if let Some(source_program) = source_programs.get(&project_name) {
                 let fragment = source_program
                     .fragment(fragment_name.value)
                     .ok_or_else(|| {
@@ -133,15 +123,11 @@ fn resolve_field<'a>(
     field_name: String,
     selection_parent: SelectionParent<'a>,
     project_name: StringKey,
-    source_programs: &Arc<RwLock<HashMap<StringKey, Program>>>,
+    source_programs: &SourcePrograms,
     root_dir: &PathBuf,
-    // https://github.com/rust-lang/rust-clippy/issues/3971
-    #[allow(clippy::borrowed_box)] extra_data_provider: &Box<dyn LSPExtraDataProvider + 'static>,
+    extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
-    let programs = source_programs
-        .read()
-        .expect("get_goto_definition_response: expect to acquire a read lock on programs");
-    let source_program = programs.get(&project_name).ok_or_else(|| {
+    let source_program = source_programs.get(&project_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
     })?;
 
@@ -180,7 +166,7 @@ pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
         project_name,
         state.get_source_programs_ref(),
         state.root_dir(),
-        &state.extra_data_provider,
+        state.extra_data_provider.as_ref(),
     )?;
 
     Ok(Some(goto_definition_response))

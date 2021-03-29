@@ -48,10 +48,9 @@ pub fn react_flight(program: &Program) -> DiagnosticsResult<Program> {
         _ => return Ok(program.clone()),
     };
     let mut transform = ReactFlightTransform::new(program, props_type, component_type);
+    let transform_result = transform.transform_program(program);
     if transform.errors.is_empty() {
-        Ok(transform
-            .transform_program(program)
-            .replace_or_else(|| program.clone()))
+        Ok(transform_result.replace_or_else(|| program.clone()))
     } else {
         Err(transform.errors)
     }

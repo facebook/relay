@@ -14,6 +14,7 @@
 
 const React = require('react');
 const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
 
 const {useLayoutEffect, useState, useRef, useMemo} = React;
 const {
@@ -24,6 +25,7 @@ const {
 
 const areEqual = require('areEqual');
 
+import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
 import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
 
 type Props = {
@@ -35,7 +37,11 @@ type Props = {
   ...
 };
 
-function useDeepCompare<T: {...}>(value: T): T {
+const queryRendererContext: ReactRelayQueryRendererContextType = {
+  rootIsQueryRenderer: true,
+};
+
+function useDeepCompare<T: interface {}>(value: T): T {
   const latestValue = React.useRef(value);
   if (!areEqual(latestValue.current, value)) {
     if (__DEV__) {
@@ -99,7 +105,9 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
 
   return (
     <ReactRelayContext.Provider value={relayContext}>
-      {render({props: dataRef.current})}
+      <ReactRelayQueryRendererContext.Provider value={queryRendererContext}>
+        {render({props: dataRef.current})}
+      </ReactRelayQueryRendererContext.Provider>
     </ReactRelayContext.Provider>
   );
 }

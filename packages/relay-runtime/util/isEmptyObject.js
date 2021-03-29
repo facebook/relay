@@ -13,7 +13,7 @@
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-function isEmptyObject(obj: {+[key: string]: mixed}): boolean {
+function isEmptyObject(obj: interface {+[key: string]: mixed}): boolean {
   for (const key in obj) {
     if (hasOwnProperty.call(obj, key)) {
       return false;

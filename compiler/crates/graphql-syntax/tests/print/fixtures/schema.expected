@@ -8,9 +8,17 @@ schema {
   query: Query
 }
 
+extend schema {
+  mutation: Mutation
+}
+
 type Query {
   fetch__User(id: ID): User
   fetch__XIGStory(id: ID): XIGStory
+}
+
+type Mutation {
+  success: boolean
 }
 
 interface XIGHuman @source(schema: "instagram", name: "Human") {
@@ -45,6 +53,8 @@ type XIGStory
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page
 
+extend union Actor
+
 enum AppStoreSectionContentTypeEnum
   @source(schema: "instagram", name: "Story") {
   DEFAULT @deprecated(reason: "test")
@@ -52,16 +62,22 @@ enum AppStoreSectionContentTypeEnum
   EARLY_ACCESS
 }
 
+extend enum AppStoreSectionContentTypeEnum
+
 input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
+
+extend input AppVersions
 
 type Page {
   id: ID
 }
 
 scalar ID @source(schema: "instagram", name: "Story")
+
+extend scalar ID
 ==================================== OUTPUT ===================================
 directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 
@@ -75,9 +91,17 @@ schema {
   query: Query
 }
 
+extend schema {
+  mutation: Mutation
+}
+
 type Query {
   fetch__User(id: ID): User
   fetch__XIGStory(id: ID): XIGStory
+}
+
+type Mutation {
+  success: boolean
 }
 
 interface XIGHuman @source(schema: "instagram", name: "Human") {
@@ -108,19 +132,27 @@ type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "S
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page
 
+extend union Actor
+
 enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
   DEFAULT @deprecated(reason: "test")
   CONCEPTS
   EARLY_ACCESS
 }
 
+extend enum AppStoreSectionContentTypeEnum
+
 input AppVersions @source(schema: "instagram", name: "Story") {
   app_id: ID!
   version_code: Int
 }
+
+extend input AppVersions
 
 type Page {
   id: ID
 }
 
 scalar ID @source(schema: "instagram", name: "Story")
+
+extend scalar ID

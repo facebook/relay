@@ -54,8 +54,7 @@ fn read_file_and_get_range(
     let file_contents =
         std::str::from_utf8(&file).map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))?;
 
-    let response =
-        extract_graphql::parse_chunks(file_contents).map_err(LSPRuntimeError::UnexpectedError)?;
+    let response = extract_graphql::parse_chunks(file_contents);
     let source = response.get(index).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!(
             "File {:?} does not contain enough graphql literals: {} needed; {} found",

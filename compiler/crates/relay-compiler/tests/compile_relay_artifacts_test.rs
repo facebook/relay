@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95b79a4986f3411203abd6b9984ce4c3>>
+ * @generated SignedSource<<2f045d907338af54e8fbc607f9b7f688>>
  */
 
 mod compile_relay_artifacts;
@@ -594,6 +594,27 @@ fn nested_conditions() {
 }
 
 #[test]
+fn no_inline_abstract_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-abstract-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-abstract-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-abstract-fragment.graphql", "compile_relay_artifacts/fixtures/no-inline-abstract-fragment.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment_disallow_module() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.expected");
+    test_fixture(transform_fixture, "no-inline-fragment-disallow-module.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment-disallow-module.expected", input, expected);
+}
+
+#[test]
 fn original_client_fields_test() {
     let input = include_str!("compile_relay_artifacts/fixtures/original-client-fields-test.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/original-client-fields-test.expected");
@@ -675,6 +696,20 @@ fn query_with_raw_response_type_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected");
     test_fixture(transform_fixture, "query-with-raw-response-type-directive.graphql", "compile_relay_artifacts/fixtures/query-with-raw-response-type-directive.expected", input, expected);
+}
+
+#[test]
+fn query_with_relay_client_component() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component.expected");
+    test_fixture(transform_fixture, "query-with-relay-client-component.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component.expected", input, expected);
+}
+
+#[test]
+fn query_with_relay_client_component_with_argument_definitions() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected");
+    test_fixture(transform_fixture, "query-with-relay-client-component-with-argument-definitions.graphql", "compile_relay_artifacts/fixtures/query-with-relay-client-component-with-argument-definitions.expected", input, expected);
 }
 
 #[test]
@@ -762,6 +797,20 @@ fn relay_client_id_field() {
 }
 
 #[test]
+fn relay_resolver() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver.expected");
+    test_fixture(transform_fixture, "relay-resolver.graphql", "compile_relay_artifacts/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-alias.expected");
+    test_fixture(transform_fixture, "relay-resolver-alias.graphql", "compile_relay_artifacts/fixtures/relay-resolver-alias.expected", input, expected);
+}
+
+#[test]
 fn required_argument_not_passed_default_value() {
     let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.expected");
@@ -822,6 +871,13 @@ fn stable_literals() {
     let input = include_str!("compile_relay_artifacts/fixtures/stable-literals.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stable-literals.expected");
     test_fixture(transform_fixture, "stable-literals.graphql", "compile_relay_artifacts/fixtures/stable-literals.expected", input, expected);
+}
+
+#[test]
+fn stream_and_handle() {
+    let input = include_str!("compile_relay_artifacts/fixtures/stream-and-handle.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/stream-and-handle.expected");
+    test_fixture(transform_fixture, "stream-and-handle.graphql", "compile_relay_artifacts/fixtures/stream-and-handle.expected", input, expected);
 }
 
 #[test]
@@ -888,17 +944,31 @@ fn unmasked_fragment_spreads_recursive() {
 }
 
 #[test]
-fn unused_fragment_argdef_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef.invalid.expected");
-    test_fixture(transform_fixture, "unused-fragment-argdef.invalid.graphql", "compile_relay_artifacts/fixtures/unused-fragment-argdef.invalid.expected", input, expected);
+fn unused_fragment_arg_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg.invalid.expected");
+    test_fixture(transform_fixture, "unused_fragment_arg.invalid.graphql", "compile_relay_artifacts/fixtures/unused_fragment_arg.invalid.expected", input, expected);
 }
 
 #[test]
-fn unused_fragment_argdef_unchecked() {
-    let input = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef-unchecked.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/unused-fragment-argdef-unchecked.expected");
-    test_fixture(transform_fixture, "unused-fragment-argdef-unchecked.graphql", "compile_relay_artifacts/fixtures/unused-fragment-argdef-unchecked.expected", input, expected);
+fn unused_fragment_arg_unchecked() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg_unchecked.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unused_fragment_arg_unchecked.expected");
+    test_fixture(transform_fixture, "unused_fragment_arg_unchecked.graphql", "compile_relay_artifacts/fixtures/unused_fragment_arg_unchecked.expected", input, expected);
+}
+
+#[test]
+fn unused_fragment_argdef_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unused_fragment_argdef.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unused_fragment_argdef.invalid.expected");
+    test_fixture(transform_fixture, "unused_fragment_argdef.invalid.graphql", "compile_relay_artifacts/fixtures/unused_fragment_argdef.invalid.expected", input, expected);
+}
+
+#[test]
+fn unused_fragment_argdef_invalid_suppression_arg_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unused_fragment_argdef_invalid_suppression_arg.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unused_fragment_argdef_invalid_suppression_arg.invalid.expected");
+    test_fixture(transform_fixture, "unused_fragment_argdef_invalid_suppression_arg.invalid.graphql", "compile_relay_artifacts/fixtures/unused_fragment_argdef_invalid_suppression_arg.invalid.expected", input, expected);
 }
 
 #[test]

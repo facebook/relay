@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeMutation() with Flight field', () => {
   let callbacks;
@@ -59,13 +59,9 @@ describe('executeMutation() with Flight field', () => {
 
     storyID = 'story-id';
 
-    ({
-      RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation,
-      RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery,
-      RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery,
-    } = generateAndCompile(`
+    RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = getRequest(graphql`
       mutation RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation(
-        $input: StoryUpdateInput!,
+        $input: StoryUpdateInput!
         $count: Int!
       ) {
         storyUpdate(input: $input) {
@@ -74,22 +70,26 @@ describe('executeMutation() with Flight field', () => {
             body {
               text
             }
-            flightComponent(condition: true, count: $count)
+            flightComponent(condition: true, count: $count, id: "x")
           }
         }
       }
+    `);
 
+    RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery = getRequest(graphql`
       query RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery(
-        $id: ID!,
+        $id: ID!
         $count: Int!
       ) {
         node(id: $id) {
           ... on Story {
-            flightComponent(condition: true, count: $count)
+            flightComponent(condition: true, count: $count, id: "x")
           }
         }
       }
+    `);
 
+    RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery = getRequest(graphql`
       query RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery(
         $id: ID!
       ) {
@@ -99,15 +99,7 @@ describe('executeMutation() with Flight field', () => {
           }
         }
       }
-
-      extend type Story {
-        flightComponent(
-          condition: Boolean!
-          count: Int!
-        ): ReactFlightComponent
-          @react_flight_component(name: "FlightComponent.server")
-      }
-    `));
+    `);
     variables = {
       input: {
         clientMutationId: '0',
@@ -209,6 +201,7 @@ describe('executeMutation() with Flight field', () => {
               },
             ],
             errors: [],
+            fragments: [],
           },
         },
       },
@@ -277,6 +270,7 @@ describe('executeMutation() with Flight field', () => {
                   },
                 ],
                 errors: [],
+                fragments: [],
               },
             },
           },
@@ -368,6 +362,7 @@ describe('executeMutation() with Flight field', () => {
                       stack: 'Error\n    at <anonymous>:1:1',
                     },
                   ],
+                  fragments: [],
                 },
               },
             },
@@ -427,6 +422,7 @@ describe('executeMutation() with Flight field', () => {
                       stack: 'Error\n    at <anonymous>:1:1',
                     },
                   ],
+                  fragments: [],
                 },
               },
             },
@@ -483,6 +479,7 @@ describe('executeMutation() with Flight field', () => {
                 tree: null,
                 queries: [],
                 errors: [],
+                fragments: [],
               },
             },
           },
@@ -492,13 +489,27 @@ describe('executeMutation() with Flight field', () => {
 
       expect(complete).toBeCalled();
       expect(error).not.toBeCalled();
-      expect(callback).toHaveBeenCalledTimes(0);
+      expect(innerCallback).toHaveBeenCalledTimes(0);
+      expect(callback).toHaveBeenCalledTimes(1);
+      expect(callback.mock.calls[0][0].data).toEqual({
+        node: {flightComponent: null},
+      });
+      expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
       expect(warning).toHaveBeenCalledWith(
         false,
         expect.stringContaining(
           'RelayResponseNormalizer: Expected `tree` not to be null.',
         ),
       );
+
+      // Server Component is read out as null
+      const latestSnapshot = environment.lookup(queryOperation.fragment);
+      expect(latestSnapshot.isMissingData).toEqual(false);
+      expect(latestSnapshot.data).toEqual({
+        node: {
+          flightComponent: null,
+        },
+      });
     });
   });
 });

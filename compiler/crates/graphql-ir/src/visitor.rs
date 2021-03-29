@@ -189,7 +189,7 @@ pub trait Visitor {
     // Helpers
     fn visit_list<F, T>(&mut self, list: &[T], f: F)
     where
-        F: Fn(&mut Self, &T) -> (),
+        F: Fn(&mut Self, &T),
         T: Clone,
     {
         for prev_item in list {

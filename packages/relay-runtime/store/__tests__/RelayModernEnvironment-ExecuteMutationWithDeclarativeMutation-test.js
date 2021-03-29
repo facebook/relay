@@ -21,10 +21,10 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('deleteFromStore', () => {
   describe('single ids', () => {
@@ -49,14 +49,20 @@ describe('deleteFromStore', () => {
       jest.resetModules();
       commentId = 'comment-id';
 
-      ({DeleteCommentMutation, CommentQuery} = generateAndCompile(`
-        mutation DeleteCommentMutation($input: CommentDeleteInput) {
+      DeleteCommentMutation = getRequest(graphql`
+        mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteComment1Mutation(
+          $input: CommentDeleteInput
+        ) {
           commentDelete(input: $input) {
             deletedCommentId @deleteRecord
           }
         }
+      `);
 
-        query CommentQuery($id: ID!) {
+      CommentQuery = getRequest(graphql`
+        query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestComment1Query(
+          $id: ID!
+        ) {
           node(id: $id) {
             id
             body {
@@ -64,7 +70,7 @@ describe('deleteFromStore', () => {
             }
           }
         }
-      `));
+      `);
       variables = {
         input: {
           clientMutationId: '0',
@@ -289,14 +295,20 @@ describe('deleteFromStore', () => {
       secondCommentId = 'comment-id-2';
       commentIds = [firstCommentId, secondCommentId];
 
-      ({DeleteCommentsMutation, CommentQuery} = generateAndCompile(`
-        mutation DeleteCommentsMutation($input: CommentsDeleteInput) {
+      DeleteCommentsMutation = getRequest(graphql`
+        mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation(
+          $input: CommentsDeleteInput
+        ) {
           commentsDelete(input: $input) {
             deletedCommentIds @deleteRecord
           }
         }
+      `);
 
-        query CommentQuery($id: ID!) {
+      CommentQuery = getRequest(graphql`
+        query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery(
+          $id: ID!
+        ) {
           node(id: $id) {
             id
             body {
@@ -304,7 +316,7 @@ describe('deleteFromStore', () => {
             }
           }
         }
-      `));
+      `);
       variables = {
         input: {
           clientMutationId: '0',
@@ -595,21 +607,16 @@ describe('connection edge mutations', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({
-      FeedbackQuery: query,
-      AppendCommentMutation,
-      AppendCommentsMutation,
-      PrependCommentMutation,
-      PrependCommentsMutation,
-      DeleteCommentMutation,
-      DeleteCommentsMutation,
-    } = generateAndCompile(`
-      query FeedbackQuery($id: ID!) {
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query(
+        $id: ID!
+      ) {
         node(id: $id) {
-          comments(first: 2, orderby: "date") @connection(
-            key: "FeedbackFragment_comments"
-            filters: ["orderby"]
-          ) {
+          comments(first: 2, orderby: "date")
+            @connection(
+              key: "FeedbackFragment_comments"
+              filters: ["orderby"]
+            ) {
             __id
             edges {
               __typename
@@ -621,8 +628,10 @@ describe('connection edge mutations', () => {
           }
         }
       }
+    `);
 
-      mutation AppendCommentMutation(
+    AppendCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComment2Mutation(
         $connections: [ID!]!
         $input: CommentCreateInput
       ) {
@@ -635,8 +644,10 @@ describe('connection edge mutations', () => {
           }
         }
       }
+    `);
 
-      mutation AppendCommentsMutation(
+    AppendCommentsMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation(
         $connections: [ID!]!
         $input: CommentsCreateInput
       ) {
@@ -649,8 +660,10 @@ describe('connection edge mutations', () => {
           }
         }
       }
+    `);
 
-      mutation PrependCommentMutation(
+    PrependCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentMutation(
         $connections: [ID!]!
         $input: CommentCreateInput
       ) {
@@ -663,8 +676,10 @@ describe('connection edge mutations', () => {
           }
         }
       }
+    `);
 
-      mutation PrependCommentsMutation(
+    PrependCommentsMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComments2Mutation(
         $connections: [ID!]!
         $input: CommentsCreateInput
       ) {
@@ -677,8 +692,10 @@ describe('connection edge mutations', () => {
           }
         }
       }
+    `);
 
-      mutation DeleteCommentMutation(
+    DeleteCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation(
         $connections: [ID!]!
         $input: CommentDeleteInput
       ) {
@@ -686,8 +703,10 @@ describe('connection edge mutations', () => {
           deletedCommentId @deleteEdge(connections: $connections)
         }
       }
+    `);
 
-      mutation DeleteCommentsMutation(
+    DeleteCommentsMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation(
         $connections: [ID!]!
         $input: CommentsDeleteInput
       ) {
@@ -695,7 +714,7 @@ describe('connection edge mutations', () => {
           deletedCommentIds @deleteEdge(connections: $connections)
         }
       }
-    `));
+    `);
     const variables = {
       id: '<feedbackid>',
     };
@@ -928,6 +947,59 @@ describe('connection edge mutations', () => {
           node: {
             __typename: 'Comment',
             id: 'node-append',
+          },
+        },
+      ]);
+    });
+
+    it('does not insert nodes into connections where that node already exists', () => {
+      const snapshot = environment.lookup(operation.fragment);
+      const callback = jest.fn();
+      environment.subscribe(snapshot, callback);
+
+      environment
+        .executeMutation({
+          operation: appendOperation,
+        })
+        .subscribe(callbacks);
+
+      callback.mockClear();
+      subject.next({
+        data: {
+          commentCreate: {
+            feedbackCommentEdge: {
+              cursor: 'cursor-append',
+              node: {
+                __typename: 'Comment',
+                id: 'node-1',
+              },
+            },
+          },
+        },
+      });
+      subject.complete();
+
+      expect(complete).toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(0);
+      expect(
+        // $FlowExpectedError[incompatible-use]
+        environment.lookup(operation.fragment).data.node.comments.edges,
+      ).toEqual([
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-1',
+          node: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+        {
+          __typename: 'CommentsEdge',
+          cursor: 'cursor-2',
+          node: {
+            __typename: 'Comment',
+            id: 'node-2',
           },
         },
       ]);
@@ -1295,20 +1367,16 @@ describe('connection node mutations', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({
-      FeedbackQuery: query,
-      AppendCommentMutation,
-      PrependCommentMutation,
-      AppendCommentWithLiteralEdgeMutation,
-      AppendCommentsMutation,
-      PrependCommentsMutation,
-    } = generateAndCompile(`
-      query FeedbackQuery($id: ID!) {
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query(
+        $id: ID!
+      ) {
         node(id: $id) {
-          comments(first: 2, orderby: "date") @connection(
-            key: "FeedbackFragment_comments"
-            filters: ["orderby"]
-          ) {
+          comments(first: 2, orderby: "date")
+            @connection(
+              key: "FeedbackFragment_comments"
+              filters: ["orderby"]
+            ) {
             __id
             edges {
               __typename
@@ -1319,81 +1387,96 @@ describe('connection node mutations', () => {
           }
         }
       }
+    `);
 
-      mutation AppendCommentMutation(
+    AppendCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentMutation(
         $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
-          comment @appendNode(
-            connections: $connections
-            edgeTypeName: $edgeTypeName
-          ) {
+          comment
+            @appendNode(
+              connections: $connections
+              edgeTypeName: $edgeTypeName
+            ) {
             id
           }
         }
       }
+    `);
 
-      mutation AppendCommentWithLiteralEdgeMutation(
+    AppendCommentWithLiteralEdgeMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentWithLiteralEdgeMutation(
         $connections: [ID!]!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
-          comment @appendNode(
-            connections: $connections
-            edgeTypeName: "CommentsEdge"
-          ) {
+          comment
+            @appendNode(
+              connections: $connections
+              edgeTypeName: "CommentsEdge"
+            ) {
             id
           }
         }
       }
+    `);
 
-      mutation AppendCommentsMutation(
+    AppendCommentsMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation(
         $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentsCreateInput
       ) {
         commentsCreate(input: $input) {
-          comments @appendNode(
-            connections: $connections
-            edgeTypeName: $edgeTypeName
-          ) {
+          comments
+            @appendNode(
+              connections: $connections
+              edgeTypeName: $edgeTypeName
+            ) {
             id
           }
         }
       }
+    `);
 
-      mutation PrependCommentMutation(
+    PrependCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation(
         $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentCreateInput
       ) {
         commentCreate(input: $input) {
-          comment @prependNode(
-            connections: $connections
-            edgeTypeName: $edgeTypeName
-          ) {
+          comment
+            @prependNode(
+              connections: $connections
+              edgeTypeName: $edgeTypeName
+            ) {
             id
           }
         }
       }
+    `);
 
-      mutation PrependCommentsMutation(
+    PrependCommentsMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependCommentsMutation(
         $connections: [ID!]!
         $edgeTypeName: String!
         $input: CommentsCreateInput
       ) {
         commentsCreate(input: $input) {
-          comments @prependNode(
-            connections: $connections
-            edgeTypeName: $edgeTypeName
-          ) {
+          comments
+            @prependNode(
+              connections: $connections
+              edgeTypeName: $edgeTypeName
+            ) {
             id
           }
         }
       }
-    `));
+    `);
     const variables = {
       id: '<feedbackid>',
     };
@@ -1562,7 +1645,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1593,7 +1676,7 @@ describe('connection node mutations', () => {
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend',
@@ -1617,10 +1700,60 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
+        },
+      },
+    ]);
+  });
+
+  it('does not insert nodes into connections where that node already exists', () => {
+    const snapshot = environment.lookup(operation.fragment);
+    const callback = jest.fn();
+    environment.subscribe(snapshot, callback);
+
+    environment
+      .executeMutation({
+        operation: appendOperation,
+      })
+      .subscribe(callbacks);
+
+    callback.mockClear();
+    subject.next({
+      data: {
+        commentCreate: {
+          comment: {
+            __typename: 'Comment',
+            id: 'node-1',
+          },
+        },
+      },
+    });
+    subject.complete();
+
+    expect(complete).toBeCalled();
+    expect(error).not.toBeCalled();
+    expect(callback.mock.calls.length).toBe(0);
+    expect(
+      // $FlowExpectedError[incompatible-use]
+      environment.lookup(operation.fragment).data.node.comments.edges,
+    ).toEqual([
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-1',
+        node: {
+          __typename: 'Comment',
+          id: 'node-1',
+        },
+      },
+      {
+        __typename: 'CommentsEdge',
+        cursor: 'cursor-2',
+        node: {
+          __typename: 'Comment',
+          id: 'node-2',
         },
       },
     ]);
@@ -1673,7 +1806,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1704,7 +1837,7 @@ describe('connection node mutations', () => {
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend',
@@ -1728,7 +1861,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',
@@ -1790,7 +1923,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-1',
@@ -1798,7 +1931,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-2',
@@ -1835,7 +1968,7 @@ describe('connection node mutations', () => {
     expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend-2',
@@ -1843,7 +1976,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-prepend-1',
@@ -1867,7 +2000,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-1',
@@ -1875,7 +2008,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append-2',
@@ -1924,7 +2057,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-optimistic-append',
@@ -1968,7 +2101,7 @@ describe('connection node mutations', () => {
       },
       {
         __typename: 'CommentsEdge',
-        cursor: undefined,
+        cursor: null,
         node: {
           __typename: 'Comment',
           id: 'node-append',

@@ -6,7 +6,7 @@
  */
 
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
-use crate::connections::ConnectionConstants;
+use crate::connections::CONNECTION_METADATA_DIRECTIVE_NAME;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
@@ -14,13 +14,16 @@ use crate::react_flight::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
+use crate::relay_client_component::RELAY_CLIENT_COMPONENT_METADATA_KEY;
+use crate::relay_resolvers::RELAY_RESOLVER_METADATA_DIRECTIVE_NAME;
 use crate::required_directive::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
 };
 use crate::{DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 
-use fnv::FnvHashSet;
-use graphql_ir::{Argument, Directive, Value, ARGUMENT_DEFINITION};
+use graphql_ir::{
+    Argument, Directive, Value, ARGUMENT_DEFINITION, UNUSED_LOCAL_VARIABLE_DEPRECATED,
+};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{SDLSchema, Schema, Type};
@@ -83,59 +86,62 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     }
 }
 
-pub struct CustomMetadataDirectives {
-    pub connection_constants: ConnectionConstants,
-}
-
-impl CustomMetadataDirectives {
-    pub fn is_custom_metadata_directive(&self, name: StringKey) -> bool {
-        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
-            || name == self.connection_constants.connection_metadata_directive_name
-            || name == *HANDLE_FIELD_DIRECTIVE_NAME
-            || name == MATCH_CONSTANTS.custom_module_directive_name
-            || name == *DIRECTIVE_SPLIT_OPERATION
-            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
-            || name == *INTERNAL_METADATA_DIRECTIVE
-            || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
-            || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
-            || name == *REQUIRED_DIRECTIVE_NAME
-            || name == *REQUIRED_METADATA_KEY
-            || name == *CHILDREN_CAN_BUBBLE_METADATA_KEY
-    }
-
-    pub fn should_skip_in_node_identifier(&self, name: StringKey) -> bool {
-        name == *CLIENT_EXTENSION_DIRECTIVE_NAME
-            || name == self.connection_constants.connection_metadata_directive_name
-            || name == *HANDLE_FIELD_DIRECTIVE_NAME
-            || name == REFETCHABLE_CONSTANTS.refetchable_metadata_name
-            || name == REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name
-            || name == *INTERNAL_METADATA_DIRECTIVE
-            || name == *ARGUMENT_DEFINITION
-            || name == *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY
-            || name == *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY
-            || name == *REQUIRED_DIRECTIVE_NAME
-    }
-
-    pub fn is_handle_field_directive(&self, name: StringKey) -> bool {
-        name == *HANDLE_FIELD_DIRECTIVE_NAME
-    }
-}
-
 lazy_static! {
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: FnvHashSet<StringKey> = vec![
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 17] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        *CONNECTION_METADATA_DIRECTIVE_NAME,
+        *HANDLE_FIELD_DIRECTIVE_NAME,
+        MATCH_CONSTANTS.custom_module_directive_name,
+        *DIRECTIVE_SPLIT_OPERATION,
+        REFETCHABLE_CONSTANTS.refetchable_metadata_name,
+        REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name,
+        *INTERNAL_METADATA_DIRECTIVE,
+        *ARGUMENT_DEFINITION,
+        *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+        *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+        *REQUIRED_DIRECTIVE_NAME,
+        *REQUIRED_METADATA_KEY,
+        *CHILDREN_CAN_BUBBLE_METADATA_KEY,
+        *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+        *RELAY_CLIENT_COMPONENT_METADATA_KEY,
+        *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+    ];
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
+        *CLIENT_EXTENSION_DIRECTIVE_NAME,
+        *CONNECTION_METADATA_DIRECTIVE_NAME,
+        *HANDLE_FIELD_DIRECTIVE_NAME,
+        REFETCHABLE_CONSTANTS.refetchable_metadata_name,
+        REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name,
+        *INTERNAL_METADATA_DIRECTIVE,
+        *ARGUMENT_DEFINITION,
+        *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+        *REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+        *REQUIRED_DIRECTIVE_NAME,
+        *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+        *RELAY_CLIENT_COMPONENT_METADATA_KEY,
+    ];
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 4] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         MATCH_CONSTANTS.custom_module_directive_name,
         INLINE_DATA_CONSTANTS.internal_directive_name,
         "defer".intern(),
-    ]
-    .into_iter()
-    .collect();
-    pub static ref CUSTOM_METADATA_DIRECTIVES: CustomMetadataDirectives =
-        CustomMetadataDirectives {
-            connection_constants: ConnectionConstants::default(),
-        };
+    ];
+}
+
+pub struct CustomMetadataDirectives;
+
+impl CustomMetadataDirectives {
+    pub fn is_custom_metadata_directive(name: StringKey) -> bool {
+        CUSTOM_METADATA_DIRECTIVES.contains(&name)
+    }
+
+    pub fn should_skip_in_node_identifier(name: StringKey) -> bool {
+        DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER.contains(&name)
+    }
+
+    pub fn is_handle_field_directive(name: StringKey) -> bool {
+        name == *HANDLE_FIELD_DIRECTIVE_NAME
+    }
 }
 
 pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool {
@@ -144,4 +150,16 @@ pub fn is_relay_custom_inline_fragment_directive(directive: &Directive) -> bool 
 
 pub fn generate_abstract_type_refinement_key(schema: &SDLSchema, type_: Type) -> StringKey {
     format!("__is{}", schema.get_type_name(type_).lookup()).intern()
+}
+
+pub fn get_normalization_operation_name(name: StringKey) -> String {
+    format!("{}$normalization", name)
+}
+
+pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
+    format!(
+        "{}.graphql",
+        get_normalization_operation_name(fragment_name)
+    )
+    .intern()
 }

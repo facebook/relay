@@ -21,12 +21,12 @@
  * use-case is as a return value for subscriptions, where calling `dispose()`
  * would cancel the subscription.
  */
-export type Disposable = {dispose(): void, ...};
+export type Disposable = interface {dispose(): void};
 
 export type DataID = string;
 
 // Variables
-export type Variables = {+[string]: $FlowFixMe, ...};
+export type Variables = {+[string]: $FlowFixMe};
 
 /**
  * Generated operation flow types are subtypes of this.
@@ -49,6 +49,7 @@ export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
  *   in milliseconds. (This value will be passed to setTimeout.)
  * - `liveConfigId`: causes a query to live update by calling GraphQLLiveQuery,
  *   it represents a configuration of gateway when doing live query
+ * - `onSubscribe`: Not in use.
  * - `metadata`: user-supplied metadata.
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
@@ -57,13 +58,11 @@ export type CacheConfig = {|
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
+  onSubscribe?: () => void,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
 |};
 
-/**
- * Experimental
- */
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
 export type FetchPolicy =
   | FetchQueryFetchPolicy

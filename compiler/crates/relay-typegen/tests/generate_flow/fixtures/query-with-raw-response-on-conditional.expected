@@ -23,8 +23,8 @@ export type ExampleQueryVariables = {|
 |};
 export type ExampleQueryResponse = {|
   +node: ?{|
-    +$fragmentRefs: FriendFragment$ref
-  |}
+    +$fragmentRefs: FriendFragment$ref,
+  |},
 |};
 export type ExampleQueryRawResponse = {|
   +node: ?({|
@@ -39,7 +39,7 @@ export type ExampleQueryRawResponse = {|
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type ExampleQuery = {|
   variables: ExampleQueryVariables,

@@ -7,7 +7,7 @@
 
 use lsp_types::notification::Notification;
 
-use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
 pub(crate) struct LSPNotificationDispatch<'state, TState> {
     notification: lsp_server::Notification,
@@ -30,13 +30,13 @@ impl<'state, TState> LSPNotificationDispatch<'state, TState> {
     pub fn on_notification_sync<TNotification: Notification>(
         self,
         handler: fn(&mut TState, TNotification::Params) -> LSPRuntimeResult<()>,
-    ) -> Result<Self, ()> {
+    ) -> Result<Self, Option<LSPRuntimeError>> {
         if self.notification.method == TNotification::METHOD {
             let params = extract_notification_params::<TNotification>(self.notification);
             // TODO propagate these errors
-            let _response = handler(self.state, params);
+            let response = handler(self.state, params);
 
-            return Err(());
+            return Err(response.err());
         }
 
         Ok(self)
@@ -63,7 +63,7 @@ mod test {
         LogMessageParams, MessageType,
     };
 
-    use crate::lsp_runtime_error::LSPRuntimeResult;
+    use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
     use super::LSPNotificationDispatch;
 
@@ -81,7 +81,7 @@ mod test {
             },
             &mut state,
         );
-        let dispatch = || -> Result<(), ()> {
+        let dispatch = || -> Result<(), Option<LSPRuntimeError>> {
             dispatch
                 .on_notification_sync::<TelemetryEvent>(telemetry_handler)?
                 .on_notification_sync::<LogMessage>(log_message_handler)?;

@@ -5,22 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{
-    collections::{HashMap, HashSet},
-    sync::{Arc, RwLock},
-};
+use std::{collections::HashSet, sync::Arc};
+
+use crate::server::SourcePrograms;
 
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
+use dashmap::DashMap;
+use fnv::FnvBuildHasher;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
-use interner::{Intern, StringKey};
+use interner::Intern;
 use lsp_types::CompletionItem;
 use relay_test_schema::get_test_schema;
 
 fn parse_and_resolve_completion_items(
     source: &str,
-    source_programs: Option<Arc<RwLock<HashMap<StringKey, Program>>>>,
+    source_programs: Option<SourcePrograms>,
 ) -> Option<Vec<CompletionItem>> {
     let pos = source.find('|').unwrap() - 1;
     let next_source = source.replace("|", "");
@@ -40,17 +41,18 @@ fn parse_and_resolve_completion_items(
         position_span,
         "test_project".intern(),
         &get_test_schema(),
-        &source_programs.unwrap_or_else(Default::default),
+        &source_programs
+            .unwrap_or_else(|| Arc::new(DashMap::with_hasher(FnvBuildHasher::default()))),
     )
 }
 
-fn build_source_programs(source: &str) -> Arc<RwLock<HashMap<StringKey, Program>>> {
+fn build_source_programs(source: &str) -> SourcePrograms {
     let document = parse_executable(source, SourceLocationKey::Generated).unwrap();
     let ir = build(&get_test_schema(), &document.definitions).unwrap();
     let program = Program::from_definitions(get_test_schema(), ir);
-    let mut source_programs_map = HashMap::new();
+    let source_programs_map = DashMap::with_hasher(FnvBuildHasher::default());
     source_programs_map.insert("test_project".intern(), program);
-    Arc::new(RwLock::new(source_programs_map))
+    Arc::new(source_programs_map)
 }
 
 fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {

@@ -1,0 +1,15 @@
+query queryWithRelayClientComponentWithArgumentDefinitions_Query($id: ID!) {
+  node(id: $id) {
+    id
+    ...queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment
+      @relay_client_component
+  }
+}
+
+fragment queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment on User
+@argumentDefinitions(size: {type: "[Int]", defaultValue: [32]}) {
+  name
+  profilePicture(size: $size) {
+    uri
+  }
+}

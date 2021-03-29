@@ -1,0 +1,16 @@
+# expected-to-throw
+
+type User {
+  id: ID
+}
+
+type Page {
+  token: ID
+}
+
+union Union = User | Page
+
+input InvalidInput {
+  value: Boolean
+  union: Union
+}

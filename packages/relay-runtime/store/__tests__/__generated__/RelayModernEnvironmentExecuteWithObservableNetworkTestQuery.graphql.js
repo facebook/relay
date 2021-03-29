@@ -1,0 +1,149 @@
+/**
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ * 
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @generated SignedSource<<acd56e83840b1a2dacc52c71e652ac3f>>
+ * @flow
+ * @lightSyntaxTransform
+ * @nogrep
+ */
+
+/* eslint-disable */
+
+'use strict';
+
+/*::
+import type { ConcreteRequest } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteWithObservableNetworkTestQueryVariables = {|
+  fetchSize: boolean,
+|};
+export type RelayModernEnvironmentExecuteWithObservableNetworkTestQueryResponse = {|
+  +me: ?{|
+    +name: ?string,
+    +profilePicture?: ?{|
+      +uri: ?string,
+    |},
+  |},
+|};
+export type RelayModernEnvironmentExecuteWithObservableNetworkTestQuery = {|
+  variables: RelayModernEnvironmentExecuteWithObservableNetworkTestQueryVariables,
+  response: RelayModernEnvironmentExecuteWithObservableNetworkTestQueryResponse,
+|};
+*/
+
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "fetchSize"
+  }
+],
+v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v2 = {
+  "condition": "fetchSize",
+  "kind": "Condition",
+  "passingValue": true,
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": 42
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": "profilePicture(size:42)"
+    }
+  ]
+};
+return {
+  "fragment": {
+    "argumentDefinitions": (v0/*: any*/),
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RelayModernEnvironmentExecuteWithObservableNetworkTestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          (v1/*: any*/),
+          (v2/*: any*/)
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": (v0/*: any*/),
+    "kind": "Operation",
+    "name": "RelayModernEnvironmentExecuteWithObservableNetworkTestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          (v1/*: any*/),
+          (v2/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "73e0fbe5d79b614a549ffa2f84192efd",
+    "id": null,
+    "metadata": {},
+    "name": "RelayModernEnvironmentExecuteWithObservableNetworkTestQuery",
+    "operationKind": "query",
+    "text": "query RelayModernEnvironmentExecuteWithObservableNetworkTestQuery(\n  $fetchSize: Boolean!\n) {\n  me {\n    name\n    profilePicture(size: 42) @include(if: $fetchSize) {\n      uri\n    }\n    id\n  }\n}\n"
+  }
+};
+})();
+
+if (__DEV__) {
+  (node/*: any*/).hash = "5092154c80720c8b46fb3214bd03d30e";
+}
+
+module.exports = node;

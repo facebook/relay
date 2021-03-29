@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -42,7 +42,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   let operation;
   let operationCallback;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let query;
@@ -54,26 +54,27 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   beforeEach(() => {
     jest.resetModules();
 
-    ({
-      FeedbackQuery: query,
-      FeedbackAuthor_author: authorFragment,
-      FeedbackAuthor_author$normalization: authorNormalizationFragment,
-    } = generateAndCompile(`
-        query FeedbackQuery($id: ID!) {
-          node(id: $id) {
-            ... on Feedback {
-              author {
-                ...FeedbackAuthor_author
-                  @module(name: "FeedbackAuthor.react")
-              }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on Feedback {
+            author {
+              ...RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author
+                @module(name: "FeedbackAuthor.react")
             }
           }
         }
+      }
+    `);
 
-        fragment FeedbackAuthor_author on User {
-          name
-        }
-      `));
+    authorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql');
+    authorFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author on User {
+        name
+      }
+    `);
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
@@ -115,9 +116,10 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           __typename: 'Feedback',
           author: {
             id: '2',
-            __module_component_FeedbackQuery: 'FeedbackAuthor.react',
-            __module_operation_FeedbackQuery:
-              'FeedbackAuthor_author$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
+              'FeedbackAuthor.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
+              'RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql',
             name: 'Alice',
           },
         },
@@ -129,7 +131,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'FeedbackAuthor_author$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql',
     );
 
     expect(next.mock.calls.length).toBe(1);
@@ -145,7 +147,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           __fragmentPropName: 'author',
 
           __fragments: {
-            FeedbackAuthor_author: {},
+            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author: {},
           },
 
           __fragmentOwner: operation.request,
@@ -177,9 +179,10 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           __typename: 'Feedback',
           author: {
             id: '2',
-            __module_component_FeedbackQuery: 'FeedbackAuthor.react',
-            __module_operation_FeedbackQuery:
-              'FeedbackAuthor_author$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
+              'FeedbackAuthor.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
+              'RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql',
             name: 'Alice',
           },
         },

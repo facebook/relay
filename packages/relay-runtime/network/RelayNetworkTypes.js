@@ -25,9 +25,9 @@ export type INetwork = {|
 |};
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = {[key: string]: mixed, ...};
+export type PayloadData = interface {[key: string]: mixed};
 
-export type PayloadError = {
+export type PayloadError = interface {
   message: string,
   locations?: Array<{
     line: number,
@@ -36,7 +36,6 @@ export type PayloadError = {
   }>,
   // Not officially part of the spec, but used at Facebook
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
-  ...
 };
 
 export type PayloadExtensions = {[key: string]: mixed, ...};
@@ -120,10 +119,7 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {
-  [key: string]: Uploadable | Array<Uploadable>,
-  ...,
-};
+export type UploadableMap = interface {[key: string]: Uploadable  | Array<Uploadable>};
 
 /**
  * React Flight tree created on the server.
@@ -131,6 +127,13 @@ export type UploadableMap = {
 export type ReactFlightServerTree = mixed;
 export type ReactFlightPayloadQuery = {|
   +id: mixed,
+  +module: mixed,
+  +response: GraphQLSingularResponse,
+  +variables: Variables,
+|};
+export type ReactFlightPayloadFragment = {|
+  +__id: string,
+  +__typename: string,
   +module: mixed,
   +response: GraphQLSingularResponse,
   +variables: Variables,
@@ -150,10 +153,12 @@ export type ReactFlightServerError = {
  * - queries: an array of queries that the server preloaded for the client.
  * - errors: an array of errors that were encountered while rendering the
  *           Server Component.
+ * - fragments: an array of fragments that the server preloaded for the client.
  */
 export type ReactFlightPayloadData = {|
   +status: string,
   +tree: ?Array<ReactFlightServerTree>,
   +queries: Array<ReactFlightPayloadQuery>,
   +errors: Array<ReactFlightServerError>,
+  +fragments: Array<ReactFlightPayloadFragment>,
 |};

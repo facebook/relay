@@ -1,0 +1,62 @@
+query noInlineFragmentQuery(
+  $global: Float
+  $shadowed_global: Float
+  $global_from_parent: Float
+) {
+  me {
+    ...noInlineFragment_parent
+      @arguments(
+        scalar_from_parent: 3.14
+        global_from_parent: $global_from_parent
+        shadowed_global: $shadowed_global
+      )
+  }
+}
+
+fragment noInlineFragment_parent on User
+@no_inline
+@argumentDefinitions(
+  scalar_from_parent: {type: "Float"}
+  global_from_parent: {type: "Float"}
+  shadowed_global: {type: "Float"}
+) {
+  scalar_from_parent: profile_picture(scale: $scalar_from_parent) {
+    uri
+  }
+  global_from_parent: profile_picture(scale: $global_from_parent) {
+    uri
+  }
+  shadowed_global: profile_picture(scale: $shadowed_global) {
+    uri
+  }
+  global: profile_picture(scale: $global) {
+    uri
+  }
+
+  ...noInlineFragment_child
+    @arguments(
+      scalar_from_parent: $scalar_from_parent
+      local_from_parent: $global_from_parent
+      shadowed_global: $shadowed_global
+    )
+}
+
+fragment noInlineFragment_child on User
+@argumentDefinitions(
+  scalar_from_parent: {type: "Float"}
+  local_from_parent: {type: "Float"}
+  shadowed_global: {type: "Float"}
+) {
+  scalar_from_parent: profile_picture(scale: $scalar_from_parent) {
+    uri
+  }
+  local_from_parent: profile_picture(scale: $local_from_parent) {
+    uri
+  }
+  shadowed_global: profile_picture(scale: $shadowed_global) {
+    uri
+  }
+  global: profile_picture(scale: $global) {
+    uri
+  }
+}

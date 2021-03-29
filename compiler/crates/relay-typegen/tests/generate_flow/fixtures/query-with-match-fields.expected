@@ -33,8 +33,8 @@ import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
-    +$fragmentRefs: NameRendererFragment$ref
-  |}
+    +$fragmentRefs: NameRendererFragment$ref,
+  |},
 |};
 export type PlainUserNameRenderer_name = {|
   +plaintext: ?string,
@@ -71,12 +71,12 @@ export type TestRawResponse = {|
       +__typename: "MarkdownUserNameRenderer",
       ...MarkdownUserNameRenderer_name,
     |}> | {|
-      +__typename: string
+      +__typename: string,
     |}),
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type Test = {|
   variables: TestVariables,
@@ -90,7 +90,7 @@ declare export opaque type MarkdownUserNameRenderer_name$fragmentType: MarkdownU
 export type MarkdownUserNameRenderer_name = {|
   +markdown: ?string,
   +data: ?{|
-    +markup: ?string
+    +markup: ?string,
   |},
   +$refType: MarkdownUserNameRenderer_name$ref,
 |};
@@ -128,7 +128,7 @@ declare export opaque type PlainUserNameRenderer_name$fragmentType: PlainUserNam
 export type PlainUserNameRenderer_name = {|
   +plaintext: ?string,
   +data: ?{|
-    +text: ?string
+    +text: ?string,
   |},
   +$refType: PlainUserNameRenderer_name$ref,
 |};

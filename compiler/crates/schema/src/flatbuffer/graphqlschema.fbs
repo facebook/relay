@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-namespace graphqlschema;
-
-enum FBConstValueKind : byte {
+enum ConstValueKind : byte {
     Null = 0,
     String,
     Bool,
@@ -18,31 +16,31 @@ enum FBConstValueKind : byte {
     Object
 }
 
-table FBConstValue {
-    kind:FBConstValueKind;
-    string_value:string;
-    bool_value:bool;
-    int_value:string;
-    float_value:string;
-    enum_value:string;
-    list_value:FBListValue;
-    object_value:FBObjectValue;
+table ConstValue {
+    kind: ConstValueKind;
+    string_value: string;
+    bool_value: bool;
+    int_value: string;
+    float_value: string;
+    enum_value: string;
+    list_value: ListValue;
+    object_value: ObjectValue;
 }
 
-table FBListValue {
-    values:[FBConstValue];
+table ListValue {
+    values: [ConstValue];
 }
 
-table FBObjectField {
-    name:string;
-    value:FBConstValue;
+table ObjectField {
+    name: string;
+    value: ConstValue;
 }
 
-table FBObjectValue {
-    fields:[FBObjectField];
+table ObjectValue {
+    fields: [ObjectField];
 }
 
-enum FBTypeKind : byte {
+enum TypeKind : byte {
     Scalar = 0,
     InputObject = 1,
     Enum = 2,
@@ -51,46 +49,46 @@ enum FBTypeKind : byte {
     Union = 5,
 }
 
-table FBType {
-    kind:FBTypeKind;
-    scalar_id:uint32;
-    input_object_id:uint32;
-    enum_id:uint32;
-    object_id:uint32;
-    interface_id:uint32;
-    union_id:uint32;
+table Type {
+    kind: TypeKind;
+    scalar_id: uint32;
+    input_object_id: uint32;
+    enum_id: uint32;
+    object_id: uint32;
+    interface_id: uint32;
+    union_id: uint32;
 }
 
-enum FBTypeReferenceKind : byte {
+enum TypeReferenceKind : byte {
     Named = 0,
     NonNull,
     List
 }
 
-table FBTypeReference {
-    kind:FBTypeReferenceKind;
-    named:FBType;
-    null:FBTypeReference;
-    list:FBTypeReference;
+table TypeReference {
+    kind: TypeReferenceKind;
+    named: Type;
+    null: TypeReference;
+    list: TypeReference;
 }
 
-table FBArgumentValue {
-    name:string;
-    value:FBConstValue;
+table ArgumentValue {
+    name: string;
+    value: ConstValue;
 }
 
-table FBDirectiveValue {
-    name:string;
-    arguments:[FBArgumentValue];
+table DirectiveValue {
+    name: string;
+    arguments: [ArgumentValue];
 }
 
-table FBArgument {
-    name:string;
-    type_:FBTypeReference;
-    value:FBConstValue;
+table Argument {
+    name: string;
+    type_: TypeReference;
+    value: ConstValue;
 }
 
-enum FBDirectiveLocation : byte {
+enum DirectiveLocation : byte {
     Query = 0,
     Mutation,
     Subscription,
@@ -112,91 +110,96 @@ enum FBDirectiveLocation : byte {
     VariableDefinition,
 }
 
-table FBDirective {
-    name:string;
-    is_extension:bool;
-    arguments:[FBArgument];
-    locations:[FBDirectiveLocation];
-    repeatable:bool;
+table Directive {
+    name: string;
+    is_extension: bool;
+    arguments: [Argument];
+    locations: [DirectiveLocation];
+    repeatable: bool;
 }
 
-table FBEnumValue {
-    value:string;
-    directives:[FBDirectiveValue];
+table EnumValue {
+    value: string;
+    directives: [DirectiveValue];
 }
 
-table FBScalar {
-    name:string;
-    is_extension:bool;
-    directives:[FBDirectiveValue];
+table Scalar {
+    name: string;
+    is_extension: bool;
+    directives: [DirectiveValue];
 }
 
-table FBInputObject {
-    name:string;
-    fields:[FBArgument];
-    directives:[FBDirectiveValue];
+table InputObject {
+    name: string;
+    fields: [Argument];
+    directives: [DirectiveValue];
 }
 
-table FBEnum {
-    name:string;
-    is_extension:bool;
-    values:[FBEnumValue];
-    directives:[FBDirectiveValue];
+table Enum {
+    name: string;
+    is_extension: bool;
+    values: [EnumValue];
+    directives: [DirectiveValue];
 }
 
-table FBObject {
-    name:string;
-    is_extension:bool;
-    fields:[uint32];
-    interfaces:[uint32];
-    directives:[FBDirectiveValue];
+table Object {
+    name: string;
+    is_extension: bool;
+    fields: [uint32];
+    interfaces: [uint32];
+    directives: [DirectiveValue];
 }
 
-table FBInterface {
-    name:string;
-    is_extension:bool;
-    fields:[uint32];
-    interfaces:[uint32];
-    implementing_objects:[uint32];
-    directives:[FBDirectiveValue];
+table Interface {
+    name: string;
+    is_extension: bool;
+    fields: [uint32];
+    interfaces: [uint32];
+    implementing_objects: [uint32];
+    directives: [DirectiveValue];
 }
 
-table FBUnion {
-    name:string;
-    is_extension:bool;
-    members:[uint32];
-    directives:[FBDirectiveValue];
+table Union {
+    name: string;
+    is_extension: bool;
+    members: [uint32];
+    directives: [DirectiveValue];
 }
 
-table FBField {
-    name:string;
-    is_extension:bool;
-    arguments:[FBArgument];
-    type_:FBTypeReference;
-    directives:[FBDirectiveValue];
-    parent_type:FBType;
+table Field {
+    name: string;
+    is_extension: bool;
+    arguments: [Argument];
+    type_: TypeReference;
+    directives: [DirectiveValue];
+    parent_type: Type;
 }
 
-table FBTypeMap {
-    name:string (key);
-    value:FBType;
+table TypeMapEntry {
+    name: string (key);
+    value: Type;
 }
 
-table FBDirectiveMap {
-    name:string (key);
-    value:FBDirective;
+table DirectiveMapEntry {
+    name: string (key);
+    value: Directive;
 }
 
-table FBSchema {
-    types:[FBTypeMap];
-    directives: [FBDirectiveMap];
-    scalars:[FBScalar];
-    input_objects:[FBInputObject];
-    enums:[FBEnum];
-    objects:[FBObject];
-    interfaces:[FBInterface];
-    unions:[FBUnion];
-    fields:[FBField];
+table Schema {
+    query_type: uint32;
+    has_mutation_type: bool;
+    mutation_type: uint32;
+    has_subscription_type: bool;
+    subscription_type: uint32;
+    types: [TypeMapEntry] (required);
+    directives: [DirectiveMapEntry] (required);
+    scalars: [Scalar] (required);
+    input_objects: [InputObject] (required);
+    enums: [Enum] (required);
+    objects: [Object] (required);
+    interfaces: [Interface] (required);
+    unions: [Union] (required);
+    fields: [Field] (required);
 }
 
-root_type FBSchema;
+root_type Schema;

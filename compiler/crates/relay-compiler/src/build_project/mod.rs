@@ -24,6 +24,7 @@ mod validate;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
+use crate::watchman::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;
@@ -39,16 +40,11 @@ use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
-use log::{debug, info};
+use log::{debug, info, warn};
 use relay_codegen::Printer;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
-use std::{
-    collections::hash_map::Entry,
-    path::PathBuf,
-    sync::atomic::{AtomicBool, Ordering},
-    sync::Arc,
-};
+use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
 
 pub enum BuildProjectFailure {
@@ -70,15 +66,24 @@ pub fn build_raw_program(
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
-) -> Result<Program, BuildProjectError> {
-    let BuildIRResult { ir, .. } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, false)
+    is_incremental_build: bool,
+) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
+    // Build a type aware IR.
+    let BuildIRResult {
+        ir,
+        base_fragment_names,
+        source_hashes,
+    } = log_event.time("build_ir_time", || {
+        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
             .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
-    Ok(log_event.time("build_program_time", || {
+    // Turn the IR into a base Program.
+    let program = log_event.time("build_program_time", || {
         Program::from_definitions(schema, ir)
-    }))
+    });
+
+    Ok((program, base_fragment_names, source_hashes))
 }
 
 pub fn validate_program(
@@ -87,6 +92,7 @@ pub fn validate_program(
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
+    log_event.number("validate_documents_count", program.document_count());
     let result = validate(
         program,
         &config.connection_interface,
@@ -99,7 +105,38 @@ pub fn validate_program(
     result
 }
 
-fn build_programs(
+/// Apply various chains of transforms to create a set of output programs.
+pub fn transform_program(
+    config: &Config,
+    project_config: &ProjectConfig,
+    program: Arc<Program>,
+    base_fragment_names: Arc<FnvHashSet<StringKey>>,
+    perf_logger: Arc<impl PerfLogger + 'static>,
+    log_event: &impl PerfLogEvent,
+) -> Result<Programs, BuildProjectFailure> {
+    let timer = log_event.start("apply_transforms_time");
+    let result = apply_transforms(
+        project_config.name,
+        program,
+        base_fragment_names,
+        &config.connection_interface,
+        Arc::new(
+            project_config
+                .feature_flags
+                .as_ref()
+                .cloned()
+                .unwrap_or_else(|| config.feature_flags.clone()),
+        ),
+        perf_logger,
+    )
+    .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
+
+    log_event.stop(timer);
+
+    result
+}
+
+pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
@@ -109,24 +146,21 @@ fn build_programs(
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<(Programs, Arc<SourceHashes>), BuildProjectFailure> {
     let project_name = project_config.name;
-    let is_incremental_build =
-        compiler_state.has_processed_changes() && !compiler_state.has_breaking_schema_change();
+    let is_incremental_build = compiler_state.has_processed_changes()
+        && !compiler_state.has_breaking_schema_change(project_name)
+        && if let Some(base) = project_config.base {
+            !compiler_state.has_breaking_schema_change(base)
+        } else {
+            true
+        };
 
-    // Build a type aware IR.
-    let BuildIRResult {
-        ir,
-        base_fragment_names,
-        source_hashes,
-    } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build).map_err(
-            |errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }),
-        )
-    })?;
-
-    // Turn the IR into a base Program.
-    let program = log_event.time("build_program_time", || {
-        Program::from_definitions(schema, ir)
-    });
+    let (program, base_fragment_names, source_hashes) = build_raw_program(
+        project_config,
+        graphql_asts,
+        schema,
+        log_event,
+        is_incremental_build,
+    )?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -136,20 +170,14 @@ fn build_programs(
     // Call validation rules that go beyond type checking.
     validate_program(&config, &program, log_event)?;
 
-    // Apply various chains of transforms to create a set of output programs.
-    let programs = log_event.time("apply_transforms_time", || {
-        apply_transforms(
-            project_name,
-            Arc::new(program),
-            Arc::new(base_fragment_names),
-            &config.connection_interface,
-            Arc::new(project_config.feature_flags.unwrap_or(config.feature_flags)),
-            perf_logger,
-        )
-        .map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
-        })
-    })?;
+    let programs = transform_program(
+        config,
+        project_config,
+        Arc::new(program),
+        Arc::new(base_fragment_names),
+        Arc::clone(&perf_logger),
+        log_event,
+    )?;
 
     Ok((programs, Arc::new(source_hashes)))
 }
@@ -163,7 +191,7 @@ pub fn build_project(
 ) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
-    let project_name = project_config.name.lookup();
+    let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 
@@ -213,6 +241,7 @@ pub fn build_project(
     Ok((project_config.name, schema, programs, artifacts))
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn commit_project(
     config: &Config,
     project_config: &ProjectConfig,
@@ -225,13 +254,13 @@ pub async fn commit_project(
     removed_definition_names: Vec<StringKey>,
     // Dirty artifacts that should be removed if no longer in the artifacts map
     mut artifacts_to_remove: FnvHashSet<PathBuf>,
-    source_control_update_in_progress: Arc<AtomicBool>,
+    source_control_update_status: Arc<SourceControlUpdateStatus>,
 ) -> Result<ArtifactMap, BuildProjectFailure> {
     let log_event = perf_logger.create_event("commit_project");
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
     }
@@ -244,7 +273,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
-                &operation_persister,
+                operation_persister.as_ref(),
                 &log_event,
             )
             .await?;
@@ -252,7 +281,7 @@ pub async fn commit_project(
         }
     }
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         debug!(
             "commit_project cancelled before generating extra artifacts due to source control updates"
         );
@@ -272,13 +301,13 @@ pub async fn commit_project(
         });
     }
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         debug!("commit_project cancelled before writing artifacts due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
     }
 
     let should_stop_updating_artifacts = || {
-        if source_control_update_in_progress.load(Ordering::Relaxed) {
+        if source_control_update_status.is_started() {
             debug!("artifact_writer updates cancelled due source control updates");
             true
         } else {
@@ -292,7 +321,7 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::with_dedupe();
+            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let write_artifacts_time = log_event.start("write_artifacts_time");
             for artifact in &artifacts {
                 if should_stop_updating_artifacts() {
@@ -330,7 +359,7 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::with_dedupe();
+            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
             let write_artifacts_incremental_time =
@@ -355,7 +384,6 @@ pub async fn commit_project(
                 current_paths_map.insert(artifact);
             }
             log_event.stop(write_artifacts_incremental_time);
-
 
             log_event.time("update_artifact_map_time", || {
                 // All generated paths for removed definitions should be removed
@@ -405,18 +433,23 @@ pub async fn commit_project(
         }
     };
 
-    if source_control_update_in_progress.load(Ordering::Relaxed) {
+    if source_control_update_status.is_started() {
         log_event.number("update_artifacts_after_source_control_update", 1);
         debug!(
             "We just updated artifacts after source control update happened. Most likely we have outdated artifacts now..."
         );
+        warn!(
+            r#"
+Build canceled due to a source control update while we're writing artifacts.
+The compiler may produce outdated artifacts, but it will regenerate the correct set after the update is completed."#
+        );
+        return Err(BuildProjectFailure::Cancelled);
     } else {
         // For now, lets log how often this is happening, so we can decide if we want to
         // adjust the way we write artifacts. For example, we could write them to the temp
         // directory first, then move to a correct destination.
         log_event.number("update_artifacts_after_source_control_update", 0);
     }
-
 
     info!(
         "[{}] compiled documents: {} reader, {} normalization, {} operation text",

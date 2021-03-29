@@ -10,7 +10,7 @@ use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::watchman::{
     categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
-    FileSourceResult, WatchmanFile,
+    FileSourceResult, SourceControlUpdateStatus, WatchmanFile,
 };
 use common::{PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -21,7 +21,6 @@ use rayon::prelude::*;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::{
     fmt,
     fs::File,
@@ -61,7 +60,7 @@ impl ProjectSet {
 }
 
 /// Represents the name of the source set, or list of source sets
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
 pub enum SourceSet {
     SourceSetName(SourceSetName),
@@ -185,6 +184,7 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
+    #[serde(with = "clock_json_string")]
     pub clock: Clock,
     pub saved_state_version: String,
     #[serde(skip)]
@@ -194,7 +194,7 @@ pub struct CompilerState {
     #[serde(skip)]
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
-    pub source_control_update_in_progress: Arc<AtomicBool>,
+    pub source_control_update_status: Arc<SourceControlUpdateStatus>,
 }
 
 impl CompilerState {
@@ -218,7 +218,7 @@ impl CompilerState {
             dirty_artifact_paths: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
-            source_control_update_in_progress: Arc::new(AtomicBool::new(false)),
+            source_control_update_status: Default::default(),
         };
 
         for (category, files) in categorized {
@@ -333,7 +333,7 @@ impl CompilerState {
             .map(String::as_str)
             .collect::<Vec<_>>();
 
-        let schema_change = detect_changes(&current.join("\n"), &previous.join("\n"));
+        let schema_change = detect_changes(&current, &previous);
 
         if schema_change == SchemaChange::None {
             true
@@ -357,14 +357,18 @@ impl CompilerState {
     }
 
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
-    pub fn has_breaking_schema_change(&self) -> bool {
-        self.extensions
-            .values()
-            .any(|sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .iter()
-                .any(|(_, sources)| !(sources.pending.is_empty() || self.is_change_safe(&sources)))
+    pub fn has_breaking_schema_change(&self, project_name: StringKey) -> bool {
+        if let Some(extension) = self.extensions.get(&project_name) {
+            if !extension.pending.is_empty() {
+                return true;
+            }
+        }
+        if let Some(schema) = self.schemas.get(&project_name) {
+            if !(schema.pending.is_empty() || self.is_change_safe(schema)) {
+                return true;
+            }
+        }
+        false
     }
 
     /// Merges pending changes from the file source into the compiler state.
@@ -444,13 +448,12 @@ impl CompilerState {
                         )?;
                     }
                     FileGroup::Generated { project_name } => {
-                        if !should_collect_changed_artifacts {
-                            break;
+                        if should_collect_changed_artifacts {
+                            self.dirty_artifact_paths.insert(
+                                project_name,
+                                files.iter().map(|f| (*f.name).clone()).collect(),
+                            );
                         }
-                        self.dirty_artifact_paths.insert(
-                            project_name,
-                            files.iter().map(|f| (*f.name).clone()).collect(),
-                        );
                     }
                 }
             }
@@ -470,6 +473,18 @@ impl CompilerState {
             sources.commit_pending_sources();
         }
         self.dirty_artifact_paths.clear();
+    }
+
+    pub fn complete_project_compilation(&mut self, project_name: &ProjectName) {
+        if let Some(sources) = self.graphql_sources.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.schemas.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.extensions.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
     }
 
     /// Calculate dirty definitions from dirty artifacts
@@ -518,11 +533,10 @@ impl CompilerState {
             file: path.clone(),
             source: err,
         })?;
-        serde_json::to_writer(writer, self).map_err(|err| Error::SerializationError {
+        bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
             file: path.clone(),
             source: err,
-        })?;
-        Ok(())
+        })
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
@@ -531,11 +545,10 @@ impl CompilerState {
             source: err,
         })?;
         let reader = BufReader::new(file);
-        let state = serde_json::from_reader(reader).map_err(|err| Error::DeserializationError {
+        bincode::deserialize_from(reader).map_err(|err| Error::DeserializationError {
             file: path.clone(),
             source: err,
-        })?;
-        Ok(state)
+        })
     }
 
     pub fn has_pending_file_source_changes(&self) -> bool {
@@ -596,13 +609,52 @@ impl CompilerState {
     }
 
     pub fn is_source_control_update_in_progress(&self) -> bool {
-        self.source_control_update_in_progress
-            .load(Ordering::Relaxed)
+        self.source_control_update_status.is_started()
     }
 
     /// Over the course of the build, we may need to stop current progress
     /// as there maybe incoming file change or source control update in progress
     pub fn should_cancel_current_build(&self) -> bool {
         self.is_source_control_update_in_progress() || self.has_pending_file_source_changes()
+    }
+}
+
+/// A module to serialize a watchman Clock value via JSON.
+/// The reason is that `Clock` internally uses an untagged enum value
+/// which requires "self descriptive" serialization formats and `bincode` does not
+/// support those enums.
+mod clock_json_string {
+    use crate::watchman::Clock;
+    use serde::{
+        de::{Error, Visitor},
+        Deserializer, Serializer,
+    };
+
+    pub fn serialize<S>(clock: &Clock, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let json_string = serde_json::to_string(clock).unwrap();
+        serializer.serialize_str(&json_string)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Clock, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        deserializer.deserialize_str(JSONStringVisitor)
+    }
+
+    struct JSONStringVisitor;
+    impl<'de> Visitor<'de> for JSONStringVisitor {
+        type Value = Clock;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            formatter.write_str("a JSON encoded watchman::Clock value")
+        }
+
+        fn visit_str<E: Error>(self, v: &str) -> Result<Clock, E> {
+            Ok(serde_json::from_str(v).unwrap())
+        }
     }
 }

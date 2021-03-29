@@ -8,8 +8,8 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-  build:
-    name: Tests (Node ${{ matrix.node-version }})
+  js-tests:
+    name: JS Tests (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,8 +24,8 @@ jobs:
       - name: Run tests
         run: yarn run jest
 
-  lint:
-    name: Lint
+  js-lint:
+    name: JS Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -40,7 +40,7 @@ jobs:
         run: yarn run lint
 
   typecheck:
-    name: Typecheck
+    name: Flow Typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -52,23 +52,13 @@ jobs:
       - name: Flow
         run: yarn run typecheck
 
-  check-rust:
-    name: Check Rust
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-          args: --manifest-path=compiler/Cargo.toml --locked
-
-  test-rust:
-    name: Test Rust
-    runs-on: ubuntu-latest
+  rust-tests:
+    name: Rust Tests (${{ matrix.os }})
+    strategy:
+      matrix:
+        ## TODO: Windows is currently failing in watchman dependency
+        os: [ubuntu-latest, macos-latest] # windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -78,13 +68,42 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --manifest-path=compiler/Cargo.toml --locked
+          # add --locked back when we have a better way to ensure it's up to date
+          args: --manifest-path=compiler/Cargo.toml
+
+  build-compiler:
+    name: Build Rust Compiler (${{ matrix.target.os }})
+    strategy:
+      matrix:
+        target:
+          - os: ubuntu-latest
+            build-name: relay
+            artifact-name: relay-compiler-linux-x64
+          - os: macos-latest
+            build-name: relay
+            artifact-name: relay-compiler-macos-x64
+    runs-on: ${{ matrix.target.os }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          # add --locked back when we have a better way to ensure it's up to date
+          args: --manifest-path=compiler/Cargo.toml --release
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target.artifact-name }}
+          path: compiler/target/release/${{ matrix.target.build-name }}
 
   master-release:
     name: Publish master tag to npm
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/master'
-    needs: [build, lint, typecheck]
+    needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
@@ -93,6 +112,21 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Download artifact relay-compiler-linux-x64
+        uses: actions/download-artifact@v2
+        with:
+          name: relay-compiler-linux-x64
+          path: artifacts/linux-x64
+      - name: Download artifact relay-compiler-macos-x64
+        uses: actions/download-artifact@v2
+        with:
+          name: relay-compiler-macos-x64
+          path: artifacts/macos-x64
+      - name: Mark binaries as executable
+        working-directory: artifacts
+        run: |
+          chmod +x linux-x64/relay
+          chmod +x macos-x64/relay
       - name: Build master version
         run:  RELEASE_COMMIT_SHA=${{github.sha}} yarn gulp masterrelease
       - name: Publish to npm

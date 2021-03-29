@@ -1,4 +1,12 @@
 ==================================== INPUT ====================================
+schema {
+  query: Query
+}
+
+type Query {
+  node: Node
+}
+
 interface BaseNode {
   id: ID!
 }
@@ -20,7 +28,9 @@ interface Image implements Resource & Node {
 }
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
- query_type: None
+ query_type: Some(
+    ObjectID(0),
+)
  mutation_type: None
  subscription_type: None
  directives: [
@@ -75,11 +85,24 @@ Text Schema:Schema {
     "Image": Interface(3),
     "Int": Scalar(0),
     "Node": Interface(1),
+    "Query": Object(0),
     "Resource": Interface(2),
     "String": Scalar(2),
 }
  enums: []
  fields: [
+    Field {
+        name: "node",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Interface(1),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
     Field {
         name: "id",
         is_extension: false,
@@ -230,7 +253,7 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(0),
+            FieldID(1),
         ],
         directives: [],
         interfaces: [],
@@ -240,7 +263,7 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(1),
+            FieldID(2),
         ],
         directives: [],
         interfaces: [
@@ -252,9 +275,9 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(2),
             FieldID(3),
             FieldID(4),
+            FieldID(5),
         ],
         directives: [],
         interfaces: [
@@ -266,9 +289,9 @@ Text Schema:Schema {
         is_extension: false,
         implementing_objects: [],
         fields: [
-            FieldID(5),
             FieldID(6),
             FieldID(7),
+            FieldID(8),
         ],
         directives: [],
         interfaces: [
@@ -277,7 +300,17 @@ Text Schema:Schema {
         ],
     },
 ]
- objects: []
+ objects: [
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+]
  scalars: [
     Scalar {
         name: "Int",
@@ -422,6 +455,18 @@ fields: [
         ),
     },
     Field {
+        name: "node",
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Interface(3),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+    },
+    Field {
         name: "id",
         is_extension: false,
         arguments: [],
@@ -516,7 +561,17 @@ interfaces: [
         ],
     },
 ]
-objects: []
+objects: [
+    Object {
+        name: "Query",
+        is_extension: false,
+        fields: [
+            FieldID(8),
+        ],
+        interfaces: [],
+        directives: [],
+    },
+]
 scalars: [
     Scalar {
         name: "Boolean",

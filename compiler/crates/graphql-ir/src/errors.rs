@@ -86,11 +86,11 @@ pub enum ValidationMessage {
     )]
     VariableDefinitionsAndArgumentDirective(),
     #[error(
-        "Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')"
+        "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
     ExpectedArgumentDefinitionLiteralType(),
     #[error(
-        "Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties"
+        "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
@@ -138,9 +138,9 @@ pub enum ValidationMessage {
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
 
     #[error(
-        "Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got '{0}'"
+        "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
     )]
-    InvalidArgumentsKeys(String),
+    InvalidArgumentDefinitionsKey(StringKey),
 
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
@@ -417,6 +417,27 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Variable `${variable_name}` is never used in fragment `{fragment_name}`. `@argumentDefinitions` defines local variables, global variables are implicitly available."
+    )]
+    UnusedFragmentVariable {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Variable `${variable_name}` of fragment `{fragment_name}` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed."
+    )]
+    UselessUnusedFragmentVariableAnnotation {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "`unusedLocalVariable_DEPRECATED` can only be set to a constant `true` value. Remove the `unusedLocalVariable_DEPRECATED` or update the value."
+    )]
+    InvalidUnusedFragmentVariableSuppressionArg,
+
+    #[error(
         "Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'."
     )]
     UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
@@ -436,12 +457,12 @@ pub enum ValidationMessage {
     ExpectQueryNameToBeString { query_name_value: String },
 
     #[error(
-        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{fragment_name}' and '{previous_fragment_name}'"
+        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{first_fragment_name}' and '{second_fragment_name}'"
     )]
     DuplicateRefetchableOperation {
         query_name: StringKey,
-        fragment_name: StringKey,
-        previous_fragment_name: StringKey,
+        first_fragment_name: StringKey,
+        second_fragment_name: StringKey,
     },
 
     #[error(

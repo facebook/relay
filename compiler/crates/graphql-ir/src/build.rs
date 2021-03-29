@@ -230,7 +230,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
 
         let directives =
             self.build_directives(&fragment.directives, DirectiveLocation::FragmentDefinition);
-        let selections = self.build_selections(&fragment.selections.items, &fragment_type);
+        let selections = self.build_selections(&fragment.selections.items, &[fragment_type]);
         let (directives, selections) = try2(directives, selections)?;
         let used_global_variables = self
             .used_variables
@@ -317,7 +317,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             }
         }
         let selections =
-            self.build_selections(&operation.selections.items, &operation_type_reference);
+            self.build_selections(&operation.selections.items, &[operation_type_reference]);
         let (directives, selections) = try2(directives, selections)?;
         if !self.used_variables.is_empty() {
             Err(self
@@ -441,11 +441,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_selections(
         &mut self,
         selections: &[graphql_syntax::Selection],
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<Vec<Selection>> {
         try_map(selections, |selection| {
             // Here we've built our normal selections (fragments, linked fields, etc)
-            let mut next_selection = self.build_selection(selection, parent_type)?;
+            let mut next_selection = self.build_selection(selection, parent_types)?;
 
             // If there is no directives on selection return early.
             if next_selection.directives().is_empty() {
@@ -473,20 +473,20 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_selection(
         &mut self,
         selection: &graphql_syntax::Selection,
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<Selection> {
         match selection {
             graphql_syntax::Selection::FragmentSpread(selection) => Ok(Selection::FragmentSpread(
-                From::from(self.build_fragment_spread(selection, parent_type)?),
+                From::from(self.build_fragment_spread(selection, parent_types)?),
             )),
             graphql_syntax::Selection::InlineFragment(selection) => Ok(Selection::InlineFragment(
-                From::from(self.build_inline_fragment(selection, parent_type)?),
+                From::from(self.build_inline_fragment(selection, parent_types)?),
             )),
             graphql_syntax::Selection::LinkedField(selection) => Ok(Selection::LinkedField(
-                From::from(self.build_linked_field(selection, parent_type)?),
+                From::from(self.build_linked_field(selection, &parent_types[0])?),
             )),
             graphql_syntax::Selection::ScalarField(selection) => Ok(Selection::ScalarField(
-                From::from(self.build_scalar_field(selection, parent_type)?),
+                From::from(self.build_scalar_field(selection, &parent_types[0])?),
             )),
         }
     }
@@ -579,7 +579,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_fragment_spread(
         &mut self,
         spread: &graphql_syntax::FragmentSpread,
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<FragmentSpread> {
         let spread_name_with_location = spread
             .name
@@ -589,10 +589,17 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let signature = match self.signatures.get(&spread.name.value) {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
-                let directives = self.build_directives(
-                    spread.directives.iter(),
-                    DirectiveLocation::FragmentSpread,
-                )?;
+                let directives = if self.options.relay_mode {
+                    self.build_directives(
+                        spread.directives.iter().filter(|directive| {
+                            directive.name.value != *DIRECTIVE_ARGUMENTS
+                                && directive.name.value != *DIRECTIVE_UNCHECKED_ARGUMENTS
+                        }),
+                        DirectiveLocation::FragmentSpread,
+                    )?
+                } else {
+                    self.build_directives(&spread.directives, DirectiveLocation::FragmentSpread)?
+                };
                 return Ok(FragmentSpread {
                     fragment: spread_name_with_location,
                     arguments: Vec::new(),
@@ -607,9 +614,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             }
         };
 
-        if !self
-            .schema
-            .are_overlapping_types(parent_type.inner(), signature.type_condition)
+
+        if let Some(parent_type) =
+            self.find_conflicting_parent_type(parent_types, signature.type_condition)
         {
             // no possible overlap
             return Err(vec![Diagnostic::error(
@@ -705,29 +712,30 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     fn build_inline_fragment(
         &mut self,
         fragment: &graphql_syntax::InlineFragment,
-        parent_type: &TypeReference,
+        parent_types: &[TypeReference],
     ) -> DiagnosticsResult<InlineFragment> {
         // Error early if the type condition is invalid, since we can't correctly build
         // its selections w an invalid parent type
-        let type_condition = match &fragment.type_condition {
+        let type_condition_with_span = match &fragment.type_condition {
             Some(type_condition_node) => {
                 let type_name = type_condition_node.type_.value;
+                let span = type_condition_node.type_.span;
                 match self.schema.get_type(type_name) {
                     Some(type_condition) => match type_condition {
                         Type::Interface(..) | Type::Object(..) | Type::Union(..) => {
-                            Some(type_condition)
+                            Some((type_condition, span))
                         }
                         _ => {
                             return Err(vec![Diagnostic::error(
                                 ValidationMessage::ExpectedCompositeType(type_condition),
-                                self.location.with_span(type_condition_node.type_.span),
+                                self.location.with_span(span),
                             )]);
                         }
                     },
                     None => {
                         return Err(vec![Diagnostic::error(
                             ValidationMessage::UnknownType(type_name),
-                            self.location.with_span(type_condition_node.type_.span),
+                            self.location.with_span(span),
                         )]);
                     }
                 }
@@ -735,10 +743,9 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             None => None,
         };
 
-        if let Some(type_condition) = type_condition {
-            if !(self
-                .schema
-                .are_overlapping_types(parent_type.inner(), type_condition))
+        if let Some((type_condition, span)) = type_condition_with_span {
+            if let Some(parent_type) =
+                self.find_conflicting_parent_type(parent_types, type_condition)
             {
                 // no possible overlap
                 return Err(vec![Diagnostic::error(
@@ -746,16 +753,26 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         parent_type: self.schema.get_type_name(parent_type.inner()),
                         type_condition: self.schema.get_type_name(type_condition),
                     },
-                    self.location.with_span(fragment.span),
+                    self.location.with_span(span),
                 )]);
             }
         }
 
-        let type_condition_reference = type_condition
-            .map(TypeReference::Named)
-            .unwrap_or_else(|| parent_type.clone());
-        let selections =
-            self.build_selections(&fragment.selections.items, &type_condition_reference);
+        let type_condition = type_condition_with_span.map(|(type_, _)| type_);
+
+        let new_parent_types = type_condition.map(|type_| {
+            let mut parents = Vec::with_capacity(parent_types.len() + 1);
+            // Note: The immediate parent is stored at the front of the vec.
+            parents.push(TypeReference::Named(type_));
+            parents.extend_from_slice(parent_types);
+            parents
+        });
+
+        let selections = self.build_selections(
+            &fragment.selections.items,
+            new_parent_types.as_deref().unwrap_or(parent_types),
+        );
+
         let directives =
             self.build_directives(&fragment.directives, DirectiveLocation::InlineFragment);
         let (directives, selections) = try2(directives, selections)?;
@@ -813,7 +830,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 }
             },
         );
-        let selections = self.build_selections(&field.selections.items, &field_definition.type_);
+        let selections =
+            self.build_selections(&field.selections.items, &[field_definition.type_.clone()]);
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
@@ -1356,7 +1374,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if required_fields.is_empty() {
             Ok(Value::Object(fields?))
         } else {
-            let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
+            let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
@@ -1485,7 +1503,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         if required_fields.is_empty() {
             Ok(ConstantValue::Object(fields?))
         } else {
-            let mut missing: Vec<StringKey> = required_fields.into_iter().map(|x| x).collect();
+            let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
                 ValidationMessage::MissingRequiredFields(missing, type_definition.name),
@@ -1594,10 +1612,13 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     ) -> Option<FieldID> {
         if let Some(field_id) = self.schema.named_field(parent_type, field_name) {
             return Some(field_id);
-        };
+        }
+
+        #[allow(clippy::question_mark)]
         if directives.named(*FIXME_FAT_INTERFACE).is_none() {
             return None;
-        };
+        }
+
         // Handle @fixme_fat_interface: if present and the parent type is abstract, see
         // if one of the implementors has this field and if so use that definition.
         let possible_types = match parent_type {
@@ -1634,6 +1655,18 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
             }
         }
         None
+    }
+
+    fn find_conflicting_parent_type<'a>(
+        &self,
+        parent_types: &'a [TypeReference],
+        type_condition: Type,
+    ) -> Option<&'a TypeReference> {
+        parent_types.iter().find(|parent_type| {
+            !self
+                .schema
+                .are_overlapping_types(parent_type.inner(), type_condition)
+        })
     }
 }
 

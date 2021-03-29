@@ -21,6 +21,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -28,7 +29,6 @@ const {
   getSingularSelector,
   createReaderSelector,
 } = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -51,7 +51,7 @@ describe('executeMutation() with @match', () => {
   let queryOperation;
   let operationCallback;
   let operationLoader: {|
-    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let resolveFragment;
@@ -64,64 +64,73 @@ describe('executeMutation() with @match', () => {
     jest.resetModules();
     commentID = '1';
 
-    ({
-      CommentFragment: commentFragment,
-      CommentQuery: commentQuery,
-      CreateCommentMutation: mutation,
-      MarkdownUserNameRenderer_name: markdownRendererFragment,
-      MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              actor {
-                name
-                nameRenderer @match {
-                  ...PlainUserNameRenderer_name
-                    @module(name: "PlainUserNameRenderer.react")
-                  ...MarkdownUserNameRenderer_name
-                    @module(name: "MarkdownUserNameRenderer.react")
-                }
+    markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
+
+    mutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation(
+        $input: CommentCreateInput!
+      ) {
+        commentCreate(input: $input) {
+          comment {
+            actor {
+              name
+              nameRenderer @match {
+                ...RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+                ...RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name
+                  @module(name: "MarkdownUserNameRenderer.react")
               }
             }
           }
         }
+      }
+    `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
+    graphql`
+      fragment RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
+
+    markdownRendererFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
+        }
+      }
+    `);
+
+    commentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment on Comment {
+        id
+        actor {
+          name
+          nameRenderer @match {
+            ...RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+      }
+    `);
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
-        }
-
-        fragment CommentFragment on Comment {
+    commentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
           id
-          actor {
-            name
-            nameRenderer @match {
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
-          }
+          ...RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment
         }
+      }
+    `);
 
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...CommentFragment
-          }
-        }
-      `));
     variables = {
       input: {
         clientMutationId: '0',
@@ -237,10 +246,10 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
+                  'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -271,7 +280,7 @@ describe('executeMutation() with @match', () => {
                 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
               __fragmentPropName: 'name',
               __fragments: {
-                MarkdownUserNameRenderer_name: {},
+                RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
               },
               __fragmentOwner: operation.request,
               __module_component: 'MarkdownUserNameRenderer.react',
@@ -330,10 +339,10 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
+                  'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -350,7 +359,7 @@ describe('executeMutation() with @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
 
     expect(operationCallback).toBeCalledTimes(1);
@@ -410,10 +419,10 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
+                  'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -441,7 +450,7 @@ describe('executeMutation() with @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -471,10 +480,10 @@ describe('executeMutation() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CreateCommentMutation:
+                __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CreateCommentMutation:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
+                  'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -490,7 +499,7 @@ describe('executeMutation() with @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -531,10 +540,10 @@ describe('executeMutation() with @match', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_CreateCommentMutation:
+              __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                 'MarkdownUserNameRenderer.react',
-              __module_operation_CreateCommentMutation:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
+                'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<optimistic_markup/>', // server data is lowercase
@@ -570,7 +579,7 @@ describe('executeMutation() with @match', () => {
                   'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                 __fragmentPropName: 'name',
                 __fragments: {
-                  MarkdownUserNameRenderer_name: {},
+                  RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
                 },
                 __fragmentOwner: operation.request,
                 __module_component: 'MarkdownUserNameRenderer.react',
@@ -629,7 +638,7 @@ describe('executeMutation() with @match', () => {
                   'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                 __fragmentPropName: 'name',
                 __fragments: {
-                  MarkdownUserNameRenderer_name: {},
+                  RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
                 },
                 __fragmentOwner: operation.request,
                 __module_component: 'MarkdownUserNameRenderer.react',
@@ -683,10 +692,10 @@ describe('executeMutation() with @match', () => {
                 __typename: 'User',
                 nameRenderer: {
                   __typename: 'MarkdownUserNameRenderer',
-                  __module_component_CreateCommentMutation:
+                  __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                     'MarkdownUserNameRenderer.react',
-                  __module_operation_CreateCommentMutation:
-                    'MarkdownUserNameRenderer_name$normalization.graphql',
+                  __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
+                    'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                   markdown: 'markdown payload',
                   data: {
                     markup: '<markup/>', // server data is lowercase
@@ -717,7 +726,7 @@ describe('executeMutation() with @match', () => {
                   'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                 __fragmentPropName: 'name',
                 __fragments: {
-                  MarkdownUserNameRenderer_name: {},
+                  RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name: {},
                 },
                 __fragmentOwner: operation.request,
                 __module_component: 'MarkdownUserNameRenderer.react',

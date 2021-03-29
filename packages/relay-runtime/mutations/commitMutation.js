@@ -54,7 +54,7 @@ export type DEPRECATED_MutationConfig<T> = {|
 
 export type MutationParameters = {|
   +response: {...},
-  +variables: {...},
+  +variables: interface {},
   +rawResponse?: {...},
 |};
 

@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment unusedFragmentArgdefProfile on User @argumentDefinitions(
+  size: { type: "Int" }
+  cond: { type: "Boolean!" }
+  unusedButSuppressed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+  suppressedButUsed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+  unusedOne: { type: "Boolean!" }
+  unusedTwo: { type: "Boolean!" }
+) {
+  firstName @include(if: $cond)
+  lastName @include(if: $suppressedButUsed)
+  ...unusedFragmentArgdefProfilePhoto @arguments(size: $size)
+}
+
+fragment unusedFragmentArgdefProfilePhoto on User
+@argumentDefinitions(size: { type: "Int" }) {
+  profilePicture(size: [$size]) {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable `$suppressedButUsed` of fragment `unusedFragmentArgdefProfile` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed.
+
+  unused_fragment_argdef.invalid.graphql:7:42
+    6 │   unusedButSuppressed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+    7 │   suppressedButUsed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+      │                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    8 │   unusedOne: { type: "Boolean!" }
+
+
+✖︎ Variable `$unusedOne` is never used in fragment `unusedFragmentArgdefProfile`. `@argumentDefinitions` defines local variables, global variables are implicitly available.
+
+  unused_fragment_argdef.invalid.graphql:8:3
+    7 │   suppressedButUsed: { type: "Boolean!", unusedLocalVariable_DEPRECATED: true }
+    8 │   unusedOne: { type: "Boolean!" }
+      │   ^^^^^^^^^
+    9 │   unusedTwo: { type: "Boolean!" }
+
+
+✖︎ Variable `$unusedTwo` is never used in fragment `unusedFragmentArgdefProfile`. `@argumentDefinitions` defines local variables, global variables are implicitly available.
+
+  unused_fragment_argdef.invalid.graphql:9:3
+    8 │   unusedOne: { type: "Boolean!" }
+    9 │   unusedTwo: { type: "Boolean!" }
+      │   ^^^^^^^^^
+   10 │ ) {

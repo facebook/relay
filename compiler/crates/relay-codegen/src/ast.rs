@@ -50,7 +50,8 @@ pub enum Primitive {
     Null,
     StorageKey(StringKey, AstKey),
     RawString(String),
-    ModuleDependency(StringKey),
+    GraphQLModuleDependency(StringKey),
+    JSModuleDependency(StringKey),
 }
 
 impl Primitive {

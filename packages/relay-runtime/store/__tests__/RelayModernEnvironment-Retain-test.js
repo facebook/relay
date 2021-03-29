@@ -23,7 +23,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
+const {graphql, getRequest} = require('relay-runtime');
 
 describe('retain()', () => {
   let ParentQuery;
@@ -32,20 +32,24 @@ describe('retain()', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    ({ParentQuery} = generateAndCompile(`
-        query ParentQuery {
-          me {
-            id
-            name
-          }
-        }
-        fragment ChildFragment on User {
+    graphql`
+      fragment RelayModernEnvironmentRetainTestQueryChildFragment on User {
+        id
+        name
+      }
+    `;
+
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentRetainTestQuery {
+        me {
           id
           name
         }
-      `));
+      }
+    `);
+
     const source = RelayRecordSource.create();
-    const store = new RelayModernStore(source);
+    const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,

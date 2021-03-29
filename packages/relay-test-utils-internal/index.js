@@ -18,7 +18,6 @@ const parseGraphQLText = require('./parseGraphQLText');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
 
-const {generateAndCompile, generateWithTransforms} = require('./TestCompiler');
 const {TestSchema, testSchemaPath} = require('./TestSchema');
 const {
   generateTestsFromFixtures,
@@ -30,18 +29,14 @@ const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
  * The public interface to Relay Test Utils.
  */
 module.exports = {
-  FIXTURE_TAG,
-
-  TestSchema,
-
   createMockEnvironment,
-  generateAndCompile,
+  FIXTURE_TAG,
   generateTestsFromFixtures,
-  generateWithTransforms,
   matchers: Matchers,
   parseGraphQLText,
   printAST,
   simpleClone,
+  TestSchema,
   testSchemaPath,
   unwrapContainer,
 };

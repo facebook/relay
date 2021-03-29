@@ -22,7 +22,6 @@ use graphql_syntax::{
     ObjectTypeDefinition, ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
 };
 use interner::StringKey;
-use std::iter::FromIterator;
 
 fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {
     use DefinitionChange::*;
@@ -113,12 +112,11 @@ fn compare_fields(
 
     match (optional_current_fields.as_ref(), optional_previous_fields) {
         (Some(current_fields), Some(previous_fields)) => {
-            let mut previous_values = FnvHashMap::from_iter(
-                previous_fields
-                    .items
-                    .into_iter()
-                    .map(|input| (input.name.value, input)),
-            );
+            let mut previous_values = previous_fields
+                .items
+                .into_iter()
+                .map(|input| (input.name.value, input))
+                .collect::<FnvHashMap<_, _>>();
 
             for field in &current_fields.items {
                 match previous_values.remove(&field.name.value) {
@@ -230,11 +228,10 @@ fn compare_input_value_definition(
     current: &[InputValueDefinition],
     previous: Vec<InputValueDefinition>,
 ) -> (Vec<TypeChange>, Vec<TypeChange>) {
-    let mut previous_values = FnvHashMap::from_iter(
-        previous
-            .into_iter()
-            .map(|value_def| (value_def.name.value, value_def.type_)),
-    );
+    let mut previous_values = previous
+        .into_iter()
+        .map(|value_def| (value_def.name.value, value_def.type_))
+        .collect::<FnvHashMap<_, _>>();
 
     let mut added = vec![];
     let mut removed = vec![];
@@ -276,7 +273,10 @@ fn compare_string_keys(
     current: &[Identifier],
     previous: Vec<Identifier>,
 ) -> (Vec<StringKey>, Vec<StringKey>) {
-    let mut previous_values = FnvHashSet::from_iter(previous.into_iter().map(|ident| ident.value));
+    let mut previous_values = previous
+        .into_iter()
+        .map(|ident| ident.value)
+        .collect::<FnvHashSet<_>>();
     let mut added: Vec<StringKey> = vec![];
     for key in current {
         if !previous_values.remove(&key.value) {
@@ -304,10 +304,10 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                         values: Some(values),
                         ..
                     })) => {
-                        let mut previous_values =
-                            FnvHashSet::from_iter(previous_values.into_iter().flat_map(|list| {
-                                list.items.into_iter().map(|value| value.name.value)
-                            }));
+                        let mut previous_values = previous_values
+                            .into_iter()
+                            .flat_map(|list| list.items.into_iter().map(|value| value.name.value))
+                            .collect::<FnvHashSet<_>>();
 
                         let mut added = vec![];
                         for val in &values.items {
@@ -537,14 +537,14 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
     SchemaChange::DefinitionChanges(changes)
 }
 
-pub fn detect_changes(current_text: &str, previous_text: &str) -> SchemaChange {
+pub fn detect_changes(current_text: &[&str], previous_text: &[&str]) -> SchemaChange {
     if current_text == previous_text {
         return SchemaChange::None;
     }
 
     match (
-        parse_schema_document(current_text, SourceLocationKey::Generated),
-        parse_schema_document(previous_text, SourceLocationKey::Generated),
+        parse_schema_document(&current_text.join("\n"), SourceLocationKey::Generated),
+        parse_schema_document(&previous_text.join("\n"), SourceLocationKey::Generated),
     ) {
         (Ok(current_schema), Ok(previous_schema)) => {
             diff(current_schema.definitions, previous_schema.definitions)

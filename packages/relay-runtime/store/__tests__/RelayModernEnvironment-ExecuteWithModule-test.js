@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -49,7 +49,7 @@ describe('execute() a query with @module', () => {
   let operation;
   let operationCallback;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let query;
@@ -61,39 +61,41 @@ describe('execute() a query with @module', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({
-      UserQuery: query,
-      MarkdownUserNameRenderer_name: markdownRendererFragment,
-      MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
-    } = generateAndCompile(`
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              nameRenderer { # intentionally does not use @match
-                ...PlainUserNameRenderer_name
-                  @module(name: "PlainUserNameRenderer.react")
-                ...MarkdownUserNameRenderer_name
-                  @module(name: "MarkdownUserNameRenderer.react")
-              }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithModuleTestUserQuery($id: ID!) {
+        node(id: $id) {
+          ... on User {
+            nameRenderer {
+              # intentionally does not use @match
+              ...RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name
+                @module(name: "PlainUserNameRenderer.react")
+              ...RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name
+                @module(name: "MarkdownUserNameRenderer.react")
             }
           }
         }
+      }
+    `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
-          }
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
         }
+      }
+    `;
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
+    markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql');
+    markdownRendererFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
         }
-      `));
+      }
+    `);
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
@@ -154,9 +156,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -170,7 +173,7 @@ describe('execute() a query with @module', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
 
     expect(next.mock.calls.length).toBe(1);
@@ -186,7 +189,7 @@ describe('execute() a query with @module', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            MarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name: {},
           },
 
           __fragmentOwner: operation.request,
@@ -220,9 +223,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               // NOTE: should be uppercased when normalized (by MarkupHandler)
@@ -284,9 +288,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               id: 'markup-data-id-1',
@@ -335,9 +340,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -355,7 +361,7 @@ describe('execute() a query with @module', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -373,9 +379,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -389,7 +396,7 @@ describe('execute() a query with @module', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -412,9 +419,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -448,9 +456,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -474,9 +483,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -505,9 +515,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               markup: '<markup/>',
@@ -540,9 +551,10 @@ describe('execute() a query with @module', () => {
           __typename: 'User',
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
-            __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-            __module_operation_UserQuery:
-              'MarkdownUserNameRenderer_name$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
               // NOTE: should be uppercased when normalized (by MarkupHandler)
@@ -635,9 +647,10 @@ describe('execute() a query with @module', () => {
             nameRenderer: {
               id: 'nameRenderer-1',
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_UserQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_RelayModernEnvironmentExecuteWithModuleTestUserQuery:
+                'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 id: 'markup-data-id-1',

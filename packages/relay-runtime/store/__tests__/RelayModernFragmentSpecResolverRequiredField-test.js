@@ -15,11 +15,13 @@ const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResol
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+  RelayFeatureFlags,
+  graphql,
+  getRequest,
+  getFragment,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
@@ -53,18 +55,22 @@ describe('RelayModernFragmentSpecResolver', () => {
     logger = jest.fn();
     requiredFieldLogger = jest.fn();
     environment = createMockEnvironment({log: logger, requiredFieldLogger});
-    ({UserFragment, UserQuery} = generateAndCompile(`
-      query UserQuery($id: ID!) {
-        node(id: $id) {
-          ...UserFragment
-        }
-      }
-      fragment UserFragment on User {
+    UserFragment = getFragment(graphql`
+      fragment RelayModernFragmentSpecResolverRequiredFieldTestUserFragment on User {
         id
         name @required(action: THROW)
         alternate_name @required(action: LOG)
       }
-    `));
+    `);
+    UserQuery = getRequest(graphql`
+      query RelayModernFragmentSpecResolverRequiredFieldTestUserQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ...RelayModernFragmentSpecResolverRequiredFieldTestUserFragment
+        }
+      }
+    `);
     zuckOperation = createOperationDescriptor(UserQuery, {
       id: '4',
     });
@@ -90,9 +96,10 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     expect(() => resolver.resolve()).toThrowError(
-      "Relay: Missing @required value at path 'name' in 'UserFragment'.",
+      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
     );
   });
 
@@ -103,12 +110,13 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     resolver.resolve();
     expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'alternate_name',
       kind: 'missing_field.log',
-      owner: 'UserFragment',
+      owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
     });
   });
 
@@ -118,19 +126,20 @@ describe('RelayModernFragmentSpecResolver', () => {
       {user: UserFragment},
       {user: zuck},
       jest.fn(),
+      true /* rootIsQueryRenderer */,
     );
     const data = resolver.resolve();
     expect(data.user.name).toBe('Zuck');
     setUserField('4', 'name', null);
 
     expect(() => resolver.resolve()).toThrowError(
-      "Relay: Missing @required value at path 'name' in 'UserFragment'.",
+      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
     );
 
     expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'name',
       kind: 'missing_field.throw',
-      owner: 'UserFragment',
+      owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
     });
   });
 });

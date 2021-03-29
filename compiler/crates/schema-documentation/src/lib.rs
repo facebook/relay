@@ -96,16 +96,16 @@ impl SchemaDocumentation {
             .map(|description| description.as_ref())
     }
 
-    pub fn get_field_arg_description(
+    pub fn get_field_argument_description(
         &self,
         type_name: &str,
         field_name: &str,
-        arg_name: &str,
+        argument_name: &str,
     ) -> Option<&str> {
         let field = self.get_field(type_name, field_name)?;
 
         for arg in field.args.as_ref()? {
-            if arg_name == arg.name {
+            if argument_name == arg.name {
                 return arg
                     .description
                     .as_ref()
@@ -207,7 +207,7 @@ mod tests {
     fn test_get_arg_description() {
         let docs = create_docs();
         assert_eq!(
-            docs.get_field_arg_description("User", "name", "show_fill_name"),
+            docs.get_field_argument_description("User", "name", "show_fill_name"),
             Some("Show user's full name")
         );
     }
@@ -216,7 +216,7 @@ mod tests {
     fn test_get_arg_description_none() {
         let docs = create_docs();
         assert_eq!(
-            docs.get_field_arg_description("User", "name", "translate_name"),
+            docs.get_field_argument_description("User", "name", "translate_name"),
             None
         );
     }
@@ -225,7 +225,7 @@ mod tests {
     fn test_get_arg_description_unknown_type() {
         let docs = create_docs();
         assert_eq!(
-            docs.get_field_arg_description("UnknownType", "name", "translate_name"),
+            docs.get_field_argument_description("UnknownType", "name", "translate_name"),
             None
         );
     }
@@ -234,7 +234,7 @@ mod tests {
     fn test_get_arg_description_unknown_filed() {
         let docs = create_docs();
         assert_eq!(
-            docs.get_field_arg_description("User", "profile_picture", "scale"),
+            docs.get_field_argument_description("User", "profile_picture", "scale"),
             None
         );
     }
@@ -243,7 +243,7 @@ mod tests {
     fn test_get_arg_description_non_existing_arg() {
         let docs = create_docs();
         assert_eq!(
-            docs.get_field_arg_description("None", "id", "non_existing"),
+            docs.get_field_argument_description("None", "id", "non_existing"),
             None
         );
     }
@@ -252,7 +252,7 @@ mod tests {
     fn test_get_arg_description_unknown_agg() {
         let docs = create_docs();
         assert_eq!(
-            docs.get_field_arg_description("User", "name", "unknown_arg"),
+            docs.get_field_argument_description("User", "name", "unknown_arg"),
             None
         );
     }

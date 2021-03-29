@@ -21,6 +21,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -28,7 +29,6 @@ const {
   getSingularSelector,
   createReaderSelector,
 } = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -52,7 +52,7 @@ describe('executeSubscrption() with @match', () => {
   let queryOperation;
   let operationCallback;
   let operationLoader: {|
-    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let resolveFragment;
@@ -65,64 +65,72 @@ describe('executeSubscrption() with @match', () => {
     jest.resetModules();
     commentID = '1';
 
-    ({
-      CommentFragment: commentFragment,
-      CommentQuery: commentQuery,
-      CommentCreateSubscription: subscription,
-      MarkdownUserNameRenderer_name: markdownRendererFragment,
-      MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
-    } = generateAndCompile(`
-        subscription CommentCreateSubscription($input: CommentCreateSubscriptionInput!) {
-          commentCreateSubscribe(input: $input) {
-            comment {
-              actor {
-                name
-                nameRenderer @match {
-                  ...PlainUserNameRenderer_name
-                    @module(name: "PlainUserNameRenderer.react")
-                  ...MarkdownUserNameRenderer_name
-                    @module(name: "MarkdownUserNameRenderer.react")
-                }
+    markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
+
+    subscription = getRequest(graphql`
+      subscription RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          comment {
+            actor {
+              name
+              nameRenderer @match {
+                ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+                ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name
+                  @module(name: "MarkdownUserNameRenderer.react")
               }
             }
           }
         }
+      }
+    `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
+    graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
+
+    markdownRendererFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
+        }
+      }
+    `);
+
+    commentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment on Comment {
+        id
+        actor {
+          name
+          nameRenderer @match {
+            ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name
+              @module(name: "PlainUserNameRenderer.react")
+            ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name
+              @module(name: "MarkdownUserNameRenderer.react")
           }
         }
+      }
+    `);
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
-        }
-
-        fragment CommentFragment on Comment {
+    commentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
           id
-          actor {
-            name
-            nameRenderer @match {
-              ...PlainUserNameRenderer_name
-                @module(name: "PlainUserNameRenderer.react")
-              ...MarkdownUserNameRenderer_name
-                @module(name: "MarkdownUserNameRenderer.react")
-            }
-          }
+          ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment
         }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...CommentFragment
-          }
-        }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',
@@ -209,10 +217,10 @@ describe('executeSubscrption() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CommentCreateSubscription:
+                __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CommentCreateSubscription:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -243,7 +251,7 @@ describe('executeSubscrption() with @match', () => {
                 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
               __fragmentPropName: 'name',
               __fragments: {
-                MarkdownUserNameRenderer_name: {},
+                RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name: {},
               },
               __fragmentOwner: operation.request,
               __module_component: 'MarkdownUserNameRenderer.react',
@@ -302,10 +310,10 @@ describe('executeSubscrption() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CommentCreateSubscription:
+                __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CommentCreateSubscription:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -322,7 +330,7 @@ describe('executeSubscrption() with @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
 
     expect(operationCallback).toBeCalledTimes(1);
@@ -383,10 +391,10 @@ describe('executeSubscrption() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CommentCreateSubscription:
+                __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CommentCreateSubscription:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -415,7 +423,7 @@ describe('executeSubscrption() with @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -445,10 +453,10 @@ describe('executeSubscrption() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CommentCreateSubscription:
+                __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CommentCreateSubscription:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase
@@ -472,7 +480,7 @@ describe('executeSubscrption() with @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllTimers();
@@ -515,10 +523,10 @@ describe('executeSubscrption() with @match', () => {
               __typename: 'User',
               nameRenderer: {
                 __typename: 'MarkdownUserNameRenderer',
-                __module_component_CommentCreateSubscription:
+                __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
                   'MarkdownUserNameRenderer.react',
-                __module_operation_CommentCreateSubscription:
-                  'MarkdownUserNameRenderer_name$normalization.graphql',
+                __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
                   markup: '<markup/>', // server data is lowercase

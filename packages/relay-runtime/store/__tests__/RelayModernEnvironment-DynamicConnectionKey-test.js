@@ -22,11 +22,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('@connection with dynamic key', () => {
   let callbacks;
@@ -49,38 +49,43 @@ describe('@connection with dynamic key', () => {
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
     RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
-    ({
-      FeedbackQuery: query,
-      FeedbackFragment: fragment,
-      PaginationQuery: paginationQuery,
-    } = generateAndCompile(`
-      query FeedbackQuery($id: ID!, $commentsKey: String) {
+
+    query = getRequest(graphql`
+      query RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery(
+        $id: ID!
+        $commentsKey: String
+      ) {
         node(id: $id) {
-          ...FeedbackFragment
+          ...RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment
         }
       }
-
-      query PaginationQuery(
+    `);
+    paginationQuery = getRequest(graphql`
+      query RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery(
         $id: ID!
         $commentsKey: String
         $count: Int!
         $cursor: ID!
       ) {
         node(id: $id) {
-          ...FeedbackFragment @arguments(count: $count, cursor: $cursor)
+          ...RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment
+            @arguments(count: $count, cursor: $cursor)
         }
       }
-
-      fragment FeedbackFragment on Feedback @argumentDefinitions(
-        count: {type: "Int", defaultValue: 2},
-        cursor: {type: "ID"}
-      ) {
-        id
-        comments(after: $cursor, first: $count, orderby: "date") @connection(
-          key: "FeedbackFragment_comments"
-          dynamicKey_UNSTABLE: $commentsKey
-          filters: ["orderby"]
+    `);
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment on Feedback
+        @argumentDefinitions(
+          count: {type: "Int", defaultValue: 2}
+          cursor: {type: "ID"}
         ) {
+        id
+        comments(after: $cursor, first: $count, orderby: "date")
+          @connection(
+            key: "RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment_comments"
+            dynamicKey_UNSTABLE: $commentsKey
+            filters: ["orderby"]
+          ) {
           edges {
             node {
               id
@@ -88,7 +93,7 @@ describe('@connection with dynamic key', () => {
           }
         }
       }
-    `));
+    `);
     const variables = {
       id: '<feedbackid>',
       commentsKey: '<comments>',
@@ -163,7 +168,7 @@ describe('@connection with dynamic key', () => {
         __id: '<feedbackid>',
 
         __fragments: {
-          FeedbackFragment: {},
+          RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment: {},
         },
 
         __fragmentOwner: operation.request,

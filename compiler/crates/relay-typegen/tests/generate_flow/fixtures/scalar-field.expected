@@ -23,7 +23,7 @@ export type ScalarField = {|
   +websites: ?$ReadOnlyArray<?string>,
   +traits: ?$ReadOnlyArray<?PersonalityTraits>,
   +aliasedLinkedField: ?{|
-    +aliasedField: ?number
+    +aliasedField: ?number,
   |},
   +screennames: ?$ReadOnlyArray<?{|
     +name: ?string,

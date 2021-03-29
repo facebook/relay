@@ -8,7 +8,6 @@
 use crate::compiler_state::ProjectName;
 use common::Diagnostic;
 use persist_query::PersistError;
-use serde_json::error::Error as SerdeError;
 use std::io;
 use std::path::PathBuf;
 use thiserror::Error;
@@ -21,6 +20,14 @@ pub enum Error {
     ConfigFileRead {
         config_path: PathBuf,
         source: std::io::Error,
+    },
+
+    #[error("No config found.")]
+    ConfigNotFound,
+
+    #[error("Error searching config: {error}")]
+    ConfigSearchError {
+        error: js_config_loader::ConfigError,
     },
 
     #[error("Failed to parse config file `{config_path}`: {source}")]
@@ -69,10 +76,16 @@ pub enum Error {
     WriteFileError { file: PathBuf, source: io::Error },
 
     #[error("Unable to serialize state to file: `{file}`, because of `{source}`.")]
-    SerializationError { file: PathBuf, source: SerdeError },
+    SerializationError {
+        file: PathBuf,
+        source: Box<bincode::ErrorKind>,
+    },
 
     #[error("Unable to deserialize state from file: `{file}`, because of `{source}`.")]
-    DeserializationError { file: PathBuf, source: SerdeError },
+    DeserializationError {
+        file: PathBuf,
+        source: Box<bincode::ErrorKind>,
+    },
 
     #[error("Failed to canonicalize root: `{root}`.")]
     CanonicalizeRoot {
@@ -80,7 +93,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Watchman error: {source}.")]
+    #[error("Watchman error: {source}")]
     Watchman {
         #[from]
         source: watchman_client::Error,
@@ -94,9 +107,6 @@ pub enum Error {
         file: PathBuf,
         source: std::io::Error,
     },
-
-    #[error("Syntax error: {error}")]
-    Syntax { error: String },
 
     #[error("A thread that the Relay compiler spun up did not shut down gracefully: {error}")]
     JoinError { error: String },

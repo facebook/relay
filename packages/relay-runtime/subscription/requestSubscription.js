@@ -13,13 +13,16 @@
 'use strict';
 
 const RelayDeclarativeMutationConfig = require('../mutations/RelayDeclarativeMutationConfig');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const warning = require('warning');
 
 const {getRequest} = require('../query/GraphQLTag');
+const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../store/RelayModernSelector');
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
@@ -64,6 +67,9 @@ function requestSubscription<TSubscriptionPayload>(
     subscription,
     variables,
     cacheConfig,
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
+      ? generateUniqueClientID()
+      : undefined,
   );
 
   warning(
@@ -85,8 +91,25 @@ function requestSubscription<TSubscriptionPayload>(
       operation,
       updater,
     })
-    .map(() => {
-      const data = environment.lookup(operation.fragment).data;
+    .map(responses => {
+      let selector = operation.fragment;
+      if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
+        let nextID;
+        if (Array.isArray(responses)) {
+          nextID = responses[0]?.extensions?.__relay_subscription_root_id;
+        } else {
+          nextID = responses.extensions?.__relay_subscription_root_id;
+        }
+        if (typeof nextID === 'string') {
+          selector = createReaderSelector(
+            selector.node,
+            nextID,
+            selector.variables,
+            selector.owner,
+          );
+        }
+      }
+      const data = environment.lookup(selector).data;
       // $FlowFixMe[incompatible-cast]
       return (data: TSubscriptionPayload);
     })

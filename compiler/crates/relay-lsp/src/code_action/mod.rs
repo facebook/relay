@@ -20,7 +20,7 @@ use lsp_types::{
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     resolution_path::{
         IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
     },
@@ -32,6 +32,9 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();
+    if !uri.path().starts_with(state.root_dir_str()) {
+        return Err(LSPRuntimeError::ExpectedError);
+    }
     let range = params.range;
 
     let text_document_position_params = TextDocumentPositionParams {
@@ -46,7 +49,9 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     let path = document.resolve((), position_span);
 
     let used_definition_names = get_definition_names(&definitions);
-    Ok(get_code_actions(path, used_definition_names, uri, range))
+    let result = get_code_actions(path, used_definition_names, uri, range)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+    Ok(Some(result))
 }
 
 struct FragmentAndOperationNames {

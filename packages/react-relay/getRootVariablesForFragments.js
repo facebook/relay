@@ -32,6 +32,7 @@ function getRootVariablesForFragments<TProps: {...}>(
       selector != null && selector.kind === 'PluralReaderSelector'
         ? selector.selectors[0]?.owner.variables ?? {}
         : selector?.owner.variables ?? {};
+    // $FlowFixMe[cannot-spread-interface]
     rootVariables = {
       // $FlowFixMe[exponential-spread]
       ...rootVariables,

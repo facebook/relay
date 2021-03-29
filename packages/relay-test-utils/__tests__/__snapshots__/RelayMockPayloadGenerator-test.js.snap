@@ -2,14 +2,15 @@
 
 exports[`check context in the mock resolver 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest11Query {
   viewer {
-    ...TestFragment
+    ...RelayMockPayloadGeneratorTest11Fragment
   }
 }
 
-fragment TestFragment on Viewer {
+fragment RelayMockPayloadGeneratorTest11Fragment on Viewer {
   actor {
+    __typename
     ... on User {
       id
       name
@@ -18,6 +19,7 @@ fragment TestFragment on Viewer {
         height
       }
     }
+    id
   }
 }
 
@@ -41,13 +43,15 @@ fragment TestFragment on Viewer {
 
 exports[`generate basic mock data 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest6Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest6Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest6Fragment on User {
   id
   name
   author {
@@ -74,22 +78,25 @@ fragment TestFragment on User {
 
 exports[`generate mock and verify arguments in the context 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($smallScale: Int = 1, $bigScale: Int = 100) {
+query RelayMockPayloadGeneratorTest14Query(
+  $smallScale: Int = 1
+  $bigScale: Int = 100
+) {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest14Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
-  ... on User {
-    id
-    name
-    smallImage: profile_picture(scale: $smallScale) {
-      uri
-    }
-    bigImage: profile_picture(scale: $bigScale) {
-      uri
-    }
+fragment RelayMockPayloadGeneratorTest14Fragment on User {
+  id
+  name
+  smallImage: profile_picture(scale: $smallScale) {
+    uri
+  }
+  bigImage: profile_picture(scale: $bigScale) {
+    uri
   }
 }
 
@@ -113,15 +120,19 @@ fragment TestFragment on User {
 
 exports[`generate mock for fragment with @argumentsDefinition 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($scale: Int = 1) {
+query RelayMockPayloadGeneratorTest15Query(
+  $scale: Int = 1
+) {
   node(id: "my-id") {
-    ...TestFragment @arguments(withName: true)
+    __typename
+    ...RelayMockPayloadGeneratorTest15Fragment_3I1js
+    id
   }
 }
 
-fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"}) {
+fragment RelayMockPayloadGeneratorTest15Fragment_3I1js on User {
   id
-  name @include(if: $withName)
+  name
   profile_picture(scale: $scale) {
     uri
     width
@@ -148,43 +159,48 @@ fragment TestFragment on User @argumentDefinitions(withName: {type: "Boolean!"})
 
 exports[`generate mock for multiple fragment spreads 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest17Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest20Fragment
+    id
   }
 }
 
-fragment ActorUser on Page {
+fragment RelayMockPayloadGeneratorTest17Fragment on Page {
   id
   pageName: name
 }
 
-fragment UserData on User {
+fragment RelayMockPayloadGeneratorTest18Fragment on User {
   id
   name
   username
 }
 
-fragment ProfilePicture on User {
-  ...UserData
+fragment RelayMockPayloadGeneratorTest19Fragment on User {
+  ...RelayMockPayloadGeneratorTest18Fragment
   profile_picture {
     uri
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest20Fragment on User {
   body {
     text
   }
   actor {
+    __typename
     name
     id
   }
   myActor: actor {
-    ...ActorUser
+    __typename
+    ...RelayMockPayloadGeneratorTest17Fragment
+    id
   }
-  ...UserData
-  ...ProfilePicture
+  ...RelayMockPayloadGeneratorTest18Fragment
+  ...RelayMockPayloadGeneratorTest19Fragment
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -218,14 +234,17 @@ fragment TestFragment on User {
 
 exports[`generate mock for objects without concrete type 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest9Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest9Fragment
+    id
   }
 }
 
-fragment TestFragment on Page {
+fragment RelayMockPayloadGeneratorTest9Fragment on Page {
   actor {
+    __typename
     id
     name
   }
@@ -236,12 +255,12 @@ fragment TestFragment on Page {
   "data": {
     "node": {
       "__typename": "Page",
-      "id": "<mock-id-1>",
       "actor": {
         "__typename": "__MockObject",
-        "id": "<mock-id-2>",
+        "id": "<mock-id-1>",
         "name": "<mock-value-for-field-\\"name\\">"
-      }
+      },
+      "id": "<mock-id-2>"
     }
   }
 }
@@ -249,13 +268,15 @@ fragment TestFragment on Page {
 
 exports[`generate mock for plural fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest16Query {
   nodes {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest16Fragment
+    id
   }
 }
 
-fragment TestFragment on Comment @relay(plural: true) {
+fragment RelayMockPayloadGeneratorTest16Fragment on Comment {
   id
   body {
     text
@@ -280,13 +301,15 @@ fragment TestFragment on Comment @relay(plural: true) {
 
 exports[`generate mock for simple fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest1Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTestFragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTestFragment on User {
   id
   name
   profile_picture {
@@ -315,34 +338,47 @@ fragment TestFragment on User {
 
 exports[`generate mock for with directives and handlers 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($first: Int = 10, $picturePreset: PhotoSize, $RELAY_INCREMENTAL_DELIVERY: Boolean = false) {
+query RelayMockPayloadGeneratorTest18Query(
+  $first: Int = 10
+  $picturePreset: PhotoSize
+  $RELAY_INCREMENTAL_DELIVERY: Boolean = false
+) {
   node(id: "my-id") {
-    ...TestFragment @arguments(condition: true)
+    __typename
+    ...RelayMockPayloadGeneratorTest22Fragment_1t4y1N
+    id
   }
 }
 
-fragment OneMoreFragmentSpread on User {
+fragment RelayMockPayloadGeneratorTest21Fragment on User {
   birthdate {
     month
   }
 }
 
-fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}) {
+fragment RelayMockPayloadGeneratorTest22Fragment_1t4y1N on User {
   id
   name
   myActor: actor {
+    __typename
     id
     name
   }
   customName: name
-  friends(first: $first) @connection(key: "User_friends") {
+  friends(first: $first) {
     edges {
       node {
         id
         name
+        __typename
       }
+      cursor
     }
     myPageInfo: pageInfo {
+      endCursor
+      hasNextPage
+    }
+    pageInfo {
       endCursor
       hasNextPage
     }
@@ -350,11 +386,12 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
   profile_picture {
     uri
   }
-  profilePicture(preset: $picturePreset) @include(if: $condition) {
+  profilePicture(preset: $picturePreset) {
     uri
   }
-  ...OneMoreFragmentSpread
+  ...RelayMockPayloadGeneratorTest21Fragment
   actor {
+    __typename
     ... on User {
       id
       userName: name
@@ -368,21 +405,24 @@ fragment TestFragment on User @argumentDefinitions(condition: {type: "Boolean!"}
         comments {
           edges {
             node {
-              ...DeferFragment @defer(if: $RELAY_INCREMENTAL_DELIVERY, label: "DeferLabel")
+              ...RelayMockPayloadGeneratorTest23Fragment @defer(label: "RelayMockPayloadGeneratorTest22Fragment$defer$DeferLabel", if: $RELAY_INCREMENTAL_DELIVERY)
+              id
             }
           }
         }
+        id
       }
     }
     ... on Page {
       id
       pageName: name
     }
-    username @__clientField(handle: "MyUserName")
+    username
+    id
   }
 }
 
-fragment DeferFragment on Comment {
+fragment RelayMockPayloadGeneratorTest23Fragment on Comment {
   body {
     text
   }
@@ -446,10 +486,10 @@ fragment DeferFragment on Comment {
             "edges": [
               {
                 "node": {
-                  "id": "<Comment-mock-id-5>",
                   "body": {
                     "text": "<mock-value-for-field-\\"text\\">"
-                  }
+                  },
+                  "id": "<Comment-mock-id-5>"
                 }
               }
             ]
@@ -464,13 +504,15 @@ fragment DeferFragment on Comment {
 
 exports[`generate mock using custom mock functions 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest7Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest7Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest7Fragment on User {
   id
   name
   profile_picture {
@@ -495,15 +537,18 @@ fragment TestFragment on User {
 
 exports[`generate mock using custom mock functions for object type (multiple object) 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest10Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest10Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest10Fragment on User {
   name
   actor {
+    __typename
     ... on User {
       id
       name
@@ -512,6 +557,7 @@ fragment TestFragment on User {
         height
       }
     }
+    id
   }
   profile_picture {
     uri
@@ -544,14 +590,17 @@ fragment TestFragment on User {
 
 exports[`generate mock using custom mock functions for object type 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest8Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest8Fragment
+    id
   }
 }
 
-fragment TestFragment on Page {
+fragment RelayMockPayloadGeneratorTest8Fragment on Page {
   actor {
+    __typename
     id
     name
   }
@@ -566,16 +615,16 @@ fragment TestFragment on Page {
   "data": {
     "node": {
       "__typename": "Page",
-      "id": "<mock-id-1>",
       "actor": {
         "__typename": "__MockObject",
-        "id": "<mock-id-2>",
+        "id": "<mock-id-1>",
         "name": "<mock-value-for-field-\\"name\\">"
       },
       "backgroundImage": {
         "width": 200,
         "uri": "http://my-image"
-      }
+      },
+      "id": "<mock-id-2>"
     }
   }
 }
@@ -583,17 +632,21 @@ fragment TestFragment on Page {
 
 exports[`generate mock with abstract inline fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest2Query {
   viewer {
     actor {
-      ...TestFragment
+      __typename
+      ...RelayMockPayloadGeneratorTest1Fragment
+      id
     }
   }
 }
 
-fragment TestFragment on Actor {
+fragment RelayMockPayloadGeneratorTest1Fragment on Actor {
+  __isActor: __typename
   id
   ... on Named {
+    __isNamed: __typename
     name
   }
   ... on User {
@@ -625,13 +678,20 @@ fragment TestFragment on Actor {
 
 exports[`generate mock with condition (and other complications) 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($showProfilePicture: Boolean, $hideBirthday: Boolean, $showBirthdayMonth: Boolean, $hideAuthorUsername: Boolean) {
+query RelayMockPayloadGeneratorTest4Query(
+  $showProfilePicture: Boolean
+  $hideBirthday: Boolean
+  $showBirthdayMonth: Boolean
+  $hideAuthorUsername: Boolean
+) {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest3Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest3Fragment on User {
   id
   name
   customId: id
@@ -644,21 +704,21 @@ fragment TestFragment on User {
   }
   author {
     name
+    id
   }
-  ... on User @skip(if: $hideAuthorUsername) {
-    author {
-      authorID: id
-      objectType: __typename
-      username
-    }
+  author @skip(if: $hideAuthorUsername) {
+    authorID: id
+    objectType: __typename
+    username
+    id
   }
   allPhones {
     phoneNumber {
       displayNumber
     }
   }
-  emailAddresses @__clientField(handle: "customName")
-  backgroundImage @__clientField(handle: "customBackground") {
+  emailAddresses
+  backgroundImage {
     uri
   }
 }
@@ -693,36 +753,48 @@ fragment TestFragment on User {
 
 exports[`generate mock with connection 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($first: Int, $skipUserInConnection: Boolean) {
+query RelayMockPayloadGeneratorTest5Query(
+  $first: Int
+  $skipUserInConnection: Boolean
+) {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest5Fragment
+    id
   }
 }
 
-fragment UserFragment on User {
+fragment RelayMockPayloadGeneratorTest4Fragment on User {
   name
   username
   emailAddresses
 }
 
-fragment TestFragment on Page {
+fragment RelayMockPayloadGeneratorTest5Fragment on Page {
   actor {
+    __typename
     ... on User {
       id
       myType: __typename
       myName: name
       name
-      friends(first: $first) @connection(key: "FriendsConnection_friends") {
+      friends(first: $first) {
         edges {
           cursor
           node {
             id
-            ...UserFragment @skip(if: $skipUserInConnection)
+            ...RelayMockPayloadGeneratorTest4Fragment @skip(if: $skipUserInConnection)
+            __typename
           }
         }
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
       }
-      ...UserFragment
+      ...RelayMockPayloadGeneratorTest4Fragment
     }
+    id
   }
 }
 
@@ -763,36 +835,35 @@ fragment TestFragment on Page {
 
 exports[`generate mock with inline fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery($condition: Boolean) {
+query RelayMockPayloadGeneratorTest3Query(
+  $condition: Boolean
+) {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest2Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest2Fragment on User {
   id
   name
   author {
     id
     name
+    authorID: id
+    username
   }
-  ... on User {
-    author {
-      authorID: id
-      username
+  author @include(if: $condition) {
+    myId: id
+    myUsername: username
+    emailAddresses
+    birthdate {
+      day
+      month
+      year
     }
-  }
-  ... on User @include(if: $condition) {
-    author {
-      myId: id
-      myUsername: username
-      emailAddresses
-      birthdate {
-        day
-        month
-        year
-      }
-    }
+    id
   }
 }
 
@@ -816,13 +887,15 @@ fragment TestFragment on User {
 
 exports[`generate mock with manual mock for objects 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest12Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest12Fragment
+    id
   }
 }
 
-fragment TestFragment on Page {
+fragment RelayMockPayloadGeneratorTest12Fragment on Page {
   id
   name
   body {
@@ -850,6 +923,7 @@ fragment TestFragment on Page {
           startCursor
         }
       }
+      id
     }
   }
 }
@@ -898,14 +972,15 @@ fragment TestFragment on Page {
 
 exports[`generate mock with multiple spreads 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest13Query {
   viewer {
-    ...TestFragment
+    ...RelayMockPayloadGeneratorTest13Fragment
   }
 }
 
-fragment TestFragment on Viewer {
+fragment RelayMockPayloadGeneratorTest13Fragment on Viewer {
   actor {
+    __typename
     ... on User {
       id
       name
@@ -920,6 +995,7 @@ fragment TestFragment on Viewer {
       name
       websites
     }
+    id
   }
 }
 
@@ -944,43 +1020,48 @@ fragment TestFragment on Viewer {
 
 exports[`should return \`null\` for selection if that is specified in default values 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery {
+query RelayMockPayloadGeneratorTest19Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest27Fragment
+    id
   }
 }
 
-fragment ActorUser on User {
+fragment RelayMockPayloadGeneratorTest24Fragment on User {
   id
   name
 }
 
-fragment UserData on User {
+fragment RelayMockPayloadGeneratorTest25Fragment on User {
   id
   name
   profile_picture {
-    ...ProfilePicture
+    ...RelayMockPayloadGeneratorTest26Fragment
   }
 }
 
-fragment ProfilePicture on Image {
+fragment RelayMockPayloadGeneratorTest26Fragment on Image {
   uri
   width
   height
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest27Fragment on User {
   body {
     text
   }
   actor {
+    __typename
     name
     id
   }
   myActor: actor {
-    ...ActorUser
+    __typename
+    ...RelayMockPayloadGeneratorTest24Fragment
+    id
   }
-  ...UserData
+  ...RelayMockPayloadGeneratorTest25Fragment
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -1011,8 +1092,9 @@ fragment TestFragment on User {
 
 exports[`with @relay_test_operation generate mock data with mock resolver for ID that may return \`undefined\` 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest35Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1024,6 +1106,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1056,18 +1139,13 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock for client extensions 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-extend type User {
-  client_name: String
-  client_code: Int
-}
-
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest43Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
-      client_name
-      client_code
     }
+    id
   }
 }
 
@@ -1084,12 +1162,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock for enum in arrays 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest40Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       traits
     }
+    id
   }
 }
 
@@ -1110,12 +1190,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock for enum with different case should be OK 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest39Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       environment
     }
+    id
   }
 }
 
@@ -1133,13 +1215,15 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock for simple fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest21Query {
   node(id: "my-id") {
-    ...TestFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest28Fragment
+    id
   }
 }
 
-fragment TestFragment on User {
+fragment RelayMockPayloadGeneratorTest28Fragment on User {
   id
   name
   profile_picture {
@@ -1168,7 +1252,7 @@ fragment TestFragment on User {
 
 exports[`with @relay_test_operation generate mock for simple query 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest20Query {
   me {
     id
     name
@@ -1202,13 +1286,15 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Enums 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest22Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       name
       environment
     }
+    id
   }
 }
 
@@ -1227,12 +1313,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Mock Resolvers for Concrete Type 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest23Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       name
     }
+    id
   }
 }
 
@@ -1250,12 +1338,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest24Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       name
     }
+    id
   }
 }
 
@@ -1273,12 +1363,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type with Concrete Type mock resolver 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest27Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       name
     }
+    id
   }
 }
 
@@ -1296,8 +1388,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type with multiple fragment spreads 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest25Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       name
@@ -1306,6 +1399,7 @@ query TestQuery @relay_test_operation {
       id
       pageName: name
     }
+    id
   }
 }
 
@@ -1323,21 +1417,23 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Mock Resolvers for Interface Type with multiple fragments 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-fragment PageDetails on Page {
+query RelayMockPayloadGeneratorTest26Query {
+  node(id: "my-id") {
+    __typename
+    ...RelayMockPayloadGeneratorTest29Fragment
+    ...RelayMockPayloadGeneratorTest30Fragment
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest29Fragment on Page {
   id
   pageName: name
 }
 
-fragment UserDetails on User {
+fragment RelayMockPayloadGeneratorTest30Fragment on User {
   id
   userName: name
-}
-
-query TestQuery @relay_test_operation {
-  node(id: "my-id") {
-    ...PageDetails
-    ...UserDetails
-  }
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -1354,12 +1450,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with Mock Resolvers for Scalar field as null 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest28Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       name
     }
+    id
   }
 }
 
@@ -1377,8 +1475,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with default value for object in plural field 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest36Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1390,6 +1489,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1416,8 +1516,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with default value for plural field and its object 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest37Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1429,6 +1530,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1479,12 +1581,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with default value for scalar plural field 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest38Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       emailAddresses
     }
+    id
   }
 }
 
@@ -1504,12 +1608,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with empty array for scalar field  1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest30Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       emailAddresses
     }
+    id
   }
 }
 
@@ -1527,8 +1633,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with multiple items in arrays for linked field with custom data 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest33Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1545,6 +1652,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1587,8 +1695,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with multiple items in arrays for linked field with custom data and additional mock resolver 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest34Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1605,6 +1714,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1647,8 +1757,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with multiple items in arrays for linked field with default data 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest31Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1665,6 +1776,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1740,12 +1852,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with multiple items in arrays for scalar field 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest29Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       emailAddresses
     }
+    id
   }
 }
 
@@ -1769,8 +1883,9 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with multiple items in arrays including null 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest32Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       friends {
@@ -1787,6 +1902,7 @@ query TestQuery @relay_test_operation {
         }
       }
     }
+    id
   }
 }
 
@@ -1819,12 +1935,14 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation generate mock with null for enum 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest42Query {
   node(id: "my-id") {
+    __typename
     ... on User {
       id
       environment
     }
+    id
   }
 }
 
@@ -1842,31 +1960,44 @@ query TestQuery @relay_test_operation {
 
 exports[`with @relay_test_operation should generate data for @match with MarkdownUserNameRenderer_name 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest45Query {
   node(id: "my-id") {
-    ...NameRendererFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest31Fragment
+    id
   }
 }
 
-fragment NameRendererFragment on User {
-  id
-  nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
-  }
-}
-
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest31Fragment on User {
+  id
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    __typename
+    ... on PlainUserNameRenderer {
+      ...RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTest31Fragment: js(module: "RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTest31Fragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTest31Fragment: js(module: "PlainUserNameRenderer.react", id: "RelayMockPayloadGeneratorTest31Fragment.nameRenderer")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTest31Fragment: js(module: "RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTest31Fragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTest31Fragment: js(module: "MarkdownUserNameRenderer.react", id: "RelayMockPayloadGeneratorTest31Fragment.nameRenderer")
+    }
   }
 }
 
@@ -1878,7 +2009,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "id": "<Node-mock-id-1>",
       "nameRenderer": {
         "__typename": "MarkdownUserNameRenderer",
-        "__module_operation_NameRendererFragment": "MarkdownUserNameRenderer_name$normalization",
+        "__module_operation_RelayMockPayloadGeneratorTest31Fragment": "RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$normalization",
         "markdown": "<mock-value-for-field-\\"markdown\\">",
         "data": {
           "markup": "<mock-value-for-field-\\"markup\\">",
@@ -1892,31 +2023,44 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 exports[`with @relay_test_operation should generate data for @match with PlainUserNameRenderer_name 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest46Query {
   node(id: "my-id") {
-    ...NameRendererFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest32Fragment
+    id
   }
 }
 
-fragment NameRendererFragment on User {
+fragment RelayMockPayloadGeneratorTest32Fragment on User {
   id
-  nameRenderer @match {
-    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    __typename
+    ... on PlainUserNameRenderer {
+      ...RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTest32Fragment: js(module: "RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTest32Fragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTest32Fragment: js(module: "PlainUserNameRenderer.react", id: "RelayMockPayloadGeneratorTest32Fragment.nameRenderer")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTest32Fragment: js(module: "RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTest32Fragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTest32Fragment: js(module: "MarkdownUserNameRenderer.react", id: "RelayMockPayloadGeneratorTest32Fragment.nameRenderer")
+    }
   }
 }
 
-fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-  plaintext
-  data {
-    text
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment RelayMockPayloadGeneratorTest3MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
   }
 }
 
@@ -1928,7 +2072,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "id": "<Node-mock-id-1>",
       "nameRenderer": {
         "__typename": "PlainUserNameRenderer",
-        "__module_operation_NameRendererFragment": "PlainUserNameRenderer_name$normalization",
+        "__module_operation_RelayMockPayloadGeneratorTest32Fragment": "RelayMockPayloadGeneratorTest3PlainUserNameRenderer_name$normalization",
         "plaintext": "<mock-value-for-field-\\"plaintext\\">",
         "data": {
           "text": "<mock-value-for-field-\\"text\\">",
@@ -1942,23 +2086,31 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 exports[`with @relay_test_operation should generate data for @module 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest44Query {
   node(id: "my-id") {
-    ...NameRendererFragment
+    __typename
+    ...RelayMockPayloadGeneratorTestNameRendererFragment
+    id
   }
 }
 
-fragment NameRendererFragment on User {
-  id
-  nameRenderer {
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
-  }
-}
-
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTestNameRendererFragment on User {
+  id
+  nameRenderer {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTestNameRendererFragment: js(module: "RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTestNameRendererFragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTestNameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "RelayMockPayloadGeneratorTestNameRendererFragment.nameRenderer")
+    }
   }
 }
 
@@ -1970,7 +2122,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       "id": "<Node-mock-id-1>",
       "nameRenderer": {
         "__typename": "MarkdownUserNameRenderer",
-        "__module_operation_NameRendererFragment": "MarkdownUserNameRenderer_name$normalization",
+        "__module_operation_RelayMockPayloadGeneratorTestNameRendererFragment": "RelayMockPayloadGeneratorTestMarkdownUserNameRenderer_name$normalization",
         "markdown": "<mock-value-for-field-\\"markdown\\">",
         "data": {
           "markup": "<mock-value-for-field-\\"markup\\">",
@@ -1984,23 +2136,31 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 
 exports[`with @relay_test_operation should generate data for @module with \`null\` in mock resolvers 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
-query TestQuery @relay_test_operation {
+query RelayMockPayloadGeneratorTest48Query {
   node(id: "my-id") {
-    ...NameRendererFragment
+    __typename
+    ...RelayMockPayloadGeneratorTest34Fragment
+    id
   }
 }
 
-fragment NameRendererFragment on User {
+fragment RelayMockPayloadGeneratorTest34Fragment on User {
   id
   nameRenderer {
-    ...MarkdownUserNameRenderer_name @module(name: "MarkdownUserNameRenderer.react")
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...RelayMockPayloadGeneratorTest5MarkdownUserNameRenderer_name
+      __module_operation_RelayMockPayloadGeneratorTest34Fragment: js(module: "RelayMockPayloadGeneratorTest5MarkdownUserNameRenderer_name$normalization.graphql", id: "RelayMockPayloadGeneratorTest34Fragment.nameRenderer")
+      __module_component_RelayMockPayloadGeneratorTest34Fragment: js(module: "MarkdownUserNameRenderer.react", id: "RelayMockPayloadGeneratorTest34Fragment.nameRenderer")
+    }
   }
 }
 
-fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+fragment RelayMockPayloadGeneratorTest5MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   markdown
   data {
     markup
+    id
   }
 }
 
@@ -2016,4 +2176,4 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 }
 `;
 
-exports[`with @relay_test_operation should throw if invalid default value provide for __module_operation. 1`] = `"RelayMockPayloadGenerator(): Unexpected default value for a field \`__module_operation\` in the mock resolver for @module dependency. Provided value is \\"{\\"kind\\":\\"InvalidObject\\"}\\" and we're expecting an object of a type \`NormalizationSplitOperation\`. Please adjust mock resolver for the type \\"MarkdownUserNameRenderer\\". Typically it should require a file \\"MarkdownUserNameRenderer_name$normalization.graphql\\"."`;
+exports[`with @relay_test_operation should throw if invalid default value provide for __module_operation. 1`] = `"RelayMockPayloadGenerator(): Unexpected default value for a field \`__module_operation\` in the mock resolver for @module dependency. Provided value is \\"{\\"kind\\":\\"InvalidObject\\"}\\" and we're expecting an object of a type \`NormalizationSplitOperation\`. Please adjust mock resolver for the type \\"MarkdownUserNameRenderer\\". Typically it should require a file \\"RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name$normalization.graphql\\"."`;

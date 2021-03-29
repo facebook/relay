@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::NamedItem;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
 use interner::StringKey;
-use std::iter::FromIterator;
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
@@ -36,48 +36,55 @@ impl<'program> InferVariablesVisitor<'program> {
     /// referenced by each fragment, ie the union of all root variables used in the
     /// fragment and any fragments it transitively spreads.
     pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
+        let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
             self.program,
             &mut self.visited_fragments,
             Default::default(),
+            &transitive_local_variables,
         );
         visitor.visit_operation(operation);
         visitor.variable_map
     }
 
     pub fn infer_fragment_variables(&mut self, fragment: &FragmentDefinition) -> VariableMap {
+        let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
             self.program,
             &mut self.visited_fragments,
             Default::default(),
+            &transitive_local_variables,
         );
         visitor.infer_fragment_variables(fragment)
     }
 }
 
-struct VariablesVisitor<'a> {
+struct VariablesVisitor<'a, 'b> {
     variable_map: VariableMap,
     visited_fragments: &'a mut Visited,
     program: &'a Program,
     local_variables: FnvHashSet<StringKey>,
+    transitive_local_variables: &'b FnvHashSet<StringKey>,
 }
 
-impl<'a> VariablesVisitor<'a> {
+impl<'a, 'b> VariablesVisitor<'a, 'b> {
     fn new(
         program: &'a Program,
         visited_fragments: &'a mut Visited,
         local_variables: FnvHashSet<StringKey>,
+        transitive_local_variables: &'b FnvHashSet<StringKey>,
     ) -> Self {
         Self {
             variable_map: Default::default(),
             visited_fragments,
             program,
             local_variables,
+            transitive_local_variables,
         }
     }
 }
 
-impl VariablesVisitor<'_> {
+impl VariablesVisitor<'_, '_> {
     /// Determine the set of root variables referenced locally in each
     /// fragment. Note that RootArgumentDefinitions in the fragment's
     /// argumentDefinitions can contain spurious entries for legacy
@@ -95,15 +102,29 @@ impl VariablesVisitor<'_> {
             self.visited_fragments
                 .insert(fragment.name.item, Default::default());
 
-            // Avoid collecting local variables usages as root varaibles
-            let local_variables = FnvHashSet::from_iter(
-                fragment
-                    .variable_definitions
-                    .iter()
-                    .map(|var| var.name.item),
+            // Avoid collecting local variables usages as root variables
+            let local_variables = fragment
+                .variable_definitions
+                .iter()
+                .map(|var| var.name.item)
+                .collect::<FnvHashSet<_>>();
+            let transitive_local_variables = if fragment
+                .directives
+                .named(*NO_INLINE_DIRECTIVE_NAME)
+                .is_some()
+            {
+                Some(local_variables.clone())
+            } else {
+                None
+            };
+            let mut visitor = VariablesVisitor::new(
+                self.program,
+                self.visited_fragments,
+                local_variables,
+                transitive_local_variables
+                    .as_ref()
+                    .unwrap_or(&self.transitive_local_variables),
             );
-            let mut visitor =
-                VariablesVisitor::new(self.program, self.visited_fragments, local_variables);
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
             self.visited_fragments
@@ -111,9 +132,13 @@ impl VariablesVisitor<'_> {
             result
         }
     }
+
+    fn is_root_variable(&self, name: StringKey) -> bool {
+        !self.local_variables.contains(&name) && !self.transitive_local_variables.contains(&name)
+    }
 }
 
-impl<'s> Visitor for VariablesVisitor<'s> {
+impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
     const NAME: &'static str = "VariablesVisitor";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -131,7 +156,7 @@ impl<'s> Visitor for VariablesVisitor<'s> {
             for arg in spread.arguments.iter() {
                 if let Value::Variable(var) = &arg.value.item {
                     if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
-                        if !self.local_variables.contains(&var.name.item) {
+                        if self.is_root_variable(var.name.item) {
                             self.variable_map
                                 .entry(var.name.item)
                                 .or_insert_with(|| Variable {
@@ -153,7 +178,7 @@ impl<'s> Visitor for VariablesVisitor<'s> {
     }
 
     fn visit_variable(&mut self, value: &Variable) {
-        if !self.local_variables.contains(&value.name.item) {
+        if self.is_root_variable(value.name.item) {
             self.variable_map
                 .entry(value.name.item)
                 .or_insert_with(|| value.clone());

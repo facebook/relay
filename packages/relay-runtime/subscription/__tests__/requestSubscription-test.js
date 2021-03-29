@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -21,15 +22,13 @@ const RelayRecordSource = require('../../store/RelayRecordSource');
 
 const requestSubscription = require('../requestSubscription');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
-const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
   it('Config: `RANGE_ADD`', () => {
@@ -41,24 +40,25 @@ describe('requestSubscription-test', () => {
     const firstCommentId = 'comment-1';
     const firstCommentBody = 'first comment';
     const secondCommentId = 'comment-2';
-    const {FeedbackCommentQuery} = generateAndCompile(`
-			query FeedbackCommentQuery($id: ID) {
-					node(id: $id) {
-						...on Feedback {
-							comments(first: 2)@connection(key: "FeedbackCommentQuery_comments") {
-								edges {
-									node {
-                    id
-                    body {
-                      text
-                    }
-									}
-								}
-							}
-						}
-					}
-				}
-			`);
+    const FeedbackCommentQuery = getRequest(graphql`
+      query requestSubscriptionTestFeedbackCommentQuery($id: ID) {
+        node(id: $id) {
+          ... on Feedback {
+            comments(first: 2)
+              @connection(key: "FeedbackCommentQuery_comments") {
+              edges {
+                node {
+                  id
+                  body {
+                    text
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -93,8 +93,8 @@ describe('requestSubscription-test', () => {
     );
     environment.commitPayload(operationDescriptor, payload);
 
-    const {CommentCreateSubscription} = generateAndCompile(`
-      subscription CommentCreateSubscription(
+    const CommentCreateSubscription = getRequest(graphql`
+      subscription requestSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput
       ) {
         commentCreateSubscribe(input: $input) {
@@ -177,7 +177,7 @@ describe('requestSubscription-test', () => {
               },
             },
             {
-              cursor: undefined,
+              cursor: null,
               node: {
                 __typename: 'Comment',
                 body: {
@@ -212,22 +212,22 @@ describe('requestSubscription-test', () => {
     };
 
     beforeEach(() => {
-      ({CommentCreateSubscription} = generateAndCompile(`
-      subscription CommentCreateSubscription(
-        $input: CommentCreateSubscriptionInput
-      ) {
-        commentCreateSubscribe(input: $input) {
-          feedbackCommentEdge {
-            node {
-              id
-              body {
-                text
+      CommentCreateSubscription = getRequest(graphql`
+        subscription requestSubscriptionTest1CommentCreateSubscription(
+          $input: CommentCreateSubscriptionInput
+        ) {
+          commentCreateSubscribe(input: $input) {
+            feedbackCommentEdge {
+              node {
+                id
+                body {
+                  text
+                }
               }
             }
           }
         }
-      }
-    `));
+      `);
 
       cacheMetadata = undefined;
       const fetch = jest.fn((_query, _variables, _cacheConfig) => {
@@ -241,25 +241,190 @@ describe('requestSubscription-test', () => {
         store,
       });
     });
-    it('with cacheConfig', () => {
-      requestSubscription(environment, {
-        subscription: CommentCreateSubscription,
-        variables,
-        cacheConfig: {
-          metadata,
-        },
+
+    function runTests() {
+      it('with cacheConfig', () => {
+        requestSubscription(environment, {
+          subscription: CommentCreateSubscription,
+          variables,
+          cacheConfig: {
+            metadata,
+          },
+        });
+
+        expect(cacheMetadata).toEqual(metadata);
       });
 
-      expect(cacheMetadata).toEqual(metadata);
+      it('without cacheConfig', () => {
+        requestSubscription(environment, {
+          subscription: CommentCreateSubscription,
+          variables,
+        });
+
+        expect(cacheMetadata).toEqual(undefined);
+      });
+    }
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = false;
+    runTests();
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
+    runTests();
+  });
+
+  it('does not overwrite existing data', () => {
+    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
+    const ConfigsQuery = getRequest(graphql`
+      query requestSubscriptionTestConfigsQuery {
+        viewer {
+          configs {
+            edges {
+              node {
+                name
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    graphql`
+      fragment requestSubscriptionTestExtraFragment on Config {
+        isEnabled
+      }
+    `;
+
+    const ConfigCreateSubscription = getRequest(graphql`
+      subscription requestSubscriptionTestConfigCreateSubscription {
+        configCreateSubscribe {
+          config {
+            name
+            ...requestSubscriptionTestExtraFragment
+          }
+        }
+      }
+    `);
+
+    const operationDescriptor = createOperationDescriptor(ConfigsQuery, {});
+    const environment = createMockEnvironment();
+    const store = environment.getStore();
+
+    environment.commitPayload(operationDescriptor, {
+      viewer: {
+        configs: {
+          edges: [],
+        },
+      },
     });
 
-    it('without cacheConfig', () => {
-      requestSubscription(environment, {
-        subscription: CommentCreateSubscription,
-        variables,
-      });
+    const selector = createReaderSelector(
+      ConfigsQuery.fragment,
+      ROOT_ID,
+      {},
+      operationDescriptor.request,
+    );
+    const onNext = jest.fn();
 
-      expect(cacheMetadata).toEqual(undefined);
+    let id = 0;
+    requestSubscription(environment, {
+      subscription: ConfigCreateSubscription,
+      variables: {},
+      updater: storeProxy => {
+        const configs = storeProxy
+          .getRoot()
+          .getLinkedRecord('viewer')
+          ?.getLinkedRecord('configs');
+        if (configs == null) {
+          throw Error('Expected edges to exist');
+        }
+        const config = storeProxy
+          .getRootField('configCreateSubscribe')
+          ?.getLinkedRecord('config');
+
+        if (config == null) {
+          throw Error('Expected config to exist');
+        }
+        const edge = storeProxy.create(String(id++), 'ConfigsConnectionEdge');
+        edge.setLinkedRecord(config, 'node');
+        const edges = configs.getLinkedRecords('edges');
+        if (edges == null) {
+          throw Error('Expected edges to exist');
+        }
+        edges.push(edge);
+        configs.setLinkedRecords(edges, 'edges');
+      },
+      onNext,
+    });
+
+    environment.mock.nextValue(ConfigCreateSubscription, {
+      data: {
+        configCreateSubscribe: {
+          config: {
+            name: 'Mark',
+          },
+        },
+      },
+    });
+    expect(store.lookup(selector).data).toEqual({
+      viewer: {
+        configs: {
+          edges: [
+            {
+              node: {
+                name: 'Mark',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext.mock.calls[0][0]).toEqual({
+      configCreateSubscribe: {
+        config: {
+          name: 'Mark',
+          __id: expect.any(String),
+          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragmentOwner: expect.any(Object),
+        },
+      },
+    });
+
+    environment.mock.nextValue(ConfigCreateSubscription, {
+      data: {
+        configCreateSubscribe: {
+          config: {
+            name: 'Zuck',
+          },
+        },
+      },
+    });
+    expect(store.lookup(selector).data).toEqual({
+      viewer: {
+        configs: {
+          edges: [
+            {
+              node: {
+                name: 'Mark',
+              },
+            },
+            {
+              node: {
+                name: 'Zuck',
+              },
+            },
+          ],
+        },
+      },
+    });
+    expect(onNext).toBeCalledTimes(2);
+    expect(onNext.mock.calls[1][0]).toEqual({
+      configCreateSubscribe: {
+        config: {
+          name: 'Zuck',
+          __id: expect.any(String),
+          __fragments: {requestSubscriptionTestExtraFragment: {}},
+          __fragmentOwner: expect.any(Object),
+        },
+      },
     });
   });
 });

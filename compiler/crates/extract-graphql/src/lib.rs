@@ -68,9 +68,9 @@ impl<'a> Iterator for CharReader<'a> {
 
 /// Extract graphql`text` literals from JS-like code. This should work for Flow
 /// or TypeScript alike.
-pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
+pub fn parse_chunks(input: &str) -> Vec<GraphQLSource> {
     if !input.contains("graphql`") {
-        return Ok(vec![]);
+        return vec![];
     }
     let mut res = vec![];
     let mut it = CharReader::new(input);
@@ -96,12 +96,6 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
                             let text = &input[start + 8..end];
                             res.push(GraphQLSource::new(text, line_index, column_index));
                             continue 'code;
-                        }
-                        '$' => {
-                            if let Some((_, '{')) = it.next() {
-                                return Err("graphql literals cannot have string substitutions."
-                                    .to_string());
-                            }
                         }
                         ' ' | '\n' | '\r' => {}
                         'a'..='z' | 'A'..='Z' | '#' => {
@@ -150,7 +144,7 @@ pub fn parse_chunks(input: &str) -> Result<Vec<GraphQLSource>, String> {
             _ => {}
         };
     }
-    Ok(res)
+    res
 }
 
 fn consume_identifier(it: &mut CharReader<'_>) {

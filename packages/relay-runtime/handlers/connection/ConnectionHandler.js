@@ -19,6 +19,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {generateClientID} = require('../../store/ClientID');
+const {getStableStorageKey} = require('../../store/RelayStoreUtils');
 
 import type {
   HandleFieldPayload,
@@ -145,10 +146,12 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     let nextEdges = [];
     const args = payload.args;
     if (prevEdges && serverEdges) {
+      // $FlowFixMe[prop-missing]
       if (args.after != null) {
         // Forward pagination from the end of the connection: append edges
         if (
           clientPageInfo &&
+          // $FlowFixMe[prop-missing]
           args.after === clientPageInfo.getValue(END_CURSOR)
         ) {
           const nodeIDs = new Set();
@@ -164,10 +167,12 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           );
           return;
         }
+        // $FlowFixMe[prop-missing]
       } else if (args.before != null) {
         // Backward pagination from the start of the connection: prepend edges
         if (
           clientPageInfo &&
+          // $FlowFixMe[prop-missing]
           args.before === clientPageInfo.getValue(START_CURSOR)
         ) {
           const nodeIDs = new Set();
@@ -199,10 +204,12 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     }
     // Page info should be updated even if no new edge were returned.
     if (clientPageInfo && serverPageInfo) {
+      // $FlowFixMe[prop-missing]
       if (args.after == null && args.before == null) {
         // The connection was refetched from the beginning/end: replace
         // page_info
         clientPageInfo.copyFieldsFrom(serverPageInfo);
+        // $FlowFixMe[prop-missing]
       } else if (args.before != null || (args.after == null && args.last)) {
         clientPageInfo.setValue(
           !!serverPageInfo.getValue(HAS_PREV_PAGE),
@@ -212,6 +219,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
         if (typeof startCursor === 'string') {
           clientPageInfo.setValue(startCursor, START_CURSOR);
         }
+        // $FlowFixMe[prop-missing]
       } else if (args.after != null || (args.before == null && args.first)) {
         clientPageInfo.setValue(
           !!serverPageInfo.getValue(HAS_NEXT_PAGE),
@@ -271,6 +279,47 @@ function getConnection(
 ): ?RecordProxy {
   const handleKey = getRelayHandleKey(CONNECTION, key, null);
   return record.getLinkedRecord(handleKey, filters);
+}
+
+/**
+ * @public
+ *
+ * Given a record ID, the key of a connection field, and optional filters used
+ * to identify the connection, returns the connection ID.
+ *
+ * Example:
+ *
+ * Given that data has already been fetched on some user `<user-id>` on the `friends`
+ * field:
+ *
+ * ```
+ * fragment FriendsFragment on User {
+ *   friends(first: 10) @connection(key: "FriendsFragment_friends") {
+ *     edges {
+ *       node {
+ *         id
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * The ID of the `friends` connection record can be accessed with:
+ *
+ * ```
+ * store => {
+ *   const connectionID = ConnectionHandler.getConnectionID('<user-id>', 'FriendsFragment_friends');
+ * }
+ * ```
+ */
+function getConnectionID(
+  recordID: DataID,
+  key: string,
+  filters?: ?Variables,
+): DataID {
+  const handleKey = getRelayHandleKey(CONNECTION, key, null);
+  const storageKey = getStableStorageKey(handleKey, filters);
+  return generateClientID(recordID, storageKey);
 }
 
 /**
@@ -369,6 +418,11 @@ function createEdge(
     edge = store.create(edgeID, edgeType);
   }
   edge.setLinkedRecord(node, NODE);
+  if (edge.getValue('cursor') == null) {
+    // Always use null instead of undefined value for cursor
+    // to avoid considering it as missing data
+    edge.setValue(null, 'cursor');
+  }
   return edge;
 }
 
@@ -504,6 +558,11 @@ function buildConnectionEdge(
   const edgeID = generateClientID(connection.getDataID(), EDGES, edgeIndex);
   const connectionEdge = store.create(edgeID, edge.getType());
   connectionEdge.copyFieldsFrom(edge);
+  if (connectionEdge.getValue('cursor') == null) {
+    // Always use null instead of undefined value for cursor
+    // to avoid considering it as missing data
+    connectionEdge.setValue(null, 'cursor');
+  }
   connection.setValue(edgeIndex + 1, NEXT_EDGE_INDEX);
   return connectionEdge;
 }
@@ -543,6 +602,7 @@ module.exports = {
   createEdge,
   deleteNode,
   getConnection,
+  getConnectionID,
   insertEdgeAfter,
   insertEdgeBefore,
   update,

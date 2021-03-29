@@ -160,14 +160,14 @@ query moduleDedupingQuery(
       __typename
       ... on PlainUserNameRenderer {
         ...moduleDeduping_frag
-        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer")
-        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer")
+        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
+        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
       }
       __isUserNameRenderer: __typename @include(if: $cond)
       ... on PlainUserNameRenderer @include(if: $cond) {
         ...moduleDeduping_frag
-        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer")
-        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer")
+        __module_operation_moduleDedupingQuery: js(module: "moduleDeduping_frag$normalization.graphql", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
+        __module_component_moduleDedupingQuery: js(module: "Component.react", id: "moduleDedupingQuery.me.nameRenderer", branch: "PlainUserNameRenderer")
       }
     }
     id

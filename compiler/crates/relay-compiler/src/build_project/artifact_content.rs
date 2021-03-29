@@ -13,6 +13,7 @@ use relay_codegen::{build_request_params, Printer};
 use relay_transforms::{
     DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
+    RELAY_CLIENT_COMPONENT_METADATA_KEY, RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
 };
 use relay_typegen::generate_fragment_type;
 use schema::SDLSchema;
@@ -36,6 +37,7 @@ pub enum ArtifactContent {
     },
     SplitOperation {
         normalization_operation: Arc<OperationDefinition>,
+        typegen_operation: Option<Arc<OperationDefinition>>,
         source_hash: String,
     },
     Generic {
@@ -79,12 +81,15 @@ impl ArtifactContent {
             ),
             ArtifactContent::SplitOperation {
                 normalization_operation,
+                typegen_operation,
                 source_hash,
             } => generate_split_operation(
                 config,
+                project_config,
                 printer,
                 schema,
                 normalization_operation,
+                typegen_operation,
                 source_hash,
             ),
             ArtifactContent::Fragment {
@@ -125,7 +130,10 @@ fn write_data_driven_dependency_annotation(
     Ok(())
 }
 
-fn write_flight_annotation(content: &mut String, flight_directive: &Directive) -> Result {
+fn write_react_flight_server_annotation(
+    content: &mut String,
+    flight_directive: &Directive,
+) -> Result {
     let arg = flight_directive
         .arguments
         .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY)
@@ -146,6 +154,37 @@ fn write_flight_annotation(content: &mut String, flight_directive: &Directive) -
         }
         _ => panic!(
             "Unexpected argument value for @__ReactFlightMetadata directive: {:?}",
+            &arg.value.item
+        ),
+    };
+    writeln!(content)?;
+    Ok(())
+}
+
+fn write_react_flight_client_annotation(
+    content: &mut String,
+    relay_client_component_metadata: &Directive,
+) -> Result {
+    let arg = relay_client_component_metadata
+        .arguments
+        .named(*RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY)
+        .unwrap();
+    match &arg.value.item {
+        graphql_ir::Value::Constant(graphql_ir::ConstantValue::List(value)) => {
+            for item in value {
+                match item {
+                    graphql_ir::ConstantValue::String(value) => {
+                        writeln!(content, "// @ReactFlightClientDependency {}", value)?;
+                    }
+                    _ => panic!(
+                        "Unexpected item value for @__RelayClientComponent directive: {:?}",
+                        item
+                    ),
+                }
+            }
+        }
+        _ => panic!(
+            "Unexpected argument value for @__RelayClientComponent directive: {:?}",
             &arg.value.item
         ),
     };
@@ -218,7 +257,14 @@ fn generate_operation(
         .directives
         .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
     if let Some(flight_metadata) = flight_metadata {
-        write_flight_annotation(&mut content, flight_metadata).unwrap();
+        write_react_flight_server_annotation(&mut content, flight_metadata).unwrap();
+    }
+    let relay_client_component_metadata = operation_fragment
+        .directives
+        .named(*RELAY_CLIENT_COMPONENT_METADATA_KEY);
+    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
+        write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
+            .unwrap();
     }
 
     if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
@@ -256,9 +302,7 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
         )
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
+    write_source_hash(config, &mut content, &source_hash).unwrap();
     // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
     if is_operation_preloadable(normalization_operation) {
         writeln!(
@@ -273,9 +317,11 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
 
 fn generate_split_operation(
     config: &Config,
+    project_config: &ProjectConfig,
     printer: &mut Printer,
     schema: &SDLSchema,
-    node: &OperationDefinition,
+    normalization_operation: &OperationDefinition,
+    typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
@@ -291,22 +337,36 @@ fn generate_split_operation(
     writeln!(content, "'use strict';\n").unwrap();
     writeln!(
         content,
-        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n\n*/\n"
+        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n"
     )
     .unwrap();
+    if let Some(typegen_operation) = typegen_operation {
+        writeln!(
+            content,
+            "{}",
+            relay_typegen::generate_split_operation_type(
+                typegen_operation,
+                normalization_operation,
+                schema,
+                &project_config.typegen_config,
+            )
+        )
+        .unwrap();
+    }
+    writeln!(content, "*/\n").unwrap();
+
     writeln!(
         content,
         "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation(schema, node)
+        printer.print_operation(schema, normalization_operation)
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
+    write_source_hash(config, &mut content, &source_hash).unwrap();
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn generate_fragment(
     config: &Config,
     project_config: &ProjectConfig,
@@ -341,7 +401,14 @@ fn generate_fragment(
         .directives
         .named(*REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY);
     if let Some(flight_metadata) = flight_metadata {
-        write_flight_annotation(&mut content, flight_metadata).unwrap();
+        write_react_flight_server_annotation(&mut content, flight_metadata).unwrap();
+    }
+    let relay_client_component_metadata = reader_fragment
+        .directives
+        .named(*RELAY_CLIENT_COMPONENT_METADATA_KEY);
+    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
+        write_react_flight_client_annotation(&mut content, relay_client_component_metadata)
+            .unwrap();
     }
 
     let reader_node_flow_type = if reader_fragment
@@ -375,9 +442,8 @@ fn generate_fragment(
         printer.print_fragment(schema, reader_fragment)
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
+    write_source_hash(config, &mut content, &source_hash).unwrap();
+
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
@@ -392,4 +458,16 @@ fn get_content_start(config: &Config) -> String {
         writeln!(content, " *").unwrap();
     }
     content
+}
+
+fn write_source_hash(config: &Config, content: &mut String, source_hash: &str) -> Result {
+    if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
+        writeln!(content, "if ({}) {{", is_dev_variable_name)?;
+        writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?;
+        writeln!(content, "}}\n")?;
+    } else {
+        writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?;
+    }
+
+    Ok(())
 }

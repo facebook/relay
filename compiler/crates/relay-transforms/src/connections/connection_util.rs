@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::{CONNECTION_METADATA_ARGUMENT_NAME, CONNECTION_METADATA_DIRECTIVE_NAME};
 use crate::connections::{ConnectionConstants, ConnectionInterface};
 use crate::util::extract_variable_name;
 use common::{NamedItem, WithLocation};
@@ -110,21 +111,20 @@ pub fn build_connection_metadata(
 /// for every @connection present in a Document (fragment or operation)
 pub fn build_connection_metadata_as_directive(
     connection_metadata: &[ConnectionMetadata],
-    connection_constants: ConnectionConstants,
 ) -> Directive {
     let connection_metadata_values = connection_metadata
         .iter()
         .map(|metadata| build_connection_metadata_value(metadata))
         .collect::<Vec<ConstantValue>>();
     let metadata_argument = Argument {
-        name: WithLocation::generated(connection_constants.connection_metadata_argument_name),
+        name: WithLocation::generated(*CONNECTION_METADATA_ARGUMENT_NAME),
         value: WithLocation::generated(Value::Constant(ConstantValue::List(
             connection_metadata_values,
         ))),
     };
 
     Directive {
-        name: WithLocation::generated(connection_constants.connection_metadata_directive_name),
+        name: WithLocation::generated(*CONNECTION_METADATA_DIRECTIVE_NAME),
         arguments: vec![metadata_argument],
     }
 }
@@ -162,10 +162,8 @@ fn build_connection_metadata_value(connection_metadata: &ConnectionMetadata) -> 
 
 pub fn extract_connection_metadata_from_directive(
     directives: &[Directive],
-    connection_constants: ConnectionConstants,
 ) -> Option<Vec<ConnectionMetadata>> {
-    let connection_metadata_directive =
-        directives.named(connection_constants.connection_metadata_directive_name);
+    let connection_metadata_directive = directives.named(*CONNECTION_METADATA_DIRECTIVE_NAME);
 
     if let Some(connection_metadata_directive) = connection_metadata_directive {
         debug_assert!(
@@ -174,16 +172,11 @@ pub fn extract_connection_metadata_from_directive(
         );
         let metadata_arg = connection_metadata_directive
             .arguments
-            .named(connection_constants.connection_metadata_argument_name);
+            .named(*CONNECTION_METADATA_ARGUMENT_NAME);
 
         if let Some(metadata_arg) = metadata_arg {
             let metadata_values = match &metadata_arg.value.item {
-                Value::Constant(value) => match value {
-                    ConstantValue::List(list) => list,
-                    _ => unreachable!(
-                        "Expected connection metadata to be a list of metadata objects."
-                    ),
-                },
+                Value::Constant(ConstantValue::List(list)) => list,
                 _ => unreachable!("Expected connection metadata to be a list of metadata objects."),
             };
 

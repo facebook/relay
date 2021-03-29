@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -77,7 +77,7 @@ describe('execute() a query with @defer', () => {
   let next;
   let operation;
   let operationLoader: {|
-    +get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
+    get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let query;
@@ -93,44 +93,53 @@ describe('execute() a query with @defer', () => {
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementation(() => undefined);
 
-    ({
-      Actor_actor$normalization: actorNormalizationFragment,
-      UserQuery: query,
-      UserFragment: fragment,
-      User_user$normalization: userNormalizationFragment,
-    } = generateAndCompile(`
-
-      # NOTE: the query is structured to have the same exact deferred fragment
-      # used at two different paths (node / viewer.actor), each within a distict
-      # @module selection so that the data and @module for each can resolve
-      # independently.
-
-      query UserQuery($id: ID!) {
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery(
+        $id: ID!
+      ) {
+        # NOTE: the query is structured to have the same exact deferred fragment
+        # used at two different paths (node / viewer.actor), each within a distict
+        # @module selection so that the data and @module for each can resolve
+        # independently.
         node(id: $id) {
-          ...User_user @module(name: "User.react")
+          ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user
+            @module(name: "User.react")
         }
         viewer {
-          actor @match(key: "UserQuery_actor") {
-            ...Actor_actor @module(name: "Actor.react")
+          actor
+            @match(
+              key: "RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor"
+            ) {
+            ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor
+              @module(name: "Actor.react")
           }
         }
       }
+    `);
 
-      fragment Actor_actor on User {
+    actorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql');
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor on User {
         # NOTE: deferring UserFragment directly here would create
         # a different label
-        ...User_user
+        ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user
       }
+    `;
 
-      fragment User_user on User {
-        ...UserFragment @defer(label: "UserFragment")
+    userNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql');
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User {
+        ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment
+          @defer(label: "UserFragment")
       }
+    `;
 
-      fragment UserFragment on User {
+    fragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment on User {
         id
         name
       }
-    `));
+    `);
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     complete = jest.fn();
@@ -180,16 +189,19 @@ describe('execute() a query with @defer', () => {
         node: {
           id: '1',
           __typename: 'User',
-          __module_component_UserQuery: 'User.react',
-          __module_operation_UserQuery: 'User_user$normalization.graphql',
+          __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+            'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
         },
         viewer: {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery_actor: 'Actor.react',
-            __module_operation_UserQuery_actor:
-              'Actor_actor$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+              'Actor.react',
+            __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
           },
         },
       },
@@ -199,10 +211,10 @@ describe('execute() a query with @defer', () => {
 
     expect(operationLoader.load).toBeCalledTimes(2);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'User_user$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
     );
     expect(operationLoader.load.mock.calls[1][0]).toBe(
-      'Actor_actor$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
     );
 
     expect(next.mock.calls.length).toBe(1);
@@ -231,16 +243,19 @@ describe('execute() a query with @defer', () => {
         node: {
           id: '1',
           __typename: 'User',
-          __module_component_UserQuery: 'User.react',
-          __module_operation_UserQuery: 'User_user$normalization.graphql',
+          __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+            'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
         },
         viewer: {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery_actor: 'Actor.react',
-            __module_operation_UserQuery_actor:
-              'Actor_actor$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+              'Actor.react',
+            __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
           },
         },
       },
@@ -256,7 +271,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'Alice',
       },
-      label: 'User_user$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
       path: ['node'],
     });
     dataSource.next({
@@ -265,7 +281,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'Bob',
       },
-      label: 'User_user$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
       path: ['viewer', 'actor'],
     });
 
@@ -309,16 +326,19 @@ describe('execute() a query with @defer', () => {
         node: {
           id: '1',
           __typename: 'User',
-          __module_component_UserQuery: 'User.react',
-          __module_operation_UserQuery: 'User_user$normalization.graphql',
+          __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+            'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
         },
         viewer: {
           actor: {
             id: '2',
             __typename: 'User',
-            __module_component_UserQuery_actor: 'Actor.react',
-            __module_operation_UserQuery_actor:
-              'Actor_actor$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+              'Actor.react',
+            __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
           },
         },
       },
@@ -329,10 +349,10 @@ describe('execute() a query with @defer', () => {
     actorCallback.mockClear();
     expect(operationLoader.load).toBeCalledTimes(2);
     expect(operationLoader.load.mock.calls[0][0]).toBe(
-      'User_user$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
     );
     expect(operationLoader.load.mock.calls[1][0]).toBe(
-      'Actor_actor$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
     );
 
     resolveFragment(userNormalizationFragment);
@@ -346,7 +366,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'Alice',
       },
-      label: 'User_user$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
       path: ['node'],
     });
 
@@ -375,7 +396,8 @@ describe('execute() a query with @defer', () => {
         __typename: 'User',
         name: 'Bob',
       },
-      label: 'User_user$defer$UserFragment',
+      label:
+        'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
       path: ['viewer', 'actor'],
     });
 
@@ -433,16 +455,19 @@ describe('execute() a query with @defer', () => {
           node: {
             id: '1',
             __typename: 'User',
-            __module_component_UserQuery: 'User.react',
-            __module_operation_UserQuery: 'User_user$normalization.graphql',
+            __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+              'User.react',
+            __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery:
+              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql',
           },
           viewer: {
             actor: {
               id: '2',
               __typename: 'User',
-              __module_component_UserQuery_actor: 'Actor.react',
-              __module_operation_UserQuery_actor:
-                'Actor_actor$normalization.graphql',
+              __module_component_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+                'Actor.react',
+              __module_operation_RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery_actor:
+                'RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql',
             },
           },
         },
@@ -462,7 +487,8 @@ describe('execute() a query with @defer', () => {
           __typename: 'User',
           name: 'Alice',
         },
-        label: 'User_user$defer$UserFragment',
+        label:
+          'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
         path: ['node'],
       });
       dataSource.next({
@@ -471,7 +497,8 @@ describe('execute() a query with @defer', () => {
           __typename: 'User',
           name: 'Bob',
         },
-        label: 'User_user$defer$UserFragment',
+        label:
+          'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
         path: ['viewer', 'actor'],
       });
       jest.runAllTimers();

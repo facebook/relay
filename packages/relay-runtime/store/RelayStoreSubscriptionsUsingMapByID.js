@@ -12,6 +12,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReader = require('./RelayReader');
 
 const deepFreeze = require('../util/deepFreeze');
@@ -19,12 +20,13 @@ const recycleNodesInto = require('../util/recycleNodesInto');
 
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {
-  RecordMap,
+  LogFunction,
+  OperationDescriptor,
   RecordSource,
   RequestDescriptor,
   Snapshot,
   StoreSubscriptions,
-  UpdatedRecords,
+  DataIDSet,
 } from './RelayStoreTypes';
 
 type Subscription = {|
@@ -40,12 +42,14 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
   _snapshotRevision: number;
   _subscriptionsByDataId: Map<DataID, Set<Subscription>>;
   _staleSubscriptions: Set<Subscription>;
+  __log: ?LogFunction;
 
-  constructor() {
+  constructor(log?: ?LogFunction) {
     this._notifiedRevision = 0;
     this._snapshotRevision = 0;
     this._subscriptionsByDataId = new Map();
     this._staleSubscriptions = new Set();
+    this.__log = log;
   }
 
   subscribe(
@@ -60,7 +64,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       snapshot,
     };
     const dispose = () => {
-      for (const dataId in snapshot.seenRecords) {
+      for (const dataId of snapshot.seenRecords) {
         const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
         if (subscriptionsForDataId != null) {
           subscriptionsForDataId.delete(subscription);
@@ -71,7 +75,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       }
     };
 
-    for (const dataId in snapshot.seenRecords) {
+    for (const dataId of snapshot.seenRecords) {
       const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
       if (subscriptionsForDataId != null) {
         subscriptionsForDataId.add(subscription);
@@ -150,11 +154,12 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
 
   updateSubscriptions(
     source: RecordSource,
-    updatedRecordIDs: UpdatedRecords,
+    updatedRecordIDs: DataIDSet,
     updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
   ) {
     this._notifiedRevision++;
-    Object.keys(updatedRecordIDs).forEach(updatedRecordId => {
+    updatedRecordIDs.forEach(updatedRecordId => {
       const subcriptionsForDataId = this._subscriptionsByDataId.get(
         updatedRecordId,
       );
@@ -165,7 +170,12 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
         if (subscription.notifiedRevision === this._notifiedRevision) {
           return;
         }
-        const owner = this._updateSubscription(source, subscription, false);
+        const owner = this._updateSubscription(
+          source,
+          subscription,
+          false,
+          sourceOperation,
+        );
         if (owner != null) {
           updatedOwners.push(owner);
         }
@@ -175,7 +185,12 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       if (subscription.notifiedRevision === this._notifiedRevision) {
         return;
       }
-      const owner = this._updateSubscription(source, subscription, true);
+      const owner = this._updateSubscription(
+        source,
+        subscription,
+        true,
+        sourceOperation,
+      );
       if (owner != null) {
         updatedOwners.push(owner);
       }
@@ -196,6 +211,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
     source: RecordSource,
     subscription: Subscription,
     stale: boolean,
+    sourceOperation?: OperationDescriptor,
   ): ?RequestDescriptor {
     const {backup, callback, snapshot} = subscription;
     let nextSnapshot: Snapshot =
@@ -220,6 +236,14 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
     this._updateSubscriptionsMap(subscription, prevSeenRecords);
 
     if (nextSnapshot.data !== snapshot.data) {
+      if (this.__log && RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION) {
+        this.__log({
+          name: 'store.notify.subscription',
+          sourceOperation,
+          snapshot,
+          nextSnapshot,
+        });
+      }
       callback(nextSnapshot);
       return snapshot.selector.owner;
     }
@@ -233,9 +257,9 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
    */
   _updateSubscriptionsMap(
     subscription: Subscription,
-    prevSeenRecords: RecordMap,
+    prevSeenRecords: DataIDSet,
   ) {
-    for (const dataId in prevSeenRecords) {
+    for (const dataId of prevSeenRecords) {
       const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
       if (subscriptionsForDataId != null) {
         subscriptionsForDataId.delete(subscription);
@@ -245,7 +269,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
       }
     }
 
-    for (const dataId in subscription.snapshot.seenRecords) {
+    for (const dataId of subscription.snapshot.seenRecords) {
       const subscriptionsForDataId = this._subscriptionsByDataId.get(dataId);
       if (subscriptionsForDataId != null) {
         subscriptionsForDataId.add(subscription);

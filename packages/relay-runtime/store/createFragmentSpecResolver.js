@@ -28,6 +28,7 @@ function createFragmentSpecResolver(
   containerName: string,
   fragments: FragmentMap,
   props: Props,
+  rootIsQueryRenderer: boolean,
   callback?: () => void,
 ): FragmentSpecResolver {
   if (__DEV__) {
@@ -49,6 +50,7 @@ function createFragmentSpecResolver(
     fragments,
     props,
     callback,
+    rootIsQueryRenderer,
   );
 }
 

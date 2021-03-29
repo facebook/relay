@@ -48,7 +48,7 @@ import type {
   Snapshot,
   Store,
   StoreSubscriptions,
-  UpdatedRecords,
+  DataIDSet,
 } from './RelayStoreTypes';
 
 export opaque type InvalidationState = {|
@@ -61,7 +61,7 @@ type InvalidationSubscription = {|
   invalidationState: InvalidationState,
 |};
 
-const DEFAULT_RELEASE_BUFFER_SIZE = 0;
+const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
 /**
  * @public
@@ -84,7 +84,7 @@ class RelayModernStore implements Store {
   _getDataID: GetDataID;
   _globalInvalidationEpoch: ?number;
   _invalidationSubscriptions: Set<InvalidationSubscription>;
-  _invalidatedRecordIDs: Set<DataID>;
+  _invalidatedRecordIDs: DataIDSet;
   __log: ?LogFunction;
   _queryCacheExpirationTime: ?number;
   _operationLoader: ?OperationLoader;
@@ -102,7 +102,8 @@ class RelayModernStore implements Store {
   >;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
-  _updatedRecordIDs: UpdatedRecords;
+  _updatedRecordIDs: DataIDSet;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -110,9 +111,10 @@ class RelayModernStore implements Store {
       gcScheduler?: ?Scheduler,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
-      UNSTABLE_DO_NOT_USE_getDataID?: ?GetDataID,
+      getDataID?: ?GetDataID,
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      shouldProcessClientComponents?: ?boolean,
     |},
   ) {
     // Prevent mutation of a record from outside the store.
@@ -131,8 +133,7 @@ class RelayModernStore implements Store {
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
     this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
-    this._getDataID =
-      options?.UNSTABLE_DO_NOT_USE_getDataID ?? defaultGetDataID;
+    this._getDataID = options?.getDataID ?? defaultGetDataID;
     this._globalInvalidationEpoch = null;
     this._invalidationSubscriptions = new Set();
     this._invalidatedRecordIDs = new Set();
@@ -146,9 +147,11 @@ class RelayModernStore implements Store {
     this._shouldScheduleGC = false;
     this._storeSubscriptions =
       RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
-        ? new RelayStoreSubscriptionsUsingMapByID()
-        : new RelayStoreSubscriptions();
-    this._updatedRecordIDs = {};
+        ? new RelayStoreSubscriptionsUsingMapByID(options?.log)
+        : new RelayStoreSubscriptions(options?.log);
+    this._updatedRecordIDs = new Set();
+    this._shouldProcessClientComponents =
+      options?.shouldProcessClientComponents;
 
     initializeRecordSource(this._recordSource);
   }
@@ -193,6 +196,7 @@ class RelayModernStore implements Store {
       handlers,
       this._operationLoader,
       this._getDataID,
+      this._shouldProcessClientComponents,
     );
 
     return getAvailabilityStatus(
@@ -287,6 +291,7 @@ class RelayModernStore implements Store {
     if (log != null) {
       log({
         name: 'store.notify.start',
+        sourceOperation,
       });
     }
 
@@ -304,6 +309,7 @@ class RelayModernStore implements Store {
       source,
       this._updatedRecordIDs,
       updatedOwners,
+      sourceOperation,
     );
     this._invalidationSubscriptions.forEach(subscription => {
       this._updateInvalidationSubscription(
@@ -314,12 +320,13 @@ class RelayModernStore implements Store {
     if (log != null) {
       log({
         name: 'store.notify.complete',
+        sourceOperation,
         updatedRecordIDs: this._updatedRecordIDs,
         invalidatedRecordIDs: this._invalidatedRecordIDs,
       });
     }
 
-    this._updatedRecordIDs = {};
+    this._updatedRecordIDs.clear();
     this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
@@ -357,7 +364,7 @@ class RelayModernStore implements Store {
     return updatedOwners;
   }
 
-  publish(source: RecordSource, idsMarkedForInvalidation?: Set<DataID>): void {
+  publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {
     const target = this._optimisticSource ?? this._recordSource;
     updateTargetFromSource(
       target,
@@ -412,7 +419,7 @@ class RelayModernStore implements Store {
   }
 
   // Internal API
-  __getUpdatedRecordIDs(): UpdatedRecords {
+  __getUpdatedRecordIDs(): DataIDSet {
     return this._updatedRecordIDs;
   }
 
@@ -572,6 +579,7 @@ class RelayModernStore implements Store {
           selector,
           references,
           this._operationLoader,
+          this._shouldProcessClientComponents,
         );
         // Yield for other work after each operation
         yield;
@@ -626,9 +634,9 @@ function updateTargetFromSource(
   target: MutableRecordSource,
   source: RecordSource,
   currentWriteEpoch: number,
-  idsMarkedForInvalidation: ?Set<DataID>,
-  updatedRecordIDs: UpdatedRecords,
-  invalidatedRecordIDs: Set<DataID>,
+  idsMarkedForInvalidation: ?DataIDSet,
+  updatedRecordIDs: DataIDSet,
+  invalidatedRecordIDs: DataIDSet,
 ): void {
   // First, update any records that were marked for invalidation.
   // For each provided dataID that was invalidated, we write the
@@ -670,6 +678,7 @@ function updateTargetFromSource(
         currentWriteEpoch,
       );
       invalidatedRecordIDs.add(dataID);
+      // $FlowFixMe[incompatible-call]
       target.set(dataID, nextRecord);
     });
   }
@@ -702,17 +711,17 @@ function updateTargetFromSource(
         if (__DEV__) {
           RelayModernRecord.freeze(nextRecord);
         }
-        updatedRecordIDs[dataID] = true;
+        updatedRecordIDs.add(dataID);
         target.set(dataID, nextRecord);
       }
     } else if (sourceRecord === null) {
       target.delete(dataID);
       if (targetRecord !== null) {
-        updatedRecordIDs[dataID] = true;
+        updatedRecordIDs.add(dataID);
       }
     } else if (sourceRecord) {
       target.set(dataID, sourceRecord);
-      updatedRecordIDs[dataID] = true;
+      updatedRecordIDs.add(dataID);
     } // don't add explicit undefined
   }
 }

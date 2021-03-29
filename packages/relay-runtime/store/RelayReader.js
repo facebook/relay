@@ -28,6 +28,7 @@ const {
   LINKED_FIELD,
   MODULE_IMPORT,
   REQUIRED_FIELD,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
@@ -66,6 +67,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
   MissingRequiredFields,
+  DataIDSet,
 } from './RelayStoreTypes';
 
 function read(
@@ -85,7 +87,7 @@ class RelayReader {
   _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
-  _seenRecords: {[dataID: DataID]: ?Record, ...};
+  _seenRecords: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
 
@@ -95,7 +97,7 @@ class RelayReader {
     this._missingRequiredFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
-    this._seenRecords = {};
+    this._seenRecords = new Set();
     this._selector = selector;
     this._variables = selector.variables;
   }
@@ -169,7 +171,7 @@ class RelayReader {
     prevData: ?SelectorData,
   ): ?SelectorData {
     const record = this._recordSource.get(dataID);
-    this._seenRecords[dataID] = record;
+    this._seenRecords.add(dataID);
     if (record == null) {
       if (record === undefined) {
         this._isMissingData = true;
@@ -191,6 +193,7 @@ class RelayReader {
       'RelayReader(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -325,6 +328,16 @@ class RelayReader {
           }
           break;
         }
+        case RELAY_RESOLVER: {
+          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+            throw new Error('Relay Resolver fields are not yet supported.');
+          }
+          const {name, alias, resolverModule} = selection;
+          // TODO: Create the key
+          const key = ({}: any); // flowlint-line unclear-type:off
+          data[alias ?? name] = resolverModule(key);
+          break;
+        }
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
           break;
@@ -423,9 +436,7 @@ class RelayReader {
     const reactFlightClientResponseRecord = this._recordSource.get(
       reactFlightClientResponseRecordID,
     );
-    this._seenRecords[
-      reactFlightClientResponseRecordID
-    ] = reactFlightClientResponseRecord;
+    this._seenRecords.add(reactFlightClientResponseRecordID);
     if (reactFlightClientResponseRecord == null) {
       data[applicationName] = reactFlightClientResponseRecord;
       if (reactFlightClientResponseRecord === undefined) {

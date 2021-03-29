@@ -8,7 +8,7 @@
 use fixture_tests::Fixture;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use schema::{
-    build_schema, build_schema_from_flat_buffer, build_schema_with_extensions, serialize_as_fb,
+    build_schema_from_flat_buffer, build_schema_with_extensions, serialize_as_flatbuffer,
     SDLSchema, Schema, Type,
 };
 use std::collections::BTreeMap;
@@ -16,7 +16,7 @@ use std::collections::BTreeMap;
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let result = match parts.as_slice() {
-        [base] => build_schema(base),
+        [base] => build_schema_with_extensions::<_, &str>(&[base], &[]),
         [base, extensions] => build_schema_with_extensions(&[base], &[extensions]),
         _ => panic!("Expected a single extension block"),
     };
@@ -27,7 +27,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 }
 
 fn print_schema_and_flat_buffer_schema(schema: SDLSchema) -> String {
-    let bytes = serialize_as_fb(&schema);
+    let schema = schema.unwrap_in_memory_impl();
+    let bytes = serialize_as_flatbuffer(&schema);
     let fb_schema = build_schema_from_flat_buffer(&bytes).unwrap();
     let mut objects = Vec::new();
     let mut interfaces = Vec::new();

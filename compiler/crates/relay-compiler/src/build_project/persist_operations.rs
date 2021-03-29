@@ -28,7 +28,7 @@ pub async fn persist_operations(
     root_dir: &PathBuf,
     persist_config: &PersistConfig,
     config: &Config,
-    operation_persister: &Box<dyn OperationPersister + Send + Sync>,
+    operation_persister: &'_ (dyn OperationPersister + Send + Sync),
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts

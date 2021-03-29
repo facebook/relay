@@ -35,6 +35,7 @@ function getFragmentVariables(
     if (argumentVariables.hasOwnProperty(definition.name)) {
       return;
     }
+    // $FlowFixMe[cannot-spread-interface]
     variables = variables || {...argumentVariables};
     switch (definition.kind) {
       case 'LocalArgument':
@@ -51,9 +52,12 @@ function getFragmentVariables(
            * RelayStoreUtils.getStableVariableValue() that variable keys are all
            * present.
            */
+          // $FlowFixMe[incompatible-use]
           variables[definition.name] = undefined;
           break;
         }
+        // $FlowFixMe[incompatible-use]
+        // $FlowFixMe[cannot-write]
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
@@ -82,6 +86,7 @@ function getOperationVariables(
   const operationVariables = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
+    // $FlowFixMe[cannot-write]
     if (variables[def.name] != null) {
       value = variables[def.name];
     }

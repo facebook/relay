@@ -12,10 +12,14 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 use interner::Intern;
-use relay_codegen::{build_request_params, print_fragment, print_operation, print_request};
+use relay_codegen::{
+    build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
+};
 use relay_compiler::{apply_transforms, validate};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags, DIRECTIVE_SPLIT_OPERATION};
+use relay_transforms::{
+    ConnectionInterface, FeatureFlags, NoInlineFeature, DIRECTIVE_SPLIT_OPERATION,
+};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -49,6 +53,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
         enable_required_transform_for_prefix: Some("".intern()),
+        no_inline: NoInlineFeature::Enabled,
+        enable_relay_resolver_transform: true,
+        enable_3d_branch_arg_generation: true,
     };
 
     // TODO pass base fragment names
@@ -73,7 +80,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
-                print_operation(&schema, operation)
+                print_operation(&schema, operation, JsModuleFormat::Haste)
             } else {
                 let name = operation.name.item;
                 let print_operation_node = programs
@@ -97,7 +104,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 let request_parameters = build_request_params(&operation);
                 format!(
                     "{}\n\nQUERY:\n\n{}",
-                    print_request(&schema, operation, &operation_fragment, request_parameters,),
+                    print_request(
+                        &schema,
+                        operation,
+                        &operation_fragment,
+                        request_parameters,
+                        JsModuleFormat::Haste
+                    ),
                     text
                 )
             }
@@ -108,7 +121,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             fragments.sort_by_key(|fragment| fragment.name.item);
             fragments
                 .into_iter()
-                .map(|fragment| print_fragment(&schema, fragment))
+                .map(|fragment| print_fragment(&schema, fragment, JsModuleFormat::Haste))
         })
         .collect::<Vec<_>>();
     Ok(result.join("\n\n"))

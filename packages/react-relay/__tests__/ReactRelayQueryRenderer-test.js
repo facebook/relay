@@ -15,6 +15,7 @@ jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 const React = require('react');
 const Scheduler = require('scheduler');
 const ReactRelayContext = require('../ReactRelayContext');
+const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactTestRenderer = require('react-test-renderer');
 
@@ -795,6 +796,42 @@ describe('ReactRelayQueryRenderer', () => {
 
       expect(relayContext).toBe(previousContext);
       expect(relayContext.environment).toBe(environment);
+    });
+  });
+
+  describe('QueryRenderer context', () => {
+    let queryRendererContext;
+    let ContextGetter;
+
+    beforeEach(() => {
+      ContextGetter = () => {
+        queryRendererContext = readContext(ReactRelayQueryRendererContext);
+        return null;
+      };
+
+      render = jest.fn(() => <ContextGetter />);
+    });
+
+    it('sets QueryRenderer context', () => {
+      expect.assertions(1);
+      ReactTestRenderer.create(
+        <ReactRelayQueryRenderer
+          environment={environment}
+          query={TestQuery}
+          render={render}
+          variables={variables}
+        />,
+      );
+      environment.mock.resolve(TestQuery, response);
+
+      expect(queryRendererContext.rootIsQueryRenderer).toBe(true);
+    });
+
+    it('default context', () => {
+      expect.assertions(1);
+      ReactTestRenderer.create(<ContextGetter />);
+
+      expect(queryRendererContext.rootIsQueryRenderer).toBe(false);
     });
   });
 

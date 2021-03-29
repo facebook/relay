@@ -24,7 +24,6 @@ const invariant = require('invariant');
 
 const {generateTypeID} = require('./TypeID');
 
-import type {ReactFlightPayloadQuery} from '../network/RelayNetworkTypes';
 import type {
   NormalizationFlightField,
   NormalizationLinkedField,
@@ -34,14 +33,17 @@ import type {
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   NormalizationSelector,
   OperationLoader,
   Record,
   RecordSource,
+  ReactFlightReachableExecutableDefinitions,
 } from './RelayStoreTypes';
 
 const {
   CONDITION,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
@@ -60,8 +62,9 @@ const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 function mark(
   recordSource: RecordSource,
   selector: NormalizationSelector,
-  references: Set<DataID>,
+  references: DataIDSet,
   operationLoader: ?OperationLoader,
+  shouldProcessClientComponents: ?boolean,
 ): void {
   const {dataID, node, variables} = selector;
   const marker = new RelayReferenceMarker(
@@ -69,6 +72,7 @@ function mark(
     variables,
     references,
     operationLoader,
+    shouldProcessClientComponents,
   );
   marker.mark(node, dataID);
 }
@@ -80,20 +84,23 @@ class RelayReferenceMarker {
   _operationLoader: OperationLoader | null;
   _operationName: ?string;
   _recordSource: RecordSource;
-  _references: Set<DataID>;
+  _references: DataIDSet;
   _variables: Variables;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     recordSource: RecordSource,
     variables: Variables,
-    references: Set<DataID>,
+    references: DataIDSet,
     operationLoader: ?OperationLoader,
+    shouldProcessClientComponents: ?boolean,
   ) {
     this._operationLoader = operationLoader ?? null;
     this._operationName = null;
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
+    this._shouldProcessClientComponents = shouldProcessClientComponents;
   }
 
   mark(node: NormalizationNode, dataID: DataID): void {
@@ -118,6 +125,7 @@ class RelayReferenceMarker {
       'RelayReferenceMarker(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -158,12 +166,8 @@ class RelayReferenceMarker {
           break;
         // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
-          invariant(
-            false,
-            'RelayReferenceMarker(): Unexpected fragment spread `...%s`, ' +
-              'expected all fragments to be inlined.',
-            selection.name,
-          );
+          this._traverseSelections(selection.fragment.selections, record);
+          break;
         case LINKED_HANDLE:
           // The selections for a "handle" field are the same as those of the
           // original linked field where the handle was applied. Reference marking
@@ -212,6 +216,12 @@ class RelayReferenceMarker {
           } else {
             throw new Error('Flight fields are not yet supported.');
           }
+          break;
+        case CLIENT_COMPONENT:
+          if (this._shouldProcessClientComponents === false) {
+            break;
+          }
+          this._traverseSelections(selection.fragment.selections, record);
           break;
         default:
           (selection: empty);
@@ -289,12 +299,12 @@ class RelayReferenceMarker {
       return;
     }
 
-    const reachableQueries = RelayModernRecord.getValue(
+    const reachableExecutableDefinitions = RelayModernRecord.getValue(
       reactFlightClientResponseRecord,
-      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
     );
 
-    if (!Array.isArray(reachableQueries)) {
+    if (!Array.isArray(reachableExecutableDefinitions)) {
       return;
     }
 
@@ -304,13 +314,13 @@ class RelayReferenceMarker {
       'DataChecker: Expected an operationLoader to be configured when using ' +
         'React Flight',
     );
-    // In Flight, the variables that are in scope for reachable queries aren't
-    // the same as what's in scope for the outer query.
+    // In Flight, the variables that are in scope for reachable executable
+    // definitions aren't the same as what's in scope for the outer query.
     const prevVariables = this._variables;
     // $FlowFixMe[incompatible-cast]
-    for (const query of (reachableQueries: Array<ReactFlightPayloadQuery>)) {
-      this._variables = query.variables;
-      const operationReference = query.module;
+    for (const definition of (reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions>)) {
+      this._variables = definition.variables;
+      const operationReference = definition.module;
       const normalizationRootNode = operationLoader.get(operationReference);
       if (normalizationRootNode != null) {
         const operation = getOperation(normalizationRootNode);

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ad059f9f315399ee827d4acd7926edfe>>
+ * @generated SignedSource<<571abef7e46e0d872c6f3b3fc1cf1da7>>
  */
 
 mod generate_flow;
@@ -97,6 +97,13 @@ fn mutation_with_response_on_inline_fragments() {
 }
 
 #[test]
+fn no_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/no-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/no-inline-fragment.expected");
+    test_fixture(transform_fixture, "no-inline-fragment.graphql", "generate_flow/fixtures/no-inline-fragment.expected", input, expected);
+}
+
+#[test]
 fn plural_fragment() {
     let input = include_str!("generate_flow/fixtures/plural-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/plural-fragment.expected");
@@ -185,6 +192,27 @@ fn relay_client_id_field() {
     let input = include_str!("generate_flow/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "generate_flow/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver.expected");
+    test_fixture(transform_fixture, "relay-resolver.graphql", "generate_flow/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_multiple_consumers() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-multiple-consumers.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-multiple-consumers.expected");
+    test_fixture(transform_fixture, "relay-resolver-multiple-consumers.graphql", "generate_flow/fixtures/relay-resolver-multiple-consumers.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_raw_response() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-raw-response.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-raw-response.expected");
+    test_fixture(transform_fixture, "relay-resolver-raw-response.graphql", "generate_flow/fixtures/relay-resolver-raw-response.expected", input, expected);
 }
 
 #[test]

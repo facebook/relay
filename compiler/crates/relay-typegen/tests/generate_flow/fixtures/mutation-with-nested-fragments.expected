@@ -38,10 +38,10 @@ export type CommentCreateInput = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentfeedbackFeedback = {|
-  comment?: ?FeedbackcommentComment
+  comment?: ?FeedbackcommentComment,
 |};
 export type FeedbackcommentComment = {|
-  feedback?: ?CommentfeedbackFeedback
+  feedback?: ?CommentfeedbackFeedback,
 |};
 export type CommentCreateMutationVariables = {|
   input: CommentCreateInput,
@@ -56,11 +56,11 @@ export type CommentCreateMutationResponse = {|
           +node: ?{|
             +lastName: ?string,
             +$fragmentRefs: FriendFragment$ref,
-          |}
-        |}>
-      |}
-    |}
-  |}
+          |},
+        |}>,
+      |},
+    |},
+  |},
 |};
 export type CommentCreateMutationRawResponse = {|
   +commentCreate: ?{|
@@ -75,12 +75,12 @@ export type CommentCreateMutationRawResponse = {|
               +name: ?string,
             |},
             +id: string,
-          |}
-        |}>
+          |},
+        |}>,
       |},
       +id: string,
-    |}
-  |}
+    |},
+  |},
 |};
 export type CommentCreateMutation = {|
   variables: CommentCreateMutationVariables,
@@ -111,7 +111,7 @@ export type FriendFragment = {|
   +name: ?string,
   +lastName: ?string,
   +feedback: ?{|
-    +$fragmentRefs: FeedbackFragment$ref
+    +$fragmentRefs: FeedbackFragment$ref,
   |},
   +$refType: FriendFragment$ref,
 |};

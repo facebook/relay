@@ -207,13 +207,10 @@ impl<'a> Parser<'a> {
         let token = self.peek();
         match token.kind {
             TokenKind::OpenBrace => true, // unnamed query
-            TokenKind::Identifier => match self.source(&token) {
-                "query" => true,
-                "mutation" => true,
-                "fragment" => true,
-                "subscription" => true,
-                _ => false,
-            },
+            TokenKind::Identifier => matches!(
+                self.source(&token),
+                "query" | "mutation" | "fragment" | "subscription"
+            ),
             _ => false,
         }
     }
@@ -256,11 +253,18 @@ impl<'a> Parser<'a> {
         let token = self.peek();
         match token.kind {
             TokenKind::StringLiteral | TokenKind::BlockStringLiteral => true, // description
-            TokenKind::Identifier => match self.source(&token) {
-                "schema" | "scalar" | "type" | "interface" | "union" | "enum" | "input"
-                | "directive" | "extend" => true,
-                _ => false,
-            },
+            TokenKind::Identifier => matches!(
+                self.source(&token),
+                "schema"
+                    | "scalar"
+                    | "type"
+                    | "interface"
+                    | "union"
+                    | "enum"
+                    | "input"
+                    | "directive"
+                    | "extend"
+            ),
             _ => false,
         }
     }

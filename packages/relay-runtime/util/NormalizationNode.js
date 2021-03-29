@@ -85,6 +85,12 @@ export type NormalizationInlineFragment = {|
   +abstractKey: ?string,
 |};
 
+export type NormalizationFragmentSpread = {|
+  +kind: 'FragmentSpread',
+  +fragment: NormalizationNode,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+|};
+
 export type NormalizationLinkedField = {|
   +kind: 'LinkedField',
   +alias: ?string,
@@ -148,6 +154,11 @@ export type NormalizationFlightField = {|
   +storageKey: ?string,
 |};
 
+export type NormalizationClientComponent = {|
+  +kind: 'ClientComponent',
+  +fragment: NormalizationNode,
+|};
+
 export type NormalizationTypeDiscriminator = {|
   +kind: 'TypeDiscriminator',
   +abstractKey: string,
@@ -155,10 +166,12 @@ export type NormalizationTypeDiscriminator = {|
 
 export type NormalizationSelection =
   | NormalizationCondition
+  | NormalizationClientComponent
   | NormalizationClientExtension
   | NormalizationDefer
   | NormalizationField
   | NormalizationFlightField
+  | NormalizationFragmentSpread
   | NormalizationHandle
   | NormalizationInlineFragment
   | NormalizationModuleImport

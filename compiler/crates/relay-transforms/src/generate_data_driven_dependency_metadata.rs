@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::match_::{get_normalization_operation_name, MATCH_CONSTANTS};
+use super::match_::MATCH_CONSTANTS;
+use crate::util::get_fragment_filename;
 use common::{NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -84,11 +85,10 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     &module_directive,
                                     MATCH_CONSTANTS.js_field_module_arg,
                                 );
-                                let fragment_spread =
-                                    inline_fragment.selections.iter().find(|item| match item {
-                                        Selection::FragmentSpread(_) => true,
-                                        _ => false,
-                                    });
+                                let fragment_spread = inline_fragment
+                                    .selections
+                                    .iter()
+                                    .find(|item| matches!(item, Selection::FragmentSpread(_)));
                                 // This is expected to be a fragment spread
                                 let fragment_name = match fragment_spread {
                                     Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
@@ -291,10 +291,4 @@ fn get_argument_value(directive: &Directive, argument_name: StringKey) -> String
             argument_name
         ),
     }
-}
-
-fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
-    let mut fragment = String::new();
-    get_normalization_operation_name(&mut fragment, fragment_name);
-    format!("{}.graphql", fragment).intern()
 }

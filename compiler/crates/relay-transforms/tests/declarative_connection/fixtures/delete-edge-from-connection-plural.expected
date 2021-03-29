@@ -13,6 +13,6 @@ mutation CommentsDeleteMutation(
   $connections: [ID!]!
 ) {
   commentsDelete(input: $input) {
-    deletedCommentIds @deleteEdge(connections: $connections) @__clientField(key: "", handle: "deleteEdge", handleArgs: {connections: $connections})
+    deletedCommentIds @deleteEdge(connections: $connections) @__clientField(key: "", handle: "deleteEdge", filters: null, dynamicKey_UNSTABLE: null, handleArgs: {connections: $connections})
   }
 }

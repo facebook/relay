@@ -23,11 +23,13 @@ const {
 } = require('relay-runtime');
 
 const {
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   CONDITION,
   CONNECTION,
   DEFER,
   FLIGHT_FIELD,
+  FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
   LINKED_HANDLE,
@@ -86,7 +88,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
-  ...,
+  ...
 };
 
 function createIdGenerator() {
@@ -142,9 +144,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${context.alias ??
-              context.name ??
-              'undefined'}">`);
+          : `<mock-value-for-field-"${
+              context.alias ?? context.name ?? 'undefined'
+            }">`);
     }
     return mockValue;
   };
@@ -300,6 +302,19 @@ class RelayMockPayloadGenerator {
         case STREAM: {
           mockData = this._traverseSelections(
             selection.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          break;
+        }
+
+        case CLIENT_COMPONENT:
+        case FRAGMENT_SPREAD: {
+          mockData = this._traverseSelections(
+            selection.fragment.selections,
             typeName,
             isAbstractType,
             path,
@@ -492,6 +507,7 @@ class RelayMockPayloadGenerator {
           );
       }
     });
+    // $FlowFixMe[incompatible-return]
     return mockData;
   }
 
@@ -736,6 +752,7 @@ class RelayMockPayloadGenerator {
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

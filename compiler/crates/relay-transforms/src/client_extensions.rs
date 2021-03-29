@@ -48,7 +48,7 @@ impl<'program> ClientExtensionsTransform<'program> {
     }
 
     // TODO(T63388023): Returns a typed directive
-    fn build_client_extension_directive(self: &Self) -> Directive {
+    fn build_client_extension_directive(&self) -> Directive {
         Directive {
             name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
             arguments: Default::default(),

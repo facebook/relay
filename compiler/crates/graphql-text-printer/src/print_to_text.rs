@@ -420,31 +420,18 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         if arguments.is_empty() {
             Ok(())
         } else {
-            let non_null_arguments = arguments
-                .iter()
-                .filter(|arg| !matches!(arg.value.item, Value::Constant(ConstantValue::Null())))
-                .collect::<Vec<_>>();
-            self.print_arguments_helper(non_null_arguments.len(), non_null_arguments.into_iter())
-        }
-    }
-
-    fn print_arguments_helper<'a, Args>(&mut self, len: usize, arguments: Args) -> Result
-    where
-        Args: Iterator<Item = &'a Argument>,
-    {
-        if len > 0 {
             write!(self.writer, "(")?;
-            for (i, argument) in arguments.enumerate() {
+            for (i, argument) in arguments.iter().enumerate() {
                 write!(self.writer, "{}: ", argument.name.item)?;
                 self.print_value(&argument.value.item)?;
 
-                if i != len - 1 {
+                if i != arguments.len() - 1 {
                     write!(self.writer, ", ")?;
                 }
             }
             write!(self.writer, ")")?;
+            Ok(())
         }
-        Ok(())
     }
 
     fn print_value(&mut self, val: &Value) -> Result {

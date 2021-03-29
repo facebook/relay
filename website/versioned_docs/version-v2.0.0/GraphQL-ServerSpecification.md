@@ -1,27 +1,29 @@
 ---
-id: version-v2.0.0-graphql-server-specification
+id: graphql-server-specification
 title: GraphQL Server Specification
 original_id: graphql-server-specification
 ---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.
 
 Table of Contents:
 
-- [Preface](#preface)
-- [Schema](#schema)
-- [Object Identification](#object-identification)
-- [Connections](#connections)
-- [Mutations](#mutations)
-- [Further Reading](#further-reading)
+-   [Preface](#preface)
+-   [Schema](#schema)
+-   [Object Identification](#object-identification)
+-   [Connections](#connections)
+-   [Mutations](#mutations)
+-   [Further Reading](#further-reading)
 
 ## Preface
 
 The three core assumptions that Relay makes about a GraphQL server are that it provides:
 
-1. A mechanism for refetching an object.
-2. A description of how to page through connections.
-3. Structure around mutations to make them predictable.
+1.  A mechanism for refetching an object.
+2.  A description of how to page through connections.
+3.  Structure around mutations to make them predictable.
 
 This example demonstrates all three of these assumptions. This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification of the library.
 
@@ -36,6 +38,7 @@ It is also assumed that the reader is already familiar with [Star Wars](https://
 The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js [`schemaPrinter`](https://github.com/graphql/graphql-js/blob/master/src/utilities/schemaPrinter.js).
 
 ```
+
 interface Node {
   id: ID!
 }
@@ -89,6 +92,7 @@ type IntroduceShipPayload {
 type Mutation {
   introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
 }
+
 ```
 
 ## Object Identification
@@ -100,28 +104,33 @@ The `Node` interface contains a single field, `id`, which is a `ID!`. The `node`
 Let's see this in action, and query for the ID of the rebels:
 
 ```
+
 query RebelsQuery {
   rebels {
     id
     name
   }
 }
+
 ```
 
 returns
 
 ```json
+
 {
   "rebels": {
     "id": "RmFjdGlvbjox",
     "name": "Alliance to Restore the Republic"
   }
 }
+
 ```
 
 So now we know the ID of the Rebels in our system. We can now refetch them:
 
 ```
+
 query RebelsRefetchQuery {
   node(id: "RmFjdGlvbjox") {
     id
@@ -130,44 +139,52 @@ query RebelsRefetchQuery {
     }
   }
 }
+
 ```
 
 returns
 
 ```json
+
 {
   "node": {
     "id": "RmFjdGlvbjox",
     "name": "Alliance to Restore the Republic"
   }
 }
+
 ```
 
 If we do the same thing with the Empire, we'll find that it returns a different ID, and we can refetch it as well:
 
 ```
+
 query EmpireQuery {
   empire {
     id
     name
   }
 }
+
 ```
 
 yields
 
 ```json
+
 {
   "empire": {
     "id": "RmFjdGlvbjoy",
     "name": "Galactic Empire"
   }
 }
+
 ```
 
 and
 
 ```
+
 query EmpireRefetchQuery {
   node(id: "RmFjdGlvbjoy") {
     id
@@ -176,24 +193,27 @@ query EmpireRefetchQuery {
     }
   }
 }
+
 ```
 
 yields
 
 ```json
+
 {
   "node": {
     "id": "RmFjdGlvbjoy",
     "name": "Galactic Empire"
   }
 }
+
 ```
 
 The `Node` interface and `node` field assume globally unique IDs for this refetching. A system without globally unique IDs can usually synthesize them by combining the type with the type-specific ID, which is what was done in this example.
 
 The IDs we got back were base64 strings. IDs are designed to be opaque (the only thing that should be passed to the `id` argument on `node` is the unaltered result of querying `id` on some object in the system), and base64ing a string is a useful convention in GraphQL to remind viewers that the string is an opaque identifier.
 
-Complete details on how the server should behave are available in the [GraphQL Object Identification](/graphql/objectidentification.htm) spec.
+Complete details on how the server should behave are available in the [GraphQL Object Identification](https://graphql.org/learn/global-object-identification/) spec.
 
 ## Connections
 
@@ -202,6 +222,7 @@ A faction has many ships in the Star Wars universe. Relay contains functionality
 Let's take the rebels, and ask for their first ship:
 
 ```
+
 query RebelsShipsQuery {
   rebels {
     name,
@@ -214,11 +235,13 @@ query RebelsShipsQuery {
     }
   }
 }
+
 ```
 
 yields
 
 ```json
+
 {
   "rebels": {
     "name": "Alliance to Restore the Republic",
@@ -233,11 +256,13 @@ yields
     }
   }
 }
+
 ```
 
 That used the `first` argument to `ships` to slice the result set down to the first one. But what if we wanted to paginate through it? On each edge, a cursor will be exposed that we can use to paginate. Let's ask for the first two this time, and get the cursor as well:
 
 ```
+
 query MoreRebelShipsQuery {
   rebels {
     name,
@@ -251,11 +276,13 @@ query MoreRebelShipsQuery {
     }
   }
 }
+
 ```
 
 and we get back
 
 ```json
+
 {
   "rebels": {
     "name": "Alliance to Restore the Republic",
@@ -277,11 +304,13 @@ and we get back
     }
   }
 }
+
 ```
 
 Notice that the cursor is a base64 string. That's the pattern from earlier: the server is reminding us that this is an opaque string. We can pass this string back to the server as the `after` argument to the `ships` field, which will let us ask for the next three ships after the last one in the previous result:
 
 ```
+
 query EndOfRebelShipsQuery {
   rebels {
     name,
@@ -295,11 +324,13 @@ query EndOfRebelShipsQuery {
     }
   }
 }
+
 ```
 
 gives us
 
 ```json
+
 
 {
   "rebels": {
@@ -328,11 +359,13 @@ gives us
     }
   }
 }
+
 ```
 
 Sweet! Let's keep going and get the next four!
 
 ```
+
 query RebelsQuery {
   rebels {
     name,
@@ -346,11 +379,13 @@ query RebelsQuery {
     }
   }
 }
+
 ```
 
 yields
 
 ```json
+
 {
   "rebels": {
     "name": "Alliance to Restore the Republic",
@@ -359,11 +394,13 @@ yields
     }
   }
 }
+
 ```
 
 Hm. There were no more ships; guess there were only five in the system for the rebels. It would have been nice to know that we'd reached the end of the connection, without having to do another round trip in order to verify that. The connection model exposes this capability with a type called `PageInfo`. So let's issue the two queries that got us ships again, but this time ask for `hasNextPage`:
 
 ```
+
 query EndOfRebelShipsQuery {
   rebels {
     name,
@@ -389,11 +426,13 @@ query EndOfRebelShipsQuery {
     }
   }
 }
+
 ```
 
 and we get back
 
 ```json
+
 {
   "rebels": {
     "name": "Alliance to Restore the Republic",
@@ -438,13 +477,14 @@ and we get back
     }
   }
 }
+
 ```
 
 So on the first query for ships, GraphQL told us there was a next page, but on the next one, it told us we'd reached the end of the connection.
 
 Relay uses all of this functionality to build out abstractions around connections, to make these easy to work with efficiently without having to manually manage cursors on the client.
 
-Complete details on how the server should behave are available in the [GraphQL Cursor Connections](/graphql/connections.htm) spec.
+<p>Complete details on how the server should behave are available in the <a href={useBaseUrl('graphql/connections.htm')}>GraphQL Cursor Connections</a> spec.</p>
 
 ## Mutations
 
@@ -455,6 +495,7 @@ By convention, mutations are named as verbs, their inputs are the name with "Inp
 So for our `introduceShip` mutation, we create two types: `IntroduceShipInput` and `IntroduceShipPayload`:
 
 ```
+
 input IntroduceShipInput {
   factionId: ID!
   shipName: String!
@@ -466,11 +507,13 @@ type IntroduceShipPayload {
   ship: Ship
   clientMutationId: String!
 }
+
 ```
 
 With this input and payload, we can issue the following mutation:
 
 ```
+
 mutation AddBWingQuery($input: IntroduceShipInput!) {
   introduceShip(input: $input) {
     ship {
@@ -483,11 +526,13 @@ mutation AddBWingQuery($input: IntroduceShipInput!) {
     clientMutationId
   }
 }
+
 ```
 
 with these params:
 
 ```json
+
 {
   "input": {
     "shipName": "B-Wing",
@@ -495,11 +540,13 @@ with these params:
     "clientMutationId": "abcde"
   }
 }
+
 ```
 
 and we'll get this result:
 
 ```json
+
 {
   "introduceShip": {
     "ship": {
@@ -512,12 +559,11 @@ and we'll get this result:
     "clientMutationId": "abcde"
   }
 }
-```
 
-Complete details on how the server should behave are available in the [GraphQL Input Object Mutations](/graphql/mutations.htm) spec.
+```
 
 ## Further Reading
 
-This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model, the [Relay global object identification](/graphql/objectidentification.htm) model, and the [Relay input object mutation](/graphql/mutations.htm) are all available.
+<p>This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the <a href={useBaseUrl('graphql/connections.htm')}>Relay cursor connection</a> model and the <a href="https://graphql.org/learn/global-object-identification/">Relay global object identification</a> model are all available.</p>
 
 To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes, connections, and mutations; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.

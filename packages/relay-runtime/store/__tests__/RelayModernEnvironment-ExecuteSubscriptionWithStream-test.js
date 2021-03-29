@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeSubscrption() with @stream', () => {
   let callbacks;
@@ -50,38 +50,37 @@ describe('executeSubscrption() with @stream', () => {
     jest.resetModules();
     feedbackID = '1';
 
-    ({
-      FeedbackFragment: feedbackFragment,
-      FeedbackQuery: feedbackQuery,
-      CommentCreateSubscription: subscription,
-    } = generateAndCompile(`
-        subscription CommentCreateSubscription($input: CommentCreateSubscriptionInput!) {
-          commentCreateSubscribe(input: $input) {
-            feedback {
-              ...FeedbackFragment
-            }
+    subscription = getRequest(graphql`
+      subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          feedback {
+            ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment
           }
         }
+      }
+    `);
 
-        fragment FeedbackFragment on Feedback {
-          id
-          actors @stream(label: "actors", initial_count: 0) {
-            name @__clientField(handle: "name_handler")
-          }
-        }
-
-        # keep in sync with above
-        fragment ActorFragment on Actor {
+    feedbackFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {
+        id
+        actors @stream(label: "actors", initial_count: 0) {
           name @__clientField(handle: "name_handler")
         }
+      }
+    `);
 
-        query FeedbackQuery($id: ID!) {
-          node(id: $id) {
-            id
-            ...FeedbackFragment
-          }
+    feedbackQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          id
+          ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment
         }
-      `));
+      }
+    `);
     variables = {
       input: {
         clientMutationId: '0',
@@ -207,7 +206,8 @@ describe('executeSubscrption() with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors',
       path: ['commentCreateSubscribe', 'feedback', 'actors', 0],
     });
     jest.runAllTimers();
@@ -241,7 +241,8 @@ describe('executeSubscrption() with @stream', () => {
         id: '3',
         name: 'Bob',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors',
       path: ['commentCreateSubscribe', 'feedback', 'actors', 1],
       extensions: {
         is_final: true,
@@ -296,7 +297,8 @@ describe('executeSubscrption() with @stream', () => {
         id: '2',
         name: 'Alice',
       },
-      label: 'FeedbackFragment$stream$actors',
+      label:
+        'RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors',
       path: ['commentCreateSubscribe', 'feedback', 'actors', 0],
       extensions: {
         is_final: true,

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CUSTOM_METADATA_DIRECTIVES;
+use crate::util::CustomMetadataDirectives;
 use crate::MATCH_CONSTANTS;
 use common::WithLocation;
 use graphql_ir::*;
@@ -260,7 +260,7 @@ fn filtered_location_agnostic_eq<
 impl LocationAgnosticPartialEq for Vec<Directive> {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
         filtered_location_agnostic_eq(self, other, |d| {
-            !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(d.name.item)
+            !CustomMetadataDirectives::should_skip_in_node_identifier(d.name.item)
         })
     }
 }
@@ -269,7 +269,7 @@ impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
         if self.name.item == MATCH_CONSTANTS.custom_module_directive_name {
             MATCH_CONSTANTS.custom_module_directive_name.hash(state);
-        } else if !CUSTOM_METADATA_DIRECTIVES.should_skip_in_node_identifier(self.name.item) {
+        } else if !CustomMetadataDirectives::should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
         }

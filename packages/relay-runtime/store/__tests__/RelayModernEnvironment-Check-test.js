@@ -18,10 +18,10 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('check()', () => {
   let environment;
@@ -32,20 +32,20 @@ describe('check()', () => {
 
   beforeEach(() => {
     jest.resetModules();
-    ({ParentQuery} = generateAndCompile(`
-        query ParentQuery($size: [Int]!) {
-          me {
-            id
-            name
-            profilePicture(size: $size) {
-              uri
-            }
+    ParentQuery = getRequest(graphql`
+      query RelayModernEnvironmentCheckTestParentQuery($size: [Int]!) {
+        me {
+          id
+          name
+          profilePicture(size: $size) {
+            uri
           }
         }
-      `));
+      }
+    `);
 
     source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
+    store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,

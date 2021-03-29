@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const nullthrows = require('nullthrows');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -42,7 +42,7 @@ describe('execute() a query with plural @match', () => {
   let operation;
   let operationCallback;
   let operationLoader: {|
-    +get: (reference: mixed) => ?NormalizationRootNode,
+    get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
   |};
   let query;
@@ -54,39 +54,42 @@ describe('execute() a query with plural @match', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({
-      UserQuery: query,
-      MarkdownUserNameRenderer_name: markdownRendererFragment,
-      MarkdownUserNameRenderer_name$normalization: markdownRendererNormalizationFragment,
-    } = generateAndCompile(`
-        query UserQuery($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              nameRenderers @match {
-                ...PlainUserNameRenderer_name
-                  @module(name: "PlainUserNameRenderer.react")
-                ...MarkdownUserNameRenderer_name
-                  @module(name: "MarkdownUserNameRenderer.react")
-              }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery(
+        $id: ID!
+      ) {
+        node(id: $id) {
+          ... on User {
+            nameRenderers @match {
+              ...RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name
+                @module(name: "PlainUserNameRenderer.react")
+              ...RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name
+                @module(name: "MarkdownUserNameRenderer.react")
             }
           }
         }
+      }
+    `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
-          }
+    graphql`
+      fragment RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
         }
+      }
+    `;
 
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          __typename
-          markdown
-          data {
-            markup @__clientField(handle: "markup_handler")
-          }
+    markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
+    markdownRendererFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+        __typename
+        markdown
+        data {
+          markup @__clientField(handle: "markup_handler")
         }
-      `));
+      }
+    `);
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     const MarkupHandler = {
@@ -148,9 +151,10 @@ describe('execute() a query with plural @match', () => {
           nameRenderers: [
             {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_UserQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
+                'RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -165,7 +169,7 @@ describe('execute() a query with plural @match', () => {
 
     expect(operationLoader.load).toBeCalledTimes(1);
     expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'MarkdownUserNameRenderer_name$normalization.graphql',
+      'RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
 
     expect(next.mock.calls.length).toBe(1);
@@ -184,7 +188,7 @@ describe('execute() a query with plural @match', () => {
             __fragmentPropName: 'name',
 
             __fragments: {
-              MarkdownUserNameRenderer_name: {},
+              RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name: {},
             },
 
             __fragmentOwner: operation.request,
@@ -220,9 +224,10 @@ describe('execute() a query with plural @match', () => {
           nameRenderers: [
             {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_UserQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_UserQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
+                'RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 // NOTE: should be uppercased when normalized (by MarkupHandler)

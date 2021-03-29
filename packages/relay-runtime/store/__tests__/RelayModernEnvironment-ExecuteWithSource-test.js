@@ -19,12 +19,12 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeWithSource() with Observable network', () => {
   let callbacks;
@@ -45,16 +45,18 @@ describe('executeWithSource() with Observable network', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ({ActorQuery: query} = generateAndCompile(`
-        query ActorQuery($fetchSize: Boolean!) {
-          me {
-            name
-            profilePicture(size: 42) @include(if: $fetchSize) {
-              uri
-            }
+    query = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithSourceTestActorQuery(
+        $fetchSize: Boolean!
+      ) {
+        me {
+          name
+          profilePicture(size: 42) @include(if: $fetchSize) {
+            uri
           }
         }
-      `));
+      }
+    `);
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, {
       ...variables,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecb460165d2c2e4f8d2c505104580134>>
+ * @generated SignedSource<<2faaa1562b4e439da2112e5b5982102c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type RelayReaderTestReadsHandleFieldsForFragmentsUserFriends = {|
         +id: string,
         +name: ?string,
       |},
-    |}>
+    |}>,
   |},
   +$refType: RelayReaderTestReadsHandleFieldsForFragmentsUserFriends$ref,
 |};

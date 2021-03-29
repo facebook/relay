@@ -16,8 +16,8 @@ mod apply_fragment_arguments;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
-mod dedupe_type_discriminator;
 mod defer_stream;
+mod errors;
 mod feature_flags;
 mod flatten;
 mod generate_data_driven_dependency_metadata;
@@ -31,16 +31,20 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod no_inline;
 mod node_identifier;
 mod react_flight;
 mod refetchable_fragment;
+mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
+mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
 mod root_variables;
 mod skip_client_directives;
 mod skip_client_extensions;
+mod skip_null_arguments_transform;
 mod skip_redundant_nodes;
 mod skip_split_operation;
 mod skip_unreachable_node;
@@ -59,19 +63,19 @@ lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
 }
 
+pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
-    ConnectionMetadata,
+    ConnectionMetadata, CONNECTION_METADATA_ARGUMENT_NAME, CONNECTION_METADATA_DIRECTIVE_NAME,
 };
 pub use declarative_connection::transform_declarative_connection;
-pub use dedupe_type_discriminator::dedupe_type_discriminator;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::FeatureFlags;
+pub use feature_flags::{FeatureFlags, NoInlineFeature};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -92,6 +96,7 @@ pub use match_::{
     split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
     MATCH_CONSTANTS,
 };
+pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
 pub use react_flight::{
     react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
@@ -101,8 +106,18 @@ pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
 };
+pub use relay_client_component::{
+    relay_client_component, RELAY_CLIENT_COMPONENT_METADATA_KEY,
+    RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+};
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
+pub use relay_resolvers::{
+    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
+};
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{
     required_directive, RequiredAction, ACTION_ARGUMENT, CHILDREN_CAN_BUBBLE_METADATA_KEY,
@@ -110,6 +125,7 @@ pub use required_directive::{
 };
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
+pub use skip_null_arguments_transform::skip_null_arguments_transform;
 pub use skip_redundant_nodes::skip_redundant_nodes;
 pub use skip_split_operation::skip_split_operation;
 pub use skip_unreachable_node::skip_unreachable_node;
@@ -119,6 +135,7 @@ pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::{
-    extract_variable_name, generate_abstract_type_refinement_key, remove_directive, PointerAddress,
+    extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
+    remove_directive, PointerAddress,
 };
 pub use validations::*;

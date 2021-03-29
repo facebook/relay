@@ -21,11 +21,11 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const warning = require('warning');
 
+const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {RelayFeatureFlags} = require('relay-runtime');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('execute() with Flight field', () => {
   let callbacks;
@@ -52,32 +52,28 @@ describe('execute() with Flight field', () => {
     // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
-    ({InnerQuery, FlightQuery} = generateAndCompile(`
-      query FlightQuery($id: ID!, $count: Int!) {
+    FlightQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithFlightTestFlightQuery(
+        $id: ID!
+        $count: Int!
+      ) {
         node(id: $id) {
           ... on Story {
             flightComponent(condition: true, count: $count, id: $id)
           }
         }
       }
+    `);
 
-      query InnerQuery($id: ID!) {
+    InnerQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteWithFlightTestInnerQuery($id: ID!) {
         node(id: $id) {
           ... on User {
             name
           }
         }
       }
-
-      extend type Story {
-        flightComponent(
-          condition: Boolean!
-          count: Int!
-          id: ID!
-        ): ReactFlightComponent
-          @react_flight_component(name: "FlightComponent.server")
-      }
-      `));
+    `);
 
     reactFlightPayloadDeserializer = jest.fn(payload => {
       return {
@@ -102,7 +98,10 @@ describe('execute() with Flight field', () => {
     source = RelayRecordSource.create();
     // DataChecker receives its operationLoader from the store, not the
     // environment. So we have to pass it here as well.
-    store = new RelayModernStore(source, {operationLoader});
+    store = new RelayModernStore(source, {
+      operationLoader,
+      gcReleaseBufferSize: 0,
+    });
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
       operationLoader,
@@ -154,6 +153,7 @@ describe('execute() with Flight field', () => {
               },
             ],
             errors: [],
+            fragments: [],
           },
         },
       },
@@ -220,6 +220,7 @@ describe('execute() with Flight field', () => {
               },
             ],
             errors: [],
+            fragments: [],
           },
         },
       },
@@ -259,6 +260,7 @@ describe('execute() with Flight field', () => {
               },
             ],
             errors: [],
+            fragments: [],
           },
         },
       },
@@ -341,6 +343,7 @@ describe('execute() with Flight field', () => {
                     stack: 'Error\n    at <anonymous>:1:1',
                   },
                 ],
+                fragments: [],
               },
             },
           },
@@ -382,6 +385,7 @@ describe('execute() with Flight field', () => {
                     stack: 'Error\n    at <anonymous>:1:1',
                   },
                 ],
+                fragments: [],
               },
             },
           },
@@ -444,6 +448,7 @@ describe('execute() with Flight field', () => {
                 },
               ],
               errors: [],
+              fragments: [],
             },
           },
         },
@@ -491,6 +496,7 @@ describe('execute() with Flight field', () => {
                 },
               ],
               errors: [],
+              fragments: [],
             },
           },
         },
@@ -525,6 +531,7 @@ describe('execute() with Flight field', () => {
               ],
               queries: null,
               errors: [],
+              fragments: [],
             },
           },
         },
@@ -577,6 +584,7 @@ describe('execute() with Flight field', () => {
                 },
               ],
               errors: [],
+              fragments: [],
             },
           },
         },
@@ -606,6 +614,7 @@ describe('execute() with Flight field', () => {
               tree: null,
               queries: [],
               errors: [],
+              fragments: [],
             },
           },
         },
@@ -623,6 +632,15 @@ describe('execute() with Flight field', () => {
           'RelayResponseNormalizer: Expected `tree` not to be null.',
         ),
       );
+
+      // Server Component is read out as null
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.isMissingData).toEqual(false);
+      expect(snapshot.data).toEqual({
+        node: {
+          flightComponent: null,
+        },
+      });
     });
   });
 });

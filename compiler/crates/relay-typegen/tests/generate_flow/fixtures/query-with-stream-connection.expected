@@ -25,12 +25,12 @@ export type TestDeferResponse = {|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
           +actor: ?{|
-            +name: ?string
-          |}
-        |}
-      |}>
+            +name: ?string,
+          |},
+        |},
+      |}>,
     |},
-  |}
+  |},
 |};
 export type TestDeferRawResponse = {|
   +node: ?({|
@@ -58,7 +58,7 @@ export type TestDeferRawResponse = {|
   |} | {|
     +__typename: string,
     +id: string,
-  |})
+  |}),
 |};
 export type TestDefer = {|
   variables: TestDeferVariables,

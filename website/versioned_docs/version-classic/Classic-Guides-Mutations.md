@@ -1,9 +1,8 @@
 ---
-id: version-classic-classic-guides-mutations
+id: classic-guides-mutations
 title: Mutations
 original_id: classic-guides-mutations
 ---
-
 Up until this point we have only interacted with the GraphQL endpoint to perform queries that fetch data. In this guide, you will learn how to use Relay to perform mutations – operations that consist of writes to the data store followed by a fetch of any changed fields.
 
 ## A complete example
@@ -11,6 +10,7 @@ Up until this point we have only interacted with the GraphQL endpoint to perform
 Before taking a deep dive into the mutations API, let's look at a complete example. Here, we subclass `Relay.Mutation` to create a custom mutation that we can use to like a story.
 
 ```
+
 class LikeStoryMutation extends Relay.Mutation {
   // This method should return a GraphQL operation that represents
   // the mutation to be performed. This presumes that the server
@@ -69,11 +69,13 @@ class LikeStoryMutation extends Relay.Mutation {
     `,
   };
 }
+
 ```
 
 Here's an example of this mutation in use by a `LikeButton` component:
 
 ```
+
 class LikeButton extends React.Component {
   _handleLike = () => {
     // To perform a mutation, pass an instance of one to
@@ -107,6 +109,7 @@ module.exports = Relay.createContainer(LikeButton, {
     `,
   },
 });
+
 ```
 
 In this particular example, the only field that the `LikeButton` cares about is `viewerDoesLike`. That field will form part of the tracked query that Relay will intersect with the fat query of `LikeStoryMutation` to determine what fields to request as part of the server's response payload for the mutation. Another component elsewhere in the application might be interested in the likers count, or the like sentence. Since those fields will automatically be added to Relay's tracked query, the `LikeButton` need not worry about requesting them explicitly.
@@ -116,6 +119,7 @@ In this particular example, the only field that the `LikeButton` cares about is 
 Any props that we pass to the constructor of a mutation will become available to its instance methods as `this.props`. Like in components used within Relay containers, props for which a corresponding fragment has been defined will be populated by Relay with query data:
 
 ```
+
 class LikeStoryMutation extends Relay.Mutation {
   static fragments = {
     story: () => Relay.QL`
@@ -134,13 +138,15 @@ class LikeStoryMutation extends Relay.Mutation {
   }
   /* ... */
 }
+
 ```
 
 ## Fragment variables
 
-Like it can be done with [Relay containers](guides-containers.html), we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.
+Like it can be done with [Relay containers](./classic-guides-containers), we can prepare variables for use by our mutation's fragment builders, based on the previous variables and the runtime environment.
 
 ```
+
 class RentMovieMutation extends Relay.Mutation {
   static initialVariables = {
     format: 'hd',
@@ -168,20 +174,22 @@ class RentMovieMutation extends Relay.Mutation {
     `,
   };
 }
+
 ```
 
 ## The fat query
 
 Changing one thing in a system can have a ripple effect that causes other things to change in turn. Imagine a mutation that we can use to accept a friend request. This can have wide implications:
 
-- both people's friend count will increment
-- an edge representing the new friend will be added to the viewer's `friends` connection
-- an edge representing the viewer will be added to the new friend's `friends` connection
-- the viewer's friendship status with the requester will change
+-   both people's friend count will increment
+-   an edge representing the new friend will be added to the viewer's `friends` connection
+-   an edge representing the viewer will be added to the new friend's `friends` connection
+-   the viewer's friendship status with the requester will change
 
 Design a fat query that covers every possible field that could change:
 
 ```
+
 class AcceptFriendRequestMutation extends Relay.Mutation {
   getFatQuery() {
     // This presumes that the server-side implementation of this mutation
@@ -201,14 +209,16 @@ class AcceptFriendRequestMutation extends Relay.Mutation {
     `;
   }
 }
+
 ```
 
-This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like `friendEdge` and `friends`) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that *anything* under those non-scalar fields may change as a result of this mutation.
+This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like `friendEdge` and `friends`) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that _anything_ under those non-scalar fields may change as a result of this mutation.
 
 <blockquote>
 Note
 
 When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+
 </blockquote>
 
 ## Mutator configuration
@@ -221,13 +231,14 @@ Any field in the payload that can be correlated by DataID with one or more recor
 
 #### Arguments
 
-- `fieldIDs: {[fieldName: string]: DataID | Array<DataID>}`
+-   `fieldIDs: {[fieldName: string]: DataID | Array<DataID>}`
 
-  A map between a `fieldName` in the response and one or more DataIDs in the store.
+    A map between a `fieldName` in the response and one or more DataIDs in the store.
 
 #### Example
 
 ```
+
 class RenameDocumentMutation extends Relay.Mutation {
   // This mutation declares a dependency on a document's ID
   static fragments = {
@@ -253,6 +264,7 @@ class RenameDocumentMutation extends Relay.Mutation {
   }
   /* ... */
 }
+
 ```
 
 ### `NODE_DELETE`
@@ -261,25 +273,26 @@ Given a parent, a connection, and one or more DataIDs in the response payload, R
 
 #### Arguments
 
-- `parentName: string`
+-   `parentName: string`
 
-  The field name in the response that represents the parent of the connection
+    The field name in the response that represents the parent of the connection
 
-- `parentID?: string`
+-   `parentID?: string`
 
-  The DataID of the parent node that contains the connection. This argument is optional.
+    The DataID of the parent node that contains the connection. This argument is optional.
 
-- `connectionName: string`
+-   `connectionName: string`
 
-  The field name in the response that represents the connection
+    The field name in the response that represents the connection
 
-- `deletedIDFieldName: string`
+-   `deletedIDFieldName: string`
 
-  The field name in the response that contains the DataID of the deleted node
+    The field name in the response that contains the DataID of the deleted node
 
 #### Example
 
 ```
+
 class DestroyShipMutation extends Relay.Mutation {
   // This mutation declares a dependency on an enemy ship's ID
   // and the ID of the faction that ship belongs to.
@@ -307,6 +320,7 @@ class DestroyShipMutation extends Relay.Mutation {
   }
   /* ... */
 }
+
 ```
 
 ### `RANGE_ADD`
@@ -315,29 +329,30 @@ Given a parent, a connection, and the name of the newly created edge in the resp
 
 #### Arguments
 
-- `parentName: string`
+-   `parentName: string`
 
-  The field name in the response that represents the parent of the connection
+    The field name in the response that represents the parent of the connection
 
-- `parentID?: string`
+-   `parentID?: string`
 
-  The DataID of the parent node that contains the connection. This argument is optional.
+    The DataID of the parent node that contains the connection. This argument is optional.
 
-- `connectionName: string`
+-   `connectionName: string`
 
-  The field name in the response that represents the connection
+    The field name in the response that represents the connection
 
-- `edgeName: string`
+-   `edgeName: string`
 
-  The field name in the response that represents the newly created edge
+    The field name in the response that represents the newly created edge
 
-- `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS} | (connectionArgs: {[argName: string]: string}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>`
+-   `rangeBehaviors: {[call: string]: GraphQLMutatorConstants.RANGE_OPERATIONS} | (connectionArgs: {[argName: string]: string}) => $Keys<GraphQLMutatorConstants.RANGE_OPERATIONS>`
 
-  A map between printed, dot-separated GraphQL calls *in alphabetical order* and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls or a function accepting an array of connection arguments, returning that behavior.
+    A map between printed, dot-separated GraphQL calls _in alphabetical order_ and the behavior we want Relay to exhibit when adding the new edge to connections under the influence of those calls or a function accepting an array of connection arguments, returning that behavior.
 
 For example, `rangeBehaviors` could be written this way:
 
 ```
+
 const rangeBehaviors = {
   // When the ships connection is not under the influence
   // of any call, append the ship to the end of the connection
@@ -345,11 +360,13 @@ const rangeBehaviors = {
   // Prepend the ship, wherever the connection is sorted by age
   'orderby(newest)': 'prepend',
 };
+
 ```
 
 Or this way, with the same results:
 
 ```
+
 const rangeBehaviors = ({orderby}) => {
   if (orderby === 'newest') {
     return 'prepend';
@@ -358,6 +375,7 @@ const rangeBehaviors = ({orderby}) => {
   }
 };
 
+
 ```
 
 Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'remove'`.
@@ -365,6 +383,7 @@ Behaviors can be one of `'append'`, `'ignore'`, `'prepend'`, `'refetch'`, or `'r
 #### Example
 
 ```
+
 class IntroduceShipMutation extends Relay.Mutation {
   // This mutation declares a dependency on the faction
   // into which this ship is to be introduced.
@@ -399,6 +418,7 @@ class IntroduceShipMutation extends Relay.Mutation {
   }
   /* ... */
 }
+
 ```
 
 ### `RANGE_DELETE`
@@ -407,18 +427,18 @@ Given a connection, one or more DataIDs in the response payload, and a path betw
 
 #### Arguments
 
-- `deletedIDFieldName: string | Array<string>`
+-   `deletedIDFieldName: string | Array<string>`
 
-  The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
+    The field name in the response that contains the DataID of the removed node, or the path to the node removed from the connection
 
-- `pathToConnection: Array<string>`
+-   `pathToConnection: Array<string>`
 
-  An array containing the field names between the parent and the connection, including the parent and the connection
-
+    An array containing the field names between the parent and the connection, including the parent and the connection
 
 #### Example
 
 ```
+
 class RemoveTagMutation extends Relay.Mutation {
   // This mutation declares a dependency on the
   // todo from which this tag is being removed.
@@ -444,6 +464,7 @@ class RemoveTagMutation extends Relay.Mutation {
   }
   /* ... */
 }
+
 ```
 
 ### `REQUIRED_CHILDREN`
@@ -453,6 +474,7 @@ A `REQUIRED_CHILDREN` config is used to append additional children to the mutati
 Data fetched as a result of a `REQUIRED_CHILDREN` config is not written into the client store, but you can add code that processes it in the `onSuccess` callback that you pass into `commitUpdate()`:
 
 ```
+
 this.props.relay.commitUpdate(
   new CreateCouponMutation(),
   {
@@ -461,15 +483,17 @@ this.props.relay.commitUpdate(
     }),
   }
 );
+
 ```
 
 #### Arguments
 
-- `children: Array<RelayQuery.Node>`
+-   `children: Array<RelayQuery.Node>`
 
 #### Example
 
 ```
+
 class CreateCouponMutation extends Relay.Mutation<Props> {
   getMutation() {
     return Relay.QL`mutation {
@@ -507,6 +531,7 @@ class CreateCouponMutation extends Relay.Mutation<Props> {
     }];
   }
 }
+
 ```
 
 ## Optimistic updates
@@ -516,6 +541,7 @@ All of the mutations we've performed so far have waited on a response from the s
 Let's craft an optimistic response for the `LikeStoryMutation` example above:
 
 ```
+
 class LikeStoryMutation extends Relay.Mutation {
   /* ... */
   // Here's the fat query from before
@@ -559,6 +585,7 @@ class LikeStoryMutation extends Relay.Mutation {
   };
   /* ... */
 }
+
 ```
 
 You don't have to mimic the entire response payload. Here, we've punted on the like sentence, since it's difficult to localize on the client side. When the server responds, Relay will treat its payload as the source of truth, but in the meantime, the optimistic response will be applied right away, allowing the people who use our product to enjoy instant feedback after having taken an action.

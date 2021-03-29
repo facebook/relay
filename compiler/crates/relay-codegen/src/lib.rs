@@ -13,9 +13,11 @@ mod ast;
 mod build_ast;
 mod constants;
 mod indentation;
+mod js_module_format;
 mod printer;
 mod utils;
 
 pub use ast::{Primitive, RequestParameters};
 pub use build_ast::build_request_params;
+pub use js_module_format::JsModuleFormat;
 pub use printer::{print_fragment, print_operation, print_request, print_request_params, Printer};

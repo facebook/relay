@@ -92,6 +92,7 @@ function createContainerWithFragments<
     constructor(props) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
+      const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
       this._refetchSubscription = null;
       // Do not provide a subscription/callback here.
       // It is possible for this render to be interrupted or aborted,
@@ -102,6 +103,7 @@ function createContainerWithFragments<
         containerName,
         fragments,
         props,
+        rootIsQueryRenderer,
       );
       this.state = {
         data: resolver.resolve(),
@@ -116,6 +118,7 @@ function createContainerWithFragments<
     }
 
     componentDidMount() {
+      this._isUnmounted = false;
       this._subscribeToNewResolver();
     }
 
@@ -146,6 +149,7 @@ function createContainerWithFragments<
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
       const relayContext = assertRelayContext(nextProps.__relayContext);
+      const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
 
       const prevIDs = getDataIDsFromObject(fragments, prevProps);
       const nextIDs = getDataIDsFromObject(fragments, nextProps);
@@ -180,6 +184,7 @@ function createContainerWithFragments<
           containerName,
           fragments,
           nextProps,
+          rootIsQueryRenderer,
         );
         return {
           data: resolver.resolve(),
@@ -316,9 +321,11 @@ function createContainerWithFragments<
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
           : refetchVariables;
+      // $FlowFixMe[cannot-spread-interface]
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
-        ? {...fetchVariables, ...renderVariables}
+        ? // $FlowFixMe[cannot-spread-interface]
+          {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
       const cacheConfig: ?CacheConfig = options
@@ -434,7 +441,12 @@ function createContainerWithFragments<
     };
 
     render() {
-      const {componentRef, __relayContext, ...props} = this.props;
+      const {
+        componentRef,
+        __relayContext,
+        __rootIsQueryRenderer,
+        ...props
+      } = this.props;
       const {relayProp, contextForChildren} = this.state;
       return (
         <ReactRelayContext.Provider value={contextForChildren}>

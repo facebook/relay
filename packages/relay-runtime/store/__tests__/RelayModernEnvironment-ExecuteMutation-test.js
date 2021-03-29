@@ -19,11 +19,11 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {generateAndCompile} = require('relay-test-utils-internal');
 
 describe('executeMutation()', () => {
   let callbacks;
@@ -49,45 +49,51 @@ describe('executeMutation()', () => {
     jest.resetModules();
     commentID = 'comment-id';
 
-    ({
-      CreateCommentMutation,
-      CreateCommentWithSpreadMutation,
-      CommentFragment,
-      CommentQuery,
-    } = generateAndCompile(`
-        mutation CreateCommentMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              id
-              body {
-                text
-              }
-            }
-          }
-        }
-
-        fragment CommentFragment on Comment {
-          id
-          body {
-            text
-          }
-        }
-
-        mutation CreateCommentWithSpreadMutation($input: CommentCreateInput!) {
-          commentCreate(input: $input) {
-            comment {
-              ...CommentFragment
-            }
-          }
-        }
-
-        query CommentQuery($id: ID!) {
-          node(id: $id) {
+    CreateCommentMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationTestCreateCommentMutation(
+        $input: CommentCreateInput!
+      ) {
+        commentCreate(input: $input) {
+          comment {
             id
-            ...CommentFragment
+            body {
+              text
+            }
           }
         }
-      `));
+      }
+    `);
+
+    CommentFragment = getFragment(graphql`
+      fragment RelayModernEnvironmentExecuteMutationTestCommentFragment on Comment {
+        id
+        body {
+          text
+        }
+      }
+    `);
+
+    CreateCommentWithSpreadMutation = getRequest(graphql`
+      mutation RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation(
+        $input: CommentCreateInput!
+      ) {
+        commentCreate(input: $input) {
+          comment {
+            ...RelayModernEnvironmentExecuteMutationTestCommentFragment
+          }
+        }
+      }
+    `);
+
+    CommentQuery = getRequest(graphql`
+      query RelayModernEnvironmentExecuteMutationTestCommentQuery($id: ID!) {
+        node(id: $id) {
+          id
+          ...RelayModernEnvironmentExecuteMutationTestCommentFragment
+        }
+      }
+    `);
+
     variables = {
       input: {
         clientMutationId: '0',

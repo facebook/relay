@@ -14,14 +14,14 @@
 
 const RelayRecordSourceMapImpl = require('./RelayRecordSourceMapImpl');
 
-import type {MutableRecordSource, RecordMap} from './RelayStoreTypes';
+import type {MutableRecordSource, RecordObjectMap} from './RelayStoreTypes';
 
 class RelayRecordSource {
-  constructor(records?: RecordMap): MutableRecordSource {
+  constructor(records?: RecordObjectMap): MutableRecordSource {
     return RelayRecordSource.create(records);
   }
 
-  static create(records?: RecordMap): MutableRecordSource {
+  static create(records?: RecordObjectMap): MutableRecordSource {
     return new RelayRecordSourceMapImpl(records);
   }
 }

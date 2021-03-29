@@ -18,11 +18,12 @@ const {
   getPromiseForActiveRequest,
   getObservableForActiveRequest,
 } = require('../fetchQueryInternal');
-const {createOperationDescriptor} = require('relay-runtime');
 const {
-  createMockEnvironment,
-  generateAndCompile,
-} = require('relay-test-utils-internal');
+  createOperationDescriptor,
+  graphql,
+  getRequest,
+} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
 import type {Observer} from 'relay-runtime';
 
@@ -33,14 +34,13 @@ let environment;
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  gqlQuery = generateAndCompile(
-    `query TestQuery($id: ID!) {
-          node(id: $id) {
-            id
-          }
-        }
-      `,
-  ).TestQuery;
+  gqlQuery = getRequest(graphql`
+    query fetchQueryInternalTest1Query($id: ID!) {
+      node(id: $id) {
+        id
+      }
+    }
+  `);
   query = createOperationDescriptor(gqlQuery, {id: '4'});
   response = {
     data: {
@@ -690,38 +690,39 @@ describe('getPromiseForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      const compiled = generateAndCompile(`
-        query TestQuery($id: ID!) {
+      gqlQuery = getRequest(graphql`
+        query fetchQueryInternalTest2Query($id: ID!) {
           node(id: $id) {
             ... on User {
-              nameRenderer { # intentionally does not use @match
-                ...PlainUserNameRenderer_name
+              nameRenderer {
+                # intentionally does not use @match
+                ...fetchQueryInternalTestPlainFragment_name
                   @module(name: "PlainUserNameRenderer.react")
-                ...MarkdownUserNameRenderer_name
+                ...fetchQueryInternalTestMarkdownFragment_name
                   @module(name: "MarkdownUserNameRenderer.react")
               }
             }
           }
         }
-
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      `);
+      graphql`
+        fragment fetchQueryInternalTestPlainFragment_name on PlainUserNameRenderer {
           plaintext
           data {
             text
           }
         }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      `;
+      graphql`
+        fragment fetchQueryInternalTestMarkdownFragment_name on MarkdownUserNameRenderer {
           __typename
           markdown
           data {
             markup
           }
         }
-      `);
-      gqlQuery = compiled.TestQuery;
-      markdownRendererNormalizationFragment =
-        compiled.MarkdownUserNameRenderer_name$normalization;
+      `;
+      markdownRendererNormalizationFragment = require('./__generated__/fetchQueryInternalTestMarkdownFragment_name$normalization.graphql');
       query = createOperationDescriptor(gqlQuery, {id: '4'});
 
       fetchQuery(environment, query).subscribe(observer);
@@ -751,9 +752,10 @@ describe('getPromiseForActiveRequest', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_TestQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_fetchQueryInternalTest2Query:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_fetchQueryInternalTest2Query:
+                'fetchQueryInternalTestMarkdownFragment_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -792,9 +794,10 @@ describe('getPromiseForActiveRequest', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_TestQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_fetchQueryInternalTest2Query:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_fetchQueryInternalTest2Query:
+                'fetchQueryInternalTestMarkdownFragment_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -998,38 +1001,40 @@ describe('getObservableForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      const compiled = generateAndCompile(`
-        query TestQuery($id: ID!) {
+      gqlQuery = getRequest(graphql`
+        query fetchQueryInternalTest3Query($id: ID!) {
           node(id: $id) {
             ... on User {
-              nameRenderer { # intentionally does not use @match
-                ...PlainUserNameRenderer_name
+              nameRenderer {
+                # intentionally does not use @match
+                ...fetchQueryInternalTestPlain1Fragment_name
                   @module(name: "PlainUserNameRenderer.react")
-                ...MarkdownUserNameRenderer_name
+                ...fetchQueryInternalTestMarkdown1Fragment_name
                   @module(name: "MarkdownUserNameRenderer.react")
               }
             }
           }
         }
+      `);
 
-        fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+      graphql`
+        fragment fetchQueryInternalTestPlain1Fragment_name on PlainUserNameRenderer {
           plaintext
           data {
             text
           }
         }
-
-        fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      `;
+      graphql`
+        fragment fetchQueryInternalTestMarkdown1Fragment_name on MarkdownUserNameRenderer {
           __typename
           markdown
           data {
             markup
           }
         }
-      `);
-      gqlQuery = compiled.TestQuery;
-      markdownRendererNormalizationFragment =
-        compiled.MarkdownUserNameRenderer_name$normalization;
+      `;
+      markdownRendererNormalizationFragment = require('./__generated__/fetchQueryInternalTestMarkdown1Fragment_name$normalization.graphql');
       query = createOperationDescriptor(gqlQuery, {id: '4'});
 
       fetchQuery(environment, query).subscribe({});
@@ -1063,9 +1068,10 @@ describe('getObservableForActiveRequest', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_TestQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_fetchQueryInternalTest3Query:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_fetchQueryInternalTest3Query:
+                'fetchQueryInternalTestMarkdown1Fragment_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',
@@ -1102,9 +1108,10 @@ describe('getObservableForActiveRequest', () => {
             __typename: 'User',
             nameRenderer: {
               __typename: 'MarkdownUserNameRenderer',
-              __module_component_TestQuery: 'MarkdownUserNameRenderer.react',
-              __module_operation_TestQuery:
-                'MarkdownUserNameRenderer_name$normalization.graphql',
+              __module_component_fetchQueryInternalTest3Query:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_fetchQueryInternalTest3Query:
+                'fetchQueryInternalTestMarkdown1Fragment_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
                 markup: '<markup/>',

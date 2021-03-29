@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b5d2a4f51ae15d6a11ae7c9b46c65b31>>
+ * @generated SignedSource<<e8147f54d2d1100f79bb6ed181d72afe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,10 +29,10 @@ export type RelayReaderTestReadsFragmentData = {|
         +id: string,
         +firstName: ?string,
       |},
-    |}>
+    |}>,
   |},
   +profilePicture: ?{|
-    +uri: ?string
+    +uri: ?string,
   |},
   +$refType: RelayReaderTestReadsFragmentData$ref,
 |};

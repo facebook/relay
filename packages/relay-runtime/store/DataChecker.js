@@ -46,7 +46,7 @@ import type {
   MutableRecordSource,
   NormalizationSelector,
   OperationLoader,
-  ReactFlightReachableQuery,
+  ReactFlightReachableExecutableDefinitions,
   Record,
   RecordSource,
 } from './RelayStoreTypes';
@@ -58,6 +58,7 @@ export type Availability = {|
 
 const {
   CONDITION,
+  CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   DEFER,
   FLIGHT_FIELD,
@@ -95,6 +96,7 @@ function check(
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
+  shouldProcessClientComponents: ?boolean,
 ): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
@@ -104,6 +106,7 @@ function check(
     handlers,
     operationLoader,
     getDataID,
+    shouldProcessClientComponents,
   );
   return checker.check(node, dataID);
 }
@@ -121,6 +124,7 @@ class DataChecker {
   _recordWasMissing: boolean;
   _source: RecordSource;
   _variables: Variables;
+  _shouldProcessClientComponents: ?boolean;
 
   constructor(
     source: RecordSource,
@@ -129,6 +133,7 @@ class DataChecker {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
+    shouldProcessClientComponents: ?boolean,
   ) {
     const mutator = new RelayRecordSourceMutator(source, target);
     this._mostRecentlyInvalidatedAt = null;
@@ -139,6 +144,7 @@ class DataChecker {
     this._recordWasMissing = false;
     this._source = source;
     this._variables = variables;
+    this._shouldProcessClientComponents = shouldProcessClientComponents;
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
@@ -161,6 +167,7 @@ class DataChecker {
       'RelayAsyncLoader(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -383,12 +390,7 @@ class DataChecker {
           break;
         // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
-          invariant(
-            false,
-            'RelayAsyncLoader(): Unexpected ast kind `%s`.',
-            selection.kind,
-          );
-          // $FlowExpectedError[unreachable-code] - we need the break; for OSS linter
+          this._traverseSelections(selection.fragment.selections, dataID);
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;
@@ -422,6 +424,12 @@ class DataChecker {
           } else {
             throw new Error('Flight fields are not yet supported.');
           }
+          break;
+        case CLIENT_COMPONENT:
+          if (this._shouldProcessClientComponents === false) {
+            break;
+          }
+          this._traverseSelections(selection.fragment.selections, dataID);
           break;
         default:
           (selection: empty);
@@ -527,12 +535,12 @@ class DataChecker {
       linkedID,
       RelayStoreReactFlightUtils.REACT_FLIGHT_TREE_STORAGE_KEY,
     );
-    const reachableQueries = this._mutator.getValue(
+    const reachableExecutableDefinitions = this._mutator.getValue(
       linkedID,
-      RelayStoreReactFlightUtils.REACT_FLIGHT_QUERIES_STORAGE_KEY,
+      RelayStoreReactFlightUtils.REACT_FLIGHT_EXECUTABLE_DEFINITIONS_STORAGE_KEY,
     );
 
-    if (tree == null || !Array.isArray(reachableQueries)) {
+    if (tree == null || !Array.isArray(reachableExecutableDefinitions)) {
       this._handleMissing();
       return;
     }
@@ -543,13 +551,13 @@ class DataChecker {
       'DataChecker: Expected an operationLoader to be configured when using ' +
         'React Flight.',
     );
-    // In Flight, the variables that are in scope for reachable queries aren't
-    // the same as what's in scope for the outer query.
+    // In Flight, the variables that are in scope for reachable executable
+    // definitions aren't the same as what's in scope for the outer query.
     const prevVariables = this._variables;
     // $FlowFixMe[incompatible-cast]
-    for (const query of (reachableQueries: Array<ReactFlightReachableQuery>)) {
-      this._variables = query.variables;
-      const normalizationRootNode = operationLoader.get(query.module);
+    for (const definition of (reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions>)) {
+      this._variables = definition.variables;
+      const normalizationRootNode = operationLoader.get(definition.module);
       if (normalizationRootNode != null) {
         const operation = getOperation(normalizationRootNode);
         this._traverseSelections(operation.selections, ROOT_ID);

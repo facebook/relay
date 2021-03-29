@@ -1,47 +1,166 @@
 {
-  "version-v1.7.0-docs": {
-    "Introduction": [
-      "version-v1.7.0-introduction-to-relay",
-      "version-v1.7.0-prerequisites",
-      "version-v1.7.0-installation-and-setup",
-      "version-v1.7.0-quick-start-guide"
-    ],
-    "API Reference": [
-      "version-v1.7.0-graphql-in-relay",
-      "version-v1.7.0-relay-environment",
-      "version-v1.7.0-network-layer",
-      "version-v1.7.0-query-renderer",
-      "version-v1.7.0-fragment-container",
-      "version-v1.7.0-refetch-container",
-      "version-v1.7.0-pagination-container",
-      "version-v1.7.0-mutations",
-      "version-v1.7.0-subscriptions",
-      "version-v1.7.0-relay-store",
-      "version-v1.7.0-fetch-query"
-    ],
-    "Guides": [
-      "version-v1.7.0-routing",
-      "version-v1.7.0-relay-debugging",
-      "version-v1.7.0-graphql-server-specification"
-    ],
-    "Migration Guides": [
-      "version-v1.7.0-new-in-relay-modern",
-      "version-v1.7.0-relay-compat",
-      "version-v1.7.0-migration-setup",
-      "version-v1.7.0-conversion-playbook",
-      "version-v1.7.0-conversion-scripts",
-      "version-v1.7.0-upgrading-setvariables",
-      "version-v1.7.0-converting-mutations",
-      "version-v1.7.0-compatibility-cheatsheet",
-      "version-v1.7.0-api-cheatsheet"
-    ],
-    "Principles & Architecture": [
-      "version-v1.7.0-thinking-in-graphql",
-      "version-v1.7.0-thinking-in-relay",
-      "version-v1.7.0-architecture-overview",
-      "version-v1.7.0-compiler-architecture",
-      "version-v1.7.0-runtime-architecture",
-      "version-v1.7.0-videos"
-    ]
-  }
+  "version-v1.7.0/docs": [
+    {
+      "type": "category",
+      "label": "Introduction",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/introduction-to-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/prerequisites"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/installation-and-setup"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/quick-start-guide"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API Reference",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/graphql-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/relay-environment"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/network-layer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/query-renderer"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/fragment-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/refetch-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/pagination-container"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/mutations"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/subscriptions"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/relay-store"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/fetch-query"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/routing"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/relay-debugging"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/graphql-server-specification"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Migration Guides",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/new-in-relay-modern"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/relay-compat"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/migration-setup"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/conversion-playbook"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/conversion-scripts"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/upgrading-setvariables"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/converting-mutations"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/compatibility-cheatsheet"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/api-cheatsheet"
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Principles & Architecture",
+      "items": [
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/thinking-in-graphql"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/thinking-in-relay"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/architecture-overview"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/compiler-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/runtime-architecture"
+        },
+        {
+          "type": "doc",
+          "id": "version-v1.7.0/videos"
+        }
+      ]
+    }
+  ]
 }

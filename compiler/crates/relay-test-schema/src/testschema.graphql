@@ -8,7 +8,7 @@ schema {
 
 directive @live_query(polling_interval: Int, config_id: String) on QUERY
 
-directive @customDirective(level: Int!) on FIELD
+directive @customDirective(level: Int!) on FIELD | FRAGMENT_SPREAD
 
 directive @fixme_fat_interface on FIELD
 
@@ -69,6 +69,8 @@ directive @react_flight(
 scalar ReactFlightComponent
 
 scalar ReactFlightProps
+
+directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
 
 union MaybeNode = Story | FakeNode | NonNode
 
@@ -911,14 +913,14 @@ type UnfriendResponsePayload {
 scalar JSDependency
 
 interface HasJsField {
-  js(module: String!, id: String): JSDependency
+  js(module: String!, id: String, branch: String): JSDependency
 }
 
 type PlainUserNameRenderer implements HasJsField & UserNameRenderable {
   plaintext: String
   data: PlainUserNameData
   user: User
-  js(module: String!, id: String): JSDependency
+  js(module: String!, id: String, branch: String): JSDependency
   name: String
 }
 
@@ -931,7 +933,7 @@ type MarkdownUserNameRenderer implements HasJsField & UserNameRenderable {
   markdown: String
   data: MarkdownUserNameData
   user: User
-  js(module: String!, id: String): JSDependency
+  js(module: String!, id: String, branch: String): JSDependency
   name: String
 }
 
@@ -947,7 +949,7 @@ type CustomNameRenderer {
 
 type PlainUserRenderer {
   user: User
-  js(module: String!, id: String): JSDependency
+  js(module: String!, id: String, branch: String): JSDependency
 }
 
 union UserNameRenderer =
@@ -1004,7 +1006,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   ): FriendsConnection
   hometown: Page
   id: ID!
-  js(module: String!, id: String): JSDependency
+  js(module: String!, id: String, branch: String): JSDependency
   lastName: String
   likers(first: Int): LikersOfContentConnection
   likeSentence: Text
@@ -1026,6 +1028,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   screennames: [Screenname]
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
+  tasks: [Task]
   topLevelComments(first: Int): TopLevelCommentsConnection
   tracking: String
   traits: [PersonalityTraits]

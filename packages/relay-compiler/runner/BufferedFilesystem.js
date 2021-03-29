@@ -144,7 +144,7 @@ class BufferedFilesystem implements Filesystem {
     return fs.readFileSync(path, encoding);
   }
 
-  statSync(path: string): {isDirectory(): boolean, ...} {
+  statSync(path: string): interface {isDirectory(): boolean} {
     this._assertNotComitted();
     return fs.statSync(path);
   }

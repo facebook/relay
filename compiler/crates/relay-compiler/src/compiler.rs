@@ -5,32 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::{build_project, commit_project, BuildProjectFailure};
 use crate::config::Config;
 use crate::errors::{Error, Result};
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::watchman::FileSource;
 use crate::{
-    build_project::{
-        build_project, build_raw_program, build_schema, commit_project, BuildProjectFailure,
-    },
-    errors::BuildProjectError,
-};
-use crate::{
-    compiler_state::{ArtifactMapKind, CompilerState, ProjectName},
+    compiler_state::{ArtifactMapKind, CompilerState},
     watchman::FileSourceSubscriptionNextChange,
 };
-use common::{Diagnostic, PerfLogEvent, PerfLogger};
+use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
-use graphql_ir::Program;
 use log::{debug, info};
 use rayon::prelude::*;
-use schema::SDLSchema;
-use std::{
-    collections::HashMap,
-    sync::atomic::{AtomicBool, Ordering},
-    sync::Arc,
-};
+use std::sync::Arc;
 use tokio::{
     sync::Notify,
     task::{self, JoinHandle},
@@ -66,97 +55,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         Ok(compiler_state)
     }
 
-    pub fn build_schemas(
-        &self,
-        compiler_state: &CompilerState,
-        setup_event: &impl PerfLogEvent,
-    ) -> (HashMap<ProjectName, Arc<SDLSchema>>, Vec<Diagnostic>) {
-        let mut errors: Vec<Diagnostic> = vec![];
-        let timer = setup_event.start("build_schemas");
-        let mut schemas = HashMap::default();
-        for project_config in self.config.enabled_projects() {
-            match build_schema(compiler_state, project_config) {
-                Ok(schema) => {
-                    schemas.insert(project_config.name, schema);
-                }
-                Err(diagnostics) => {
-                    for err in diagnostics {
-                        errors.push(err);
-                    }
-                }
-            };
-        }
-        setup_event.stop(timer);
-
-        (schemas, errors)
-    }
-
-    pub fn build_raw_programs(
-        &self,
-        compiler_state: &CompilerState,
-        schemas: &HashMap<ProjectName, Arc<SDLSchema>>,
-        log_event: &impl PerfLogEvent,
-    ) -> Result<(HashMap<ProjectName, Program>, Vec<BuildProjectError>)> {
-        let graphql_asts = log_event.time("parse_sources_time", || {
-            GraphQLAsts::from_graphql_sources_map(
-                &compiler_state.graphql_sources,
-                &compiler_state.get_dirty_definitions(&self.config),
-            )
-        })?;
-
-        let timer = log_event.start("build_raw_programs");
-
-        let programs: Vec<(ProjectName, _)> = self
-            .config
-            .par_enabled_projects()
-            .filter(|project_config| {
-                if let Some(base) = project_config.base {
-                    if compiler_state.project_has_pending_changes(base) {
-                        return true;
-                    }
-                }
-                compiler_state.project_has_pending_changes(project_config.name)
-            })
-            .map(|project_config| {
-                let project_name = project_config.name;
-                if let Some(schema) = schemas.get(&project_name) {
-                    (
-                        project_config.name,
-                        build_raw_program(
-                            project_config,
-                            &graphql_asts,
-                            Arc::clone(schema),
-                            log_event,
-                        ),
-                    )
-                } else {
-                    (
-                        project_name,
-                        Err(BuildProjectError::SchemaNotFoundForProject { project_name }),
-                    )
-                }
-            })
-            .collect();
-
-        let mut errors: Vec<BuildProjectError> = vec![];
-        let mut program_map: HashMap<ProjectName, Program> = Default::default();
-
-        for (program_name, program_result) in programs {
-            match program_result {
-                Ok(program) => {
-                    program_map.insert(program_name, program);
-                }
-                Err(error) => {
-                    errors.push(error);
-                }
-            };
-        }
-
-        log_event.stop(timer);
-
-        Ok((program_map, errors))
-    }
-
     pub async fn watch(&self) -> Result<()> {
         loop {
             let setup_event = self.perf_logger.create_event("compiler_setup");
@@ -167,11 +65,9 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 .await?;
 
             let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
-            let source_control_update_completed = Arc::new(AtomicBool::new(false));
-            let source_control_update_completed_clone =
-                Arc::clone(&source_control_update_completed);
-            let source_control_update_in_process =
-                Arc::clone(&compiler_state.source_control_update_in_progress);
+            let source_control_update_status =
+                Arc::clone(&compiler_state.source_control_update_status);
+
             let notify_sender = Arc::new(Notify::new());
             let notify_receiver = notify_sender.clone();
 
@@ -181,7 +77,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     let next_change = subscription.next_change().await;
                     match next_change {
                         Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
-                            source_control_update_in_process.store(false, Ordering::Relaxed);
                             pending_file_source_changes
                                 .write()
                                 .unwrap()
@@ -189,10 +84,16 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                             notify_sender.notify_one();
                         }
                         Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
-                            source_control_update_in_process.store(true, Ordering::Relaxed);
+                            info!("hg.update started...");
+                            source_control_update_status.mark_as_started();
                         }
                         Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
-                            source_control_update_completed.store(true, Ordering::Relaxed);
+                            info!("hg.update completed.");
+                            source_control_update_status.set_to_default();
+                        }
+                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
+                            info!("hg.update completed. Detected new base revision...");
+                            source_control_update_status.mark_as_completed();
                             notify_sender.notify_one();
                             break;
                         }
@@ -219,13 +120,8 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
             info!("Waiting for changes...");
 
-            self.incremental_build_loop(
-                compiler_state,
-                notify_receiver,
-                source_control_update_completed_clone,
-                &subscription_handle,
-            )
-            .await?
+            self.incremental_build_loop(compiler_state, notify_receiver, &subscription_handle)
+                .await?
         }
     }
 
@@ -233,7 +129,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         mut compiler_state: CompilerState,
         notify_receiver: Arc<Notify>,
-        source_control_update_completed: Arc<AtomicBool>,
         subscription_handle: &JoinHandle<()>,
     ) -> Result<()> {
         let mut red_to_green = RedToGreen::new();
@@ -241,7 +136,11 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         loop {
             notify_receiver.notified().await;
 
-            if source_control_update_completed.load(Ordering::Relaxed) {
+            if compiler_state.source_control_update_status.is_started() {
+                continue;
+            }
+
+            if compiler_state.source_control_update_status.is_completed() {
                 subscription_handle.abort();
                 return Ok(());
             }
@@ -250,9 +149,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             // wait for 50ms in case there is a subsequent request
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
 
-            if compiler_state.has_pending_file_source_changes()
-                && !compiler_state.is_source_control_update_in_progress()
-            {
+            if compiler_state.has_pending_file_source_changes() {
                 let incremental_build_event =
                     self.perf_logger.create_event("incremental_build_event");
                 let incremental_build_time =
@@ -406,8 +303,8 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 .cloned()
                 .unwrap_or_default();
 
-            let source_control_update_in_progress =
-                Arc::clone(&compiler_state.source_control_update_in_progress);
+            let source_control_update_status =
+                Arc::clone(&compiler_state.source_control_update_status);
             handles.push(task::spawn(async move {
                 let project_config = &config.projects[&project_name];
                 Ok((
@@ -422,7 +319,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         artifact_map,
                         removed_definition_names,
                         dirty_artifact_paths,
-                        source_control_update_in_progress,
+                        source_control_update_status,
                     )
                     .await?,
                     schema,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5782b567441c8ab2424503e2d7235b95>>
+ * @generated SignedSource<<8e238970143d427f26580b4511f53a3e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,9 +23,9 @@ export type RelayReaderTestStreamConnectionUserProfile = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
-        +name: ?string
-      |}
-    |}>
+        +name: ?string,
+      |},
+    |}>,
   |},
   +$refType: RelayReaderTestStreamConnectionUserProfile$ref,
 |};

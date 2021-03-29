@@ -16,7 +16,7 @@ In order to render Relay components, you need to render a `RelayEnvironmentProvi
 ```js
 // App root
 
-const {RelayEnvironmentProvider} = require('react-relay');
+const {RelayEnvironmentProvider} = require('react-relay/hooks');
 const Environment = require('MyEnvironment');
 
 function Root() {

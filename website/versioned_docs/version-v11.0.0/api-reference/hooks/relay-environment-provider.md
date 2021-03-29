@@ -13,7 +13,7 @@ This component is used set a Relay environment in React Context. Usually, a *sin
 ```js
 const React = require('React');
 
-const {RelayEnvironmentProvider} = require('react-relay');
+const {RelayEnvironmentProvider} = require('react-relay/hooks');
 
 const Environment = createNewEnvironment();
 

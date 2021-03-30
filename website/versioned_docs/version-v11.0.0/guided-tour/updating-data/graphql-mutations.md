@@ -468,7 +468,7 @@ Let's distill this example, according to the execution order of the updaters:
 
 The recommended approach when executing a mutation is to request *all* the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
 
-However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine "blocking a user" or "leaving a group").
+However, often times it can be unfeasible to know and specify all the possible data that would be affected for mutations that have large rippling effects (e.g. imagine "blocking a user" or "leaving a group").
 
 For these types of mutations, it's often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation APIs documented in our [Staleness of Data section](../../reusing-cached-data/staleness-of-data/).
 

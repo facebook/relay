@@ -2,6 +2,17 @@
 id: declarative-mutation-directives
 title: Debugging Declarative Mutation Directives
 slug: /debugging/declarative-mutation-directives/
+description: Debugging declarative mutation directives
+keywords:
+- debugging
+- troubleshooting
+- declarative mutation directive
+- deleteRecord
+- handlerProvider
+- appendEdge
+- prependEdge
+- appendNode
+- prependNode
 ---
 
 import FbEnvHandlerExample from './fb/FbEnvHandlerExample.md';

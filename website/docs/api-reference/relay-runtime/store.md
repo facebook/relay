@@ -1,7 +1,10 @@
 ---
 id: store
-title: RelayModernStore
+title: Store
 slug: /api-reference/store/
+description: API reference for the Relay store
+keywords:
+  - store
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

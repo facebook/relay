@@ -2,6 +2,11 @@
 id: load-entrypoint
 title: loadEntryPoint
 slug: /api-reference/load-entrypoint/
+description: API reference for loadEntryPoint, which imperatively loads an entrypoint and data for its queries
+keywords:
+  - entrypoint
+  - preload
+  - render-as-you-fetch
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

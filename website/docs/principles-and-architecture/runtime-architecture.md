@@ -2,6 +2,14 @@
 id: runtime-architecture
 title: Runtime Architecture
 slug: /principles-and-architecture/runtime-architecture/
+description: Relay runtime architecture guide
+keywords:
+- runtime
+- architecture
+- store
+- DataID
+- Record
+- RecordSource
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

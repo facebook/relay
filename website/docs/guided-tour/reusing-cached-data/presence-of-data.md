@@ -2,6 +2,9 @@
 id: presence-of-data
 title: Presence of Data
 slug: /guided-tour/reusing-cached-data/presence-of-data/
+description: Relay guide to the presence of data
+keywords:
+- presence
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

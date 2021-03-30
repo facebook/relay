@@ -2,6 +2,13 @@
 id: testing-relay-with-preloaded-queries
 title: Testing Relay with Preloaded Queries
 slug: /guides/testing-relay-with-preloaded-queries/
+description: Relay guide to testing with preloaded queries
+keywords:
+- testing
+- preloaded
+- usePreloadedQuery
+- queueOperationResolver
+- queuePendingOperation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

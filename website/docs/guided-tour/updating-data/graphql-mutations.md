@@ -2,6 +2,9 @@
 id: graphql-mutations
 title: GraphQL Mutations
 slug: /guided-tour/updating-data/graphql-mutations/
+description: Relay guide to GraphQl mutations
+keywords:
+- mutation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

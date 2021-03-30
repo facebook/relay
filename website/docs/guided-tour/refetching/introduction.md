@@ -2,6 +2,9 @@
 id: introduction
 title: Introduction
 slug: /guided-tour/refetching/
+description: Relay guide to refetching
+keywords:
+- refetching
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

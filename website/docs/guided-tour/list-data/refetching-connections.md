@@ -2,6 +2,12 @@
 id: refetching-connections
 title: Refetching Connections (Using and Changing Filters)
 slug: /guided-tour/list-data/refetching-connections/
+description: Relay guide to refetching connections
+keywords:
+- pagination
+- refetching
+- connection
+- useRefetchableFragment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

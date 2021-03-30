@@ -2,6 +2,11 @@
 id: fetch-query
 title: fetchQuery
 slug: /api-reference/fetch-query/
+description: API reference for fetchQuery, which imperatively fetches data for a query and returns an observable
+keywords:
+  - observable
+  - query
+  - fetch
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -2,6 +2,12 @@
 id: client-schema-extensions
 title: Client Schema Extensions
 slug: /guides/client-schema-extensions/
+description: Relay guide to client schema extensions
+keywords:
+- client
+- schema
+- extension
+- commitLocalUpdate
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

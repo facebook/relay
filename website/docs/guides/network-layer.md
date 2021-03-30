@@ -2,6 +2,10 @@
 id: network-layer
 title: Network Layer
 slug: /guides/network-layer/
+description: Relay guide to the network layer
+keywords:
+- network
+- caching
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

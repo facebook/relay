@@ -2,6 +2,11 @@
 id: error-states
 title: Error States with ErrorBoundaries
 slug: /guided-tour/rendering/error-states/
+description: Relay guide to rendering error states
+keywords:
+- rendering
+- error
+- boundary
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

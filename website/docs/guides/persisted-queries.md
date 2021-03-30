@@ -2,6 +2,9 @@
 id: persisted-queries
 title: Persisted Queries
 slug: /guides/persisted-queries/
+description: Relay guide to persisted queries
+keywords:
+- persisted
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -2,6 +2,10 @@
 id: refreshing-queries
 title: Refreshing Queries
 slug: /guided-tour/refetching/refreshing-queries/
+description: Relay guide to refreshing queries
+keywords:
+- refreshing
+- queries
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

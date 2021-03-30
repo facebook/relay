@@ -2,6 +2,10 @@
 id: rendering-partially-cached-data
 title: Rendering Partially Cached Data
 slug: /guided-tour/reusing-cached-data/rendering-partially-cached-data/
+description: Relay guide to rendering partially cached data
+keywords:
+- partially cached data
+- renderPolicy
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

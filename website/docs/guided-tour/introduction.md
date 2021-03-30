@@ -2,6 +2,12 @@
 id: introduction
 title: Introduction
 slug: /guided-tour/
+description: Relay guided tour
+keywords:
+- guided tour
+- relay
+- graphql
+- documentation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

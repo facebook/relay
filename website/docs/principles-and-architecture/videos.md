@@ -2,6 +2,7 @@
 id: videos
 title: Videos
 slug: /principles-and-architecture/videos/
+description: Relay videos
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

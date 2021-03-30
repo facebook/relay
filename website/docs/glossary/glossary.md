@@ -2,6 +2,9 @@
 id: glossary
 title: Glossary
 slug: /glossary/
+description: Relay terms glossary
+keywords:
+- glossary
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

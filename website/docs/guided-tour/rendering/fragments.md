@@ -2,6 +2,11 @@
 id: fragments
 title: Fragments
 slug: /guided-tour/rendering/fragments/
+description: Relay guide to rendering fragments
+keywords:
+- useFragment
+- rendering
+- fragment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

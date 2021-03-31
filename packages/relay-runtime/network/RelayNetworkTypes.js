@@ -42,7 +42,7 @@ export type PayloadExtensions = {[key: string]: mixed, ...};
 
 /**
  * The shape of a GraphQL response as dictated by the
- * [spec](https://graphql.github.io/graphql-spec/June2018/#sec-Response-Format)
+ * [spec](http://spec.graphql.org/June2018/#sec-Response-Format).
  */
 export type GraphQLResponseWithData = {|
   +data: PayloadData,

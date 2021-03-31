@@ -28,6 +28,7 @@ pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
     if !uri.path().starts_with(lsp_state.root_dir_str()) {
         return Ok(());
     }
+    lsp_state.js_resource.process_js_source(&uri, &text);
 
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = extract_graphql::parse_chunks(&text);
@@ -47,6 +48,7 @@ pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
     if !uri.path().starts_with(lsp_state.root_dir_str()) {
         return Ok(());
     }
+    lsp_state.js_resource.remove_js_source(&uri);
     lsp_state.remove_synced_sources(&uri);
     Ok(())
 }
@@ -68,6 +70,10 @@ pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
     let content_change = content_changes
         .first()
         .expect("content_changes should always be non-empty");
+
+    lsp_state
+        .js_resource
+        .process_js_source(&uri, &content_change.text);
 
     // First we check to see if this document has any GraphQL documents.
     let graphql_sources = extract_graphql::parse_chunks(&content_change.text);

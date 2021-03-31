@@ -44,7 +44,7 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     let definitions = state.resolve_executable_definitions(&text_document_position_params)?;
 
     let (document, position_span, _project_name) =
-        state.extract_executable_document_from_text(text_document_position_params, 1)?;
+        state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 
     let path = document.resolve((), position_span);
 

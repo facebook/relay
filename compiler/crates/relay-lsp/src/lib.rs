@@ -14,6 +14,7 @@ mod diagnostic_reporter;
 mod extension_config;
 mod goto_definition;
 mod hover;
+mod js_language_server;
 mod location;
 mod lsp;
 mod lsp_extra_data_provider;
@@ -29,11 +30,15 @@ mod text_documents;
 mod utils;
 pub use crate::extension_config::ExtensionConfig;
 use common::PerfLogger;
+pub use js_language_server::JSLanguageServer;
+use js_language_server::NoopJSLanguageServer;
 use log::debug;
 pub use lsp_extra_data_provider::LSPExtraDataProvider;
 use lsp_process_error::LSPProcessResult;
+pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
 use relay_compiler::config::Config;
+pub use server::Schemas;
 use std::sync::Arc;
 #[cfg(test)]
 #[macro_use]
@@ -44,6 +49,7 @@ pub async fn start_language_server<TPerfLogger>(
     extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    js_language_server: Option<Box<dyn JSLanguageServer<TPerfLogger>>>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -59,6 +65,7 @@ where
         params,
         perf_logger,
         extra_data_provider,
+        js_language_server.unwrap_or_else(|| Box::new(NoopJSLanguageServer::default())),
     )
     .await?;
     io_handles.join()?;

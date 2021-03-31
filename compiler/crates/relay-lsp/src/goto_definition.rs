@@ -158,7 +158,7 @@ pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
     let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(params, 1)?;
+        state.extract_executable_document_from_text(&params, 1)?;
     let path = document.resolve((), position_span);
 
     let goto_definition_response = get_goto_definition_response(

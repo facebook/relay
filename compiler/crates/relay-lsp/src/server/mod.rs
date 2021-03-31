@@ -15,6 +15,7 @@ use crate::{
     completion::on_completion,
     goto_definition::on_goto_definition,
     hover::on_hover,
+    js_language_server::JSLanguageServer,
     lsp::{
         set_initializing_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
         InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
@@ -88,6 +89,7 @@ pub async fn run<TPerfLogger: PerfLogger + 'static>(
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -115,6 +117,7 @@ where
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
+        js_resource,
         &extension_config,
         connection.sender.clone(),
     );

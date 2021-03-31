@@ -973,21 +973,29 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
     state: &mut LSPState<TPerfLogger>,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
-    let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(params.text_document_position, 0)?;
-
-    if let Some(schema) = &state.get_schemas().get(&project_name) {
-        let items = resolve_completion_items(
-            document,
-            position_span,
-            project_name,
-            schema,
-            state.get_source_programs_ref(),
-        )
-        .unwrap_or_else(Vec::new);
-        Ok(Some(CompletionResponse::Array(items)))
-    } else {
-        Err(LSPRuntimeError::ExpectedError)
+    match state.extract_executable_document_from_text(&params.text_document_position, 0) {
+        Ok((document, position_span, project_name)) => {
+            if let Some(schema) = &state.get_schemas().get(&project_name) {
+                let items = resolve_completion_items(
+                    document,
+                    position_span,
+                    project_name,
+                    schema,
+                    state.get_source_programs_ref(),
+                )
+                .unwrap_or_else(Vec::new);
+                Ok(Some(CompletionResponse::Array(items)))
+            } else {
+                Err(LSPRuntimeError::ExpectedError)
+            }
+        }
+        Err(graphql_err) => {
+            if let Ok(response) = state.js_resource.on_complete(&params, state.get_schemas()) {
+                Ok(response)
+            } else {
+                Err(graphql_err)
+            }
+        }
     }
 }
 

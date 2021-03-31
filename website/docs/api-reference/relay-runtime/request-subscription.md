@@ -2,6 +2,9 @@
 id: request-subscription
 title: requestSubscription
 slug: /api-reference/request-subscription/
+description: API reference for requestSubscription, which imperatively establishes a GraphQL subscription
+keywords:
+  - subscription
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

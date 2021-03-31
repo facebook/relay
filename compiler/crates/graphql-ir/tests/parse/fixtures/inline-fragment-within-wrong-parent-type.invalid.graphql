@@ -1,0 +1,8 @@
+# expected-to-throw
+fragment Foo on User {
+  ... on Node {
+    ... on Page {
+      __typename
+    }
+  }
+}

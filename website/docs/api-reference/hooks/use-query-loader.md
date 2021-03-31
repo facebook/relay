@@ -2,6 +2,12 @@
 id: use-query-loader
 title: useQueryLoader
 slug: /api-reference/use-query-loader/
+description: API reference for useQueryLoader, a React hook used to imperatively fetch data for a query in response to a user event
+keywords:
+  - query
+  - fetch
+  - preload
+  - render-as-you-fetch
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

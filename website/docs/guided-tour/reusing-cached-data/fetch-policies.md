@@ -2,6 +2,13 @@
 id: fetch-policies
 title: Fetch Policies
 slug: /guided-tour/reusing-cached-data/fetch-policies/
+description: Relay guide to fetch policies
+keywords:
+- fetch policy
+- network-only
+- store-only
+- store-and-network
+- store-or-network
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

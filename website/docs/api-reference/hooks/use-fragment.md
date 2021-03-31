@@ -2,6 +2,11 @@
 id: use-fragment
 title: useFragment
 slug: /api-reference/use-fragment/
+description: API reference for useFragment, a React hook used to read fragment data from the Relay store using a fragment reference
+keywords:
+  - fragment
+  - read
+  - fragment reference
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

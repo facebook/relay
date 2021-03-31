@@ -2,6 +2,13 @@
 id: queries
 title: Queries
 slug: /guided-tour/rendering/queries/
+description: Relay guide to queries
+keywords:
+- query
+- usePreloadedQuery
+- useLazyLoadQuery
+- useQueryLoader
+- loadQuery
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

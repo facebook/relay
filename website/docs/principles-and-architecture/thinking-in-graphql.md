@@ -2,6 +2,9 @@
 id: thinking-in-graphql
 title: Thinking in GraphQL
 slug: /principles-and-architecture/thinking-in-graphql/
+description: Relay guide to thinking in GraphQL
+keywords:
+- GraphQL
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

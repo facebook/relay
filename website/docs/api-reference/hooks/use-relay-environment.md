@@ -2,6 +2,10 @@
 id: use-relay-environment
 title: useRelayEnvironment
 slug: /api-reference/use-relay-environment/
+description: API reference for useRelayEnvironment, a React hook used to access the Relay environment from context
+keywords:
+  - environment
+  - context
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -60,7 +60,7 @@ impl ProjectSet {
 }
 
 /// Represents the name of the source set, or list of source sets
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
 pub enum SourceSet {
     SourceSetName(SourceSetName),

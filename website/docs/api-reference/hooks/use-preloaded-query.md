@@ -2,6 +2,11 @@
 id: use-preloaded-query
 title: usePreloadedQuery
 slug: /api-reference/use-preloaded-query/
+description: API reference for usePreloadedQuery, a React hook used to read query data from the Relay store using a query reference
+keywords:
+  - read
+  - query
+  - query reference
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

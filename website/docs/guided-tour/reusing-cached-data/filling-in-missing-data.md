@@ -2,6 +2,10 @@
 id: filling-in-missing-data
 title: Filling in Missing Data (Missing Field Handlers)
 slug: /guided-tour/reusing-cached-data/filling-in-missing-data/
+description: Relay guide to filling in missing data
+keywords:
+- missing field handler
+- missing data
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

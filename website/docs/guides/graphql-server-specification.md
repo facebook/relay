@@ -2,6 +2,11 @@
 id: graphql-server-specification
 title: GraphQL Server Specification
 slug: /guides/graphql-server-specification/
+description: Relay GraphQL server specification guide
+keywords:
+- GraphQL
+- server
+- specification
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

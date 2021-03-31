@@ -6,6 +6,7 @@
  */
 
 use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::feature_flags::FeatureFlags;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::get_normalization_operation_name;
@@ -23,8 +24,11 @@ use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 /// Transform and validate @match and @module
-pub fn transform_match(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program);
+pub fn transform_match(
+    program: &Program,
+    feature_flags: &FeatureFlags,
+) -> DiagnosticsResult<Program> {
+    let mut transformer = MatchTransform::new(program, feature_flags);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -67,10 +71,11 @@ pub struct MatchTransform<'program> {
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
     matches_for_path: MatchesForPath,
+    enable_3d_branch_arg_generation: bool,
 }
 
 impl<'program> MatchTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, feature_flags: &FeatureFlags) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -80,6 +85,7 @@ impl<'program> MatchTransform<'program> {
             errors: Vec::new(),
             path: Default::default(),
             matches_for_path: Default::default(),
+            enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
         }
     }
 
@@ -398,7 +404,7 @@ impl<'program> MatchTransform<'program> {
                 operation_field_arguments.push(id_arg);
             }
 
-            if has_js_field_branch_arg {
+            if has_js_field_branch_arg && self.enable_3d_branch_arg_generation {
                 let branch_arg = build_string_literal_argument(
                     MATCH_CONSTANTS.js_field_branch_arg,
                     self.program

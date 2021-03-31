@@ -302,9 +302,7 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
         )
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
+    write_source_hash(config, &mut content, &source_hash).unwrap();
     // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
     if is_operation_preloadable(normalization_operation) {
         writeln!(
@@ -363,9 +361,7 @@ fn generate_split_operation(
         printer.print_operation(schema, normalization_operation)
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
+    write_source_hash(config, &mut content, &source_hash).unwrap();
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
@@ -446,9 +442,8 @@ fn generate_fragment(
         printer.print_fragment(schema, reader_fragment)
     )
     .unwrap();
-    writeln!(content, "if (__DEV__) {{").unwrap();
-    writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash).unwrap();
-    writeln!(content, "}}\n").unwrap();
+    write_source_hash(config, &mut content, &source_hash).unwrap();
+
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
@@ -463,4 +458,16 @@ fn get_content_start(config: &Config) -> String {
         writeln!(content, " *").unwrap();
     }
     content
+}
+
+fn write_source_hash(config: &Config, content: &mut String, source_hash: &str) -> Result {
+    if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
+        writeln!(content, "if ({}) {{", is_dev_variable_name)?;
+        writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?;
+        writeln!(content, "}}\n")?;
+    } else {
+        writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?;
+    }
+
+    Ok(())
 }

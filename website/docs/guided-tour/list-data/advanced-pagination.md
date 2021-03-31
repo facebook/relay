@@ -2,6 +2,11 @@
 id: advanced-pagination
 title: Advanced Pagination
 slug: /guided-tour/list-data/advanced-pagination/
+description: Relay guide for advanced pagination
+keywords:
+- pagination
+- usePaginationFragment
+- prefetching
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

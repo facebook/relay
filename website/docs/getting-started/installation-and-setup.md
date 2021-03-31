@@ -2,6 +2,12 @@
 id: installation-and-setup
 title: Installation and Setup
 slug: /getting-started/installation-and-setup/
+description: Relay installation and setup guide
+keywords:
+- installation
+- setup
+- compiler
+- babel-plugin-relay
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

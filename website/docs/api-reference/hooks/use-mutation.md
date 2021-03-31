@@ -2,6 +2,9 @@
 id: use-mutation
 title: useMutation
 slug: /api-reference/use-mutation/
+description: API reference for useMutation, a React hook used to execute a GraphQL mutation
+keywords:
+  - mutation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

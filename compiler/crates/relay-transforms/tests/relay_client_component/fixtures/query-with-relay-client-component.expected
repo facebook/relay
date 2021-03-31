@@ -11,8 +11,7 @@ fragment ClientFragment on User {
 }
 ==================================== OUTPUT ===================================
 query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentSources: ["ClientFragment"]) {
-  id
-  name
+  ...ClientFragment
 }
 
 query QueryWithRelayClientComponent @__RelayClientComponentMetadata(__RelayClientComponentMetadataSplitOperation: ["ClientFragment$normalization.graphql"]) {

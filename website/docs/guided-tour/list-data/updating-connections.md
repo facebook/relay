@@ -2,6 +2,12 @@
 id: updating-connections
 title: Updating Connections
 slug: /guided-tour/list-data/updating-connections/
+description: Relay guide to updating connections
+keywords:
+- pagination
+- usePaginationFragment
+- updating
+- connection
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

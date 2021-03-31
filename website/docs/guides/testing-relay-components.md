@@ -2,6 +2,15 @@
 id: testing-relay-components
 title: Testing Relay Components
 slug: /guides/testing-relay-components/
+description: Relay guide to testing Relay components
+keywords:
+- testing
+- createMockEnvironment
+- RelayMockEnvironment
+- MockPayloadGenerator
+- relay_test_operation
+- queuePendingOperation
+- resolver
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

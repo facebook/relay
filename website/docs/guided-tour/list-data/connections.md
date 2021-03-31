@@ -2,6 +2,10 @@
 id: connections
 title: Connections
 slug: /guided-tour/list-data/connections/
+description: Relay guide for connections
+keywords:
+- pagination
+- connections
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

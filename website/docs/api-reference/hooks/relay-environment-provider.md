@@ -2,6 +2,10 @@
 id: relay-environment-provider
 title: RelayEnvironmentProvider
 slug: /api-reference/relay-environment-provider/
+description: API reference for RelayEnvironmentProvider, which sets a Relay environment in React context
+keywords:
+  - environment
+  - context
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

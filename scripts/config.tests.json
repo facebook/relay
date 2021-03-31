@@ -30,5 +30,6 @@
       },
       "haste": false
     }
-  }
+  },
+  "isDevVariableName": "__DEV__"
 }

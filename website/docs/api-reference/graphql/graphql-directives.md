@@ -2,6 +2,15 @@
 id: graphql-directives
 title: GraphQL Directives
 slug: /api-reference/graphql-and-directives/
+description: API Reference for GraphQL directives
+keywords:
+  - GraphQL
+  - Directive
+  - arguments
+  - argumentDefinitions
+  - connection
+  - relay
+  - inline
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

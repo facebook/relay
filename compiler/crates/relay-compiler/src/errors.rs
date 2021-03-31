@@ -22,6 +22,14 @@ pub enum Error {
         source: std::io::Error,
     },
 
+    #[error("No config found.")]
+    ConfigNotFound,
+
+    #[error("Error searching config: {error}")]
+    ConfigSearchError {
+        error: js_config_loader::ConfigError,
+    },
+
     #[error("Failed to parse config file `{config_path}`: {source}")]
     ConfigFileParse {
         config_path: PathBuf,
@@ -85,7 +93,7 @@ pub enum Error {
         source: std::io::Error,
     },
 
-    #[error("Watchman error: {source}.")]
+    #[error("Watchman error: {source}")]
     Watchman {
         #[from]
         source: watchman_client::Error,

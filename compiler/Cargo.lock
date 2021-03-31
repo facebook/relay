@@ -1789,6 +1789,7 @@ dependencies = [
  "graphql-text-printer",
  "hex",
  "interner",
+ "js-config-loader",
  "lazy_static",
  "log",
  "md-5",

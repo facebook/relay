@@ -55,6 +55,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_required_transform_for_prefix: Some("".intern()),
         no_inline: NoInlineFeature::Enabled,
         enable_relay_resolver_transform: true,
+        enable_3d_branch_arg_generation: true,
     };
 
     // TODO pass base fragment names

@@ -49,6 +49,7 @@ export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
  *   in milliseconds. (This value will be passed to setTimeout.)
  * - `liveConfigId`: causes a query to live update by calling GraphQLLiveQuery,
  *   it represents a configuration of gateway when doing live query
+ * - `onSubscribe`: Not in use.
  * - `metadata`: user-supplied metadata.
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
@@ -57,6 +58,7 @@ export type CacheConfig = {|
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
+  onSubscribe?: () => void,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
 |};

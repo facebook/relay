@@ -2,6 +2,13 @@
 id: relay-devtools
 title: Relay DevTools
 slug: /debugging/relay-devtools/
+description: Debugging guide for the Relay DevTools
+keywords:
+- debugging
+- troubleshooting
+- extension
+- devtools
+- browser
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

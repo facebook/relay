@@ -206,6 +206,18 @@ export type ReaderRequiredField = {|
   +path: string,
 |};
 
+export type ReaderRelayResolver = {|
+  +kind: 'RelayResolver',
+  +alias: ?string,
+  +name: string,
+  +fragment: ReaderFragmentSpread,
+  +resolverModule: (rootKey: {
+    +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentRefs: any, // flowlint-line unclear-type:off
+    ...
+  }) => mixed,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
   | ReaderClientExtension
@@ -217,7 +229,8 @@ export type ReaderSelection =
   | ReaderInlineFragment
   | ReaderModuleImport
   | ReaderStream
-  | ReaderRequiredField;
+  | ReaderRequiredField
+  | ReaderRelayResolver;
 
 export type ReaderVariableArgument = {|
   +kind: 'Variable',

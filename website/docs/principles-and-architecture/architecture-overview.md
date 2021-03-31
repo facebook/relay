@@ -2,6 +2,9 @@
 id: architecture-overview
 title: Architecture Overview
 slug: /principles-and-architecture/architecture-overview/
+description: Relay architecture overview guide
+keywords:
+- architecture
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

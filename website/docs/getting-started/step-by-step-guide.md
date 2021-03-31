@@ -2,6 +2,9 @@
 id: step-by-step-guide
 title: Step-by-step Guide
 slug: /getting-started/step-by-step-guide/
+description: Step-by-step guide for setting up Relay
+keywords:
+- setup
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

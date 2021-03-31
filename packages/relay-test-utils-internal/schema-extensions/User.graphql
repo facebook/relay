@@ -10,3 +10,11 @@ extend type User {
   client_name: String
   client_code: Int
 }
+
+extend type User {
+  greeting: Int
+    @relay_resolver(
+      fragment_name: "UserGreeting"
+      import_path: "../../../../relay-test-utils-internal/relay-resolvers/UserGreeting.js"
+    )
+}

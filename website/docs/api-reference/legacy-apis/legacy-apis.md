@@ -2,6 +2,10 @@
 id: legacy-apis
 title: Legacy APIs
 slug: /api-reference/legacy-apis/
+description: API reference for legacy APIs
+keywords:
+  - QueryRenderer
+  - Container
 ---
 
 API references for our previous legacy APIs are available in our previous docs website:

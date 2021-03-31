@@ -2,6 +2,10 @@
 id: refreshing-fragments
 title: Refreshing Fragments
 slug: /guided-tour/refetching/refreshing-fragments/
+description: Relay guide to refreshing fragments
+keywords:
+- refreshing
+- fragment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

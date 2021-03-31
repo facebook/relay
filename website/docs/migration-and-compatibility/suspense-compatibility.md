@@ -2,6 +2,10 @@
 id: suspense-compatibility
 title: Suspense Combatibility
 slug: /migration-and-compatibility/suspense-compatibility/
+description: Relay guide to suspense compatibility
+keywords:
+- suspense
+- container
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

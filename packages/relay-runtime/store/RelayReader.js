@@ -28,6 +28,7 @@ const {
   LINKED_FIELD,
   MODULE_IMPORT,
   REQUIRED_FIELD,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
@@ -325,6 +326,16 @@ class RelayReader {
             // if the type doesn't conform and don't reset isMissingData
             this._traverseSelections(selection.selections, record, data);
           }
+          break;
+        }
+        case RELAY_RESOLVER: {
+          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+            throw new Error('Relay Resolver fields are not yet supported.');
+          }
+          const {name, alias, resolverModule} = selection;
+          // TODO: Create the key
+          const key = ({}: any); // flowlint-line unclear-type:off
+          data[alias ?? name] = resolverModule(key);
           break;
         }
         case FRAGMENT_SPREAD:

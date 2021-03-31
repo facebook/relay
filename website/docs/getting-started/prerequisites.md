@@ -2,6 +2,9 @@
 id: prerequisites
 title: Prerequisites
 slug: /getting-started/prerequisites/
+description: Prerequisites for setting up Relay
+keywords:
+- prerequisites
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

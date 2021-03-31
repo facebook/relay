@@ -2,6 +2,9 @@
 id: type-emission
 title: Type Emission
 slug: /guides/type-emission/
+description: Relay guide to type emission
+keywords:
+- type emission
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

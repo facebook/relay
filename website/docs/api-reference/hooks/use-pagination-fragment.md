@@ -2,6 +2,10 @@
 id: use-pagination-fragment
 title: usePaginationFragment
 slug: /api-reference/use-pagination-fragment/
+description: API reference for usePaginationFragment, a React hook used to paginate a connection
+keywords:
+  - pagination
+  - connection
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

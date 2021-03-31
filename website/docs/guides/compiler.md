@@ -2,6 +2,9 @@
 id: compiler
 title: Relay Compiler
 slug: /guides/compiler/
+description: Relay guide to the compiler
+keywords:
+- compiler
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

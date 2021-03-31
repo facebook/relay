@@ -2,6 +2,10 @@
 id: variables
 title: Variables
 slug: /guided-tour/rendering/variables/
+description: Relay guide to query variables
+keywords:
+- query
+- variables
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -18,6 +18,8 @@ use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
 use async_trait::async_trait;
 use common::SourceLocationKey;
 use fmt::Debug;
+use fnv::{FnvBuildHasher, FnvHashSet};
+use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use persist_query::PersistError;
 use rayon::prelude::*;
@@ -27,11 +29,12 @@ use relay_transforms::{ConnectionInterface, FeatureFlags};
 use relay_typegen::TypegenConfig;
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
-use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use watchman_client::pdu::ScmAwareClockData;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 type PostArtifactsWriter = Box<
     dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
@@ -50,9 +53,9 @@ pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
-    pub sources: HashMap<PathBuf, SourceSet>,
+    pub sources: FnvIndexMap<PathBuf, SourceSet>,
     pub excludes: Vec<String>,
-    pub projects: HashMap<ProjectName, ProjectConfig>,
+    pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
     pub codegen_command: Option<String>,
     /// If set, tries to initialize the compiler from the saved state file.
@@ -157,7 +160,7 @@ impl From<CliConfig> for Config {
             js_module_format: Default::default(),
         };
 
-        let mut sources = HashMap::default();
+        let mut sources = FnvIndexMap::default();
         let src = normalize_path_from_config(
             root_dir.clone(),
             cli_config.src.expect("Expect to have a `src`"),
@@ -165,7 +168,7 @@ impl From<CliConfig> for Config {
 
         sources.insert(src, SourceSet::SourceSetName(project_config.name));
 
-        let mut projects = HashMap::default();
+        let mut projects = FnvIndexMap::default();
         projects.insert(project_config.name, project_config);
 
         Config {
@@ -298,7 +301,7 @@ impl Config {
                 };
                 Ok((project_name, project_config))
             })
-            .collect::<Result<HashMap<_, _>>>()?;
+            .collect::<Result<FnvIndexMap<_, _>>>()?;
 
         let config_file_dir = config_path.parent().unwrap();
         let root_dir = if let Some(config_root) = config_file.root {
@@ -364,7 +367,7 @@ impl Config {
 
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        let mut source_set_names: HashSet<_> = Default::default();
+        let mut source_set_names = FnvHashSet::default();
         for value in self.sources.values() {
             match value {
                 SourceSet::SourceSetName(name) => {
@@ -532,7 +535,7 @@ pub struct ProjectConfig {
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
-    pub extra: Option<HashMap<String, String>>,
+    pub extra: Option<FnvIndexMap<String, String>>,
     pub feature_flags: Option<FeatureFlags>,
     pub filename_for_artifact:
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
@@ -628,7 +631,7 @@ struct ConfigFile {
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: HashMap<PathBuf, SourceSet>,
+    sources: IndexMap<PathBuf, SourceSet, fnv::FnvBuildHasher>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
@@ -636,7 +639,7 @@ struct ConfigFile {
     excludes: Vec<String>,
 
     /// Configuration of projects to compile.
-    projects: HashMap<ProjectName, ConfigFileProject>,
+    projects: FnvIndexMap<ProjectName, ConfigFileProject>,
 
     #[serde(default)]
     connection_interface: ConnectionInterface,
@@ -707,7 +710,7 @@ struct ConfigFileProject {
     #[serde(default)]
     variable_names_comment: bool,
 
-    extra: Option<HashMap<String, String>>,
+    extra: Option<FnvIndexMap<String, String>>,
 
     #[serde(default)]
     feature_flags: Option<FeatureFlags>,
@@ -728,7 +731,7 @@ pub struct PersistConfig {
     pub url: String,
     /// The document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
-    pub params: HashMap<String, String>,
+    pub params: FnvIndexMap<String, String>,
 }
 
 type PersistId = String;

@@ -505,7 +505,7 @@ TODO
 
 Querying a list of data (a [connection](#connection)) in parts is known as pagination.
 
-See the [graphql docs](https://graphql.github.io/learn/pagination/) and our [guided tour](../guided-tour/list-data/pagination).
+See the [graphql docs](https://graphql.org/learn/pagination/) and our [guided tour](../guided-tour/list-data/pagination).
 
 ## Payload
 
@@ -561,7 +561,7 @@ Exposes mutator methods like `commitUpdate` that only add or remove updates from
 
 ## Query
 
-A [GraphQL query](https://graphql.github.io/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [variables](../guided-tour/rendering/variables), in order to fetch some data. It consists of a [selection](#selection) of fields, and potentially includes other [fragments](#fragment).
+A [GraphQL query](https://graphql.org/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [variables](../guided-tour/rendering/variables), in order to fetch some data. It consists of a [selection](#selection) of fields, and potentially includes other [fragments](#fragment).
 
 ## Query Executor
 

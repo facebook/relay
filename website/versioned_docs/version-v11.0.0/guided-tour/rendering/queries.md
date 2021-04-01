@@ -9,7 +9,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbEntrypointsExtraInfo from './fb/FbEntrypointsExtraInfo.md';
 
-A [GraphQL Query](https://graphql.github.io/learn/queries/) is a description of data you want to query from a GraphQL server. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.github.io/learn/schema/) exposed on the server, which describes the data that is available for querying.
+A [GraphQL Query](https://graphql.org/learn/queries/) is a description of data you want to query from a GraphQL server. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.org/learn/schema/) exposed on the server, which describes the data that is available for querying.
 
 A query can be sent as a request over the network, along with an optional collection of [variables](../variables/) that the query uses, in order to fetch the data. The server response will be a JSON object that matches the shape of the query we sent:
 

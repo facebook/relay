@@ -113,7 +113,7 @@ pub fn extract_project_name_from_url(
 /// Return a parsed executable document for this LSP request, only if the request occurs
 /// within a GraphQL document.
 pub fn extract_executable_document_from_text(
-    text_document_position: TextDocumentPositionParams,
+    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
@@ -138,7 +138,7 @@ pub fn extract_executable_document_from_text(
     debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
     let position_span =
-        position_to_span(position, &graphql_source, index_offset).ok_or_else(|| {
+        position_to_span(&position, &graphql_source, index_offset).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
         })?;
 
@@ -154,7 +154,7 @@ pub fn extract_executable_document_from_text(
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this request came from
 pub(crate) fn position_to_span(
-    position: Position,
+    position: &Position,
     source: &GraphQLSource,
     index_offset: usize,
 ) -> Option<Span> {

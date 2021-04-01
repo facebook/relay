@@ -7,6 +7,7 @@
 
 use crate::{
     diagnostic_reporter::DiagnosticReporter,
+    js_language_server::JSLanguageServer,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::extract_project_name_from_url,
@@ -60,6 +61,7 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     diagnostic_reporter: Arc<DiagnosticReporter>,
     notify_sender: Arc<Notify>,
     project_status: ProjectStatusMap,
+    pub js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
 }
 
 impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
@@ -68,6 +70,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
         sender: Sender<Message>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -89,6 +92,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
+            js_resource,
         }
     }
 
@@ -99,11 +103,18 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
     ) -> Self {
         debug!("Creating lsp_state...");
-        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
+        let mut lsp_state = Self::new(
+            config,
+            perf_logger,
+            extra_data_provider,
+            js_resource,
+            sender.clone(),
+        );
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
@@ -187,11 +198,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn extract_executable_document_from_text(
         &mut self,
-        position: TextDocumentPositionParams,
+        position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
         extract_executable_document_from_text(
-            position,
+            &position,
             &self.synced_graphql_documents,
             &self.file_categorizer,
             &self.root_dir,

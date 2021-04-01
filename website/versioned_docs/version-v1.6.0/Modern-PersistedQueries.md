@@ -156,7 +156,7 @@ const app = Express();
 
 app.use('/graphql',
   matchQueryMiddleware(queryMapJson),
-  expressGraphl({schema}));
+  expressGraphql({schema}));
 
 ```
 

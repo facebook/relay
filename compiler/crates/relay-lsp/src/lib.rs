@@ -13,6 +13,7 @@ mod completion;
 mod diagnostic_reporter;
 mod extension_config;
 mod goto_definition;
+mod graphql_tools;
 mod hover;
 mod js_language_server;
 mod location;
@@ -33,13 +34,16 @@ use common::PerfLogger;
 pub use js_language_server::JSLanguageServer;
 use js_language_server::NoopJSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::LSPExtraDataProvider;
+pub use lsp_extra_data_provider::{
+    LSPExtraDataProvider, Query as LSPExtraDataProviderGraphQlQuery,
+};
 use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
 use relay_compiler::config::Config;
-pub use server::Schemas;
+pub use server::{LSPState, Schemas};
 use std::sync::Arc;
+pub use utils::position_to_offset;
 #[cfg(test)]
 #[macro_use]
 extern crate assert_matches;

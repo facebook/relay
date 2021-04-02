@@ -158,10 +158,20 @@ pub(crate) fn position_to_span(
     source: &GraphQLSource,
     index_offset: usize,
 ) -> Option<Span> {
-    let mut index_of_first_character_of_current_line = 0;
-    let mut line_index = source.line_index as u64;
+    position_to_offset(position, index_offset, source.line_index, &source.text)
+        .map(|offset| Span::new(offset, offset))
+}
 
-    let mut chars = source.text.chars().enumerate().peekable();
+pub fn position_to_offset(
+    position: &Position,
+    index_offset: usize,
+    line_index: usize,
+    text: &str,
+) -> Option<u32> {
+    let mut index_of_first_character_of_current_line = 0;
+    let mut line_index = line_index as u64;
+
+    let mut chars = text.chars().enumerate().peekable();
 
     while let Some((index, chr)) = chars.next() {
         let is_newline = match chr {
@@ -181,7 +191,7 @@ pub(crate) fn position_to_span(
         if line_index == position.line {
             let start_offset =
                 (index_of_first_character_of_current_line + position.character) as u32;
-            return Some(Span::new(start_offset, start_offset));
+            return Some(start_offset);
         }
     }
     None

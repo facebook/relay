@@ -17,7 +17,7 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
             .sources
             .iter()
             .flat_map(|(path, name)| match name {
-                SourceSet::SourceSetName(name) => vec![(path, &config.projects[&name])],
+                SourceSet::SourceSetName(name) => vec![(path, &config.projects[name])],
                 SourceSet::SourceSetNames(names) => names
                     .iter()
                     .map(|name| (path, &config.projects[name]))

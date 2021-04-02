@@ -29,6 +29,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 hex = "0.4"
+indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.0"

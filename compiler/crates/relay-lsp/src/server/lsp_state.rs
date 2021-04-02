@@ -47,7 +47,7 @@ pub enum ProjectStatus {
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
-pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
+pub struct LSPState<TPerfLogger: PerfLogger + 'static> {
     config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
@@ -226,6 +226,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         self.validate_synced_sources(url.clone(), project_name, &sources);
         self.insert_synced_sources(url, sources);
         Ok(())
+    }
+
+    pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
+        extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
 
     fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {

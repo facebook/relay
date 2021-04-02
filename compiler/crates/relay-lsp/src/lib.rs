@@ -41,8 +41,9 @@ use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
 use relay_compiler::config::Config;
-pub use server::Schemas;
+pub use server::{LSPState, Schemas};
 use std::sync::Arc;
+pub use utils::position_to_offset;
 #[cfg(test)]
 #[macro_use]
 extern crate assert_matches;

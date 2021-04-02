@@ -52,7 +52,7 @@ use relay_compiler::{config::Config, NoopArtifactWriter};
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
-pub(crate) use lsp_state::LSPState;
+pub use lsp_state::LSPState;
 pub use lsp_state::{Schemas, SourcePrograms};
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, LSPRuntimeError, Schemas};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState, LSPRuntimeError};
 use common::PerfLogger;
 use lsp_types::{
     request::{Completion, Request},
@@ -19,7 +19,7 @@ pub trait JSLanguageServer<TPerfLogger: PerfLogger + 'static> {
     fn on_complete(
         &self,
         params: &<Completion as Request>::Params,
-        schemas: Schemas,
+        state: &LSPState<TPerfLogger>,
     ) -> LSPRuntimeResult<<Completion as Request>::Result>;
 }
 #[derive(Default)]
@@ -32,7 +32,7 @@ impl<TPerfLogger: PerfLogger + 'static> JSLanguageServer<TPerfLogger> for NoopJS
     fn on_complete(
         &self,
         _: &<Completion as Request>::Params,
-        _: Schemas,
+        _: &LSPState<TPerfLogger>,
     ) -> LSPRuntimeResult<<Completion as Request>::Result> {
         Err(LSPRuntimeError::ExpectedError)
     }

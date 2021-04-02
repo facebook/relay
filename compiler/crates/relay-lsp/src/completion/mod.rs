@@ -990,7 +990,7 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
             }
         }
         Err(graphql_err) => {
-            if let Ok(response) = state.js_resource.on_complete(&params, state.get_schemas()) {
+            if let Ok(response) = state.js_resource.on_complete(&params, state) {
                 Ok(response)
             } else {
                 Err(graphql_err)

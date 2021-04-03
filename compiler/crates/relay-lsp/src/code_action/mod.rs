@@ -35,6 +35,10 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     if !uri.path().starts_with(state.root_dir_str()) {
         return Err(LSPRuntimeError::ExpectedError);
     }
+    if let Ok(result) = state.js_resource.on_code_action(&params, state) {
+        return Ok(result);
+    }
+
     let range = params.range;
 
     let text_document_position_params = TextDocumentPositionParams {

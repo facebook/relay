@@ -155,7 +155,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         lsp_state
     }
 
-    pub(crate) fn get_schemas(&self) -> Schemas {
+    pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
     }
 

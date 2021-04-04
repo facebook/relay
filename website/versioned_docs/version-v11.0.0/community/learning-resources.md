@@ -12,6 +12,7 @@ import DocsRating from '@site/src/core/DocsRating';
 These projects serve as an example of how to use Relay in real world applications.
 
 -   [github.com/relayjs/relay-examples](https://github.com/relayjs/relay-examples)
+-   [github.com/juffalow/react-relay-example](https://github.com/juffalow/react-relay-example)
 
 ## Guides and articles:
 

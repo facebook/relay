@@ -276,7 +276,7 @@ class Executor {
       }
       default:
         (this._state: empty);
-        invariant(false, 'RelayModernQueryExecutor: invalid executor state.');
+        invariant(false, 'QueryExecutor: invalid executor state.');
     }
     this._operationExecutions.set(
       this._operation.request.identifier,
@@ -403,7 +403,7 @@ class Executor {
     if (isOptimistic && this._state !== 'started') {
       invariant(
         false,
-        'RelayModernQueryExecutor: optimistic payload received after server payload.',
+        'QueryExecutor: optimistic payload received after server payload.',
       );
     }
     if (isOptimistic) {
@@ -649,7 +649,7 @@ class Executor {
         if (this._optimisticUpdates == null) {
           warning(
             false,
-            'RelayModernQueryExecutor: Unexpected ModuleImport optimistic ' +
+            'QueryExecutor: Unexpected ModuleImport optimistic ' +
               'update in operation %s.' +
               this._operation.request.node.params.name,
           );
@@ -1339,7 +1339,7 @@ function partitionGraphQLResponses(
       if (label == null || path == null) {
         invariant(
           false,
-          'RelayModernQueryExecutor: invalid incremental payload, expected ' +
+          'QueryExecutor: invalid incremental payload, expected ' +
             '`path` and `label` to either both be null/undefined, or ' +
             '`path` to be an `Array<string | number>` and `label` to be a ' +
             '`string`.',
@@ -1391,7 +1391,7 @@ function validateOptimisticResponsePayload(
   if (incrementalPlaceholders != null && incrementalPlaceholders.length !== 0) {
     invariant(
       false,
-      'RelayModernQueryExecutor: optimistic responses cannot be returned ' +
+      'QueryExecutor: optimistic responses cannot be returned ' +
         'for operations that use incremental data delivery (@defer, ' +
         '@stream, and @stream_connection).',
     );

@@ -13,9 +13,9 @@
 
 'use strict';
 
+const QueryExecutor = require('./QueryExecutor');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernQueryExecutor = require('./RelayModernQueryExecutor');
 const RelayObservable = require('../network/RelayObservable');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('./RelayPublishQueue');
@@ -40,8 +40,7 @@ import type {
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
-import type {ActiveState} from './RelayModernQueryExecutor';
-import type {TaskScheduler} from './RelayModernQueryExecutor';
+import type {ActiveState, TaskScheduler} from './QueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   IEnvironment,
@@ -242,7 +241,7 @@ class RelayModernEnvironment implements IEnvironment {
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
     const subscription = RelayObservable.create(sink => {
       const source = RelayObservable.create(_sink => {});
-      const executor = RelayModernQueryExecutor.execute({
+      const executor = QueryExecutor.execute({
         operation: optimisticConfig.operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
@@ -282,7 +281,7 @@ class RelayModernEnvironment implements IEnvironment {
 
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
     RelayObservable.create(sink => {
-      const executor = RelayModernQueryExecutor.execute({
+      const executor = QueryExecutor.execute({
         operation: operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
@@ -379,7 +378,7 @@ class RelayModernEnvironment implements IEnvironment {
         operation.request.cacheConfig || {},
         null,
       );
-      const executor = RelayModernQueryExecutor.execute({
+      const executor = QueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
@@ -442,7 +441,7 @@ class RelayModernEnvironment implements IEnvironment {
         },
         uploadables,
       );
-      const executor = RelayModernQueryExecutor.execute({
+      const executor = QueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
@@ -481,7 +480,7 @@ class RelayModernEnvironment implements IEnvironment {
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
-      const executor = RelayModernQueryExecutor.execute({
+      const executor = QueryExecutor.execute({
         operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,

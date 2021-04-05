@@ -15,7 +15,6 @@ use graphql_ir::{
     Program, Selection, Transformed, Transformer, Value,
 };
 use graphql_syntax::OperationKind;
-use indexmap::IndexSet;
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{InterfaceID, Schema, Type};
@@ -34,7 +33,6 @@ lazy_static! {
     static ref ID_FIELD_NAME: StringKey = "id".intern();
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
-    static ref DIRECTIVE_COMPATIBILITY_ALLOWLIST: IndexSet<StringKey> = IndexSet::new();
 }
 
 pub fn relay_client_component(program: &Program) -> DiagnosticsResult<Program> {
@@ -251,9 +249,7 @@ impl<'program> RelayClientComponentTransform<'program> {
             .directives
             .iter()
             .filter_map(|directive| {
-                if !(directive.name.item == *RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME
-                    || DIRECTIVE_COMPATIBILITY_ALLOWLIST.contains(&directive.name.item))
-                {
+                if directive.name.item != *RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME {
                     Some(directive.name.item)
                 } else {
                     None

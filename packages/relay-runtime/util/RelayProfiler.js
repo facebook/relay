@@ -12,11 +12,12 @@
 
 'use strict';
 
-type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
+type EventName = 'fetchRelayQuery';
+type ProfileHandler = (name: EventName, state?: any) => (error?: Error) => void;
 
-const profileHandlersByName: {[name: string]: Array<ProfileHandler>, ...} = {
-  '*': [],
-};
+const profileHandlersByName: {|
+  [name: EventName]: Array<ProfileHandler>,
+|} = {};
 
 const defaultProfiler = {
   stop() {},
@@ -64,28 +65,17 @@ const RelayProfiler = {
    * Arbitrary state can also be passed into `profile` as a second argument. The
    * attached profile handlers will receive this as the second argument.
    */
-  profile(name: string, state?: any): {stop: (error?: Error) => void, ...} {
-    const hasCatchAllHandlers = profileHandlersByName['*'].length > 0;
-    const hasNamedHandlers = profileHandlersByName.hasOwnProperty(name);
-    if (hasNamedHandlers || hasCatchAllHandlers) {
-      const profileHandlers =
-        hasNamedHandlers && hasCatchAllHandlers
-          ? profileHandlersByName[name].concat(profileHandlersByName['*'])
-          : hasNamedHandlers
-          ? profileHandlersByName[name]
-          : profileHandlersByName['*'];
-      let stopHandlers;
-      for (let ii = profileHandlers.length - 1; ii >= 0; ii--) {
-        const profileHandler = profileHandlers[ii];
-        const stopHandler = profileHandler(name, state);
-        stopHandlers = stopHandlers || [];
+  profile(name: EventName, state?: any): {stop: (error?: Error) => void, ...} {
+    const handlers = profileHandlersByName[name];
+    if (handlers && handlers.length > 0) {
+      const stopHandlers = [];
+      for (let ii = handlers.length - 1; ii >= 0; ii--) {
+        const stopHandler = handlers[ii](name, state);
         stopHandlers.unshift(stopHandler);
       }
       return {
         stop(error?: Error): void {
-          if (stopHandlers) {
-            stopHandlers.forEach(stopHandler => stopHandler(error));
-          }
+          stopHandlers.forEach(stopHandler => stopHandler(error));
         },
       };
     }
@@ -93,10 +83,9 @@ const RelayProfiler = {
   },
 
   /**
-   * Attaches a handler to profiles with the supplied name. You can also
-   * attach to the special name '*' which is a catch all.
+   * Attaches a handler to profiles with the supplied name.
    */
-  attachProfileHandler(name: string, handler: ProfileHandler): void {
+  attachProfileHandler(name: EventName, handler: ProfileHandler): void {
     if (!profileHandlersByName.hasOwnProperty(name)) {
       profileHandlersByName[name] = [];
     }
@@ -106,7 +95,7 @@ const RelayProfiler = {
   /**
    * Detaches a handler attached via `attachProfileHandler`.
    */
-  detachProfileHandler(name: string, handler: ProfileHandler): void {
+  detachProfileHandler(name: EventName, handler: ProfileHandler): void {
     if (profileHandlersByName.hasOwnProperty(name)) {
       removeFromArray(profileHandlersByName[name], handler);
     }

@@ -31,25 +31,25 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-pub(crate) enum GraphQlExecuteQuery {}
+pub(crate) enum GraphQLExecuteQuery {}
 
 #[derive(Serialize, Deserialize)]
-pub(crate) struct GraphQlExecuteQueryParams {
+pub(crate) struct GraphQLExecuteQueryParams {
     text: String,
     variables: serde_json::Value,
 }
 
 #[derive(Serialize, Deserialize)]
-pub(crate) enum GraphQlResponse {
+pub(crate) enum GraphQLResponse {
     #[serde(rename = "data")]
     Data(serde_json::Value),
     #[serde(rename = "error")]
     Error(serde_json::Value),
 }
 
-impl Request for GraphQlExecuteQuery {
-    type Params = GraphQlExecuteQueryParams;
-    type Result = GraphQlResponse;
+impl Request for GraphQLExecuteQuery {
+    type Params = GraphQLExecuteQueryParams;
+    type Result = GraphQLResponse;
     const METHOD: &'static str = "graphql/executeQuery";
 }
 
@@ -137,7 +137,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         ),
         perf_logger,
     )
-    .map_err(|err| format!("{:?}", err))
+    .map_err(|errors| format!("{:?}", errors))
 }
 
 fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> String {
@@ -191,39 +191,30 @@ fn build_operation_ir_with_fragments(
     }
 }
 
-pub(crate) fn on_graphql_execute_query<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
-    params: GraphQlExecuteQueryParams,
-) -> LSPRuntimeResult<<GraphQlExecuteQuery as Request>::Result> {
-    let result = parse_executable_with_error_recovery(&params.text, SourceLocationKey::Generated);
-    // TODO: Figure out the project form request params
-    let project_name = "facebook".intern();
+fn get_query_text<TPerfLogger: PerfLogger + 'static>(
+    state: &LSPState<TPerfLogger>,
+    original_text: String,
+    project_config: &ProjectConfig,
+    schema: Arc<SDLSchema>,
+) -> Result<String, String> {
+    let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
 
     if !&result.errors.is_empty() {
-        return Ok(GraphQlResponse::Error(Value::Array(
-            result
-                .errors
-                .iter()
-                .map(|err| Value::String(format!("{:?}", err)))
-                .collect::<Vec<_>>(),
-        )));
+        return Err(result
+            .errors
+            .iter()
+            .map(|err| format!("- {}\n", err))
+            .collect::<String>());
     }
 
-    let project_config = state.get_project_config_ref(project_name).unwrap();
-    let schema = state
-        .get_schemas()
-        .get(&project_config.name)
-        .unwrap()
-        .clone();
-
     let (operation, fragments) =
-        build_operation_ir_with_fragments(&result.item.definitions, schema).unwrap();
+        build_operation_ir_with_fragments(&result.item.definitions, schema)?;
 
     let operation_name = operation.name.item;
     let query_text = if let Some(operation_program) = get_operation_only_program(
         operation,
         fragments,
-        project_name,
+        project_config.name,
         state.get_source_programs_ref(),
     ) {
         let programs = transform_program(
@@ -231,21 +222,41 @@ pub(crate) fn on_graphql_execute_query<TPerfLogger: PerfLogger + 'static>(
             state.get_config(),
             Arc::new(operation_program),
             state.get_logger(),
-        )
-        .unwrap();
+        )?;
 
         print_full_operation_text(programs, operation_name)
     } else {
         // If, for some reason we could not get the operation text from the sources
         // we will send the original text to the server
-        params.text
+        original_text
+    };
+
+    Ok(query_text)
+}
+
+#[allow(clippy::unnecessary_wraps)]
+pub(crate) fn on_graphql_execute_query<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: GraphQLExecuteQueryParams,
+) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
+    let project_name = "facebook".intern();
+    let project_config = state.get_project_config_ref(project_name).unwrap();
+    let schema = state
+        .get_schemas()
+        .get(&project_config.name)
+        .unwrap()
+        .clone();
+
+    let query_text = match get_query_text(state, params.text, project_config, schema) {
+        Ok(query_text) => query_text,
+        Err(error) => return Ok(GraphQLResponse::Error(Value::String(error))),
     };
 
     match state
         .extra_data_provider
         .execute_query(Query::Text(query_text), params.variables)
     {
-        Ok(data) => Ok(GraphQlResponse::Data(data)),
-        Err(error) => Ok(GraphQlResponse::Error(error)),
+        Ok(data) => Ok(GraphQLResponse::Data(data)),
+        Err(error) => Ok(GraphQLResponse::Error(error)),
     }
 }

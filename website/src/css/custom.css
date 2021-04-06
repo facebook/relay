@@ -292,13 +292,6 @@ pre.outerPre {
   position: relative;
 }
 
-.relaySection:before {
-  content: '';
-  display: block;
-  width: 100%;
-  height: 60px;
-}
-
 .relaySection .blockElement {
   margin: 0 55px 40px;
 }
@@ -320,16 +313,6 @@ pre.outerPre {
   height: 131px;
   position: absolute;
   top: 0;
-  right: 0;
-}
-
-.relaySection:after {
-  display: block;
-  position: absolute;
-  content: '';
-  height: 40px;
-  width: 50%;
-  top: 147px;
   right: 0;
 }
 
@@ -510,6 +493,15 @@ pre.outerPre {
 .more-users a.button {
   color: var(--ifm-color-primary);
   border-color: var(--ifm-color-primary);
+}
+
+.try-it {
+  padding-top: 10px;
+}
+
+.try-it a.button {
+  color: #f9f6ef;
+  border-color: #EAEAE2;
 }
 
 a.hash-link {

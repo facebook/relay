@@ -15,12 +15,12 @@ pub mod compiler;
 pub mod compiler_state;
 pub mod config;
 pub mod errors;
+mod file_source;
 mod graphql_asts;
 mod red_to_green;
 mod rollout;
 pub mod saved_state;
 pub mod status_reporter;
-mod watchman;
 
 pub use build_project::{
     add_to_mercurial, apply_transforms,
@@ -33,9 +33,9 @@ pub use build_project::{
     ArtifactContent, BuildProjectFailure, Programs, SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
-pub use graphql_asts::GraphQLAsts;
-pub use watchman::{
+pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
     SourceControlUpdateStatus, SourceReader,
 };
+pub use graphql_asts::GraphQLAsts;

@@ -493,6 +493,9 @@ pre.outerPre {
 .more-users a.button {
   color: var(--ifm-color-primary);
   border-color: var(--ifm-color-primary);
+  border-style: solid;
+  border-width: var(--ifm-button-border-width);
+  border-radius: var(--ifm-button-border-radius);
 }
 
 .try-it {
@@ -502,6 +505,9 @@ pre.outerPre {
 .try-it a.button {
   color: #f9f6ef;
   border-color: #EAEAE2;
+  border-style: solid;
+  border-width: var(--ifm-button-border-width);
+  border-radius: var(--ifm-button-border-radius);
 }
 
 a.hash-link {

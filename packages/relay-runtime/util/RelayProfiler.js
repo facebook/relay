@@ -12,17 +12,12 @@
 
 'use strict';
 
-type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
-const aggregateHandlersByName: {[name: string]: Array<Handler>, ...} = {
-  '*': [],
-};
 const profileHandlersByName: {[name: string]: Array<ProfileHandler>, ...} = {
   '*': [],
 };
 
-const NOT_INVOKED = {};
 const defaultProfiler = {
   stop() {},
 };
@@ -56,111 +51,6 @@ const defaultProfiler = {
  *   });
  */
 const RelayProfiler = {
-  /**
-   * Wraps the supplied function with one that provides the `attachHandler` and
-   * `detachHandler` methods. Example usage:
-   *
-   *   const printRelayQuery =
-   *     RelayProfiler.instrument('printRelayQuery', printRelayQuery);
-   *
-   *   printRelayQuery.attachHandler(...);
-   *
-   * NOTE: The instrumentation assumes that no handlers are attached or detached
-   * in the course of executing another handler.
-   */
-  instrument<T: Function>(name: string, originalFunction: T): T {
-    if (!aggregateHandlersByName.hasOwnProperty(name)) {
-      aggregateHandlersByName[name] = [];
-    }
-    const catchallHandlers = aggregateHandlersByName['*'];
-    const aggregateHandlers = aggregateHandlersByName[name];
-    const handlers: Array<Handler> = [];
-    const contexts: Array<[number, number, number, any, any, any]> = [];
-    const invokeHandlers = function() {
-      const context = contexts[contexts.length - 1];
-      if (context[0]) {
-        context[0]--;
-        catchallHandlers[context[0]](name, invokeHandlers);
-      } else if (context[1]) {
-        context[1]--;
-        aggregateHandlers[context[1]](name, invokeHandlers);
-      } else if (context[2]) {
-        context[2]--;
-        handlers[context[2]](name, invokeHandlers);
-      } else {
-        context[5] = originalFunction.apply(context[3], context[4]);
-      }
-    };
-    const instrumentedCallback = function() {
-      let returnValue;
-      if (
-        aggregateHandlers.length === 0 &&
-        handlers.length === 0 &&
-        catchallHandlers.length === 0
-      ) {
-        returnValue = originalFunction.apply(this, arguments);
-      } else {
-        contexts.push([
-          catchallHandlers.length,
-          aggregateHandlers.length,
-          handlers.length,
-          this,
-          arguments,
-          NOT_INVOKED,
-        ]);
-        invokeHandlers();
-        const context = contexts.pop();
-        returnValue = context[5];
-        if (returnValue === NOT_INVOKED) {
-          throw new Error(
-            'RelayProfiler: Handler did not invoke original function.',
-          );
-        }
-      }
-      return returnValue;
-    };
-    instrumentedCallback.attachHandler = function(handler: Handler): void {
-      handlers.push(handler);
-    };
-    instrumentedCallback.detachHandler = function(handler: Handler): void {
-      removeFromArray(handlers, handler);
-    };
-    instrumentedCallback.displayName = '(instrumented ' + name + ')';
-    return (instrumentedCallback: any);
-  },
-
-  /**
-   * Attaches a handler to all methods instrumented with the supplied name.
-   *
-   *   function createRenderer() {
-   *     return RelayProfiler.instrument('render', function() {...});
-   *   }
-   *   const renderA = createRenderer();
-   *   const renderB = createRenderer();
-   *
-   *   // Only profiles `renderA`.
-   *   renderA.attachHandler(...);
-   *
-   *   // Profiles both `renderA` and `renderB`.
-   *   RelayProfiler.attachAggregateHandler('render', ...);
-   *
-   */
-  attachAggregateHandler(name: string, handler: Handler): void {
-    if (!aggregateHandlersByName.hasOwnProperty(name)) {
-      aggregateHandlersByName[name] = [];
-    }
-    aggregateHandlersByName[name].push(handler);
-  },
-
-  /**
-   * Detaches a handler attached via `attachAggregateHandler`.
-   */
-  detachAggregateHandler(name: string, handler: Handler): void {
-    if (aggregateHandlersByName.hasOwnProperty(name)) {
-      removeFromArray(aggregateHandlersByName[name], handler);
-    }
-  },
-
   /**
    * Instruments profiling for arbitrarily asynchronous code by a name.
    *

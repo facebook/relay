@@ -10,13 +10,6 @@
 'use strict';
 
 const RelayProfiler = {
-  instrument: jest.fn((name, handler) => {
-    handler.attachHandler = () => {};
-    handler.detachHandler = () => {};
-    return handler;
-  }),
-  attachAggregateHandler: jest.fn(),
-  detachAggregateHandler: jest.fn(),
   profile: jest.fn(() => {
     return {
       stop: jest.fn(),

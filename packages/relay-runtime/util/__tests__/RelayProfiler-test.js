@@ -12,271 +12,80 @@
 
 const RelayProfiler = require('../RelayProfiler');
 
-let mockMethod;
-let mockObject;
-
 beforeEach(() => {
   jest.resetModules();
-
-  mockMethod = jest.fn();
-  const mockMethod2 = jest.fn();
-  mockObject = {
-    mockMethod: RelayProfiler.instrument('mock', mockMethod),
-    mockMethod2: RelayProfiler.instrument('mock2', mockMethod2),
-  };
 });
 
-describe('instance', () => {
-  it('preserves context, arguments, and return value', () => {
-    const expectedArgument = {};
-    const expectedContext = mockObject;
-    const expectedReturnValue = {};
+it('invokes attached profile handlers', () => {
+  const actualOrdering = [];
 
-    mockMethod.mockImplementation(function(actualArgument) {
-      expect(actualArgument).toBe(expectedArgument);
-      expect(this).toBe(expectedContext);
-      return expectedReturnValue;
-    });
-
-    const actualReturnValue = mockObject.mockMethod(expectedArgument);
-
-    expect(actualReturnValue).toBe(expectedReturnValue);
+  RelayProfiler.attachProfileHandler('mockBehavior', name => {
+    expect(name).toBe('mockBehavior');
+    actualOrdering.push('1: beforeEnd');
+    return () => {
+      actualOrdering.push('1: afterEnd');
+    };
   });
 
-  it('invokes attached handlers', () => {
-    const actualOrdering = [];
-
-    mockMethod.mockImplementation(() => {
-      actualOrdering.push('mockMethod');
-    });
-
-    mockObject.mockMethod.attachHandler((name, callback) => {
-      expect(name).toBe('mock');
-      actualOrdering.push('beforeCallback');
-      callback();
-      actualOrdering.push('afterCallback');
-    });
-
-    mockObject.mockMethod();
-
-    expect(actualOrdering).toEqual([
-      'beforeCallback',
-      'mockMethod',
-      'afterCallback',
-    ]);
+  RelayProfiler.attachProfileHandler('mockBehavior', name => {
+    expect(name).toBe('mockBehavior');
+    actualOrdering.push('2: beforeEnd');
+    return () => {
+      actualOrdering.push('2: afterEnd');
+    };
   });
 
-  it('invokes nested attached handlers', () => {
-    const actualOrdering = [];
+  const profiler = RelayProfiler.profile('mockBehavior');
 
-    mockMethod.mockImplementation(() => {
-      actualOrdering.push('0: mockMethod');
-    });
+  expect(actualOrdering).toEqual(['2: beforeEnd', '1: beforeEnd']);
 
-    mockObject.mockMethod.attachHandler((name, callback) => {
-      expect(name).toBe('mock');
-      actualOrdering.push('1: beforeCallback');
-      callback();
-      actualOrdering.push('1: afterCallback');
-    });
+  profiler.stop();
 
-    mockObject.mockMethod.attachHandler((name, callback) => {
-      expect(name).toBe('mock');
-      actualOrdering.push('2: beforeCallback');
-      callback();
-      actualOrdering.push('2: afterCallback');
-    });
-
-    mockObject.mockMethod();
-
-    expect(actualOrdering).toEqual([
-      '2: beforeCallback',
-      '1: beforeCallback',
-      '0: mockMethod',
-      '1: afterCallback',
-      '2: afterCallback',
-    ]);
-  });
-
-  it('does not invoke detached handlers', () => {
-    const mockHandler = jest.fn().mockImplementation((name, callback) => {
-      callback();
-    });
-
-    mockObject.mockMethod.attachHandler(mockHandler);
-    mockObject.mockMethod.detachHandler(mockHandler);
-    mockObject.mockMethod();
-
-    expect(mockHandler).not.toBeCalled();
-  });
-
-  it('throws if callback is not invoked by handler', () => {
-    mockObject.mockMethod.attachHandler(jest.fn());
-
-    expect(() => {
-      mockObject.mockMethod();
-    }).toThrowError('RelayProfiler: Handler did not invoke original function.');
-  });
+  expect(actualOrdering).toEqual([
+    '2: beforeEnd',
+    '1: beforeEnd',
+    '1: afterEnd',
+    '2: afterEnd',
+  ]);
 });
 
-describe('aggregate', () => {
-  it('invokes aggregate handlers first', () => {
-    const actualOrdering = [];
+it('does not invoke detached profile handlers', () => {
+  const mockStop = jest.fn();
+  const mockStart = jest.fn(() => mockStop);
 
-    mockMethod.mockImplementation(() => {
-      actualOrdering.push('0: mockMethod');
-    });
+  RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
+  RelayProfiler.detachProfileHandler('mockBehavior', mockStart);
+  RelayProfiler.profile('mockBehavior');
 
-    mockObject.mockMethod.attachHandler((name, callback) => {
-      actualOrdering.push('1: beforeCallback');
-      callback();
-      actualOrdering.push('1: afterCallback');
-    });
-
-    RelayProfiler.attachAggregateHandler('mock', (name, callback) => {
-      expect(name).toBe('mock');
-      actualOrdering.push('3: beforeCallback (aggregate)');
-      callback();
-      actualOrdering.push('3: afterCallback (aggregate)');
-    });
-
-    RelayProfiler.attachAggregateHandler('*', (name, callback) => {
-      actualOrdering.push('5: beforeCallback (aggregate *): ' + name);
-      callback();
-      actualOrdering.push('5: afterCallback (aggregate *): ' + name);
-    });
-
-    RelayProfiler.attachAggregateHandler('mock', (name, callback) => {
-      expect(name).toBe('mock');
-      actualOrdering.push('4: beforeCallback (aggregate)');
-      callback();
-      actualOrdering.push('4: afterCallback (aggregate)');
-    });
-
-    mockObject.mockMethod.attachHandler((name, callback) => {
-      actualOrdering.push('2: beforeCallback');
-      callback();
-      actualOrdering.push('2: afterCallback');
-    });
-
-    mockObject.mockMethod();
-    mockObject.mockMethod2();
-
-    expect(actualOrdering).toEqual([
-      '5: beforeCallback (aggregate *): mock',
-      '4: beforeCallback (aggregate)',
-      '3: beforeCallback (aggregate)',
-      '2: beforeCallback',
-      '1: beforeCallback',
-      '0: mockMethod',
-      '1: afterCallback',
-      '2: afterCallback',
-      '3: afterCallback (aggregate)',
-      '4: afterCallback (aggregate)',
-      '5: afterCallback (aggregate *): mock',
-      '5: beforeCallback (aggregate *): mock2',
-      '5: afterCallback (aggregate *): mock2',
-    ]);
-  });
-
-  it('aggregates methods instrumented after being attached', () => {
-    const mockHandler = jest.fn().mockImplementation((name, callback) => {
-      callback();
-    });
-    RelayProfiler.attachAggregateHandler('mockFuture', mockHandler);
-
-    const mockFutureMethod = RelayProfiler.instrument('mockFuture', mockMethod);
-
-    expect(mockHandler).not.toBeCalled();
-    mockFutureMethod();
-    expect(mockHandler).toBeCalled();
-  });
-
-  it('detaches aggregate handlers', () => {
-    const mockHandler = jest.fn().mockImplementation((name, callback) => {
-      callback();
-    });
-
-    RelayProfiler.attachAggregateHandler('mock', mockHandler);
-    RelayProfiler.detachAggregateHandler('mock', mockHandler);
-    mockObject.mockMethod();
-
-    expect(mockHandler).not.toBeCalled();
-  });
+  expect(mockStop).not.toBeCalled();
+  expect(mockStart).not.toBeCalled();
 });
 
-describe('profile', () => {
-  it('invokes attached profile handlers', () => {
-    const actualOrdering = [];
+it('passes state to each profile handler', () => {
+  const mockStop = jest.fn();
+  const mockStart = jest.fn(() => mockStop);
+  const state = {};
 
-    RelayProfiler.attachProfileHandler('mockBehavior', name => {
-      expect(name).toBe('mockBehavior');
-      actualOrdering.push('1: beforeEnd');
-      return () => {
-        actualOrdering.push('1: afterEnd');
-      };
-    });
+  RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
+  const profiler = RelayProfiler.profile('mockBehavior', state);
+  profiler.stop();
 
-    RelayProfiler.attachProfileHandler('mockBehavior', name => {
-      expect(name).toBe('mockBehavior');
-      actualOrdering.push('2: beforeEnd');
-      return () => {
-        actualOrdering.push('2: afterEnd');
-      };
-    });
+  expect(mockStart).toBeCalledWith('mockBehavior', state);
+  expect(mockStop).toBeCalled();
+  expect(mockStop.mock.calls[0].length).toBe(1);
+  expect(mockStop.mock.calls[0][0]).toEqual(undefined);
+});
 
-    const profiler = RelayProfiler.profile('mockBehavior');
+it('passes error to each stop handler', () => {
+  const mockStop = jest.fn();
+  const mockStart = jest.fn(() => mockStop);
+  const state = {};
 
-    expect(actualOrdering).toEqual(['2: beforeEnd', '1: beforeEnd']);
+  RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
+  const profiler = RelayProfiler.profile('mockBehavior', state);
+  const error = new Error();
+  profiler.stop(error);
 
-    profiler.stop();
-
-    expect(actualOrdering).toEqual([
-      '2: beforeEnd',
-      '1: beforeEnd',
-      '1: afterEnd',
-      '2: afterEnd',
-    ]);
-  });
-
-  it('does not invoke detached profile handlers', () => {
-    const mockStop = jest.fn();
-    const mockStart = jest.fn(() => mockStop);
-
-    RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
-    RelayProfiler.detachProfileHandler('mockBehavior', mockStart);
-    RelayProfiler.profile('mockBehavior');
-
-    expect(mockStop).not.toBeCalled();
-    expect(mockStart).not.toBeCalled();
-  });
-
-  it('passes state to each profile handler', () => {
-    const mockStop = jest.fn();
-    const mockStart = jest.fn(() => mockStop);
-    const state = {};
-
-    RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
-    const profiler = RelayProfiler.profile('mockBehavior', state);
-    profiler.stop();
-
-    expect(mockStart).toBeCalledWith('mockBehavior', state);
-    expect(mockStop).toBeCalled();
-    expect(mockStop.mock.calls[0].length).toBe(1);
-    expect(mockStop.mock.calls[0][0]).toEqual(undefined);
-  });
-
-  it('passes error to each stop handler', () => {
-    const mockStop = jest.fn();
-    const mockStart = jest.fn(() => mockStop);
-    const state = {};
-
-    RelayProfiler.attachProfileHandler('mockBehavior', mockStart);
-    const profiler = RelayProfiler.profile('mockBehavior', state);
-    const error = new Error();
-    profiler.stop(error);
-
-    expect(mockStart).toBeCalledWith('mockBehavior', state);
-    expect(mockStop).toBeCalledWith(error);
-  });
+  expect(mockStart).toBeCalledWith('mockBehavior', state);
+  expect(mockStop).toBeCalledWith(error);
 });

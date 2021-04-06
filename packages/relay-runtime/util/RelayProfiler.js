@@ -67,34 +67,6 @@ const shouldInstrument = name => {
  */
 const RelayProfiler = {
   /**
-   * Instruments methods on a class or object. This re-assigns the method in
-   * order to preserve function names in stack traces (which are detected by
-   * modern debuggers via heuristics). Example usage:
-   *
-   *   const RelayStore = { primeCache: function() {...} };
-   *   RelayProfiler.instrumentMethods(RelayStore, {
-   *     primeCache: 'RelayStore.primeCache'
-   *   });
-   *
-   *   RelayStore.primeCache.attachHandler(...);
-   *
-   * As a result, the methods will be replaced by wrappers that provide the
-   * `attachHandler` and `detachHandler` methods.
-   */
-  instrumentMethods(
-    object: Function | Object,
-    names: {[key: string]: string, ...},
-  ): void {
-    for (const key in names) {
-      if (names.hasOwnProperty(key)) {
-        if (typeof object[key] === 'function') {
-          object[key] = RelayProfiler.instrument(names[key], object[key]);
-        }
-      }
-    }
-  },
-
-  /**
    * Wraps the supplied function with one that provides the `attachHandler` and
    * `detachHandler` methods. Example usage:
    *

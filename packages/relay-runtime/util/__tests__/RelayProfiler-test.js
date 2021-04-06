@@ -12,13 +12,8 @@
 
 const RelayProfiler = require('../RelayProfiler');
 
-const DEV = __DEV__;
-
 let mockMethod;
 let mockObject;
-const mockDisableDEV = () => {
-  global.__DEV__ = 0;
-};
 
 beforeEach(() => {
   jest.resetModules();
@@ -29,10 +24,6 @@ beforeEach(() => {
     mockMethod: RelayProfiler.instrument('mock', mockMethod),
     mockMethod2: RelayProfiler.instrument('mock2', mockMethod2),
   };
-});
-
-afterEach(() => {
-  global.__DEV__ = DEV;
 });
 
 describe('instance', () => {
@@ -125,28 +116,6 @@ describe('instance', () => {
     expect(() => {
       mockObject.mockMethod();
     }).toThrowError('RelayProfiler: Handler did not invoke original function.');
-  });
-
-  it('ignores names starting with "@" unless __DEV__', () => {
-    mockDisableDEV();
-
-    mockMethod = jest.fn();
-    mockObject = {mockMethod: RelayProfiler.instrument('@mock', mockMethod)};
-
-    expect(mockObject.mockMethod).toBe(mockMethod);
-    expect(() => {
-      mockObject.mockMethod.attachHandler();
-      mockObject.mockMethod.detachHandler();
-    }).not.toThrow();
-  });
-
-  it('instruments names without "@" when not in __DEV__', () => {
-    mockDisableDEV();
-
-    mockMethod = jest.fn();
-    mockObject = {mockMethod: RelayProfiler.instrument('mock', mockMethod)};
-
-    expect(mockObject.mockMethod).not.toBe(mockMethod);
   });
 });
 

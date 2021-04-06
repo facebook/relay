@@ -15,8 +15,6 @@
 type Handler = (name: string, callback: () => void) => void;
 type ProfileHandler = (name: string, state?: any) => (error?: Error) => void;
 
-function emptyFunction() {}
-
 const aggregateHandlersByName: {[name: string]: Array<Handler>, ...} = {
   '*': [],
 };
@@ -25,12 +23,8 @@ const profileHandlersByName: {[name: string]: Array<ProfileHandler>, ...} = {
 };
 
 const NOT_INVOKED = {};
-const defaultProfiler = {stop: emptyFunction};
-const shouldInstrument = name => {
-  if (__DEV__) {
-    return true;
-  }
-  return name.charAt(0) !== '@';
+const defaultProfiler = {
+  stop() {},
 };
 
 /**
@@ -60,10 +54,6 @@ const shouldInstrument = name => {
  *       console.log(`Duration (${name})`, performance.now() - start);
  *     }
  *   });
- *
- * In order to reduce the impact on performance in production, instrumented
- * methods and profilers with names that begin with `@` will only be measured
- * if `__DEV__` is true. This should be used for very hot functions.
  */
 const RelayProfiler = {
   /**
@@ -79,11 +69,6 @@ const RelayProfiler = {
    * in the course of executing another handler.
    */
   instrument<T: Function>(name: string, originalFunction: T): T {
-    if (!shouldInstrument(name)) {
-      originalFunction.attachHandler = emptyFunction;
-      originalFunction.detachHandler = emptyFunction;
-      return originalFunction;
-    }
     if (!aggregateHandlersByName.hasOwnProperty(name)) {
       aggregateHandlersByName[name] = [];
     }
@@ -161,22 +146,18 @@ const RelayProfiler = {
    *
    */
   attachAggregateHandler(name: string, handler: Handler): void {
-    if (shouldInstrument(name)) {
-      if (!aggregateHandlersByName.hasOwnProperty(name)) {
-        aggregateHandlersByName[name] = [];
-      }
-      aggregateHandlersByName[name].push(handler);
+    if (!aggregateHandlersByName.hasOwnProperty(name)) {
+      aggregateHandlersByName[name] = [];
     }
+    aggregateHandlersByName[name].push(handler);
   },
 
   /**
    * Detaches a handler attached via `attachAggregateHandler`.
    */
   detachAggregateHandler(name: string, handler: Handler): void {
-    if (shouldInstrument(name)) {
-      if (aggregateHandlersByName.hasOwnProperty(name)) {
-        removeFromArray(aggregateHandlersByName[name], handler);
-      }
+    if (aggregateHandlersByName.hasOwnProperty(name)) {
+      removeFromArray(aggregateHandlersByName[name], handler);
     }
   },
 
@@ -226,22 +207,18 @@ const RelayProfiler = {
    * attach to the special name '*' which is a catch all.
    */
   attachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (shouldInstrument(name)) {
-      if (!profileHandlersByName.hasOwnProperty(name)) {
-        profileHandlersByName[name] = [];
-      }
-      profileHandlersByName[name].push(handler);
+    if (!profileHandlersByName.hasOwnProperty(name)) {
+      profileHandlersByName[name] = [];
     }
+    profileHandlersByName[name].push(handler);
   },
 
   /**
    * Detaches a handler attached via `attachProfileHandler`.
    */
   detachProfileHandler(name: string, handler: ProfileHandler): void {
-    if (shouldInstrument(name)) {
-      if (profileHandlersByName.hasOwnProperty(name)) {
-        removeFromArray(profileHandlersByName[name], handler);
-      }
+    if (profileHandlersByName.hasOwnProperty(name)) {
+      removeFromArray(profileHandlersByName[name], handler);
     }
   },
 };

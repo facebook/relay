@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
+use crate::writer::{ImportTypeName, Prop, Writer, AST, SPREAD_KEY};
 use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_REF_TYPE};
 use interner::{Intern, StringKey};
@@ -45,9 +45,6 @@ impl Writer for TypeScriptPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
-            AST::FunctionReturnType(function_name) => {
-                self.write_function_return_type(*function_name)
-            }
         }
     }
 
@@ -57,11 +54,7 @@ impl Writer for TypeScriptPrinter {
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result {
-        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
-    }
-
-    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result {
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",
@@ -72,7 +65,14 @@ impl Writer for TypeScriptPrinter {
             },
             types
                 .iter()
-                .map(|t| format!("{}", t))
+                .map(|t| {
+                    match t.alias {
+                        Some(alias) => {
+                            format!("{} as {}", t.name, alias)
+                        }
+                        None => format!("{}", t.name),
+                    }
+                })
                 .collect::<Vec<_>>()
                 .join(", "),
             from
@@ -84,7 +84,11 @@ impl Writer for TypeScriptPrinter {
     }
 
     // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
-    fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
+    fn write_import_fragment_type(
+        &mut self,
+        _types: &[ImportTypeName],
+        _from: StringKey,
+    ) -> Result {
         Ok(())
     }
     fn write_export_fragment_type(&mut self, _old_name: StringKey, _new_name: StringKey) -> Result {
@@ -237,10 +241,6 @@ impl TypeScriptPrinter {
                 .collect(),
         ))?;
         write!(&mut self.result, ">")
-    }
-
-    fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
-        write!(&mut self.result, "ReturnType<typeof {}>", function_name)
     }
 }
 
@@ -443,7 +443,13 @@ mod tests {
     fn import_type() {
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
         printer
-            .write_import_type(&["A".intern(), "B".intern()], "module".intern())
+            .write_import_type(
+                &[
+                    ImportTypeName::new("A".intern()),
+                    ImportTypeName::new("B".intern()),
+                ],
+                "module".intern(),
+            )
             .unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
@@ -452,25 +458,21 @@ mod tests {
             ..Default::default()
         }));
         printer
-            .write_import_type(&["C".intern()], "./foo".intern())
+            .write_import_type(&[ImportTypeName::new("C".intern())], "./foo".intern())
             .unwrap();
         assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
-    }
 
-    #[test]
-    fn import_module() {
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
-        printer
-            .write_import_module_default("A".intern(), "module".intern())
-            .unwrap();
-        assert_eq!(printer.into_string(), "import A from \"module\";\n");
-    }
 
-    #[test]
-    fn function_return_type() {
+        printer
+            .write_import_type(
+                &[ImportTypeName::with_alias("C".intern(), "CAlias".intern())],
+                "./foo".intern(),
+            )
+            .unwrap();
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
-            "ReturnType<typeof someFunc>".to_string()
+            printer.into_string(),
+            "import { C as CAlias } from \"./foo\";\n"
         );
     }
 }

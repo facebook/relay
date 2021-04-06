@@ -98,7 +98,7 @@ pub struct Config {
 #[derive(StructOpt)]
 #[structopt(rename_all = "camel_case")]
 pub struct CliConfig {
-    /// Path for the directory where to search fo a source code
+    /// Path for the directory where to search for source code
     #[structopt(long)]
     pub src: Option<PathBuf>,
     /// Path to schema file

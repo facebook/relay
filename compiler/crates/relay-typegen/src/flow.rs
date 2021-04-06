@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
+use crate::writer::{ImportTypeName, Prop, Writer, AST, SPREAD_KEY};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::fmt::{Result, Write};
@@ -49,9 +49,6 @@ impl Writer for FlowPrinter {
                     .collect::<Vec<_>>()
                     .as_slice(),
             ),
-            AST::FunctionReturnType(function_name) => {
-                self.write_function_return_type(*function_name)
-            }
         }
     }
 
@@ -65,24 +62,27 @@ impl Writer for FlowPrinter {
         writeln!(&mut self.result, ";")
     }
 
-    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result {
-        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
-    }
-
-    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result {
         writeln!(
             &mut self.result,
             "import type {{ {} }} from \"{}\";",
             types
                 .iter()
-                .map(|t| format!("{}", t))
+                .map(|t| {
+                    match t.alias {
+                        Some(alias) => {
+                            format!("{} as {}", t.name, alias)
+                        }
+                        None => format!("{}", t.name),
+                    }
+                })
                 .collect::<Vec<_>>()
                 .join(", "),
             from
         )
     }
 
-    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result {
+    fn write_import_fragment_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result {
         self.write_import_type(types, from)
     }
 
@@ -243,10 +243,6 @@ impl FlowPrinter {
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
-    }
-
-    fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
-        write!(&mut self.result, "$Call<typeof {}>", function_name)
     }
 }
 
@@ -453,28 +449,30 @@ mod tests {
     fn import_type() {
         let mut printer = Box::new(FlowPrinter::new());
         printer
-            .write_import_type(&["A".intern(), "B".intern()], "module".intern())
+            .write_import_type(
+                &[
+                    ImportTypeName::new("A".intern()),
+                    ImportTypeName::new("B".intern()),
+                ],
+                "module".intern(),
+            )
             .unwrap();
         assert_eq!(
             printer.into_string(),
             "import type { A, B } from \"module\";\n"
         );
-    }
 
-    #[test]
-    fn import_module() {
         let mut printer = Box::new(FlowPrinter::new());
-        printer
-            .write_import_module_default("A".intern(), "module".intern())
-            .unwrap();
-        assert_eq!(printer.into_string(), "import A from \"module\";\n");
-    }
 
-    #[test]
-    fn function_return_type() {
+        printer
+            .write_import_type(
+                &[ImportTypeName::with_alias("C".intern(), "CAlias".intern())],
+                "./foo".intern(),
+            )
+            .unwrap();
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
-            "$Call<typeof someFunc>".to_string()
+            printer.into_string(),
+            "import type { C as CAlias } from \"./foo\";\n"
         );
     }
 }

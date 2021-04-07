@@ -18,7 +18,6 @@ const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext
 
 const assertFragmentMap = require('./assertFragmentMap');
 const invariant = require('invariant');
-const mapObject = require('mapObject');
 const readContext = require('./readContext');
 
 const {
@@ -48,7 +47,10 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
 
-  const fragments = mapObject(fragmentSpec, getFragment);
+  const fragments = {};
+  for (const key in fragmentSpec) {
+    fragments[key] = getFragment(fragmentSpec[key]);
+  }
   const Container = createContainerWithFragments(ComponentClass, fragments);
   Container.displayName = containerName;
 

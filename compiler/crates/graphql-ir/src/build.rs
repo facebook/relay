@@ -13,7 +13,7 @@ use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, Span, WithLocat
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
 use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-use graphql_syntax::{DirectiveLocation, List, OperationKind};
+use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
 use indexmap::IndexMap;
 use interner::Intern;
 use interner::StringKey;
@@ -62,6 +62,11 @@ pub struct BuilderOptions {
     /// - Fields with a @match directive do not require to pass the non-nullable
     ///   `supported` argument.
     pub relay_mode: bool,
+
+    /// By default Relay doesn't allow to use anonymous operations,
+    /// but operations without name are valid, and can be executed on a server.
+    /// With this option `build_ir` can accept default name for anonymous operations.
+    pub default_anonymous_operation_name: Option<StringKey>,
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
@@ -81,6 +86,7 @@ pub fn build_ir_with_relay_options(
                 allow_undefined_fragment_spreads: false,
                 fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
                 relay_mode: true,
+                default_anonymous_operation_name: None,
             },
         );
         builder.build_definition(definition)
@@ -116,6 +122,7 @@ pub fn build_type_annotation(
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: false,
+            default_anonymous_operation_name: None,
         },
     );
     builder.build_type_annotation(annotation)
@@ -137,6 +144,7 @@ pub fn build_constant_value(
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: false,
+            default_anonymous_operation_name: None,
         },
     );
     builder.build_constant_value(value, type_, validation)
@@ -156,6 +164,7 @@ pub fn build_variable_definitions(
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: false,
+            default_anonymous_operation_name: None,
         },
     );
     builder.build_variable_definitions(definitions)
@@ -252,19 +261,37 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         })
     }
 
+    fn get_operation_name(
+        &self,
+        operation: &graphql_syntax::OperationDefinition,
+    ) -> DiagnosticsResult<Identifier> {
+        match &operation.name {
+            Some(name) => Ok(name.clone()),
+            None => {
+                if let Some(name) = self.options.default_anonymous_operation_name {
+                    Ok(Identifier {
+                        span: Span::new(0, 0),
+                        token: Token {
+                            span: Span::new(0, 0),
+                            kind: TokenKind::Identifier,
+                        },
+                        value: name,
+                    })
+                } else {
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::ExpectedOperationName(),
+                        operation.location,
+                    )])
+                }
+            }
+        }
+    }
+
     fn build_operation(
         &mut self,
         operation: &graphql_syntax::OperationDefinition,
     ) -> DiagnosticsResult<OperationDefinition> {
-        let name = match &operation.name {
-            Some(name) => name,
-            None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedOperationName(),
-                    operation.location,
-                )]);
-            }
-        };
+        let name = &self.get_operation_name(operation)?;
         let kind = operation
             .operation
             .as_ref()

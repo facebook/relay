@@ -268,6 +268,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                         allow_undefined_fragment_spreads: true,
                         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
                         relay_mode: true,
+                        default_anonymous_operation_name: None,
                     },
                 ) {
                     diagnostics.extend(

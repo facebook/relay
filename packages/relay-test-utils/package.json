@@ -13,6 +13,7 @@
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^3.0.0",
+    "invariant": "^2.2.4",
     "relay-runtime": "11.0.1"
   },
   "peerDependencies": {

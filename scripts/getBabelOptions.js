@@ -30,7 +30,6 @@ module.exports = function(options) {
         require('./rewrite-modules'),
         {
           map: {
-            ErrorUtils: 'fbjs/lib/ErrorUtils',
             Promise: 'promise-polyfill',
             areEqual: 'fbjs/lib/areEqual',
             invariant: 'fbjs/lib/invariant',

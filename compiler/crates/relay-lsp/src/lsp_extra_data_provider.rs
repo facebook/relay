@@ -6,13 +6,7 @@
  */
 
 use schema_documentation::SchemaDocumentation;
-use serde_json::Value;
 use std::{path::PathBuf, sync::Arc};
-
-pub enum Query {
-    Text(String),
-    Id(String),
-}
 
 /// Interface for the LSP server to handle external data sources
 pub trait LSPExtraDataProvider {
@@ -25,5 +19,4 @@ pub trait LSPExtraDataProvider {
         field_name: Option<String>,
     ) -> Option<Result<(String, u64), String>>;
     fn get_schema_documentation(&self, schema_name: String) -> Arc<SchemaDocumentation>;
-    fn execute_query(&self, query: Query, variables: Value) -> Result<Value, Value>;
 }

@@ -22,10 +22,8 @@ use relay_compiler::{
     Programs,
 };
 use schema::SDLSchema;
-use serde_json::Value;
 
 use crate::{
-    lsp_extra_data_provider::Query,
     lsp_runtime_error::LSPRuntimeResult,
     server::{LSPState, SourcePrograms},
     LSPRuntimeError,
@@ -38,7 +36,6 @@ pub(crate) enum GraphQLExecuteQuery {}
 #[serde(rename_all = "camelCase")]
 pub(crate) struct GraphQLExecuteQueryParams {
     text: String,
-    variables: serde_json::Value,
     document_path: Option<String>,
     schema_name: Option<String>,
 }
@@ -61,17 +58,9 @@ impl GraphQLExecuteQueryParams {
     }
 }
 
-#[derive(Serialize, Deserialize)]
-pub(crate) enum GraphQLResponse {
-    #[serde(rename = "data")]
-    Data(serde_json::Value),
-    #[serde(rename = "error")]
-    Error(serde_json::Value),
-}
-
 impl Request for GraphQLExecuteQuery {
     type Params = GraphQLExecuteQueryParams;
-    type Result = GraphQLResponse;
+    type Result = String;
     const METHOD: &'static str = "graphql/executeQuery";
 }
 
@@ -287,16 +276,8 @@ pub(crate) fn on_graphql_execute_query<TPerfLogger: PerfLogger + 'static>(
         })?
         .clone();
 
-    let query_text = match get_query_text(state, params.text, project_config, schema) {
-        Ok(query_text) => query_text,
-        Err(error) => return Ok(GraphQLResponse::Error(Value::String(error))),
-    };
+    let query_text = get_query_text(state, params.text, project_config, schema)
+        .map_err(LSPRuntimeError::UnexpectedError)?;
 
-    match state
-        .extra_data_provider
-        .execute_query(Query::Text(query_text), params.variables)
-    {
-        Ok(data) => Ok(GraphQLResponse::Data(data)),
-        Err(error) => Ok(GraphQLResponse::Error(error)),
-    }
+    Ok(query_text)
 }

@@ -448,9 +448,6 @@ pub enum ValidationMessage {
         variables_string: String,
     },
 
-    #[error("Expected the 'queryName' argument of @refetchable to be provided")]
-    QueryNameRequired,
-
     #[error(
         "Expected the 'queryName' argument of @refetchable to be a string, got '{query_name_value}"
     )]

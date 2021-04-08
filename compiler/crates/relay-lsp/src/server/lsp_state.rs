@@ -219,8 +219,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         url: Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()> {
-        let project_name =
-            extract_project_name_from_url(&self.file_categorizer, &url, &self.root_dir)?;
+        let project_name = self.extract_project_name_from_url(&url)?;
 
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
             e.insert(ProjectStatus::Activated);

@@ -15,7 +15,7 @@ use graphql_ir::{
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
 use interner::{Intern, StringKey};
-use lsp_types::request::Request;
+use lsp_types::{request::Request, Url};
 use relay_compiler::{
     apply_transforms,
     config::{Config, ProjectConfig},
@@ -28,15 +28,37 @@ use crate::{
     lsp_extra_data_provider::Query,
     lsp_runtime_error::LSPRuntimeResult,
     server::{LSPState, SourcePrograms},
+    LSPRuntimeError,
 };
 use serde::{Deserialize, Serialize};
 
 pub(crate) enum GraphQLExecuteQuery {}
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct GraphQLExecuteQueryParams {
     text: String,
     variables: serde_json::Value,
+    document_path: Option<String>,
+    schema_name: Option<String>,
+}
+
+impl GraphQLExecuteQueryParams {
+    fn get_url(&self) -> Option<Url> {
+        if let Some(path) = &self.document_path {
+            Url::parse(&format!("file://{}", path)).ok()
+        } else {
+            None
+        }
+    }
+
+    fn get_schema_name(&self) -> StringKey {
+        if let Some(schema_name) = &self.schema_name {
+            schema_name.clone().intern()
+        } else {
+            "facebook".intern()
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -235,17 +257,34 @@ fn get_query_text<TPerfLogger: PerfLogger + 'static>(
     Ok(query_text)
 }
 
-#[allow(clippy::unnecessary_wraps)]
 pub(crate) fn on_graphql_execute_query<TPerfLogger: PerfLogger + 'static>(
     state: &mut LSPState<TPerfLogger>,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
-    let project_name = "facebook".intern();
-    let project_config = state.get_project_config_ref(project_name).unwrap();
+    let project_name = if let Some(url) = &params.get_url() {
+        state
+            .extract_project_name_from_url(url)
+            .unwrap_or_else(|_| params.get_schema_name())
+    } else {
+        params.get_schema_name()
+    };
+
+    let project_config = state.get_project_config_ref(project_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Unable to get project config for project {}.",
+            project_name
+        ))
+    })?;
+
     let schema = state
         .get_schemas()
         .get(&project_config.name)
-        .unwrap()
+        .ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!(
+                "Unable to get schema for project {}.",
+                project_name
+            ))
+        })?
         .clone();
 
     let query_text = match get_query_text(state, params.text, project_config, schema) {

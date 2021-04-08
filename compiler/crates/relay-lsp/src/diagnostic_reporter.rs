@@ -244,7 +244,7 @@ mod tests {
     struct MockSourceReader(String);
 
     impl SourceReader for MockSourceReader {
-        fn read_to_string(&self, _path: &PathBuf) -> std::io::Result<String> {
+        fn read_file_to_string(&self, _path: &PathBuf) -> std::io::Result<String> {
             Ok(self.0.to_string())
         }
     }

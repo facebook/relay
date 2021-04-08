@@ -14,7 +14,6 @@
 
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
-const RelayProfiler = require('../util/RelayProfiler');
 
 const areEqual = require('areEqual');
 const invariant = require('invariant');
@@ -898,9 +897,6 @@ class RelayResponseNormalizer {
   }
 }
 
-const instrumentedNormalize: typeof normalize = RelayProfiler.instrument(
-  'RelayResponseNormalizer.normalize',
+module.exports = {
   normalize,
-);
-
-module.exports = {normalize: instrumentedNormalize};
+};

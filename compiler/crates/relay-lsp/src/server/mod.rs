@@ -15,7 +15,7 @@ use crate::{
     completion::on_completion,
     goto_definition::on_goto_definition,
     graphql_tools::on_graphql_execute_query,
-    graphql_tools::GraphQlExecuteQuery,
+    graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
     js_language_server::JSLanguageServer,
     lsp::{
@@ -167,7 +167,7 @@ fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
             .on_request_sync::<Completion>(on_completion)?
             .on_request_sync::<CodeActionRequest>(on_code_action)?
             .on_request_sync::<Shutdown>(on_shutdown)?
-            .on_request_sync::<GraphQlExecuteQuery>(on_graphql_execute_query)?
+            .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
             .request();
 
         // If we have gotten here, we have not handled the request

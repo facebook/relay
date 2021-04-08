@@ -24,7 +24,7 @@ mod validate;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use crate::watchman::SourceControlUpdateStatus;
+use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 pub use apply_transforms::apply_transforms;
 pub use apply_transforms::Programs;

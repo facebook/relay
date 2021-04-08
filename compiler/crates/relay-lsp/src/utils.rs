@@ -96,7 +96,7 @@ pub fn extract_project_name_from_url(
     })?;
 
     let project_name =
-        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path.into()) {
+        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path) {
             match source_set {
                 SourceSet::SourceSetName(source) => source,
                 SourceSet::SourceSetNames(sources) => sources[0],

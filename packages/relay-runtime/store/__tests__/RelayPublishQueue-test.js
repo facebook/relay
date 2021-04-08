@@ -10,7 +10,6 @@
 
 'use strict';
 
-const ErrorUtils = require('ErrorUtils');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayPublishQueue = require('../RelayPublishQueue');
@@ -39,11 +38,13 @@ describe('RelayPublishQueue', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    ErrorUtils.applyWithGuard = jest.fn((callback, context, params) => {
-      try {
-        callback.apply(context, params);
-      } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
-    });
+    global.ErrorUtils = {
+      applyWithGuard: jest.fn((callback, context, params) => {
+        try {
+          callback.apply(context, params);
+        } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
+      }),
+    };
   });
 
   describe('applyUpdate()/revertUpdate()', () => {

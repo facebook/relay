@@ -110,8 +110,8 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
+export type {TaskScheduler} from './store/QueryExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
-export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
   FragmentMap,

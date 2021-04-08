@@ -8,6 +8,8 @@
  * @format
  */
 
+// TODO: This is only used with `ArgumentValue` types, so it could be simpler.
+
 // flowlint ambiguous-object-type:error
 'use strict';
 
@@ -22,7 +24,7 @@ const bStackPool = [];
  * @copyright 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
  * @license MIT
  */
-function areEqual(a: any, b: any): boolean {
+function areEqualArgValues(a: any, b: any): boolean {
   const aStack = aStackPool.length ? aStackPool.pop() : [];
   const bStack = bStackPool.length ? bStackPool.pop() : [];
   const result = eq(a, b, aStack, bStack);
@@ -104,7 +106,7 @@ function eq(a: any, b: any, aStack: Array<any>, bStack: Array<any>): boolean {
         // HACK: Comparing deeply nested React trees is slow since you end up
         // comparing the entire tree (all ancestors and all children) and
         // likely not what you want if you're comparing two elements with
-        // areEqual. We bail out here for now.
+        // areEqualArgValues. We bail out here for now.
         continue;
       }
       if (
@@ -120,4 +122,4 @@ function eq(a: any, b: any, aStack: Array<any>, bStack: Array<any>): boolean {
   return true;
 }
 
-module.exports = areEqual;
+module.exports = areEqualArgValues;

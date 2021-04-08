@@ -14,7 +14,7 @@
 
 const IRTransformer = require('../core/IRTransformer');
 
-const areEqual = require('../util/areEqualOSS');
+const areEqualArgValues = require('../util/areEqualArgValues');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
@@ -415,7 +415,10 @@ function areEqualArgs(
         thisArg.value.kind === thatArg.value.kind &&
         (thisArg.value: any).variableName ===
           (thatArg.value: any).variableName &&
-        areEqual((thisArg.value: any).value, (thatArg.value: any).value)
+        areEqualArgValues(
+          (thisArg.value: any).value,
+          (thatArg.value: any).value,
+        )
       );
     })
   );

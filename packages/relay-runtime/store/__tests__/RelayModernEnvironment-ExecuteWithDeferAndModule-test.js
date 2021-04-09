@@ -14,6 +14,7 @@
 'use strict';
 
 const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -30,226 +31,301 @@ import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
 
-describe('execute() a query with @defer and @module', () => {
-  let callbacks;
-  let complete;
-  let dataSource;
-  let environment;
-  let error;
-  let fetch;
-  let fragment;
-  let next;
-  let operation;
-  let operationLoader: {|
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
-  let operationCallback;
-  let query;
-  let resolveFragment;
-  let selector;
-  let source;
-  let store;
-  let variables;
+function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
+  describe('execute() a query with @defer and @module', () => {
+    let callbacks;
+    let complete;
+    let dataSource;
+    let environment;
+    let error;
+    let fetch;
+    let fragment;
+    let next;
+    let operation;
+    let operationLoader: {|
+      get: (reference: mixed) => ?NormalizationRootNode,
+      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    |};
+    let operationCallback;
+    let query;
+    let resolveFragment;
+    let selector;
+    let source;
+    let store;
+    let variables;
 
-  beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    beforeEach(() => {
+      jest.resetModules();
+      jest.mock('warning');
+      jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = enableBatchedStoreUpdates;
 
-    query = graphql`
-      query RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery($id: ID!) {
-        node(id: $id) {
-          ...RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user
-            @defer(
-              label: "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user"
-            )
-            @module(name: "User.react")
+      query = graphql`
+        query RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery(
+          $id: ID!
+        ) {
+          node(id: $id) {
+            ...RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user
+              @defer(
+                label: "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user"
+              )
+              @module(name: "User.react")
+          }
         }
-      }
-    `;
-    fragment = graphql`
-      fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user on User {
-        id
-        name
-      }
-    `;
-    variables = {id: '1'};
-    operation = createOperationDescriptor(
-      ((query: any): ConcreteRequest),
-      variables,
-    );
-    selector = createReaderSelector(
-      ((fragment: any): ReaderFragment),
-      '1',
-      {},
-      operation.request,
-    );
+      `;
+      fragment = graphql`
+        fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user on User {
+          id
+          name
+        }
+      `;
+      variables = {id: '1'};
+      operation = createOperationDescriptor(
+        ((query: any): ConcreteRequest),
+        variables,
+      );
+      selector = createReaderSelector(
+        ((fragment: any): ReaderFragment),
+        '1',
+        {},
+        operation.request,
+      );
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
-    callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
-      return RelayObservable.create(sink => {
-        dataSource = sink;
-      });
-    };
-    operationLoader = {
-      load: jest.fn(moduleName => {
-        return new Promise(resolve => {
-          resolveFragment = resolve;
+      complete = jest.fn();
+      error = jest.fn();
+      next = jest.fn();
+      callbacks = {complete, error, next};
+      fetch = (_query, _variables, _cacheConfig) => {
+        return RelayObservable.create(sink => {
+          dataSource = sink;
         });
-      }),
-      get: jest.fn(),
-    };
-    source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
+      };
+      operationLoader = {
+        load: jest.fn(moduleName => {
+          return new Promise(resolve => {
+            resolveFragment = resolve;
+          });
+        }),
+        get: jest.fn(),
+      };
+      source = RelayRecordSource.create();
+      store = new RelayModernStore(source);
 
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      store,
-      operationLoader,
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+        operationLoader,
+      });
+
+      const operationSnapshot = environment.lookup(operation.fragment);
+      operationCallback = jest.fn();
+      environment.subscribe(operationSnapshot, operationCallback);
     });
 
-    const operationSnapshot = environment.lookup(operation.fragment);
-    operationCallback = jest.fn();
-    environment.subscribe(operationSnapshot, operationCallback);
-  });
+    it('calls next() and publishes the initial payload to the store', () => {
+      const initialSnapshot = environment.lookup(selector);
 
-  it('calls next() and publishes the initial payload to the store', () => {
-    const initialSnapshot = environment.lookup(selector);
-
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
-    environment.execute({operation}).subscribe(callbacks);
-    const payload = {
-      data: {
-        node: {
-          id: '1',
-          __typename: 'User',
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
         },
-      },
-    };
+      };
 
-    dataSource.next(payload);
-    jest.runAllTimers();
+      dataSource.next(payload);
+      jest.runAllTimers();
 
-    expect(next.mock.calls.length).toBe(1);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(callback.mock.calls.length).toBe(1);
-    const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(true);
-    expect(snapshot.data).toEqual({
-      id: '1',
-      name: undefined,
+      expect(next.mock.calls.length).toBe(1);
+      expect(complete).not.toBeCalled();
+      expect(error).not.toBeCalled();
+      expect(callback.mock.calls.length).toBe(1);
+      const snapshot = callback.mock.calls[0][0];
+      expect(snapshot.isMissingData).toBe(true);
+      expect(snapshot.data).toEqual({
+        id: '1',
+        name: undefined,
+      });
     });
-  });
 
-  it('processes deferred payloads', () => {
-    const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
+    it('processes deferred payloads', () => {
+      const initialSnapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
 
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        node: {
-          id: '1',
-          __typename: 'User',
+      environment.execute({operation}).subscribe(callbacks);
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
         },
-      },
-    });
-    jest.runAllTimers();
-    expect(operationCallback).toBeCalledTimes(1);
-    next.mockClear();
-    callback.mockClear();
-    operationCallback.mockClear();
+      });
+      jest.runAllTimers();
+      expect(operationCallback).toBeCalledTimes(1);
+      next.mockClear();
+      callback.mockClear();
+      operationCallback.mockClear();
 
-    dataSource.next({
-      data: {
+      dataSource.next({
+        data: {
+          id: '1',
+          name: 'joe',
+          __typename: 'User',
+          __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+            'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+        },
+        label:
+          'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
+        path: ['node'],
+      });
+
+      expect(operationLoader.load).toBeCalledTimes(1);
+      expect(operationLoader.load.mock.calls[0][0]).toEqual(
+        'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+      );
+
+      resolveFragment(QueryUserNormalizationFragment);
+      jest.runAllTimers();
+      operationCallback.mockClear();
+
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(next).toBeCalledTimes(1);
+      expect(callback).toBeCalledTimes(1);
+      const snapshot = callback.mock.calls[0][0];
+      expect(snapshot.isMissingData).toBe(false);
+      expect(snapshot.data).toEqual({
         id: '1',
         name: 'joe',
-        __typename: 'User',
-        __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
-          'User.react',
-        __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
-          'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
-      },
-      label:
-        'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
-      path: ['node'],
+      });
     });
 
-    expect(operationLoader.load).toBeCalledTimes(1);
-    expect(operationLoader.load.mock.calls[0][0]).toEqual(
-      'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
-    );
+    it('synchronously normalizes the deferred payload if the normalization fragment is available synchronously', () => {
+      const initialSnapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
 
-    resolveFragment(QueryUserNormalizationFragment);
-    jest.runAllTimers();
-    operationCallback.mockClear();
+      environment.execute({operation}).subscribe(callbacks);
+      jest
+        .spyOn(operationLoader, 'get')
+        .mockImplementationOnce(() => QueryUserNormalizationFragment);
 
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(1);
-    const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(false);
-    expect(snapshot.data).toEqual({
-      id: '1',
-      name: 'joe',
-    });
-  });
-
-  it('synchronously normalizes deferred payload if normalization fragment avaiable synchronously', () => {
-    const initialSnapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(initialSnapshot, callback);
-
-    environment.execute({operation}).subscribe(callbacks);
-    jest
-      .spyOn(operationLoader, 'get')
-      .mockImplementationOnce(() => QueryUserNormalizationFragment);
-
-    dataSource.next({
-      data: {
-        node: {
-          id: '1',
-          __typename: 'User',
+      dataSource.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+          },
         },
-      },
-    });
+      });
 
-    jest.runAllTimers();
-    next.mockClear();
-    callback.mockClear();
-    expect(operationCallback).toBeCalledTimes(1);
+      jest.runAllTimers();
+      next.mockClear();
+      callback.mockClear();
+      expect(operationCallback).toBeCalledTimes(1);
 
-    dataSource.next({
-      data: {
+      dataSource.next({
+        data: {
+          id: '1',
+          name: 'joe',
+          __typename: 'User',
+          __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+            'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+        },
+        label:
+          'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
+        path: ['node'],
+      });
+
+      expect(operationLoader.get).toBeCalledTimes(1);
+      operationCallback.mockClear();
+
+      const snapshot = callback.mock.calls[0][0];
+      expect(snapshot.isMissingData).toBe(false);
+      expect(snapshot.data).toEqual({
         id: '1',
         name: 'joe',
-        __typename: 'User',
-        __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
-          'User.react',
-        __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
-          'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
-      },
-      label:
-        'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
-      path: ['node'],
+      });
     });
 
-    expect(operationLoader.get).toBeCalledTimes(1);
-    operationCallback.mockClear();
+    it('processes deferred payloads if the normalization fragment is delivered in same network response', () => {
+      const initialSnapshot = environment.lookup(selector);
+      const callback = jest.fn();
+      environment.subscribe(initialSnapshot, callback);
 
-    const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.isMissingData).toBe(false);
-    expect(snapshot.data).toEqual({
-      id: '1',
-      name: 'joe',
+      environment.execute({operation}).subscribe(callbacks);
+      jest
+        .spyOn(operationLoader, 'get')
+        .mockImplementationOnce(() => QueryUserNormalizationFragment);
+
+      dataSource.next([
+        {
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+            },
+          },
+        },
+        {
+          data: {
+            id: '1',
+            name: 'joe',
+            __typename: 'User',
+            __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+              'User.react',
+            __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+              'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+          },
+          label:
+            'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
+          path: ['node'],
+        },
+      ]);
+
+      if (enableBatchedStoreUpdates) {
+        expect(callback).toHaveBeenCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          id: '1',
+          name: 'joe',
+        });
+      } else {
+        expect(callback).toHaveBeenCalledTimes(2);
+        const firstSnapshot = callback.mock.calls[0][0];
+        expect(firstSnapshot.isMissingData).toBe(true);
+        expect(firstSnapshot.data).toEqual({
+          id: '1',
+          name: undefined,
+        });
+        const secondSnapshot = callback.mock.calls[1][0];
+        expect(secondSnapshot.isMissingData).toBe(false);
+        expect(secondSnapshot.data).toEqual({
+          id: '1',
+          name: 'joe',
+        });
+      }
+
+      expect(operationLoader.get).toBeCalledTimes(1);
+      operationCallback.mockClear();
     });
   });
+}
+
+describe('with ENABLE_BATCHED_STORE_UPDATES set to true', () => {
+  runTestsWithBatchedStoreUpdatesSetting(true);
+});
+describe('with ENABLE_BATCHED_STORE_UPDATES set to false', () => {
+  runTestsWithBatchedStoreUpdatesSetting(false);
 });

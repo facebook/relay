@@ -668,7 +668,7 @@ describe('executeMutation() with @match', () => {
       });
     });
 
-    it('does not apply aysnc 3D optimistic updates if the server response arrives first', () => {
+    it('does not apply async 3D optimistic updates if the server response arrives first', () => {
       operationLoader.load.mockImplementationOnce(() => {
         return new Promise(resolve => {
           setTimeout(() => {
@@ -789,7 +789,7 @@ describe('executeMutation() with @match', () => {
       expect(matchSnapshot.data).toEqual(undefined);
     });
 
-    it('catches error when opeartionLoader.load fails synchronously', () => {
+    it('catches error when operationLoader.load fails synchronously', () => {
       operationLoader.load.mockImplementationOnce(() => {
         throw new Error('<user-error>');
       });

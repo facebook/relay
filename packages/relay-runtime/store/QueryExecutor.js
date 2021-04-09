@@ -244,6 +244,7 @@ class Executor {
       optimisticUpdates.forEach(update =>
         this._publishQueue.revertUpdate(update),
       );
+      // OK: run revert on cancel
       this._publishQueue.run();
     }
     this._incrementalResults.clear();
@@ -449,6 +450,7 @@ class Executor {
       nonIncrementalResponses,
       incrementalResponses,
     ] = partitionGraphQLResponses(responsesWithData);
+    const hasNonIncrementalResponses = nonIncrementalResponses.length > 0;
 
     // In theory this doesn't preserve the ordering of the batch.
     // The idea is that a batch is always:
@@ -457,16 +459,20 @@ class Executor {
     // The non-incremental payload can appear if the server sends a batch
     // with the initial payload followed by some early-to-resolve incremental
     // payloads (although, can that even happen?)
-    if (nonIncrementalResponses.length > 0) {
+    if (hasNonIncrementalResponses) {
       const payloadFollowups = this._processResponses(nonIncrementalResponses);
-      // Please note that we're passing `this._operation` to the publish
-      // queue here, which will later passed to the store (via notify)
-      // to indicate that this is an operation that caused the store to update
-      const updatedOwners = this._publishQueue.run(this._operation);
-      this._updateOperationTracker(updatedOwners);
+
+      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+        const updatedOwners = this._publishQueue.run(this._operation);
+        this._updateOperationTracker(updatedOwners);
+      }
+
       this._processPayloadFollowups(payloadFollowups);
-      if (this._incrementalPayloadsPending && !this._retainDisposable) {
-        this._retainDisposable = this._store.retain(this._operation);
+
+      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+        if (this._incrementalPayloadsPending && !this._retainDisposable) {
+          this._retainDisposable = this._store.retain(this._operation);
+        }
       }
     }
 
@@ -474,11 +480,13 @@ class Executor {
       const payloadFollowups = this._processIncrementalResponses(
         incrementalResponses,
       );
-      // For the incremental case, we're only handling follow-up responses
-      // for already initiated operation (and we're not passing it to
-      // the run(...) call)
-      const updatedOwners = this._publishQueue.run();
-      this._updateOperationTracker(updatedOwners);
+      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+        // For the incremental case, we're only handling follow-up responses
+        // for already initiated operation (and we're not passing it to
+        // the run(...) call)
+        const updatedOwners = this._publishQueue.run();
+        this._updateOperationTracker(updatedOwners);
+      }
       this._processPayloadFollowups(payloadFollowups);
     }
     if (
@@ -495,6 +503,22 @@ class Executor {
       } else {
         responsesWithData[0].extensions.__relay_subscription_root_id = this._operation.fragment.dataID;
       }
+    }
+
+    if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+      // OK: run once after each new payload
+      // If we have non-incremental responses, we passing `this._operation` to
+      // the publish queue here, which will later be passed to the store (via
+      // notify) to indicate that this operation caused the store to update
+      const updatedOwners = this._publishQueue.run(
+        hasNonIncrementalResponses ? this._operation : undefined,
+      );
+      if (hasNonIncrementalResponses) {
+        if (this._incrementalPayloadsPending && !this._retainDisposable) {
+          this._retainDisposable = this._store.retain(this._operation);
+        }
+      }
+      this._updateOperationTracker(updatedOwners);
     }
     this._sink.next(response);
   }
@@ -550,6 +574,8 @@ class Executor {
     }
     this._optimisticUpdates = optimisticUpdates;
     optimisticUpdates.forEach(update => this._publishQueue.applyUpdate(update));
+    // OK: only called on construction and when receiving an optimistic payload from network,
+    // which doesn't fall-through to the regular next() handling
     this._publishQueue.run();
   }
 
@@ -655,6 +681,7 @@ class Executor {
           );
         } else {
           this._optimisticUpdates.push(...moduleImportOptimisticUpdates);
+          // OK: always have to run() after an module import resolves async
           this._publishQueue.run();
         }
       });
@@ -760,8 +787,10 @@ class Executor {
             }
           });
           if (relayPayloads.length > 0) {
-            const updatedOwners = this._publishQueue.run();
-            this._updateOperationTracker(updatedOwners);
+            if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+              const updatedOwners = this._publishQueue.run();
+              this._updateOperationTracker(updatedOwners);
+            }
             this._processPayloadFollowups(relayPayloads);
           }
         }
@@ -844,6 +873,9 @@ class Executor {
                 moduleImportPayload,
                 getOperation(operation),
               );
+              // OK: always have to run after an async module import resolves
+              const updatedOwners = this._publishQueue.run();
+              this._updateOperationTracker(updatedOwners);
             });
           }
         })
@@ -870,8 +902,10 @@ class Executor {
       operation,
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
-    const updatedOwners = this._publishQueue.run();
-    this._updateOperationTracker(updatedOwners);
+    if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+      const updatedOwners = this._publishQueue.run();
+      this._updateOperationTracker(updatedOwners);
+    }
     this._processPayloadFollowups([relayPayload]);
   }
 
@@ -976,8 +1010,10 @@ class Executor {
       const payloadFollowups = this._processIncrementalResponses(
         pendingResponses,
       );
-      const updatedOwners = this._publishQueue.run();
-      this._updateOperationTracker(updatedOwners);
+      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+        const updatedOwners = this._publishQueue.run();
+        this._updateOperationTracker(updatedOwners);
+      }
       this._processPayloadFollowups(payloadFollowups);
     }
   }

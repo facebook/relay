@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
+
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use common::{NamedItem, WithLocation};
@@ -918,6 +920,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
             .map(|arg| arg.value.item.expect_string_literal().to_string().intern());
 
+        // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
+        let haste_import_name = Path::new(&module.to_string())
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .intern();
+
         Primitive::Key(self.object(vec![
             build_alias(field_alias, field_name),
             ObjectEntry {
@@ -934,7 +943,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.resolver_module,
-                value: Primitive::JSModuleDependency(module),
+                value: Primitive::JSModuleDependency(haste_import_name),
             },
         ]))
     }

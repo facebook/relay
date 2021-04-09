@@ -36,8 +36,8 @@ use relay_transforms::{
     RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
-use std::fmt::Result;
 use std::hash::Hash;
+use std::{fmt::Result, path::Path};
 use writer::{Prop, AST, SPREAD_KEY};
 
 lazy_static! {
@@ -425,7 +425,6 @@ impl<'a> TypeGenerator<'a> {
             *RELAY_RESOLVER_METADATA_FIELD_NAME,
         );
 
-        // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
         let module_path = expect_string_literal_directive_argument_value(
             metadata_directive,
             *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
@@ -446,8 +445,15 @@ impl<'a> TypeGenerator<'a> {
         let local_resolver_name =
             to_camel_case(format!("{}_{}_resolver", parent_type, field_name)).intern();
 
+        // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
+        let haste_import_name = Path::new(&module_path.to_string())
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .intern();
+
         self.imported_resolvers
-            .entry(module_path)
+            .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
         type_selections.push(TypeSelection {

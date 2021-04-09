@@ -28,7 +28,11 @@ use interner::StringKey;
 use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
-use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
+use relay_compiler::{
+    compiler::Compiler,
+    config::{Config, ProjectConfig},
+    FileCategorizer,
+};
 use schema::SDLSchema;
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
@@ -215,8 +219,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         url: Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()> {
-        let project_name =
-            extract_project_name_from_url(&self.file_categorizer, &url, &self.root_dir)?;
+        let project_name = self.extract_project_name_from_url(&url)?;
 
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
             e.insert(ProjectStatus::Activated);
@@ -264,6 +267,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                         allow_undefined_fragment_spreads: true,
                         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
                         relay_mode: true,
+                        default_anonymous_operation_name: None,
                     },
                 ) {
                     diagnostics.extend(
@@ -289,6 +293,20 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             self.extra_data_provider
                 .get_schema_documentation(project_config.name.to_string());
         }
+    }
+
+    pub fn get_project_config_ref(&self, project_name: StringKey) -> Option<&ProjectConfig> {
+        self.config
+            .enabled_projects()
+            .find(|project_config| project_config.name == project_name)
+    }
+
+    pub fn get_config(&self) -> Arc<Config> {
+        self.config.clone()
+    }
+
+    pub fn get_logger(&self) -> Arc<TPerfLogger> {
+        self.perf_logger.clone()
     }
 }
 

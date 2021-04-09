@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{read_to_string, WatchmanFile};
+use super::{read_file_to_string, File, FileSourceResult};
 use crate::errors::Result;
 use common::SourceLocationKey;
 use graphql_syntax::GraphQLSource;
@@ -14,10 +14,9 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use watchman_client::prelude::*;
 
 pub trait SourceReader {
-    fn read_to_string(&self, path: &PathBuf) -> std::io::Result<String>;
+    fn read_file_to_string(&self, path: &PathBuf) -> std::io::Result<String>;
 }
 
 /// Default implementation of the file source reader
@@ -25,17 +24,17 @@ pub trait SourceReader {
 pub struct FsSourceReader;
 
 impl SourceReader for FsSourceReader {
-    fn read_to_string(&self, path: &PathBuf) -> std::io::Result<String> {
+    fn read_file_to_string(&self, path: &PathBuf) -> std::io::Result<String> {
         fs::read_to_string(path)
     }
 }
 
 /// Reads and extracts `graphql` tagged literals from a file.
 pub fn extract_graphql_strings_from_file(
-    resolved_root: &ResolvedRoot,
-    file: &WatchmanFile,
+    file_source_result: &FileSourceResult,
+    file: &File,
 ) -> Result<Vec<GraphQLSource>> {
-    let contents = read_to_string(resolved_root, file)?;
+    let contents = read_file_to_string(file_source_result, file)?;
     Ok(extract_graphql::parse_chunks(&contents))
 }
 
@@ -47,14 +46,14 @@ pub fn source_for_location(
     match source_location {
         SourceLocationKey::Embedded { path, index } => {
             let absolute_path = root_dir.join(path.lookup());
-            let contents = source_reader.read_to_string(&absolute_path).ok()?;
+            let contents = source_reader.read_file_to_string(&absolute_path).ok()?;
             let file_sources = extract_graphql::parse_chunks(&contents);
             file_sources.into_iter().nth(index.try_into().unwrap())
         }
         SourceLocationKey::Standalone { path } => {
             let absolute_path = root_dir.join(path.lookup());
             Some(GraphQLSource {
-                text: source_reader.read_to_string(&absolute_path).ok()?,
+                text: source_reader.read_file_to_string(&absolute_path).ok()?,
                 line_index: 0,
                 column_index: 0,
             })

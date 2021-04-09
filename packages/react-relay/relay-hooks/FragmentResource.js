@@ -16,7 +16,6 @@
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
-const mapObject = require('mapObject');
 
 const {
   __internal: {getPromiseForActiveRequest},
@@ -256,15 +255,16 @@ class FragmentResourceImpl {
     fragmentRefs: {[string]: mixed, ...},
     componentDisplayName: string,
   ): {[string]: FragmentResult, ...} {
-    return mapObject(fragmentNodes, (fragmentNode, fragmentKey) => {
-      const fragmentRef = fragmentRefs[fragmentKey];
-      return this.read(
-        fragmentNode,
-        fragmentRef,
+    const result = {};
+    for (const key in fragmentNodes) {
+      result[key] = this.read(
+        fragmentNodes[key],
+        fragmentRefs[key],
         componentDisplayName,
-        fragmentKey,
+        key,
       );
-    });
+    }
+    return result;
   }
 
   subscribe(fragmentResult: FragmentResult, callback: () => void): Disposable {

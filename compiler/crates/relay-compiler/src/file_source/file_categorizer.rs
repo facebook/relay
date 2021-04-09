@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::File;
 use super::FileGroup;
-use super::WatchmanFile;
 use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
 use fnv::FnvHashSet;
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::{Component, PathBuf};
+use std::{collections::hash_map::Entry, path::Path};
 
 /// The watchman query returns a list of files, but for the compiler we
 /// need to categorize these files into multiple groups of files like
@@ -22,8 +22,8 @@ use std::path::{Component, PathBuf};
 /// See `FileGroup` for all groups of files.
 pub fn categorize_files(
     config: &Config,
-    files: &[WatchmanFile],
-) -> HashMap<FileGroup, Vec<WatchmanFile>> {
+    files: impl Iterator<Item = File>,
+) -> HashMap<FileGroup, Vec<File>> {
     let categorizer = FileCategorizer::from_config(config);
     let mut categorized = HashMap::new();
 
@@ -41,7 +41,7 @@ pub fn categorize_files(
     }
 
     for file in files {
-        let file_group = categorizer.categorize(&file.name);
+        let file_group = categorizer.categorize(file.name());
         let should_skip = has_disabled
             && match &file_group {
                 FileGroup::Source {
@@ -68,7 +68,7 @@ pub fn categorize_files(
             categorized
                 .entry(file_group)
                 .or_insert_with(Vec::new)
-                .push(file.clone());
+                .push(file);
         }
     }
     categorized
@@ -163,7 +163,7 @@ impl FileCategorizer {
     /// Categorizes a file. This method should be kept as cheap as possible by
     /// preprocessing the config in `from_config` and then re-using the
     /// `FileCategorizer`.
-    pub fn categorize(&self, path: &PathBuf) -> FileGroup {
+    pub fn categorize(&self, path: &Path) -> FileGroup {
         if let Some(project_name) = self.generated_dir_mapping.find(path) {
             return FileGroup::Generated { project_name };
         }
@@ -210,7 +210,7 @@ impl FileCategorizer {
         }
     }
 
-    fn in_relative_generated_dir(&self, path: &PathBuf) -> bool {
+    fn in_relative_generated_dir(&self, path: &Path) -> bool {
         path.components().any(|comp| match comp {
             Component::Normal(comp) => comp == self.default_generated_dir,
             _ => false,
@@ -229,7 +229,7 @@ impl<T: Clone> PathMapping<T> {
         Self(entries)
     }
 
-    fn get(&self, path: &PathBuf) -> T {
+    fn get(&self, path: &Path) -> T {
         self.find(path).unwrap_or_else(|| {
             panic!(
                 "Path '{:?}' not in any of the expected directories. Available directories: {:?}",
@@ -238,7 +238,7 @@ impl<T: Clone> PathMapping<T> {
             );
         })
     }
-    fn find(&self, path: &PathBuf) -> Option<T> {
+    fn find(&self, path: &Path) -> Option<T> {
         self.0.iter().find_map(|(prefix, item)| {
             if path.starts_with(prefix) {
                 Some(item.clone())
@@ -284,19 +284,19 @@ mod tests {
         let categorizer = FileCategorizer::from_config(&config);
 
         assert_eq!(
-            categorizer.categorize(&"src/js/a.js".into()),
+            categorizer.categorize(&PathBuf::from("src/js/a.js")),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("public".intern()),
             },
         );
         assert_eq!(
-            categorizer.categorize(&"src/js/nested/b.js".into()),
+            categorizer.categorize(&PathBuf::from("src/js/nested/b.js")),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("public".intern()),
             },
         );
         assert_eq!(
-            categorizer.categorize(&"src/js/internal/nested/c.js".into()),
+            categorizer.categorize(&PathBuf::from("src/js/internal/nested/c.js")),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("internal".intern()),
             },
@@ -306,31 +306,31 @@ mod tests {
             // even if it has same dirname in path as custom output folder.
             // Path is only categorized as generated if it matches the absolute path
             // of the provided custom output.
-            categorizer.categorize(&"src/custom/custom-generated/c.js".into()),
+            categorizer.categorize(&PathBuf::from("src/custom/custom-generated/c.js")),
             FileGroup::Source {
                 source_set: SourceSet::SourceSetName("with_custom_generated_dir".intern()),
             },
         );
         assert_eq!(
-            categorizer.categorize(&"src/js/internal/nested/__generated__/c.js".into()),
+            categorizer.categorize(&PathBuf::from("src/js/internal/nested/__generated__/c.js")),
             FileGroup::Generated {
                 project_name: "internal".intern()
             },
         );
         assert_eq!(
-            categorizer.categorize(&"graphql/custom-generated/c.js".into()),
+            categorizer.categorize(&PathBuf::from("graphql/custom-generated/c.js")),
             FileGroup::Generated {
                 project_name: "with_custom_generated_dir".intern()
             },
         );
         assert_eq!(
-            categorizer.categorize(&"graphql/public.graphql".into()),
+            categorizer.categorize(&PathBuf::from("graphql/public.graphql")),
             FileGroup::Schema {
                 project_set: ProjectSet::ProjectName("public".intern())
             },
         );
         assert_eq!(
-            categorizer.categorize(&"graphql/__generated__/internal.graphql".into()),
+            categorizer.categorize(&PathBuf::from("graphql/__generated__/internal.graphql")),
             FileGroup::Schema {
                 project_set: ProjectSet::ProjectName("internal".intern())
             },

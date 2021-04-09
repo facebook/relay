@@ -16,7 +16,6 @@ const DataChecker = require('./DataChecker');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
-const RelayProfiler = require('../util/RelayProfiler');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
@@ -769,9 +768,5 @@ function getAvailabilityStatus(
   // been fetched after the most recent record invalidation.
   return {status: 'available', fetchTime: operationFetchTime ?? null};
 }
-
-RelayProfiler.instrumentMethods(RelayModernStore.prototype, {
-  lookup: 'RelayModernStore.prototype.lookup',
-});
 
 module.exports = RelayModernStore;

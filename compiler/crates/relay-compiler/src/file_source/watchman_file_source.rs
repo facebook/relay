@@ -5,52 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::query_builder::{get_all_roots, get_watchman_expr};
-use super::{Clock, WatchmanFile};
+use super::watchman_query_builder::{get_all_roots, get_watchman_expr};
+use super::FileSourceResult;
+use super::FileSourceSubscriptionNextChange;
+use super::WatchmanFile;
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
 use log::{debug, info, warn};
 use serde_bser::value::Value;
 use std::process::Command;
+pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
 
-pub struct FileSource<'config> {
+pub struct WatchmanFileSource<'config> {
     client: Client,
     config: &'config Config,
     resolved_root: ResolvedRoot,
 }
 
 #[derive(Debug)]
-pub enum FileSourceSubscriptionNextChange {
-    Result(FileSourceResult),
-    /// This value indicated the beginning of the source control update.
-    /// We may stop the compilation process and wait for the next event.
-    SourceControlUpdateEnter,
-    /// If source control update has not changed the base revision of the commit
-    /// We may continue the `watch(...)` loop of the compiler, expecting to receive
-    /// a `Result` event after `SourceControlUpdateLeave`.
-    SourceControlUpdateLeave,
-    /// When source control update completed and we detected changed base revision,
-    /// we may need to create a new compiler state.
-    SourceControlUpdate,
-    None,
-}
-
-#[derive(Debug)]
-pub struct FileSourceResult {
+pub struct WatchmanFileSourceResult {
     pub files: Vec<WatchmanFile>,
     pub resolved_root: ResolvedRoot,
     pub clock: Clock,
     pub saved_state_info: Option<Value>,
 }
 
-impl<'config> FileSource<'config> {
+impl<'config> WatchmanFileSource<'config> {
     pub async fn connect(
         config: &'config Config,
         perf_logger_event: &impl PerfLogEvent,
-    ) -> Result<FileSource<'config>> {
+    ) -> Result<WatchmanFileSource<'config>> {
         let connect_timer = perf_logger_event.start("file_source_connect_time");
         let client = Connector::new().connect().await?;
         let canonical_root = CanonicalPath::canonicalize(&config.root_dir).map_err(|err| {
@@ -153,7 +140,7 @@ impl<'config> FileSource<'config> {
         self,
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
-    ) -> Result<(CompilerState, FileSourceSubscription)> {
+    ) -> Result<(CompilerState, WatchmanFileSourceSubscription)> {
         let timer = perf_logger_event.start("file_source_subscribe_time");
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
@@ -169,7 +156,7 @@ impl<'config> FileSource<'config> {
                 &self.resolved_root,
                 SubscribeRequest {
                     expression: Some(expression),
-                    since: Some(file_source_result.clock.clone()),
+                    since: Some(file_source_result.clock()),
                     defer: vec!["hg.update"],
                     ..Default::default()
                 },
@@ -180,12 +167,12 @@ impl<'config> FileSource<'config> {
 
         Ok((
             compiler_state,
-            FileSourceSubscription::new(self.resolved_root.clone(), subscription),
+            WatchmanFileSourceSubscription::new(self.resolved_root.clone(), subscription),
         ))
     }
 
     /// Internal method to issue a watchman query, returning a raw
-    /// FileSourceResult.
+    /// WatchmanFileSourceResult.
     async fn query_file_result(
         &self,
         since_clock: Option<Clock>,
@@ -221,12 +208,12 @@ impl<'config> FileSource<'config> {
         perf_logger_event.stop(query_timer);
 
         let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
-        Ok(FileSourceResult {
+        Ok(FileSourceResult::Watchman(WatchmanFileSourceResult {
             files,
             resolved_root: self.resolved_root.clone(),
             clock: query_result.clock,
             saved_state_info: query_result.saved_state_info,
-        })
+        }))
     }
 
     /// Tries to load saved state with a watchman query.
@@ -250,7 +237,7 @@ impl<'config> FileSource<'config> {
             .await
             .map_err(|_| "query failed")?;
         let saved_state_info = file_source_result
-            .saved_state_info
+            .saved_state_info()
             .as_ref()
             .ok_or("no saved state in watchman response")?;
         let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
@@ -296,13 +283,13 @@ impl<'config> FileSource<'config> {
     }
 }
 
-pub struct FileSourceSubscription {
+pub struct WatchmanFileSourceSubscription {
     resolved_root: ResolvedRoot,
     subscription: WatchmanSubscription<WatchmanFile>,
     base_revision: String,
 }
 
-impl FileSourceSubscription {
+impl WatchmanFileSourceSubscription {
     fn new(resolved_root: ResolvedRoot, subscription: WatchmanSubscription<WatchmanFile>) -> Self {
         Self {
             resolved_root,
@@ -318,12 +305,14 @@ impl FileSourceSubscription {
             SubscriptionData::FilesChanged(changes) => {
                 if let Some(files) = changes.files {
                     debug!("number of files in this update: {}", files.len());
-                    return Ok(FileSourceSubscriptionNextChange::Result(FileSourceResult {
-                        files,
-                        resolved_root: self.resolved_root.clone(),
-                        clock: changes.clock,
-                        saved_state_info: None,
-                    }));
+                    return Ok(FileSourceSubscriptionNextChange::Result(
+                        FileSourceResult::Watchman(WatchmanFileSourceResult {
+                            files,
+                            resolved_root: self.resolved_root.clone(),
+                            clock: changes.clock,
+                            saved_state_info: None,
+                        }),
+                    ));
                 }
             }
             SubscriptionData::StateEnter { state_name, .. } => {

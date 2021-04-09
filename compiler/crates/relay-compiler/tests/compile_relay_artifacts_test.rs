@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2f045d907338af54e8fbc607f9b7f688>>
+ * @generated SignedSource<<05e6402b59c6212b78b4b98442e6345c>>
  */
 
 mod compile_relay_artifacts;
@@ -745,6 +745,20 @@ fn refetchable_connection_custom_handler() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-connection-custom-handler.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-connection-custom-handler.expected");
     test_fixture(transform_fixture, "refetchable-connection-custom-handler.graphql", "compile_relay_artifacts/fixtures/refetchable-connection-custom-handler.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_directives() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.expected");
+    test_fixture(transform_fixture, "refetchable_fragment_directives.graphql", "compile_relay_artifacts/fixtures/refetchable_fragment_directives.expected", input, expected);
+}
+
+#[test]
+fn refetchable_fragment_directives_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.expected");
+    test_fixture(transform_fixture, "refetchable_fragment_directives.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable_fragment_directives.invalid.expected", input, expected);
 }
 
 #[test]

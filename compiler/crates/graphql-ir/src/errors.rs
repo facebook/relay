@@ -463,6 +463,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        r#"When provided, the `directives` argument to `@refetchable` needs to be a list of literal strings. Each string should be a server directive valid on queries. Example: `@refetchable(queryName: "ExampleQuery", directives: ["@owner(name: \"an owner\")"])"#
+    )]
+    RefetchableDirectivesArgRequiresLiteralStringList,
+
+    #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}"
     )]
     UnsupportedRefetchableFragment {

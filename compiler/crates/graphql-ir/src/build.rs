@@ -128,6 +128,27 @@ pub fn build_type_annotation(
     builder.build_type_annotation(annotation)
 }
 
+pub fn build_directive(
+    schema: &SDLSchema,
+    directive: &graphql_syntax::Directive,
+    directive_location: DirectiveLocation,
+    location: Location,
+) -> DiagnosticsResult<Directive> {
+    let signatures = Default::default();
+    let mut builder = Builder::new(
+        schema,
+        &signatures,
+        location,
+        BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: false,
+            default_anonymous_operation_name: None,
+        },
+    );
+    builder.build_directive(directive, directive_location)
+}
+
 pub fn build_constant_value(
     schema: &SDLSchema,
     value: &graphql_syntax::ConstantValue,
@@ -640,7 +661,6 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                 )]);
             }
         };
-
 
         if let Some(parent_type) =
             self.find_conflicting_parent_type(parent_types, signature.type_condition)

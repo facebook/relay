@@ -22,8 +22,8 @@ mod visitor;
 
 pub use crate::errors::ValidationMessage;
 pub use build::{
-    build_ir_with_extra_features, build_ir_with_relay_options as build, BuilderOptions,
-    FragmentVariablesSemantic, DIRECTIVE_ARGUMENTS,
+    build_directive, build_ir_with_extra_features, build_ir_with_relay_options as build,
+    BuilderOptions, FragmentVariablesSemantic, DIRECTIVE_ARGUMENTS,
 };
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;

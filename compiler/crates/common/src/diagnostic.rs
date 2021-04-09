@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::Location;
+use crate::{Location, SourceLocationKey};
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
@@ -95,6 +95,16 @@ impl Diagnostic {
 
     pub fn location(&self) -> Location {
         self.0.location
+    }
+
+    /// Override the location. This should only be used for exceptional situations.
+    /// Typically, diagnostics should be constructed with a correct location.
+    pub fn override_location(&mut self, location: Location) {
+        assert!(
+            self.0.location.source_location() == SourceLocationKey::Generated,
+            "Diagnostic::override_location can only be called when the location is generated."
+        );
+        self.0.location = location;
     }
 
     pub fn related_information(&self) -> &[DiagnosticRelatedInformation] {

@@ -15,7 +15,10 @@ directive @relay_early_flush on QUERY
 
 directive @DEPRECATED__relay_ignore_unused_variables_error on QUERY | MUTATION | SUBSCRIPTION
 
-directive @refetchable(queryName: String!) on FRAGMENT_DEFINITION
+directive @refetchable(
+  queryName: String!
+  directives: [String!]
+) on FRAGMENT_DEFINITION
 
 directive @preloadable on QUERY
 

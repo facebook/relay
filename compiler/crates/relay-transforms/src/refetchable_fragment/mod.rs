@@ -74,17 +74,23 @@ pub fn transform_refetchable_fragment(
 
     validate_map(program.fragments(), |fragment| {
         let operation_result = transformer.transform_refetch_fragment(fragment)?;
-        if let Some((refetch_query_name, operation_result)) = operation_result {
+        if let Some((refetchable_directive, operation_result)) = operation_result {
             next_program.insert_fragment(operation_result.fragment);
             if !base_fragment_names.contains(&fragment.name.item) {
+                let mut directives = refetchable_directive.directives;
+                directives.push(RefetchableDerivedFromMetadata::create_directive(
+                    fragment.name,
+                ));
+
                 next_program.insert_operation(Arc::new(OperationDefinition {
                     kind: OperationKind::Query,
-                    name: WithLocation::new(fragment.name.location, refetch_query_name),
+                    name: WithLocation::new(
+                        fragment.name.location,
+                        refetchable_directive.query_name.item,
+                    ),
                     type_: query_type,
                     variable_definitions: operation_result.variable_definitions,
-                    directives: vec![RefetchableDerivedFromMetadata::create_directive(
-                        fragment.name,
-                    )],
+                    directives,
                     selections: operation_result.selections,
                 }));
             }
@@ -111,7 +117,7 @@ impl RefetchableFragment<'_> {
     fn transform_refetch_fragment(
         &mut self,
         fragment: &Arc<FragmentDefinition>,
-    ) -> DiagnosticsResult<Option<(StringKey, RefetchRoot)>> {
+    ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
         if let Some(refetchable_directive) =
             RefetchableDirective::from_directives(&self.program.schema, &fragment.directives)?
         {
@@ -128,7 +134,7 @@ impl RefetchableFragment<'_> {
                     if !self.for_typegen {
                         self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
                     }
-                    return Ok(Some((refetchable_directive.query_name.item, refetch_root)));
+                    return Ok(Some((refetchable_directive, refetch_root)));
                 }
             }
             let mut descriptions = String::new();

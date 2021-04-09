@@ -28,6 +28,7 @@ pub enum AST {
     Boolean,
     Any,
     FragmentReference(Vec<StringKey>),
+    FunctionReturnType(StringKey),
 }
 
 #[derive(Debug, Clone)]
@@ -36,25 +37,6 @@ pub struct Prop {
     pub value: AST,
     pub read_only: bool,
     pub optional: bool,
-}
-
-#[derive(PartialEq, Eq, PartialOrd, Ord)]
-pub struct ImportTypeName {
-    pub name: StringKey,
-    pub alias: Option<StringKey>,
-}
-
-impl ImportTypeName {
-    pub fn new(name: StringKey) -> Self {
-        Self { name, alias: None }
-    }
-
-    pub fn with_alias(name: StringKey, alias: StringKey) -> Self {
-        Self {
-            name,
-            alias: Some(alias),
-        }
-    }
 }
 
 lazy_static! {
@@ -71,9 +53,11 @@ pub trait Writer {
 
     fn write_export_type(&mut self, name: StringKey, ast: &AST) -> Result;
 
-    fn write_import_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result;
+    fn write_import_module_default(&mut self, name: StringKey, from: StringKey) -> Result;
 
-    fn write_import_fragment_type(&mut self, types: &[ImportTypeName], from: StringKey) -> Result;
+    fn write_import_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
+
+    fn write_import_fragment_type(&mut self, types: &[StringKey], from: StringKey) -> Result;
 
     fn write_export_fragment_type(&mut self, old_name: StringKey, new_name: StringKey) -> Result;
 

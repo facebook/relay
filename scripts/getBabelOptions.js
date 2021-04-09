@@ -32,7 +32,6 @@ module.exports = function(options) {
           map: {
             Promise: 'promise-polyfill',
             areEqual: 'fbjs/lib/areEqual',
-            invariant: 'fbjs/lib/invariant',
             warning: 'fbjs/lib/warning',
           },
         },

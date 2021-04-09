@@ -328,9 +328,9 @@ pub async fn commit_project(
                     break;
                 }
                 if !existing_artifacts.remove(&artifact.path) {
-                    info!(
-                        "[{}] NEW: {:?} -> {:?}",
-                        project_config.name, &artifact.source_definition_names, &artifact.path
+                    debug!(
+                        "[{}] new artifact {:?} from definitions {:?}",
+                        project_config.name, &artifact.path, &artifact.source_definition_names
                     );
                 }
 

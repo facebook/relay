@@ -28,7 +28,7 @@ For a full example using Relay Hooks and our integration with [Suspense for Data
 
 ### `RelayEnvironmentProvider`
 
-This component is used set a Relay environment in React Context. Usually, a _single_ instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:
+This component is used to set a Relay environment in React Context. Usually, a _single_ instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:
 
 ```javascript
 

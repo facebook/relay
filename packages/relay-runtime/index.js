@@ -114,6 +114,7 @@ export type {TaskScheduler} from './store/QueryExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ExecuteMutationConfig,
   FragmentMap,
   FragmentReference,
   FragmentSpecResolver,

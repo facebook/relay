@@ -43,10 +43,10 @@ import type {
 import type {ActiveState, TaskScheduler} from './QueryExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  ExecuteMutationConfig,
   IEnvironment,
   LogFunction,
   MissingFieldHandler,
-  RequiredFieldLogger,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -56,6 +56,7 @@ import type {
   PublishQueue,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
+  RequiredFieldLogger,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -416,13 +417,7 @@ class RelayModernEnvironment implements IEnvironment {
     optimisticUpdater,
     updater,
     uploadables,
-  }: {|
-    operation: OperationDescriptor,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?Object,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: ?UploadableMap,
-  |}): RelayObservable<GraphQLResponse> {
+  }: ExecuteMutationConfig): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
       let optimisticConfig;
       if (optimisticResponse || optimisticUpdater) {

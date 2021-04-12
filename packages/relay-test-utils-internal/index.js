@@ -23,7 +23,7 @@ const {
   generateTestsFromFixtures,
   FIXTURE_TAG,
 } = require('./generateTestsFromFixtures');
-const {expectWarning, disallowWarnings} = require('./warnings');
+const {expectWarningWillFire, disallowWarnings} = require('./warnings');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 
 /**
@@ -31,7 +31,7 @@ const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
  */
 module.exports = {
   createMockEnvironment,
-  expectWarning,
+  expectWarningWillFire,
   disallowWarnings,
   FIXTURE_TAG,
   generateTestsFromFixtures,

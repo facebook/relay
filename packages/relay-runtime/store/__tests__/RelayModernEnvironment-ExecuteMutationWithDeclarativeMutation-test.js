@@ -23,7 +23,10 @@ const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {disallowWarnings, expectWarning} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -2116,7 +2119,7 @@ describe('connection node mutations', () => {
       .subscribe(callbacks);
 
     callback.mockClear();
-    expectWarning('MutationHandlers: Expected target node to exist.');
+    expectWarningWillFire('MutationHandlers: Expected target node to exist.');
     subject.next({
       data: {
         commentCreate: {

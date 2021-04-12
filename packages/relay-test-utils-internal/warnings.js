@@ -18,7 +18,7 @@ const expectedWarnings = [];
 
 /**
  * Mocks the `warning` module to turn warnings into errors. Any expected
- * warnings need to be explicitly expected with `expectWarning(message)`.
+ * warnings need to be explicitly expected with `expectWarningWillFire(message)`.
  *
  * NOTE: This should be called on top of a test file. The test should NOT
  *       use `jest.resetModules()` or manually mock `warning`.
@@ -62,10 +62,10 @@ function disallowWarnings(): void {
  * Expect a warning with the given message. If the message isn't fired in the
  * current test, the test will fail.
  */
-function expectWarning(message: string): void {
+function expectWarningWillFire(message: string): void {
   if (!installed) {
     throw new Error(
-      '`disallowWarnings` needs to be called before `expectWarning`',
+      '`disallowWarnings` needs to be called before `expectWarningWillFire`',
     );
   }
   expectedWarnings.push(message);
@@ -73,5 +73,5 @@ function expectWarning(message: string): void {
 
 module.exports = {
   disallowWarnings,
-  expectWarning,
+  expectWarningWillFire,
 };

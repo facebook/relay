@@ -24,7 +24,10 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {disallowWarnings, expectWarning} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -94,7 +97,7 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
     const snapshot = environment.lookup(operation.fragment);
     environment.subscribe(snapshot, callback);
 
-    expectWarning(
+    expectWarningWillFire(
       'RelayResponseNormalizer: Payload did not contain a value for field `birthdate: birthdate`. Check that you are parsing with the same query that was used to fetch the payload.',
     );
     environment.commitPayload(operation, {

@@ -22,28 +22,29 @@ const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
+const ParentQuery = getRequest(graphql`
+  query RelayModernEnvironmentCheckTestParentQuery($size: [Int]!) {
+    me {
+      id
+      name
+      profilePicture(size: $size) {
+        uri
+      }
+    }
+  }
+`);
 
 describe('check()', () => {
   let environment;
   let operationDescriptor;
-  let ParentQuery;
   let source;
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    ParentQuery = getRequest(graphql`
-      query RelayModernEnvironmentCheckTestParentQuery($size: [Int]!) {
-        me {
-          id
-          name
-          profilePicture(size: $size) {
-            uri
-          }
-        }
-      }
-    `);
-
     source = RelayRecordSource.create();
     store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
@@ -93,10 +94,15 @@ describe('check()', () => {
         id: '4',
         name: 'Zuck',
         profilePicture: {
-          uri: undefined,
+          uri: 'https://example.com/32.png',
         },
       },
     });
-    expect(environment.check(operationDescriptor)).toEqual({status: 'missing'});
+    const operationDescriptor64 = createOperationDescriptor(ParentQuery, {
+      size: 64,
+    });
+    expect(environment.check(operationDescriptor64)).toEqual({
+      status: 'missing',
+    });
   });
 });

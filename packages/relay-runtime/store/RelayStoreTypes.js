@@ -658,13 +658,9 @@ export interface IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation({|
-    operation: OperationDescriptor,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?Object,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: ?UploadableMap,
-  |}): RelayObservable<GraphQLResponse>;
+  executeMutation(
+    config: ExecuteMutationConfig,
+  ): RelayObservable<GraphQLResponse>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
@@ -936,7 +932,18 @@ export type RelayResponsePayload = {|
 |};
 
 /**
- * Public interface for Publish Queue
+ * Configuration on the executeMutation(...).
+ */
+export type ExecuteMutationConfig = {|
+  operation: OperationDescriptor,
+  optimisticUpdater?: ?SelectorStoreUpdater,
+  optimisticResponse?: ?Object,
+  updater?: ?SelectorStoreUpdater,
+  uploadables?: ?UploadableMap,
+|};
+
+/**
+ * Public interface for Publish Queue.
  */
 export interface PublishQueue {
   /**

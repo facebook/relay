@@ -14,7 +14,7 @@
 /* global jest, afterEach */
 
 let installed = false;
-const expectedWarnings = new Set();
+const expectedWarnings = [];
 
 /**
  * Mocks the `warning` module to turn warnings into errors. Any expected
@@ -34,22 +34,25 @@ function disallowWarnings(): void {
         let argIndex = 0;
         const message = format.replace(/%s/g, () => String(args[argIndex++]));
 
-        if (!expectedWarnings.delete(message)) {
+        const index = expectedWarnings.indexOf(message);
+        if (index >= 0) {
+          expectedWarnings.splice(index, 1);
+        } else {
           // log to console in case the error gets swallowed somewhere
-          console.error('Warning: ' + message);
+          console.error('Unexpected Warning: ' + message);
           throw new Error('Warning: ' + message);
         }
       }
     });
   });
   afterEach(() => {
-    if (expectedWarnings.size > 0) {
+    if (expectedWarnings.length > 0) {
       const error = new Error(
         'Some expected warnings where not triggered:\n\n' +
           Array.from(expectedWarnings, message => ` * ${message}`).join('\n') +
           '\n',
       );
-      expectedWarnings.clear();
+      expectedWarnings.length = 0;
       throw error;
     }
   });
@@ -65,7 +68,7 @@ function expectWarning(message: string): void {
       '`disallowWarnings` needs to be called before `expectWarning`',
     );
   }
-  expectedWarnings.add(message);
+  expectedWarnings.push(message);
 }
 
 module.exports = {

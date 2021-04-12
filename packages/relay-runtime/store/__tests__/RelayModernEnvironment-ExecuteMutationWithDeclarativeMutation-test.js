@@ -19,12 +19,13 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const warning = require('warning');
-
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings, expectWarning} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('deleteFromStore', () => {
   describe('single ids', () => {
@@ -46,7 +47,6 @@ describe('deleteFromStore', () => {
     let queryVariables;
 
     beforeEach(() => {
-      jest.resetModules();
       commentId = 'comment-id';
 
       DeleteCommentMutation = getRequest(graphql`
@@ -290,7 +290,6 @@ describe('deleteFromStore', () => {
     let secondCommentQueryOperation;
 
     beforeEach(() => {
-      jest.resetModules();
       firstCommentId = 'comment-id-1';
       secondCommentId = 'comment-id-2';
       commentIds = [firstCommentId, secondCommentId];
@@ -603,10 +602,6 @@ describe('connection edge mutations', () => {
     'client:<feedbackid>:__FeedbackFragment_comments_connection(orderby:"date")';
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback2Query(
         $id: ID!
@@ -1363,10 +1358,6 @@ describe('connection node mutations', () => {
     'client:<feedbackid>:__FeedbackFragment_comments_connection(orderby:"date")';
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeedback3Query(
         $id: ID!
@@ -1540,6 +1531,7 @@ describe('connection node mutations', () => {
           comments: {
             edges: [
               {
+                __typename: 'CommentsEdge',
                 cursor: 'cursor-1',
                 node: {
                   __typename: 'Comment',
@@ -1547,6 +1539,7 @@ describe('connection node mutations', () => {
                 },
               },
               {
+                __typename: 'CommentsEdge',
                 cursor: 'cursor-2',
                 node: {
                   __typename: 'Comment',
@@ -1610,6 +1603,7 @@ describe('connection node mutations', () => {
       .subscribe(callbacks);
 
     callback.mockClear();
+
     subject.next({
       data: {
         commentCreate: {
@@ -2122,6 +2116,7 @@ describe('connection node mutations', () => {
       .subscribe(callbacks);
 
     callback.mockClear();
+    expectWarning('MutationHandlers: Expected target node to exist.');
     subject.next({
       data: {
         commentCreate: {
@@ -2131,9 +2126,5 @@ describe('connection node mutations', () => {
     });
     subject.complete();
     expect(callback.mock.calls.length).toBe(0);
-    expect(warning).toBeCalledWith(
-      false,
-      'MutationHandlers: Expected target node to exist.',
-    );
   });
 });

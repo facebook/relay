@@ -26,10 +26,13 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {graphql} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
+
+disallowWarnings();
 
 function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
   describe('execute() a query with @defer and @module', () => {
@@ -55,9 +58,6 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
     let variables;
 
     beforeEach(() => {
-      jest.resetModules();
-      jest.mock('warning');
-      jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = enableBatchedStoreUpdates;
 
       query = graphql`

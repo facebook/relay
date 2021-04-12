@@ -27,6 +27,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with Flight field and client fragment', () => {
   let callbacks;
@@ -47,11 +50,6 @@ describe('execute() with Flight field and client fragment', () => {
   let store;
 
   beforeEach(() => {
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    jest.resetModules();
-
-    // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
     FlightQuery = getRequest(graphql`

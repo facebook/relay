@@ -24,6 +24,9 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql, getRequest} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('retain()', () => {
   let ParentQuery;
@@ -31,7 +34,6 @@ describe('retain()', () => {
   let operation;
 
   beforeEach(() => {
-    jest.resetModules();
     graphql`
       fragment RelayModernEnvironmentRetainTestQueryChildFragment on User {
         id

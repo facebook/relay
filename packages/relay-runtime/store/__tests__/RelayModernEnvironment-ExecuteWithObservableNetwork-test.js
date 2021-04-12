@@ -25,6 +25,10 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql, getRequest} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
 describe('execute() with Observable network', () => {
   let callbacks;
   let complete;
@@ -40,8 +44,6 @@ describe('execute() with Observable network', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithObservableNetworkTestQuery(
         $fetchSize: Boolean!

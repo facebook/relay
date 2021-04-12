@@ -25,6 +25,9 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 const Query = getRequest(graphql`
   query RelayModernEnvironmentNoInlineTestQuery(

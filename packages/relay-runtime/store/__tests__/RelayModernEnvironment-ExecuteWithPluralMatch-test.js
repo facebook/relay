@@ -28,9 +28,9 @@ const {
 const {getSingularSelector} = require('../RelayModernSelector');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
-disallowWarnings();
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('execute() a query with plural @match', () => {
   let callbacks;

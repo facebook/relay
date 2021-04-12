@@ -27,6 +27,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('@connection', () => {
   let callbacks;
@@ -37,10 +40,6 @@ describe('@connection', () => {
   let query;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 

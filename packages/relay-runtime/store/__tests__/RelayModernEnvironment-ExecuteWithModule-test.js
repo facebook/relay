@@ -62,8 +62,6 @@ describe('execute() a query with @module', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithModuleTestUserQuery($id: ID!) {
         node(id: $id) {

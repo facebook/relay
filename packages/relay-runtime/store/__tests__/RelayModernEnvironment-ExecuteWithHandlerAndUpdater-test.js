@@ -23,6 +23,9 @@ const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 // Regression test: updaters read the store using the selector used to
 // publish, which can fail if a normalization ast was passed as the
@@ -41,8 +44,6 @@ describe('execute() with handler and updater', () => {
   let subject;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery {
         me {

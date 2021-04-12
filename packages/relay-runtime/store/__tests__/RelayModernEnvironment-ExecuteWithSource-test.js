@@ -25,6 +25,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeWithSource() with Observable network', () => {
   let callbacks;
@@ -43,8 +46,6 @@ describe('executeWithSource() with Observable network', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithSourceTestActorQuery(
         $fetchSize: Boolean!

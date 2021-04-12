@@ -29,8 +29,11 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 const observationFragment = getFragment(graphql`
   fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTest_observation_query on Query {
@@ -62,7 +65,6 @@ describe('execute() a query with @module if the module fragment is available syn
   let observationSnapshot;
 
   beforeEach(() => {
-    jest.resetModules();
     const fetch = (_query, _variables, _cacheConfig) => {
       return RelayObservable.create(sink => {
         dataSource = sink;

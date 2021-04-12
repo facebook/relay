@@ -48,10 +48,6 @@ describe('@connection', () => {
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentConnectionTestFeedbackQuery($id: ID!) {
         node(id: $id) {

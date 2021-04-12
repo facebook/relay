@@ -24,6 +24,9 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeMutation() with local invalidation', () => {
   let callbacks;
@@ -44,7 +47,6 @@ describe('executeMutation() with local invalidation', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
     commentID = 'comment-id';
 
     CreateCommentMutation = getRequest(graphql`

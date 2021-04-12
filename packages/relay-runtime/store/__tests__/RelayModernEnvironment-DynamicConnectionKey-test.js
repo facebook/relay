@@ -27,6 +27,9 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('@connection with dynamic key', () => {
   let callbacks;
@@ -44,10 +47,6 @@ describe('@connection with dynamic key', () => {
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
 
     query = getRequest(graphql`

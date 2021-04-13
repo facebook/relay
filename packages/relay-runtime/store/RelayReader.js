@@ -45,15 +45,18 @@ const {
   getStorageKey,
   getModuleComponentKey,
 } = require('./RelayStoreUtils');
+const {withResolverContext} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 
 import type {
   ReaderFlightField,
+  ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
+  ReaderRelayResolver,
   ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
@@ -332,10 +335,7 @@ class RelayReader {
           if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
             throw new Error('Relay Resolver fields are not yet supported.');
           }
-          const {name, alias, resolverModule} = selection;
-          // TODO: Create the key
-          const key = ({}: any); // flowlint-line unclear-type:off
-          data[alias ?? name] = resolverModule(key);
+          this._readResolverField(selection, record, data);
           break;
         }
         case FRAGMENT_SPREAD:
@@ -345,7 +345,11 @@ class RelayReader {
           this._readModuleImport(selection, record, data);
           break;
         case INLINE_DATA_FRAGMENT_SPREAD:
-          this._createInlineDataFragmentPointer(selection, record, data);
+          this._createInlineDataOrResolverFragmentPointer(
+            selection,
+            record,
+            data,
+          );
           break;
         case DEFER:
         case CLIENT_EXTENSION: {
@@ -413,6 +417,43 @@ class RelayReader {
           selection.kind,
         );
     }
+  }
+
+  _readResolverField(
+    selection: ReaderRelayResolver,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const {name, alias, resolverModule, fragment} = selection;
+    const key = {
+      __id: RelayModernRecord.getDataID(record),
+      __fragmentOwner: this._owner,
+      __fragments: {
+        [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+      },
+    };
+    const resolverContext = {
+      getDataForResolverFragment: singularReaderSelector => {
+        const resolverFragmentData = {};
+        this._createInlineDataOrResolverFragmentPointer(
+          singularReaderSelector.node,
+          record,
+          resolverFragmentData,
+        );
+        const answer = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
+        invariant(
+          typeof answer === 'object' && answer !== null,
+          `Expected reader data to contain a __fragments property with a property for the fragment named ${fragment.name}, but it is missing.`,
+        );
+        return answer;
+      },
+    };
+    const resolverResult = withResolverContext(resolverContext, () =>
+      // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+      resolverModule(key),
+    );
+    data[alias ?? name] = resolverResult;
+    return resolverResult;
   }
 
   _readFlightField(
@@ -618,8 +659,8 @@ class RelayReader {
     }
   }
 
-  _createInlineDataFragmentPointer(
-    inlineDataFragmentSpread: ReaderInlineDataFragmentSpread,
+  _createInlineDataOrResolverFragmentPointer(
+    fragmentSpreadOrFragment: ReaderInlineDataFragmentSpread | ReaderFragment,
     record: Record,
     data: SelectorData,
   ): void {
@@ -637,12 +678,12 @@ class RelayReader {
     }
     const inlineData = {};
     this._traverseSelections(
-      inlineDataFragmentSpread.selections,
+      fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
     // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[inlineDataFragmentSpread.name] = inlineData;
+    fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
   }
 }
 

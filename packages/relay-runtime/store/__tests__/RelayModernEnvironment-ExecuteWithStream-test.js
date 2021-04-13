@@ -20,13 +20,14 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const warning = require('warning');
-
 const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
   describe('execute() a query with @stream', () => {
@@ -48,9 +49,6 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
     let variables;
 
     beforeEach(() => {
-      jest.resetModules();
-      jest.mock('warning');
-      jest.spyOn(console, 'warn').mockImplementation(() => undefined);
       RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = enableBatchedStoreUpdates;
 
       query = getRequest(graphql`
@@ -467,36 +465,36 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
       const callback = jest.fn();
       environment.subscribe(initialSnapshot, callback);
       environment.execute({operation}).subscribe(callbacks);
-      dataSource.next([
-        {
-          data: {
-            node: {
-              __typename: 'Feedback',
-              id: '1',
-              actors: [],
-            },
-          },
-          extensions: {
-            is_final: true,
-          },
-        },
-        {
-          data: {
-            __typename: 'User',
-            id: '2',
-            name: 'Alice',
-          },
-          label:
-            'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
-          path: ['node', 'actors', 0],
-        },
-      ]);
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
+      expectToWarn(
+        'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery` contains @defer/@stream ' +
           'directives but was executed in non-streaming mode. See ' +
           'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-        'RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery',
+        () => {
+          dataSource.next([
+            {
+              data: {
+                node: {
+                  __typename: 'Feedback',
+                  id: '1',
+                  actors: [],
+                },
+              },
+              extensions: {
+                is_final: true,
+              },
+            },
+            {
+              data: {
+                __typename: 'User',
+                id: '2',
+                name: 'Alice',
+              },
+              label:
+                'RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$stream$actors',
+              path: ['node', 'actors', 0],
+            },
+          ]);
+        },
       );
       expect(next).toBeCalledTimes(1);
       if (enableBatchedStoreUpdates) {
@@ -1470,7 +1468,14 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
           is_final: true,
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery` contains @defer/@stream ' +
+          'directives but was executed in non-streaming mode. See ' +
+          'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       jest.runAllTimers();
 
       expect(next.mock.calls.length).toBe(1);
@@ -1483,13 +1488,6 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
         id: '1',
         actors: [],
       });
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        'RelayModernEnvironment: Operation `%s` contains @defer/@stream ' +
-          'directives but was executed in non-streaming mode. See ' +
-          'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
-        'RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery',
-      );
     });
   });
 }

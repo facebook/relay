@@ -26,6 +26,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   let callback;
@@ -45,10 +48,6 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery(
         $enableStream: Boolean!
@@ -179,6 +178,10 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
       data: {
         newsFeed: {
           edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
         },
       },
       label:
@@ -217,6 +220,10 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
       data: {
         newsFeed: {
           edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
         },
       },
       label:
@@ -294,6 +301,10 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
       data: {
         newsFeed: {
           edges: [],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
         },
       },
       label:
@@ -424,6 +435,10 @@ describe('execute() fetches a @defer-ed @stream-ed @connection', () => {
               },
             },
           ],
+          pageInfo: {
+            endCursor: null,
+            hasNextPage: false,
+          },
         },
       },
       label:

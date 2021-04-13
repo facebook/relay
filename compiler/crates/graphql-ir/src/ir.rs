@@ -53,6 +53,18 @@ pub struct OperationDefinition {
     pub selections: Vec<Selection>,
 }
 
+impl OperationDefinition {
+    pub fn is_query(&self) -> bool {
+        self.kind == OperationKind::Query
+    }
+    pub fn is_mutation(&self) -> bool {
+        self.kind == OperationKind::Mutation
+    }
+    pub fn is_subscription(&self) -> bool {
+        self.kind == OperationKind::Subscription
+    }
+}
+
 /// A fully-typed fragment definition
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FragmentDefinition {

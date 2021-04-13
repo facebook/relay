@@ -14,7 +14,8 @@
 /* global jest, afterEach */
 
 let installed = false;
-const expectedWarnings = [];
+const expectedWarnings: Array<string> = [];
+let contextualExpectedWarning: string | null = null;
 
 /**
  * Mocks the `warning` module to turn warnings into errors. Any expected
@@ -33,9 +34,14 @@ function disallowWarnings(): void {
       if (!condition) {
         let argIndex = 0;
         const message = format.replace(/%s/g, () => String(args[argIndex++]));
-
         const index = expectedWarnings.indexOf(message);
-        if (index >= 0) {
+
+        if (
+          contextualExpectedWarning != null &&
+          contextualExpectedWarning === message
+        ) {
+          contextualExpectedWarning = null;
+        } else if (index >= 0) {
           expectedWarnings.splice(index, 1);
         } else {
           // log to console in case the error gets swallowed somewhere
@@ -71,7 +77,24 @@ function expectWarningWillFire(message: string): void {
   expectedWarnings.push(message);
 }
 
+/**
+ * Expect the callback `fn` to trigger the warning message and otherwise fail.
+ */
+function expectToWarn<T>(message: string, fn: () => T): T {
+  if (contextualExpectedWarning != null) {
+    throw new Error('Cannot nest `expectToWarn()` calls.');
+  }
+  contextualExpectedWarning = message;
+  const result = fn();
+  if (contextualExpectedWarning != null) {
+    contextualExpectedWarning = null;
+    throw new Error(`Expected callback to warn: ${message}`);
+  }
+  return result;
+}
+
 module.exports = {
   disallowWarnings,
   expectWarningWillFire,
+  expectToWarn,
 };

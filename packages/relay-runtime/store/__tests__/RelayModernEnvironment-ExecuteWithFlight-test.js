@@ -19,13 +19,14 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const warning = require('warning');
-
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with Flight field', () => {
   let callbacks;
@@ -45,11 +46,6 @@ describe('execute() with Flight field', () => {
   let store;
 
   beforeEach(() => {
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    jest.resetModules();
-
-    // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
     FlightQuery = getRequest(graphql`
@@ -305,10 +301,6 @@ describe('execute() with Flight field', () => {
   });
 
   describe('when server errors are encountered', () => {
-    beforeEach(() => {
-      jest.mock('warning');
-    });
-
     describe('and ReactFlightServerErrorHandler is specified', () => {
       let reactFlightServerErrorHandler;
       beforeEach(() => {
@@ -390,22 +382,22 @@ describe('execute() with Flight field', () => {
             },
           },
         };
-        dataSource.next(payload);
+        expectToWarn(
+          `RelayResponseNormalizer: Received server errors for field \`flightComponent\`.
+
+Something threw an error on the server
+Error
+    at <anonymous>:1:1`,
+          () => {
+            dataSource.next(payload);
+          },
+        );
         jest.runAllTimers();
 
         expect(next).toBeCalledTimes(1);
         expect(complete).toBeCalledTimes(0);
         expect(error).toBeCalledTimes(0);
         expect(reactFlightPayloadDeserializer).toBeCalledTimes(1);
-        expect(warning).toHaveBeenCalledWith(
-          false,
-          expect.stringContaining(
-            'RelayResponseNormalizer: Received server errors for field `%s`.',
-          ),
-          'flightComponent',
-          expect.stringContaining('Something threw an error on the server'),
-          expect.stringContaining('Error\n    at <anonymous>:1:1'),
-        );
       });
     });
   });
@@ -501,7 +493,13 @@ describe('execute() with Flight field', () => {
           },
         },
       };
-      dataSource.next(payload);
+
+      expectToWarn(
+        'RelayResponseNormalizer: Expected `tree` not to be null. This typically indicates that a fatal server error prevented any Server Component rows from being written.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       jest.runAllTimers();
 
       expect(environment.check(operation)).toEqual({
@@ -589,7 +587,12 @@ describe('execute() with Flight field', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       jest.runAllTimers();
 
       expect(environment.check(operation)).toEqual({
@@ -619,19 +622,18 @@ describe('execute() with Flight field', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Expected `tree` not to be null. This typically indicates that a fatal server error prevented any Server Component rows from being written.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       jest.runAllTimers();
 
       expect(next).toBeCalledTimes(1);
       expect(complete).toBeCalledTimes(0);
       expect(error).toBeCalledTimes(0);
       expect(reactFlightPayloadDeserializer).toBeCalledTimes(0);
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        expect.stringContaining(
-          'RelayResponseNormalizer: Expected `tree` not to be null.',
-        ),
-      );
 
       // Server Component is read out as null
       const snapshot = environment.lookup(operation.fragment);

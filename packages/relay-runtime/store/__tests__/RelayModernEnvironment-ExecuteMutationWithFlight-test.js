@@ -19,13 +19,14 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
-const warning = require('warning');
-
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeMutation() with Flight field', () => {
   let callbacks;
@@ -51,10 +52,6 @@ describe('executeMutation() with Flight field', () => {
   let variables;
 
   beforeEach(() => {
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    jest.resetModules();
-
     RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
     storyID = 'story-id';
@@ -403,45 +400,45 @@ describe('executeMutation() with Flight field', () => {
 
         environment.executeMutation({operation}).subscribe(callbacks);
         callback.mockClear();
-        subject.next({
-          data: {
-            storyUpdate: {
-              story: {
-                id: storyID,
-                body: {
-                  text: 'Hello world!',
-                },
-                __typename: 'Story',
-                flightComponent: {
-                  status: 'FAIL_JS_ERROR',
-                  tree: [],
-                  queries: [],
-                  errors: [
-                    {
-                      message: 'Something threw an error on the server',
-                      stack: 'Error\n    at <anonymous>:1:1',
+        expectToWarn(
+          `RelayResponseNormalizer: Received server errors for field \`flightComponent\`.
+
+Something threw an error on the server
+Error
+    at <anonymous>:1:1`,
+          () => {
+            subject.next({
+              data: {
+                storyUpdate: {
+                  story: {
+                    id: storyID,
+                    body: {
+                      text: 'Hello world!',
                     },
-                  ],
-                  fragments: [],
+                    __typename: 'Story',
+                    flightComponent: {
+                      status: 'FAIL_JS_ERROR',
+                      tree: [],
+                      queries: [],
+                      errors: [
+                        {
+                          message: 'Something threw an error on the server',
+                          stack: 'Error\n    at <anonymous>:1:1',
+                        },
+                      ],
+                      fragments: [],
+                    },
+                  },
                 },
               },
-            },
+            });
           },
-        });
+        );
         subject.complete();
 
         expect(complete).toBeCalled();
         expect(error).not.toBeCalled();
         expect(callback).toHaveBeenCalledTimes(1);
-        expect(warning).toHaveBeenCalledWith(
-          false,
-          expect.stringContaining(
-            'RelayResponseNormalizer: Received server errors for field `%s`.',
-          ),
-          'flightComponent',
-          expect.stringContaining('Something threw an error on the server'),
-          expect.stringContaining('Error\n    at <anonymous>:1:1'),
-        );
       });
     });
   });
@@ -465,26 +462,31 @@ describe('executeMutation() with Flight field', () => {
 
       environment.executeMutation({operation}).subscribe(callbacks);
       callback.mockClear();
-      subject.next({
-        data: {
-          storyUpdate: {
-            story: {
-              id: storyID,
-              body: {
-                text: 'Hello world!',
-              },
-              __typename: 'Story',
-              flightComponent: {
-                status: 'UNEXPECTED_ERROR',
-                tree: null,
-                queries: [],
-                errors: [],
-                fragments: [],
+      expectToWarn(
+        'RelayResponseNormalizer: Expected `tree` not to be null. This typically indicates that a fatal server error prevented any Server Component rows from being written.',
+        () => {
+          subject.next({
+            data: {
+              storyUpdate: {
+                story: {
+                  id: storyID,
+                  body: {
+                    text: 'Hello world!',
+                  },
+                  __typename: 'Story',
+                  flightComponent: {
+                    status: 'UNEXPECTED_ERROR',
+                    tree: null,
+                    queries: [],
+                    errors: [],
+                    fragments: [],
+                  },
+                },
               },
             },
-          },
+          });
         },
-      });
+      );
       subject.complete();
 
       expect(complete).toBeCalled();
@@ -495,12 +497,6 @@ describe('executeMutation() with Flight field', () => {
         node: {flightComponent: null},
       });
       expect(callback.mock.calls[0][0].isMissingData).toEqual(false);
-      expect(warning).toHaveBeenCalledWith(
-        false,
-        expect.stringContaining(
-          'RelayResponseNormalizer: Expected `tree` not to be null.',
-        ),
-      );
 
       // Server Component is read out as null
       const latestSnapshot = environment.lookup(queryOperation.fragment);

@@ -29,13 +29,17 @@ const {
   getSingularSelector,
   createReaderSelector,
 } = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
+
+const commentID = '1';
 
 describe('executeMutation() with @match', () => {
   let callbacks;
   let commentFragment;
-  let commentID;
   let complete;
   let dataSource;
   let environment;
@@ -61,9 +65,6 @@ describe('executeMutation() with @match', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
-    commentID = '1';
-
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
 
     mutation = getRequest(graphql`
@@ -345,6 +346,7 @@ describe('executeMutation() with @match', () => {
                   'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -425,6 +427,7 @@ describe('executeMutation() with @match', () => {
                   'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -486,6 +489,7 @@ describe('executeMutation() with @match', () => {
                   'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -546,6 +550,7 @@ describe('executeMutation() with @match', () => {
                 'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
+                id: 'data-1',
                 markup: '<optimistic_markup/>', // server data is lowercase
               },
             },

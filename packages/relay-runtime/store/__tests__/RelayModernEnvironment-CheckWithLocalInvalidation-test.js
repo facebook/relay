@@ -23,6 +23,9 @@ const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('check() with local invalidation', () => {
   let environment;
@@ -38,7 +41,6 @@ describe('check() with local invalidation', () => {
   let fetch;
 
   beforeEach(() => {
-    jest.resetModules();
     ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentCheckWithLocalInvalidationTest1ParentQuery(
         $size: [Int]!
@@ -124,7 +126,12 @@ describe('check() with local invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -180,7 +187,12 @@ describe('check() with local invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -268,7 +280,12 @@ describe('check() with local invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -296,7 +313,12 @@ describe('check() with local invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -401,18 +423,23 @@ describe('check() with local invalidation', () => {
         // Still missing incremental payload
         expect(environment.check(operation)).toEqual({status: 'missing'});
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            profilePicture: {
-              uri: undefined,
-            },
+        expectToWarn(
+          'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                profilePicture: {
+                  uri: undefined,
+                },
+              },
+              label:
+                'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
+              path: ['me'],
+            });
           },
-          label:
-            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
-          path: ['me'],
-        });
+        );
         dataSource.complete();
         jest.runAllTimers();
 
@@ -498,18 +525,23 @@ describe('check() with local invalidation', () => {
           user.invalidateRecord();
         });
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            profilePicture: {
-              uri: undefined,
-            },
+        expectToWarn(
+          'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                profilePicture: {
+                  uri: undefined,
+                },
+              },
+              label:
+                'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
+              path: ['me'],
+            });
           },
-          label:
-            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
-          path: ['me'],
-        });
+        );
         dataSource.complete();
         jest.runAllTimers();
 
@@ -585,18 +617,23 @@ describe('check() with local invalidation', () => {
         // Still missing incremental payload
         expect(environment.check(operation)).toEqual({status: 'missing'});
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            profilePicture: {
-              uri: undefined,
-            },
+        expectToWarn(
+          'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                profilePicture: {
+                  uri: undefined,
+                },
+              },
+              label:
+                'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
+              path: ['me'],
+            });
           },
-          label:
-            'RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$defer$UserFragment',
-          path: ['me'],
-        });
+        );
         dataSource.complete();
         jest.runAllTimers();
 

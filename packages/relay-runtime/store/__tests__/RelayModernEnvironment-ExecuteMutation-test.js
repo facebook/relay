@@ -24,6 +24,12 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeMutation()', () => {
   let callbacks;
@@ -46,7 +52,6 @@ describe('executeMutation()', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
     commentID = 'comment-id';
 
     CreateCommentMutation = getRequest(graphql`
@@ -491,6 +496,9 @@ describe('executeMutation()', () => {
     const callback = jest.fn();
     environment.subscribe(snapshot, callback);
 
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `body: body`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     environment
       .executeMutation({
         operation,

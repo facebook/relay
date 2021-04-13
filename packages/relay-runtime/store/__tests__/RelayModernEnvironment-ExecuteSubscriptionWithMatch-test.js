@@ -29,13 +29,16 @@ const {
   getSingularSelector,
   createReaderSelector,
 } = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('executeSubscrption() with @match', () => {
   let callbacks;
   let commentFragment;
-  let commentID;
+  const commentID = '1';
   let complete;
   let dataSource;
   let environment;
@@ -62,9 +65,6 @@ describe('executeSubscrption() with @match', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
-    commentID = '1';
-
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
 
     subscription = getRequest(graphql`
@@ -223,6 +223,7 @@ describe('executeSubscrption() with @match', () => {
                   'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -316,6 +317,7 @@ describe('executeSubscrption() with @match', () => {
                   'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -397,6 +399,7 @@ describe('executeSubscrption() with @match', () => {
                   'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -459,6 +462,7 @@ describe('executeSubscrption() with @match', () => {
                   'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },
@@ -529,6 +533,7 @@ describe('executeSubscrption() with @match', () => {
                   'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
                 markdown: 'markdown payload',
                 data: {
+                  id: 'data-1',
                   markup: '<markup/>', // server data is lowercase
                 },
               },

@@ -23,6 +23,9 @@ const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('check() with global invalidation', () => {
   let environment;
@@ -38,7 +41,6 @@ describe('check() with global invalidation', () => {
   let fetch;
 
   beforeEach(() => {
-    jest.resetModules();
     ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery(
         $size: [Int]!
@@ -122,7 +124,12 @@ describe('check() with global invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -174,7 +181,12 @@ describe('check() with global invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -254,7 +266,12 @@ describe('check() with global invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -278,7 +295,12 @@ describe('check() with global invalidation', () => {
           },
         },
       };
-      dataSource.next(payload);
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          dataSource.next(payload);
+        },
+      );
       dataSource.complete();
       jest.runAllTimers();
 
@@ -381,18 +403,23 @@ describe('check() with global invalidation', () => {
         // Still missing incremental payload
         expect(environment.check(operation)).toEqual({status: 'missing'});
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            profilePicture: {
-              uri: undefined,
-            },
+        expectToWarn(
+          'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                profilePicture: {
+                  uri: undefined,
+                },
+              },
+              label:
+                'RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$defer$UserFragment',
+              path: ['me'],
+            });
           },
-          label:
-            'RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$defer$UserFragment',
-          path: ['me'],
-        });
+        );
         dataSource.complete();
         jest.runAllTimers();
 
@@ -470,18 +497,23 @@ describe('check() with global invalidation', () => {
           storeProxy.invalidateStore();
         });
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            profilePicture: {
-              uri: undefined,
-            },
+        expectToWarn(
+          'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                profilePicture: {
+                  uri: undefined,
+                },
+              },
+              label:
+                'RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$defer$UserFragment',
+              path: ['me'],
+            });
           },
-          label:
-            'RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$defer$UserFragment',
-          path: ['me'],
-        });
+        );
         dataSource.complete();
         jest.runAllTimers();
 
@@ -553,18 +585,23 @@ describe('check() with global invalidation', () => {
         // Still missing incremental payload
         expect(environment.check(operation)).toEqual({status: 'missing'});
 
-        dataSource.next({
-          data: {
-            id: '1',
-            __typename: 'User',
-            profilePicture: {
-              uri: undefined,
-            },
+        expectToWarn(
+          'RelayResponseNormalizer: Payload did not contain a value for field `uri: uri`. Check that you are parsing with the same query that was used to fetch the payload.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                profilePicture: {
+                  uri: undefined,
+                },
+              },
+              label:
+                'RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$defer$UserFragment',
+              path: ['me'],
+            });
           },
-          label:
-            'RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$defer$UserFragment',
-          path: ['me'],
-        });
+        );
         dataSource.complete();
         jest.runAllTimers();
 

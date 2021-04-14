@@ -240,27 +240,12 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
-    const subscription = RelayObservable.create(sink => {
-      const source = RelayObservable.create(_sink => {});
-      const executor = QueryExecutor.execute({
-        operation: optimisticConfig.operation,
-        operationExecutions: this._operationExecutions,
-        operationLoader: this._operationLoader,
-        optimisticConfig,
-        publishQueue: this._publishQueue,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
-        scheduler: this._scheduler,
-        sink,
-        source,
-        store: this._store,
-        updater: null,
-        operationTracker: this._operationTracker,
-        getDataID: this._getDataID,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
-      });
-      return () => executor.cancel();
+    const subscription = this._execute({
+      isClientPayload: false,
+      operation: optimisticConfig.operation,
+      optimisticConfig,
+      source: RelayObservable.create(_sink => {}),
+      updater: null,
     }).subscribe({});
     return {
       dispose: () => subscription.unsubscribe(),
@@ -281,29 +266,12 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
-    RelayObservable.create(sink => {
-      const executor = QueryExecutor.execute({
-        operation: operation,
-        operationExecutions: this._operationExecutions,
-        operationLoader: this._operationLoader,
-        optimisticConfig: null,
-        publishQueue: this._publishQueue,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
-        scheduler: this._scheduler,
-        sink,
-        source: RelayObservable.from({
-          data: payload,
-        }),
-        store: this._store,
-        updater: null,
-        operationTracker: this._operationTracker,
-        getDataID: this._getDataID,
-        isClientPayload: true,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
-      });
-      return () => executor.cancel();
+    this._execute({
+      isClientPayload: true,
+      operation: operation,
+      optimisticConfig: null,
+      source: RelayObservable.from({data: payload}),
+      updater: null,
     }).subscribe({});
   }
 
@@ -372,32 +340,18 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
-      const source = this._network.execute(
-        operation.request.node.params,
-        operation.request.variables,
-        operation.request.cacheConfig || {},
-        null,
-      );
-      const executor = QueryExecutor.execute({
-        operation,
-        operationExecutions: this._operationExecutions,
-        operationLoader: this._operationLoader,
-        optimisticConfig: null,
-        publishQueue: this._publishQueue,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
-        scheduler: this._scheduler,
-        sink,
-        source,
-        store: this._store,
-        updater,
-        operationTracker: this._operationTracker,
-        getDataID: this._getDataID,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
-      });
-      return () => executor.cancel();
+    const source = this._network.execute(
+      operation.request.node.params,
+      operation.request.variables,
+      operation.request.cacheConfig || {},
+      null,
+    );
+    return this._execute({
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      source,
+      updater,
     });
   }
 
@@ -418,43 +372,29 @@ class RelayModernEnvironment implements IEnvironment {
     updater,
     uploadables,
   }: ExecuteMutationConfig): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
-      let optimisticConfig;
-      if (optimisticResponse || optimisticUpdater) {
-        optimisticConfig = {
-          operation: operation,
-          response: optimisticResponse,
-          updater: optimisticUpdater,
-        };
-      }
-      const source = this._network.execute(
-        operation.request.node.params,
-        operation.request.variables,
-        {
-          ...operation.request.cacheConfig,
-          force: true,
-        },
-        uploadables,
-      );
-      const executor = QueryExecutor.execute({
-        operation,
-        operationExecutions: this._operationExecutions,
-        operationLoader: this._operationLoader,
-        optimisticConfig,
-        publishQueue: this._publishQueue,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
-        scheduler: this._scheduler,
-        sink,
-        source,
-        store: this._store,
-        updater,
-        operationTracker: this._operationTracker,
-        getDataID: this._getDataID,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
-      });
-      return () => executor.cancel();
+    let optimisticConfig;
+    if (optimisticResponse || optimisticUpdater) {
+      optimisticConfig = {
+        operation: operation,
+        response: optimisticResponse,
+        updater: optimisticUpdater,
+      };
+    }
+    const source = this._network.execute(
+      operation.request.node.params,
+      operation.request.variables,
+      {
+        ...operation.request.cacheConfig,
+        force: true,
+      },
+      uploadables,
+    );
+    return this._execute({
+      isClientPayload: false,
+      operation,
+      optimisticConfig,
+      source,
+      updater,
     });
   }
 
@@ -474,30 +414,54 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
-      const executor = QueryExecutor.execute({
-        operation,
-        operationExecutions: this._operationExecutions,
-        operationLoader: this._operationLoader,
-        operationTracker: this._operationTracker,
-        optimisticConfig: null,
-        publishQueue: this._publishQueue,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
-        scheduler: this._scheduler,
-        sink,
-        source,
-        store: this._store,
-        getDataID: this._getDataID,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-        shouldProcessClientComponents: this._shouldProcessClientComponents,
-      });
-      return () => executor.cancel();
+    return this._execute({
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      source,
+      updater: null,
     });
   }
 
   toJSON(): mixed {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
+  }
+
+  _execute({
+    isClientPayload,
+    operation,
+    optimisticConfig,
+    source,
+    updater,
+  }: {|
+    isClientPayload: boolean,
+    operation: OperationDescriptor,
+    optimisticConfig: ?OptimisticResponseConfig,
+    source: RelayObservable<GraphQLResponse>,
+    updater: ?SelectorStoreUpdater,
+  |}): RelayObservable<GraphQLResponse> {
+    return RelayObservable.create(sink => {
+      const executor = QueryExecutor.execute({
+        getDataID: this._getDataID,
+        isClientPayload,
+        operation,
+        operationExecutions: this._operationExecutions,
+        operationLoader: this._operationLoader,
+        operationTracker: this._operationTracker,
+        optimisticConfig,
+        publishQueue: this._publishQueue,
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
+        scheduler: this._scheduler,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
+        sink,
+        source,
+        store: this._store,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        updater,
+      });
+      return () => executor.cancel();
+    });
   }
 
   /**

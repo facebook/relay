@@ -108,9 +108,6 @@ class RelayModernEnvironment implements IEnvironment {
 
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
-    const handlerProvider = config.handlerProvider
-      ? config.handlerProvider
-      : RelayDefaultHandlerProvider;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
     const operationLoader = config.operationLoader;
     const reactFlightPayloadDeserializer =
@@ -150,7 +147,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
-      handlerProvider,
+      config.handlerProvider ?? RelayDefaultHandlerProvider,
       this._getDataID,
     );
     this._scheduler = config.scheduler ?? null;

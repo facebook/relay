@@ -615,7 +615,7 @@ fragment FriendsFragment on User {
 
 For connections like the above, `ConnectionHandler` helps us find the record:
 
-```
+```javascript
 
 import {ConnectionHandler} from 'relay-runtime';
 
@@ -647,7 +647,7 @@ Given a connection, inserts the edge at the end of the connection, or after the 
 
 #### Example
 
-```
+```javascript
 
 const user = store.get(userID);
 const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
@@ -668,7 +668,7 @@ Given a connection, deletes any edges whose node id matches the given id.
 
 #### Example
 
-```
+```javascript
 
 const user = store.get(userID);
 const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');

@@ -72,7 +72,7 @@ Sample response:
 
 ## Rendering Queries
 
-To *render* a query in Relay, you can use the `usePreloadedQuery` Hook:
+To *render* a query in Relay, you can use the `usePreloadedQuery` hook. `usePreloadedQuery` takes a query definition and a query reference, and returns the corresponding data for that query and reference.
 
 ```js
 import type {HomeTabQuery} from 'HomeTabQuery.graphql';

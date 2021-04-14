@@ -277,7 +277,7 @@ class Executor {
       }
       default:
         (this._state: empty);
-        invariant(false, 'QueryExecutor: invalid executor state.');
+        invariant(false, 'OperationExecutor: invalid executor state.');
     }
     this._operationExecutions.set(
       this._operation.request.identifier,
@@ -404,7 +404,7 @@ class Executor {
     if (isOptimistic && this._state !== 'started') {
       invariant(
         false,
-        'QueryExecutor: optimistic payload received after server payload.',
+        'OperationExecutor: optimistic payload received after server payload.',
       );
     }
     if (isOptimistic) {
@@ -675,7 +675,7 @@ class Executor {
         if (this._optimisticUpdates == null) {
           warning(
             false,
-            'QueryExecutor: Unexpected ModuleImport optimistic ' +
+            'OperationExecutor: Unexpected ModuleImport optimistic ' +
               'update in operation %s.' +
               this._operation.request.node.params.name,
           );
@@ -1369,7 +1369,7 @@ function partitionGraphQLResponses(
       if (label == null || path == null) {
         invariant(
           false,
-          'QueryExecutor: invalid incremental payload, expected ' +
+          'OperationExecutor: invalid incremental payload, expected ' +
             '`path` and `label` to either both be null/undefined, or ' +
             '`path` to be an `Array<string | number>` and `label` to be a ' +
             '`string`.',
@@ -1421,11 +1421,13 @@ function validateOptimisticResponsePayload(
   if (incrementalPlaceholders != null && incrementalPlaceholders.length !== 0) {
     invariant(
       false,
-      'QueryExecutor: optimistic responses cannot be returned ' +
+      'OperationExecutor: optimistic responses cannot be returned ' +
         'for operations that use incremental data delivery (@defer, ' +
         '@stream, and @stream_connection).',
     );
   }
 }
 
-module.exports = {execute};
+module.exports = {
+  execute,
+};

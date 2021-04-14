@@ -13,7 +13,7 @@
 
 'use strict';
 
-const QueryExecutor = require('./QueryExecutor');
+const OperationExecutor = require('./OperationExecutor');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayObservable = require('../network/RelayObservable');
@@ -40,7 +40,7 @@ import type {
   RenderPolicy,
   Variables,
 } from '../util/RelayRuntimeTypes';
-import type {ActiveState, TaskScheduler} from './QueryExecutor';
+import type {ActiveState, TaskScheduler} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   ExecuteMutationConfig,
@@ -438,7 +438,7 @@ class RelayModernEnvironment implements IEnvironment {
     updater: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
-      const executor = QueryExecutor.execute({
+      const executor = OperationExecutor.execute({
         getDataID: this._getDataID,
         isClientPayload,
         operation,

@@ -291,7 +291,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
     fn preload_documentation(&self) {
         for project_config in self.config.enabled_projects() {
             self.extra_data_provider
-                .get_schema_documentation(project_config.name.to_string());
+                .get_schema_documentation(&project_config.name.to_string());
         }
     }
 

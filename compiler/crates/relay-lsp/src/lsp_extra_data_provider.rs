@@ -18,5 +18,5 @@ pub trait LSPExtraDataProvider {
         parent_type: String,
         field_name: Option<String>,
     ) -> Option<Result<(String, u64), String>>;
-    fn get_schema_documentation(&self, schema_name: String) -> Arc<SchemaDocumentation>;
+    fn get_schema_documentation(&self, schema_name: &str) -> Arc<SchemaDocumentation>;
 }

@@ -42,7 +42,7 @@ See [type refinement](#type-refinement). If type refinement is a way of conditio
 
 A [directive](#directive) that modifies a [fragment spread](#fragment-spread) and is used to pass arguments (defined with [`@argumentDefinitions`](#argumentdefinitions)) to that fragment.
 
-```
+```graphql
 ...Story_story @arguments(storyId: "1234")
 ```
 
@@ -50,7 +50,7 @@ A [directive](#directive) that modifies a [fragment spread](#fragment-spread) an
 
 A directive that modifies a fragment definition and defines the names of the local arguments that the fragment can take, as well as their type.
 
-```
+```graphql
 fragment Store_story on Story
   @argumentDefinitions(storyId: {type: "ID!"}) {
   # etc
@@ -78,10 +78,8 @@ The concept of availability refers to whether there is enough non-stale, non-inv
 
 A build-time transformation of the Javascript codebase, which turns calls to
 
-```js
-
+```javascript
 graphql`...`
-
 ```
 
 into query ASTs (concrete requests.)
@@ -256,7 +254,7 @@ This identifies by its persist ID (`1234`), followed by the variables it accepts
 
 A parameter passed to `useFragment`. Obtained by accessing the value onto which a fragment was spread in another [query](#query), fragment, subscription or mutation. For example,
 
-```
+```javascript
 const queryData = usePreloadedQuery(
   graphql`query ComponentQuery { viewer { account_user { ...Component_name } } }`,
   {},
@@ -292,7 +290,7 @@ TODO
 
 A fragment spread is how one fragment is contained in a query, subscription, mutation or other fragment. In the following example, `...Component_name` is a fragment spread:
 
-```
+```graphql
 query ComponentQuery {
   viewer {
     account_user {
@@ -380,10 +378,8 @@ Compare to [value](#value).
 
 A GraphQL literal is a call to
 
-```js
-
+```javascript
 graphql`...`
-
 ```
 
 in your code. These are pre-processed, and replaced at build time with a [GraphlQLTaggedNode](#graphqltaggednode) containing an [AST](#ast) representation of the contents of the literal.
@@ -466,7 +462,7 @@ The fundamental abstraction in Relay for representing data that may currently be
 
 Observables differ from promises in that if the data in an observable has already been loaded, you can access it synchronously as follows:
 
-```
+```javascript
 const completedObservable = Observable.from("Relay is awesome!");
 let valueFromObservable;
 observable.subscribe({
@@ -798,7 +794,7 @@ A method exposed by the Relay store. Accepts a callback and a snapshot (see [loo
 
 A GraphQL Subscription looks very similar to a query, with the exception that it uses the subscription keyword:
 
-```
+```graphql
 subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
   feedback_like_subscribe(data: $input) {
     feedback {

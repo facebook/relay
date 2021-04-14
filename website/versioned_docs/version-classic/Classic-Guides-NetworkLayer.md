@@ -16,7 +16,6 @@ By default, Relay assumes that GraphQL is served at `/graphql` relative to the o
 Relay.injectNetworkLayer(
   new Relay.DefaultNetworkLayer('http://example.com/graphql')
 );
-
 ```
 
 Underneath the hood, the default network layer uses `fetch` ([Living Standard](https://fetch.spec.whatwg.org)). The constructor for `Relay.DefaultNetworkLayer` takes an optional second argument that accepts any valid initialization property that `fetch` accepts.
@@ -28,7 +27,6 @@ Relay.injectNetworkLayer(
     credentials: 'same-origin',
   })
 );
-
 ```
 
 When it sends queries, it will automatically fail requests after a 15 second timeout. Also, failed requests are automatically retried twice, with a 1 second delay and a 3 second delay, respectively.
@@ -43,7 +41,6 @@ Relay.injectNetworkLayer(
     retryDelays: [5000],   // Only retry once after a 5s delay.
   })
 );
-
 ```
 
 Unlike queries, failed requests for mutations are not automatically retried.
@@ -59,7 +56,6 @@ Relay.injectNetworkLayer(
     },
   })
 );
-
 ```
 
 ## Custom Network Layers
@@ -85,7 +81,6 @@ var myNetworkLayer = {
 };
 
 Relay.injectNetworkLayer(myNetworkLayer);
-
 ```
 
 You can read more about the API [RelayNetworkLayer](./classic-interfaces-relay-network-layer) interface.

@@ -25,11 +25,9 @@ Relay uses directives to add additional information to GraphQL documents, which 
 `@arguments` is a directive used to pass arguments to a fragment that was defined using [`@argumentDefinitions`](#argumentdefinitions). For example:
 
 ```graphql
-
 query TodoListQuery($userID: ID) {
   ...TodoList_list @arguments(count: $count, userID: $userID) # Pass arguments here
 }
-
 ```
 
 ## `@argumentDefinitions`
@@ -37,7 +35,6 @@ query TodoListQuery($userID: ID) {
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment. For example:
 
 ```graphql
-
 fragment TodoList_list on TodoList @argumentDefinitions(
   count: {type: "Int", defaultValue: 10},  # Optional argument
   userID: {type: "ID"},                    # Required argument
@@ -47,7 +44,6 @@ fragment TodoList_list on TodoList @argumentDefinitions(
     ...TodoItem_item
   }
 }
-
 ```
 
 ## `@connection(key: String!, filters: [String])`
@@ -59,7 +55,6 @@ With `usePaginationFragment`, Relay expects connection fields to be annotated wi
 When defining a fragment for use with a Fragment container, you can use the `@relay(plural: true)` directive to indicate that container expects the prop for that fragment to be a list of items instead of a single item. A query or parent that spreads a `@relay(plural: true)` fragment should do so within a plural field (ie a field backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For example:
 
 ```javascript
-
 // Plural fragment definition
 graphql`
   fragment TodoItems_items on TodoItem @relay(plural: true) {
@@ -75,7 +70,6 @@ fragment TodoApp_app on App {
     ...TodoItem_items
   }
 }
-
 ```
 
 ## `@inline`
@@ -85,7 +79,6 @@ The hooks APIs that Relay exposes allow you to read data from the store only dur
 In the example below, the function `processItemData` is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the `processItemData_item` fragment to ensure all of the correct item data is loaded for this function.
 
 ```javascript
-
 import {graphql, readInlineData} from 'react-relay';
 
 // non-React function called from React
@@ -105,11 +98,9 @@ function processItemData(itemRef) {
     creatorName: item.creator.name
   });
 }
-
 ```
 
 ```javascript
-
 export default function MyComponent({item}) {
   function handleClick() {
     processItemData(item);
@@ -129,7 +120,6 @@ export default function MyComponent({item}) {
     <button onClick={handleClick}>Process {item.title}</button>
   );
 }
-
 ```
 
 ## `@relay(mask: Boolean)`
@@ -147,14 +137,12 @@ Keep in mind that it is typically considered an **anti-pattern** to create a sin
 In the example below, the `user` prop will include the data for `id` and `name` fields wherever `...Component_internUser` is included, instead of Relay's normal behavior to mask those fields:
 
 ```javascript
-
 graphql`
   fragment Component_internUser on InternUser @relay(mask: false) {
     id
     name
   }
 `;
-
 ```
 
 <DocsRating />

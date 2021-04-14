@@ -100,7 +100,6 @@ type RelayMutationFragments<Tk> = {
 
 // Type of FragmentBuilder
 type FragmentBuilder = (variables: Variables) => RelayConcreteNode;
-
 ```
 
 We declare our mutations' data dependencies here, just as we would with a container. This is particularly useful to ensure that a set of fields we might want to use in this mutation's optimistic response have been fetched.
@@ -125,7 +124,6 @@ class LikeStoryMutation extends Relay.Mutation {
     return { /* ... */ };
   }
 }
-
 ```
 
 See also:
@@ -137,7 +135,6 @@ See also:
 ```
 
 static initialVariables: {[name: string]: mixed};
-
 ```
 
 The defaults we specify here will become available to our fragment builders:
@@ -156,7 +153,6 @@ class ChangeTodoStatusMutation extends Relay.Mutation {
   };
   /* ... */
 }
-
 ```
 
 See also:
@@ -175,7 +171,6 @@ static prepareVariables: ?(
 type RelayMetaRoute = {
   name: string;
 }
-
 ```
 
 If we provide to a mutation a method that conforms to the signature described above, it will be given the opportunity to modify the fragment builders' variables, based on the previous variables (or the `initialVariables` if no previous ones exist), the meta route, and the runtime environment. Whatever variables this method returns will become available to this mutation's fragment builders.
@@ -196,7 +191,6 @@ class BuySongMutation extends Relay.Mutation {
   };
   /* ... */
 }
-
 ```
 
 See also:
@@ -214,7 +208,6 @@ Create a mutation instance using the `new` keyword, optionally passing it some p
 
 var bookFlightMutation = new BuyPlaneTicketMutation({airport: 'yvr'});
 Relay.Store.commitUpdate(bookFlightMutation);
-
 ```
 
 ### getConfigs (abstract method)
@@ -241,7 +234,6 @@ class LikeStoryMutation extends Relay.Mutation {
     }];
   }
 }
-
 ```
 
 See also: [Mutations &gt; Mutator configuration](./classic-guides-mutations#mutator-configuration)
@@ -273,7 +265,6 @@ class BuySongMutation extends Relay.Mutation {
     `,
   }
 }
-
 ```
 
 See also:
@@ -300,7 +291,6 @@ class LikeStoryMutation extends Relay.Mutation {
       : return Relay.QL`mutation {likeStory}`;
   }
 }
-
 ```
 
 ### getVariables (abstract method)
@@ -308,7 +298,6 @@ class LikeStoryMutation extends Relay.Mutation {
 ```
 
 abstract getVariables(): {[name: string]: mixed}
-
 ```
 
 Implement this required method to prepare variables to be used as input to the mutation.
@@ -326,7 +315,6 @@ class DestroyShipMutation extends Relay.Mutation {
     };
   }
 }
-
 ```
 
 <blockquote>
@@ -347,7 +335,6 @@ static getFragment(
 
 // Type of the variableMapping argument
 type Variables = {[name: string]: mixed};
-
 ```
 
 Gets a fragment reference for use in a parent's query fragment.
@@ -368,7 +355,6 @@ class StoryComponent extends React.Component {
     `,
   };
 }
-
 ```
 
 You can also pass variables to the mutation's fragment builder from the outer fragment that contains it.
@@ -390,7 +376,6 @@ class Movie extends React.Component {
     `,
   };
 }
-
 ```
 
 <blockquote>
@@ -420,7 +405,6 @@ class LikeStoryMutation extends Relay.Mutation {
     return `like_${this.props.story.id}`;
   }
 }
-
 ```
 
 ### getFiles
@@ -431,7 +415,6 @@ getFiles(): ?FileMap
 
 // Type of the FileMap object
 type FileMap = {[key: string]: File};
-
 ```
 
 Implement this method to return a map of `File` objects to upload as part of a mutation.
@@ -455,7 +438,6 @@ class FileUploader extends React.Component {
     );
   }
 }
-
 ```
 
 ### getOptimisticConfigs
@@ -475,7 +457,6 @@ See also: [Relay.Mutation::getConfigs()](#getconfigs-abstract-method)
 ```
 
 getOptimisticResponse(): ?{[key: string]: mixed}
-
 ```
 
 Implement this method to craft an optimistic response having the same shape as the server response payload. This optimistic response will be used to preemptively update the client cache before the server returns, giving the impression that the mutation completed instantaneously.
@@ -497,7 +478,6 @@ class LikeStoryMutation extends Relay.Mutation {
     };
   }
 }
-
 ```
 
 See also: [Mutations &gt; Optimistic updates](./classic-guides-mutations#optimistic-updates)

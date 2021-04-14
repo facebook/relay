@@ -49,7 +49,6 @@ Gets a string representation of the GraphQL query.
 ```
 
 getVariables(): {[name: string]: mixed}
-
 ```
 
 Gets the variables used by the query. These variables should be serialized and sent in the GraphQL request.

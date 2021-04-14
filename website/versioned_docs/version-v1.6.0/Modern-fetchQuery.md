@@ -5,7 +5,6 @@ title: fetchQuery
 You can use the `fetchQuery` function to imperatively make GraphQL Requests. This is useful for cases where you want to make requests outside of React but still utilize the Relay store and network layer.
 
 ```javascript
-
 import {fetchQuery, graphql} from 'relay-runtime';
 
 const query = graphql`
@@ -24,7 +23,6 @@ fetchQuery(environment, query, variables)
   .then(data => {
     // access the graphql response
   });
-
 ```
 
 ## Arguments

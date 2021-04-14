@@ -31,7 +31,7 @@ In the above, `ID!` is the type of the `$id` variable. That is, it is a required
 
 When sending a network request to fetch the query above, we need to provide both the query, and the variables to be used for this particular execution of the query.  For example:
 
-```
+```graphql
 # Query:
 query UserQuery($id: ID!) {
   # ...

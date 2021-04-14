@@ -12,7 +12,6 @@ Most applications will create a single Environment instance and use it throughou
 To create an environment instance in Relay Modern, use the `RelayModernEnvironment` class:
 
 ```javascript
-
 const {
   Environment,
   Network,
@@ -30,7 +29,6 @@ const environment = new Environment({
   network,
   store,
 });
-
 ```
 
 For more details on creating a Network, see the [NetworkLayer guide](./network-layer).
@@ -44,7 +42,6 @@ The example above did not configure a `handlerProvider`, which means that a defa
 If you wish to provide your own `handlerProvider`, you can do so:
 
 ```javascript
-
 const {
   ConnectionHandler,
   ViewerHandler,
@@ -60,5 +57,4 @@ function handlerProvider(handle) {
     `handlerProvider: No handler provided for ${handle}`
   );
 }
-
 ```

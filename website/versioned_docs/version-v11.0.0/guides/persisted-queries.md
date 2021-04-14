@@ -29,12 +29,10 @@ The relay compiler supports persisted queries. This is useful because:
 
 In your `npm` script in `package.json`, run the relay compiler using the `--persist-output` flag:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./path/to/persisted-queries.json"
 }
-
 ```
 
 The `--persist-ouput` flag does 2 things:
@@ -43,8 +41,7 @@ The `--persist-ouput` flag does 2 things:
 
     For example without `--persist-output`, a generated `ConcreteRequest` might look like below:
 
-    ```js
-
+    ```javascript
     const node/*: ConcreteRequest*/ = (function(){
     //... excluded for brevity
     return {
@@ -61,8 +58,7 @@ The `--persist-ouput` flag does 2 things:
 
     With `--persist-output <path>` this becomes:
 
-    ```js
-
+    ```javascript
     const node/*: ConcreteRequest*/ = (function(){
     //... excluded for brevity
     return {
@@ -80,12 +76,10 @@ The `--persist-ouput` flag does 2 things:
 2.  It generates a JSON file at the `<path>` you specify containing a mapping from query ids
     to the corresponding operation texts.
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./src/queryMaps/queryMap.json"
 }
-
 ```
 
 The example above writes the complete query map file to `./src/queryMaps/queryMap.json`. You need to ensure all the directories
@@ -97,8 +91,7 @@ leading to the `queryMap.json` file exist.
 
 You'll need to modify your network layer fetch implementation to pass a doc_id parameter in the POST body instead of a query parameter:
 
-```js
-
+```javascript
 function fetchQuery(operation, variables,) {
   return fetch('/graphql', {
     method: 'POST',
@@ -114,7 +107,6 @@ function fetchQuery(operation, variables,) {
     return response.json();
   });
 }
-
 ```
 
 
@@ -139,13 +131,11 @@ the query map file in a common location accessible to both the client and the se
 For applications where the client and server projects are separate, one option is to have an additional npm run script
 to push the query map at compile time to a location accessible by your server:
 
-```js
-
+```javascript
 "scripts": {
   "push-queries": "node ./pushQueries.js",
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-ouput <path> && npm run push-queries"
 }
-
 ```
 
 Some possibilities of what you can do in `./pushQueries.js`:
@@ -169,8 +159,7 @@ database technologies you use, so we'll just cover the most common and basic exa
 If you use `express-graphql` and have access to the query map file, you can import the `--persist-output` JSON file directly and
 perform the matching using the `matchQueryMiddleware` from [relay-compiler-plus](https://github.com/yusinto/relay-compiler-plus).
 
-```js
-
+```javascript
 import Express from 'express';
 import expressGraphql from 'express-graphql';
 import {matchQueryMiddleware} from 'relay-compiler-plus';
@@ -181,7 +170,6 @@ const app = Express();
 app.use('/graphql',
   matchQueryMiddleware(queryMapJson),
   expressGraphql({schema}));
-
 ```
 
 ## Using `--persist-output` and `--watch`

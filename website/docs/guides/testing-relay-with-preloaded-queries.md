@@ -30,8 +30,7 @@ In short, there are two steps that need to be performed **before rendering the c
 
 ## TL;DR
 
-```js
-
+```javascript
 const {RelayEnvironmentProvider} = require('react-relay');
 const { MockPayloadGenerator, createMockEnvironment } = require('relay-test-utils');
 const {render} = require('testing-library-react');
@@ -67,7 +66,6 @@ test("...", () => {
   // assert
   // your assertions go here
 });
-
 ```
 
 ### Configure the query resolver to generate the response
@@ -105,14 +103,12 @@ The type you need seems to be the type returned by the *innermost function call*
 
 It is **possible** to return different data for different query variables via [Mock Resolver Context](../testing-relay-components/#mock-resolver-context). The query variables will be available on the `context.args`, but only to the *innermost function call* (for the query above, only `offer_ids` are available)
 
-```js
-
+```javascript
 CurrencyAmount(context) {
   console.log(JSON.stringify(context, null, 2)); // <--
   return { formatted_amount: mockResponse }
 }
 // <-- logs { ...snip..., "name": "subtotal_price_for_offers", args: { offer_ids: [...] } }
-
 ```
 ### Record a pending queue invocation
 

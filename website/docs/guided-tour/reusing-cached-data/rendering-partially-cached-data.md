@@ -58,8 +58,7 @@ module.exports = UsernameComponent;
 
 And we have the following query component,  which queries for some data, and also includes the fragment above:
 
-```js
-
+```javascript
 /**
  * AppTabs.react.js
  *
@@ -162,7 +161,6 @@ function HomeTab() {
     </>
   );
 }
-
 ```
 
 <FbSuspensePlaceholder />

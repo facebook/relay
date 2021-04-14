@@ -65,7 +65,6 @@ MockPayloadGenerator may drastically simplify the process of creating and mainta
 Example of a simple Mock Resolver:
 
 ```javascript
-
 {
   ID() {
     // Return mock value for a scalar filed with type ID
@@ -76,13 +75,11 @@ Example of a simple Mock Resolver:
     return "Lorem Ipsum"
   }
 }
-
 ```
 
 It is possible to define more resolvers for Object types
 
 ```javascript
-
 {
   // This will be the default values for User object in the query response
   User() {
@@ -95,7 +92,6 @@ It is possible to define more resolvers for Object types
     };
   },
 }
-
 ```
 
 ### Mock Resolver Context
@@ -103,7 +99,6 @@ It is possible to define more resolvers for Object types
 The first argument of the MockResolver is the object that contains Mock Resolver Context. It is possible to return dynamic values from mock resolvers based on the context - for instance, name or alias of the field, a path in the selection, arguments, or parent type.
 
 ```javascript
-
 {
   String(context) {
     if (context.name === 'zip') {
@@ -117,7 +112,6 @@ The first argument of the MockResolver is the object that contains Mock Resolver
     }
   }
 }
-
 ```
 
 ### ID Generation
@@ -125,14 +119,12 @@ The first argument of the MockResolver is the object that contains Mock Resolver
 The second argument of the Mock Resolver its a function that will generate a sequence of integers, useful to generate unique ids in the tests
 
 ```javascript
-
 {
   // will generate strings "my-id-1", "my-id-2", etc.
   ID(_, generateId) {
      return `my-id-${generateId()}`;
   },
 }
-
 ```
 
 ### @relay_test_operation
@@ -142,7 +134,6 @@ Most of GraphQL type information for a specific field in the selection is not av
 Operation with the @relay_test_operation directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:
 
 ```javascript
-
 {
   Float() {
     return 123.456;
@@ -160,7 +151,6 @@ Operation with the @relay_test_operation directive will have additional metadata
     };
   }
 }
-
 ```
 
 ## Examples
@@ -170,7 +160,6 @@ Operation with the @relay_test_operation directive will have additional metadata
 Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that are using Relay Containers and Renderers. Both those modules can be imported from `relay-test-utils`
 
 ```javascript
-
 // Say you have a component with the QueryRenderer
 const MyAwesomeViewRoot = require('MyAwesomeViewRoot');
 const {
@@ -223,7 +212,6 @@ test('Error State', () => {
     renderer.root.find(item => (item.props.testID = 'errorMessage')),
   ).toBeDefined();
 });
-
 ```
 
 ### Fragment Container Tests
@@ -231,7 +219,6 @@ test('Error State', () => {
 Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the Root Components container may have many child fragment components and you may want to exercise a specific Fragment Container. The solution for that would be to wrap you fragment container with the QueryRenderer that renders a Query that's spreads fragments from you fragment container.
 
 ```javascript
-
 test('Fragment Container', () => {
   const environment = createMockEnvironment();
   const TestRenderer = () => (
@@ -262,7 +249,6 @@ test('Fragment Container', () => {
 
   expect(renderer).toMatchSnapshot();
 });
-
 ```
 
 ### Pagination Container Test
@@ -270,7 +256,6 @@ test('Fragment Container', () => {
 Essentially, tests for Pagination container are not different from Fragment Container tests. But we can do more here, we can actually see how the pagination works - we can assert the behavior of our components when performing pagination (load more, refetch).
 
 ```javascript
-
 // Pagination Example
 test('Pagination Container', () => {
   const environment = createMockEnvironment();
@@ -344,7 +329,6 @@ test('Pagination Container', () => {
 We can use similar approach here with wrapping container with Query Renderer. And for the sake of completeness, we will add example here:
 
 ```javascript
-
 test('Refetch Container', () => {
   const environment = createMockEnvironment();
   const TestRenderer = () => (
@@ -386,7 +370,6 @@ test('Refetch Container', () => {
   );
   // expect(renderer).toMatchSnapshot();
 });
-
 ```
 
 ### Mutations
@@ -394,7 +377,6 @@ test('Refetch Container', () => {
 Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.
 
 ```javascript
-
 // Say, you have a mutation function
 function sendMutation(environment, onCompleted, onError, variables)
   commitMutation(environment, {
@@ -417,7 +399,6 @@ test('it should send mutation', () => {
   );
   expect(onCompleted).toBeCalled();
 });
-
 ```
 
 ### Subscription
@@ -425,7 +406,6 @@ test('it should send mutation', () => {
 We can test subscription in a similar way we test mutations
 
 ```javascript
-
 // Example subscribe function
 function subscribe(environment, onNext, onError, variables)
   requestSubscription(environment, {
@@ -448,7 +428,6 @@ test('it should subscribe', () => {
   );
   expect(onNext).toBeCalled();
 });
-
 ```
 
 ### Example with `queueOperationResolver`
@@ -456,7 +435,6 @@ test('it should subscribe', () => {
 With `queueOpeararionResolver` it possible to define responses for operations that will be executed on the environment
 
 ```javascript
-
 // Say you have a component with the QueryRenderer
 const MyAwesomeViewRoot = require('MyAwesomeViewRoot');
 const {

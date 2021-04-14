@@ -8,7 +8,6 @@ In order to know how to access your GraphQL server, Relay Modern requires develo
 Currently the easiest way to create a network layer is via a helper from the `relay-runtime` package:
 
 ```javascript
-
 import {
   Environment,
   Network,
@@ -50,7 +49,6 @@ const environment = new Environment({
 });
 
 export default environment;
-
 ```
 
 Note that this is a basic example to help you get started. This example could be extended with additional features such as request/response caching (enabled e.g. when `cacheConfig.force` is false) and uploading form data for mutations (the `uploadables` parameter).
@@ -62,7 +60,6 @@ Relay modern makes no assumptions about what to cache and will garbage collect a
 You have to implement your own cache strategy. A simple solution is to use `QueryResponseCache` (an in-memory cache):
 
 ```javascript
-
 import {
   Environment,
   Network,
@@ -126,7 +123,6 @@ const environment = new Environment({
 });
 
 export default environment;
-
 ```
 
 ## Custom open-source implementations

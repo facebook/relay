@@ -30,13 +30,11 @@ fragment Story_story on Story {
     photo
   }
 }
-
 ```
 
 And this fragment can then be used to define the Story container:
 
 ```javascript
-
 const {createFragmentContainer, graphql} = require('react-relay');
 
 // Plain React component.
@@ -64,7 +62,6 @@ const StoryContainer = createFragmentContainer(Story, {
 In React, rendering a view requires two inputs: the _component_ to render, and a _root_ DOM (UI) node to render into. Rendering Relay containers is similar: we need a _container_ to render, and a _root_ in the graph from which to start our query. We also must ensure that the queries for the container are executed and may want to show a loading indicator while data is being fetched. Similar to `ReactDOM.render(component, domNode)`, Relay provides `<QueryRenderer query={...} variables={...} render={...}>` for this purpose. The `query` and `variables` define what data to fetch and `render` defines what to render. Here's how we might render `<StoryContainer>`:
 
 ```javascript
-
 ReactDOM.render(
   <QueryRenderer
     query={graphql`

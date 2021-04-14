@@ -18,7 +18,6 @@ In this article we'll explore what it means to build a GraphQL client framework 
 Imagine we have a simple application that fetches a list of stories, and some details about each one. Here's how that might look in resource-oriented REST:
 
 ```javascript
-
 // Fetch the list of story IDs but not their details:
 rest.get('/stories').then(stories =>
   // This resolves to a list of items with linked resources:
@@ -31,13 +30,11 @@ rest.get('/stories').then(stories =>
   // `[ { id: "...", text: "..." } ]`
   console.log(stories);
 });
-
 ```
 
 Note that this approach requires _n+1_ requests to the server: 1 to fetch the list, and _n_ to fetch each item. With GraphQL we can fetch the same data in a single network request to the server (without creating a custom endpoint that we'd then have to maintain):
 
 ```javascript
-
 graphql.get(`query { stories { id, text } }`).then(
   stories => {
     // A list of story items:
@@ -45,7 +42,6 @@ graphql.get(`query { stories { id, text } }`).then(
     console.log(stories);
   }
 );
-
 ```
 
 So far we're just using GraphQL as a more efficient version of typical REST approaches. Note two important benefits in the GraphQL version:
@@ -62,7 +58,6 @@ Repeatedly refetching information from the server can get quite slow. For exampl
 In a resource-oriented REST system, we can maintain a **response cache** based on URIs:
 
 ```javascript
-
 var _cache = new Map();
 rest.get = uri => {
   if (!_cache.has(uri)) {
@@ -70,13 +65,11 @@ rest.get = uri => {
   }
   return _cache.get(uri);
 };
-
 ```
 
 Response-caching can also be applied to GraphQL. A basic approach would work similarly to the REST version. The text of the query itself can be used as a cache key:
 
 ```javascript
-
 var _cache = new Map();
 graphql.get = queryText => {
   if (!_cache.has(queryText)) {
@@ -84,7 +77,6 @@ graphql.get = queryText => {
   }
   return _cache.get(queryText);
 };
-
 ```
 
 Now, requests for previously cached data can be answered immediately without making a network request. This is a practical approach to improving the perceived performance of an application. However, this method of caching can cause problems with data consistency.
@@ -93,18 +85,14 @@ Now, requests for previously cached data can be answered immediately without mak
 
 With GraphQL it is very common for the results of multiple queries to overlap. However, our response cache from the previous section doesn't account for this overlap — it caches based on distinct queries. For example, if we issue a query to fetch stories:
 
-```
-
+```graphql
 query { stories { id, text, likeCount } }
-
 ```
 
 and then later refetch one of the stories whose `likeCount` has since been incremented:
 
-```
-
+```graphql
 query { story(id: "123") { id, text, likeCount } }
-
 ```
 
 We'll now see different `likeCount`s depending on how the story is accessed. A view that uses the first query will see an outdated count, while a view using the second query will see the updated count.
@@ -115,8 +103,7 @@ The solution to caching GraphQL is to normalize the hierarchical response into a
 
 Here's an example query that fetches a story's text and its author's name:
 
-```
-
+```graphql
 query {
   story(id: "1") {
     text,
@@ -125,28 +112,26 @@ query {
     }
   }
 }
-
 ```
 
 And here's a possible response:
 
-```
-
-query: {
-  story: {
-     text: "Relay is open-source!",
-     author: {
-       name: "Jan"
-     }
+```json
+{
+  "query": {
+    "story": {
+      "text": "Relay is open-source!",
+      "author": {
+        "name": "Jan"
+      }
+    }
   }
 }
-
 ```
 
 Although the response is hierarchical, we'll cache it by flattening all the records. Here is an example of how Relay would cache this query response:
 
 ```javascript
-
 Map {
   // `story(id: "1")`
   1: Map {
@@ -158,7 +143,6 @@ Map {
     name: 'Jan',
   },
 };
-
 ```
 
 This is only a simple example: in reality the cache must handle one-to-many associations and pagination (among other things).
@@ -185,20 +169,16 @@ Note that this normalized cache structure allows overlapping results to be cache
 
 The first query was for a list of stories:
 
-```
-
+```graphql
 query { stories { id, text, likeCount } }
-
 ```
 
 With a normalized response cache, a record would be created for each story in the list. The `stories` field would store links to each of these records.
 
 The second query refetched the information for one of those stories:
 
-```
-
+```graphql
 query { story(id: "123") { id, text, likeCount } }
-
 ```
 
 When this response is normalized, Relay can detect that this result overlaps with existing data based on its `id`. Rather than create a new record, Relay will update the existing `123` record. The new `likeCount` is therefore available to _both_ queries, as well as any other query that might reference this story.
@@ -209,8 +189,7 @@ A normalized cache ensures that the _cache_ is consistent. But what about our vi
 
 Consider rendering the text and comments of a story along with the corresponding author names and photos. Here's the GraphQL query:
 
-```
-
+```graphql
 query {
   story(id: "1") {
     text,
@@ -221,13 +200,11 @@ query {
     }
   }
 }
-
 ```
 
 After initially fetching this story our cache might be as follows. Note that the story and comment both link to the same record as `author`:
 
 ```
-
 // Note: This is pseudo-code for `Map` initialization to make the structure
 // more obvious.
 Map {
@@ -248,13 +225,11 @@ Map {
     author: Link(2),
   },
 }
-
 ```
 
 The author of this story also commented on it — quite common. Now imagine that some other view fetches new information about the author, and her profile photo has changed to a new URI. Here's the _only_ part of our cached data that changes:
 
 ```
-
 Map {
   ...
   2: Map {
@@ -262,7 +237,6 @@ Map {
     photo: 'http://.../photo2.jpg',
   },
 }
-
 ```
 
 The value of the `photo` field has changed; and therefore the record `2` has also changed. And that's it. Nothing else in the _cache_ is affected. But clearly our _view_ needs to reflect the update: both instances of the author in the UI (as story author and comment author) need to show the new photo.
@@ -270,7 +244,6 @@ The value of the `photo` field has changed; and therefore the record `2` has als
 A standard response is to "just use immutable data structures" — but let's see what would happen if we did:
 
 ```
-
 ImmutableMap {
   1: ImmutableMap // same as before
   2: ImmutableMap {
@@ -279,7 +252,6 @@ ImmutableMap {
   },
   3: ImmutableMap // same as before
 }
-
 ```
 
 If we replace `2` with a new immutable record, we'll also get a new immutable instance of the cache object. However, records `1` and `3` are untouched. Because the data is normalized, we can't tell that `story`'s contents have changed just by looking at the `story` record alone.
@@ -294,8 +266,7 @@ Note that this solution will also work for _writes_: any update to the cache wil
 
 So far we've looked at the process of querying data and keeping views up to date, but we haven't looked at writes. In GraphQL, writes are called **mutations**. We can think of them as queries with side effects. Here's an example of calling a mutation that might mark a given story as being liked by the current user:
 
-```
-
+```graphql
 // Give a human-readable name and define the types of the inputs,
 // in this case the id of the story to mark as liked.
 mutation StoryLike($storyID: String) {
@@ -305,7 +276,6 @@ mutation StoryLike($storyID: String) {
      likeCount
    }
 }
-
 ```
 
 Notice that we're querying for data that _may_ have changed as a result of the mutation. An obvious question is: why can't the server just tell us what changed? The answer is: it's complicated. GraphQL abstracts over _any_ data storage layer (or an aggregation of multiple sources), and works with any programming language. Furthermore, the goal of GraphQL is to provide data in a form that is useful to product developers building a view.

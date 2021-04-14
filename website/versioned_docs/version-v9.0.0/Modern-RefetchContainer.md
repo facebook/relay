@@ -16,13 +16,11 @@ Table of Contents:
 `createRefetchContainer` has the following signature:
 
 ```javascript
-
 createRefetchContainer(
   component: ReactComponentClass,
   fragmentSpec: {[string]: GraphQLTaggedNode},
   refetchQuery: GraphQLTaggedNode,
 ): ReactComponentClass;
-
 ```
 
 ### Arguments
@@ -37,7 +35,6 @@ createRefetchContainer(
 The Component resulting from `createRefetchContainer` will receive the following `props`:
 
 ```javascript
-
 type Props = {
   relay: {
     environment: Environment,
@@ -45,7 +42,6 @@ type Props = {
   },
   // Additional props as specified by the fragmentSpec
 }
-
 ```
 
 -   `relay`:
@@ -61,7 +57,6 @@ type Props = {
 `refetch` has the following signature:
 
 ```javascript
-
 type RefetchOptions = {
   force?: boolean,
 };
@@ -102,7 +97,6 @@ Returns a `Disposable` on which you could call `dispose()` to cancel the refetch
 In this simple example, let's assume we want to fetch the latest data for a `TodoItem` from the server:
 
 ```javascript
-
 // TodoItem.js
 import {createRefetchContainer, graphql} from 'react-relay';
 
@@ -148,7 +142,6 @@ export default createRefetchContainer(
     }
   `
 );
-
 ```
 
 ### Loading more data
@@ -156,7 +149,6 @@ export default createRefetchContainer(
 In this example we are using a Refetch Container to fetch more stories in a story feed component.
 
 ```javascript
-
 import {createRefetchContainer, graphql} from 'react-relay';
 
 class FeedStories extends React.Component {
@@ -212,5 +204,4 @@ export default createRefetchContainer(
     }
   `,
 );
-
 ```

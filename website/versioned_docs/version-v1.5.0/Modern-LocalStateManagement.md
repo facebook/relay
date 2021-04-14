@@ -23,23 +23,19 @@ It can even be used to extend an existing server schema.
 For example, we can create a new type called `Note`:
 
 ```graphql
-
 type Note {
   id: ID!
   title: String
   body: String
 }
-
 ```
 
 And then extend the server schema type `User`, with a list of `Note`, called `notes`.
 
 ```graphql
-
 extend type User {
   notes: [Note]
 }
-
 ```
 
 ## Querying local state
@@ -50,7 +46,6 @@ The field can be from the server schema, or it can be schema agnostic, like an i
 Here, we use a [QueryRenderer](./query-renderer) to get the current `User` via the `viewer` field, along with their id, name and the local list of notes.
 
 ```javascript
-
 // Example.js
 import React from 'react';
 import { QueryRenderer, graphql } from 'react-relay';
@@ -96,7 +91,6 @@ const Example = (props) => {
     />
   );
 }
-
 ```
 
 ## Mutating local state
@@ -110,7 +104,6 @@ To build upon the previous example, let's try creating, updating and deleting a 
 ### Create
 
 ```javascript
-
 import {commitLocalUpdate} from 'react-relay';
 
 let tempID = 0;
@@ -130,7 +123,6 @@ function createUserNote() {
     user.setLinkedRecords([...userNoteRecords, newNoteRecord], 'notes');
   });
 }
-
 ```
 
 Note that since this record will be rendered by the `ExampleQuery` in our `QueryRenderer`, the QueryRenderer will automatically retain this data so it isn't garbage collected.
@@ -138,7 +130,6 @@ Note that since this record will be rendered by the `ExampleQuery` in our `Query
 If no component is rendering the local data and you want to manually retain it, you can do so by calling `environment.retain()`:
 
 ```javascript
-
 import {createOperationDescriptor, getRequest} from 'relay-runtime';
 
 // Create a query that references that record
@@ -165,13 +156,11 @@ const disposable = environment.retain(operation);
 // Whenever you don't need that data anymore and it's okay for Relay to garbage collect it,
 // you can dispose of the retain
 disposable.dispose();
-
 ```
 
 ### Update
 
 ```javascript
-
 import {commitLocalUpdate} from 'react-relay';
 
 function updateUserNote(dataID, body, title) {
@@ -182,13 +171,11 @@ function updateUserNote(dataID, body, title) {
     note.setValue(title, 'title')
   });
 }
-
 ```
 
 ### Delete
 
 ```javascript
-
 import {commitLocalUpdate} from 'react-relay';
 
 function deleteUserNote(dataID) {
@@ -206,7 +193,6 @@ function deleteUserNote(dataID) {
     user.setLinkedRecords(newUserNoteRecords, 'notes');
   });
 }
-
 ```
 
 ## Initial local state
@@ -215,7 +201,6 @@ All new client-side schema fields default to `undefined` value. Often however, y
 You can use an updater function via `commitLocalUpdate` to prime local state.
 
 ```javascript
-
 import {commitLocalUpdate} from 'react-relay';
 
 commitLocalUpdate(environment, store => {
@@ -224,5 +209,4 @@ commitLocalUpdate(environment, store => {
   // initialize user notes to an empty array.
   user.setLinkedRecords([], 'notes');
 });
-
 ```

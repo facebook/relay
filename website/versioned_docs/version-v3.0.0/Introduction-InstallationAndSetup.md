@@ -26,13 +26,11 @@ yarn add --dev babel-plugin-relay graphql
 Add `"relay"` to the list of plugins your `.babelrc` file:
 
 ```javascript
-
 {
   "plugins": [
     "relay"
   ]
 }
-
 ```
 
 Please note that the `"relay"` plugin should run before other plugins or
@@ -44,9 +42,7 @@ See the [Migration Setup](./migration-setup) guide if upgrading an existing Rela
 Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
 
 ```javascript
-
 const graphql = require('babel-plugin-relay/macro');
-
 ```
 
 ## Set up relay-compiler
@@ -61,22 +57,18 @@ yarn add --dev relay-compiler
 
 This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql"
 }
-
 ```
 
 or if you are using jsx:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"
 }
-
 ```
 
 Then, after making edits to your application files, just run the `relay` script to generate new compiled artifacts:
@@ -111,15 +103,13 @@ polyfill in your bundled application, such as [core-js][] or
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:
 
-```js
-
+```javascript
 require('core-js/es6/map');
 require('core-js/es6/set');
 require('core-js/es6/promise');
 require('core-js/es6/object');
 
 require('./myRelayApplication');
-
 ```
 
 [core-js]: https://github.com/zloirock/core-js

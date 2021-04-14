@@ -75,8 +75,7 @@ The concept of availability refers to whether there is enough non-stale, non-inv
 
 A build-time transformation of the Javascript codebase, which turns calls to
 
-```js
-
+```javascript
 graphql`...`
 
 ```
@@ -377,8 +376,7 @@ Compare to [value](#value).
 
 A GraphQL literal is a call to
 
-```js
-
+```javascript
 graphql`...`
 
 ```

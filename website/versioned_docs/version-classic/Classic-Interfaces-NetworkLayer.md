@@ -54,7 +54,6 @@ sendMutation(mutationRequest) {
     }
   });
 }
-
 ```
 
 See [RelayMutationRequest](./classic-interfaces-relay-mutation-request) for methods available on the argument object.
@@ -88,7 +87,6 @@ sendQueries(queryRequests) {
     })
   ));
 }
-
 ```
 
 See [RelayQueryRequest](./classic-interfaces-relay-query-request) for methods available on the argument objects.
@@ -117,5 +115,4 @@ supports(...options) {
     return false;
   });
 }
-
 ```

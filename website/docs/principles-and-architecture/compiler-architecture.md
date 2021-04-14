@@ -41,7 +41,6 @@ The high-level flow of data through the compiler is represented in the following
                    ┌─────────────┐ ┌─────────────┐
                    │   GraphQL   │ │  Artifacts  │
                    └─────────────┘ └─────────────┘
-
 ```
 
 1.  GraphQL text is extracted from source files and "parsed" into an intermediate representation (IR) using information from the schema.
@@ -69,7 +68,6 @@ Here are a few examples of some of the included transforms:
 -   `FlattenTransform`: Reduces extraneous levels of indirection in a query, inlining fields from anonymous fragments wherever they match the parent type. This can be beneficial when generating code to read the results of a query or process query results, as it reduces duplicate field processing. For example:
 
 ```
-
 # before: `id` is processed twice
 foo { # type FooType
    id
@@ -82,13 +80,11 @@ foo { # type FooType
  foo {
    id
  }
-
 ```
 
 -   `SkipRedundantNodeTransform`: A more advanced version of flattening, this eliminates more complex cases of field duplication such as when a field is fetched both unconditionally and conditionally, or is fetched by two different sub-fragments. For example:
 
 ```
-
 # before: `id` processed up to 2x
 foo {
   bar {
@@ -105,7 +101,6 @@ foo {
     id
   }
 }
-
 ```
 
 <DocsRating />

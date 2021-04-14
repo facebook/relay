@@ -20,7 +20,6 @@ Table of Contents:
 The `RecordSourceSelectorProxy` is the type of the `store` that [`updater` functions](../../guided-tour/updating-data/graphql-mutations/) receive as an argument. The following is the `RecordSourceSelectorProxy` interface:
 
 ```javascript
-
 interface RecordSourceSelectorProxy {
   create(dataID: string, typeName: string): RecordProxy;
   delete(dataID: string): void;
@@ -30,7 +29,6 @@ interface RecordSourceSelectorProxy {
   getPluralRootField(fieldName: string): ?Array<?RecordProxy>;
   invalidateStore(): void;
 }
-
 ```
 
 ### `create(dataID: string, typeName: string): RecordProxy`
@@ -40,9 +38,7 @@ Creates a new record in the store given a `dataID` and the `typeName` as defined
 #### Example
 
 ```javascript
-
 const record = store.create(dataID, 'Todo');
-
 ```
 
 ### `delete(dataID: string): void`
@@ -52,9 +48,7 @@ Deletes a record from the store given its `dataID`.
 #### Example
 
 ```javascript
-
 store.delete(dataID);
-
 ```
 
 ### `get(dataID: string): ?RecordProxy`
@@ -64,9 +58,7 @@ Retrieves a record from the store given its `dataID`. Returns a [`RecordProxy`](
 #### Example
 
 ```javascript
-
 const record = store.get(dataID);
-
 ```
 
 ### `getRoot(): RecordProxy`
@@ -78,20 +70,16 @@ Returns the [`RecordProxy`](#recordproxy) representing the root of the GraphQL d
 Given the GraphQL document:
 
 ```graphql
-
 viewer {
   id
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 // Represents root query
 const root = store.getRoot();
-
 ```
 
 ### `getRootField(fieldName: string): ?RecordProxy`
@@ -103,19 +91,15 @@ Retrieves a root field from the store given the `fieldName`, as defined by the G
 Given the GraphQL document:
 
 ```graphql
-
 viewer {
   id
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const viewer = store.getRootField('viewer');
-
 ```
 
 ### `getPluralRootField(fieldName: string): ?Array<?RecordProxy>`
@@ -127,19 +111,15 @@ Retrieves a root field that represents a collection from the store given the `fi
 Given the GraphQL document:
 
 ```graphql
-
 nodes(first: 10) {
   # ...
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const nodes = store.getPluralRootField('nodes');
-
 ```
 
 ### `invalidateStore(): void`
@@ -149,15 +129,12 @@ Globally invalidates the Relay store. This will cause any data that was written 
 #### Example
 
 ```javascript
-
 store.invalidateStore();
-
 ```
 
 After global invalidation, any query that is checked before refetching it will be considered stale:
 
 ```javascript
-
 environment.check(query) === 'stale'
 
 ```
@@ -167,7 +144,6 @@ environment.check(query) === 'stale'
 The `RecordProxy` serves as an interface to mutate records:
 
 ```javascript
-
 interface RecordProxy {
   copyFieldsFrom(sourceRecord: RecordProxy): void;
   getDataID(): string;
@@ -193,7 +169,6 @@ interface RecordProxy {
   setValue(value: mixed, name: string, arguments?: ?Object): RecordProxy;
   invalidateRecord(): void;
 }
-
 ```
 
 ### `getDataID(): string`
@@ -203,9 +178,7 @@ Returns the `dataID` of the current record.
 #### Example
 
 ```javascript
-
 const id = record.getDataID();
-
 ```
 
 ### `getType(): string`
@@ -215,7 +188,6 @@ Gets the type of the current record, as defined by the GraphQL schema.
 #### Example
 
 ```javascript
-
 const type = user.getType();  // User
 
 ```
@@ -229,20 +201,16 @@ Gets the value of a field in the current record given the field name.
 Given the GraphQL document:
 
 ```graphql
-
 viewer {
   id
   name
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const name = viewer.getValue('name');
-
 ```
 
 Optionally, if the field takes arguments, you can pass a bag of `variables`.
@@ -252,20 +220,16 @@ Optionally, if the field takes arguments, you can pass a bag of `variables`.
 Given the GraphQL document:
 
 ```graphql
-
 viewer {
   id
   name(arg: $arg)
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const name = viewer.getValue('name', {arg: 'value'});
-
 ```
 
 ### `getLinkedRecord(name: string, arguments?: ?Object): ?RecordProxy`
@@ -277,23 +241,19 @@ Retrieves a record associated with the current record given the field name, as d
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   viewer {
     id
     name
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const viewer = rootField.getLinkedRecord('viewer');
-
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
@@ -303,22 +263,18 @@ Optionally, if the linked record takes arguments, you can pass a bag of `variabl
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   viewer(arg: $arg) {
     id
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const viewer = rootField.getLinkedRecord('viewer', {arg: 'value'});
-
 ```
 
 ### `getLinkedRecords(name: string, arguments?: ?Object): ?Array<?RecordProxy>`
@@ -330,22 +286,18 @@ Retrieves the set of records associated with the current record given the field 
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   nodes {
     # ...
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const nodes = rootField.getLinkedRecords('nodes');
-
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
@@ -355,22 +307,18 @@ Optionally, if the linked record takes arguments, you can pass a bag of `variabl
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   nodes(first: $count) {
     # ...
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const nodes = rootField.getLinkedRecords('nodes', {count: 10});
-
 ```
 
 ### `getOrCreateLinkedRecord(name: string, typeName: string, arguments?: ?Object)`
@@ -382,19 +330,16 @@ Retrieves a record associated with the current record given the field name, as d
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   viewer {
     id
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const newViewer = rootField.getOrCreateLinkedRecord('viewer', 'User'); // Will create if it doesn't exist
 
@@ -409,28 +354,22 @@ Mutates the current record by setting a new value on the specified field. Return
 Given the GraphQL document:
 
 ```graphql
-
 viewer {
   id
   name
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 viewer.setValue('New Name', 'name');
-
 ```
 
 Optionally, if the field takes arguments, you can pass a bag of `variables`.
 
 ```javascript
-
 viewer.setValue('New Name', 'name', {arg: 'value'});
-
 ```
 
 ### `copyFieldsFrom(sourceRecord: RecordProxy): void`
@@ -440,7 +379,6 @@ Mutates the current record by copying the fields over from the passed in record 
 #### Example
 
 ```javascript
-
 const record = store.get(id1);
 const otherRecord = store.get(id2);
 record.copyFieldsFrom(otherRecord); // Mutates `record`
@@ -456,23 +394,19 @@ Mutates the current record by setting a new linked record on the given field nam
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   viewer {
     id
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const newViewer = store.create(/* ... */);
 rootField.setLinkedRecord(newViewer, 'viewer');
-
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
@@ -486,24 +420,20 @@ Mutates the current record by setting a new set of linked records on the given f
 Given the GraphQL document:
 
 ```graphql
-
 rootField {
   nodes {
     # ...
   }
 }
-
 ```
 
 Usage:
 
 ```javascript
-
 const rootField = store.getRootField('rootField');
 const newNode = store.create(/* ... */);
 const newNodes = [...rootField.getLinkedRecords('nodes'), newNode];
 rootField.setLinkedRecords(newNodes, 'nodes');
-
 ```
 
 Optionally, if the linked record takes arguments, you can pass a bag of `variables` as well.
@@ -515,16 +445,13 @@ Invalidates the record. This will cause any query that references this record to
 #### Example
 
 ```javascript
-
 const record = store.get('4');
 record.invalidateRecord();
-
 ```
 
 After invalidating a record, any query that references the invalidated record and that is checked before refetching it will be considered stale:
 
 ```javascript
-
 environment.check(query) === 'stale'
 
 ```
@@ -534,7 +461,6 @@ environment.check(query) === 'stale'
 `ConnectionHandler` is a utility module exposed by `relay-runtime` that aids in the manipulation of connections. `ConnectionHandler` exposes the following interface:
 
 ```javascript
-
 interface ConnectionHandler {
   getConnection(
     record: RecordProxy,
@@ -559,7 +485,6 @@ interface ConnectionHandler {
   ): void,
   deleteNode(connection: RecordProxy, nodeID: string): void
 }
-
 ```
 
 ### `getConnection(record: RecordProxy, key: string, filters?: ?Object)`
@@ -569,7 +494,6 @@ Given a record and a connection key, and optionally a set of filters, `getConnec
 First, let's take a look at a plain connection:
 
 ```graphql
-
 fragment FriendsFragment on User {
   friends(first: 10) {
     edges {
@@ -579,26 +503,22 @@ fragment FriendsFragment on User {
     }
   }
 }
-
 ```
 
 Accessing a plain connection field like this is the same as other regular fields:
 
 ```javascript
-
 // The `friends` connection record can be accessed with:
 const user = store.get(userID);
 const friends = user && user.getLinkedRecord('friends');
 
 // Access fields on the connection:
 const edges = friends && friends.getLinkedRecords('edges');
-
 ```
 
 When using [usePaginationFragment](../use-pagination-fragment/), we usually annotate the actual connection field with `@connection` to tell Relay which part needs to be paginated:
 
 ```graphql
-
 fragment FriendsFragment on User {
   friends(first: 10, orderby: "firstname") @connection(
     key: "FriendsFragment_friends",
@@ -610,13 +530,11 @@ fragment FriendsFragment on User {
     }
   }
 }
-
 ```
 
 For connections like the above, `ConnectionHandler` helps us find the record:
 
 ```javascript
-
 import {ConnectionHandler} from 'relay-runtime';
 
 // The `friends` connection record can be accessed with:
@@ -628,7 +546,6 @@ const friends = ConnectionHandler.getConnection(
 );
 // Access fields on the connection:
 const edges = friends.getLinkedRecords('edges');
-
 ```
 
 ### Edge creation and insertion
@@ -648,7 +565,6 @@ Given a connection, inserts the edge at the end of the connection, or after the 
 #### Example
 
 ```javascript
-
 const user = store.get(userID);
 const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
 const newFriend = store.get(newFriendId);
@@ -659,7 +575,6 @@ ConnectionHandler.insertEdgeAfter(friends, edge);
 
 // No cursor provided, insert the edge at the front:
 ConnectionHandler.insertEdgeBefore(friends, edge);
-
 ```
 
 ### `deleteNode(connection: RecordProxy, nodeID: string): void`
@@ -669,11 +584,9 @@ Given a connection, deletes any edges whose node id matches the given id.
 #### Example
 
 ```javascript
-
 const user = store.get(userID);
 const friends = ConnectionHandler.getConnection(user, 'FriendsFragment_friends');
 ConnectionHandler.deleteNode(friends, idToDelete);
-
 ```
 
 <DocsRating />

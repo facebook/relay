@@ -334,7 +334,6 @@ function App({appQueryRef}) {
     </>
   );
 }
-
 ```
 
 Note that:

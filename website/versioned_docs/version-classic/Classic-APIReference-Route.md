@@ -60,7 +60,6 @@ _Methods_
 ```
 
 static paramDefinitions: {[param: string]: {required: boolean}}
-
 ```
 
 Routes can declare a set of parameter names that are required to be supplied to the constructor. This is also a convenient place to document the set of valid parameters.
@@ -75,7 +74,6 @@ class ProfileRoute extends Relay.Route {
   };
   // ...
 }
-
 ```
 
 ### prepareParams (static property)
@@ -83,7 +81,6 @@ class ProfileRoute extends Relay.Route {
 ```
 
 static prepareParams: ?(prevParams: {[prevParam: string]: mixed}) => {[param: string]: mixed};
-
 ```
 
 Routes can use `prepareParams` to provide default parameters, or pass through, convert or suppress passed-in parameters.
@@ -108,7 +105,6 @@ class ProfileRoute extends Relay.Route {
   }
   // ...
 }
-
 ```
 
 ### queries (static property)
@@ -118,7 +114,6 @@ class ProfileRoute extends Relay.Route {
 static queries: {
   [queryName: string]: () => Relay.QL`query { ... }`
 };
-
 ```
 
 Routes must declare a set of query roots using `Relay.QL`. These queries will automatically compose a matching fragment named `queryName` on
@@ -134,7 +129,6 @@ class ProfileRoute extends Relay.Route {
   };
   // ...
 }
-
 ```
 
 In this example the Route should be initialized with a `userID` which gets passed on to the query. That `userID` variable will automatically be passed down to the top-level container and can be used there if needed. Further the top-level RelayContainer is expected to have a `user` fragment with the fields to be queried.
@@ -160,5 +154,4 @@ Create a route instance using the `new` keyword, optionally passing it some para
 ```
 
 var profileRoute = new ProfileRoute({userID: '123'});
-
 ```

@@ -106,7 +106,6 @@ fragments: RelayQueryFragments<Tk> = {
     variables: {[name: string]: mixed}
   ) => Relay.QL`fragment on ...`
 };
-
 ```
 
 Containers declare data requirements on `fragments` using GraphQL fragments.
@@ -145,7 +144,6 @@ See also: [Containers &gt; Relay Containers](./classic-guides-containers#relay-c
 ```
 
 initialVariables: {[name: string]: mixed};
-
 ```
 
 The initial set of variable values available to this component's fragments.
@@ -168,7 +166,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
     `,
   },
 });
-
 ```
 
 In this example, `profilePicture(size: 50)` will be fetched for the intial render.
@@ -180,7 +177,6 @@ In this example, `profilePicture(size: 50)` will be fetched for the intial rende
 prepareVariables: ?(
   prevVariables: {[name: string]: mixed}
 ) => {[name: string]: mixed}
-
 ```
 
 Containers can define a `prepareVariables` method which provides the opportunity to modify the variables that are available to fragments. The new variables can be generated based on the previous variables (or the `initialVariables` if no previous ones exist) in addition to the runtime environment.
@@ -202,7 +198,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
   },
   // ...
 });
-
 ```
 
 ### shouldComponentUpdate
@@ -210,7 +205,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
 ```
 
 shouldComponentUpdate: () => boolean;
-
 ```
 
 RelayContainer implements a conservative default `shouldComponentUpdate` that returns `false` if no fragment props have changed and all other props are equal scalar values. This may block updates to components that receive data via context. To ensure an update in this case override the default behavior by specifying a `shouldComponentUpdate` function.
@@ -223,7 +217,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
   shouldComponentUpdate: () => true,
   // ...
 });
-
 ```
 
 ## Properties and Methods
@@ -248,7 +241,6 @@ var name = this.props.relay.route.name;
 if (name === 'SuperAwesomeRoute') {
   // Do something super cool.
 }
-
 ```
 
 See also: [Routes](./classic-guides-routes)
@@ -258,7 +250,6 @@ See also: [Routes](./classic-guides-routes)
 ```
 
 variables: {[name: string]: mixed}
-
 ```
 
 `variables` contains the set of variables that was used to fetch the current set of props.
@@ -288,7 +279,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
     `,
   },
 });
-
 ```
 
 In this example, the `width` of the rendered image will always correspond to the `$size` variable used to fetch the current version of `profilePicture.uri`.
@@ -305,7 +295,6 @@ Never mutate <code>this.props.relay.variables</code> directly as it will not tri
 ```
 
 pendingVariables: ?{[name: string]: mixed}
-
 ```
 
 `pendingVariables` contains the set of variables that are being used to fetch the new props, i.e. when `this.props.relay.setVariables()` or `this.props.relay.forceFetch()` are called and the corresponding request is in flight.
@@ -357,7 +346,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
     `,
   },
 });
-
 ```
 
 In this example, whenever a picture with a new size is being loaded a spinner is displayed instead of the picture.
@@ -414,7 +402,6 @@ module.exports = Relay.createContainer(Feed, {
     `,
   },
 });
-
 ```
 
 <blockquote>
@@ -563,7 +550,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
     `,
   },
 });
-
 ```
 
 `RelayMutationTransaction.getStatus` can return one of the following strings:
@@ -619,7 +605,6 @@ Relay.createContainer(Child, {
     `,
   }
 });
-
 ```
 
 In this example, whenever `Parent` is fetched, `Child`'s fragment will also be fetched. When rendering, `<Parent>` will only have access to the `props.foo.id` field;  data from the child fragment will be [_masked_](./thinking-in-relay#data-masking). By default, `childFragment` will use its corresponding initial variables. Relay will fetch `photo(size: 64)`. When `<Child>` is rendered it will also make the initial variables available as `props.relay.variables = {size: 64}`.
@@ -641,7 +626,6 @@ Relay.createContainer(Parent, {
     `,
   }
 });
-
 ```
 
 Now Relay will fetch the photo with size 128 - but the `Child` container won't magically know about this variable. We have to tell it by passing the variable value as a prop:
@@ -656,7 +640,6 @@ const Parent = (props) => {
     />;
   );
 }
-
 ```
 
 Now Relay will both fetch the larger photo size _and_ `Child` will know to render it.

@@ -142,15 +142,13 @@ polyfill in your bundled application, such as [core-js][] or
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:
 
-```js
-
+```javascript
 require('core-js/es6/map');
 require('core-js/es6/set');
 require('core-js/es6/promise');
 require('core-js/es6/object');
 
 require('./myRelayApplication');
-
 ```
 
 [core-js]: https://github.com/zloirock/core-js

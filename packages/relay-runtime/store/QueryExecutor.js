@@ -76,7 +76,7 @@ export type ExecuteConfig = {|
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
-  +operationTracker?: ?OperationTracker,
+  +operationTracker: OperationTracker,
   +optimisticConfig: ?OptimisticResponseConfig,
   +publishQueue: PublishQueue,
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
@@ -133,7 +133,7 @@ class Executor {
   _operation: OperationDescriptor;
   _operationExecutions: Map<string, ActiveState>;
   _operationLoader: ?OperationLoader;
-  _operationTracker: ?OperationTracker;
+  _operationTracker: OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
   _optimisticUpdates: null | Array<OptimisticUpdate>;
   _pendingModulePayloadsCount: number;
@@ -1342,11 +1342,7 @@ class Executor {
   _updateOperationTracker(
     updatedOwners: ?$ReadOnlyArray<RequestDescriptor>,
   ): void {
-    if (
-      this._operationTracker != null &&
-      updatedOwners != null &&
-      updatedOwners.length > 0
-    ) {
+    if (updatedOwners != null && updatedOwners.length > 0) {
       this._operationTracker.update(
         this._operation.request,
         new Set(updatedOwners),
@@ -1355,9 +1351,7 @@ class Executor {
   }
 
   _completeOperationTracker() {
-    if (this._operationTracker != null) {
-      this._operationTracker.complete(this._operation.request);
-    }
+    this._operationTracker.complete(this._operation.request);
   }
 }
 

@@ -42,7 +42,7 @@ The provided `fetchPolicy` will determine:
 
 By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](../presence-of-data/) or [stale](../staleness-of-data/), it will fetch the entire query from the network. This default `fetchPolicy` is called "*store-or-network".*
 
-Specifically, `fetchPolicy` can be any of the following options: **
+Specifically, `fetchPolicy` can be any of the following options:
 
 * "store-or-network": *(default)* *will* reuse locally cached data, and will *only* send a network request if any data for the query is [missing](../presence-of-data/) or [stale](../staleness-of-data/). If the query is fully cached, a network request will *not* be made.
 * "store-and-network": *will* reuse locally cached data and will *always* send a network request, regardless of whether any data was [missing](../presence-of-data/) or [stale](../staleness-of-data/) in the store.

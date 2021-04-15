@@ -209,7 +209,15 @@ module.exports = {
             internal: 'current',
             external: versions[0],
           }),
-          onlyIncludeVersions: ['current', ...versions.slice(0, 2)],
+          onlyIncludeVersions: fbContent({
+            internal: ['current'],
+            external: [
+              'current',
+              ...versions.filter(
+                version => version !== 'experimental' && version !== 'classic',
+              ),
+            ],
+          }),
           versions: {
             current: {
               label: 'Next 🚧',

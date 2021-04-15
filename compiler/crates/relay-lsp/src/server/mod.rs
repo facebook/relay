@@ -13,7 +13,10 @@ mod lsp_state_resources;
 use crate::{
     code_action::on_code_action,
     completion::on_completion,
-    goto_definition::on_goto_definition,
+    goto_definition::{
+        on_get_source_location_of_type_definition, on_goto_definition,
+        GetSourceLocationOfTypeDefinition,
+    },
     graphql_tools::on_graphql_execute_query,
     graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
@@ -161,6 +164,9 @@ fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
 ) -> ServerResponse {
     let get_response = || -> Result<_, ServerResponse> {
         let request = LSPRequestDispatch::new(request, lsp_state)
+            .on_request_sync::<GetSourceLocationOfTypeDefinition>(
+                on_get_source_location_of_type_definition,
+            )?
             .on_request_sync::<HoverRequest>(on_hover)?
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?

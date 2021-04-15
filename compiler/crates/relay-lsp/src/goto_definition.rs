@@ -27,6 +27,7 @@ use lsp_types::{
     Url,
 };
 use schema::Schema;
+use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str};
 
 fn get_goto_definition_response<'a>(
@@ -194,4 +195,37 @@ fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntime
     })?;
 
     Ok(lsp_types::Location { uri, range })
+}
+
+pub(crate) enum GetSourceLocationOfTypeDefinition {}
+
+#[derive(Deserialize, Serialize)]
+pub(crate) struct GetSourceLocationOfTypeDefinitionParams {
+    type_name: String,
+    field_name: Option<String>,
+    schema_name: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub(crate) struct GetSourceLocationOfTypeDefinitionResult {
+    field_definition_source_info: FieldDefinitionSourceInfo,
+}
+
+impl Request for GetSourceLocationOfTypeDefinition {
+    type Params = GetSourceLocationOfTypeDefinitionParams;
+    type Result = GetSourceLocationOfTypeDefinitionResult;
+    const METHOD: &'static str = "$/getSourceLocationOfTypeDefinition";
+}
+
+pub(crate) fn on_get_source_location_of_type_definition<TPerfLogger: PerfLogger + 'static>(
+    state: &mut LSPState<TPerfLogger>,
+    params: <GetSourceLocationOfTypeDefinition as Request>::Params,
+) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
+    let field_definition_source_info = state
+        .extra_data_provider
+        .resolve_field_definition(params.schema_name, params.type_name, params.field_name)
+        .map_err(LSPRuntimeError::UnexpectedError)?;
+    Ok(GetSourceLocationOfTypeDefinitionResult {
+        field_definition_source_info,
+    })
 }

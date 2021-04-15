@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "description": "A framework for building data-driven React applications.",
-  "version": "11.0.1",
+  "version": "11.0.2",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",

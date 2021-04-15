@@ -238,10 +238,10 @@ class RelayModernEnvironment implements IEnvironment {
 
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
     const subscription = this._execute({
+      createSource: () => RelayObservable.create(_sink => {}),
       isClientPayload: false,
       operation: optimisticConfig.operation,
       optimisticConfig,
-      source: RelayObservable.create(_sink => {}),
       updater: null,
     }).subscribe({});
     return {
@@ -264,10 +264,10 @@ class RelayModernEnvironment implements IEnvironment {
 
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
     this._execute({
+      createSource: () => RelayObservable.from({data: payload}),
       isClientPayload: true,
       operation: operation,
       optimisticConfig: null,
-      source: RelayObservable.from({data: payload}),
       updater: null,
     }).subscribe({});
   }
@@ -337,17 +337,17 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
-    const source = this._network.execute(
-      operation.request.node.params,
-      operation.request.variables,
-      operation.request.cacheConfig || {},
-      null,
-    );
     return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          operation.request.cacheConfig || {},
+          null,
+        ),
       isClientPayload: false,
       operation,
       optimisticConfig: null,
-      source,
       updater,
     });
   }
@@ -377,20 +377,20 @@ class RelayModernEnvironment implements IEnvironment {
         updater: optimisticUpdater,
       };
     }
-    const source = this._network.execute(
-      operation.request.node.params,
-      operation.request.variables,
-      {
-        ...operation.request.cacheConfig,
-        force: true,
-      },
-      uploadables,
-    );
     return this._execute({
+      createSource: () =>
+        this._network.execute(
+          operation.request.node.params,
+          operation.request.variables,
+          {
+            ...operation.request.cacheConfig,
+            force: true,
+          },
+          uploadables,
+        ),
       isClientPayload: false,
       operation,
       optimisticConfig,
-      source,
       updater,
     });
   }
@@ -412,10 +412,10 @@ class RelayModernEnvironment implements IEnvironment {
     source: RelayObservable<GraphQLResponse>,
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
+      createSource: () => source,
       isClientPayload: false,
       operation,
       optimisticConfig: null,
-      source,
       updater: null,
     });
   }
@@ -425,16 +425,16 @@ class RelayModernEnvironment implements IEnvironment {
   }
 
   _execute({
+    createSource,
     isClientPayload,
     operation,
     optimisticConfig,
-    source,
     updater,
   }: {|
+    createSource: () => RelayObservable<GraphQLResponse>,
     isClientPayload: boolean,
     operation: OperationDescriptor,
     optimisticConfig: ?OptimisticResponseConfig,
-    source: RelayObservable<GraphQLResponse>,
     updater: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
@@ -452,7 +452,9 @@ class RelayModernEnvironment implements IEnvironment {
         scheduler: this._scheduler,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
         sink,
-        source,
+        // NOTE: Some product tests expect `Network.execute` to be called only
+        //       when the Observable is executed.
+        source: createSource(),
         store: this._store,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,

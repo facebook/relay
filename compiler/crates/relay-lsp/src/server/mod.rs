@@ -30,11 +30,10 @@ use crate::{
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
     shutdown::{on_exit, on_shutdown},
-    status_reporting::LSPStatusReporter,
-    status_reporting::StatusReportingArtifactWriter,
-    text_documents::on_did_save_text_document,
+    status_reporting::{LSPStatusReporter, StatusReportingArtifactWriter},
     text_documents::{
         on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
+        on_did_save_text_document,
     },
     ExtensionConfig,
 };

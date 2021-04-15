@@ -7,7 +7,7 @@
 
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
 #[derive(Default, Deserialize)]
@@ -22,28 +22,28 @@ impl SchemaDocumentationJsonSource {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TypeDescription {
-    name: String,
-    description: Option<String>,
-    fields: Option<Vec<FieldDescription>>,
+    pub name: String,
+    pub description: Option<String>,
+    pub fields: Option<Vec<FieldDescription>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct FieldDescription {
     name: String,
     description: Option<String>,
     args: Option<Vec<ArgDescription>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ArgDescription {
     name: String,
     description: Option<String>,
 }
 
 pub struct SchemaDocumentation {
-    types: HashMap<String, TypeDescription>,
+    pub types: HashMap<String, TypeDescription>,
 }
 
 impl Default for SchemaDocumentation {

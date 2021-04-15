@@ -25,6 +25,7 @@ mod node_resolution_info;
 mod references;
 mod resolution_path;
 mod resolved_types_at_location;
+mod search_schema_items;
 mod server;
 mod shutdown;
 mod status_reporting;

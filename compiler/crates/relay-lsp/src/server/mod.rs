@@ -30,6 +30,7 @@ use crate::{
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
+    search_schema_items::{on_search_schema_items, SearchSchemaItems},
     shutdown::{on_exit, on_shutdown},
     status_reporting::{LSPStatusReporter, StatusReportingArtifactWriter},
     text_documents::{
@@ -165,6 +166,7 @@ fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
     let get_response = || -> Result<_, ServerResponse> {
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
+            .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,
             )?

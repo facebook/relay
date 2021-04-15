@@ -249,7 +249,7 @@ impl<'program> MatchTransform<'program> {
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            // @argument on the fragment spread is not allowed
+            // @arguments on the fragment spread is not allowed
             if !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithArguments,
@@ -278,6 +278,7 @@ impl<'program> MatchTransform<'program> {
 
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
 
+            // Disallow @inline on fragments whose spreads are decorated with @module
             if let Some(inline_data_directive) = fragment
                 .directives
                 .named(INLINE_DATA_CONSTANTS.directive_name)
@@ -292,11 +293,13 @@ impl<'program> MatchTransform<'program> {
                 ));
             }
 
+            // module_name is the literal passed to name in module(name: "...")
             let module_name = get_module_name(module_directive, spread.fragment.location)?;
             let (js_field_id, has_js_field_id_arg, has_js_field_branch_arg) =
                 self.get_js_field_args(fragment, spread)?;
 
             let parent_name = self.path.last();
+            // module_key is the value of the nearest enclosing @match(key: "..."), or the document name
             let module_key = self.module_key.unwrap_or(self.document_name);
 
             let module_id = if self.path.is_empty() {
@@ -311,6 +314,12 @@ impl<'program> MatchTransform<'program> {
                 str.intern()
             };
 
+            // If this is the first time we are encountering @module at this path, also ensure
+            // that we have not previously encountered another @module associated with the same
+            // module_key (i.e. with the same @match directive).
+            //
+            // This ensures that all of the @module's associated with a given @match occur at
+            // a single path.
             let matches = match self.matches_for_path.get_mut(&self.path) {
                 None => {
                     let existing_match_with_key = self
@@ -348,6 +357,20 @@ impl<'program> MatchTransform<'program> {
                 );
             }
 
+            // For each @module we encounter at this path, we also keep track of the type condition of the
+            // spread fragment (i.e. the type from which the fragment makes selections), and ensure that
+            // if we have multiple @module directives at the same path and type condition, they are
+            // exactly the same: i.e. are on a spread of the same fragment, and have the same
+            // value passed to name in @module(name: "...").
+            //
+            // This is required because, as currently set up, the resulting payload will have fields
+            // __typeName, __module_operation_FragmentName and __module_component_FragmentName.
+            // If multiple @module directives shared a fragment spread's type condition, but differed:
+            // - in which fragment was spread (resulting in a different __module_operation_FragmentName
+            //   value in the response), or
+            // - in the @module(name: "...") parameter (resulting in a different
+            //   __module_component_FragmentName value in the response)
+            // The server could nonetheless only return the correct 3D payload for one of the @module's.
             let previous_match_for_type = matches.types.get(&fragment.type_condition);
             if let Some(previous_match_for_type) = previous_match_for_type {
                 if previous_match_for_type.fragment.item != spread.fragment.item
@@ -379,15 +402,15 @@ impl<'program> MatchTransform<'program> {
                 },
             );
 
-            let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
-            normalization_name.push_str(".graphql");
-
+            // Done validating. Build out the resulting fragment spread.
             let mut component_field_arguments = vec![build_string_literal_argument(
                 MATCH_CONSTANTS.js_field_module_arg,
                 module_name,
                 module_directive.name.location,
             )];
 
+            let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
+            normalization_name.push_str(".graphql");
             let mut operation_field_arguments = vec![build_string_literal_argument(
                 MATCH_CONSTANTS.js_field_module_arg,
                 normalization_name.intern(),

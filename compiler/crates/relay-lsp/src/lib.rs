@@ -34,7 +34,7 @@ use common::PerfLogger;
 pub use js_language_server::JSLanguageServer;
 use js_language_server::NoopJSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::LSPExtraDataProvider;
+pub use lsp_extra_data_provider::{FieldDefinitionSourceInfo, LSPExtraDataProvider};
 use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;

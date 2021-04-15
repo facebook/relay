@@ -18,7 +18,7 @@ use crate::{
     },
     server::LSPState,
     server::SourcePrograms,
-    LSPExtraDataProvider,
+    FieldDefinitionSourceInfo, LSPExtraDataProvider,
 };
 use common::PerfLogger;
 use interner::StringKey;
@@ -73,7 +73,6 @@ fn get_goto_definition_response<'a>(
             selection_path.parent,
             project_name,
             source_programs,
-            root_dir,
             extra_data_provider,
         ),
         ResolutionPath::Ident(IdentPath {
@@ -88,7 +87,6 @@ fn get_goto_definition_response<'a>(
             selection_path.parent,
             project_name,
             source_programs,
-            root_dir,
             extra_data_provider,
         ),
         ResolutionPath::Ident(IdentPath {
@@ -99,21 +97,29 @@ fn get_goto_definition_response<'a>(
                     parent: _,
                 }),
         }) => {
-            let provider_response = extra_data_provider
-                .resolve_field_definition(
-                    project_name.to_string(),
-                    root_dir,
-                    type_condition.type_.value.to_string(),
-                    None,
-                )
-                .ok_or(LSPRuntimeError::ExpectedError)?;
-            let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
+            let provider_response = extra_data_provider.resolve_field_definition(
+                project_name.to_string(),
+                type_condition.type_.value.to_string(),
+                None,
+            );
+            let FieldDefinitionSourceInfo {
+                file_path,
+                line_number,
+                is_local,
+            } = provider_response.map_err(|e| -> LSPRuntimeError {
                 LSPRuntimeError::UnexpectedError(format!(
                     "Error resolving field definition location: {}",
                     e
                 ))
             })?;
-            Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
+            if is_local {
+                Ok(GotoDefinitionResponse::Scalar(get_location(
+                    &file_path,
+                    line_number,
+                )?))
+            } else {
+                Err(LSPRuntimeError::ExpectedError)
+            }
         }
         _ => Err(LSPRuntimeError::ExpectedError),
     }
@@ -124,7 +130,6 @@ fn resolve_field<'a>(
     selection_parent: SelectionParent<'a>,
     project_name: StringKey,
     source_programs: &SourcePrograms,
-    root_dir: &PathBuf,
     extra_data_provider: &(dyn LSPExtraDataProvider + 'static),
 ) -> LSPRuntimeResult<GotoDefinitionResponse> {
     let source_program = source_programs.get(&project_name).ok_or_else(|| {
@@ -136,21 +141,29 @@ fn resolve_field<'a>(
 
     let parent_name = source_program.schema.get_type_name(parent_type);
 
-    let provider_response = extra_data_provider
-        .resolve_field_definition(
-            project_name.to_string(),
-            root_dir,
-            parent_name.to_string(),
-            Some(field_name),
-        )
-        .ok_or(LSPRuntimeError::ExpectedError)?;
-    let (path, line) = provider_response.map_err(|e| -> LSPRuntimeError {
+    let provider_response = extra_data_provider.resolve_field_definition(
+        project_name.to_string(),
+        parent_name.to_string(),
+        Some(field_name),
+    );
+    let FieldDefinitionSourceInfo {
+        file_path,
+        line_number,
+        is_local,
+    } = provider_response.map_err(|e| -> LSPRuntimeError {
         LSPRuntimeError::UnexpectedError(format!(
             "Error resolving field definition location: {}",
             e
         ))
     })?;
-    Ok(GotoDefinitionResponse::Scalar(get_location(&path, line)?))
+    if is_local {
+        Ok(GotoDefinitionResponse::Scalar(get_location(
+            &file_path,
+            line_number,
+        )?))
+    } else {
+        Err(LSPRuntimeError::ExpectedError)
+    }
 }
 
 pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(

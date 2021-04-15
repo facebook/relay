@@ -79,43 +79,30 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   }
 
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
-    return this.multiActorEnvironment.applyMutation(
-      this.actorIdentifier,
-      optimisticConfig,
-    );
+    return this.multiActorEnvironment.applyMutation(this, optimisticConfig);
   }
 
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable {
-    return this.multiActorEnvironment.applyUpdate(
-      this.actorIdentifier,
-      optimisticUpdate,
-    );
+    return this.multiActorEnvironment.applyUpdate(this, optimisticUpdate);
   }
 
   check(operation: OperationDescriptor): OperationAvailability {
-    return this.multiActorEnvironment.check(this.actorIdentifier, operation);
+    return this.multiActorEnvironment.check(this, operation);
   }
 
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    return this.multiActorEnvironment.subscribe(
-      this.actorIdentifier,
-      snapshot,
-      callback,
-    );
+    return this.multiActorEnvironment.subscribe(this, snapshot, callback);
   }
 
   retain(operation: OperationDescriptor): Disposable {
-    return this.multiActorEnvironment.retain(this.actorIdentifier, operation);
+    return this.multiActorEnvironment.retain(this, operation);
   }
 
   commitUpdate(updater: StoreUpdater): void {
-    return this.multiActorEnvironment.commitUpdate(
-      this.actorIdentifier,
-      updater,
-    );
+    return this.multiActorEnvironment.commitUpdate(this, updater);
   }
 
   /**
@@ -126,7 +113,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     payload: PayloadData,
   ): void {
     return this.multiActorEnvironment.commitPayload(
-      this.actorIdentifier,
+      this,
       operationDescriptor,
       payload,
     );
@@ -145,40 +132,31 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {
-    return this.multiActorEnvironment.lookup(this.actorIdentifier, selector);
+    return this.multiActorEnvironment.lookup(this, selector);
   }
 
   execute(config: {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
-    return this.multiActorEnvironment.execute(this.actorIdentifier, config);
+    return this.multiActorEnvironment.execute(this, config);
   }
 
   executeMutation(
     options: ExecuteMutationConfig,
   ): RelayObservable<GraphQLResponse> {
-    return this.multiActorEnvironment.executeMutation(
-      this.actorIdentifier,
-      options,
-    );
+    return this.multiActorEnvironment.executeMutation(this, options);
   }
 
   executeWithSource(options: {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
   }): RelayObservable<GraphQLResponse> {
-    return this.multiActorEnvironment.executeWithSource(
-      this.actorIdentifier,
-      options,
-    );
+    return this.multiActorEnvironment.executeWithSource(this, options);
   }
 
   isRequestActive(requestIdentifier: string): boolean {
-    return this.multiActorEnvironment.isRequestActive(
-      this.actorIdentifier,
-      requestIdentifier,
-    );
+    return this.multiActorEnvironment.isRequestActive(this, requestIdentifier);
   }
 
   isServer(): boolean {

@@ -64,7 +64,7 @@ export interface IMultiActorEnvironment {
    * selector.
    */
   check(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     operation: OperationDescriptor,
   ): OperationAvailability;
 
@@ -74,7 +74,7 @@ export interface IMultiActorEnvironment {
    * the snapshot's selector to change.
    */
   subscribe(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable;
@@ -85,7 +85,7 @@ export interface IMultiActorEnvironment {
    * until the returned reference is disposed.
    */
   retain(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     operation: OperationDescriptor,
   ): Disposable;
 
@@ -94,7 +94,7 @@ export interface IMultiActorEnvironment {
    * by calling `dispose()` on the returned value.
    */
   applyUpdate(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     optimisticUpdate: OptimisticUpdateFunction,
   ): Disposable;
 
@@ -103,7 +103,7 @@ export interface IMultiActorEnvironment {
    * reverted by calling `dispose()` on the returned value.
    */
   applyMutation(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     optimisticConfig: OptimisticResponseConfig,
   ): Disposable;
 
@@ -112,13 +112,16 @@ export interface IMultiActorEnvironment {
    * should therefore not be used for optimistic updates. This is mainly
    * intended for updating fields from client schema extensions.
    */
-  commitUpdate(actorIdentifier: ActorIdentifier, updater: StoreUpdater): void;
+  commitUpdate(
+    actorEnvironemnt: IActorEnvironment,
+    updater: StoreUpdater,
+  ): void;
 
   /**
    * Commit a payload to the environment using the given operation selector.
    */
   commitPayload(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void;
@@ -127,7 +130,7 @@ export interface IMultiActorEnvironment {
    * Read the results of a selector from in-memory records in the store.
    */
   lookup(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     selector: SingularReaderSelector,
   ): Snapshot;
 
@@ -143,7 +146,7 @@ export interface IMultiActorEnvironment {
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
   execute(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
       updater?: ?SelectorStoreUpdater,
@@ -161,7 +164,7 @@ export interface IMultiActorEnvironment {
    * environment.executeMutation({...}).subscribe({...}).
    */
   executeMutation(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     config: ExecuteMutationConfig,
   ): RelayObservable<GraphQLResponse>;
 
@@ -175,7 +178,7 @@ export interface IMultiActorEnvironment {
    * environment.executeWithSource({...}).subscribe({...}).
    */
   executeWithSource(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     {
       operation: OperationDescriptor,
       source: RelayObservable<GraphQLResponse>,
@@ -190,7 +193,7 @@ export interface IMultiActorEnvironment {
    * active GraphQL subscription
    */
   isRequestActive(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     requestIdentifier: string,
   ): boolean;
 }

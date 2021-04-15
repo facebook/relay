@@ -107,14 +107,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   check(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
   ): OperationAvailability {
     return todo('check');
   }
 
   subscribe(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
@@ -122,32 +122,35 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   retain(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
   ): Disposable {
     return todo('retain');
   }
 
   applyUpdate(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     optimisticUpdate: OptimisticUpdateFunction,
   ): Disposable {
     return todo('applyUpdate');
   }
 
   applyMutation(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     optimisticConfig: OptimisticResponseConfig,
   ): Disposable {
     return todo('applyMutation');
   }
 
-  commitUpdate(actorIdentifier: ActorIdentifier, updater: StoreUpdater): void {
+  commitUpdate(
+    actorEnvironment: IActorEnvironment,
+    updater: StoreUpdater,
+  ): void {
     return todo('commitUpdate');
   }
 
   commitPayload(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void {
@@ -155,14 +158,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   lookup(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironment: IActorEnvironment,
     selector: SingularReaderSelector,
   ): Snapshot {
     return todo('lookup');
   }
 
   execute(
-    actorIdentifier: ActorIdentifier,
+    actorEnvironemnt: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
       updater?: ?SelectorStoreUpdater,
@@ -170,7 +173,6 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   ): RelayObservable<GraphQLResponse> {
     const {operation, updater} = config;
     return RelayObservable.create(sink => {
-      const actorEnvironemnt = this.forActor(actorIdentifier);
       const source = actorEnvironemnt
         .getNetwork()
         .execute(
@@ -206,14 +208,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   executeMutation(
-    actorIdentifier: ActorIdentifier,
+    actorEnvrionment: IActorEnvironment,
     config: ExecuteMutationConfig,
   ): RelayObservable<GraphQLResponse> {
     return todo('executeMutation');
   }
 
   executeWithSource(
-    actorIdentifier: ActorIdentifier,
+    actorEnvrionment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
       source: RelayObservable<GraphQLResponse>,
@@ -223,7 +225,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   isRequestActive(
-    actorIdentifier: ActorIdentifier,
+    actorEnvrionment: IActorEnvironment,
     requestIdentifier: string,
   ): boolean {
     return todo('isRequestActive');

@@ -384,14 +384,15 @@ impl<'program> MatchTransform<'program> {
                         previous_match_for_type.fragment.location,
                     ));
                 }
+            } else {
+                matches.types.insert(
+                    fragment.type_condition,
+                    TypeMatch {
+                        fragment: spread.fragment,
+                        module_directive_name_argument,
+                    },
+                );
             }
-            matches.types.insert(
-                fragment.type_condition,
-                TypeMatch {
-                    fragment: spread.fragment,
-                    module_directive_name_argument,
-                },
-            );
 
             // Done validating. Build out the resulting fragment spread.
             let mut component_field_arguments = vec![build_string_literal_argument(

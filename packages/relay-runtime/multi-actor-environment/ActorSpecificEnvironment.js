@@ -4,38 +4,39 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @emails oncall+relay
  * @flow strict-local
  * @format
  */
 
 'use strict';
 
-import type {ActorIdentifier} from './ActorIdentifier';
+const RelayOperationTracker = require('../store/RelayOperationTracker');
+
+import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
+import type {INetwork} from '../network/RelayNetworkTypes';
+import type RelayObservable from '../network/RelayObservable';
 import type {
-  IActorEnvironment,
-  IMultiActorEnvironment,
-} from './MultiActorEnvironmentTypes';
-import type {
-  RenderPolicy,
-  Disposable,
-  Observable as RelayObservable,
-  LogFunction,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
   OperationDescriptor,
   OperationAvailability,
   Snapshot,
-  PayloadData,
-  INetwork,
-  Store,
   SelectorStoreUpdater,
-  GraphQLResponse,
   SingularReaderSelector,
-  OperationTracker as RelayOperationTracker,
   StoreUpdater,
-  ExecuteMutationConfig,
   RequiredFieldLogger,
-} from 'relay-runtime';
+  ExecuteMutationConfig,
+  LogFunction,
+  Store,
+  OperationTracker,
+} from '../store/RelayStoreTypes';
+import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
+import type {ActorIdentifier} from './ActorIdentifier';
+import type {
+  IActorEnvironment,
+  IMultiActorEnvironment,
+} from './MultiActorEnvironmentTypes';
 
 function todo() {
   throw new Error('Not implementd');
@@ -43,16 +44,20 @@ function todo() {
 
 export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   actorIdentifier: ActorIdentifier,
-  multiActorEnvironment: IMultiActorEnvironment,
   logFn: LogFunction,
+  multiActorEnvironment: IMultiActorEnvironment,
+  network: INetwork,
   requiredFieldLogger: RequiredFieldLogger,
+  store: Store,
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
   +options: mixed;
   __log: LogFunction;
   requiredFieldLogger: RequiredFieldLogger;
-  +store: Store;
+  +_store: Store;
+  +_network: INetwork;
+  +_operationTracker: OperationTracker;
 
   // Actor specific properties
   +actorIdentifier: ActorIdentifier;
@@ -64,6 +69,9 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
     this.__log = config.logFn;
     this.requiredFieldLogger = config.requiredFieldLogger;
+    this._operationTracker = new RelayOperationTracker();
+    this._store = config.store;
+    this._network = config.network;
   }
 
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
@@ -125,15 +133,15 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   }
 
   getNetwork(): INetwork {
-    return this.multiActorEnvironment.getNetwork(this.actorIdentifier);
+    return this._network;
   }
 
   getStore(): Store {
-    return this.store;
+    return this._store;
   }
 
-  getOperationTracker(): RelayOperationTracker {
-    return this.multiActorEnvironment.getOperationTracker(this.actorIdentifier);
+  getOperationTracker(): OperationTracker {
+    return this._operationTracker;
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {
@@ -144,7 +152,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater,
   }): RelayObservable<GraphQLResponse> {
-    return todo();
+    return this.multiActorEnvironment.execute(this.actorIdentifier, config);
   }
 
   executeMutation(

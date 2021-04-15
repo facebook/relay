@@ -4,32 +4,29 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * @emails oncall+relay
  * @flow strict-local
  * @format
  */
 
 'use strict';
 
-import type {ActorIdentifier} from './ActorIdentifier';
+import type {PayloadData, GraphQLResponse} from '../network/RelayNetworkTypes';
+import type RelayObservable from '../network/RelayObservable';
 import type {
-  Disposable,
-  GraphQLResponse,
-  INetwork,
-  Observable as RelayObservable,
   OperationAvailability,
   OperationDescriptor,
-  OperationTracker as RelayOperationTracker,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
-  PayloadData,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
-  Store,
   StoreUpdater,
   IEnvironment,
   ExecuteMutationConfig,
-} from 'relay-runtime';
+} from '../store/RelayStoreTypes';
+import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {ActorIdentifier} from './ActorIdentifier';
 
 /**
  * Interface of actor specific sub-environment
@@ -125,21 +122,6 @@ export interface IMultiActorEnvironment {
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void;
-
-  /**
-   * Get the environment's internal Network.
-   */
-  getNetwork(actorIdentifier: ActorIdentifier): INetwork;
-
-  /**
-   * Get the environment's internal Store.
-   */
-  getStore(actorIdentifier: ActorIdentifier): Store;
-
-  /**
-   * Returns the environment specific OperationTracker.
-   */
-  getOperationTracker(actorIdentifier: ActorIdentifier): RelayOperationTracker;
 
   /**
    * Read the results of a selector from in-memory records in the store.

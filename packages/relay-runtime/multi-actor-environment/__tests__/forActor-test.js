@@ -13,7 +13,7 @@
 
 const MultiActorEnvironment = require('../MultiActorEnvironment');
 
-const {Network} = require('relay-runtime');
+const {create} = require('../../network/RelayNetwork');
 
 jest.mock('../ActorIdentifier', () => {
   return {
@@ -29,7 +29,7 @@ test('forActor: creates an environment', () => {
   const actorIdentifer = getDefaultActorIdentifier();
   const fetchFn = jest.fn();
   const multiActorEnvrionment = new MultiActorEnvironment({
-    network: Network.create(fetchFn),
+    createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     requiredFieldLogger: jest.fn(),
   });
@@ -43,7 +43,7 @@ test('forActor: memoize an environment', () => {
   const actorIdentifer = getDefaultActorIdentifier();
   const fetchFn = jest.fn();
   const multiActorEnvrionment = new MultiActorEnvironment({
-    network: Network.create(fetchFn),
+    createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     requiredFieldLogger: jest.fn(),
   });

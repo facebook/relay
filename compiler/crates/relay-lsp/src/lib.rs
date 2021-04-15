@@ -24,6 +24,7 @@ mod lsp_runtime_error;
 mod node_resolution_info;
 mod references;
 mod resolution_path;
+mod resolved_types_at_location;
 mod server;
 mod shutdown;
 mod status_reporting;

@@ -4,7 +4,7 @@ title: Introdução ao Relay
 slug: /
 ---
 
-O Relay é uma estrutura JavaScript para a construção de aplicativos React orientados a dados com tecnologia GraphQL, projetada desde o início para ser fácil de usar, extensível e acima de tudo de alto desempenho. O Relay faz isso com consultas estáticas e criação de código antecipado.
+O Relay é um framework JavaScript para a construção de aplicativos React orientados a dados com tecnologia GraphQL, projetado desde o início para ser fácil de usar, extensível e acima de tudo de alto desempenho. O Relay faz isso com consultas estáticas e criação de código antecipado.
 
 [React](https://facebook.github.io/react/) permite que as visualizações sejam definidas como componentes em que cada componente é responsável por renderizar uma parte da IU. Compor outros componentes é como construir interfaces de usuário complexas. Cada componente React não precisa conhecer o funcionamento interno dos componentes compostos.
 

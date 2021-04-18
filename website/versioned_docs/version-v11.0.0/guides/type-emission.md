@@ -391,9 +391,7 @@ return <ExampleFragmentComponent artist={data.artist} />;
 
 ## Single artifact directory
 
-An important caveat to note is that by default strict fragment reference type-information will _not_ be emitted, instead they will be typed as `any` and would allow you to pass in any data to the child component.
-
-To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, like so:
+If desired, you may tell the compiler to store all the artifacts in a single directory, like so:
 
 ```shell
 
@@ -413,17 +411,6 @@ $ relay-compiler --artifactDirectory ./src/__generated__ […]
 ```
 
 It is recommended to alias this directory in your module resolution configuration such that you don’t need to specify relative paths in your source files. This is what is also done in the above examples, where artifacts are imported from a `__generated__` alias, rather than relative paths like `../../../../__generated__`.
-
-### Background information
-
-The reason is that `relay-compiler` and its artifact emission is stateless. Meaning that it does not keep track of locations of original source files and where the compiler previously saved the accompanying artifact on disk. Thus, if the compiler were to emit artifacts that try to import fragment reference types from _other_ artifacts, the compiler would:
-
--   first need to know where on disk that other artifact exists;
--   and update imports when the other artifact changes location on disk.
-
-Facebook uses a module system called [Haste], in which all source files are considered in a flat namespace. This means that an import declaration does not need to specify the path to another module and thus there is no need for the compiler to ever consider the above issues. I.e. an import only needs to specify the basename of the module filename and Haste takes care of actually finding the right module at import time. Outside of Facebook, however, usage of the Haste module system is non-existent nor encouraged, thus the decision to not import fragment reference types but instead type them as `any`.
-
-At its simplest, we can consider Haste as a single directory that contains all module files, thus all module imports always being safe to import using relative sibling paths. This is what is achieved by the single artifact directory feature. Rather than co-locating artifacts with their source files, all artifacts are stored in a single directory, allowing the compiler to emit imports of fragment reference types.
 
 ## Language plugins
 

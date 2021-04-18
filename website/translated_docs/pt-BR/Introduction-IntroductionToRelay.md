@@ -1,11 +1,11 @@
 ---
 id: introduction-to-relay
-title: Introduction to Relay
+title: Introdução ao Relay
 slug: /
 ---
 
-Relay is a JavaScript framework for building data-driven React applications powered by GraphQL, designed from the ground up to be easy to use, extensible and, most of all, performant. Relay accomplishes this with static queries and ahead-of-time code generation.
+O Relay é uma estrutura JavaScript para a construção de aplicativos React orientados a dados com tecnologia GraphQL, projetada desde o início para ser fácil de usar, extensível e acima de tudo de alto desempenho. O Relay faz isso com consultas estáticas e criação de código antecipado.
 
-[React](https://facebook.github.io/react/) allows views to be defined as components where every component is responsible for rendering a part of the UI. Composing other components is how to build complex UIs. Each React component doesn't need to know the inner workings of the composed components.
+[React](https://facebook.github.io/react/) permite que as visualizações sejam definidas como componentes em que cada componente é responsável por renderizar uma parte da IU. Compor outros componentes é como construir interfaces de usuário complexas. Cada componente React não precisa conhecer o funcionamento interno dos componentes compostos.
 
-Relay couples React with GraphQL and develops the idea of encapsulation further. It allows components to specify what data they need and the Relay framework provides the data. This makes the data needs of inner components opaque and allows composition of those needs. Thinking about what data an app needs becomes localized to the component making it easier to reason about what fields are needed or no longer needed.
+O Relay agrupa o React com GraphQL e desenvolve ainda mais a ideia de encapsulamento. Ele permite que os componentes especifiquem quais dados precisam e a estrutura do Relay fornece os dados. Isso torna as necessidades dos dados de componentes internos imprecisas, mas o Relay permite a composição dessas necessidades. Com isso, pensar que os dados precisos de uma aplicação se tornam localizados para o componente, acabam ficando mais fácil raciocinar sobre quais campos são necessários ou não para o mesmo.

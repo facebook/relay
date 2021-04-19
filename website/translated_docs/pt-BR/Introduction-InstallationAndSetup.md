@@ -1,11 +1,11 @@
 ---
 id: installation-and-setup
-title: Installation and Setup
+title: Instalação e configuração
 ---
 
-## Installation
+## Instalação
 
-Install React and Relay using `yarn` or `npm`:
+Instale React e Relay usando `yarn` ou `npm`:
 
 ```sh
 
@@ -13,11 +13,11 @@ yarn add react react-dom react-relay
 
 ```
 
-## Set up Relay with a single config file
+## Configurar Relay com um arquivo de configuração
 
-The below configuration of `babel-plugin-relay` and `relay-compiler` can be applied using a single configuration file by using the `relay-config` package. Besides unifying all Relay configuration in a single place, other tooling can leverage this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
+A configuração abaixo do `babel-plugin-relay` e `relay-compiler` pode ser aplicada usando um arquivo de configuração através do pacote `relay-config`. Besides unifying all Relay configuration in a single place, other tooling can leverage this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
 
-Install the package:
+Instale o pacote:
 
 ```sh
 

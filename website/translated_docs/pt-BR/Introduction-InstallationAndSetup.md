@@ -13,7 +13,7 @@ yarn add react react-dom react-relay
 
 ```
 
-## Configurar Relay com um arquivo de configuração
+## Configurando Relay com um arquivo de configuração
 
 A configuração abaixo do `babel-plugin-relay` e `relay-compiler` pode ser aplicada usando um arquivo de configuração através do pacote `relay-config`. Besides unifying all Relay configuration in a single place, other tooling can leverage this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
 
@@ -40,7 +40,7 @@ module.exports = {
 
 ```
 
-## Configurar babel-plugin-relay
+## Configurando babel-plugin-relay
 
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
 
@@ -74,7 +74,7 @@ const graphql = require('babel-plugin-relay/macro');
 
 If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
 
-For example:
+Por exemplo:
 
 ```javascript
 
@@ -89,7 +89,7 @@ module.exports = {
 
 ```
 
-## Set up relay-compiler
+## Configurando relay-compiler
 
 Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay.html#relay-compiler), which you can install via `yarn` or `npm`:
 
@@ -135,7 +135,7 @@ yarn run relay --watch
 
 ```
 
-For more details, check out our [Relay Compiler docs](./graphql-in-relay.html#relay-compiler).
+Para mais detalhes, verifique nossa [documentação do Relay Compiler](./graphql-in-relay.html#relay-compiler).
 
 ## JavaScript environment requirements
 

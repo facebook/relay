@@ -5,7 +5,7 @@ title: Pré-requisitos
 
 ## React
 
-Relay is a framework for data management with the primary supported binding for React applications, so we assume that you are already familiar with [React](https://reactjs.org/).
+Relay é um framework para gerenciamento de dados com suporte direto a aplicações React, portanto, presumimos que você já esteja familiarizado com o [React](https://reactjs.org/) e seu ecossistema.
 
 ## GraphQL
 

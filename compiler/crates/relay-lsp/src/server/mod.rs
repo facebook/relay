@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod heartbeat;
 mod lsp_notification_dispatch;
 mod lsp_request_dispatch;
 mod lsp_state;
@@ -58,6 +59,8 @@ use std::sync::Arc;
 pub use crate::LSPExtraDataProvider;
 pub use lsp_state::LSPState;
 pub use lsp_state::{Schemas, SourcePrograms};
+
+use heartbeat::{on_heartbeat, HeartbeatRequest};
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -179,6 +182,7 @@ fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
             .on_request_sync::<CodeActionRequest>(on_code_action)?
             .on_request_sync::<Shutdown>(on_shutdown)?
             .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
+            .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
             .request();
 
         // If we have gotten here, we have not handled the request

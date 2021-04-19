@@ -128,23 +128,24 @@ where
         connection.sender.clone(),
     );
 
-    for msg in connection.receiver {
-        debug!("LSP message received {:?}", msg);
-        match msg {
-            Message::Request(req) => {
+    loop {
+        debug!("waiting for incoming messages...");
+        match connection.receiver.recv() {
+            Ok(Message::Request(req)) => {
                 handle_request(&mut lsp_state, req, &connection.sender, &perf_logger)
                     .map_err(LSPProcessError::from)?;
             }
-            Message::Notification(notification) => {
+            Ok(Message::Notification(notification)) => {
                 handle_notification(&mut lsp_state, notification, &perf_logger);
             }
-            _ => {
+            Ok(_) => {
                 // Ignore responses for now
+            }
+            Err(error) => {
+                panic!("Relay Language Server receiver error {:?}", error);
             }
         }
     }
-
-    Ok(())
 }
 
 fn handle_request<TPerfLogger: PerfLogger + 'static>(
@@ -153,6 +154,7 @@ fn handle_request<TPerfLogger: PerfLogger + 'static>(
     sender: &Sender<Message>,
     perf_logger: &Arc<TPerfLogger>,
 ) -> Result<(), SendError<Message>> {
+    debug!("request received {:?}", request);
     let get_server_response_bound = |req| dispatch_request(req, lsp_state);
     let get_response = with_request_logging(perf_logger, get_server_response_bound);
 
@@ -231,6 +233,7 @@ fn handle_notification<TPerfLogger: PerfLogger + 'static>(
     notification: Notification,
     perf_logger: &Arc<TPerfLogger>,
 ) {
+    debug!("notification received {:?}", notification);
     let lsp_notification_event = perf_logger.create_event("lsp_message");
     lsp_notification_event.string("lsp_method", notification.method.clone());
     lsp_notification_event.string("lsp_type", "notification".to_string());

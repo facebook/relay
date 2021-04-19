@@ -105,7 +105,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
    * and store it in the internal maps. If will return a memozied version
    * of the environment if we already created one for actor.
    */
-  forActor(actorIdentifier: ActorIdentifier): IEnvironment & IActorEnvironment {
+  forActor(actorIdentifier: ActorIdentifier): IActorEnvironment {
     const environment = this._actorEnvironments.get(actorIdentifier);
     if (environment == null) {
       const newEnvironment = new ActorSpecificEnvironment({

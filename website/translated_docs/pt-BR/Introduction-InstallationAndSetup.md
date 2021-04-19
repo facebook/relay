@@ -25,14 +25,14 @@ yarn add --dev relay-config
 
 ```
 
-And create the configuration file:
+E crie o arquivo de configuração:
 
 ```javascript
 
 // relay.config.js
 module.exports = {
   // ...
-  // Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.
+  // Opções de configuração aceitas pelo `relay-compiler` command-line tool e `babel-plugin-relay`.
   src: "./src",
   schema: "./data/schema.graphql",
   exclude: ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
@@ -40,7 +40,7 @@ module.exports = {
 
 ```
 
-## Set up babel-plugin-relay
+## Configurar babel-plugin-relay
 
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
 
@@ -50,7 +50,7 @@ yarn add --dev babel-plugin-relay graphql
 
 ```
 
-Add `"relay"` to the list of plugins your `.babelrc` file:
+Adicionar `"relay"` na lista de plugins do seu arquivo `.babelrc`:
 
 ```javascript
 
@@ -109,7 +109,7 @@ This installs the bin script `relay-compiler` in your node_modules folder. It's 
 
 ```
 
-or if you are using jsx:
+ou se você estiver usando jsx:
 
 ```js
 

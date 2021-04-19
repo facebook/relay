@@ -13,6 +13,7 @@
 
 import type {PayloadData, GraphQLResponse} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
+import type RelayPublishQueue from '../store/RelayPublishQueue';
 import type {
   OperationAvailability,
   OperationDescriptor,
@@ -42,6 +43,11 @@ export interface IActorEnvironment extends IEnvironment {
    * Identifier of the actor for the current active environment
    */
   +actorIdentifier: ActorIdentifier;
+
+  /**
+   * TODO: this needs to move the the MultiActorEnvironment with different API.
+   */
+  getPublishQueue(): RelayPublishQueue;
 }
 
 /**

@@ -12,19 +12,19 @@
 'use strict';
 
 const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
-const OperationExecutor = require('../store/OperationExecutor');
+const MultiActorOperationExecutor = require('./MultiActorOperationExecutor');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayModernStore = require('../store/RelayModernStore');
 const RelayObservable = require('../network/RelayObservable');
-const RelayPublishQueue = require('../store/RelayPublishQueue');
 const RelayRecordSource = require('../store/RelayRecordSource');
 
 const defaultGetDataID = require('../store/defaultGetDataID');
+const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
-import type {ActiveState} from '../store/OperationExecutor';
+import type {ActiveState, TaskScheduler} from '../store/OperationExecutor';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   IEnvironment,
@@ -34,6 +34,9 @@ import type {
   OperationAvailability,
   Snapshot,
   SelectorStoreUpdater,
+  OperationLoader,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   SingularReaderSelector,
   StoreUpdater,
   RequiredFieldLogger,
@@ -55,9 +58,14 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   getDataID?: GetDataID,
   handlerProvider?: HandlerProvider,
-  logFn: LogFunction,
-  requiredFieldLogger: RequiredFieldLogger,
+  logFn?: ?LogFunction,
+  operationLoader?: ?OperationLoader,
+  scheduler?: ?TaskScheduler,
+  reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+  reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
+  requiredFieldLogger?: ?RequiredFieldLogger,
   treatMissingFieldsAsNull?: boolean,
+  shouldProcessClientComponents?: ?boolean,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
@@ -68,18 +76,27 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_logFn: LogFunction;
   +_operationExecutions: Map<string, ActiveState>;
   +_requiredFieldLogger: RequiredFieldLogger;
+  +_operationLoader: ?OperationLoader;
+  +_reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  +_scheduler: ?TaskScheduler;
+  +_reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  +_shouldProcessClientComponents: ?boolean;
   +_treatMissingFieldsAsNull: boolean;
 
   constructor(config: MultiActorEnvironmentConfig) {
     this._actorEnvironments = new Map();
+    this._operationLoader = config.operationLoader;
     this._createNetworkForActor = config.createNetworkForActor;
+    this._scheduler = config.scheduler;
     this._getDataID = config.getDataID ?? defaultGetDataID;
     this._handlerProvider = config.handlerProvider
       ? config.handlerProvider
       : RelayDefaultHandlerProvider;
-    this._logFn = config.logFn;
+    this._logFn = config.logFn ?? emptyFunction;
     this._operationExecutions = new Map();
-    this._requiredFieldLogger = config.requiredFieldLogger;
+    this._requiredFieldLogger =
+      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
+    this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
   }
 
@@ -118,7 +135,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    return todo('subscribe');
+    // TODO: make actor aware
+    return actorEnvironment.getStore().subscribe(snapshot, callback);
   }
 
   retain(
@@ -161,57 +179,71 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     selector: SingularReaderSelector,
   ): Snapshot {
-    return todo('lookup');
+    // TODO: make actor aware
+    return actorEnvironment.getStore().lookup(selector);
   }
 
   execute(
     actorEnvironemnt: IActorEnvironment,
-    config: {
+    {
+      operation,
+      updater,
+    }: {
       operation: OperationDescriptor,
       updater?: ?SelectorStoreUpdater,
     },
   ): RelayObservable<GraphQLResponse> {
-    const {operation, updater} = config;
-    return RelayObservable.create(sink => {
-      const source = actorEnvironemnt
-        .getNetwork()
-        .execute(
-          operation.request.node.params,
-          operation.request.variables,
-          operation.request.cacheConfig || {},
-          null,
-        );
-      const executor = OperationExecutor.execute({
-        operation,
-        operationExecutions: this._operationExecutions,
-        operationLoader: null,
-        optimisticConfig: null,
-        publishQueue: new RelayPublishQueue(
-          actorEnvironemnt.getStore(),
-          this._handlerProvider,
-          this._getDataID,
-        ),
-        reactFlightPayloadDeserializer: null,
-        reactFlightServerErrorHandler: null,
-        scheduler: null,
-        sink,
-        source,
-        store: actorEnvironemnt.getStore(),
-        updater,
-        operationTracker: actorEnvironemnt.getOperationTracker(),
-        getDataID: this._getDataID,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-        shouldProcessClientComponents: false,
-      });
-      return () => executor.cancel();
+    return this._execute(actorEnvironemnt, {
+      createSource: () =>
+        actorEnvironemnt
+          .getNetwork()
+          .execute(
+            operation.request.node.params,
+            operation.request.variables,
+            operation.request.cacheConfig || {},
+            null,
+          ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig: null,
+      updater,
     });
   }
 
   executeMutation(
-    actorEnvrionment: IActorEnvironment,
-    config: ExecuteMutationConfig,
+    actorEnvironemnt: IActorEnvironment,
+    {
+      operation,
+      optimisticResponse,
+      optimisticUpdater,
+      updater,
+      uploadables,
+    }: ExecuteMutationConfig,
   ): RelayObservable<GraphQLResponse> {
-    return todo('executeMutation');
+    let optimisticConfig;
+    if (optimisticResponse || optimisticUpdater) {
+      optimisticConfig = {
+        operation: operation,
+        response: optimisticResponse,
+        updater: optimisticUpdater,
+      };
+    }
+    return this._execute(actorEnvironemnt, {
+      createSource: () =>
+        actorEnvironemnt.getNetwork().execute(
+          operation.request.node.params,
+          operation.request.variables,
+          {
+            ...operation.request.cacheConfig,
+            force: true,
+          },
+          uploadables,
+        ),
+      isClientPayload: false,
+      operation,
+      optimisticConfig,
+      updater,
+    });
   }
 
   executeWithSource(
@@ -230,6 +262,50 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   ): boolean {
     return todo('isRequestActive');
   }
+
+  _execute(
+    actorEnvironemnt: IActorEnvironment,
+    {
+      createSource,
+      isClientPayload,
+      operation,
+      optimisticConfig,
+      updater,
+    }: {|
+      createSource: () => RelayObservable<GraphQLResponse>,
+      isClientPayload: boolean,
+      operation: OperationDescriptor,
+      optimisticConfig: ?OptimisticResponseConfig,
+      updater: ?SelectorStoreUpdater,
+    |},
+  ): RelayObservable<GraphQLResponse> {
+    return RelayObservable.create(sink => {
+      const executor = MultiActorOperationExecutor.execute({
+        getDataID: this._getDataID,
+        isClientPayload,
+        operation,
+        operationExecutions: this._operationExecutions,
+        operationLoader: this._operationLoader,
+        operationTracker: actorEnvironemnt.getOperationTracker(),
+        optimisticConfig,
+        publishQueue: actorEnvironemnt.getPublishQueue(),
+        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
+        scheduler: this._scheduler,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
+        sink,
+        // NOTE: Some product tests expect `Network.execute` to be called only
+        //       when the Observable is executed.
+        source: createSource(),
+        store: actorEnvironemnt.getStore(),
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        updater,
+      });
+      return () => executor.cancel();
+    });
+  }
 }
+
+function emptyFunction() {}
 
 module.exports = MultiActorEnvironment;

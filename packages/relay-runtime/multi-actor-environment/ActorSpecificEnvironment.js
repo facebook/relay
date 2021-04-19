@@ -12,6 +12,9 @@
 'use strict';
 
 const RelayOperationTracker = require('../store/RelayOperationTracker');
+const RelayPublishQueue = require('../store/RelayPublishQueue');
+
+const defaultGetDataID = require('../store/defaultGetDataID');
 
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
@@ -58,6 +61,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   +_store: Store;
   +_network: INetwork;
   +_operationTracker: OperationTracker;
+  +_publishQueue: RelayPublishQueue;
 
   // Actor specific properties
   +actorIdentifier: ActorIdentifier;
@@ -72,6 +76,15 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     this._operationTracker = new RelayOperationTracker();
     this._store = config.store;
     this._network = config.network;
+    this._publishQueue = new RelayPublishQueue(
+      config.store,
+      () => {},
+      defaultGetDataID,
+    );
+  }
+
+  getPublishQueue(): RelayPublishQueue {
+    return this._publishQueue;
   }
 
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {

@@ -3,32 +3,32 @@ id: graphql-server-specification
 title: GraphQL Server Specification
 ---
 
-The goal of this document is to specify the assumptions that Relay makes about a GraphQL server and demonstrate them through an example GraphQL schema.
+O objetivo deste documento é especificar as premissas que o Relay possui em relação à um Server GraphQL e demonstrar o mesmo através de um schema GraphQL.
 
-Table of Contents:
+Conteúdo:
 
--   [Preface](#preface)
+-   [Prefácio](#preface)
 -   [Schema](#schema)
--   [Object Identification](#object-identification)
+-   [Identificação do Objeto](#object-identification)
 -   [Connections](#connections)
 -   [Mutations](#mutations)
--   [Further Reading](#further-reading)
+-   [Leituras Adicionais](#further-reading)
 
-## Preface
+## Prefácio
 
-The three core assumptions that Relay makes about a GraphQL server are that it provides:
+As três principais premissas que o Relay possui sobre um Server GraphQL são que ele forneça:
 
-1.  A mechanism for refetching an object.
-2.  A description of how to page through connections.
-3.  Structure around mutations to make them predictable.
+1.  Um mecanismo para fazer o refetch de um objeto.
+2.  Uma descrição de como fazer uma paginação entre connections.
+3.  Estruturas em torno das Mutations para que as façam previsíveis.
 
-This example demonstrates all three of these assumptions. This example is not comprehensive, but it is designed to quickly introduce these core assumptions, to provide some context before diving into the more detailed specification of the library.
+Este exemplo demonstra todas estas três premissas. Este exemplo não é abrangente, mas foi projetado para introduzir rapidamente essas premissas básicas, para fornecer algum contexto antes de mergulhar nas especificações mais detalhadas da biblioteca.
 
-The premise of the example is that we want to use GraphQL to query for information about ships and factions in the original Star Wars trilogy.
+A premissa desse é exemple é que nos queremos utilizar o GraphQL para buscar informações sobre naves e facções da trilogia original do Star Wars.
 
-It is assumed that the reader is already familiar with [GraphQL](http://graphql.org/); if not, the README for [GraphQL.js](https://github.com/graphql/graphql-js) is a good place to start.
+Presume-se que o leitor já esteja familiarizado com [GraphQL](http://graphql.org/); caso contrário, o README do repo oficial do [GraphQL.js](https://github.com/graphql/graphql-js) é um bom lugar para começar.
 
-It is also assumed that the reader is already familiar with [Star Wars](https://en.wikipedia.org/wiki/Star_Wars); if not, the 1977 version of Star Wars is a good place to start, though the 1997 Special Edition will serve for the purposes of this document.
+Também presume-se que o leitor já esteja familiarizado com [ Star Wars ](https://en.wikipedia.org/wiki/Star_Wars); caso contrário, a versão de 1977 de Star Wars é um bom lugar para começar, embora a edição especial de 1997 sirva para os propósitos deste documento.
 
 ## Schema
 

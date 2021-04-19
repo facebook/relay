@@ -120,6 +120,14 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [environment, cacheIdentifier]);
 
+  useEffect(() => {
+    // Release any temporary retain that's not released. At this point, if the
+    // cacheIdentifier doesn't change, the query is still permanently retained,
+    // and the temporary retain is redundant.
+    QueryResource.releaseTemporaryRetain(preparedQueryResult);
+    // This effect is intended to run on every commit, thus no dependency
+  });
+
   const {fragmentNode, fragmentRef} = preparedQueryResult;
   const {data} = useFragmentNode(
     fragmentNode,

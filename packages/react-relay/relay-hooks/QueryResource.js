@@ -53,6 +53,7 @@ type QueryResourceCacheEntry = {|
   setValue(Error | Promise<void> | QueryResult): void,
   temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
+  releaseTemporaryRetain(): void,
 |};
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
@@ -231,6 +232,12 @@ function createCacheEntry(
         },
       };
     },
+    releaseTemporaryRetain() {
+      if (releaseTemporaryRetain != null) {
+        releaseTemporaryRetain();
+        releaseTemporaryRetain = null;
+      }
+    },
   };
 
   return cacheEntry;
@@ -364,6 +371,13 @@ class QueryResourceImpl {
         disposable.dispose();
       },
     };
+  }
+
+  releaseTemporaryRetain(queryResult: QueryResult) {
+    const cacheEntry = this._cache.get(queryResult.cacheIdentifier);
+    if (cacheEntry != null) {
+      cacheEntry.releaseTemporaryRetain();
+    }
   }
 
   TESTS_ONLY__getCacheEntry(

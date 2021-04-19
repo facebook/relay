@@ -60,7 +60,12 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {|variables: {...}, fetchPolicy?: FetchPolicy, key?: number|};
+type Props = {|
+  variables: {...},
+  fetchPolicy?: FetchPolicy,
+  key?: number,
+  extraData?: number,
+|};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -455,6 +460,70 @@ describe('useLazyLoadQueryNode', () => {
     // Expect to still be able to render the same data
     expectToBeRendered(renderFn, data);
     expect(environment.retain).toHaveBeenCalledTimes(1);
+  });
+
+  it('disposes the temporary retain when the component is re-rendered and switches to another query', () => {
+    // Render the component
+    const instance = render(
+      environment,
+      <Container extraData={0} variables={variables} />,
+    );
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    environment.execute.mockClear();
+    renderFn.mockClear();
+
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '1',
+            name: 'Bob',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    const data = environment.lookup(query.fragment).data;
+    expectToBeRendered(renderFn, data);
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    renderFn.mockClear();
+
+    ReactTestRenderer.act(() => {
+      // Update `extraData` to trigger a re-render
+      setProps({variables, extraData: 1});
+    });
+
+    // Nothing to release here since variables didn't change
+    expect(release).toHaveBeenCalledTimes(0);
+
+    ReactTestRenderer.act(() => {
+      // Update `variables` to fetch new data
+      setProps({variables: {id: '2'}, extraData: 1});
+    });
+
+    expect(environment.execute).toHaveBeenCalledTimes(1);
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '2',
+            name: 'Bob',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    // Variables were changed and the retain for the previous query
+    // should be released
+    expect(release).toHaveBeenCalledTimes(1);
   });
 
   it('disposes ongoing network request when component unmounts while suspended', () => {

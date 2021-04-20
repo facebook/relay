@@ -9,15 +9,15 @@ Relay é um framework para gerenciamento de dados com suporte direto a aplicaç�
 
 ## GraphQL
 
-We also assume basic understanding of [GraphQL](http://graphql.org/learn/). In order to start using Relay, you will also need:
+Assumimos que você entende o básico de [GraphQL](http://graphql.org/learn/). Para começar a usar o Relay, você também precisará:
 
-### A GraphQL Schema
+### Um esquema GraphQL
 
-A description of your data model with an associated set of resolve methods that know how to fetch any data your application could ever need.
+A descrição do seu modelo de dados com um conjunto associado de métodos de resolução que sabem como buscar qualquer dado que sua aplicação precisar.
 
 GraphQL is designed to support a wide range of data access patterns. In order to understand the structure of an application's data, Relay requires that you follow certain conventions when defining your schema. These are documented in the [GraphQL Server Specification](graphql-server-specification.html).
 
--   **[graphql-js](https://github.com/graphql/graphql-js)** on [npm](https://www.npmjs.com/package/graphql)
+-   **[graphql-js](https://github.com/graphql/graphql-js)** no [npm](https://www.npmjs.com/package/graphql)
 
     General-purpose tools for building a GraphQL schema using JavaScript
 

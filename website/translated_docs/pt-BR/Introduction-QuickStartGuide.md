@@ -3,21 +3,21 @@ id: quick-start-guide
 title: Guia de início rápido
 ---
 
-Neste guia nós vamos dar uma breve visão geral de como Relay funciona e como utilizá-lo, usando como referência um aplicativo de lista de afazeres de exemplo. For more thorough documentation, check out our Guides and API sections.
+Neste guia nós vamos dar uma breve visão geral de como Relay funciona e como utilizá-lo, usando como referência um aplicativo de lista de afazeres de exemplo. Para documentação mais detalhada, veja nossas seções de Guias e API.
 
-Table of Contents:
+Tabela de Conteúdos:
 
--   [Setup](#setup)
--   [Relay Environment](#relay-environment)
--   [Rendering GraphQL Queries](#rendering-graphql-queries)
--   [Using Query Variables](#using-query-variables)
--   [Using Fragments](#using-fragments)
--   [Composing Fragments](#composing-fragments)
--   [Rendering Fragments](#rendering-fragments)
+-   [Configuração](#setup)
+-   [Ambiente Relay](#relay-environment)
+-   [Renderizando consultas GraphQL](#rendering-graphql-queries)
+-   [Usando variáveis de Query](#using-query-variables)
+-   [Usando Fragmentos](#using-fragments)
+-   [Compondo Fragmentos](#composing-fragments)
+-   [Renderizando Fragmentos](#rendering-fragments)
 -   [Mutating Data](#mutating-data)
--   [Next Steps](#next-steps)
+-   [Próximos passos](#next-steps)
 
-## Setup
+## Configuração
 
 Before starting, make sure to check out our [Prerequisites](./prerequisites.html) and [Installation and Setup](./installation-and-setup.html) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
 
@@ -42,7 +42,7 @@ type Query {
 
 Additionally, we will be using [Flow](https://flow.org/) inside our JavaScript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.
 
-## Relay Environment
+## Ambiente Relay
 
 Before we can start rendering pixels on the screen, we need to configure Relay via a [Relay Environment](./relay-environment.html). The environment bundles together the configuration, cache storage, and network-handling that Relay needs in order to operate.
 
@@ -88,7 +88,7 @@ A Relay Environment requires at least a [Store](./relay-store.html) and a [Netwo
 
 Usually we'd want a single environment in our app, so you could export this environment as a singleton instance from a module to make it accessible across your app.
 
-## Rendering GraphQL Queries
+## Renderizando consultas GraphQL
 
 Now that we've configured our Relay Environment, we can start fetching queries and rendering data on the screen. The entry point to render data from a GraphQL query is the [`QueryRenderer`](./query-renderer) component provided by `react-relay`.
 
@@ -221,7 +221,7 @@ The above code is doing something very similar to our [previous example](#render
 
 Now that we've updated the query, don't forget to run `yarn relay`.
 
-## Using Fragments
+## Usando Fragmentos
 
 Now that we know how to define and fetch queries, let's actually start building a todo list.
 
@@ -335,7 +335,7 @@ Check out our [Thinking in Relay](./thinking-in-relay) guide for more details be
 
 Before proceeding, don't forget to run the Relay Compiler with `yarn relay`.
 
-## Composing Fragments
+## Compondo Fragmentos
 
 Given that [Fragment Containers](./fragment-container) are just React components, we can compose them as such. We can even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
 
@@ -408,7 +408,7 @@ As with the first fragment container we defined, `TodoList` declares its data de
 
 One final thing to note when composing fragment containers is that the parent will not have access to the data defined by the child container. Relay only allows components to access data they specifically ask for in GraphQL fragments — nothing more. This is called [Data Masking](./thinking-in-relay#data-masking), and it's intentional to prevent components from depending on data they didn't declare as a dependency.
 
-## Rendering Fragments
+## Renderizando Fragmentos
 
 Now that we have some components (a.k.a fragment containers) that declare their data dependencies, we need to hook them up to a `QueryRenderer` so that the data is actually fetched and rendered. Remember, fragment containers do not directly fetch data. Instead, containers declare a specification of the data needed to render, and Relay guarantees that this data is available before rendering.
 
@@ -552,7 +552,7 @@ class Todo extends React.Component<Props> {
 
 ```
 
-### Optimistic Updates
+### Atualizações otimistas
 
 In our example above, the `complete` status in our component won't be updated and re-rendered until we get a response back from the server, which won't make for a great user experience.
 
@@ -609,7 +609,7 @@ Please note that the actual query and response payload may not have the exact sa
 
 You can inspect the network request or response to see the exact shape.
 
-### Updating local data from mutation responses
+### Atualizando dados locais de respostas de mutação
 
 By default, Relay will know to update the fields on the records referenced by the mutation payload, (i.e. the `todo` in our example). However, this is only the simplest case. In some cases updating the local data isn't as simple as just updating the fields in a record.
 
@@ -617,6 +617,6 @@ For instance, we might be updating a collection of items, or we might be deletin
 
 For more details and advanced use cases on mutations and updates, check out our [Mutations](./mutations) docs.
 
-## Next Steps
+## Próximos passos
 
 This guide just scratches the surface of Relay's API. For more detailed docs and guides, check out our API Reference and Guides sections.

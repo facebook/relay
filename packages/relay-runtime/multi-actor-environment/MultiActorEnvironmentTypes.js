@@ -202,4 +202,9 @@ export interface IMultiActorEnvironment {
     actorEnvironemnt: IActorEnvironment,
     requestIdentifier: string,
   ): boolean;
+
+  /**
+   * Returns `true` if execute in the server environment
+   */
+  isServer(): boolean;
 }

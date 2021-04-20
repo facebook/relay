@@ -27,7 +27,6 @@ import type {INetwork} from '../network/RelayNetworkTypes';
 import type {ActiveState, TaskScheduler} from '../store/OperationExecutor';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
-  IEnvironment,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
   OperationDescriptor,
@@ -58,14 +57,15 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   getDataID?: GetDataID,
   handlerProvider?: HandlerProvider,
+  isServer?: ?boolean,
   logFn?: ?LogFunction,
   operationLoader?: ?OperationLoader,
-  scheduler?: ?TaskScheduler,
   reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   requiredFieldLogger?: ?RequiredFieldLogger,
-  treatMissingFieldsAsNull?: boolean,
+  scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
+  treatMissingFieldsAsNull?: boolean,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
@@ -73,13 +73,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork;
   +_getDataID: GetDataID;
   +_handlerProvider: HandlerProvider;
+  +_isServer: boolean;
   +_logFn: LogFunction;
   +_operationExecutions: Map<string, ActiveState>;
-  +_requiredFieldLogger: RequiredFieldLogger;
   +_operationLoader: ?OperationLoader;
   +_reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  +_scheduler: ?TaskScheduler;
   +_reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  +_requiredFieldLogger: RequiredFieldLogger;
+  +_scheduler: ?TaskScheduler;
   +_shouldProcessClientComponents: ?boolean;
   +_treatMissingFieldsAsNull: boolean;
 
@@ -98,6 +99,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       config.requiredFieldLogger ?? defaultRequiredFieldLogger;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
+    this._isServer = config.isServer ?? false;
   }
 
   /**
@@ -127,7 +129,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
   ): OperationAvailability {
-    return todo('check');
+    // TODO: make actor aware
+    return actorEnvironment.getStore().check(operation);
   }
 
   subscribe(
@@ -143,7 +146,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
   ): Disposable {
-    return todo('retain');
+    // TODO: make actor aware
+    return actorEnvironment.getStore().retain(operation);
   }
 
   applyUpdate(
@@ -257,10 +261,15 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   isRequestActive(
-    actorEnvrionment: IActorEnvironment,
+    _actorEnvrionment: IActorEnvironment,
     requestIdentifier: string,
   ): boolean {
-    return todo('isRequestActive');
+    const activeState = this._operationExecutions.get(requestIdentifier);
+    return activeState === 'active';
+  }
+
+  isServer(): boolean {
+    return this._isServer;
   }
 
   _execute(

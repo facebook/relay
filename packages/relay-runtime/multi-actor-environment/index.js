@@ -13,6 +13,8 @@
 
 const MultiActorEnvironment = require('./MultiActorEnvironment');
 
+const {getActorIdentifier} = require('./ActorIdentifier');
+
 export type {ActorIdentifier} from './ActorIdentifier';
 export type {
   IActorEnvironment,
@@ -21,4 +23,5 @@ export type {
 
 module.exports = {
   MultiActorEnvironment,
+  getActorIdentifier,
 };

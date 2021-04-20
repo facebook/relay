@@ -41,12 +41,9 @@ import type {
   IMultiActorEnvironment,
 } from './MultiActorEnvironmentTypes';
 
-function todo() {
-  throw new Error('Not implementd');
-}
-
 export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   actorIdentifier: ActorIdentifier,
+  defaultRenderPolicy?: ?RenderPolicy,
   logFn: LogFunction,
   multiActorEnvironment: IMultiActorEnvironment,
   network: INetwork,
@@ -62,6 +59,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   +_network: INetwork;
   +_operationTracker: OperationTracker;
   +_publishQueue: RelayPublishQueue;
+  +_defaultRenderPolicy: RenderPolicy;
 
   // Actor specific properties
   +actorIdentifier: ActorIdentifier;
@@ -81,6 +79,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       () => {},
       defaultGetDataID,
     );
+    this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
   }
 
   getPublishQueue(): RelayPublishQueue {
@@ -88,7 +87,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   }
 
   UNSTABLE_getDefaultRenderPolicy(): RenderPolicy {
-    return todo();
+    return this._defaultRenderPolicy;
   }
 
   applyMutation(optimisticConfig: OptimisticResponseConfig): Disposable {
@@ -173,7 +172,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   }
 
   isServer(): boolean {
-    return todo();
+    return this.multiActorEnvironment.isServer();
   }
 }
 

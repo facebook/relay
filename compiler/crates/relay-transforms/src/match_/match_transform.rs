@@ -518,7 +518,7 @@ impl<'program> MatchTransform<'program> {
                     ValidationMessage::InvalidMatchKeyArgument {
                         document_name: self.document_name,
                     },
-                    match_directive.name.location,
+                    arg.value.location,
                 ));
             }
         }

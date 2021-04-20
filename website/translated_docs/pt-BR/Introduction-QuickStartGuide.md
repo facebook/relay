@@ -1,9 +1,9 @@
 ---
 id: quick-start-guide
-title: Quick Start Guide
+title: Guia de início rápido
 ---
 
-In this guide we are going to give a brief overview of how Relay works and how to use it, using as reference an example todo list app. For more thorough documentation, check out our Guides and API sections.
+Neste guia nós vamos dar uma breve visão geral de como Relay funciona e como utilizá-lo, usando como referência um aplicativo de lista de afazeres de exemplo. For more thorough documentation, check out our Guides and API sections.
 
 Table of Contents:
 

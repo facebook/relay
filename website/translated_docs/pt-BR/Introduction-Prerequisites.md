@@ -15,18 +15,18 @@ Assumimos que você entende o básico de [GraphQL](http://graphql.org/learn/). P
 
 A descrição do seu modelo de dados com um conjunto associado de métodos de resolução que sabem como buscar qualquer dado que sua aplicação precisar.
 
-GraphQL is designed to support a wide range of data access patterns. In order to understand the structure of an application's data, Relay requires that you follow certain conventions when defining your schema. These are documented in the [GraphQL Server Specification](graphql-server-specification.html).
+GraphQL foi desenvolvido para suportar uma grande variedade de padrões de acesso de dados. Para entender a estrutura de dados de uma aplicação, o Relay precisa que você siga certas convenções quando estiver definindo seu esquema. Elas estão documentadas na [Especificação do servidor GraphQL](graphql-server-specification.html).
 
 -   **[graphql-js](https://github.com/graphql/graphql-js)** no [npm](https://www.npmjs.com/package/graphql)
 
-    General-purpose tools for building a GraphQL schema using JavaScript
+    Ferramentas de propósito geral para construção de um esquema GraphQL usando JavaScript
 
--   **[graphql-relay-js](https://github.com/graphql/graphql-relay-js)** on [npm](https://www.npmjs.com/package/graphql-relay)
+-   **[graphql-relay-js](https://github.com/graphql/graphql-relay-js)** no [npm](https://www.npmjs.com/package/graphql-relay)
 
-    JavaScript helpers for defining connections between data, and mutations, in a way that smoothly integrates with Relay.
+    Métodos de ajuda em JavaScript para definir conexões entre dados e mutações de forma que integram facilmente com Relay.
 
-### A GraphQL Server
+### Um servidor GraphQL
 
-Any server can be taught to load a schema and speak GraphQL. Our [examples](https://github.com/relayjs/relay-examples) use Express.
+Qualquer servidor pode ser ensinado a carregar um esquema e fala GraphQL. Nossos [exemplos](https://github.com/relayjs/relay-examples) usam Express.
 
--   **[express-graphql](https://github.com/graphql/express-graphql)** on [npm](https://www.npmjs.com/package/express-graphql)
+-   **[express-graphql](https://github.com/graphql/express-graphql)** no [npm](https://www.npmjs.com/package/express-graphql)

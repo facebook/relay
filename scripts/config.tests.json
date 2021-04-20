@@ -5,7 +5,7 @@
     "packages": "tests"
   },
   "excludes": [
-    "**/__flowtests__/**"
+    "**/node_modules/**"
   ],
   "header": [
     "Copyright (c) Facebook, Inc. and its affiliates.",
@@ -18,7 +18,7 @@
       "enumModuleSuffix": null,
       "schema": "packages/relay-test-utils-internal/testschema.graphql",
       "extensions": [
-        "packages/relay-test-utils-internal/schema-extension"
+        "packages/relay-test-utils-internal/schema-extensions"
       ],
       "jsModuleFormat": "commonjs",
       "featureFlags": {

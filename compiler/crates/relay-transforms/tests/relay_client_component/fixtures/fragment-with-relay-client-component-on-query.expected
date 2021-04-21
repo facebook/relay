@@ -9,7 +9,7 @@ fragment ClientFragment on Query {
   }
 }
 ==================================== OUTPUT ===================================
-query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["ClientFragment"]) {
+query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["ServerComponentFragment"]) {
   ...ClientFragment
 }
 

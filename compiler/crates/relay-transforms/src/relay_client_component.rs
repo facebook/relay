@@ -88,6 +88,8 @@ struct RelayClientComponentTransform<'program> {
     errors: Vec<Diagnostic>,
     split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
     node_interface_id: InterfaceID,
+    /// Name of the document currently being transformed.
+    document_name: Option<StringKey>,
     split_operation_filenames: FnvHashSet<StringKey>,
 }
 
@@ -98,6 +100,7 @@ impl<'program> RelayClientComponentTransform<'program> {
             errors: Default::default(),
             split_operations: Default::default(),
             node_interface_id,
+            document_name: None,
             split_operation_filenames: Default::default(),
         }
     }
@@ -209,7 +212,7 @@ impl<'program> RelayClientComponentTransform<'program> {
         created_split_operation
             .0
             .parent_documents
-            .insert(spread.fragment.item);
+            .insert(self.document_name.unwrap());
 
         // @relay_client_component -> @relay_client_component_server(module_id: "...")
         let module_id = get_fragment_filename(spread.fragment.item);
@@ -301,6 +304,8 @@ impl<'program> Transformer for RelayClientComponentTransform<'program> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         assert!(self.split_operation_filenames.is_empty());
+        self.document_name = Some(operation.name.item);
+
         let transformed = self.default_transform_operation(operation);
         if self.split_operation_filenames.is_empty() {
             return transformed;
@@ -319,6 +324,8 @@ impl<'program> Transformer for RelayClientComponentTransform<'program> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         assert!(self.split_operation_filenames.is_empty());
+        self.document_name = Some(fragment.name.item);
+
         let transformed = self.default_transform_fragment(fragment);
         if self.split_operation_filenames.is_empty() {
             return transformed;

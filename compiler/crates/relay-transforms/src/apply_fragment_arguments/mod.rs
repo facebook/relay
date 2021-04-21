@@ -299,6 +299,9 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             parent_documents: Default::default(),
             raw_response_type: true,
         };
+        // A fragment with @no_inline always produces a $normalization file. The `parent_document` of
+        // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer
+        // has the @no_inline directive.
         metadata.parent_documents.insert(fragment.name.item);
         directives.push(metadata.to_directive());
         let normalization_name = get_normalization_operation_name(name.item).intern();

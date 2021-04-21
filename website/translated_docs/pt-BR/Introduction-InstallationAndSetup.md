@@ -137,11 +137,11 @@ yarn run relay --watch
 
 Para mais detalhes, verifique nossa [documentação do Relay Compiler](./graphql-in-relay.html#relay-compiler).
 
-## JavaScript environment requirements
+## Requisitos de ambiente JavaScript
 
-The Relay Modern packages distributed on NPM use the widely-supported ES5 version of JavaScript to support as many browser environments as possible.
+Os pacotes Relay Modern distribuídos no NPM utilizam o amplamente apoiado ES5 versão do JavaScript feito para suportar o maior número possível de ambientes de navegação.
 
-However, Relay Modern expects modern JavaScript global types (`Map`, `Set`, `Promise`, `Object.assign`) to be defined. If you support older browsers and devices which may not yet provide these natively, consider including a global polyfill in your bundled application, such as [core-js][] or [@babel/polyfill](https://babeljs.io/docs/usage/polyfill/).
+Contudo, o Relay Modern espera tipos globais modernos de JavaScript (`Map`, `Set`, `Promise`, `Object.assign`) a serem definidos. Se suporta navegadores mais antigos e dispositivos que podem ainda não os fornece nativamente, considere a inclusão de um polyfill na sua aplicação agrupada, tais como [core-js][] ou [@babel/polyfill](https://babeljs.io/docs/usage/polyfill/).
 
 A polyfilled environment for Relay using [core-js][] to support older browsers might look like:
 

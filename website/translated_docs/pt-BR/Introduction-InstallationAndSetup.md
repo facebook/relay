@@ -15,7 +15,7 @@ yarn add react react-dom react-relay
 
 ## Configurando Relay com um arquivo de configuração
 
-A configuração abaixo do `babel-plugin-relay` e `relay-compiler` pode ser aplicada usando um arquivo de configuração através do pacote `relay-config`. Besides unifying all Relay configuration in a single place, other tooling can leverage this to provide zero-config setup (e.g. [vscode-apollo-relay](https://github.com/relay-tools/vscode-apollo-relay)).
+A configuração abaixo do `babel-plugin-relay` e `relay-compiler` pode ser aplicada usando um arquivo de configuração através do pacote `relay-config`. Além de unificar toda a configuração do relé em um único lugar, outras ferramentas podem aproveitar isso para fornecer configuração zero (por exemplo, [ vscode-apollo-relay ](https://github.com/relay-tools/vscode-apollo-relay)).
 
 Instale o pacote:
 

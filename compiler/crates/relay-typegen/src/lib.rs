@@ -328,6 +328,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
         self.write_runtime_imports()?;
+        self.write_relay_resolver_imports()?;
 
         let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
         let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();

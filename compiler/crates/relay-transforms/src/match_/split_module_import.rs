@@ -124,7 +124,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                     (
                         SplitOperationMetadata {
                             derived_from: name,
-                            parent_sources: Default::default(),
+                            parent_documents: Default::default(),
                             raw_response_type: false,
                         },
                         OperationDefinition {
@@ -142,7 +142,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 });
             created_split_operation
                 .0
-                .parent_sources
+                .parent_documents
                 .insert(source_document);
         }
         self.default_transform_inline_fragment(fragment)

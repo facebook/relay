@@ -189,7 +189,7 @@ impl<'program> RelayClientComponentTransform<'program> {
                 (
                     SplitOperationMetadata {
                         derived_from: spread.fragment.item,
-                        parent_sources: Default::default(),
+                        parent_documents: Default::default(),
                         raw_response_type: false,
                     },
                     OperationDefinition {
@@ -208,7 +208,7 @@ impl<'program> RelayClientComponentTransform<'program> {
             });
         created_split_operation
             .0
-            .parent_sources
+            .parent_documents
             .insert(spread.fragment.item);
 
         // @relay_client_component -> @relay_client_component_server(module_id: "...")

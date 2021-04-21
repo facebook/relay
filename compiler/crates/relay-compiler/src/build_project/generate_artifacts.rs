@@ -60,7 +60,7 @@ pub fn generate_artifacts(
             };
 
             artifacts.push(Artifact {
-                source_definition_names: metadata.parent_sources.into_iter().collect(),
+                source_definition_names: metadata.parent_documents.into_iter().collect(),
                 path: path_for_artifact(
                     project_config,
                     source_file,

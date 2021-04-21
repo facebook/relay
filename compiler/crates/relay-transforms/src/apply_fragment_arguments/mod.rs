@@ -296,10 +296,10 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         }
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
-            parent_sources: Default::default(),
+            parent_documents: Default::default(),
             raw_response_type: true,
         };
-        metadata.parent_sources.insert(fragment.name.item);
+        metadata.parent_documents.insert(fragment.name.item);
         directives.push(metadata.to_directive());
         let normalization_name = get_normalization_operation_name(name.item).intern();
         let operation = OperationDefinition {

@@ -9,7 +9,11 @@
   "license": "MIT",
   "homepage": "https://facebook.github.io/relay/",
   "bugs": "https://github.com/facebook/relay/issues",
-  "repository": "facebook/relay",
+  "repository":  {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/relay-config"
+  },
   "main": "index.js",
   "dependencies": {
     "cosmiconfig": "^5.0.5"

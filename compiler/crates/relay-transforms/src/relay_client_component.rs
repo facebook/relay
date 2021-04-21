@@ -16,6 +16,7 @@ use graphql_ir::{
 };
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use schema::{InterfaceID, Schema, Type};
 use std::sync::Arc;
@@ -179,11 +180,12 @@ impl<'program> RelayClientComponentTransform<'program> {
         }
 
         // Generate a SplitOperation AST
-        let normalization_name = get_normalization_operation_name(spread.fragment.item).intern();
         let created_split_operation = self
             .split_operations
             .entry(spread.fragment.item)
             .or_insert_with(|| {
+                let normalization_name =
+                    get_normalization_operation_name(spread.fragment.item).intern();
                 (
                     SplitOperationMetadata {
                         derived_from: spread.fragment.item,
@@ -268,10 +270,13 @@ impl<'program> RelayClientComponentTransform<'program> {
         }
     }
 
-    fn generate_relay_client_component_client_metadata_directive(&self) -> Directive {
-        let mut split_operation_filenames: Vec<StringKey> =
-            self.split_operation_filenames.iter().copied().collect();
-        split_operation_filenames.sort();
+    fn generate_relay_client_component_client_metadata_directive(&mut self) -> Directive {
+        let split_operation_filenames = self
+            .split_operation_filenames
+            .drain()
+            .sorted()
+            .map(ConstantValue::String)
+            .collect();
         Directive {
             name: WithLocation::generated(*RELAY_CLIENT_COMPONENT_METADATA_KEY),
             arguments: vec![Argument {
@@ -279,10 +284,7 @@ impl<'program> RelayClientComponentTransform<'program> {
                     *RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
                 ),
                 value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                    split_operation_filenames
-                        .into_iter()
-                        .map(ConstantValue::String)
-                        .collect(),
+                    split_operation_filenames,
                 ))),
             }],
         }
@@ -298,7 +300,7 @@ impl<'program> Transformer for RelayClientComponentTransform<'program> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.split_operation_filenames.clear();
+        assert!(self.split_operation_filenames.is_empty());
         let transformed = self.default_transform_operation(operation);
         if self.split_operation_filenames.is_empty() {
             return transformed;
@@ -316,7 +318,7 @@ impl<'program> Transformer for RelayClientComponentTransform<'program> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.split_operation_filenames.clear();
+        assert!(self.split_operation_filenames.is_empty());
         let transformed = self.default_transform_fragment(fragment);
         if self.split_operation_filenames.is_empty() {
             return transformed;

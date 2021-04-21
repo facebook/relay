@@ -37,10 +37,15 @@ const {
 
 const {createMockEnvironment} = require('relay-test-utils');
 
-const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
+// TODO: We're switching the tuple order of useTransition so for ~1 day we
+// need to disable this test so we can flip in www then fbsource.
+const TEMPORARY_SKIP_WHILE_REFACTORING_USE_TRANSITION = true;
 
 describe('useBlockingPaginationFragment with useTransition', () => {
-  if (typeof React.useTransition !== 'function') {
+  if (
+    TEMPORARY_SKIP_WHILE_REFACTORING_USE_TRANSITION ||
+    typeof React.useTransition !== 'function'
+  ) {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });
@@ -83,9 +88,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       fragmentNode,
       fragmentRef,
     ) {
-      const [startTransition, isPendingNext] = useTransition(
-        PAGINATION_SUSPENSE_CONFIG,
-      );
+      const [startTransition, isPendingNext] = useTransition();
       // $FlowFixMe[incompatible-call]
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,

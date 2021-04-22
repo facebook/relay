@@ -179,7 +179,7 @@ declare module react {
     config: TimeoutConfig | void | null,
   ): T;
 
-  declare export function useTransition(): [(() => void) => void, boolean];
+  declare export function useTransition(): [boolean, (() => void) => void];
 
   declare export function startTransition(() => void): void;
 

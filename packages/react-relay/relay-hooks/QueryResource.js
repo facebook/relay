@@ -502,7 +502,6 @@ class QueryResourceImpl {
           observerStart && observerStart(subscription);
         },
         next: () => {
-          const snapshot = environment.lookup(operation.fragment);
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
@@ -513,7 +512,10 @@ class QueryResourceImpl {
           resolveNetworkPromise();
 
           const observerNext = observer?.next;
-          observerNext && observerNext(snapshot);
+          if (observerNext != null) {
+            const snapshot = environment.lookup(operation.fragment);
+            observerNext(snapshot);
+          }
         },
         error: error => {
           const cacheEntry = this._getOrCreateCacheEntry(

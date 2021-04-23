@@ -35,8 +35,8 @@ use crate::{
     shutdown::{on_exit, on_shutdown},
     status_reporting::{LSPStatusReporter, StatusReportingArtifactWriter},
     text_documents::{
-        on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
-        on_did_save_text_document,
+        on_cancel, on_did_change_text_document, on_did_close_text_document,
+        on_did_open_text_document, on_did_save_text_document,
     },
     ExtensionConfig,
 };
@@ -48,7 +48,8 @@ use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
     notification::{
-        DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument, Exit,
+        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        DidSaveTextDocument, Exit,
     },
     request::{CodeActionRequest, Completion, References, Shutdown},
     CodeActionProviderCapability,
@@ -276,6 +277,7 @@ fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
         .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?
         .on_notification_sync::<DidChangeTextDocument>(on_did_change_text_document)?
         .on_notification_sync::<DidSaveTextDocument>(on_did_save_text_document)?
+        .on_notification_sync::<Cancel>(on_cancel)?
         .on_notification_sync::<Exit>(on_exit)?
         .notification();
 

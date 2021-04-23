@@ -7,7 +7,7 @@ module.exports.default = function sitePlugin() {
       return {
         plugins: [
           new webpack.EnvironmentPlugin({
-            FB_INTERNAL: process.env.FB_INTERNAL ?? false,
+            FB_INTERNAL: process.env.FB_INTERNAL || false,
           }),
         ],
       };

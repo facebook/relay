@@ -37,15 +37,8 @@ const {
 
 const {createMockEnvironment} = require('relay-test-utils');
 
-// TODO: We're switching the tuple order of useTransition so for ~1 day we
-// need to disable this test so we can flip in www then fbsource.
-const TEMPORARY_SKIP_WHILE_REFACTORING_USE_TRANSITION = true;
-
 describe('useBlockingPaginationFragment with useTransition', () => {
-  if (
-    TEMPORARY_SKIP_WHILE_REFACTORING_USE_TRANSITION ||
-    typeof React.useTransition !== 'function'
-  ) {
+  if (typeof React.useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });

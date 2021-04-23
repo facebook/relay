@@ -8,16 +8,16 @@ query EnabledUserQuery {
 ==================================== ERROR ====================================
 ✖︎ The directive `@required` can only be used once at this location.
 
-  multiple-required-fields.invalid.graphql:3:31
+  multiple-required-fields.invalid.graphql:3:30
     2 │ query EnabledUserQuery {
     3 │   me @required(action: NONE) @required(action: NONE) {
-      │                               ^^^^^^^^
+      │                              ^^^^^^^^^
     4 │     id
 
   ℹ︎ previously used here
 
-  multiple-required-fields.invalid.graphql:3:7
+  multiple-required-fields.invalid.graphql:3:6
     2 │ query EnabledUserQuery {
     3 │   me @required(action: NONE) @required(action: NONE) {
-      │       ^^^^^^^^
+      │      ^^^^^^^^^
     4 │     id

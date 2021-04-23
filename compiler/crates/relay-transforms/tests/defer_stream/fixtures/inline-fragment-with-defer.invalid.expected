@@ -18,8 +18,8 @@ fragment UserFragment on User {
 ==================================== ERROR ====================================
 ✖︎ Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads.
 
-  inline-fragment-with-defer.invalid.graphql:12:16
+  inline-fragment-with-defer.invalid.graphql:12:15
    11 │   emailAddresses
    12 │   ... on User @defer(label: "DeferredFragmentLabel") {
-      │                ^^^^^
+      │               ^^^^^^
    13 │     id

@@ -33,16 +33,16 @@ fragment matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name on Markd
 ==================================== ERROR ====================================
 ✖︎ Found conflicting @module selections: use a unique alias on the parent fields
 
-  match-field-overlap-across-documents.graphql:22:8
+  match-field-overlap-across-documents.graphql:22:7
    21 │     ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
    22 │       @module(name: "BarMarkdownUserNameRenderer.react")
-      │        ^^^^^^
+      │       ^^^^^^^
    23 │   }
 
   ℹ︎ conflicts with
 
-  match-field-overlap-across-documents.graphql:13:8
+  match-field-overlap-across-documents.graphql:13:7
    12 │     ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
    13 │       @module(name: "FooMarkdownUserNameRenderer.react")
-      │        ^^^^^^
+      │       ^^^^^^^
    14 │   }

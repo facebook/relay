@@ -237,6 +237,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    require.resolve('./sitePlugin'),
     [
       '@docusaurus/plugin-client-redirects',
       {

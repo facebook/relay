@@ -18,9 +18,9 @@
     "docusaurus": "docusaurus"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.70",
-    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.70",
-    "@docusaurus/preset-classic": "2.0.0-alpha.70",
+    "@docusaurus/core": "2.0.0-alpha.adf2a526e5",
+    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.adf2a526e5",
+    "@docusaurus/preset-classic": "2.0.0-alpha.adf2a526e5",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
     "docusaurus-plugin-internaldocs-fb": "^0.7.0",

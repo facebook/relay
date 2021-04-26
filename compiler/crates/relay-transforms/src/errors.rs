@@ -62,4 +62,12 @@ pub enum ValidationMessage {
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
     )]
     InvalidRelayResolverFragmentName { fragment_name: StringKey },
+
+    #[error(
+        "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
+    )]
+    ActorChangeInvalidSelection,
+
+    #[error("Actor change directive (@as_actor) cannot be applied to scalar fields.")]
+    ActorChangeCannotUseOnScalarFields,
 }

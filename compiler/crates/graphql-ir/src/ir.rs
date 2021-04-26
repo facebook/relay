@@ -144,6 +144,16 @@ impl Selection {
             Selection::Condition(_) => unreachable!("Unexpected `Condition` selection."),
         };
     }
+
+    pub fn location(&self) -> Option<Location> {
+        match self {
+            Selection::Condition(_) => None,
+            Selection::FragmentSpread(node) => Some(node.fragment.location),
+            Selection::InlineFragment(_) => None,
+            Selection::LinkedField(node) => Some(node.alias_or_name_location()),
+            Selection::ScalarField(node) => Some(node.alias_or_name_location()),
+        }
+    }
 }
 
 impl fmt::Debug for Selection {

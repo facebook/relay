@@ -35,6 +35,7 @@ mod no_inline;
 mod node_identifier;
 mod react_flight;
 mod refetchable_fragment;
+mod relay_actor_change;
 mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
@@ -106,6 +107,7 @@ pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
 };
+pub use relay_actor_change::relay_actor_change_transform;
 pub use relay_client_component::{
     relay_client_component, RELAY_CLIENT_COMPONENT_METADATA_KEY,
     RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,

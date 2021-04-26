@@ -56,15 +56,26 @@ fn build_source_programs(source: &str) -> SourcePrograms {
 }
 
 fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
-    assert_eq!(items.len(), labels.len());
-    let mut current_labels = items
+    let mut completion_labels = items
         .into_iter()
         .map(|item| item.label)
         .collect::<HashSet<_>>();
+
+    assert_eq!(
+        completion_labels.len(),
+        labels.len(),
+        "Provided labels {:?} do not match completion items {:?}",
+        &completion_labels,
+        &labels
+    );
     for label in labels {
-        assert!(current_labels.remove(label));
+        assert!(
+            completion_labels.remove(label),
+            "Expected to have {} in the set",
+            label
+        );
     }
-    assert!(current_labels.is_empty());
+    assert!(completion_labels.is_empty());
 }
 
 #[test]
@@ -186,6 +197,7 @@ fn directive() {
             "include",
             "connection",
             "skip",
+            "EXPERIMENTAL__as_actor",
         ],
     );
 }
@@ -378,6 +390,7 @@ fn empty_directive() {
             "include",
             "connection",
             "skip",
+            "EXPERIMENTAL__as_actor",
         ],
     );
 }

@@ -26,10 +26,11 @@ use relay_transforms::{
     ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
     DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
     NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
-    RELAY_RESOLVER_METADATA_FIELD_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME, REQUIRED_METADATA_KEY,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -469,31 +470,35 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Selection::FragmentSpread(frag_spread) => {
                 vec![self.build_fragment_spread(&frag_spread)]
             }
-            Selection::InlineFragment(inline_frag) => {
-                let defer = inline_frag
+            Selection::InlineFragment(inline_fragment) => {
+                let defer = inline_fragment
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
-                    vec![self.build_defer(&inline_frag, defer)]
-                } else if let Some(inline_data_directive) = inline_frag
+                    vec![self.build_defer(&inline_fragment, defer)]
+                } else if let Some(inline_data_directive) = inline_fragment
                     .directives
                     .named(INLINE_DATA_CONSTANTS.internal_directive_name)
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![
-                        self.build_inline_data_fragment_spread(
-                            &inline_frag,
-                            &inline_data_directive,
-                        ),
-                    ]
-                } else if let Some(match_directive) = inline_frag
+                    vec![self.build_inline_data_fragment_spread(
+                        &inline_fragment,
+                        &inline_data_directive,
+                    )]
+                } else if let Some(match_directive) = inline_fragment
                     .directives
                     .named(MATCH_CONSTANTS.custom_module_directive_name)
                 {
                     self.build_module_import_selections(match_directive)
+                } else if inline_fragment
+                    .directives
+                    .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+                    .is_some()
+                {
+                    vec![self.build_actor_change(&inline_fragment)]
                 } else {
-                    vec![self.build_inline_fragment(&inline_frag)]
+                    vec![self.build_inline_fragment(&inline_fragment)]
                 }
             }
             Selection::LinkedField(field) => {
@@ -1722,6 +1727,20 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
 
         self.object(params_object)
+    }
+
+    fn build_actor_change(&mut self, actor_change_fragment: &InlineFragment) -> Primitive {
+        let selections = self.build_selections(actor_change_fragment.selections.iter());
+        Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.selections,
+                value: selections,
+            },
+        ]))
     }
 }
 

@@ -49,7 +49,7 @@ pub enum ValidationMessage {
     InvalidRelayResolverKeyArg { key: StringKey },
 
     #[error(
-        "The Relay Rosolver backing this field is missing a '{key}' argument in its `@relay_resolver` directive."
+        "The Relay Resolver backing this field is missing a '{key}' argument in its `@relay_resolver` directive."
     )]
     MissingRelayResolverKeyArg { key: StringKey },
 

@@ -306,17 +306,20 @@ fn generate_operation(
         )
         .unwrap();
     }
+
+    let node_request = printer.print_request(
+        schema,
+        normalization_operation,
+        &operation_fragment,
+        request_parameters,
+    );
+
     if let TypegenLanguage::Flow = project_config.typegen_config.language { 
         writeln!(content, "*/\n").unwrap();
         writeln!(
             content,
             "var node/*: ConcreteRequest*/ = {};\n",
-            printer.print_request(
-                schema,
-                normalization_operation,
-                &operation_fragment,
-                request_parameters,
-            )
+            node_request
         )
         .unwrap();
     } else {
@@ -324,12 +327,7 @@ fn generate_operation(
         writeln!(
             content,
             "var node: ConcreteRequest = {};\n",
-            printer.print_request(
-                schema,
-                normalization_operation,
-                &operation_fragment,
-                request_parameters,
-            )
+            node_request
         )
         .unwrap();
     }
@@ -403,12 +401,15 @@ fn generate_split_operation(
         .unwrap();
     }
     writeln!(content, "*/\n").unwrap();
+
+    let node_operation = printer.print_operation(schema, normalization_operation);
+
     if let TypegenLanguage::Flow = project_config.typegen_config.language { 
         writeln!(content, "*/\n").unwrap();
         writeln!(
             content,
             "var node/*: NormalizationSplitOperation*/ = {};\n",
-            printer.print_operation(schema, normalization_operation)
+            node_operation
         )
         .unwrap();
     } else {
@@ -416,7 +417,7 @@ fn generate_split_operation(
         writeln!(
             content,
             "var node: NormalizationSplitOperation = {};\n",
-            printer.print_operation(schema, normalization_operation)
+            node_operation
         )
         .unwrap();
     }
@@ -516,13 +517,15 @@ fn generate_fragment(
         .unwrap();
     }
 
+    let node_fragment = printer.print_fragment(schema, reader_fragment);
+
     if let TypegenLanguage::Flow = project_config.typegen_config.language { 
         writeln!(content, "*/\n").unwrap();
         writeln!(
             content,
             "var node/*: {}*/ = {};\n",
             reader_node_flow_type,
-            printer.print_fragment(schema, reader_fragment)
+            node_fragment
         )
         .unwrap();
     } else {
@@ -531,7 +534,7 @@ fn generate_fragment(
             content,
             "var node:{} = {};\n",
             reader_node_flow_type,
-            printer.print_fragment(schema, reader_fragment)
+            node_fragment
         )
         .unwrap();
     }

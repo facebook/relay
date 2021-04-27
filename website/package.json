@@ -18,14 +18,14 @@
     "docusaurus": "docusaurus"
   },
   "dependencies": {
-    "@docusaurus/core": "2.0.0-alpha.adf2a526e5",
-    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.adf2a526e5",
-    "@docusaurus/preset-classic": "2.0.0-alpha.adf2a526e5",
+    "@docusaurus/core": "2.0.0-alpha.8b941d0d7d",
+    "@docusaurus/plugin-client-redirects": "2.0.0-alpha.8b941d0d7d",
+    "@docusaurus/preset-classic": "2.0.0-alpha.8b941d0d7d",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-internaldocs-fb": "^0.7.0",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
+    "docusaurus-plugin-internaldocs-fb": "^0.8.5-rc.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-syntax-highlighter": "15.3.1",
     "spec-md": "^1.1.1"
   },

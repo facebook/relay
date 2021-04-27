@@ -79,7 +79,7 @@ fragment LinkedHandleField on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: linked-handle-field-with-filters.graphql:82:95,
+                                location: linked-handle-field-with-filters.graphql:81:95,
                                 item: "__clientField",
                             },
                             arguments: [

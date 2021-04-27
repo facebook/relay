@@ -25,7 +25,7 @@ fragment TestFragment on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: directive-generic.graphql:38:53,
+                                location: directive-generic.graphql:37:53,
                                 item: "customDirective",
                             },
                             arguments: [

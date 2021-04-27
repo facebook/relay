@@ -9,8 +9,8 @@ query InvalidPrefixFragment {
 ==================================== ERROR ====================================
 ✖︎ The @required directive is experimental and not yet supported for use in product code
 
-  prefix-mismatch-query.invalid.graphql:5:11
+  prefix-mismatch-query.invalid.graphql:5:10
     4 │     id
     5 │     name @required(action: THROW)
-      │           ^^^^^^^^
+      │          ^^^^^^^^^
     6 │   }

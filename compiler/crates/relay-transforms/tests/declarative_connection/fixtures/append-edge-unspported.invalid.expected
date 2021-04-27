@@ -13,8 +13,8 @@ mutation CommentCreateMutation(
 ==================================== ERROR ====================================
 ✖︎ Unsupported use of @appendEdge on field 'viewer', expected an edge field (a field with 'cursor' and 'node' selection).
 
-  append-edge-unspported.invalid.graphql:7:13
+  append-edge-unspported.invalid.graphql:7:12
     6 │   commentCreate(input: $input) {
     7 │     viewer @appendEdge(connections: $connections) {
-      │             ^^^^^^^^^^
+      │            ^^^^^^^^^^^
     8 │       __typename

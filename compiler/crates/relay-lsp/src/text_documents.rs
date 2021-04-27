@@ -15,7 +15,7 @@ use crate::{
 
 use common::PerfLogger;
 use lsp_types::notification::{
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
+    Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
     Notification,
 };
 
@@ -90,6 +90,14 @@ pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
 pub(crate) fn on_did_save_text_document<TPerfLogger: PerfLogger + 'static>(
     _lsp_state: &mut LSPState<TPerfLogger>,
     _params: <DidSaveTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
+    Ok(())
+}
+
+#[allow(clippy::unnecessary_wraps)]
+pub(crate) fn on_cancel<TPerfLogger: PerfLogger + 'static>(
+    _lsp_state: &mut LSPState<TPerfLogger>,
+    _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     Ok(())
 }

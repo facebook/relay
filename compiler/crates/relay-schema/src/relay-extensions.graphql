@@ -83,3 +83,6 @@ directive @relay_resolver(
   fragment_name: String!
   import_path: String!
 ) on FIELD_DEFINITION
+
+# Actor Change Directive
+directive @EXPERIMENTAL__as_actor on FIELD

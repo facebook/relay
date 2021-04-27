@@ -92,11 +92,11 @@ impl Transformer for ClientResolverTransform<'_> {
                             // as well as any attached directives.
                             //
                             // While this would work well for the rest of our
-                            // compiler, we would need an addititonal transform
+                            // compiler, we would need an additional transform
                             // to convert the linked field to an inline fragment
                             // for the actual persisted query.
                             //
-                            // For now we'll use a fragment spread an dissallow
+                            // For now we'll use a fragment spread an disallow
                             // directives on Relay Resolver fields.
                             Selection::FragmentSpread(Arc::new(FragmentSpread {
                                 fragment: WithLocation::generated(fragment_name),
@@ -110,8 +110,8 @@ impl Transformer for ClientResolverTransform<'_> {
                             })),
                         )
                     }
-                    Err(diagostics) => {
-                        for diagnostic in diagostics {
+                    Err(diagnostics) => {
+                        for diagnostic in diagnostics {
                             self.errors.push(diagnostic);
                         }
                         Transformed::Keep

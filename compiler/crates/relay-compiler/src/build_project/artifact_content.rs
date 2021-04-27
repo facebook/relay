@@ -15,7 +15,7 @@ use relay_transforms::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
     RELAY_CLIENT_COMPONENT_METADATA_KEY, RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
 };
-use relay_typegen::generate_fragment_type;
+use relay_typegen::{generate_fragment_type, TypegenLanguage};
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
@@ -222,14 +222,16 @@ fn generate_operation(
         directives: reader_operation.directives.clone(),
         type_condition: reader_operation.type_,
     };
-    let mut content = get_content_start(config);
+    let mut content = get_content_start(config, project_config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
     if let Some(operation_hash) = operation_hash {
         writeln!(content, " * @relayHash {}", operation_hash).unwrap();
     }
-    writeln!(content, " * @flow").unwrap();
-    writeln!(content, " * @lightSyntaxTransform").unwrap();
-    writeln!(content, " * @nogrep").unwrap();
+    if let TypegenLanguage::Flow = project_config.typegen_config.language {
+        writeln!(content, " * @flow").unwrap();
+        writeln!(content, " * @lightSyntaxTransform").unwrap();
+        writeln!(content, " * @nogrep").unwrap();
+    }
     if let Some(codegen_command) = &config.codegen_command {
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
@@ -271,12 +273,26 @@ fn generate_operation(
         writeln!(content).unwrap();
     }
 
+    let type_syntax = if project_config.typegen_config.use_import_type_syntax {
+        "type "
+    }  else {
+        ""
+    };
+    if let TypegenLanguage::Flow = project_config.typegen_config.language { 
+        writeln!(
+            content,
+            "/*::\n",
+        )
+        .unwrap();
+    }
+
     writeln!(
         content,
-        "/*::
-import type {{ ConcreteRequest }} from 'relay-runtime';"
+        "import {}{{ ConcreteRequest }} from 'relay-runtime';",
+        type_syntax
     )
     .unwrap();
+
     if !skip_types {
         write!(
             content,
@@ -290,19 +306,35 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
         )
         .unwrap();
     }
-    writeln!(content, "*/\n").unwrap();
-    writeln!(
-        content,
-        "var node/*: ConcreteRequest*/ = {};\n",
-        printer.print_request(
-            schema,
-            normalization_operation,
-            &operation_fragment,
-            request_parameters,
+    if let TypegenLanguage::Flow = project_config.typegen_config.language { 
+        writeln!(content, "*/\n").unwrap();
+        writeln!(
+            content,
+            "var node/*: ConcreteRequest*/ = {};\n",
+            printer.print_request(
+                schema,
+                normalization_operation,
+                &operation_fragment,
+                request_parameters,
+            )
         )
-    )
-    .unwrap();
-    write_source_hash(config, &mut content, &source_hash).unwrap();
+        .unwrap();
+    } else {
+        writeln!(content, "\n").unwrap();
+        writeln!(
+            content,
+            "var node: ConcreteRequest = {};\n",
+            printer.print_request(
+                schema,
+                normalization_operation,
+                &operation_fragment,
+                request_parameters,
+            )
+        )
+        .unwrap();
+    }
+    
+    write_source_hash(config, project_config, &mut content, &source_hash).unwrap();
     // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
     if is_operation_preloadable(normalization_operation) {
         writeln!(
@@ -324,20 +356,37 @@ fn generate_split_operation(
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
 ) -> Vec<u8> {
-    let mut content = get_content_start(config);
+    let mut content = get_content_start(config, project_config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @flow").unwrap();
-    writeln!(content, " * @lightSyntaxTransform").unwrap();
-    writeln!(content, " * @nogrep").unwrap();
+
+    if let TypegenLanguage::Flow = project_config.typegen_config.language {
+        writeln!(content, " * @flow").unwrap();
+        writeln!(content, " * @lightSyntaxTransform").unwrap();
+        writeln!(content, " * @nogrep").unwrap();
+    }
+
     if let Some(codegen_command) = &config.codegen_command {
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
+    let type_syntax = if project_config.typegen_config.use_import_type_syntax {
+        "type "
+    }  else {
+        ""
+    };
+    if let TypegenLanguage::Flow = project_config.typegen_config.language { 
+        writeln!(
+            content,
+            "/*::\n",
+        )
+        .unwrap();
+    }
     writeln!(
         content,
-        "/*::\nimport type {{ NormalizationSplitOperation }} from 'relay-runtime';\n"
+        "import {}{{ NormalizationSplitOperation }} from 'relay-runtime';\n",
+        type_syntax
     )
     .unwrap();
     if let Some(typegen_operation) = typegen_operation {
@@ -354,14 +403,25 @@ fn generate_split_operation(
         .unwrap();
     }
     writeln!(content, "*/\n").unwrap();
-
-    writeln!(
-        content,
-        "var node/*: NormalizationSplitOperation*/ = {};\n",
-        printer.print_operation(schema, normalization_operation)
-    )
-    .unwrap();
-    write_source_hash(config, &mut content, &source_hash).unwrap();
+    if let TypegenLanguage::Flow = project_config.typegen_config.language { 
+        writeln!(content, "*/\n").unwrap();
+        writeln!(
+            content,
+            "var node/*: NormalizationSplitOperation*/ = {};\n",
+            printer.print_operation(schema, normalization_operation)
+        )
+        .unwrap();
+    } else {
+        writeln!(content, "\n").unwrap();
+        writeln!(
+            content,
+            "var node: NormalizationSplitOperation = {};\n",
+            printer.print_operation(schema, normalization_operation)
+        )
+        .unwrap();
+    }
+    
+    write_source_hash(config, project_config, &mut content, &source_hash).unwrap();
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
@@ -377,11 +437,15 @@ fn generate_fragment(
     source_hash: &str,
     skip_types: bool,
 ) -> Vec<u8> {
-    let mut content = get_content_start(config);
+    let mut content = get_content_start(config, project_config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @flow").unwrap();
-    writeln!(content, " * @lightSyntaxTransform").unwrap();
-    writeln!(content, " * @nogrep").unwrap();
+
+    if let TypegenLanguage::Flow = project_config.typegen_config.language {
+        writeln!(content, " * @flow").unwrap();
+        writeln!(content, " * @lightSyntaxTransform").unwrap();
+        writeln!(content, " * @nogrep").unwrap();
+    }
+
     if let Some(codegen_command) = &config.codegen_command {
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
@@ -411,6 +475,12 @@ fn generate_fragment(
             .unwrap();
     }
 
+    let type_syntax = if project_config.typegen_config.use_import_type_syntax {
+        "type "
+    }  else {
+        ""
+    };
+
     let reader_node_flow_type = if reader_fragment
         .directives
         .named(INLINE_DATA_CONSTANTS.directive_name)
@@ -420,12 +490,23 @@ fn generate_fragment(
     } else {
         "ReaderFragment"
     };
+
+    if let TypegenLanguage::Flow = project_config.typegen_config.language { 
+        writeln!(
+            content,
+            "/*::\n",
+        )
+        .unwrap();
+    }
+
     writeln!(
         content,
-        "/*::\nimport type {{ {} }} from 'relay-runtime';",
+        "import {}{{ {} }} from 'relay-runtime';",
+        type_syntax,
         reader_node_flow_type
     )
     .unwrap();
+
     if !skip_types {
         write!(
             content,
@@ -434,22 +515,40 @@ fn generate_fragment(
         )
         .unwrap();
     }
-    writeln!(content, "*/\n").unwrap();
-    writeln!(
-        content,
-        "var node/*: {}*/ = {};\n",
-        reader_node_flow_type,
-        printer.print_fragment(schema, reader_fragment)
-    )
-    .unwrap();
-    write_source_hash(config, &mut content, &source_hash).unwrap();
+
+    if let TypegenLanguage::Flow = project_config.typegen_config.language { 
+        writeln!(content, "*/\n").unwrap();
+        writeln!(
+            content,
+            "var node/*: {}*/ = {};\n",
+            reader_node_flow_type,
+            printer.print_fragment(schema, reader_fragment)
+        )
+        .unwrap();
+    } else {
+        writeln!(content, "\n").unwrap();
+        writeln!(
+            content,
+            "var node:{} = {};\n",
+            reader_node_flow_type,
+            printer.print_fragment(schema, reader_fragment)
+        )
+        .unwrap();
+    }
+
+    write_source_hash(config, project_config, &mut content, &source_hash).unwrap();
 
     writeln!(content, "module.exports = node;").unwrap();
     sign_file(&content).into_bytes()
 }
 
-fn get_content_start(config: &Config) -> String {
+fn get_content_start(config: &Config, project_config: &ProjectConfig) -> String {
     let mut content = String::new();
+
+    if let TypegenLanguage::TypeScript = project_config.typegen_config.language {
+        writeln!(content, "// @ts-nocheck").unwrap();
+    }
+
     writeln!(content, "/**").unwrap();
     if !config.header.is_empty() {
         for header_line in &config.header {
@@ -460,13 +559,19 @@ fn get_content_start(config: &Config) -> String {
     content
 }
 
-fn write_source_hash(config: &Config, content: &mut String, source_hash: &str) -> Result {
+fn write_source_hash(config: &Config, project_config: &ProjectConfig, content: &mut String, source_hash: &str) -> Result {
+    let node_type = if let TypegenLanguage::Flow = project_config.typegen_config.language {
+        "/*: any*/"
+    } else {
+        " as any"
+    };
+
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
         writeln!(content, "if ({}) {{", is_dev_variable_name)?;
-        writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?;
+        writeln!(content, "  (node{}).hash = \"{}\";", node_type, source_hash)?;
         writeln!(content, "}}\n")?;
     } else {
-        writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?;
+        writeln!(content, "(node{}).hash = \"{}\";\n", node_type, source_hash)?;
     }
 
     Ok(())

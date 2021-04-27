@@ -170,7 +170,7 @@ impl FileCategorizer {
         let extension = path
             .extension()
             .unwrap_or_else(|| panic!("Got unexpected path without extension: `{:?}`.", path));
-        if extension == "js" {
+        if extension == "js" || extension == "ts" || extension == "tsx" {
             let source_set = self.source_mapping.get(path);
             if self.in_relative_generated_dir(path) {
                 if let SourceSet::SourceSetName(source_set_name) = source_set {

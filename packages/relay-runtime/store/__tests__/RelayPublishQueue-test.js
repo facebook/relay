@@ -19,7 +19,6 @@ const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const invariant = require('invariant');
 const normalizeRelayPayload = require('../normalizeRelayPayload');
-const warning = require('warning');
 
 const {graphql} = require('../../query/GraphQLTag');
 const {
@@ -32,12 +31,16 @@ const {
   ROOT_TYPE,
   TYPENAME_KEY,
 } = require('../RelayStoreUtils');
-const {simpleClone} = require('relay-test-utils-internal');
+const {
+  simpleClone,
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('RelayPublishQueue', () => {
   beforeEach(() => {
-    jest.resetModules();
-
     global.ErrorUtils = {
       applyWithGuard: jest.fn((callback, context, params) => {
         try {
@@ -775,7 +778,7 @@ describe('RelayPublishQueue', () => {
 
   describe('commitPayload()', () => {
     it('publishes the source to the store', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -808,7 +811,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('runs the provided updater before publishing', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -902,7 +905,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('processes handle fields before publishing', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1320,7 +1323,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates the store if invalidated via updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1387,7 +1390,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates any ids marked as invalid via the updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1461,7 +1464,7 @@ describe('RelayPublishQueue', () => {
 
   describe('commitSource()', () => {
     it('publishes the source to the store', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const store_source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1662,7 +1665,7 @@ describe('RelayPublishQueue', () => {
 
   describe('commitUpdate()', () => {
     it('publishes the source to the store', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1692,7 +1695,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates the store if invalidated via updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1717,7 +1720,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('invalidates any ids marked as invalid via the updater', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1747,7 +1750,7 @@ describe('RelayPublishQueue', () => {
 
   describe('run()', () => {
     it('notifies the store even when no mutations have occurred', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1765,7 +1768,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('notifies the store if an optimistic mutation is applied', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1788,7 +1791,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('notifies the store if an optimistic mutation is reverted', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const restore = jest.fn();
       const source = new RelayRecordSourceMapImpl();
@@ -1819,7 +1822,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('notifies the store if a server mutation is committed', () => {
-      const notify = jest.fn();
+      const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
       const store = {
@@ -1859,7 +1862,7 @@ describe('RelayPublishQueue', () => {
       const source = new RelayRecordSourceMapImpl();
       const store = {
         getSource: () => source,
-        notify: jest.fn(),
+        notify: jest.fn(() => []),
         publish: jest.fn(),
         holdGC,
         restore: jest.fn(),
@@ -1881,7 +1884,7 @@ describe('RelayPublishQueue', () => {
       const source = new RelayRecordSourceMapImpl();
       const store = {
         getSource: () => source,
-        notify: jest.fn(),
+        notify: jest.fn(() => []),
         publish: jest.fn(),
         holdGC,
         restore: jest.fn(),
@@ -1900,7 +1903,7 @@ describe('RelayPublishQueue', () => {
       const source = new RelayRecordSourceMapImpl();
       const store = {
         getSource: () => source,
-        notify: jest.fn(),
+        notify: jest.fn(() => []),
         publish: jest.fn(),
         holdGC,
         restore: jest.fn(),
@@ -1926,21 +1929,25 @@ describe('RelayPublishQueue', () => {
     });
 
     it('should warn if run() is called during a run()', () => {
-      jest.mock('warning');
       const source = new RelayRecordSourceMapImpl();
       const store = new RelayModernStore(source);
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      let runInUpdaterOnce = false;
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
-          queue.run();
+          if (!runInUpdaterOnce) {
+            // We need to stop calling `run` here, as every next `run` will warn again
+            // and we want to check that `expectWarningWillFire` was called only once.
+            runInUpdaterOnce = true;
+            queue.run();
+          }
         },
       });
-      queue.run();
-      expect(warning).toHaveBeenCalledWith(
-        false,
+      expectWarningWillFire(
         "A store update was detected within another store update. Please make sure new store updates aren't being executed within an updater function for a different update.",
       );
+      queue.run();
     });
   });
 });

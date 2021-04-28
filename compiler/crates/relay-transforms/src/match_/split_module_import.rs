@@ -88,7 +88,10 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 .item
                 .expect_string_literal();
 
-            // We do not need to to write normalization files for base fragments
+            // We do not need to to write normalization files for base fragments.
+            // This is because when we process the base project, the normalization fragment will
+            // be written, and we do not want to emit multiple normalization fragments with
+            // the same name. If we did, Haste would complain about a duplicate module definition.
             if self.base_fragment_names.contains(&name) {
                 return self.default_transform_inline_fragment(fragment);
             }

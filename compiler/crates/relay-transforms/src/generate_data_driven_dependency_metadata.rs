@@ -77,55 +77,61 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                 .directives
                                 .named(MATCH_CONSTANTS.custom_module_directive_name);
                             if let Some(module_directive) = module_directive {
-                                let id = get_argument_value(
+                                let id = get_string_literal_argument_value(
                                     &module_directive,
                                     MATCH_CONSTANTS.js_field_id_arg,
-                                );
-                                let component = get_argument_value(
+                                )
+                                .expect("Expected id argument to exist on __module directive");
+                                if let Some(component) = get_string_literal_argument_value(
                                     &module_directive,
                                     MATCH_CONSTANTS.js_field_module_arg,
-                                );
-                                let fragment_spread = inline_fragment
-                                    .selections
-                                    .iter()
-                                    .find(|item| matches!(item, Selection::FragmentSpread(_)));
-                                // This is expected to be a fragment spread
-                                let fragment_name = match fragment_spread {
-                                    Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
-                                    _ => panic!("Expected to have a fragment spread"),
-                                };
+                                ) {
+                                    let fragment_spread = inline_fragment
+                                        .selections
+                                        .iter()
+                                        .find(|item| matches!(item, Selection::FragmentSpread(_)));
+                                    // This is expected to be a fragment spread
+                                    let fragment_name = match fragment_spread {
+                                        Some(Selection::FragmentSpread(spread)) => {
+                                            spread.fragment.item
+                                        }
+                                        _ => panic!("Expected to have a fragment spread"),
+                                    };
 
-                                let type_name = self
-                                    .program
-                                    .schema
-                                    .get_type_string(&processing_item.parent_type);
-                                module_entries
-                                    .entry(id)
-                                    .and_modify(|module_entry| {
-                                        module_entry.branches.insert(
-                                            type_name.clone(),
-                                            Branch {
-                                                component,
-                                                fragment: get_fragment_filename(fragment_name),
-                                            },
-                                        );
-                                    })
-                                    .or_insert(ModuleEntry {
-                                        id,
-                                        branches: {
-                                            let mut map: FnvHashMap<String, Branch> =
-                                                Default::default();
-                                            map.insert(
+                                    let type_name = self
+                                        .program
+                                        .schema
+                                        .get_type_string(&processing_item.parent_type);
+                                    module_entries
+                                        .entry(id)
+                                        .and_modify(|module_entry| {
+                                            module_entry.branches.insert(
                                                 type_name.clone(),
                                                 Branch {
                                                     component,
                                                     fragment: get_fragment_filename(fragment_name),
                                                 },
                                             );
-                                            map
-                                        },
-                                        plural: processing_item.plural,
-                                    });
+                                        })
+                                        .or_insert(ModuleEntry {
+                                            id,
+                                            branches: {
+                                                let mut map: FnvHashMap<String, Branch> =
+                                                    Default::default();
+                                                map.insert(
+                                                    type_name.clone(),
+                                                    Branch {
+                                                        component,
+                                                        fragment: get_fragment_filename(
+                                                            fragment_name,
+                                                        ),
+                                                    },
+                                                );
+                                                map
+                                            },
+                                            plural: processing_item.plural,
+                                        });
+                                }
                             }
                             processing_queue.push(ProcessingItem {
                                 plural: processing_item.plural,
@@ -283,12 +289,12 @@ impl From<ModuleEntry> for StringKey {
     }
 }
 
-fn get_argument_value(directive: &Directive, argument_name: StringKey) -> StringKey {
-    match directive.arguments.named(argument_name).unwrap().value.item {
-        Value::Constant(ConstantValue::String(value)) => value,
-        _ => panic!(
-            "Expected to have a constant string value for argument {}.",
-            argument_name
-        ),
-    }
+fn get_string_literal_argument_value(
+    directive: &Directive,
+    argument_name: StringKey,
+) -> Option<StringKey> {
+    directive
+        .arguments
+        .named(argument_name)
+        .map(|arg| arg.value.item.expect_string_literal())
 }

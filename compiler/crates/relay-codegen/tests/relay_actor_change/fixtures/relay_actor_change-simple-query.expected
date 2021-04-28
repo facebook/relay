@@ -63,24 +63,22 @@ fragment UserFragment on User {
           "selections": [
             {
               "kind": "ActorChange",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "concreteType": null,
-                  "kind": "LinkedField",
-                  "name": "actor",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "args": null,
-                      "kind": "FragmentSpread",
-                      "name": "UserFragment"
-                    }
-                  ],
-                  "storageKey": null
-                }
-              ]
+              "linkedField": {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "actor",
+                "plural": false,
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "UserFragment"
+                  }
+                ],
+                "storageKey": null
+              }
             }
           ],
           "type": "User",

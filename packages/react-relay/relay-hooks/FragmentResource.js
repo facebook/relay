@@ -24,6 +24,7 @@ const {
   isPromise,
   recycleNodesInto,
   reportMissingRequiredFields,
+  RelayFeatureFlags,
 } = require('relay-runtime');
 
 import type {Cache} from './LRUCache';
@@ -45,7 +46,17 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+type SeenRecords = $PropertyType<Snapshot, 'seenRecords'>;
+type SnapshotWithoutSeenRecords = $ReadOnly<{|
+  ...$Diff<Snapshot, {|seenRecords: SeenRecords, isMissingData: boolean|}>,
+  seenRecords?: SeenRecords,
+  isMissingData?: boolean,
+|}>;
+type SingularOrPluralSnapshot =
+  | SnapshotWithoutSeenRecords
+  | $ReadOnlyArray<SnapshotWithoutSeenRecords>;
+type SingularOrPluarlStoreSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+
 opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
@@ -72,9 +83,29 @@ function getFragmentResult(
   snapshot: SingularOrPluralSnapshot,
 ): FragmentResult {
   if (Array.isArray(snapshot)) {
-    return {cacheKey, snapshot, data: snapshot.map(s => s.data)};
+    return {
+      cacheKey,
+      snapshot: RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION
+        ? snapshot.map(s => ({
+            data: s.data,
+            selector: s.selector,
+            missingRequiredFields: s.missingRequiredFields,
+          }))
+        : snapshot,
+      data: snapshot.map(s => s.data),
+    };
   }
-  return {cacheKey, snapshot, data: snapshot.data};
+  return {
+    cacheKey,
+    snapshot: RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION
+      ? {
+          data: snapshot.data,
+          selector: snapshot.selector,
+          missingRequiredFields: snapshot.missingRequiredFields,
+        }
+      : snapshot,
+    data: snapshot.data,
+  };
 }
 
 function getPromiseForPendingOperationAffectingOwner(
@@ -351,7 +382,7 @@ class FragmentResourceImpl {
 
   checkMissedUpdates(
     fragmentResult: FragmentResult,
-  ): [boolean, SingularOrPluralSnapshot | null] {
+  ): [boolean, SingularOrPluarlStoreSnapshot | null] {
     const environment = this._environment;
     const {cacheKey} = fragmentResult;
     const renderedSnapshot = fragmentResult.snapshot;
@@ -364,7 +395,7 @@ class FragmentResourceImpl {
     if (Array.isArray(renderedSnapshot)) {
       const currentSnapshots = [];
       renderedSnapshot.forEach((snapshot, idx) => {
-        let currentSnapshot = environment.lookup(snapshot.selector);
+        let currentSnapshot: Snapshot = environment.lookup(snapshot.selector);
         const renderData = snapshot.data;
         const currentData = currentSnapshot.data;
         const updatedData = recycleNodesInto(renderData, currentData);
@@ -382,11 +413,11 @@ class FragmentResourceImpl {
       }
       return [didMissUpdates, currentSnapshots];
     }
-    let currentSnapshot = environment.lookup(renderedSnapshot.selector);
+    const currentSnapshot = environment.lookup(renderedSnapshot.selector);
     const renderData = renderedSnapshot.data;
     const currentData = currentSnapshot.data;
     const updatedData = recycleNodesInto(renderData, currentData);
-    currentSnapshot = {
+    const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
       isMissingData: currentSnapshot.isMissingData,
       seenRecords: currentSnapshot.seenRecords,
@@ -394,10 +425,13 @@ class FragmentResourceImpl {
       missingRequiredFields: currentSnapshot.missingRequiredFields,
     };
     if (updatedData !== renderData) {
-      this._cache.set(cacheKey, getFragmentResult(cacheKey, currentSnapshot));
+      this._cache.set(
+        cacheKey,
+        getFragmentResult(cacheKey, updatedCurrentSnapshot),
+      );
       didMissUpdates = true;
     }
-    return [didMissUpdates, currentSnapshot];
+    return [didMissUpdates, updatedCurrentSnapshot];
   }
 
   checkMissedUpdatesSpec(fragmentResults: {

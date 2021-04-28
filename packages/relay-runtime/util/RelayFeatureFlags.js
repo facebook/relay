@@ -28,6 +28,7 @@ type FeatureFlags = {|
   ENABLE_NOTIFY_SUBSCRIPTION: boolean,
   ENABLE_UNIQUE_SUBSCRIPTION_ROOT: boolean,
   ENABLE_BATCHED_STORE_UPDATES: boolean,
+  ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -46,6 +47,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_NOTIFY_SUBSCRIPTION: false,
   ENABLE_UNIQUE_SUBSCRIPTION_ROOT: false,
   ENABLE_BATCHED_STORE_UPDATES: false,
+  ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION: false,
 };
 
 module.exports = RelayFeatureFlags;

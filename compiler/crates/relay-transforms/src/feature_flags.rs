@@ -21,11 +21,18 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
+    /// For now, this also disallows fragments with variable definitions
+    /// NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to
+    /// use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that
+    /// directive.
     #[serde(default)]
-    pub no_inline: NoInlineFeature,
+    pub no_inline: FeatureFlag,
 
     #[serde(default)]
     pub enable_3d_branch_arg_generation: bool,
+
+    #[serde(default)]
+    pub actor_change_support: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -36,53 +43,50 @@ impl Default for FeatureFlags {
             enable_relay_resolver_transform: false,
             no_inline: Default::default(),
             enable_3d_branch_arg_generation: false,
+            actor_change_support: Default::default(),
         }
     }
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]
 #[serde(tag = "kind", rename_all = "lowercase")]
-pub enum NoInlineFeature {
-    /// Fully disabled: developers may not use @no_inline
+pub enum FeatureFlag {
+    /// Fully disabled: developers may not use this feature
     Disabled,
 
-    /// Fully enabled: developers may use @no_inline on any fragment, with or without variable definitions
+    /// Fully enabled: developers may use this feature
     Enabled,
 
-    /// Partially enabled: developers may only use @no_inline on the listed fragments. For now, this also
-    /// disallows fragments with variable definitions
-    /// NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to
-    /// use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that
-    /// directive.
+    /// Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).
     Limited { allowlist: IndexSet<StringKey> },
 }
 
-impl Default for NoInlineFeature {
+impl Default for FeatureFlag {
     fn default() -> Self {
-        NoInlineFeature::Disabled
+        FeatureFlag::Disabled
     }
 }
 
-impl NoInlineFeature {
-    pub fn enable_for_fragment(&self, name: StringKey) -> bool {
+impl FeatureFlag {
+    pub fn is_enabled_for(&self, name: StringKey) -> bool {
         match self {
-            NoInlineFeature::Enabled => true,
-            NoInlineFeature::Limited { allowlist } => allowlist.contains(&name),
+            FeatureFlag::Enabled => true,
+            FeatureFlag::Limited { allowlist } => allowlist.contains(&name),
             _ => false,
         }
     }
 
-    pub fn enable_fragment_variables(&self) -> bool {
-        matches!(self, NoInlineFeature::Enabled)
+    pub fn is_fully_enabled(&self) -> bool {
+        matches!(self, FeatureFlag::Enabled)
     }
 }
 
-impl Display for NoInlineFeature {
+impl Display for FeatureFlag {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         match self {
-            NoInlineFeature::Disabled => f.write_str("disabled"),
-            NoInlineFeature::Enabled => f.write_str("enabled"),
-            NoInlineFeature::Limited { allowlist } => {
+            FeatureFlag::Disabled => f.write_str("disabled"),
+            FeatureFlag::Enabled => f.write_str("enabled"),
+            FeatureFlag::Limited { allowlist } => {
                 let items: Vec<_> = allowlist.iter().map(|x| x.lookup()).collect();
                 f.write_str("limited to: ")?;
                 f.write_str(&items.join(", "))

@@ -76,7 +76,7 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::{FeatureFlags, NoInlineFeature};
+pub use feature_flags::{FeatureFlag, FeatureFlags};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,

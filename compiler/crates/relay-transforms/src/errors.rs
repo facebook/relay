@@ -70,4 +70,9 @@ pub enum ValidationMessage {
 
     #[error("Actor change directive (@as_actor) cannot be applied to scalar fields.")]
     ActorChangeCannotUseOnScalarFields,
+
+    #[error(
+        "Actor change has limited (experimental) support and is not allowed to use on this fragment spread."
+    )]
+    ActorChangeIsExperimental,
 }

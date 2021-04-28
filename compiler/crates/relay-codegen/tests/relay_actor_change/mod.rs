@@ -13,7 +13,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_syntax::parse_executable;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_test_schema::get_test_schema;
-use relay_transforms::relay_actor_change_transform;
+use relay_transforms::{relay_actor_change_transform, FeatureFlag};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -25,7 +25,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let schema = get_test_schema();
     let ir = build(&schema, &ast.definitions).unwrap();
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let next_program = relay_actor_change_transform(&program)
+    let next_program = relay_actor_change_transform(&program, &FeatureFlag::Enabled)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let mut result = next_program
         .fragments()

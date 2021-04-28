@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<05e6402b59c6212b78b4b98442e6345c>>
+ * @generated SignedSource<<6b852b7a883dc1ad8e89a9998fba79df>>
  */
 
 mod compile_relay_artifacts;
@@ -101,6 +101,13 @@ fn abstract_type_refinement_no_unnecessary_type_discriminator_under_condition_in
     let input = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected");
     test_fixture(transform_fixture, "abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.graphql", "compile_relay_artifacts/fixtures/abstract-type-refinement-no-unnecessary-type-discriminator-under-condition_incorrect.expected", input, expected);
+}
+
+#[test]
+fn actor_change_simple_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/actor-change-simple-query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/actor-change-simple-query.expected");
+    test_fixture(transform_fixture, "actor-change-simple-query.graphql", "compile_relay_artifacts/fixtures/actor-change-simple-query.expected", input, expected);
 }
 
 #[test]

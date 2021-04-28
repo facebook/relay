@@ -8,7 +8,7 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::feature_flags::NoInlineFeature;
+use crate::feature_flags::FeatureFlag;
 use crate::match_::SplitOperationMetadata;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use crate::util::get_normalization_operation_name;
@@ -47,7 +47,7 @@ use std::sync::Arc;
 pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
-    no_inline_feature: &NoInlineFeature,
+    no_inline_feature: &FeatureFlag,
     base_fragment_names: &FnvHashSet<StringKey>,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
@@ -97,7 +97,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     errors: Vec<Diagnostic>,
     fragments: FnvHashMap<StringKey, PendingFragment>,
     is_normalization: bool,
-    no_inline_feature: &'flags NoInlineFeature,
+    no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
@@ -255,10 +255,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         if self.base_fragment_names.contains(&fragment.name.item) {
             return;
         }
-        if !self
-            .no_inline_feature
-            .enable_for_fragment(fragment.name.item)
-        {
+        if !self.no_inline_feature.is_enabled_for(fragment.name.item) {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
@@ -280,7 +277,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             ..
         } = fragment;
 
-        if !variable_definitions.is_empty() && !self.no_inline_feature.enable_fragment_variables() {
+        if !variable_definitions.is_empty() && !self.no_inline_feature.is_fully_enabled() {
             // arguments disallowed
             self.errors.push(Diagnostic::error(
                 format!(

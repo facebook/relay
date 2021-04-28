@@ -154,6 +154,11 @@ fn apply_common_transforms(
             relay_client_component(&program)
         })?;
     }
+
+    program = log_event.time("relay_actor_change_transform", || {
+        relay_actor_change_transform(&program, &feature_flags.actor_change_support)
+    })?;
+
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))

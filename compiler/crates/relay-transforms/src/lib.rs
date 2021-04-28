@@ -94,8 +94,8 @@ pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{
-    split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
-    MATCH_CONSTANTS,
+    split_module_import, transform_match, transform_subscriptions, SplitOperationMetadata,
+    DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;

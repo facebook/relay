@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6b852b7a883dc1ad8e89a9998fba79df>>
+ * @generated SignedSource<<06a5bb3915fa3be0856a1b6482b6b90b>>
  */
 
 mod compile_relay_artifacts;
@@ -913,6 +913,13 @@ fn stream_connection_conditional() {
     let input = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/stream-connection-conditional.expected");
     test_fixture(transform_fixture, "stream-connection-conditional.graphql", "compile_relay_artifacts/fixtures/stream-connection-conditional.expected", input, expected);
+}
+
+#[test]
+fn subscription_transform() {
+    let input = include_str!("compile_relay_artifacts/fixtures/subscription-transform.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/subscription-transform.expected");
+    test_fixture(transform_fixture, "subscription-transform.graphql", "compile_relay_artifacts/fixtures/subscription-transform.expected", input, expected);
 }
 
 #[test]

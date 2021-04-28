@@ -1,0 +1,13 @@
+# noop because there are two selections
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ...CommentCreate_CommentCreateResponsePayload
+    __typename
+  }
+}
+
+fragment CommentCreate_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}

@@ -140,6 +140,9 @@ fn apply_common_transforms(
     program = log_event.time("transform_match", || {
         transform_match(&program, &feature_flags)
     })?;
+    program = log_event.time("transform_subscriptions", || {
+        transform_subscriptions(&program)
+    })?;
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
@@ -350,6 +353,9 @@ fn apply_typegen_transforms(
     let mut program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
         transform_match(&program, &feature_flags)
+    })?;
+    program = log_event.time("transform_subscriptions", || {
+        transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)

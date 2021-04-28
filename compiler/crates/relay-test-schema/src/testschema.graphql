@@ -329,6 +329,7 @@ type CommentCreateResponsePayload {
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge
   viewer: Viewer
+  js: JSDependency
 }
 
 type CommentsCreateResponsePayload {

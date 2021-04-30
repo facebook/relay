@@ -332,6 +332,11 @@ export interface Store {
     invalidationState: InvalidationState,
     callback: () => void,
   ): Disposable;
+
+  /**
+   * Get the current write epoch
+   */
+  getEpoch(): number;
 }
 
 export interface StoreSubscriptions {

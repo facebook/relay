@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query clientFieldsOnlyInvalidQuery {
+  defaultSettings {
+    ...clientFieldsOnlyInvalidFragment
+  }
+}
+
+fragment clientFieldsOnlyInvalidFragment on Settings {
+  client_field
+}
+
+# %extensions%
+
+extend type Settings {
+  client_field: String
+}
+==================================== ERROR ====================================
+✖︎ After transforms, the operation `clientFieldsOnlyInvalidQuery` that would be sent to the server is empty. Relay is not setup to handle such queries. This is likely due to only querying for client extension fields or `@skip`/`@include` directives with constant values that remove all selections.
+
+  client_fields_only_invalid.graphql:3:7
+    2 │ 
+    3 │ query clientFieldsOnlyInvalidQuery {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │   defaultSettings {

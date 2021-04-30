@@ -261,7 +261,7 @@ fn apply_normalization_transforms(
     program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
     print_stats("relay_early_flush", &program);
 
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     print_stats("skip_unreachable_node", &program);
 
     program = log_event.time("inline_fragments", || inline_fragments(&program));
@@ -319,7 +319,7 @@ fn apply_operation_text_transforms(
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
     });
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program));
+    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false))?;
     program = log_event.time("skip_unused_variables", || skip_unused_variables(&program));

@@ -1,0 +1,17 @@
+# expected-to-throw
+
+query clientFieldsOnlyInvalidQuery {
+  defaultSettings {
+    ...clientFieldsOnlyInvalidFragment
+  }
+}
+
+fragment clientFieldsOnlyInvalidFragment on Settings {
+  client_field
+}
+
+# %extensions%
+
+extend type Settings {
+  client_field: String
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06a5bb3915fa3be0856a1b6482b6b90b>>
+ * @generated SignedSource<<5ad4570d464f6cd4ec97d5331c78c3d0>>
  */
 
 mod compile_relay_artifacts;
@@ -178,6 +178,13 @@ fn client_fields_on_roots() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-fields-on-roots.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-on-roots.expected");
     test_fixture(transform_fixture, "client-fields-on-roots.graphql", "compile_relay_artifacts/fixtures/client-fields-on-roots.expected", input, expected);
+}
+
+#[test]
+fn client_fields_only_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client_fields_only_invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client_fields_only_invalid.expected");
+    test_fixture(transform_fixture, "client_fields_only_invalid.graphql", "compile_relay_artifacts/fixtures/client_fields_only_invalid.expected", input, expected);
 }
 
 #[test]

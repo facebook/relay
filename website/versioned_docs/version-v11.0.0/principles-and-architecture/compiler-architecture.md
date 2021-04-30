@@ -89,7 +89,9 @@ foo {
     id
   }
   ... on FooType @include(if: $cond) { # can't be flattened due to conditional
-    id # but this field is guaranteed to be fetched regardless
+    bar {
+      id # but this field is guaranteed to be fetched regardless
+    }
   }
 }
 

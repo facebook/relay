@@ -21,6 +21,8 @@ suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState
 
+format.bracket_spacing=false
+
 experimental.abstract_locations=true
 
 [lints]
@@ -36,4 +38,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.149.0
+^0.150.0

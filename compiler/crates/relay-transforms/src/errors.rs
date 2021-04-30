@@ -75,4 +75,7 @@ pub enum ValidationMessage {
         "Actor change has limited (experimental) support and is not allowed to use on this fragment spread."
     )]
     ActorChangeIsExperimental,
+
+    #[error("Actor change does not support plural fields, yet.")]
+    ActorChangePluralFieldsNotSupported,
 }

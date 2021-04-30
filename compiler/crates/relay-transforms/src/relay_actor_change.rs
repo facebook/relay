@@ -16,13 +16,14 @@ use graphql_ir::{
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
+use schema::Schema;
 use std::sync::Arc;
 
 pub fn relay_actor_change_transform(
     program: &Program,
     feature_flag: &FeatureFlag,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = ActorChangeTransform::new(feature_flag);
+    let mut transform = ActorChangeTransform::new(program, feature_flag);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -39,21 +40,23 @@ lazy_static! {
     pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey = "__as_actor".intern();
 }
 
-struct ActorChangeTransform<'feature> {
+struct ActorChangeTransform<'program, 'feature> {
+    program: &'program Program,
     feature_flag: &'feature FeatureFlag,
     errors: Vec<Diagnostic>,
 }
 
-impl<'feature> ActorChangeTransform<'feature> {
-    fn new(feature_flag: &'feature FeatureFlag) -> Self {
+impl<'program, 'feature> ActorChangeTransform<'program, 'feature> {
+    fn new(program: &'program Program, feature_flag: &'feature FeatureFlag) -> Self {
         Self {
+            program,
             feature_flag,
             errors: Default::default(),
         }
     }
 }
 
-impl Transformer for ActorChangeTransform<'_> {
+impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature> {
     const NAME: &'static str = "ActorChangeTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -92,6 +95,15 @@ impl Transformer for ActorChangeTransform<'_> {
                     ));
                     return Transformed::Keep;
                 }
+            }
+
+            let schema_field = self.program.schema.field(field.definition.item);
+            if schema_field.type_.is_list() {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ActorChangePluralFieldsNotSupported,
+                    field.alias_or_name_location(),
+                ));
+                return Transformed::Keep;
             }
 
             let next_directives = field

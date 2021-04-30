@@ -17,9 +17,7 @@ use relay_codegen::{
 };
 use relay_compiler::{apply_transforms, validate};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{
-    ConnectionInterface, FeatureFlags, NoInlineFeature, DIRECTIVE_SPLIT_OPERATION,
-};
+use relay_transforms::{ConnectionInterface, FeatureFlag, FeatureFlags, DIRECTIVE_SPLIT_OPERATION};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -53,9 +51,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
         enable_required_transform_for_prefix: Some("".intern()),
-        no_inline: NoInlineFeature::Enabled,
+        no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
         enable_3d_branch_arg_generation: true,
+        actor_change_support: FeatureFlag::Enabled,
     };
 
     // TODO pass base fragment names

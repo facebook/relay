@@ -1729,16 +1729,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         self.object(params_object)
     }
 
-    fn build_actor_change(&mut self, actor_change_fragment: &InlineFragment) -> Primitive {
-        let selections = self.build_selections(actor_change_fragment.selections.iter());
+    fn build_actor_change(&mut self, actor_change: &InlineFragment) -> Primitive {
+        let linked_field = &self.build_selections_from_selection(&actor_change.selections[0])[0];
+
         Primitive::Key(self.object(vec![
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,
                 value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
             },
             ObjectEntry {
-                key: CODEGEN_CONSTANTS.selections,
-                value: selections,
+                key: CODEGEN_CONSTANTS.linked_field_property,
+                value: Primitive::Key(linked_field.assert_key()),
             },
         ]))
     }

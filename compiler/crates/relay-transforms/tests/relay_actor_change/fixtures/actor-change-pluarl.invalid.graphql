@@ -1,0 +1,11 @@
+# expected-to-throw
+
+fragment TestFragment on Query {
+  usernames(names: ["Antonio"]) @EXPERIMENTAL__as_actor {
+    ...ForActorChange
+  }
+}
+
+fragment ForActorChange on Actor {
+  name
+}

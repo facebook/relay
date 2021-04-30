@@ -8,14 +8,14 @@
 use fixture_tests::Fixture;
 use fnv::FnvHashSet;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::{apply_fragment_arguments, NoInlineFeature};
+use relay_transforms::{apply_fragment_arguments, FeatureFlag};
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
         apply_fragment_arguments(
             program,
             false,
-            &NoInlineFeature::Enabled,
+            &FeatureFlag::Enabled,
             &FnvHashSet::default(),
         )
     })

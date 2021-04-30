@@ -76,7 +76,7 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::{FeatureFlags, NoInlineFeature};
+pub use feature_flags::{FeatureFlag, FeatureFlags};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -94,8 +94,8 @@ pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{
-    split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
-    MATCH_CONSTANTS,
+    split_module_import, transform_match, transform_subscriptions, SplitOperationMetadata,
+    DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;

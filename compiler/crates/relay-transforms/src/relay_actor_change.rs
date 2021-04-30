@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::FeatureFlag;
+
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
@@ -14,10 +16,14 @@ use graphql_ir::{
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
+use schema::Schema;
 use std::sync::Arc;
 
-pub fn relay_actor_change_transform(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ActorChangeTransform::new(program);
+pub fn relay_actor_change_transform(
+    program: &Program,
+    feature_flag: &FeatureFlag,
+) -> DiagnosticsResult<Program> {
+    let mut transform = ActorChangeTransform::new(program, feature_flag);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -34,21 +40,23 @@ lazy_static! {
     pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey = "__as_actor".intern();
 }
 
-struct ActorChangeTransform<'program> {
-    _program: &'program Program,
+struct ActorChangeTransform<'program, 'feature> {
+    program: &'program Program,
+    feature_flag: &'feature FeatureFlag,
     errors: Vec<Diagnostic>,
 }
 
-impl<'program> ActorChangeTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+impl<'program, 'feature> ActorChangeTransform<'program, 'feature> {
+    fn new(program: &'program Program, feature_flag: &'feature FeatureFlag) -> Self {
         Self {
-            _program: program,
+            program,
+            feature_flag,
             errors: Default::default(),
         }
     }
 }
 
-impl Transformer for ActorChangeTransform<'_> {
+impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature> {
     const NAME: &'static str = "ActorChangeTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -65,7 +73,19 @@ impl Transformer for ActorChangeTransform<'_> {
             }
 
             match &field.selections[0] {
-                Selection::FragmentSpread(_) => {}
+                Selection::FragmentSpread(fragment_spread) => {
+                    if !self
+                        .feature_flag
+                        .is_enabled_for(fragment_spread.fragment.item)
+                    {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::ActorChangeIsExperimental,
+                            fragment_spread.fragment.location,
+                        ));
+                        return Transformed::Keep;
+                    }
+                }
+
                 selection => {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::ActorChangeInvalidSelection,
@@ -73,7 +93,17 @@ impl Transformer for ActorChangeTransform<'_> {
                             .location()
                             .unwrap_or_else(|| field.alias_or_name_location()),
                     ));
+                    return Transformed::Keep;
                 }
+            }
+
+            let schema_field = self.program.schema.field(field.definition.item);
+            if schema_field.type_.is_list() {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ActorChangePluralFieldsNotSupported,
+                    field.alias_or_name_location(),
+                ));
+                return Transformed::Keep;
             }
 
             let next_directives = field

@@ -417,6 +417,10 @@ class RelayModernStore implements Store {
     return 'RelayModernStore()';
   }
 
+  getEpoch(): number {
+    return this._currentWriteEpoch;
+  }
+
   // Internal API
   __getUpdatedRecordIDs(): DataIDSet {
     return this._updatedRecordIDs;

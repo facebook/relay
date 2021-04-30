@@ -145,6 +145,10 @@ impl Selection {
         };
     }
 
+    /// A quick method to get the location of the selection. This may
+    /// be helpful for error reporting. Please note, this implementation
+    /// prefers the location of the alias for scalar and linked field selections.
+    /// It also returns `None` for conditional nodes and inline fragments.
     pub fn location(&self) -> Option<Location> {
         match self {
             Selection::Condition(_) => None,

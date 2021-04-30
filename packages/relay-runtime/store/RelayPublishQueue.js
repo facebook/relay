@@ -347,17 +347,19 @@ class RelayPublishQueue implements PublishQueue {
       } else {
         const {operation, payload, updater} = optimisticUpdate;
         const {source, fieldPayloads} = payload;
-        const recordSourceSelectorProxy = new RelayRecordSourceSelectorProxy(
-          mutator,
-          recordSourceProxy,
-          operation.fragment,
-        );
-        let selectorData;
         if (source) {
           recordSourceProxy.publishSource(source, fieldPayloads);
-          selectorData = lookupSelector(source, operation.fragment);
         }
         if (updater) {
+          let selectorData;
+          if (source) {
+            selectorData = lookupSelector(source, operation.fragment);
+          }
+          const recordSourceSelectorProxy = new RelayRecordSourceSelectorProxy(
+            mutator,
+            recordSourceProxy,
+            operation.fragment,
+          );
           applyWithGuard(
             updater,
             null,

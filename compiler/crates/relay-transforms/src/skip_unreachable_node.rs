@@ -6,7 +6,7 @@
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::NamedItem;
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, FragmentDefinition, FragmentSpread, Program, Selection, Transformed,
@@ -14,8 +14,9 @@ use graphql_ir::{
 };
 use interner::StringKey;
 use std::sync::Arc;
+use thiserror::Error;
 
-pub fn skip_unreachable_node(program: &Program) -> Program {
+pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
     let fragments = program
         .fragments()
         .filter_map(|fragment| {
@@ -28,9 +29,12 @@ pub fn skip_unreachable_node(program: &Program) -> Program {
         .collect();
 
     let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(fragments);
-    skip_unreachable_node_transform
-        .transform_program(program)
-        .replace_or_else(|| program.clone())
+    let transformed = skip_unreachable_node_transform.transform_program(program);
+    if skip_unreachable_node_transform.errors.is_empty() {
+        Ok(transformed.replace_or_else(|| program.clone()))
+    } else {
+        Err(skip_unreachable_node_transform.errors)
+    }
 }
 
 type VisitedFragments = FnvHashMap<
@@ -42,6 +46,7 @@ type VisitedFragments = FnvHashMap<
 >;
 
 pub struct SkipUnreachableNodeTransform {
+    errors: Vec<Diagnostic>,
     visited_fragments: VisitedFragments,
 }
 
@@ -71,7 +76,15 @@ impl Transformer for SkipUnreachableNodeTransform {
 
         for operation in program.operations() {
             match self.transform_operation(operation) {
-                Transformed::Delete => has_changes = true,
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptyOperationResult {
+                            name: operation.name.item,
+                        },
+                        operation.name.location,
+                    ));
+                    has_changes = true;
+                }
                 Transformed::Keep => next_program.insert_operation(Arc::clone(operation)),
                 Transformed::Replace(replacement) => {
                     has_changes = true;
@@ -145,7 +158,10 @@ impl Transformer for SkipUnreachableNodeTransform {
 
 impl SkipUnreachableNodeTransform {
     pub fn new(visited_fragments: VisitedFragments) -> Self {
-        Self { visited_fragments }
+        Self {
+            errors: Vec::new(),
+            visited_fragments,
+        }
     }
 
     fn should_delete_fragment_definition(&mut self, key: StringKey) -> bool {
@@ -216,4 +232,15 @@ impl SkipUnreachableNodeTransform {
             self.transform_condition(condition).into()
         }
     }
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ValidationMessage {
+    #[error(
+        "After transforms, the operation `{name}` that would be sent to the server is empty. \
+        Relay is not setup to handle such queries. This is likely due to only querying for \
+        client extension fields or `@skip`/`@include` directives with constant values that \
+        remove all selections."
+    )]
+    EmptyOperationResult { name: StringKey },
 }

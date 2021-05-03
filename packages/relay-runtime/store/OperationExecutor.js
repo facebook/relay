@@ -332,6 +332,26 @@ class Executor {
     this._schedule(() => {
       this._handleNext(response);
       this._maybeCompleteSubscriptionOperationTracking();
+      if (
+        this._isSubscriptionOperation &&
+        RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
+      ) {
+        const nextID = generateUniqueClientID();
+        this._operation = {
+          request: this._operation.request,
+          fragment: createReaderSelector(
+            this._operation.fragment.node,
+            nextID,
+            this._operation.fragment.variables,
+            this._operation.fragment.owner,
+          ),
+          root: createNormalizationSelector(
+            this._operation.root.node,
+            nextID,
+            this._operation.root.variables,
+          ),
+        };
+      }
     });
   }
 
@@ -807,23 +827,6 @@ class Executor {
       this._incrementalPayloadsPending === false
     ) {
       this._completeOperationTracker();
-    }
-    if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
-      const nextID = generateUniqueClientID();
-      this._operation = {
-        request: this._operation.request,
-        fragment: createReaderSelector(
-          this._operation.fragment.node,
-          nextID,
-          this._operation.fragment.variables,
-          this._operation.fragment.owner,
-        ),
-        root: createNormalizationSelector(
-          this._operation.root.node,
-          nextID,
-          this._operation.root.variables,
-        ),
-      };
     }
   }
 

@@ -1695,7 +1695,7 @@ class TypeMap {
   ) {
     if (this._fields.has(type)) {
       throw createCompilerError(
-        '_handleTypeFieldsStrict: Unable to parse schema file. Duplicate definition for object type',
+        `_handleTypeFieldsStrict: Unable to parse schema file. Duplicate definition for object type ${type}.`
       );
     }
     this._handleTypeFields(type, fields, isClient);

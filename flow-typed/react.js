@@ -9,6 +9,8 @@
 
 'use strict';
 
+// TODO: Remove after upgrading the flow version. This was added because we changed
+// the types of useTransition, startTranstion, and useDeferredValue used only in test.
 declare module react {
   declare export var DOM: any;
   declare export var PropTypes: ReactPropTypes;
@@ -174,10 +176,7 @@ declare module react {
     inputs: ?$ReadOnlyArray<mixed>,
   ): void;
 
-  declare export function useDeferredValue<T>(
-    value: T,
-    config: TimeoutConfig | void | null,
-  ): T;
+  declare export function useDeferredValue<T>(value: T): T;
 
   declare export function useTransition(): [boolean, (() => void) => void];
 

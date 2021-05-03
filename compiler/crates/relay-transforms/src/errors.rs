@@ -78,4 +78,9 @@ pub enum ValidationMessage {
 
     #[error("Actor change does not support plural fields, yet.")]
     ActorChangePluralFieldsNotSupported,
+
+    #[error(
+        "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
+    )]
+    RelayResolversDisabled {},
 }

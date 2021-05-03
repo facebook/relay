@@ -57,12 +57,18 @@ mod unwrap_custom_directive_selection;
 mod util;
 mod validations;
 
+use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
 }
+
+/// Name of an executable operation
+type OperationName = StringKey;
+
+pub type DependencyMap = FnvHashMap<OperationName, FnvHashSet<OperationName>>;
 
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
@@ -118,7 +124,8 @@ pub use relay_client_component::{
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
 pub use relay_resolvers::{
-    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    find_resolver_dependencies, relay_resolvers, ResolverFieldFinder,
+    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
     RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
     RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
 };

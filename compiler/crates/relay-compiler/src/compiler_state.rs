@@ -18,6 +18,7 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
+use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
@@ -25,7 +26,7 @@ use std::{
     fmt,
     fs::File as FsFile,
     hash::Hash,
-    io,
+    io, mem,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
@@ -184,11 +185,15 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
+    // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
+    pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
     pub clock: Clock,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    #[serde(skip)]
+    pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
@@ -211,11 +216,13 @@ impl CompilerState {
         let mut result = Self {
             graphql_sources: Default::default(),
             artifacts: Default::default(),
+            implicit_dependencies: Default::default(),
             extensions: Default::default(),
             schemas: Default::default(),
             clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
             dirty_artifact_paths: Default::default(),
+            pending_implicit_dependencies: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
             source_control_update_status: Default::default(),
@@ -463,6 +470,7 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
     }
 

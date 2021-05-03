@@ -1,5 +1,6 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
+  pop_star_name
   hobbit_name
 }
 
@@ -15,7 +16,6 @@ fragment PopStarNameResolverFragment_name on User {
 
 fragment HobbitNameResolverFragment_name on User {
   name
-  pop_star_name
 }
 
 # %extensions%
@@ -26,12 +26,12 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
+  ...PopStarNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name")
   ...HobbitNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "HobbitNameResolver", field_name: "hobbit_name")
 }
 
 fragment HobbitNameResolverFragment_name on User {
   name
-  ...PopStarNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name")
 }
 
 fragment PopStarNameResolverFragment_name on User {
@@ -46,5 +46,4 @@ fragment PopStarNameResolverFragment_name on User {
 
 # Implicit Dependencies:
 #
-# Foo_user --> {HobbitNameResolverFragment_name}
-# HobbitNameResolverFragment_name --> {PopStarNameResolverFragment_name}
+# Foo_user --> {HobbitNameResolverFragment_name, PopStarNameResolverFragment_name}

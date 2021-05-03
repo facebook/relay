@@ -147,9 +147,9 @@ fn apply_common_transforms(
         transform_refetchable_fragment(&program, &base_fragment_names, false)
     })?;
 
-    if feature_flags.enable_relay_resolver_transform {
-        program = log_event.time("relay_resolvers", || relay_resolvers(&program))?;
-    }
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+    })?;
 
     if feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
@@ -360,9 +360,9 @@ fn apply_typegen_transforms(
     program = log_event.time("required_directive", || {
         required_directive(&program, &feature_flags)
     })?;
-    if feature_flags.enable_relay_resolver_transform {
-        program = log_event.time("relay_resolvers", || relay_resolvers(&program))?;
-    }
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
+    })?;
     log_event.time("flatten", || flatten(&mut program, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)

@@ -42,6 +42,7 @@ use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
 use relay_codegen::Printer;
+use relay_transforms::{find_resolver_dependencies, DependencyMap};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
@@ -63,6 +64,7 @@ impl From<BuildProjectError> for BuildProjectFailure {
 /// their locations to provide information to go_to_definition, hover, etc.
 pub fn build_raw_program(
     project_config: &ProjectConfig,
+    implicit_dependencies: &DependencyMap,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
@@ -74,8 +76,14 @@ pub fn build_raw_program(
         base_fragment_names,
         source_hashes,
     } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
-            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        build_ir::build_ir(
+            project_config,
+            &implicit_dependencies,
+            &schema,
+            graphql_asts,
+            is_incremental_build,
+        )
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     // Turn the IR into a base Program.
@@ -156,6 +164,7 @@ pub fn build_programs(
 
     let (program, base_fragment_names, source_hashes) = build_raw_program(
         project_config,
+        &compiler_state.implicit_dependencies.read().unwrap(),
         graphql_asts,
         schema,
         log_event,
@@ -167,8 +176,23 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    // Call validation rules that go beyond type checking.
-    validate_program(&config, &program, log_event)?;
+    let (validation_results, _) = rayon::join(
+        || {
+            // Call validation rules that go beyond type checking.
+            validate_program(&config, &program, log_event)
+        },
+        || {
+            find_resolver_dependencies(
+                &mut compiler_state
+                    .pending_implicit_dependencies
+                    .write()
+                    .unwrap(),
+                &program,
+            );
+        },
+    );
+
+    validation_results?;
 
     let programs = transform_program(
         config,

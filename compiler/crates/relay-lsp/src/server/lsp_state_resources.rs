@@ -337,6 +337,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
         let (base_program, base_fragment_names, _) = build_raw_program(
             project_config,
+            &compiler_state.implicit_dependencies.read().unwrap(),
             graphql_asts,
             schema,
             log_event,

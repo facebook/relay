@@ -222,7 +222,7 @@ fn generate_operation(
         directives: reader_operation.directives.clone(),
         type_condition: reader_operation.type_,
     };
-    let mut content = get_content_start(config, project_config);
+    let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
     if let Some(operation_hash) = operation_hash {
         writeln!(content, " * @relayHash {}", operation_hash).unwrap();
@@ -236,6 +236,9 @@ fn generate_operation(
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
+    if let TypegenLanguage::TypeScript = project_config.typegen_config.language {
+        writeln!(content, "// @ts-nocheck").unwrap();    
+    }
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
     if let Some(id) = &request_parameters.id {
@@ -354,7 +357,7 @@ fn generate_split_operation(
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
 ) -> Vec<u8> {
-    let mut content = get_content_start(config, project_config);
+    let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
 
     if let TypegenLanguage::Flow = project_config.typegen_config.language {
@@ -367,6 +370,9 @@ fn generate_split_operation(
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
+    if let TypegenLanguage::TypeScript = project_config.typegen_config.language {
+        writeln!(content, "// @ts-nocheck").unwrap();    
+    }
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
     let type_syntax = if project_config.typegen_config.use_import_type_syntax {
@@ -438,7 +444,7 @@ fn generate_fragment(
     source_hash: &str,
     skip_types: bool,
 ) -> Vec<u8> {
-    let mut content = get_content_start(config, project_config);
+    let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
 
     if let TypegenLanguage::Flow = project_config.typegen_config.language {
@@ -451,6 +457,9 @@ fn generate_fragment(
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
+    if let TypegenLanguage::TypeScript = project_config.typegen_config.language {
+        writeln!(content, "// @ts-nocheck").unwrap();    
+    }
     writeln!(content, "/* eslint-disable */\n").unwrap();
     writeln!(content, "'use strict';\n").unwrap();
     let data_driven_dependency_metadata = reader_fragment
@@ -545,13 +554,8 @@ fn generate_fragment(
     sign_file(&content).into_bytes()
 }
 
-fn get_content_start(config: &Config, project_config: &ProjectConfig) -> String {
+fn get_content_start(config: &Config) -> String {
     let mut content = String::new();
-
-    if let TypegenLanguage::TypeScript = project_config.typegen_config.language {
-        writeln!(content, "// @ts-nocheck").unwrap();
-    }
-
     writeln!(content, "/**").unwrap();
     if !config.header.is_empty() {
         for header_line in &config.header {

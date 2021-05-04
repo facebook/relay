@@ -480,6 +480,8 @@ dependencies = [
  "graphql-syntax",
  "interner",
  "relay-test-schema",
+ "relay-transforms",
+ "schema",
 ]
 
 [[package]]

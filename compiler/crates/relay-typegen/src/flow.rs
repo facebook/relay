@@ -246,7 +246,11 @@ impl FlowPrinter {
     }
 
     fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
-        write!(&mut self.result, "$Call<typeof {}>", function_name)
+        write!(
+            &mut self.result,
+            "$Call<<R>((...empty[]) => R) => R, typeof {}>",
+            function_name
+        )
     }
 }
 
@@ -473,8 +477,8 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
-            "$Call<typeof someFunc>".to_string()
+            print_type(&AST::FunctionReturnType("someFunc".intern(),)),
+            "$Call<<R>((...empty[]) => R) => R, typeof someFunc>".to_string()
         );
     }
 }

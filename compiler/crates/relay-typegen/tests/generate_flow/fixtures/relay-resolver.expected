@@ -19,7 +19,7 @@ import userPopStarNameResolver from "PopStarNameResolver";
 export type relayResolver_QueryVariables = {||};
 export type relayResolver_QueryResponse = {|
   +me: ?{|
-    +pop_star_name: $Call<typeof userPopStarNameResolver>,
+    +pop_star_name: $Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
   |},
 |};
 export type relayResolver_Query = {|

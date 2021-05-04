@@ -32,7 +32,7 @@ import userPopStarNameResolver from "PopStarNameResolver";
 declare export opaque type relayResolver_consumer$ref: FragmentReference;
 declare export opaque type relayResolver_consumer$fragmentType: relayResolver_consumer$ref;
 export type relayResolver_consumer = {|
-  +pop_star_name: $Call<typeof userPopStarNameResolver>,
+  +pop_star_name: $Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
   +$refType: relayResolver_consumer$ref,
 |};
 export type relayResolver_consumer$data = relayResolver_consumer;

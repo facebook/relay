@@ -469,7 +469,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
+            print_type(&AST::FunctionReturnType("someFunc".intern(),)),
             "ReturnType<typeof someFunc>".to_string()
         );
     }

@@ -18,7 +18,6 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const warning = require('warning');
 
 const {getRequest} = require('../query/GraphQLTag');
-const {generateUniqueClientID} = require('../store/ClientID');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
@@ -67,9 +66,6 @@ function requestSubscription<TSubscriptionPayload>(
     subscription,
     variables,
     cacheConfig,
-    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
-      ? generateUniqueClientID()
-      : undefined,
   );
 
   warning(

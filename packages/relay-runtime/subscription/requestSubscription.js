@@ -87,30 +87,31 @@ function requestSubscription<TSubscriptionPayload>(
       operation,
       updater,
     })
-    .map(responses => {
-      let selector = operation.fragment;
-      if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
-        let nextID;
-        if (Array.isArray(responses)) {
-          nextID = responses[0]?.extensions?.__relay_subscription_root_id;
-        } else {
-          nextID = responses.extensions?.__relay_subscription_root_id;
-        }
-        if (typeof nextID === 'string') {
-          selector = createReaderSelector(
-            selector.node,
-            nextID,
-            selector.variables,
-            selector.owner,
-          );
-        }
-      }
-      const data = environment.lookup(selector).data;
-      // $FlowFixMe[incompatible-cast]
-      return (data: TSubscriptionPayload);
-    })
     .subscribe({
-      next: onNext,
+      next: responses => {
+        if (onNext != null) {
+          let selector = operation.fragment;
+          if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
+            let nextID;
+            if (Array.isArray(responses)) {
+              nextID = responses[0]?.extensions?.__relay_subscription_root_id;
+            } else {
+              nextID = responses.extensions?.__relay_subscription_root_id;
+            }
+            if (typeof nextID === 'string') {
+              selector = createReaderSelector(
+                selector.node,
+                nextID,
+                selector.variables,
+                selector.owner,
+              );
+            }
+          }
+          const data = environment.lookup(selector).data;
+          // $FlowFixMe[incompatible-cast]
+          onNext((data: TSubscriptionPayload));
+        }
+      },
       error: onError,
       complete: onCompleted,
     });

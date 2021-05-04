@@ -108,7 +108,10 @@ export type ReaderClientExtension = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField = ReaderScalarField | ReaderLinkedField;
+export type ReaderField =
+  | ReaderScalarField
+  | ReaderLinkedField
+  | ReaderRelayResolver;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',

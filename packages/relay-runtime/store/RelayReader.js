@@ -45,6 +45,7 @@ const {
   getStorageKey,
   getModuleComponentKey,
 } = require('./RelayStoreUtils');
+const {NoopResolverCache} = require('./ResolverCache');
 const {withResolverContext} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 
@@ -72,12 +73,18 @@ import type {
   MissingRequiredFields,
   DataIDSet,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
 
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
+  resolverCache?: ResolverCache,
 ): Snapshot {
-  const reader = new RelayReader(recordSource, selector);
+  const reader = new RelayReader(
+    recordSource,
+    selector,
+    resolverCache ?? new NoopResolverCache(),
+  );
   return reader.read();
 }
 
@@ -93,8 +100,13 @@ class RelayReader {
   _seenRecords: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
+  _resolverCache: ResolverCache;
 
-  constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
+  constructor(
+    recordSource: RecordSource,
+    selector: SingularReaderSelector,
+    resolverCache: ResolverCache,
+  ) {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -103,6 +115,7 @@ class RelayReader {
     this._seenRecords = new Set();
     this._selector = selector;
     this._variables = selector.variables;
+    this._resolverCache = resolverCache;
   }
 
   read(): Snapshot {
@@ -409,6 +422,12 @@ class RelayReader {
         } else {
           return this._readLink(selection.field, record, data);
         }
+      case RELAY_RESOLVER:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        this._readResolverField(selection.field, record, data);
+        break;
       default:
         (selection.field.kind: empty);
         invariant(
@@ -420,11 +439,23 @@ class RelayReader {
   }
 
   _readResolverField(
-    selection: ReaderRelayResolver,
+    field: ReaderRelayResolver,
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const {name, alias, resolverModule, fragment} = selection;
+    const applicationName = field.alias ?? field.name;
+    const result = this._resolverCache.readFromCacheOrEvaluate(
+      record,
+      field,
+      this._variables,
+      () => this._evaluateResolver(field, record),
+    );
+    data[applicationName] = result;
+    return result;
+  }
+
+  _evaluateResolver(selection, record) {
+    const {resolverModule, fragment} = selection;
     const key = {
       __id: RelayModernRecord.getDataID(record),
       __fragmentOwner: this._owner,
@@ -448,12 +479,19 @@ class RelayReader {
         return answer;
       },
     };
-    const resolverResult = withResolverContext(resolverContext, () =>
-      // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-      resolverModule(key),
-    );
-    data[alias ?? name] = resolverResult;
-    return resolverResult;
+    return withResolverContext(resolverContext, () => {
+      let resolverResult;
+      const seenRecords = new Set();
+      const existingSeenRecords = this._seenRecords;
+      try {
+        this._seenRecords = seenRecords;
+        // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+        resolverResult = resolverModule(key);
+      } finally {
+        this._seenRecords = existingSeenRecords;
+      }
+      return {resolverResult, seenRecords};
+    });
   }
 
   _readFlightField(

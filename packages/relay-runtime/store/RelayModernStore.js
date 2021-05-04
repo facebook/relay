@@ -29,6 +29,7 @@ const invariant = require('invariant');
 const resolveImmediate = require('../util/resolveImmediate');
 
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
+const {RecordResolverCache} = require('./ResolverCache');
 
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
@@ -49,6 +50,7 @@ import type {
   StoreSubscriptions,
   DataIDSet,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
 
 export opaque type InvalidationState = {|
   dataIDs: $ReadOnlyArray<DataID>,
@@ -89,6 +91,7 @@ class RelayModernStore implements Store {
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
+  _resolverCache: ResolverCache;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
@@ -151,6 +154,9 @@ class RelayModernStore implements Store {
     this._updatedRecordIDs = new Set();
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents;
+    this._resolverCache = new RecordResolverCache(() =>
+      this._getMutableRecordSource(),
+    );
 
     initializeRecordSource(this._recordSource);
   }
@@ -159,12 +165,16 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  _getMutableRecordSource(): MutableRecordSource {
+    return this._optimisticSource ?? this._recordSource;
+  }
+
   check(
     operation: OperationDescriptor,
     options?: CheckOptions,
   ): OperationAvailability {
     const selector = operation.root;
-    const source = this._optimisticSource ?? this._recordSource;
+    const source = this._getMutableRecordSource();
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
 
     const rootEntry = this._roots.get(operation.request.identifier);
@@ -274,7 +284,7 @@ class RelayModernStore implements Store {
 
   lookup(selector: SingularReaderSelector): Snapshot {
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector);
+    const snapshot = RelayReader.read(source, selector, this._resolverCache);
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -302,6 +312,13 @@ class RelayModernStore implements Store {
       this._globalInvalidationEpoch = this._currentWriteEpoch;
     }
 
+    if (RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+      // When a record is updated, we need to also handle records that depend on it,
+      // specifically Relay Resolver result records containing results based on the
+      // updated records. This both adds to updatedRecordIDs and invalidates any
+      // cached data as needed.
+      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    }
     const source = this.getSource();
     const updatedOwners = [];
     this._storeSubscriptions.updateSubscriptions(
@@ -364,7 +381,7 @@ class RelayModernStore implements Store {
   }
 
   publish(source: RecordSource, idsMarkedForInvalidation?: DataIDSet): void {
-    const target = this._optimisticSource ?? this._recordSource;
+    const target = this._getMutableRecordSource();
     updateTargetFromSource(
       target,
       source,

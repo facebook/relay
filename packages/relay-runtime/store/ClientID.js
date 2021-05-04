@@ -40,4 +40,8 @@ function generateUniqueClientID(): DataID {
   return `${PREFIX}local:${localID++}`;
 }
 
-module.exports = {generateClientID, generateUniqueClientID, isClientID};
+module.exports = {
+  generateClientID,
+  generateUniqueClientID,
+  isClientID,
+};

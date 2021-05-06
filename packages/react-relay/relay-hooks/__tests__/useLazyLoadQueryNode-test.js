@@ -736,7 +736,7 @@ describe('useLazyLoadQueryNode', () => {
       expect(logs).toMatchObject([
         {
           name: 'network.start',
-          transactionID: 100000,
+          networkRequestId: 100000,
         },
         {
           name: 'queryresource.fetch',
@@ -745,11 +745,11 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           name: 'network.next',
-          transactionID: 100000,
+          networkRequestId: 100000,
         },
         {
           name: 'network.complete',
-          transactionID: 100000,
+          networkRequestId: 100000,
         },
         {
           name: 'queryresource.retain',
@@ -833,7 +833,7 @@ describe('useLazyLoadQueryNode', () => {
         {
           // request for variables one starts
           name: 'network.start',
-          transactionID: 100000,
+          networkRequestId: 100000,
           variables: variablesOne,
         },
         {
@@ -851,7 +851,7 @@ describe('useLazyLoadQueryNode', () => {
         {
           // request for variables two starts
           name: 'network.start',
-          transactionID: 100001,
+          networkRequestId: 100001,
           variables: variablesTwo,
         },
         {
@@ -870,11 +870,11 @@ describe('useLazyLoadQueryNode', () => {
         // since it's already cached and reused
         {
           name: 'network.next',
-          transactionID: 100000,
+          networkRequestId: 100000,
         },
         {
           name: 'network.complete',
-          transactionID: 100000,
+          networkRequestId: 100000,
         },
         // retain event for variables one
         {

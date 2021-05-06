@@ -473,33 +473,33 @@ export type LogEvent =
     |}
   | {|
       +name: 'network.info',
-      +transactionID: number,
+      +networkRequestId: number,
       +info: mixed,
     |}
   | {|
       +name: 'network.start',
-      +transactionID: number,
+      +networkRequestId: number,
       +params: RequestParameters,
       +variables: Variables,
       +cacheConfig: CacheConfig,
     |}
   | {|
       +name: 'network.next',
-      +transactionID: number,
+      +networkRequestId: number,
       +response: GraphQLResponse,
     |}
   | {|
       +name: 'network.error',
-      +transactionID: number,
+      +networkRequestId: number,
       +error: Error,
     |}
   | {|
       +name: 'network.complete',
-      +transactionID: number,
+      +networkRequestId: number,
     |}
   | {|
       +name: 'network.unsubscribe',
-      +transactionID: number,
+      +networkRequestId: number,
     |}
   | {|
       +name: 'store.publish',

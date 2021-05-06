@@ -477,13 +477,13 @@ class RelayModernEnvironment implements IEnvironment {
         cacheConfig: CacheConfig,
         uploadables?: ?UploadableMap,
       ): RelayObservable<GraphQLResponse> {
-        const transactionID = generateID();
+        const networkRequestId = generateID();
         const log = that.__log;
         const logObserver = {
           start: subscription => {
             log({
               name: 'network.start',
-              transactionID,
+              networkRequestId,
               params,
               variables,
               cacheConfig,
@@ -492,34 +492,34 @@ class RelayModernEnvironment implements IEnvironment {
           next: response => {
             log({
               name: 'network.next',
-              transactionID,
+              networkRequestId,
               response,
             });
           },
           error: error => {
             log({
               name: 'network.error',
-              transactionID,
+              networkRequestId,
               error,
             });
           },
           complete: () => {
             log({
               name: 'network.complete',
-              transactionID,
+              networkRequestId,
             });
           },
           unsubscribe: () => {
             log({
               name: 'network.unsubscribe',
-              transactionID,
+              networkRequestId,
             });
           },
         };
         const logRequestInfo = info => {
           log({
             name: 'network.info',
-            transactionID,
+            networkRequestId,
             info,
           });
         };

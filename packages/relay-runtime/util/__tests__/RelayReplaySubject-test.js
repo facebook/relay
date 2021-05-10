@@ -28,7 +28,7 @@ type Observer = {|
   +error: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
   +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
   +start: JestMockFn<$ReadOnlyArray<Subscription>, mixed>,
-  +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+  +unsubscribe: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
 |};
 
 function createObserver(): Observer {
@@ -37,6 +37,7 @@ function createObserver(): Observer {
     error: jest.fn(),
     next: jest.fn(),
     start: jest.fn(),
+    unsubscribe: jest.fn(),
   };
 }
 
@@ -45,6 +46,7 @@ function clearObserver(observer) {
   observer.error.mockClear();
   observer.next.mockClear();
   observer.start.mockClear();
+  observer.unsubscribe.mockClear();
 }
 
 it('publishes start before next/error', () => {
@@ -253,4 +255,71 @@ it('publishes subsequent next/error events to an existing subscriber', () => {
   expect(observer.next).toBeCalledTimes(1);
   expect(observer.next.mock.calls[0][0]).toBe('Bob');
   expect(observer.start).toBeCalledTimes(0);
+});
+
+describe('with multiple subscribers', () => {
+  it('returns current observers count', () => {
+    const observer = createObserver();
+
+    subject.subscribe(observer);
+    subject.subscribe(observer);
+    const subscriptionToUnsubscribe = subject.subscribe(observer);
+    expect(subject.getObserverCount()).toBe(3);
+    clearObserver(observer);
+
+    subscriptionToUnsubscribe.unsubscribe();
+    expect(observer.unsubscribe).toBeCalledTimes(1);
+    expect(subject.getObserverCount()).toBe(2);
+
+    subject.complete();
+    expect(observer.complete).toBeCalledTimes(2);
+    expect(subject.getObserverCount()).toBe(0);
+  });
+
+  it('publish next/complete events to all subscribers', () => {
+    const observer1 = createObserver();
+    const observer2 = createObserver();
+
+    subject.subscribe(observer1);
+    subject.next('Alice');
+    expect(observer1.next).toBeCalledTimes(1);
+    expect(observer1.next).toBeCalledWith('Alice');
+
+    subject.subscribe(observer2);
+    expect(observer2.next).toBeCalledTimes(1);
+    expect(observer2.next).toBeCalledWith('Alice');
+
+    subject.next('Bob');
+    expect(observer1.next).toBeCalledTimes(2);
+    expect(observer1.next).toHaveBeenNthCalledWith(2, 'Bob');
+    expect(observer2.next).toBeCalledTimes(2);
+    expect(observer2.next).toHaveBeenNthCalledWith(2, 'Bob');
+    expect(observer1.complete).toBeCalledTimes(0);
+    expect(observer2.complete).toBeCalledTimes(0);
+
+    subject.complete();
+    expect(observer1.complete).toBeCalledTimes(1);
+    expect(observer2.complete).toBeCalledTimes(1);
+  });
+
+  it('publish unsubscribe events to all existing subscribers', () => {
+    const observer1 = createObserver();
+    const observer2 = createObserver();
+    subject.next('Alice');
+    subject.subscribe(observer1);
+    subject.subscribe(observer2);
+
+    subject.unsubscribe();
+    expect(observer1.next).toBeCalledTimes(1);
+    expect(observer1.next).toBeCalledWith('Alice');
+    expect(observer1.unsubscribe).toBeCalledTimes(1);
+    expect(observer1.error).toBeCalledTimes(0);
+    expect(observer1.complete).toBeCalledTimes(0);
+
+    expect(observer1.next).toBeCalledTimes(1);
+    expect(observer1.next).toBeCalledWith('Alice');
+    expect(observer2.unsubscribe).toBeCalledTimes(1);
+    expect(observer2.error).toBeCalledTimes(0);
+    expect(observer2.complete).toBeCalledTimes(0);
+  });
 });

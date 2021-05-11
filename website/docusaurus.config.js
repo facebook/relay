@@ -184,7 +184,7 @@ module.exports = {
       },
       {
         caption: 'GitStart',
-        image: '/img/logos/swissdev-javascript-jobs.png',
+        image: '/img/logos/gitstart.png',
         infoLink: 'https://www.gitstart.com',
         pinned: false,
       },

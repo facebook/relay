@@ -20,6 +20,7 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('./RelayRecordSource');
 const RelayResponseNormalizer = require('./RelayResponseNormalizer');
 
+const generateID = require('../util/generateID');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
@@ -43,6 +44,7 @@ import type {
   RequestDescriptor,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
+  LogFunction,
   ModuleImportPayload,
   NormalizationSelector,
   OperationDescriptor,
@@ -73,6 +75,7 @@ import type {NormalizationOptions} from './RelayResponseNormalizer';
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
+  +log: LogFunction,
   +operation: OperationDescriptor,
   +operationExecutions: Map<string, ActiveState>,
   +operationLoader: ?OperationLoader,
@@ -129,6 +132,8 @@ class Executor {
   _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
+  _log: LogFunction;
+  _executeId: number;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationExecutions: Map<string, ActiveState>;
@@ -170,6 +175,7 @@ class Executor {
     treatMissingFieldsAsNull,
     getDataID,
     isClientPayload,
+    log,
     reactFlightPayloadDeserializer,
     reactFlightServerErrorHandler,
     shouldProcessClientComponents,
@@ -178,6 +184,8 @@ class Executor {
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
+    this._log = log;
+    this._executeId = generateID();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationExecutions = operationExecutions;
@@ -212,7 +220,16 @@ class Executor {
           sink.error(error);
         }
       },
-      start: subscription => this._start(id, subscription),
+      start: subscription => {
+        this._start(id, subscription);
+        this._log({
+          name: 'execute.start',
+          executeId: this._executeId,
+          params: this._operation.request.node.params,
+          variables: this._operation.request.variables,
+          cacheConfig: this._operation.request.cacheConfig ?? {},
+        });
+      },
     });
 
     if (optimisticConfig != null) {
@@ -314,12 +331,21 @@ class Executor {
     if (this._subscriptions.size === 0) {
       this.cancel();
       this._sink.complete();
+      this._log({
+        name: 'execute.complete',
+        executeId: this._executeId,
+      });
     }
   }
 
   _error(error: Error): void {
     this.cancel();
     this._sink.error(error);
+    this._log({
+      name: 'execute.error',
+      executeId: this._executeId,
+      error,
+    });
   }
 
   _start(id: number, subscription: Subscription): void {
@@ -330,8 +356,16 @@ class Executor {
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
     this._schedule(() => {
-      this._handleNext(response);
-      this._maybeCompleteSubscriptionOperationTracking();
+      const duration = withDuration(() => {
+        this._handleNext(response);
+        this._maybeCompleteSubscriptionOperationTracking();
+      });
+      this._log({
+        name: 'execute.next',
+        executeId: this._executeId,
+        response,
+        duration,
+      });
     });
   }
 
@@ -850,8 +884,16 @@ class Executor {
       const operation = getOperation(node);
       // If the operation module is available synchronously, normalize the
       // data synchronously.
-      this._handleModuleImportPayload(moduleImportPayload, operation);
-      this._maybeCompleteSubscriptionOperationTracking();
+      const duration = withDuration(() => {
+        this._handleModuleImportPayload(moduleImportPayload, operation);
+        this._maybeCompleteSubscriptionOperationTracking();
+      });
+      this._log({
+        name: 'execute.next.module',
+        executeId: this._executeId,
+        operationName: operation.name,
+        duration,
+      });
     } else {
       // Otherwise load the operation module and schedule a task to normalize
       // the data when the module is available.
@@ -873,16 +915,22 @@ class Executor {
             .then(resolve, reject);
         }),
       )
-        .map((operation: ?NormalizationRootNode) => {
-          if (operation != null) {
+        .map((loadedNode: ?NormalizationRootNode) => {
+          if (loadedNode != null) {
             this._schedule(() => {
-              this._handleModuleImportPayload(
-                moduleImportPayload,
-                getOperation(operation),
-              );
-              // OK: always have to run after an async module import resolves
-              const updatedOwners = this._publishQueue.run();
-              this._updateOperationTracker(updatedOwners);
+              const operation = getOperation(loadedNode);
+              const duration = withDuration(() => {
+                this._handleModuleImportPayload(moduleImportPayload, operation);
+                // OK: always have to run after an async module import resolves
+                const updatedOwners = this._publishQueue.run();
+                this._updateOperationTracker(updatedOwners);
+              });
+              this._log({
+                name: 'execute.async.module',
+                executeId: this._executeId,
+                operationName: operation.name,
+                duration,
+              });
             });
           }
         })
@@ -1433,6 +1481,22 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
+}
+
+const isPerformanceNowAvailable =
+  global.performance != null && typeof global.performance.now === 'function';
+
+function currentTimestamp(): number {
+  if (isPerformanceNowAvailable) {
+    return global.performance.now();
+  }
+  return Date.now();
+}
+
+function withDuration(cb: () => mixed): number {
+  const startTime = currentTimestamp();
+  cb();
+  return currentTimestamp() - startTime;
 }
 
 module.exports = {

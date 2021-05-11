@@ -502,6 +502,40 @@ export type LogEvent =
       +networkRequestId: number,
     |}
   | {|
+      +name: 'execute.start',
+      +executeId: number,
+      +params: RequestParameters,
+      +variables: Variables,
+      +cacheConfig: CacheConfig,
+    |}
+  | {|
+      +name: 'execute.next',
+      +executeId: number,
+      +response: GraphQLResponse,
+      +duration: number,
+    |}
+  | {|
+      +name: 'execute.next.module',
+      +executeId: number,
+      +operationName: string,
+      +duration: number,
+    |}
+  | {|
+      +name: 'execute.async.module',
+      +executeId: number,
+      +operationName: string,
+      +duration: number,
+    |}
+  | {|
+      +name: 'execute.error',
+      +executeId: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'execute.complete',
+      +executeId: number,
+    |}
+  | {|
       +name: 'store.publish',
       +source: RecordSource,
       +optimistic: boolean,

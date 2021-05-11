@@ -441,6 +441,7 @@ class RelayModernEnvironment implements IEnvironment {
       const executor = OperationExecutor.execute({
         getDataID: this._getDataID,
         isClientPayload,
+        log: this.__log,
         operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,

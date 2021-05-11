@@ -735,6 +735,10 @@ describe('useLazyLoadQueryNode', () => {
 
       expect(logs).toMatchObject([
         {
+          name: 'execute.start',
+          executeId: 100001,
+        },
+        {
           name: 'network.start',
           networkRequestId: 100000,
         },
@@ -748,8 +752,16 @@ describe('useLazyLoadQueryNode', () => {
           networkRequestId: 100000,
         },
         {
+          name: 'execute.next',
+          executeId: 100001,
+        },
+        {
           name: 'network.complete',
           networkRequestId: 100000,
+        },
+        {
+          name: 'execute.complete',
+          executeId: 100001,
         },
         {
           name: 'queryresource.retain',
@@ -765,9 +777,10 @@ describe('useLazyLoadQueryNode', () => {
       const variablesTwo = {id: '2'};
 
       // Render the component
-      const initialQuery = createOperationDescriptor(gqlQuery, {
-        id: 'first-render',
-      });
+      const initialQuery = createOperationDescriptor(
+        gqlQuery,
+        initialVariables,
+      );
       environment.commitPayload(initialQuery, {
         node: {
           __typename: 'User',
@@ -776,6 +789,7 @@ describe('useLazyLoadQueryNode', () => {
         },
       });
 
+      logs = [];
       render(
         environment,
         <Container variables={initialVariables} fetchPolicy="store-only" />,
@@ -831,9 +845,15 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
+          // execution for variables one starts
+          name: 'execute.start',
+          executeId: 100002,
+          variables: variablesOne,
+        },
+        {
           // request for variables one starts
           name: 'network.start',
-          networkRequestId: 100000,
+          networkRequestId: 100001,
           variables: variablesOne,
         },
         {
@@ -849,9 +869,15 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
+          // execution for variables two starts
+          name: 'execute.start',
+          executeId: 100004,
+          variables: variablesTwo,
+        },
+        {
           // request for variables two starts
           name: 'network.start',
-          networkRequestId: 100001,
+          networkRequestId: 100003,
           variables: variablesTwo,
         },
         {
@@ -870,11 +896,19 @@ describe('useLazyLoadQueryNode', () => {
         // since it's already cached and reused
         {
           name: 'network.next',
-          networkRequestId: 100000,
+          networkRequestId: 100001,
+        },
+        {
+          name: 'execute.next',
+          executeId: 100002,
         },
         {
           name: 'network.complete',
-          networkRequestId: 100000,
+          networkRequestId: 100001,
+        },
+        {
+          name: 'execute.complete',
+          executeId: 100002,
         },
         // retain event for variables one
         {

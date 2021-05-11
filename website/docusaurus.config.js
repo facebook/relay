@@ -182,6 +182,12 @@ module.exports = {
         infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
         pinned: false,
       },
+      {
+        caption: 'GitStart',
+        image: '/img/logos/swissdev-javascript-jobs.png',
+        infoLink: 'https://www.gitstart.com',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

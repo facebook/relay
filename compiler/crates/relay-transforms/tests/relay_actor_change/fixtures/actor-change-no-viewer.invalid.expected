@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment TestFragment on Query {
+  story @EXPERIMENTAL__as_actor {
+    ...StoryFragment
+  }
+}
+
+fragment StoryFragment on Story {
+  seenState
+}
+==================================== ERROR ====================================
+✖︎ The directive 'EXPERIMENTAL__as_actor' automatically adds '__viewer' to the selection of the field 'story'. But the field '__viewer' does not exist on the type 'Story'. Please makes sure the GraphQL schema supports actor change on 'Story'.
+
+  actor-change-no-viewer.invalid.graphql:4:9
+    3 │ fragment TestFragment on Query {
+    4 │   story @EXPERIMENTAL__as_actor {
+      │         ^^^^^^^^^^^^^^^^^^^^^^^
+    5 │     ...StoryFragment

@@ -38,6 +38,7 @@ pub fn relay_actor_change_transform(
 lazy_static! {
     pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE: StringKey = "EXPERIMENTAL__as_actor".intern();
     pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey = "__as_actor".intern();
+    static ref VIEWER_FIELD_NAME: StringKey = "__viewer".intern();
 }
 
 struct ActorChangeTransform<'program, 'feature> {
@@ -105,6 +106,52 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 ));
                 return Transformed::Keep;
             }
+            let field_type = schema_field.type_.inner();
+            let viewer_field = match self
+                .program
+                .schema
+                .named_field(field_type, *VIEWER_FIELD_NAME)
+            {
+                Some(viewer_field_id) => {
+                    let viewer_field = self.program.schema.field(viewer_field_id);
+                    if !viewer_field.type_.inner().is_scalar() {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::ActorChangeViewerShouldBeScalar {
+                                directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
+                                actor_change_field: *VIEWER_FIELD_NAME,
+                                field_name: schema_field.name,
+                                actor_change_field_type: self
+                                    .program
+                                    .schema
+                                    .get_type_name(viewer_field.type_.inner()),
+                            },
+                            actor_change_directive.name.location,
+                        ));
+                        return Transformed::Keep;
+                    } else {
+                        viewer_field_id
+                    }
+                }
+                None => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::ActorChangeExpectViewerFieldOnType {
+                            directive_name: *RELAY_ACTOR_CHANGE_DIRECTIVE,
+                            actor_change_field: *VIEWER_FIELD_NAME,
+                            field_name: schema_field.name,
+                            type_name: self.program.schema.get_type_name(field_type),
+                        },
+                        actor_change_directive.name.location,
+                    ));
+                    return Transformed::Keep;
+                }
+            };
+            let mut next_selections = field.selections.clone();
+            next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
+                alias: None,
+                definition: WithLocation::new(actor_change_directive.name.location, viewer_field),
+                arguments: vec![],
+                directives: vec![],
+            })));
 
             let next_directives = field
                 .directives
@@ -129,6 +176,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 }],
                 selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                     directives: next_directives,
+                    selections: next_selections,
                     ..field.clone()
                 }))],
             }));

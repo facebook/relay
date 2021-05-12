@@ -59,6 +59,13 @@ fragment actorChangeSimpleQueryUserFragment on User {
                       "args": null,
                       "kind": "FragmentSpread",
                       "name": "actorChangeSimpleQueryUserFragment"
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__viewer",
+                      "storageKey": null
                     }
                   ],
                   "storageKey": null
@@ -147,6 +154,13 @@ fragment actorChangeSimpleQueryUserFragment on User {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
+                      "name": "__viewer",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
                       "name": "id",
                       "storageKey": null
                     }
@@ -182,6 +196,7 @@ query actorChangeSimpleQuery {
       actor {
         __typename
         ...actorChangeSimpleQueryUserFragment
+        __viewer
         id
       }
     }

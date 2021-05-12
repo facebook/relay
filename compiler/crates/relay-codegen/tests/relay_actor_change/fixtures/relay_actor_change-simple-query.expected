@@ -75,6 +75,13 @@ fragment UserFragment on User {
                     "args": null,
                     "kind": "FragmentSpread",
                     "name": "UserFragment"
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__viewer",
+                    "storageKey": null
                   }
                 ],
                 "storageKey": null

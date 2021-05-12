@@ -515,12 +515,6 @@ export type LogEvent =
       +duration: number,
     |}
   | {|
-      +name: 'execute.next.module',
-      +executeId: number,
-      +operationName: string,
-      +duration: number,
-    |}
-  | {|
       +name: 'execute.async.module',
       +executeId: number,
       +operationName: string,

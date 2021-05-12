@@ -21,6 +21,7 @@ query SimpleQuery {
       ... @__as_actor {
         actor {
           ...UserFragment
+          __viewer
         }
       }
     }

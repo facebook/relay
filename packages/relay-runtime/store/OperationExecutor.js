@@ -884,16 +884,8 @@ class Executor {
       const operation = getOperation(node);
       // If the operation module is available synchronously, normalize the
       // data synchronously.
-      const duration = withDuration(() => {
-        this._handleModuleImportPayload(moduleImportPayload, operation);
-        this._maybeCompleteSubscriptionOperationTracking();
-      });
-      this._log({
-        name: 'execute.next.module',
-        executeId: this._executeId,
-        operationName: operation.name,
-        duration,
-      });
+      this._handleModuleImportPayload(moduleImportPayload, operation);
+      this._maybeCompleteSubscriptionOperationTracking();
     } else {
       // Otherwise load the operation module and schedule a task to normalize
       // the data when the module is available.

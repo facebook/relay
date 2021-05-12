@@ -280,7 +280,9 @@ class RelayReader {
           }
           break;
         case CONDITION:
-          const conditionValue = this._getVariableValue(selection.condition);
+          const conditionValue = Boolean(
+            this._getVariableValue(selection.condition),
+          );
           if (conditionValue === selection.passingValue) {
             const hasExpectedData = this._traverseSelections(
               selection.selections,

@@ -1,0 +1,11 @@
+# expected-to-throw
+
+fragment TestFragment on Query {
+  story @EXPERIMENTAL__as_actor {
+    ...StoryFragment
+  }
+}
+
+fragment StoryFragment on Story {
+  seenState
+}

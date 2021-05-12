@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<92f110e05d1b2ba246a75a80cfa089a9>>
+ * @generated SignedSource<<4280c38dc22985ef5c760b1c99707698>>
  */
 
 mod relay_actor_change;
@@ -20,10 +20,24 @@ fn actor_change_invalid() {
 }
 
 #[test]
+fn actor_change_no_viewer_invalid() {
+    let input = include_str!("relay_actor_change/fixtures/actor-change-no-viewer.invalid.graphql");
+    let expected = include_str!("relay_actor_change/fixtures/actor-change-no-viewer.invalid.expected");
+    test_fixture(transform_fixture, "actor-change-no-viewer.invalid.graphql", "relay_actor_change/fixtures/actor-change-no-viewer.invalid.expected", input, expected);
+}
+
+#[test]
 fn actor_change_pluarl_invalid() {
     let input = include_str!("relay_actor_change/fixtures/actor-change-pluarl.invalid.graphql");
     let expected = include_str!("relay_actor_change/fixtures/actor-change-pluarl.invalid.expected");
     test_fixture(transform_fixture, "actor-change-pluarl.invalid.graphql", "relay_actor_change/fixtures/actor-change-pluarl.invalid.expected", input, expected);
+}
+
+#[test]
+fn actor_change_wrong_viewer_invalid() {
+    let input = include_str!("relay_actor_change/fixtures/actor-change-wrong-viewer.invalid.graphql");
+    let expected = include_str!("relay_actor_change/fixtures/actor-change-wrong-viewer.invalid.expected");
+    test_fixture(transform_fixture, "actor-change-wrong-viewer.invalid.graphql", "relay_actor_change/fixtures/actor-change-wrong-viewer.invalid.expected", input, expected);
 }
 
 #[test]

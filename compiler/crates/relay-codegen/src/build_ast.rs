@@ -1730,18 +1730,80 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_actor_change(&mut self, actor_change: &InlineFragment) -> Primitive {
-        let linked_field = &self.build_selections_from_selection(&actor_change.selections[0])[0];
+        let linked_field = match &actor_change.selections[0] {
+            Selection::LinkedField(linked_field) => linked_field.clone(),
+            _ => panic!("Expect to have a single linked field in the actor change fragment"),
+        };
 
-        Primitive::Key(self.object(vec![
-            ObjectEntry {
-                key: CODEGEN_CONSTANTS.kind,
-                value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
-            },
-            ObjectEntry {
-                key: CODEGEN_CONSTANTS.linked_field_property,
-                value: Primitive::Key(linked_field.assert_key()),
-            },
-        ]))
+
+        match self.variant {
+            CodegenVariant::Normalization => {
+                let linked_field_value = self.build_linked_field(&linked_field);
+
+                Primitive::Key(self.object(vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.linked_field_property,
+                        value: linked_field_value,
+                    },
+                ]))
+            }
+            CodegenVariant::Reader => {
+                let schema_field = self.schema.field(linked_field.definition.item);
+                let (name, alias) = self.build_field_name_and_alias(
+                    schema_field.name,
+                    linked_field.alias,
+                    &linked_field.directives,
+                );
+                let args = self.build_arguments(&linked_field.arguments);
+                let fragment_spread = linked_field
+                    .selections
+                    .iter()
+                    .find(|item| matches!(item, Selection::FragmentSpread(_)))
+                    .unwrap();
+                let fragment_spread_key =
+                    self.build_selections_from_selection(&fragment_spread)[0].assert_key();
+
+                Primitive::Key(self.object(vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
+                    },
+                    build_alias(alias, name),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(name),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.storage_key,
+                        value: match args {
+                            None => Primitive::Null,
+                            Some(key) => {
+                                if is_static_storage_key_available(&linked_field.arguments) {
+                                    Primitive::StorageKey(name, key)
+                                } else {
+                                    Primitive::Null
+                                }
+                            }
+                        },
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.args,
+                        value: match args {
+                            None => Primitive::Null,
+                            Some(key) => Primitive::Key(key),
+                        },
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.fragment_spread_property,
+                        value: Primitive::Key(fragment_spread_key),
+                    },
+                ]))
+            }
+        }
     }
 }
 

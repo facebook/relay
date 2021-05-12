@@ -83,4 +83,24 @@ pub enum ValidationMessage {
         "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
     )]
     RelayResolversDisabled {},
+
+    #[error(
+        "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
+    )]
+    ActorChangeExpectViewerFieldOnType {
+        directive_name: StringKey,
+        actor_change_field: StringKey,
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. The field '{actor_change_field}' should be defined as a scalar field in the GraphQL Schema, but is defined with the type '{actor_change_field_type}' instead."
+    )]
+    ActorChangeViewerShouldBeScalar {
+        directive_name: StringKey,
+        actor_change_field: StringKey,
+        field_name: StringKey,
+        actor_change_field_type: StringKey,
+    },
 }

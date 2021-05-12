@@ -47,28 +47,14 @@ fragment actorChangeSimpleQueryUserFragment on User {
             "selections": [
               {
                 "kind": "ActorChange",
-                "linkedField": {
-                  "alias": null,
+                "alias": null,
+                "name": "actor",
+                "storageKey": null,
+                "args": null,
+                "fragmentSpread": {
                   "args": null,
-                  "concreteType": null,
-                  "kind": "LinkedField",
-                  "name": "actor",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "args": null,
-                      "kind": "FragmentSpread",
-                      "name": "actorChangeSimpleQueryUserFragment"
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "__viewer",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": null
+                  "kind": "FragmentSpread",
+                  "name": "actorChangeSimpleQueryUserFragment"
                 }
               }
             ],

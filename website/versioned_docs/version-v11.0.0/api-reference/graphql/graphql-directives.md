@@ -43,7 +43,7 @@ With `usePaginationFragment`, Relay expects connection fields to be annotated wi
 
 ## `@refetchable(queryName: String!)`
 
-With `useRefetchableFragment` and `usePaginationFragment`, Relay expects a `@refetchable` directive. The `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are declared on `Viewer` or `Query` types, or on a type that implements `Node` (i.e. a type that has an id). The `@refetchable` directive will autogenerate a query with the specified `queryName` This will also generate Flow types for the query, available to import from the generated file: `<queryName>.graphql.js` For more detailed information and an example, check out the docs on [`useRefetchableFragment`](../hooks/use-refetchable-fragment/) or [`usePaginationFragment`](../hooks/use-pagination-fragment/).
+With `useRefetchableFragment` and `usePaginationFragment`, Relay expects a `@refetchable` directive. The `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are declared on `Viewer` or `Query` types, or on a type that implements `Node` (i.e. a type that has an id). The `@refetchable` directive will autogenerate a query with the specified `queryName`. This will also generate Flow types for the query, available to import from the generated file: `<queryName>.graphql.js`. For more detailed information and examples, check out the docs on [`useRefetchableFragment`](../hooks/use-refetchable-fragment/) or [`usePaginationFragment`](../hooks/use-pagination-fragment/).
 
 ## `@relay(plural: Boolean)`
 

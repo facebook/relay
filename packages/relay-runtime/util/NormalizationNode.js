@@ -87,7 +87,7 @@ export type NormalizationInlineFragment = {|
 
 export type NormalizationFragmentSpread = {|
   +kind: 'FragmentSpread',
-  +fragment: NormalizationNode,
+  +fragment: NormalizationSplitOperation,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
 |};
 
@@ -179,6 +179,7 @@ export type NormalizationSelection =
   | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {|
+  +argumentDefinitions?: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +kind: 'SplitOperation',
   +name: string,
   +metadata: ?{+[key: string]: mixed, ...},

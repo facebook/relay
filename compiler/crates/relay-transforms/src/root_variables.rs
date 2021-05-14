@@ -6,13 +6,13 @@
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::NamedItem;
+use common::{NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
 use interner::StringKey;
-use schema::Schema;
+use schema::{Schema, TypeReference};
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
@@ -141,6 +141,40 @@ impl VariablesVisitor<'_, '_> {
     fn is_root_variable(&self, name: StringKey) -> bool {
         !self.local_variables.contains(&name) && !self.transitive_local_variables.contains(&name)
     }
+
+    // Record that the given (root) variable was used with the given type, updating the mapping of
+    // used root variables:
+    // - If the first time the variable has been seen, add it to the variable map
+    // - If the variable has been seen before, update the type if the new type is more specific
+    //   then the type with which the variable was previously used.
+    // The net effect is that for each variable name the most specific type will be recorded along
+    // with a location that requires that type.
+    fn record_root_variable_usage(
+        &mut self,
+        name: &WithLocation<StringKey>,
+        type_: &TypeReference,
+    ) {
+        let schema = &self.program.schema;
+        self.variable_map
+            .entry(name.item)
+            .and_modify(|prev_variable| {
+                // Note the use of *strict* subtype check: there's no reason to update the mapping
+                // if the types are equivalent, only if the current type is more specific than
+                // the previous type
+                let is_stricter_type =
+                    schema.is_type_strict_subtype_of(type_, &prev_variable.type_);
+                if is_stricter_type {
+                    *prev_variable = Variable {
+                        name: *name,
+                        type_: type_.clone(),
+                    };
+                }
+            })
+            .or_insert_with(|| Variable {
+                name: *name,
+                type_: type_.clone(),
+            });
+    }
 }
 
 impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
@@ -162,23 +196,7 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
                 if let Value::Variable(var) = &arg.value.item {
                     if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
                         if self.is_root_variable(var.name.item) {
-                            let schema = &self.program.schema;
-                            self.variable_map
-                                .entry(var.name.item)
-                                .and_modify(|prev_variable| {
-                                    let is_stricter_type = schema.is_type_strict_subtype_of(
-                                        &var.type_,
-                                        &prev_variable.type_,
-                                    );
-                                    if is_stricter_type {
-                                        // this usage has a more restrictive type, update the variable to reflect this
-                                        *prev_variable = var.clone();
-                                    }
-                                })
-                                .or_insert_with(|| Variable {
-                                    name: var.name,
-                                    type_: def.type_.clone(),
-                                });
+                            self.record_root_variable_usage(&var.name, &def.type_);
                         }
                     }
                 }
@@ -189,24 +207,13 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
         // into this (parent) fragment's arguments.
         let referenced_fragment_variables = self.infer_fragment_variables(fragment);
         for (_, variable) in referenced_fragment_variables.into_iter() {
-            self.variable_map.insert(variable.name.item, variable);
+            self.record_root_variable_usage(&variable.name, &variable.type_);
         }
     }
 
-    fn visit_variable(&mut self, value: &Variable) {
-        if self.is_root_variable(value.name.item) {
-            let schema = &self.program.schema;
-            self.variable_map
-                .entry(value.name.item)
-                .and_modify(|prev_variable| {
-                    let is_stricter_type =
-                        schema.is_type_strict_subtype_of(&value.type_, &prev_variable.type_);
-                    if is_stricter_type {
-                        // this usage has a more restrictive type, update the variable to reflect this
-                        *prev_variable = value.clone();
-                    }
-                })
-                .or_insert_with(|| value.clone());
+    fn visit_variable(&mut self, variable: &Variable) {
+        if self.is_root_variable(variable.name.item) {
+            self.record_root_variable_usage(&variable.name, &variable.type_)
         }
     }
 }

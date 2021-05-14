@@ -27,6 +27,7 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
+const {getNoInlineFragmentVariables} = require('./RelayConcreteVariables');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const {generateTypeID} = require('./TypeID');
 
@@ -390,9 +391,14 @@ class DataChecker {
         case STREAM:
           this._traverseSelections(selection.selections, dataID);
           break;
-        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
+          const previousVariables = this._variables;
+          this._variables = getNoInlineFragmentVariables(
+            selection,
+            this._variables,
+          );
           this._traverseSelections(selection.fragment.selections, dataID);
+          this._variables = previousVariables;
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;

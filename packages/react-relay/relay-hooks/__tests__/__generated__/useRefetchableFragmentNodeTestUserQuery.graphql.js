@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<01d15ecf7c4c9da612a191e7dbcea3a8>>
+ * @generated SignedSource<<3edadb8e3f9b1d6aee00b97e8b655673>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -158,18 +158,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "cc19a2bb5a52a6c032fdbc8375eee568",
+    "cacheID": "898c97b4efafb155c40b0cedf9841629",
     "id": null,
     "metadata": {},
     "name": "useRefetchableFragmentNodeTestUserQuery",
     "operationKind": "query",
-    "text": "query useRefetchableFragmentNodeTestUserQuery(\n  $id: ID!\n  $scale: Int!\n) {\n  node(id: $id) {\n    __typename\n    ...useRefetchableFragmentNodeTestUserFragment\n    id\n  }\n}\n\nfragment useRefetchableFragmentNodeTestNestedUserFragment on User {\n  username\n}\n\nfragment useRefetchableFragmentNodeTestUserFragment on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n  }\n  ...useRefetchableFragmentNodeTestNestedUserFragment\n}\n"
+    "text": "query useRefetchableFragmentNodeTestUserQuery(\n  $id: ID!\n  $scale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...useRefetchableFragmentNodeTestUserFragment\n    id\n  }\n}\n\nfragment useRefetchableFragmentNodeTestNestedUserFragment on User {\n  username\n}\n\nfragment useRefetchableFragmentNodeTestUserFragment on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n  }\n  ...useRefetchableFragmentNodeTestNestedUserFragment\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "61f26c78eb842e1e2d362d7f0e42e0cb";
+  (node/*: any*/).hash = "94c9abdfb85ce932e3a33edc6295e643";
 }
 
 module.exports = node;

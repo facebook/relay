@@ -206,7 +206,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       gqlQuery = getRequest(graphql`
         query useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery(
           $id: ID!
-          $scale: Int!
+          $scale: Float!
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment

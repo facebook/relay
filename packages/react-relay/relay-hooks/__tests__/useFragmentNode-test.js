@@ -144,7 +144,7 @@ beforeEach(() => {
   singularVariables = {id: '1', scale: 16};
   pluralVariables = {ids: ['1', '2'], scale: 16};
   gqlSingularQuery = getRequest(graphql`
-    query useFragmentNodeTestUserQuery($id: ID!, $scale: Int!) {
+    query useFragmentNodeTestUserQuery($id: ID!, $scale: Float!) {
       node(id: $id) {
         ...useFragmentNodeTestUserFragment
       }
@@ -161,7 +161,7 @@ beforeEach(() => {
     }
   `);
   gqlPluralQuery = getRequest(graphql`
-    query useFragmentNodeTestUsersQuery($ids: [ID!]!, $scale: Int!) {
+    query useFragmentNodeTestUsersQuery($ids: [ID!]!, $scale: Float!) {
       nodes(ids: $ids) {
         ...useFragmentNodeTestUsersFragment
       }

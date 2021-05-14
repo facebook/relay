@@ -22,6 +22,7 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
+const {getNoInlineFragmentVariables} = require('./RelayConcreteVariables');
 const {generateTypeID} = require('./TypeID');
 
 import type {
@@ -166,9 +167,14 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
-        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
+          const previousVariables = this._variables;
+          this._variables = getNoInlineFragmentVariables(
+            selection,
+            this._variables,
+          );
           this._traverseSelections(selection.fragment.selections, record);
+          this._variables = previousVariables;
           break;
         case LINKED_HANDLE:
           // The selections for a "handle" field are the same as those of the

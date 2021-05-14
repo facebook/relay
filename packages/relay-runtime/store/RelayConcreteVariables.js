@@ -14,7 +14,12 @@
 
 const invariant = require('invariant');
 
-import type {NormalizationOperation} from '../util/NormalizationNode';
+const {getArgumentValues} = require('./RelayStoreUtils');
+
+import type {
+  NormalizationOperation,
+  NormalizationFragmentSpread,
+} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -95,7 +100,28 @@ function getOperationVariables(
   return operationVariables;
 }
 
+function getNoInlineFragmentVariables(
+  fragmentSpread: NormalizationFragmentSpread,
+  currentVaraibles: Variables,
+): Variables {
+  const argumentDefinitions = fragmentSpread.fragment.argumentDefinitions;
+  if (argumentDefinitions == null) {
+    return currentVaraibles;
+  }
+  const nextVariables = {...currentVaraibles};
+  const args = fragmentSpread.args
+    ? getArgumentValues(fragmentSpread.args, currentVaraibles)
+    : {};
+  argumentDefinitions.forEach(def => {
+    // $FlowFixMe[cannot-write]
+    const value = args[def.name] ?? def.defaultValue;
+    nextVariables[def.name] = value;
+  });
+  return nextVariables;
+}
+
 module.exports = {
+  getNoInlineFragmentVariables,
   getFragmentVariables,
   getOperationVariables,
 };

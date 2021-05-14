@@ -41,15 +41,9 @@ describe('Conditional selections', () => {
   let selector;
 
   beforeEach(() => {
-    // A query/fragment pair where two different selection sets are conditionally fetched using
-    // @include and @skip, respectively. Note that our IR validation is more strict than the spec,
-    // and we disallow a locally defined nullable Boolean to be used as the argument to @include/@skip
-    // whereas our server appears to allow it (this might be a difference of how the directives are
-    // defined on the server and in the compiler). To allow a nullable argument we split the query
-    // into a query + fragment.
     ConditionalQuery = getRequest(graphql`
       query RelayModernEnvironmentConditionalSelectionsTestConditionalQuery(
-        $condition: Boolean
+        $condition: Boolean!
       ) {
         ...RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment
       }

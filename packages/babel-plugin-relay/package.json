@@ -16,7 +16,7 @@
     "babel-plugin-macros": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
+    "@babel/core": "^7.14.0",
     "prettier": "1.19.1"
   },
   "peerDependencies": {

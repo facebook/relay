@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<272877483865b634a33fc91c1f13f7b6>>
+ * @generated SignedSource<<92659b16413c7bd69b25f7d743f15811>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -158,18 +158,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9f99de83ec1b45902e0d978b6951ff84",
+    "cacheID": "9802830c7a3996105231d3ae47479d2a",
     "id": null,
     "metadata": {},
     "name": "useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery",
     "operationKind": "query",
-    "text": "query useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery(\n  $id: ID!\n  $scale: Int!\n) {\n  node(id: $id) {\n    __typename\n    ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment\n    id\n  }\n}\n\nfragment useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment on User {\n  username\n}\n\nfragment useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n  }\n  ...useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment\n}\n"
+    "text": "query useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery(\n  $id: ID!\n  $scale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment\n    id\n  }\n}\n\nfragment useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment on User {\n  username\n}\n\nfragment useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n  }\n  ...useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b08da422b5273ac5a8ce86d124aba2c9";
+  (node/*: any*/).hash = "7dd300784a6642a4b84870d9abd398b9";
 }
 
 module.exports = node;

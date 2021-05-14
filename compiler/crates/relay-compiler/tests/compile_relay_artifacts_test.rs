@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ad4570d464f6cd4ec97d5331c78c3d0>>
+ * @generated SignedSource<<4b2d399a208159e4f860fc7641b2f75e>>
  */
 
 mod compile_relay_artifacts;
@@ -1011,6 +1011,20 @@ fn unused_variables_removed_from_print_not_codegen() {
     let input = include_str!("compile_relay_artifacts/fixtures/unused-variables-removed-from-print-not-codegen.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/unused-variables-removed-from-print-not-codegen.expected");
     test_fixture(transform_fixture, "unused-variables-removed-from-print-not-codegen.graphql", "compile_relay_artifacts/fixtures/unused-variables-removed-from-print-not-codegen.expected", input, expected);
+}
+
+#[test]
+fn validate_global_variables_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/validate-global-variables.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/validate-global-variables.invalid.expected");
+    test_fixture(transform_fixture, "validate-global-variables.invalid.graphql", "compile_relay_artifacts/fixtures/validate-global-variables.invalid.expected", input, expected);
+}
+
+#[test]
+fn validate_global_variables_shared_fragment_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/validate-global-variables-shared-fragment.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/validate-global-variables-shared-fragment.invalid.expected");
+    test_fixture(transform_fixture, "validate-global-variables-shared-fragment.invalid.graphql", "compile_relay_artifacts/fixtures/validate-global-variables-shared-fragment.invalid.expected", input, expected);
 }
 
 #[test]

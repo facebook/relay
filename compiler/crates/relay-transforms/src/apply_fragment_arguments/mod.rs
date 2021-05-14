@@ -200,9 +200,20 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
     fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
         match value {
-            Value::Variable(variable) => {
-                if let Some(scope_value) = self.scope.get(variable.name.item) {
-                    TransformedValue::Replace(scope_value.clone())
+            Value::Variable(prev_variable) => {
+                if let Some(scope_value) = self.scope.get(prev_variable.name.item) {
+                    match scope_value {
+                        Value::Variable(replacement_variable) => {
+                            TransformedValue::Replace(Value::Variable(Variable {
+                                // Update the name/location to the applied variable name
+                                name: replacement_variable.name,
+                                // But keep the type of the previous variable, which reflects the type
+                                // expected at this location
+                                type_: prev_variable.type_.clone(),
+                            }))
+                        }
+                        _ => TransformedValue::Replace(scope_value.clone()),
+                    }
                 } else {
                     // Assume a global variable if the variable has no local
                     // bindings.
@@ -222,10 +233,16 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         condition_value: &ConditionValue,
     ) -> TransformedValue<ConditionValue> {
         match condition_value {
-            ConditionValue::Variable(variable) => {
-                match self.scope.get(variable.name.item) {
-                    Some(Value::Variable(variable_name)) => {
-                        TransformedValue::Replace(ConditionValue::Variable(variable_name.clone()))
+            ConditionValue::Variable(prev_variable) => {
+                match self.scope.get(prev_variable.name.item) {
+                    Some(Value::Variable(replacement_variable)) => {
+                        TransformedValue::Replace(ConditionValue::Variable(Variable {
+                            // Update the name/location to the applied variable name
+                            name: replacement_variable.name,
+                            // But keep the type of the previous variable, which reflects the type
+                            // expected at this location
+                            type_: prev_variable.type_.clone(),
+                        }))
                     }
                     Some(Value::Constant(ConstantValue::Boolean(constant_value))) => {
                         TransformedValue::Replace(ConditionValue::Constant(*constant_value))

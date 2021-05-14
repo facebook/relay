@@ -36,6 +36,7 @@ const {
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
+const {getNoInlineFragmentVariables} = require('./RelayConcreteVariables');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   refineToReactFlightPayloadData,
@@ -216,7 +217,13 @@ class RelayResponseNormalizer {
           }
           break;
         case FRAGMENT_SPREAD: {
+          const previousVariables = this._variables;
+          this._variables = getNoInlineFragmentVariables(
+            selection,
+            this._variables,
+          );
           this._traverseSelections(selection.fragment, record, data);
+          this._variables = previousVariables;
           break;
         }
         case INLINE_FRAGMENT: {

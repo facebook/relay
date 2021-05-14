@@ -122,7 +122,7 @@ function cloneEventWithSets(event) {
         `);
         UserQuery = getRequest(graphql`
           query RelayModernStoreWithSubscriptionsUsingMapByIDTest1Query(
-            $size: Int
+            $size: [Int]
           ) {
             me {
               ...RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment
@@ -171,7 +171,7 @@ function cloneEventWithSets(event) {
         // subscribe(), publish(), notify() -> subscriber called
         UserQuery = getRequest(graphql`
           query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(
-            $size: Float!
+            $size: [Int]!
           ) {
             me {
               ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment

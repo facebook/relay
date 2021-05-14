@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b23f36a793f84a590180c912b60c75b2>>
+ * @generated SignedSource<<06704f2369d5e880af6bcb6fcddb5663>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVaria
   count: number,
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
+  isViewerFriend: boolean,
 |};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse = {|
   +node: ?{|
@@ -277,18 +277,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a4257c646ac96b56bad79597004153ce",
+    "cacheID": "d020e7105d9ea0eb0a39ec2de386cf68",
     "id": null,
     "metadata": {},
     "name": "ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery",
     "operationKind": "query",
-    "text": "query ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery(\n  $after: ID\n  $count: Int!\n  $id: ID!\n  $orderby: [String]\n  $isViewerFriend: Boolean\n) {\n  node(id: $id) {\n    id\n    __typename\n    ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB on User {\n  id\n  friends(after: $after, first: $count, orderby: $orderby, isViewerFriend: $isViewerFriend) {\n    edges {\n      node {\n        id\n        ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK on User {\n  id\n  name @include(if: $isViewerFriend)\n}\n"
+    "text": "query ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery(\n  $after: ID\n  $count: Int!\n  $id: ID!\n  $orderby: [String]\n  $isViewerFriend: Boolean!\n) {\n  node(id: $id) {\n    id\n    __typename\n    ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB on User {\n  id\n  friends(after: $after, first: $count, orderby: $orderby, isViewerFriend: $isViewerFriend) {\n    edges {\n      node {\n        id\n        ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK on User {\n  id\n  name @include(if: $isViewerFriend)\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f2ae63b5adf92acd8b5340bf80d78375";
+  (node/*: any*/).hash = "46153f91be065033bb3e83f093819f1b";
 }
 
 module.exports = node;

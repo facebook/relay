@@ -232,7 +232,7 @@ describe('RelayReader', () => {
   it('creates fragment pointers with fragment owner when owner is provided', () => {
     const ParentQuery = graphql`
       query RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedParentQuery(
-        $size: Float!
+        $size: [Int]
       ) {
         me {
           ...RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfile

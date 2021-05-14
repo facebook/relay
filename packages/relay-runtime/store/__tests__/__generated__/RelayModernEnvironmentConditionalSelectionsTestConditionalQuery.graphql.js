@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<07fc149490eb7eadac0ee6011d4ed090>>
+ * @generated SignedSource<<58301e9a423705297b62f45e0576ba08>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref = any;
 export type RelayModernEnvironmentConditionalSelectionsTestConditionalQueryVariables = {|
-  condition?: ?boolean,
+  condition: boolean,
 |};
 export type RelayModernEnvironmentConditionalSelectionsTestConditionalQueryResponse = {|
   +$fragmentRefs: RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$ref,
@@ -134,18 +134,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "09bb2fd397c1d06c7e3c3ffb55a1fb43",
+    "cacheID": "40125132913bc8be01eaaa2ca44e5955",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentConditionalSelectionsTestConditionalQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentConditionalSelectionsTestConditionalQuery(\n  $condition: Boolean\n) {\n  ...RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment\n}\n\nfragment RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment on Query {\n  viewer @include(if: $condition) {\n    actor {\n      __typename\n      name\n      id\n    }\n  }\n  me @skip(if: $condition) {\n    name\n    id\n  }\n}\n"
+    "text": "query RelayModernEnvironmentConditionalSelectionsTestConditionalQuery(\n  $condition: Boolean!\n) {\n  ...RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment\n}\n\nfragment RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment on Query {\n  viewer @include(if: $condition) {\n    actor {\n      __typename\n      name\n      id\n    }\n  }\n  me @skip(if: $condition) {\n    name\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "19be40f3fbeadb57f2de9b6e96f838d3";
+  (node/*: any*/).hash = "15714f8d0ab41a192fe8a7946b71437f";
 }
 
 module.exports = node;

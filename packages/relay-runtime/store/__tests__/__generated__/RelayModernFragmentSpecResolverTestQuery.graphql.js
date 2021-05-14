@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5348b9f0d2d8d1a393cb6aabb881c148>>
+ * @generated SignedSource<<d42605c3bf747d2b6164fef66f397a41>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ type RelayModernFragmentSpecResolverTestQueryUserFragment$ref = any;
 type RelayModernFragmentSpecResolverTestQueryUsersFragment$ref = any;
 export type RelayModernFragmentSpecResolverTestQueryVariables = {|
   id: string,
-  size?: ?number,
+  size?: ?$ReadOnlyArray<?number>,
   fetchSize: boolean,
 |};
 export type RelayModernFragmentSpecResolverTestQueryResponse = {|
@@ -176,18 +176,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "032b54d6b3208b0efb93d8e5dc1e8a80",
+    "cacheID": "927041e646430203d20ec438187293e0",
     "id": null,
     "metadata": {},
     "name": "RelayModernFragmentSpecResolverTestQuery",
     "operationKind": "query",
-    "text": "query RelayModernFragmentSpecResolverTestQuery(\n  $id: ID!\n  $size: Int\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverTestQueryUserFragment\n    ...RelayModernFragmentSpecResolverTestQueryUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n"
+    "text": "query RelayModernFragmentSpecResolverTestQuery(\n  $id: ID!\n  $size: [Int]\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverTestQueryUserFragment\n    ...RelayModernFragmentSpecResolverTestQueryUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b1eebca9df0b2a3b0a5c3e758dddefde";
+  (node/*: any*/).hash = "861d571e1856374cfbff7ce6564c306c";
 }
 
 module.exports = node;

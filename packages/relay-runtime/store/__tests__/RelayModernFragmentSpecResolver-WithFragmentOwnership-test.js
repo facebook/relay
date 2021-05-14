@@ -94,7 +94,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
     UserQuery = getRequest(graphql`
       query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $fetchSize: Boolean!
       ) {
         node(id: $id) {

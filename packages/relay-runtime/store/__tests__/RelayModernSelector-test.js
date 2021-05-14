@@ -55,7 +55,7 @@ describe('RelayModernSelector', () => {
     UserQuery = getRequest(graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $cond: Boolean!
       ) {
         node(id: $id) {
@@ -75,7 +75,7 @@ describe('RelayModernSelector', () => {
     `);
     UsersFragment = getFragment(graphql`
       fragment RelayModernSelectorTestUsersFragment on User
-      @relay(plural: true) {
+        @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {

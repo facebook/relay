@@ -124,7 +124,7 @@ function cloneEventWithSets(event) {
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         UserQuery = getRequest(graphql`
-          query RelayModernStoreTest1Query($id: ID!, $size: Int) {
+          query RelayModernStoreTest1Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest1Fragment
             }
@@ -229,7 +229,7 @@ function cloneEventWithSets(event) {
           }
         `);
         UserQuery = getRequest(graphql`
-          query RelayModernStoreTest2Query($size: Int) {
+          query RelayModernStoreTest2Query($size: [Int]) {
             me {
               ...RelayModernStoreTest2Fragment
             }
@@ -262,7 +262,7 @@ function cloneEventWithSets(event) {
 
       it('includes fragment owner in selector data when owner is provided', () => {
         UserQuery = getRequest(graphql`
-          query RelayModernStoreTest3Query($size: Float!) {
+          query RelayModernStoreTest3Query($size: [Int]) {
             me {
               ...RelayModernStoreTest3Fragment
             }
@@ -415,7 +415,7 @@ function cloneEventWithSets(event) {
         `);
 
         UserQuery = getRequest(graphql`
-          query RelayModernStoreTest4Query($size: Int) {
+          query RelayModernStoreTest4Query($size: [Int]) {
             me {
               ...RelayModernStoreTest5Fragment
             }
@@ -462,7 +462,7 @@ function cloneEventWithSets(event) {
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
         UserQuery = getRequest(graphql`
-          query RelayModernStoreTest5Query($size: Float!) {
+          query RelayModernStoreTest5Query($size: [Int]) {
             me {
               ...RelayModernStoreTest6Fragment
             }

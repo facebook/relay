@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query validateGlobalVariablesQuery($condition: Boolean) {
+  me {
+    ...validateGlobalVariables_user
+  }
+}
+
+fragment validateGlobalVariables_user on User {
+  id
+  firstName(if: $condition) # OK: nullable value flows into nullable arg
+  # ERROR: nullable values flows into non-nullable arg
+  ... @include(if: $condition) {
+    lastName
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable was defined as type 'Boolean' but used where a variable of type 'Boolean!' is expected.
+
+  validate-global-variables.invalid.graphql:2:36
+    1 │ # expected-to-throw
+    2 │ query validateGlobalVariablesQuery($condition: Boolean) {
+      │                                    ^^^^^^^^^^
+    3 │   me {
+
+  ℹ︎ Variable is used as 'Boolean!'
+
+  validate-global-variables.invalid.graphql:12:20
+   11 │   # ERROR: nullable values flows into non-nullable arg
+   12 │   ... @include(if: $condition) {
+      │                    ^^^^^^^^^^
+   13 │     lastName

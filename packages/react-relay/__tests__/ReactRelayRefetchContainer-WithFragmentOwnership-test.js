@@ -107,7 +107,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     UserQuery = graphql`
       query ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery(
         $id: ID!
-        $scale: Int!
+        $scale: Float!
       ) {
         node(id: $id) {
           ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment

@@ -110,7 +110,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
         $count: Int!
         $id: ID!
         $orderby: [String]
-        $isViewerFriend: Boolean
+        $isViewerFriend: Boolean!
       ) {
         node(id: $id) {
           id

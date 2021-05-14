@@ -118,7 +118,7 @@ test('generate mock with inline fragment', () => {
     }
   `;
   testGeneratedData(graphql`
-    query RelayMockPayloadGeneratorTest3Query($condition: Boolean) {
+    query RelayMockPayloadGeneratorTest3Query($condition: Boolean!) {
       node(id: "my-id") {
         ...RelayMockPayloadGeneratorTest2Fragment
       }
@@ -162,10 +162,10 @@ test('generate mock with condition (and other complications)', () => {
   `;
   testGeneratedData(graphql`
     query RelayMockPayloadGeneratorTest4Query(
-      $showProfilePicture: Boolean
-      $hideBirthday: Boolean
-      $showBirthdayMonth: Boolean
-      $hideAuthorUsername: Boolean
+      $showProfilePicture: Boolean!
+      $hideBirthday: Boolean!
+      $showBirthdayMonth: Boolean!
+      $hideAuthorUsername: Boolean!
     ) {
       node(id: "my-id") {
         ...RelayMockPayloadGeneratorTest3Fragment
@@ -208,7 +208,7 @@ test('generate mock with connection', () => {
   testGeneratedData(graphql`
     query RelayMockPayloadGeneratorTest5Query(
       $first: Int
-      $skipUserInConnection: Boolean
+      $skipUserInConnection: Boolean!
     ) {
       node(id: "my-id") {
         ...RelayMockPayloadGeneratorTest5Fragment
@@ -542,8 +542,8 @@ test('generate mock and verify arguments in the context', () => {
   testGeneratedData(
     graphql`
       query RelayMockPayloadGeneratorTest14Query(
-        $smallScale: Int = 1
-        $bigScale: Int = 100
+        $smallScale: Float = 1
+        $bigScale: Float = 100
       ) {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest14Fragment
@@ -581,7 +581,7 @@ test('generate mock for fragment with @argumentsDefinition', () => {
   `;
   testGeneratedData(
     graphql`
-      query RelayMockPayloadGeneratorTest15Query($scale: Int = 1) {
+      query RelayMockPayloadGeneratorTest15Query($scale: Float = 1.0) {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest15Fragment @arguments(withName: true)
         }

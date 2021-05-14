@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58f6de01caf031bb1e306abea35bf147>>
+ * @generated SignedSource<<962cf158baa003f38af494dd1164c7ef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayModernStoreTest5Fragment$ref = any;
 export type RelayModernStoreTest4QueryVariables = {|
-  size?: ?number,
+  size?: ?$ReadOnlyArray<?number>,
 |};
 export type RelayModernStoreTest4QueryResponse = {|
   +me: ?{|
@@ -131,18 +131,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6d588b7a1aa9203f6d5ec76f6cad07e4",
+    "cacheID": "1baaedeedd7d9457a213348979567add",
     "id": null,
     "metadata": {},
     "name": "RelayModernStoreTest4Query",
     "operationKind": "query",
-    "text": "query RelayModernStoreTest4Query(\n  $size: Int\n) {\n  me {\n    ...RelayModernStoreTest5Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreTest5Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
+    "text": "query RelayModernStoreTest4Query(\n  $size: [Int]\n) {\n  me {\n    ...RelayModernStoreTest5Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreTest5Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b68850038426618add09d6b8216ddf21";
+  (node/*: any*/).hash = "a27b012919fdb66b461839feecacd931";
 }
 
 module.exports = node;

@@ -79,7 +79,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     UserQuery = getRequest(graphql`
       query RelayModernFragmentSpecResolverTestQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $fetchSize: Boolean!
       ) {
         node(id: $id) {

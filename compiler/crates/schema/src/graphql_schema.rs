@@ -54,6 +54,41 @@ pub trait Schema {
 
     fn snapshot_print(&self) -> String;
 
+    // Is `maybe_subtype` usable as — but not equal to — `super_type`.
+    // Examples:
+    // is_type_strict_subtype_of(Int!, Int) => true, Int! is usable where an Int is expected
+    // is_type_strict_subtype_of(Int, Int) => false, same type
+    // is_type_strict_subtype_of(InterfaceThatExtendsNode, Node) => true
+    // is_type_strict_subtype_of(Node, Node) => false, same type
+    fn is_type_strict_subtype_of(
+        &self,
+        maybe_subtype: &TypeReference,
+        super_type: &TypeReference,
+    ) -> bool {
+        match (maybe_subtype, super_type) {
+            (TypeReference::NonNull(of_sub), TypeReference::NonNull(of_super)) => {
+                self.is_type_strict_subtype_of(of_sub, of_super)
+            }
+            // If supertype is non-null, maybeSubType must be non-nullable too
+            (_, TypeReference::NonNull(_)) => false,
+            // If supertype is nullable, maybeSubType may be non-nullable or nullable
+            (TypeReference::NonNull(of_sub), _) => {
+                // `T!` is a strict subtype of `U` so long as T is a (non-strict) subtype of U
+                self.is_type_subtype_of(of_sub, super_type)
+            }
+            (TypeReference::List(of_sub), TypeReference::List(of_super)) => {
+                self.is_type_strict_subtype_of(of_sub, of_super)
+            }
+            // If supertype is a list, maybeSubType must be a list too
+            (_, TypeReference::List(_)) => false,
+            // If supertype is not a list, maybeSubType must also not be a list
+            (TypeReference::List(_), _) => false,
+            (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
+                self.is_named_type_strict_subtype_of(*named_subtype, *named_supertype)
+            }
+        }
+    }
+
     fn is_type_subtype_of(
         &self,
         maybe_subtype: &TypeReference,
@@ -77,6 +112,31 @@ pub trait Schema {
             (TypeReference::Named(named_subtype), TypeReference::Named(named_supertype)) => {
                 self.is_named_type_subtype_of(*named_subtype, *named_supertype)
             }
+        }
+    }
+
+    // Is `maybe_subtype` usable as — but not equal to — `super_type`.
+    // Examples:
+    // is_type_strict_subtype_of(InterfaceThatExtendsNode, Node) => true
+    // is_type_strict_subtype_of(Node, Node) => false, same type
+    fn is_named_type_strict_subtype_of(&self, maybe_subtype: Type, super_type: Type) -> bool {
+        match (maybe_subtype, super_type) {
+            (Type::Object(sub_id), Type::Interface(super_id)) => {
+                // does object implement the interface
+                let object = self.object(sub_id);
+                object.interfaces.contains(&super_id)
+            }
+            (Type::Object(sub_id), Type::Union(super_id)) => {
+                // is object a member of the union
+                let union = self.union(super_id);
+                union.members.contains(&sub_id)
+            }
+            (Type::Interface(sub_id), Type::Interface(super_id)) => {
+                // does sub interface implement the super interface
+                let interface = self.interface(sub_id);
+                interface.interfaces.contains(&super_id)
+            }
+            _ => false,
         }
     }
 

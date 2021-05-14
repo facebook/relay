@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0f33bb24106e4b1698636acd117e8975>>
+ * @generated SignedSource<<5f8caf7ef38f9ea64511cb49bebe8b5b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 import type { ConcreteRequest } from 'relay-runtime';
 type RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment$ref = any;
 export type RelayModernStoreWithSubscriptionsUsingMapByIDTest2QueryVariables = {|
-  size: number,
+  size: $ReadOnlyArray<?number>,
 |};
 export type RelayModernStoreWithSubscriptionsUsingMapByIDTest2QueryResponse = {|
   +me: ?{|
@@ -131,18 +131,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1dcdc2d238f0bb0348813c5652d57785",
+    "cacheID": "a1a57e8184505ead7e4b82e175095c6b",
     "id": null,
     "metadata": {},
     "name": "RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query",
     "operationKind": "query",
-    "text": "query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(\n  $size: Float!\n) {\n  me {\n    ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
+    "text": "query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(\n  $size: [Int]!\n) {\n  me {\n    ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "96b3f1eb3452c71ceb0f14036825bb14";
+  (node/*: any*/).hash = "1c4935b37430426998bf1ef7d8dffb10";
 }
 
 module.exports = node;

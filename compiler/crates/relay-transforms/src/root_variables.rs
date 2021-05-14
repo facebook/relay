@@ -12,6 +12,7 @@ use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, Value, Variable, Visitor,
 };
 use interner::StringKey;
+use schema::Schema;
 
 pub type VariableMap = FnvHashMap<StringKey, Variable>;
 type Visited = FnvHashMap<StringKey, VariableMap>;
@@ -34,7 +35,9 @@ impl<'program> InferVariablesVisitor<'program> {
 
     /// Determine the set of root variables that are transitively
     /// referenced by each fragment, ie the union of all root variables used in the
-    /// fragment and any fragments it transitively spreads.
+    /// fragment and any fragments it transitively spreads. The type of each variable will be
+    /// the most specific type with which that variable is used (ie, the type that the variable
+    /// must have for the query to be valid).
     pub fn infer_operation_variables(&mut self, operation: &OperationDefinition) -> VariableMap {
         let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
@@ -47,6 +50,8 @@ impl<'program> InferVariablesVisitor<'program> {
         visitor.variable_map
     }
 
+    /// Similar to infer_operation_variables(), but finds root variables referenced transitively
+    /// from the given fragment.
     pub fn infer_fragment_variables(&mut self, fragment: &FragmentDefinition) -> VariableMap {
         let transitive_local_variables = Default::default();
         let mut visitor = VariablesVisitor::new(
@@ -157,8 +162,19 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
                 if let Value::Variable(var) = &arg.value.item {
                     if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
                         if self.is_root_variable(var.name.item) {
+                            let schema = &self.program.schema;
                             self.variable_map
                                 .entry(var.name.item)
+                                .and_modify(|prev_variable| {
+                                    let is_stricter_type = schema.is_type_strict_subtype_of(
+                                        &var.type_,
+                                        &prev_variable.type_,
+                                    );
+                                    if is_stricter_type {
+                                        // this usage has a more restrictive type, update the variable to reflect this
+                                        *prev_variable = var.clone();
+                                    }
+                                })
                                 .or_insert_with(|| Variable {
                                     name: var.name,
                                     type_: def.type_.clone(),
@@ -179,8 +195,17 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
 
     fn visit_variable(&mut self, value: &Variable) {
         if self.is_root_variable(value.name.item) {
+            let schema = &self.program.schema;
             self.variable_map
                 .entry(value.name.item)
+                .and_modify(|prev_variable| {
+                    let is_stricter_type =
+                        schema.is_type_strict_subtype_of(&value.type_, &prev_variable.type_);
+                    if is_stricter_type {
+                        // this usage has a more restrictive type, update the variable to reflect this
+                        *prev_variable = value.clone();
+                    }
+                })
                 .or_insert_with(|| value.clone());
         }
     }

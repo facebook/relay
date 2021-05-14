@@ -49,12 +49,12 @@ mod skip_null_arguments_transform;
 mod skip_redundant_nodes;
 mod skip_split_operation;
 mod skip_unreachable_node;
-mod skip_unused_variables;
 mod sort_selections;
 mod test_operation_metadata;
 mod transform_connections;
 mod unwrap_custom_directive_selection;
 mod util;
+mod validate_operation_variables;
 mod validations;
 
 use fnv::{FnvHashMap, FnvHashSet};
@@ -140,7 +140,6 @@ pub use skip_null_arguments_transform::skip_null_arguments_transform;
 pub use skip_redundant_nodes::skip_redundant_nodes;
 pub use skip_split_operation::skip_split_operation;
 pub use skip_unreachable_node::skip_unreachable_node;
-pub use skip_unused_variables::skip_unused_variables;
 pub use sort_selections::sort_selections;
 pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;
@@ -149,4 +148,5 @@ pub use util::{
     extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
     remove_directive, PointerAddress,
 };
+pub use validate_operation_variables::validate_operation_variables;
 pub use validations::*;

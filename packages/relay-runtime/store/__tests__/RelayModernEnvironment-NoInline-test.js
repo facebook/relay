@@ -652,4 +652,373 @@ describe('@no_inline', () => {
       });
     });
   });
+
+  describe('with @stream and @defer', () => {
+    it('executes and reads back results with stream', () => {
+      const QueryWithStream = getRequest(graphql`
+        query RelayModernEnvironmentNoInlineTestStreamQuery($cond: Boolean!) {
+          node(id: "1") {
+            ...RelayModernEnvironmentNoInlineTestStream_feedback
+              @arguments(cond: $cond)
+          }
+        }
+      `);
+      const NoInlineFragmentWithStream = getFragment(graphql`
+        fragment RelayModernEnvironmentNoInlineTestStream_feedback on Feedback
+          @no_inline
+          @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+          actors @stream(label: "actors", initial_count: 0) {
+            ... @include(if: $cond) {
+              name
+            }
+          }
+        }
+      `);
+      operation = createOperationDescriptor(QueryWithStream, {cond: false});
+      environment.execute({operation}).subscribe(callbacks);
+
+      subject.next({
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '1',
+            actors: [],
+          },
+        },
+      });
+
+      subject.next({
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label:
+          'RelayModernEnvironmentNoInlineTestStream_feedback$stream$actors',
+        path: ['node', 'actors', 0],
+      });
+      expect(
+        (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+      ).toEqual([]);
+      expect(callbacks.next).toBeCalledTimes(2);
+      expect(callbacks.complete).toBeCalledTimes(0);
+      subject.complete();
+      expect(callbacks.complete).toBeCalledTimes(1);
+
+      const queryData = environment.lookup(operation.fragment);
+      expect(queryData.data).toEqual({
+        node: {
+          __id: '1',
+          __fragments: {
+            [NoInlineFragmentWithStream.name]: expect.anything(),
+          },
+          __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
+        },
+      });
+
+      const selector = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentWithStream,
+          (queryData.data: $FlowFixMe).node,
+        ),
+      );
+      const selectorData = environment.lookup(selector);
+      // `name` should not be normalized because $cond is false
+      expect(selectorData.data).toEqual({
+        actors: [{}],
+      });
+
+      // available before a GC
+      expect(environment.check(operation)).toEqual({
+        fetchTime: null,
+        status: 'available',
+      });
+
+      // available after GC if the query is retained
+      const retain = environment.retain(operation);
+      (environment.getStore(): $FlowFixMe).scheduleGC();
+      jest.runAllTimers();
+      expect(environment.check(operation)).toEqual({
+        fetchTime: null,
+        status: 'available',
+      });
+
+      // missing after being freed plus a GC run
+      retain.dispose();
+      (environment.getStore(): $FlowFixMe).scheduleGC();
+      jest.runAllTimers();
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
+      });
+
+      // Set cond to true and the name should be normalized
+      operation = createOperationDescriptor(QueryWithStream, {cond: true});
+      environment.execute({operation}).subscribe(callbacks);
+      subject.next({
+        data: {
+          node: {
+            __typename: 'Feedback',
+            id: '1',
+            actors: [],
+          },
+        },
+      });
+      subject.next({
+        data: {
+          __typename: 'User',
+          id: '2',
+          name: 'Alice',
+        },
+        label:
+          'RelayModernEnvironmentNoInlineTestStream_feedback$stream$actors',
+        path: ['node', 'actors', 0],
+      });
+      const queryData2 = environment.lookup(operation.fragment);
+      const selector2 = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentWithStream,
+          (queryData2.data: $FlowFixMe).node,
+        ),
+      );
+      const selectorData2 = environment.lookup(selector2);
+      expect(selectorData2.data).toEqual({
+        actors: [{name: 'Alice'}],
+      });
+    });
+
+    it('executes and reads back results with defer and stream', () => {
+      const QueryWithDeferredStream = getRequest(graphql`
+        query RelayModernEnvironmentNoInlineTestDeferredStreamQuery(
+          $cond: Boolean!
+          $enableStream: Boolean
+        ) {
+          viewer {
+            ...RelayModernEnvironmentNoInlineTestDeferredStreamParent
+              @arguments(cond: $cond, enableStream: $enableStream)
+          }
+        }
+      `);
+      const NoInlineFragmentWithDeferredStreamParent = getFragment(graphql`
+        fragment RelayModernEnvironmentNoInlineTestDeferredStreamParent on Viewer
+          @argumentDefinitions(
+            cond: {type: "Boolean!"}
+            enableStream: {type: "Boolean"}
+          ) {
+          ...RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed
+            @arguments(cond: $cond, enableStream: $enableStream)
+            @defer(label: "FeedFragment")
+        }
+      `);
+      const NoInlineFragmentWithDeferredStream = getFragment(graphql`
+        fragment RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed on Viewer
+          @no_inline
+          @argumentDefinitions(
+            cond: {type: "Boolean!", defaultValue: true}
+            enableStream: {type: "Boolean", defaultValue: false}
+          ) {
+          newsFeed(first: 2) {
+            edges
+              @stream(label: "newsFeed", if: $enableStream, initial_count: 0) {
+              node {
+                ... @include(if: $cond) {
+                  feedback {
+                    author {
+                      name
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `);
+      operation = createOperationDescriptor(QueryWithDeferredStream, {
+        cond: false,
+        enableStream: true,
+      });
+      environment.execute({operation}).subscribe(callbacks);
+
+      subject.next({
+        data: {
+          viewer: {
+            __typename: 'Viewer',
+          },
+        },
+      });
+
+      subject.next({
+        data: {
+          newsFeed: {
+            edges: [],
+          },
+        },
+        label:
+          'RelayModernEnvironmentNoInlineTestDeferredStreamParent$defer$FeedFragment',
+        path: ['viewer'],
+      });
+
+      subject.next({
+        data: {
+          node: {
+            __typename: 'Story',
+            id: '1',
+            feedback: {
+              id: 'feedback-1',
+              author: {
+                id: 'actor-1',
+                __typename: 'User',
+                name: 'Alice',
+              },
+            },
+          },
+        },
+        label:
+          'RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$stream$newsFeed',
+        path: ['viewer', 'newsFeed', 'edges', 0],
+      });
+
+      expect(
+        (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+      ).toEqual([]);
+      expect(callbacks.next).toBeCalledTimes(3);
+      expect(callbacks.complete).toBeCalledTimes(0);
+      subject.complete();
+      expect(callbacks.complete).toBeCalledTimes(1);
+
+      const queryData = environment.lookup(operation.fragment);
+      expect(queryData.data).toEqual({
+        viewer: {
+          __id: 'client:root:viewer',
+          __fragments: {
+            [NoInlineFragmentWithDeferredStreamParent.name]: {
+              cond: false,
+              enableStream: true,
+            },
+          },
+          __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
+        },
+      });
+
+      const parentSelector = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentWithDeferredStreamParent,
+          (queryData.data: $FlowFixMe).viewer,
+        ),
+      );
+      const parentSelectorData = environment.lookup(parentSelector);
+      const selector = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentWithDeferredStream,
+          (parentSelectorData.data: $FlowFixMe),
+        ),
+      );
+      const selectorData = environment.lookup(selector);
+      // `feedback` should not be normalized because $cond is false
+      expect(selectorData.data).toEqual({
+        newsFeed: {edges: [{node: {}}]},
+      });
+
+      // available before a GC
+      expect(environment.check(operation)).toEqual({
+        fetchTime: null,
+        status: 'available',
+      });
+
+      // available after GC if the query is retained
+      const retain = environment.retain(operation);
+      (environment.getStore(): $FlowFixMe).scheduleGC();
+      jest.runAllTimers();
+      expect(environment.check(operation)).toEqual({
+        fetchTime: null,
+        status: 'available',
+      });
+
+      // missing after being freed plus a GC run
+      retain.dispose();
+      (environment.getStore(): $FlowFixMe).scheduleGC();
+      jest.runAllTimers();
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
+      });
+
+      // normalize `feedback` and disable stream
+      operation = createOperationDescriptor(QueryWithDeferredStream, {
+        cond: true,
+        enableStream: false,
+      });
+      environment.execute({operation}).subscribe(callbacks);
+      subject.next({
+        data: {
+          viewer: {
+            __typename: 'Viewer',
+          },
+        },
+      });
+      subject.next({
+        data: {
+          newsFeed: {
+            edges: [
+              {
+                node: {
+                  __typename: 'Story',
+                  id: '1',
+                  feedback: {
+                    id: 'feedback-1',
+                    author: {
+                      id: 'actor-1',
+                      __typename: 'User',
+                      name: 'Alice',
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        label:
+          'RelayModernEnvironmentNoInlineTestDeferredStreamParent$defer$FeedFragment',
+        path: ['viewer'],
+      });
+      // The following data should not be normalized because stream is disabled
+      subject.next({
+        data: {
+          node: {
+            __typename: 'Story',
+            id: '2',
+            feedback: {
+              id: 'feedback-2',
+              author: {
+                id: 'actor-2',
+                __typename: 'User',
+                name: 'Bob',
+              },
+            },
+          },
+        },
+        label:
+          'RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$stream$newsFeed',
+        path: ['viewer', 'newsFeed', 'edges', 1],
+      });
+      const queryData2 = environment.lookup(operation.fragment);
+      const parentSelector2 = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentWithDeferredStreamParent,
+          (queryData2.data: $FlowFixMe).viewer,
+        ),
+      );
+      const parentSelectorData2 = environment.lookup(parentSelector2);
+      const selector2 = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentWithDeferredStream,
+          (parentSelectorData2.data: $FlowFixMe),
+        ),
+      );
+      const selectorData2 = environment.lookup(selector2);
+      expect(selectorData2.data).toEqual({
+        newsFeed: {edges: [{node: {feedback: {author: {name: 'Alice'}}}}]},
+      });
+    });
+  });
 });

@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{convert::TryInto, path::PathBuf};
+use std::{
+    convert::TryInto,
+    path::{Path, PathBuf},
+};
 
 use common::{Location, SourceLocationKey};
 use lsp_types::Url;
@@ -14,14 +17,14 @@ use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
 pub fn to_lsp_location_of_graphql_literal(
     location: Location,
-    root_dir: &PathBuf,
+    root_dir: &Path,
 ) -> LSPRuntimeResult<lsp_types::Location> {
     Ok(to_contents_and_lsp_location_of_graphql_literal(location, root_dir)?.1)
 }
 
 pub fn to_contents_and_lsp_location_of_graphql_literal(
     location: Location,
-    root_dir: &PathBuf,
+    root_dir: &Path,
 ) -> LSPRuntimeResult<(String, lsp_types::Location)> {
     match location.source_location() {
         SourceLocationKey::Embedded { path, index } => {

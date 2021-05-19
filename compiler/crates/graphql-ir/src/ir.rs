@@ -314,6 +314,11 @@ pub struct ConstantArgument {
     pub name: WithLocation<StringKey>,
     pub value: WithLocation<ConstantValue>,
 }
+impl Named for ConstantArgument {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
+}
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ConstantValue {

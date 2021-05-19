@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::WithLocation;
+use common::{Named, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
     FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
@@ -49,9 +49,13 @@ pub fn print_selections(schema: &SDLSchema, selections: &[Selection]) -> String 
     result
 }
 
-pub fn print_arguments(schema: &SDLSchema, arguments: &[Argument]) -> String {
+pub fn print_arguments(
+    schema: &SDLSchema,
+    arguments: &[Argument],
+    options: PrinterOptions,
+) -> String {
     let mut result = String::new();
-    write_arguments(schema, arguments, &mut result).unwrap();
+    write_arguments(schema, arguments, options, &mut result).unwrap();
     result
 }
 
@@ -72,7 +76,7 @@ pub fn write_definition(
     definition: &ExecutableDefinition,
     mut result: &mut impl Write,
 ) -> Result {
-    let printer = Printer::new(&schema, &mut result);
+    let printer = Printer::new(&schema, &mut result, PrinterOptions::default());
     printer.print_definition(definition)
 }
 
@@ -81,7 +85,7 @@ pub fn write_operation(
     operation: &OperationDefinition,
     mut result: &mut impl Write,
 ) -> Result {
-    let printer = Printer::new(&schema, &mut result);
+    let printer = Printer::new(&schema, &mut result, PrinterOptions::default());
     printer.print_operation(operation)
 }
 
@@ -90,7 +94,7 @@ pub fn write_fragment(
     fragment: &FragmentDefinition,
     mut result: &mut impl Write,
 ) -> Result {
-    let printer = Printer::new(&schema, &mut result);
+    let printer = Printer::new(&schema, &mut result, PrinterOptions::default());
     printer.print_fragment(fragment)
 }
 
@@ -99,16 +103,17 @@ pub fn write_selections(
     selections: &[Selection],
     mut result: &mut impl Write,
 ) -> Result {
-    let mut printer = Printer::new(&schema, &mut result);
+    let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
     printer.print_selections(selections, 0)
 }
 
 pub fn write_arguments(
     schema: &SDLSchema,
     arguments: &[Argument],
+    options: PrinterOptions,
     mut result: &mut impl Write,
 ) -> Result {
-    let mut printer = Printer::new(&schema, &mut result);
+    let mut printer = Printer::new(&schema, &mut result, options);
     printer.print_arguments(arguments)
 }
 
@@ -117,23 +122,42 @@ pub fn write_directives(
     directives: &[Directive],
     mut result: &mut impl Write,
 ) -> Result {
-    let mut printer = Printer::new(&schema, &mut result);
+    let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
     printer.print_directives(directives, None, None)
 }
 
 pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Write) -> Result {
-    let mut printer = Printer::new(&schema, &mut result);
+    let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
     printer.print_value(value)
+}
+
+pub struct PrinterOptions {
+    pub compact: bool,
+    pub sort_keys: bool,
+}
+
+impl PrinterOptions {
+    pub fn default() -> Self {
+        Self {
+            compact: false,
+            sort_keys: false,
+        }
+    }
 }
 
 struct Printer<'schema, 'writer, W: Write> {
     schema: &'schema SDLSchema,
     writer: &'writer mut W,
+    options: PrinterOptions,
 }
 
 impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
-    fn new(schema: &'schema SDLSchema, writer: &'writer mut W) -> Self {
-        Self { schema, writer }
+    fn new(schema: &'schema SDLSchema, writer: &'writer mut W, options: PrinterOptions) -> Self {
+        Self {
+            schema,
+            writer,
+            options,
+        }
     }
 
     fn print_definition(self, definition: &ExecutableDefinition) -> Result {
@@ -421,12 +445,28 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Ok(())
         } else {
             write!(self.writer, "(")?;
-            for (i, argument) in arguments.iter().enumerate() {
-                write!(self.writer, "{}: ", argument.name.item)?;
+            let sorted_arguments = if self.options.sort_keys {
+                let mut sorted_arguments = arguments.to_vec();
+                sorted_arguments.sort_by_key(|arg| arg.name());
+                Some(sorted_arguments)
+            } else {
+                None
+            };
+            let maybe_sorted_arguments = sorted_arguments
+                .as_ref()
+                .map_or(arguments, |v| v.as_slice());
+            for (i, argument) in maybe_sorted_arguments.iter().enumerate() {
+                write!(self.writer, "{}:", argument.name.item)?;
+                if !self.options.compact {
+                    write!(self.writer, " ")?;
+                }
                 self.print_value(&argument.value.item)?;
 
                 if i != arguments.len() - 1 {
-                    write!(self.writer, ", ")?;
+                    write!(self.writer, ",")?;
+                    if !self.options.compact {
+                        write!(self.writer, " ")?;
+                    }
                 }
             }
             write!(self.writer, ")")?;
@@ -441,16 +481,32 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             Value::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
-                for arg in object
+                let sorted_object = if self.options.sort_keys {
+                    let mut maybe_sorted_object = object.clone();
+                    if self.options.sort_keys {
+                        maybe_sorted_object.sort_by_key(|arg| arg.name());
+                    }
+                    Some(maybe_sorted_object)
+                } else {
+                    None
+                };
+                let maybe_sorted_object = sorted_object.as_ref().unwrap_or(object);
+                for arg in maybe_sorted_object
                     .iter()
                     .filter(|arg| !matches!(arg.value.item, Value::Constant(ConstantValue::Null())))
                 {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ", ")?;
+                        write!(self.writer, ",")?;
+                        if !self.options.compact {
+                            write!(self.writer, " ")?;
+                        }
                     }
-                    write!(self.writer, "{}: ", arg.name.item)?;
+                    write!(self.writer, "{}:", arg.name.item)?;
+                    if !self.options.compact {
+                        write!(self.writer, " ")?;
+                    }
                     self.print_value(&arg.value.item)?;
                 }
                 write!(self.writer, "}}")?;
@@ -466,7 +522,10 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ", ")?;
+                        write!(self.writer, ",")?;
+                        if !self.options.compact {
+                            write!(self.writer, " ")?;
+                        }
                     }
                     self.print_value(value)?;
                 }
@@ -487,13 +546,29 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             ConstantValue::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
-                for arg in object {
+                let sorted_object = if self.options.sort_keys {
+                    let mut maybe_sorted_object = object.clone();
+                    if self.options.sort_keys {
+                        maybe_sorted_object.sort_by_key(|arg| arg.name());
+                    }
+                    Some(maybe_sorted_object)
+                } else {
+                    None
+                };
+                let maybe_sorted_object = sorted_object.as_ref().unwrap_or(object);
+                for arg in maybe_sorted_object {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ", ")?;
+                        write!(self.writer, ",")?;
+                        if !self.options.compact {
+                            write!(self.writer, " ")?;
+                        }
                     }
-                    write!(self.writer, "{}: ", arg.name.item)?;
+                    write!(self.writer, "{}:", arg.name.item)?;
+                    if !self.options.compact {
+                        write!(self.writer, " ")?;
+                    }
                     self.print_constant_value(&arg.value.item)?;
                 }
                 write!(self.writer, "}}")?;
@@ -506,7 +581,10 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ", ")?;
+                        write!(self.writer, ",")?;
+                        if !self.options.compact {
+                            write!(self.writer, " ")?;
+                        }
                     }
                     self.print_constant_value(&value)?;
                 }

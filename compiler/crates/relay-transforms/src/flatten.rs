@@ -408,14 +408,22 @@ impl FlattenTransform {
         Diagnostic::error(
             ValidationMessage::InvalidSameFieldWithDifferentArguments {
                 field_name,
-                arguments_a: graphql_text_printer::print_arguments(&self.schema, &arguments_a),
+                arguments_a: graphql_text_printer::print_arguments(
+                    &self.schema,
+                    &arguments_a,
+                    graphql_text_printer::PrinterOptions::default(),
+                ),
             },
             location_a,
         )
         .annotate(
             format!(
                 "which conflicts with this field with applied argument values {}",
-                graphql_text_printer::print_arguments(&self.schema, &arguments_b),
+                graphql_text_printer::print_arguments(
+                    &self.schema,
+                    &arguments_b,
+                    graphql_text_printer::PrinterOptions::default()
+                ),
             ),
             location_b,
         )

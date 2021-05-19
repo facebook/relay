@@ -37,6 +37,7 @@ import type {
   GraphQLResponse,
   GraphQLSingularResponse,
   GraphQLResponseWithData,
+  ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {
@@ -55,6 +56,7 @@ import type {
   PublishQueue,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
+  ReactFlightClientResponse,
   Record,
   RelayResponsePayload,
   SelectorStoreUpdater,
@@ -272,6 +274,26 @@ class Executor {
     }
   }
 
+  _deserializeReactFlightPayloadWithLogging = (
+    tree: ReactFlightServerTree,
+  ): ReactFlightClientResponse => {
+    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
+    invariant(
+      typeof reactFlightPayloadDeserializer === 'function',
+      'OperationExecutor: Expected reactFlightPayloadDeserializer to be available when calling _deserializeReactFlightPayloadWithLogging.',
+    );
+    const [duration, result] = withDuration(() => {
+      return reactFlightPayloadDeserializer(tree);
+    });
+    this._log({
+      name: 'execute.flight.payload_deserialize',
+      executeId: this._executeId,
+      operationName: this._operation.request.node.params.name,
+      duration,
+    });
+    return result;
+  };
+
   _updateActiveState(): void {
     let activeState;
     switch (this._state) {
@@ -356,7 +378,7 @@ class Executor {
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
     this._schedule(() => {
-      const duration = withDuration(() => {
+      const [duration] = withDuration(() => {
         this._handleNext(response);
         this._maybeCompleteSubscriptionOperationTracking();
       });
@@ -603,7 +625,10 @@ class Executor {
         {
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightPayloadDeserializer:
+            this._reactFlightPayloadDeserializer != null
+              ? this._deserializeReactFlightPayloadWithLogging
+              : null,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
@@ -693,7 +718,10 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: moduleImportPayload.path,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightPayloadDeserializer:
+          this._reactFlightPayloadDeserializer != null
+            ? this._deserializeReactFlightPayloadWithLogging
+            : null,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -772,7 +800,10 @@ class Executor {
         {
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightPayloadDeserializer:
+            this._reactFlightPayloadDeserializer != null
+              ? this._deserializeReactFlightPayloadWithLogging
+              : null,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -924,7 +955,7 @@ class Executor {
           if (loadedNode != null) {
             this._schedule(() => {
               const operation = getOperation(loadedNode);
-              const duration = withDuration(() => {
+              const [duration] = withDuration(() => {
                 this._handleModuleImportPayload(moduleImportPayload, operation);
                 // OK: always have to run after an async module import resolves
                 const updatedOwners = this._publishQueue.run();
@@ -1167,7 +1198,10 @@ class Executor {
       {
         getDataID: this._getDataID,
         path: placeholder.path,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightPayloadDeserializer:
+          this._reactFlightPayloadDeserializer != null
+            ? this._deserializeReactFlightPayloadWithLogging
+            : null,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1384,7 +1418,10 @@ class Executor {
     const relayPayload = normalizeResponse(response, selector, typeName, {
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      reactFlightPayloadDeserializer:
+        this._reactFlightPayloadDeserializer != null
+          ? this._deserializeReactFlightPayloadWithLogging
+          : null,
       reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1498,10 +1535,10 @@ function currentTimestamp(): number {
   return Date.now();
 }
 
-function withDuration(cb: () => mixed): number {
+function withDuration<T>(cb: () => T): [number, T] {
   const startTime = currentTimestamp();
-  cb();
-  return currentTimestamp() - startTime;
+  const result = cb();
+  return [currentTimestamp() - startTime, result];
 }
 
 module.exports = {

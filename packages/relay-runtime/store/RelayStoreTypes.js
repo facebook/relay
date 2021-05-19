@@ -521,6 +521,12 @@ export type LogEvent =
       +duration: number,
     |}
   | {|
+      +name: 'execute.flight.payload_deserialize',
+      +executeId: number,
+      +operationName: string,
+      +duration: number,
+    |}
+  | {|
       +name: 'execute.error',
       +executeId: number,
       +error: Error,

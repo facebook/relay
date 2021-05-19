@@ -623,7 +623,7 @@ class Executor {
           errors: null,
           fieldPayloads: null,
           incrementalPlaceholders: null,
-          moduleImportPayloads: null,
+          followupPayloads: null,
           source: RelayRecordSource.create(),
           isFinal: false,
         },
@@ -641,29 +641,37 @@ class Executor {
     payload: RelayResponsePayload,
     optimisticUpdates: Array<OptimisticUpdate>,
   ): void {
-    if (payload.moduleImportPayloads && payload.moduleImportPayloads.length) {
-      const moduleImportPayloads = payload.moduleImportPayloads;
+    if (payload.followupPayloads && payload.followupPayloads.length) {
+      const followupPayloads = payload.followupPayloads;
       const operationLoader = this._operationLoader;
       invariant(
         operationLoader,
         'RelayModernEnvironment: Expected an operationLoader to be ' +
           'configured when using `@match`.',
       );
-      for (const moduleImportPayload of moduleImportPayloads) {
-        const operation = operationLoader.get(
-          moduleImportPayload.operationReference,
-        );
-        if (operation == null) {
-          this._processAsyncOptimisticModuleImport(
-            operationLoader,
-            moduleImportPayload,
+      for (const followupPayload of followupPayloads) {
+        if (followupPayload.kind === 'ModuleImportPayload') {
+          const operation = operationLoader.get(
+            followupPayload.operationReference,
           );
+          if (operation == null) {
+            this._processAsyncOptimisticModuleImport(
+              operationLoader,
+              followupPayload,
+            );
+          } else {
+            const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
+              operation,
+              followupPayload,
+            );
+            optimisticUpdates.push(...moduleImportOptimisticUpdates);
+          }
         } else {
-          const moduleImportOptimisticUpdates = this._processOptimisticModuleImport(
-            operation,
-            moduleImportPayload,
+          invariant(
+            false,
+            'OperationExecutor(): Unexpected payload follow up kind `%s`.',
+            followupPayload.kind,
           );
-          optimisticUpdates.push(...moduleImportOptimisticUpdates);
         }
       }
     }
@@ -790,24 +798,29 @@ class Executor {
       return;
     }
     payloads.forEach(payload => {
-      const {incrementalPlaceholders, moduleImportPayloads, isFinal} = payload;
+      const {incrementalPlaceholders, followupPayloads, isFinal} = payload;
       this._state = isFinal ? 'loading_final' : 'loading_incremental';
       this._updateActiveState();
       if (isFinal) {
         this._incrementalPayloadsPending = false;
       }
-      if (moduleImportPayloads && moduleImportPayloads.length !== 0) {
+      if (followupPayloads && followupPayloads.length !== 0) {
         const operationLoader = this._operationLoader;
         invariant(
           operationLoader,
           'RelayModernEnvironment: Expected an operationLoader to be ' +
             'configured when using `@match`.',
         );
-        moduleImportPayloads.forEach(moduleImportPayload => {
-          this._processModuleImportPayload(
-            moduleImportPayload,
-            operationLoader,
-          );
+        followupPayloads.forEach(followupPayload => {
+          if (followupPayload.kind === 'ModuleImportPayload') {
+            this._processModuleImportPayload(followupPayload, operationLoader);
+          } else {
+            invariant(
+              false,
+              'OperationExecutor(): Unexpected payload follow up kind `%s`.',
+              followupPayload.kind,
+            );
+          }
         });
       }
       if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
@@ -1177,7 +1190,7 @@ class Executor {
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
-        moduleImportPayloads: null,
+        followupPayloads: null,
         source: RelayRecordSource.create(),
         isFinal: response.extensions?.is_final === true,
       };
@@ -1259,7 +1272,7 @@ class Executor {
         errors: null,
         fieldPayloads,
         incrementalPlaceholders: null,
-        moduleImportPayloads: null,
+        followupPayloads: null,
         source: RelayRecordSource.create(),
         isFinal: false,
       };

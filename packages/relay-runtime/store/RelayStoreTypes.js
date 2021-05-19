@@ -810,6 +810,7 @@ export type HandleFieldPayload = {|
  *     root data.
  */
 export type ModuleImportPayload = {|
+  +kind: 'ModuleImportPayload',
   +data: PayloadData,
   +dataID: DataID,
   +operationReference: mixed,
@@ -817,6 +818,36 @@ export type ModuleImportPayload = {|
   +typeName: string,
   +variables: Variables,
 |};
+
+/**
+ * A payload that represents data necessary to process the results of an object
+ * with experimental actor change directive.
+ *
+ * - data: The GraphQL response value for the actor change field.
+ * - dataID: The ID of the store object linked to by the actor change field.
+ * - node: NormalizationLinkedField, where the actor change directive is used
+ * - path: to a field in the response
+ * - variables: Query variables.
+ * - typeName: the type that matched.
+ *
+ * The dataID, variables, and fragmentName can be used to create a Selector
+ * which can in turn be used to normalize and publish the data. The dataID and
+ * typeName can also be used to construct a root record for normalization.
+ */
+export type ActorPayload = {|
+  +kind: 'ActorPayload',
+  +data: PayloadData,
+  +dataID: DataID,
+  +node: NormalizationLinkedField,
+  +path: $ReadOnlyArray<string>,
+  +typeName: string,
+  +variables: Variables,
+|};
+
+/**
+ * Union type of possible payload followups we may handle during normalization.
+ */
+export type FollowupPayload = ModuleImportPayload | ActorPayload;
 
 /**
  * Data emitted after processing a Defer or Stream node during normalization
@@ -959,7 +990,7 @@ export type RelayResponsePayload = {|
   +errors: ?Array<PayloadError>,
   +fieldPayloads: ?Array<HandleFieldPayload>,
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
-  +moduleImportPayloads: ?Array<ModuleImportPayload>,
+  +followupPayloads: ?Array<FollowupPayload>,
   +source: MutableRecordSource,
   +isFinal: boolean,
 |};

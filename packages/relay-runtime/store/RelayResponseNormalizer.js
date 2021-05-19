@@ -68,13 +68,13 @@ import type {
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  FollowupPayload,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
-  ModuleImportPayload,
   MutableRecordSource,
   NormalizationSelector,
-  ReactFlightReachableExecutableDefinitions,
   ReactFlightPayloadDeserializer,
+  ReactFlightReachableExecutableDefinitions,
   ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
@@ -125,7 +125,7 @@ class RelayResponseNormalizer {
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _isClientExtension: boolean;
   _isUnmatchedAbstractType: boolean;
-  _moduleImportPayloads: Array<ModuleImportPayload>;
+  _followupPayloads: Array<FollowupPayload>;
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
@@ -144,7 +144,7 @@ class RelayResponseNormalizer {
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
     this._isUnmatchedAbstractType = false;
-    this._moduleImportPayloads = [];
+    this._followupPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
     this._variables = variables;
@@ -170,7 +170,7 @@ class RelayResponseNormalizer {
       errors: null,
       fieldPayloads: this._handleFieldPayloads,
       incrementalPlaceholders: this._incrementalPlaceholders,
-      moduleImportPayloads: this._moduleImportPayloads,
+      followupPayloads: this._followupPayloads,
       source: this._recordSource,
       isFinal: false,
     };
@@ -433,7 +433,8 @@ class RelayResponseNormalizer {
       operationReference ?? null,
     );
     if (operationReference != null) {
-      this._moduleImportPayloads.push({
+      this._followupPayloads.push({
+        kind: 'ModuleImportPayload',
         data,
         dataID: RelayModernRecord.getDataID(record),
         operationReference,
@@ -667,7 +668,8 @@ class RelayResponseNormalizer {
     const reachableExecutableDefinitions: Array<ReactFlightReachableExecutableDefinitions> = [];
     for (const query of reactFlightPayload.queries) {
       if (query.response.data != null) {
-        this._moduleImportPayloads.push({
+        this._followupPayloads.push({
+          kind: 'ModuleImportPayload',
           data: query.response.data,
           dataID: ROOT_ID,
           operationReference: query.module,
@@ -683,7 +685,8 @@ class RelayResponseNormalizer {
     }
     for (const fragment of reactFlightPayload.fragments) {
       if (fragment.response.data != null) {
-        this._moduleImportPayloads.push({
+        this._followupPayloads.push({
+          kind: 'ModuleImportPayload',
           data: fragment.response.data,
           dataID: fragment.__id,
           operationReference: fragment.module,

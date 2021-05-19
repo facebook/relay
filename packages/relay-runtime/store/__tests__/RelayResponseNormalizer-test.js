@@ -420,7 +420,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayRecordSourceMapImpl();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {moduleImportPayloads} = normalize(
+      const {followupPayloads} = normalize(
         recordSource,
         createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
           id: '1',
@@ -453,12 +453,13 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(moduleImportPayloads).toEqual([
+      expect(followupPayloads).toEqual([
         {
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayResponseNormalizerTestFragment:
@@ -498,7 +499,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayRecordSourceMapImpl();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {moduleImportPayloads} = normalize(
+      const {followupPayloads} = normalize(
         recordSource,
         createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
           id: '1',
@@ -533,12 +534,13 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(moduleImportPayloads).toEqual([
+      expect(followupPayloads).toEqual([
         {
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
             'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayResponseNormalizerTestFragment:
@@ -701,7 +703,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayRecordSourceMapImpl();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {moduleImportPayloads} = normalize(
+      const {followupPayloads} = normalize(
         recordSource,
         createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
           id: '1',
@@ -732,11 +734,12 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(moduleImportPayloads).toEqual([
+      expect(followupPayloads).toEqual([
         {
           operationReference:
             'RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$normalization.graphql',
           dataID: 'client:1:nameRenderer',
+          kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayResponseNormalizerTest1Fragment:
@@ -776,7 +779,7 @@ describe('RelayResponseNormalizer', () => {
 
       const recordSource = new RelayRecordSourceMapImpl();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      const {moduleImportPayloads} = normalize(
+      const {followupPayloads} = normalize(
         recordSource,
         createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
           id: '1',
@@ -809,11 +812,12 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-      expect(moduleImportPayloads).toEqual([
+      expect(followupPayloads).toEqual([
         {
           operationReference:
             'RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$normalization.graphql',
           dataID: 'client:1:nameRenderer',
+          kind: 'ModuleImportPayload',
           data: {
             __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayResponseNormalizerTest1Fragment:

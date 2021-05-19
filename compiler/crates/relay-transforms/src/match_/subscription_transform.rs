@@ -179,6 +179,7 @@ impl<'program> SubscriptionTransform<'program> {
                     operation.name.item,
                     fragment_spread,
                     location,
+                    false,
                 )],
                 selections,
             }))],

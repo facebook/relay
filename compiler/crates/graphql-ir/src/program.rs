@@ -66,6 +66,10 @@ impl Program {
         self.fragments.get(&name)
     }
 
+    pub fn fragment_mut(&mut self, name: StringKey) -> Option<&mut Arc<FragmentDefinition>> {
+        self.fragments.get_mut(&name)
+    }
+
     /// Searches for an operation by name.
     ///
     /// NOTE: This is a linear search, we currently don't frequently search

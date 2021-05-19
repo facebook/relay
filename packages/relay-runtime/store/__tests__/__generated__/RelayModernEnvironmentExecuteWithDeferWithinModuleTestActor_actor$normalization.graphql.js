@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b9308a67fc4c5875acc40c81854aa54d>>
+ * @generated SignedSource<<ff6d43957ff0f4c7c4c682d3b520e7cf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,6 +17,11 @@
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
+type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization = any;
+export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization = {|
+  ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization,
+|};
+
 */
 
 var node/*: NormalizationSplitOperation*/ = {
@@ -25,25 +30,9 @@ var node/*: NormalizationSplitOperation*/ = {
   "name": "RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization",
   "selections": [
     {
-      "if": null,
-      "kind": "Defer",
-      "label": "RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment",
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "id",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        }
-      ]
+      "args": null,
+      "fragment": require('./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql'),
+      "kind": "FragmentSpread"
     }
   ]
 };

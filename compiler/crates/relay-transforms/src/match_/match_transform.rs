@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::feature_flags::FeatureFlags;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
+use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
 use crate::util::get_normalization_operation_name;
+use crate::{defer_stream::DEFER_STREAM_CONSTANTS, FeatureFlag};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
@@ -63,7 +64,7 @@ struct Matches {
 }
 type MatchesForPath = FnvHashMap<Vec<Path>, Matches>;
 
-pub struct MatchTransform<'program> {
+pub struct MatchTransform<'program, 'flag> {
     program: &'program Program,
     parent_type: Type,
     document_name: StringKey,
@@ -72,10 +73,13 @@ pub struct MatchTransform<'program> {
     path: Vec<Path>,
     matches_for_path: MatchesForPath,
     enable_3d_branch_arg_generation: bool,
+    no_inline_flag: &'flag FeatureFlag,
+    // Stores the fragments that should use @no_inline and their parent document name
+    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
 }
 
-impl<'program> MatchTransform<'program> {
-    fn new(program: &'program Program, feature_flags: &FeatureFlags) -> Self {
+impl<'program, 'flag> MatchTransform<'program, 'flag> {
+    fn new(program: &'program Program, feature_flags: &'flag FeatureFlags) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -86,6 +90,8 @@ impl<'program> MatchTransform<'program> {
             path: Default::default(),
             matches_for_path: Default::default(),
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
+            no_inline_flag: &feature_flags.no_inline,
+            no_inline_fragments: Default::default(),
         }
     }
 
@@ -476,6 +482,19 @@ impl<'program> MatchTransform<'program> {
                 ..spread.clone()
             }));
 
+            let should_use_no_inline = {
+                match self.no_inline_flag {
+                    FeatureFlag::Disabled => false,
+                    FeatureFlag::Enabled => true,
+                    FeatureFlag::Limited { allowlist } => allowlist.contains(&fragment.name.item),
+                }
+            };
+            if should_use_no_inline {
+                self.no_inline_fragments
+                    .entry(fragment.name.item)
+                    .or_insert_with(|| vec![])
+                    .push(self.document_name);
+            }
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
                 InlineFragment {
                     type_condition: Some(fragment.type_condition),
@@ -489,6 +508,7 @@ impl<'program> MatchTransform<'program> {
                             self.document_name,
                             spread,
                             module_directive.name.location,
+                            should_use_no_inline,
                         )],
                         selections: vec![next_spread, operation_field, component_field],
                     }))],
@@ -682,10 +702,44 @@ impl<'program> MatchTransform<'program> {
     }
 }
 
-impl Transformer for MatchTransform<'_> {
+impl Transformer for MatchTransform<'_, '_> {
     const NAME: &'static str = "MatchTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
+        let next_program = self.default_transform_program(program);
+        if self.no_inline_fragments.is_empty() {
+            next_program
+        } else {
+            let mut next_program = next_program.replace_or_else(|| program.clone());
+            for (fragment_name, parent_sources) in self.no_inline_fragments.drain() {
+                let fragment = Arc::make_mut(next_program.fragment_mut(fragment_name).unwrap());
+                let parent_documents_arg = Argument {
+                    name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::List(
+                        parent_sources
+                            .into_iter()
+                            .map(ConstantValue::String)
+                            .collect(),
+                    ))),
+                };
+                let no_inline_directive = fragment
+                    .directives
+                    .iter_mut()
+                    .find(|d| d.name.item == *NO_INLINE_DIRECTIVE_NAME);
+                if let Some(no_inline_directive) = no_inline_directive {
+                    no_inline_directive.arguments.push(parent_documents_arg);
+                } else {
+                    fragment.directives.push(Directive {
+                        name: WithLocation::new(fragment.name.location, *NO_INLINE_DIRECTIVE_NAME),
+                        arguments: vec![parent_documents_arg],
+                    })
+                }
+            }
+            TransformedValue::Replace(next_program)
+        }
+    }
 
     fn transform_fragment(
         &mut self,
@@ -825,6 +879,7 @@ pub(crate) fn build_module_metadata_as_directive(
     source_document_name: StringKey,
     fragment_spread: &FragmentSpread,
     location: Location,
+    use_no_inline: bool,
 ) -> Directive {
     let mut arguments = vec![
         build_string_literal_argument(
@@ -851,6 +906,12 @@ pub(crate) fn build_module_metadata_as_directive(
         fragment_spread.fragment.item,
         location,
     ));
+    if use_no_inline {
+        arguments.push(Argument {
+            name: WithLocation::new(location, MATCH_CONSTANTS.no_inline_arg),
+            value: WithLocation::new(location, Value::Constant(ConstantValue::Null())),
+        })
+    }
 
     Directive {
         name: WithLocation::new(location, MATCH_CONSTANTS.custom_module_directive_name),

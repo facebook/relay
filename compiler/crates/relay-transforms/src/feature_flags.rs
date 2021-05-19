@@ -22,6 +22,7 @@ pub struct FeatureFlags {
     pub enable_relay_resolver_transform: bool,
 
     /// For now, this also disallows fragments with variable definitions
+    /// This also makes @module to opt in using @no_inline internally
     /// NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to
     /// use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that
     /// directive.

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<42a518afe1338b7dfe1d8629c086bbbe>>
+ * @generated SignedSource<<ed6e6947fea2d1508b90fd33e001104b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,34 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
+
+import type { Local3DPayload } from "relay-runtime";
+type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization = any;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name = {|
+  ...RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization,
+|};
+export type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization = {|
+  +__typename: string,
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string,
+    +id: ?string,
+  |},
+  +user: ?{|
+    +innerRenderer: ?({|
+      +__typename: "PlainUserNameRenderer",
+      +__module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name: ?any,
+      +__module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name: ?any,
+      ...RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name,
+    |} | Local3DPayload<"RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name", {|
+      +__typename: "PlainUserNameRenderer",
+      ...RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name,
+    |}> | {|
+      +__typename: string,
+    |}),
+    +id: string,
+  |},
+|};
 
 */
 

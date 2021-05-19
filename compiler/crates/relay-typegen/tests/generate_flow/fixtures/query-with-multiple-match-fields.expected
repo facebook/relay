@@ -51,6 +51,8 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
 import type { Local3DPayload } from "relay-runtime";
 import type { AnotherNameRendererFragment$ref } from "AnotherNameRendererFragment.graphql";
 import type { NameRendererFragment$ref } from "NameRendererFragment.graphql";
+import type { MarkdownUserNameRenderer_name$normalization } from "MarkdownUserNameRenderer_name$normalization.graphql";
+import type { PlainUserNameRenderer_name$normalization } from "PlainUserNameRenderer_name$normalization.graphql";
 export type TestVariables = {||};
 export type TestResponse = {|
   +node: ?{|
@@ -65,18 +67,10 @@ export type TestResponse = {|
   |},
 |};
 export type PlainUserNameRenderer_name = {|
-  +plaintext: ?string,
-  +data: ?{|
-    +text: ?string,
-    +id: ?string,
-  |},
+  ...PlainUserNameRenderer_name$normalization,
 |};
 export type MarkdownUserNameRenderer_name = {|
-  +markdown: ?string,
-  +data: ?{|
-    +markup: ?string,
-    +id: ?string,
-  |},
+  ...MarkdownUserNameRenderer_name$normalization,
 |};
 export type TestRawResponse = {|
   +node: ?({|

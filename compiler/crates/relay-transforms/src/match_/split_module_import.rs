@@ -75,6 +75,10 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if fragment.directives.len() == 1
             && fragment.directives[0].name.item == MATCH_CONSTANTS.custom_module_directive_name
+            && fragment.directives[0]
+                .arguments
+                .named(MATCH_CONSTANTS.no_inline_arg)
+                .is_none()
         {
             let directive = &fragment.directives[0];
             let parent_type = fragment

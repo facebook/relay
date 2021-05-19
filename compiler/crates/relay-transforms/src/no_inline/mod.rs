@@ -10,4 +10,5 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: StringKey = "no_inline".intern();
+    pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
 }

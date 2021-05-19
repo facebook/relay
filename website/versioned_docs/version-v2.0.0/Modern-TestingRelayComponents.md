@@ -138,7 +138,7 @@ Operations with the `@relay_test_operation` directive will have additional metad
     return 123.456;
   },
   Boolean(context) {
-    if (contex.name === 'can_edit') {
+    if (context.name === 'can_edit') {
       return true;
     }
     return false;

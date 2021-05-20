@@ -556,20 +556,17 @@ class RelayResponseNormalizer {
           // Field not expected to exist regardless of whether the server is pruning null
           // fields or not.
           return;
-        } else if (!this._treatMissingFieldsAsNull) {
+        } else {
           // Not optional and the server is not pruning null fields: field is expected
           // to be present
-          if (__DEV__) {
-            warning(
-              false,
-              'RelayResponseNormalizer: Payload did not contain a value ' +
-                'for field `%s: %s`. Check that you are parsing with the same ' +
-                'query that was used to fetch the payload.',
-              responseKey,
-              storageKey,
-            );
-          }
-          return;
+          invariant(
+            this._treatMissingFieldsAsNull,
+            'RelayResponseNormalizer: Payload did not contain a value for ' +
+              'field `%s: %s`. Check that you are parsing with the same ' +
+              'query that was used to fetch the payload.',
+            responseKey,
+            storageKey,
+          );
         }
       }
       RelayModernRecord.setValue(record, storageKey, null);

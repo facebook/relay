@@ -3571,7 +3571,77 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    describe('when the row protocol is malformed', () => {
+    describe('when the response is malformed', () => {
+      it('normalizes when the response is null', () => {
+        const payload = {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: null,
+          },
+        };
+        normalize(
+          recordSource,
+          createNormalizationSelector(
+            getRequest(FlightQuery).operation,
+            ROOT_ID,
+            {
+              count: 10,
+              id: '1',
+            },
+          ),
+          payload,
+          {
+            ...defaultOptions,
+            reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+          },
+        );
+        expect(recordSource.toJSON()).toMatchInlineSnapshot(`
+          Object {
+            "1": Object {
+              "__id": "1",
+              "__typename": "Story",
+              "flight(component:\\"FlightComponent.server\\",props:{\\"condition\\":true,\\"count\\":10,\\"id\\":\\"1\\"})": null,
+              "id": "1",
+            },
+            "client:root": Object {
+              "__id": "client:root",
+              "__typename": "__Root",
+              "node(id:\\"1\\")": Object {
+                "__ref": "1",
+              },
+            },
+          }
+        `);
+      });
+      it('throws if the response is undefined', () => {
+        const payload = {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: undefined,
+          },
+        };
+        expect(() => {
+          normalize(
+            recordSource,
+            createNormalizationSelector(
+              getRequest(FlightQuery).operation,
+              ROOT_ID,
+              {
+                count: 10,
+                id: '1',
+              },
+            ),
+            payload,
+            {
+              ...defaultOptions,
+              reactFlightPayloadDeserializer: dummyReactFlightPayloadDeserializer,
+            },
+          );
+        }).toThrow(/Payload did not contain a value for field/);
+      });
+
       it('warns if the row protocol is null', () => {
         const payload = {
           node: {

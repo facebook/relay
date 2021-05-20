@@ -602,9 +602,81 @@ Error
         status: 'missing',
       });
     });
+
+    it('returns missing if the response is undefined', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: undefined,
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(0);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(1);
+      expect(error).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          message: expect.stringMatching(
+            /Payload did not contain a value for field/,
+          ),
+        }),
+      );
+      expect(reactFlightPayloadDeserializer).toBeCalledTimes(0);
+
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.data).toMatchInlineSnapshot(`
+        Object {
+          "node": undefined,
+        }
+      `);
+      expect(snapshot.isMissingData).toEqual(true);
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
+      });
+    });
+
+    it('returns available if the response is null', () => {
+      environment.execute({operation}).subscribe(callbacks);
+      const payload = {
+        data: {
+          node: {
+            id: '1',
+            __typename: 'Story',
+            flightComponent: null,
+          },
+        },
+      };
+      dataSource.next(payload);
+      jest.runAllTimers();
+
+      expect(next).toBeCalledTimes(1);
+      expect(complete).toBeCalledTimes(0);
+      expect(error).toBeCalledTimes(0);
+      expect(reactFlightPayloadDeserializer).toBeCalledTimes(0);
+
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.data).toMatchInlineSnapshot(`
+        Object {
+          "node": Object {
+            "flightComponent": null,
+          },
+        }
+      `);
+      expect(snapshot.isMissingData).toEqual(false);
+      expect(environment.check(operation)).toEqual({
+        status: 'available',
+        fetchTime: null,
+      });
+    });
   });
 
-  describe('when the row protocol is malformed', () => {
+  describe('when the response is malformed', () => {
     it('warns if the row protocol is null', () => {
       environment.execute({operation}).subscribe(callbacks);
       const payload = {

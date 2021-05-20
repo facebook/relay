@@ -103,8 +103,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   /**
-   * This method will create an actor specfic environment. It will create a new instance
-   * and store it in the internal maps. If will return a memozied version
+   * This method will create an actor specific environment. It will create a new instance
+   * and store it in the internal maps. If will return a memoized version
    * of the environment if we already created one for actor.
    */
   forActor(actorIdentifier: ActorIdentifier): IActorEnvironment {
@@ -188,7 +188,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   execute(
-    actorEnvironemnt: IActorEnvironment,
+    actorEnvironment: IActorEnvironment,
     {
       operation,
       updater,
@@ -197,9 +197,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       updater?: ?SelectorStoreUpdater,
     },
   ): RelayObservable<GraphQLResponse> {
-    return this._execute(actorEnvironemnt, {
+    return this._execute(actorEnvironment, {
       createSource: () =>
-        actorEnvironemnt
+        actorEnvironment
           .getNetwork()
           .execute(
             operation.request.node.params,
@@ -215,7 +215,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   executeMutation(
-    actorEnvironemnt: IActorEnvironment,
+    actorEnvironment: IActorEnvironment,
     {
       operation,
       optimisticResponse,
@@ -232,9 +232,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         updater: optimisticUpdater,
       };
     }
-    return this._execute(actorEnvironemnt, {
+    return this._execute(actorEnvironment, {
       createSource: () =>
-        actorEnvironemnt.getNetwork().execute(
+        actorEnvironment.getNetwork().execute(
           operation.request.node.params,
           operation.request.variables,
           {
@@ -251,7 +251,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   executeWithSource(
-    actorEnvrionment: IActorEnvironment,
+    actorEnvironment: IActorEnvironment,
     config: {
       operation: OperationDescriptor,
       source: RelayObservable<GraphQLResponse>,
@@ -261,7 +261,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   isRequestActive(
-    _actorEnvrionment: IActorEnvironment,
+    _actorEnvironment: IActorEnvironment,
     requestIdentifier: string,
   ): boolean {
     const activeState = this._operationExecutions.get(requestIdentifier);
@@ -273,7 +273,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   }
 
   _execute(
-    actorEnvironemnt: IActorEnvironment,
+    actorEnvironment: IActorEnvironment,
     {
       createSource,
       isClientPayload,
@@ -290,14 +290,17 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
       const executor = MultiActorOperationExecutor.execute({
+        actorIdentifier: actorEnvironment.actorIdentifier,
         getDataID: this._getDataID,
         isClientPayload,
         operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
-        operationTracker: actorEnvironemnt.getOperationTracker(),
+        operationTracker: actorEnvironment.getOperationTracker(),
         optimisticConfig,
-        publishQueue: actorEnvironemnt.getPublishQueue(),
+        getPublishQueue: (actorIdentifier: ActorIdentifier) => {
+          return this.forActor(actorIdentifier).getPublishQueue();
+        },
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
@@ -306,7 +309,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         // NOTE: Some product tests expect `Network.execute` to be called only
         //       when the Observable is executed.
         source: createSource(),
-        store: actorEnvironemnt.getStore(),
+        getStore: (actorIdentifier: ActorIdentifier) => {
+          return this.forActor(actorIdentifier).getStore();
+        },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
       });

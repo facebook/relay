@@ -12,7 +12,6 @@
 
 'use strict';
 
-import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   GraphQLResponse,
   INetwork,
@@ -824,7 +823,6 @@ export type ModuleImportPayload = {|
   +path: $ReadOnlyArray<string>,
   +typeName: string,
   +variables: Variables,
-  +actorIdentifier: ?ActorIdentifier,
 |};
 
 /**
@@ -850,7 +848,6 @@ export type ActorPayload = {|
   +path: $ReadOnlyArray<string>,
   +typeName: string,
   +variables: Variables,
-  +actorIdentifier: ActorIdentifier,
 |};
 
 /**

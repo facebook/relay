@@ -136,15 +136,6 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderActorChange = {|
-  +kind: 'ActorChange',
-  +alias: ?string,
-  +name: string,
-  +storageKey: ?string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragmentSpread: ReaderFragmentSpread,
-|};
-
 export type ReaderModuleImport = {|
   +kind: 'ModuleImport',
   +documentName: string,
@@ -235,7 +226,6 @@ export type ReaderSelection =
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
-  | ReaderActorChange
   | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderInlineDataFragmentSpread

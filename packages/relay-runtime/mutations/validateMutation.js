@@ -33,10 +33,9 @@ const warning = require('warning');
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 const {
-  ACTOR_CHANGE,
+  CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
-  CONDITION,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
@@ -129,12 +128,6 @@ if (__DEV__) {
       case LINKED_FIELD:
       case FLIGHT_FIELD:
         return validateField(optimisticResponse, selection, context);
-      case ACTOR_CHANGE:
-        return validateField(
-          optimisticResponse,
-          selection.linkedField,
-          context,
-        );
       case INLINE_FRAGMENT:
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;

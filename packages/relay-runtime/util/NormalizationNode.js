@@ -102,11 +102,6 @@ export type NormalizationLinkedField = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
-export type NormalizationActorChange = {|
-  +kind: 'ActorChange',
-  +linkedField: NormalizationLinkedField,
-|};
-
 export type NormalizationModuleImport = {|
   +kind: 'ModuleImport',
   +documentName: string,
@@ -181,7 +176,6 @@ export type NormalizationSelection =
   | NormalizationInlineFragment
   | NormalizationModuleImport
   | NormalizationStream
-  | NormalizationActorChange
   | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {|

@@ -18,6 +18,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const invariant = require('invariant');
 
 const {
+  ACTOR_CHANGE,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -27,8 +28,8 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
-  REQUIRED_FIELD,
   RELAY_RESOLVER,
+  REQUIRED_FIELD,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
@@ -55,6 +56,7 @@ import type {
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
+  ReaderActorChange,
   ReaderModuleImport,
   ReaderNode,
   ReaderRelayResolver,
@@ -398,6 +400,9 @@ class RelayReader {
             throw new Error('Flight fields are not yet supported.');
           }
           break;
+        case ACTOR_CHANGE:
+          this._readActorChange(selection, record, data);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -576,6 +581,42 @@ class RelayReader {
     const value = this._traverse(field, linkedID, prevData);
     data[applicationName] = value;
     return value;
+  }
+
+  _readActorChange(
+    field: ReaderActorChange,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
+    const storageKey = getStorageKey(field, this._variables);
+    const externalRef = RelayModernRecord.getActorLinkedRecordID(
+      record,
+      storageKey,
+    );
+
+    if (externalRef == null) {
+      data[applicationName] = externalRef;
+      if (externalRef === undefined) {
+        this._isMissingData = true;
+      }
+      return data[applicationName];
+    }
+    const [actorIdentifier, dataID] = externalRef;
+
+    const fragmentRef = {};
+    this._createFragmentPointer(
+      field.fragmentSpread,
+      {
+        __id: dataID,
+      },
+      fragmentRef,
+    );
+    data[applicationName] = {
+      __fragmentRef: fragmentRef,
+      __viewer: actorIdentifier,
+    };
+    return data[applicationName];
   }
 
   _readPluralLink(

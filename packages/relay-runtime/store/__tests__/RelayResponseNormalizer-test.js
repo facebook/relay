@@ -17,6 +17,9 @@ const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
 
 const defaultGetDataID = require('../defaultGetDataID');
 
+const {
+  getActorIdentifier,
+} = require('../../multi-actor-environment/ActorIdentifier');
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const {normalize} = require('../RelayResponseNormalizer');
@@ -3756,6 +3759,261 @@ describe('RelayResponseNormalizer', () => {
             }
           `);
         });
+      });
+    });
+  });
+
+  describe('Actor Change', () => {
+    const query = graphql`
+      query RelayResponseNormalizerTestActorChangeQuery {
+        viewer {
+          actor @EXPERIMENTAL__as_actor {
+            ...RelayResponseNormalizerTestActorChangeFragment
+          }
+        }
+      }
+    `;
+
+    graphql`
+      fragment RelayResponseNormalizerTestActorChangeFragment on User {
+        name
+      }
+    `;
+
+    it('should normalize data for the same actor', () => {
+      const payload = {
+        viewer: {
+          __typename: 'Viewer',
+          actor: {
+            __typename: 'User',
+            id: 'user-1234',
+            __viewer: 'actor-1234',
+            name: 'Antonio',
+          },
+        },
+      };
+      const recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      const result = normalize(
+        recordSource,
+        createNormalizationSelector(getRequest(query).operation, ROOT_ID, {}),
+        payload,
+        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
+      );
+
+      expect(result).toEqual({
+        errors: null,
+        fieldPayloads: [],
+        followupPayloads: [
+          {
+            actorIdentifier: 'actor-1234',
+            data: {
+              __typename: 'User',
+              __viewer: 'actor-1234',
+              id: 'user-1234',
+              name: 'Antonio',
+            },
+            dataID: 'user-1234',
+            kind: 'ActorPayload',
+            node: expect.objectContaining({
+              kind: 'LinkedField',
+              name: 'actor',
+            }),
+            path: ['viewer', 'actor'],
+            typeName: 'User',
+            variables: {},
+          },
+        ],
+        incrementalPlaceholders: [],
+        isFinal: false,
+        source: expect.any(RelayRecordSourceMapImpl),
+      });
+
+      expect(result.source.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {
+            __ref: 'client:root:viewer',
+          },
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __actorIdentifier: 'actor-1234',
+            __ref: 'user-1234',
+          },
+        },
+      });
+    });
+
+    it('should normalize data for different actors.', () => {
+      const payload = {
+        viewer: {
+          __typename: 'Viewer',
+          actor: {
+            __typename: 'User',
+            id: 'user-1234',
+            __viewer: 'actor-4321',
+            name: 'Antonio',
+          },
+        },
+      };
+      const recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      const result = normalize(
+        recordSource,
+        createNormalizationSelector(getRequest(query).operation, ROOT_ID, {}),
+        payload,
+        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
+      );
+      expect(result).toEqual({
+        errors: null,
+        fieldPayloads: [],
+        followupPayloads: [
+          {
+            actorIdentifier: 'actor-4321',
+            data: {
+              __typename: 'User',
+              __viewer: 'actor-4321',
+              id: 'user-1234',
+              name: 'Antonio',
+            },
+            dataID: 'user-1234',
+            kind: 'ActorPayload',
+            node: expect.objectContaining({
+              kind: 'LinkedField',
+              name: 'actor',
+            }),
+            path: ['viewer', 'actor'],
+            typeName: 'User',
+            variables: {},
+          },
+        ],
+        incrementalPlaceholders: [],
+        isFinal: false,
+        source: expect.any(RelayRecordSourceMapImpl),
+      });
+
+      expect(result.source.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {
+            __ref: 'client:root:viewer',
+          },
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __actorIdentifier: 'actor-4321',
+            __ref: 'user-1234',
+          },
+        },
+      });
+    });
+
+    it('should warn if `__viewer` is missing in the response', () => {
+      const payload = {
+        viewer: {
+          __typename: 'Viewer',
+          actor: {
+            __typename: 'User',
+            id: 'user-1234',
+            name: 'Antonio',
+          },
+        },
+      };
+      const recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const result = expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `__viewer`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          return normalize(
+            recordSource,
+            createNormalizationSelector(
+              getRequest(query).operation,
+              ROOT_ID,
+              {},
+            ),
+            payload,
+            defaultOptions,
+          );
+        },
+      );
+      expect(result).toEqual({
+        errors: null,
+        fieldPayloads: [],
+        followupPayloads: [],
+        incrementalPlaceholders: [],
+        isFinal: false,
+        source: expect.any(RelayRecordSourceMapImpl),
+      });
+
+      expect(result.source.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {
+            __ref: 'client:root:viewer',
+          },
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: null,
+        },
+      });
+    });
+
+    it('should warn if data with actor specific data is missing in the response', () => {
+      const payload = {
+        viewer: {
+          __typename: 'Viewer',
+        },
+      };
+      const recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+      const result = expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `actor: actor`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          return normalize(
+            recordSource,
+            createNormalizationSelector(
+              getRequest(query).operation,
+              ROOT_ID,
+              {},
+            ),
+            payload,
+            defaultOptions,
+          );
+        },
+      );
+      expect(result).toEqual({
+        errors: null,
+        fieldPayloads: [],
+        followupPayloads: [],
+        incrementalPlaceholders: [],
+        isFinal: false,
+        source: expect.any(RelayRecordSourceMapImpl),
+      });
+
+      expect(result.source.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {
+            __ref: 'client:root:viewer',
+          },
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+        },
       });
     });
   });

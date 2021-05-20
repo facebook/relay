@@ -1967,4 +1967,129 @@ describe('RelayReader', () => {
       ]);
     });
   });
+
+  describe('Actor Change', () => {
+    const query = graphql`
+      query RelayReaderTestActorChangeQuery {
+        viewer {
+          actor @EXPERIMENTAL__as_actor {
+            ...RelayReaderTestActorChangeFragment
+          }
+        }
+      }
+    `;
+
+    graphql`
+      fragment RelayReaderTestActorChangeFragment on User {
+        name
+      }
+    `;
+
+    it('should read data for actor change', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __actorIdentifier: 'viewer-id',
+            __ref: 'external-id',
+          },
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      const defaultRead = read(defaultActorSource, owner.fragment);
+      expect(defaultRead.isMissingData).toBe(false);
+      expect(defaultRead.data).toEqual({
+        viewer: {
+          actor: {
+            __viewer: 'viewer-id',
+            __fragmentRef: {
+              __fragmentOwner: owner.request,
+              __fragments: {
+                RelayReaderTestActorChangeFragment: {},
+              },
+              __id: 'external-id',
+            },
+          },
+        },
+      });
+    });
+
+    it('should report missing data for actor change', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      const defaultRead = read(defaultActorSource, owner.fragment);
+      expect(defaultRead.isMissingData).toBe(true);
+      expect(defaultRead.data).toEqual({
+        viewer: {
+          actor: undefined,
+        },
+      });
+    });
+
+    it('should return null for actor change, if data is null', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: null,
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      const defaultRead = read(defaultActorSource, owner.fragment);
+      expect(defaultRead.isMissingData).toBe(false);
+      expect(defaultRead.data).toEqual({
+        viewer: {
+          actor: null,
+        },
+      });
+    });
+
+    it('should throw for actor change, if __viewer is missing or undefined', () => {
+      const defaultActorSource = new RelayRecordSource({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __ref: 'external-id',
+          },
+        },
+      });
+
+      const owner = createOperationDescriptor(query, {});
+      expect(() => {
+        read(defaultActorSource, owner.fragment);
+      }).toThrow(
+        'RelayModernRecord.getActorLinkedRecordID(): Expected `client:root:viewer.actor` to be an actor specific linked ID, was `{"__ref":"external-id"}`.',
+      );
+    });
+  });
 });

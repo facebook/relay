@@ -26,6 +26,9 @@
         "enable_required_transform_for_prefix": "",
         "no_inline": {
           "kind": "enabled"
+        },
+        "actor_change_support": {
+          "kind": "enabled"
         }
       },
       "haste": false

@@ -23,6 +23,7 @@ const {
 } = require('relay-runtime');
 
 const {
+  ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   CONDITION,
@@ -88,7 +89,7 @@ type SelectionMetadata = {
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
   |},
-  ...
+  ...,
 };
 
 function createIdGenerator() {
@@ -144,9 +145,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${
-              context.alias ?? context.name ?? 'undefined'
-            }">`);
+          : `<mock-value-for-field-"${context.alias ??
+              context.name ??
+              'undefined'}">`);
     }
     return mockValue;
   };
@@ -498,6 +499,8 @@ class RelayMockPayloadGenerator {
           break;
         case FLIGHT_FIELD:
           throw new Error('Flight fields are not yet supported.');
+        case ACTOR_CHANGE:
+          throw new Error('ActorChange fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

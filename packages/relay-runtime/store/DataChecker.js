@@ -58,9 +58,10 @@ export type Availability = {|
 |};
 
 const {
-  CONDITION,
+  ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CONDITION,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
@@ -309,6 +310,10 @@ class DataChecker {
           } else {
             this._checkLink(selection, dataID);
           }
+          break;
+        case ACTOR_CHANGE:
+          // TODO: T89695242: Support multi-actor record sources in DataChecker.js
+          this._checkLink(selection.linkedField, dataID);
           break;
         case CONDITION:
           const conditionValue = Boolean(

@@ -43,16 +43,17 @@ import type {
 } from './RelayStoreTypes';
 
 const {
-  CONDITION,
+  ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CONDITION,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
   INLINE_FRAGMENT,
   LINKED_FIELD,
-  MODULE_IMPORT,
   LINKED_HANDLE,
+  MODULE_IMPORT,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -144,6 +145,11 @@ class RelayReferenceMarker {
             this._traverseLink(selection, record);
           }
           break;
+        case ACTOR_CHANGE:
+          // TODO: T89695151 Support multi-actor record sources in RelayReferenceMarker.js
+          this._traverseLink(selection.linkedField, record);
+          break;
+
         case CONDITION:
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),

@@ -16,10 +16,6 @@
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 
-import type {
-  IActorEnvironment,
-  ActorIdentifier,
-} from 'relay-runtime/multi-actor-environment';
 import type {IEnvironment} from 'relay-runtime';
 
 const {useMemo} = React;
@@ -27,17 +23,11 @@ const {useMemo} = React;
 type Props = $ReadOnly<{|
   children: React.Node,
   environment: IEnvironment,
-  getEnvironmentForActor?: ?(
-    actorIdentifier: ActorIdentifier,
-  ) => IActorEnvironment,
 |}>;
 
 function RelayEnvironmentProvider(props: Props): React.Node {
-  const {children, environment, getEnvironmentForActor} = props;
-  const context = useMemo(() => ({environment, getEnvironmentForActor}), [
-    environment,
-    getEnvironmentForActor,
-  ]);
+  const {children, environment} = props;
+  const context = useMemo(() => ({environment}), [environment]);
   return (
     <ReactRelayContext.Provider value={context}>
       {children}

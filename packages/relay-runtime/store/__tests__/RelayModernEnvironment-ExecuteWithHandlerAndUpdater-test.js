@@ -78,7 +78,7 @@ describe('execute() with handler and updater', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {
         switch (name) {

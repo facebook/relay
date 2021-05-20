@@ -12,7 +12,10 @@
 
 'use strict';
 
-import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
+import type {
+  ActorIdentifier,
+  IActorEnvironment,
+} from '../multi-actor-environment';
 import type {
   GraphQLResponse,
   INetwork,
@@ -145,6 +148,9 @@ export type Props = {[key: string]: mixed, ...};
  */
 export type RelayContext = {|
   environment: IEnvironment,
+  getEnvironmentForActor?: ?(
+    actorIdentifier: ActorIdentifier,
+  ) => IActorEnvironment,
 |};
 
 /**

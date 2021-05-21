@@ -12,20 +12,14 @@ use interner::Intern;
 use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
-    let mut change = detect_changes(
-        &current.split('\n').collect::<Vec<_>>().as_ref(),
-        &previous.split('\n').collect::<Vec<_>>().as_ref(),
-    );
+    let mut change = detect_changes(&[current], &[previous]);
     sort_change(&mut change);
     change
 }
 
 fn is_safe(current: &str, previous: &str) -> bool {
     let schema = build_schema(current).unwrap();
-    let change = detect_changes(
-        &current.split('\n').collect::<Vec<_>>().as_ref(),
-        &previous.split('\n').collect::<Vec<_>>().as_ref(),
-    );
+    let change = detect_changes(&[current], &[previous]);
     change.is_safe(&schema)
 }
 

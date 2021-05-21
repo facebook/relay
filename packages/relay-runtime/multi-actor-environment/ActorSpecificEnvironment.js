@@ -16,6 +16,7 @@ const RelayPublishQueue = require('../store/RelayPublishQueue');
 
 const defaultGetDataID = require('../store/defaultGetDataID');
 
+import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -44,6 +45,7 @@ import type {
 export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   actorIdentifier: ActorIdentifier,
   defaultRenderPolicy?: ?RenderPolicy,
+  handlerProvider: HandlerProvider,
   logFn: LogFunction,
   multiActorEnvironment: IMultiActorEnvironment,
   network: INetwork,
@@ -76,7 +78,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     this._network = config.network;
     this._publishQueue = new RelayPublishQueue(
       config.store,
-      () => {},
+      config.handlerProvider,
       defaultGetDataID,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';

@@ -128,6 +128,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
             ? this._createStoreForActor(actorIdentifier)
             : new RelayModernStore(RelayRecordSource.create()),
         network: this._createNetworkForActor(actorIdentifier),
+        handlerProvider: this._handlerProvider,
       });
       this._actorEnvironments.set(actorIdentifier, newEnvironment);
       return newEnvironment;

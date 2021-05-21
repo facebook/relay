@@ -766,6 +766,49 @@ fn test_add_object_with_id_node_interface() {
 }
 
 #[test]
+fn test_object_special_field_added() {
+    assert!(is_safe(
+        r"
+            type A {
+                key: String
+                foo: String # regular field is okay
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+                id: String # id field is breaking
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+                js: String # js field is breaking
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+}
+
+#[test]
 fn test_add_type_with_id_actor_interface() {
     assert!(!is_safe(
         r"

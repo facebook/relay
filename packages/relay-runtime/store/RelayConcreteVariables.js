@@ -17,8 +17,9 @@ const invariant = require('invariant');
 const {getArgumentValues} = require('./RelayStoreUtils');
 
 import type {
+  NormalizationLocalArgumentDefinition,
+  NormalizationArgument,
   NormalizationOperation,
-  NormalizationFragmentSpread,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
@@ -100,28 +101,26 @@ function getOperationVariables(
   return operationVariables;
 }
 
-function getNoInlineFragmentVariables(
-  fragmentSpread: NormalizationFragmentSpread,
-  currentVaraibles: Variables,
+function getLocalVariables(
+  currentVariables: Variables,
+  argumentDefinitions: ?$ReadOnlyArray<NormalizationLocalArgumentDefinition>,
+  args: ?$ReadOnlyArray<NormalizationArgument>,
 ): Variables {
-  const argumentDefinitions = fragmentSpread.fragment.argumentDefinitions;
   if (argumentDefinitions == null) {
-    return currentVaraibles;
+    return currentVariables;
   }
-  const nextVariables = {...currentVaraibles};
-  const args = fragmentSpread.args
-    ? getArgumentValues(fragmentSpread.args, currentVaraibles)
-    : {};
+  const nextVariables = {...currentVariables};
+  const nextArgs = args ? getArgumentValues(args, currentVariables) : {};
   argumentDefinitions.forEach(def => {
     // $FlowFixMe[cannot-write]
-    const value = args[def.name] ?? def.defaultValue;
+    const value = nextArgs[def.name] ?? def.defaultValue;
     nextVariables[def.name] = value;
   });
   return nextVariables;
 }
 
 module.exports = {
-  getNoInlineFragmentVariables,
+  getLocalVariables,
   getFragmentVariables,
   getOperationVariables,
 };

@@ -31,6 +31,7 @@ import type {
   NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
+  NormalizationArgument,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -809,6 +810,7 @@ export type HandleFieldPayload = {|
  * with a `@module` fragment spread, or a Flight field's:
  *
  * ## @module Fragment Spread
+ * - args: Local arguments from the parent
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
  * - operationReference: A reference to a generated module containing the
@@ -837,6 +839,7 @@ export type HandleFieldPayload = {|
  */
 export type ModuleImportPayload = {|
   +kind: 'ModuleImportPayload',
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
   +data: PayloadData,
   +dataID: DataID,
   +operationReference: mixed,

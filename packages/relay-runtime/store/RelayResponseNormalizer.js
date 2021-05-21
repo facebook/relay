@@ -41,7 +41,7 @@ const {
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
-const {getNoInlineFragmentVariables} = require('./RelayConcreteVariables');
+const {getLocalVariables} = require('./RelayConcreteVariables');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   refineToReactFlightPayloadData,
@@ -227,13 +227,14 @@ class RelayResponseNormalizer {
           }
           break;
         case FRAGMENT_SPREAD: {
-          const previousVariables = this._variables;
-          this._variables = getNoInlineFragmentVariables(
-            selection,
+          const prevVariables = this._variables;
+          this._variables = getLocalVariables(
             this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
           );
           this._traverseSelections(selection.fragment, record, data);
-          this._variables = previousVariables;
+          this._variables = prevVariables;
           break;
         }
         case INLINE_FRAGMENT: {
@@ -450,6 +451,7 @@ class RelayResponseNormalizer {
     if (operationReference != null) {
       this._followupPayloads.push({
         kind: 'ModuleImportPayload',
+        args: moduleImport.args,
         data,
         dataID: RelayModernRecord.getDataID(record),
         operationReference,
@@ -776,6 +778,7 @@ class RelayResponseNormalizer {
       if (query.response.data != null) {
         this._followupPayloads.push({
           kind: 'ModuleImportPayload',
+          args: null,
           data: query.response.data,
           dataID: ROOT_ID,
           operationReference: query.module,
@@ -794,6 +797,7 @@ class RelayResponseNormalizer {
       if (fragment.response.data != null) {
         this._followupPayloads.push({
           kind: 'ModuleImportPayload',
+          args: null,
           data: fragment.response.data,
           dataID: fragment.__id,
           operationReference: fragment.module,

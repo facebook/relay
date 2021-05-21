@@ -701,7 +701,7 @@ class RelayReader {
       {
         kind: 'FragmentSpread',
         name: moduleImport.fragmentName,
-        args: null,
+        args: moduleImport.args,
       },
       record,
       data,

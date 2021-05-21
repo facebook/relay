@@ -22,7 +22,7 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
-const {getNoInlineFragmentVariables} = require('./RelayConcreteVariables');
+const {getLocalVariables} = require('./RelayConcreteVariables');
 const {generateTypeID} = require('./TypeID');
 
 import type {
@@ -173,13 +173,14 @@ class RelayReferenceMarker {
           }
           break;
         case FRAGMENT_SPREAD:
-          const previousVariables = this._variables;
-          this._variables = getNoInlineFragmentVariables(
-            selection,
+          const prevVariables = this._variables;
+          this._variables = getLocalVariables(
             this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
           );
           this._traverseSelections(selection.fragment.selections, record);
-          this._variables = previousVariables;
+          this._variables = prevVariables;
           break;
         case LINKED_HANDLE:
           // The selections for a "handle" field are the same as those of the
@@ -266,8 +267,15 @@ class RelayReferenceMarker {
     }
     const normalizationRootNode = operationLoader.get(operationReference);
     if (normalizationRootNode != null) {
-      const selections = getOperation(normalizationRootNode).selections;
-      this._traverseSelections(selections, record);
+      const operation = getOperation(normalizationRootNode);
+      const prevVariables = this._variables;
+      this._variables = getLocalVariables(
+        this._variables,
+        operation.argumentDefinitions,
+        moduleImport.args,
+      );
+      this._traverseSelections(operation.selections, record);
+      this._variables = prevVariables;
     }
     // Otherwise, if the operation is not available, we assume that the data
     // cannot have been processed yet and therefore isn't in the store to

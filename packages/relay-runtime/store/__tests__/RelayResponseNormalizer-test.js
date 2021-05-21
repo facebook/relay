@@ -458,6 +458,7 @@ describe('RelayResponseNormalizer', () => {
       });
       expect(followupPayloads).toEqual([
         {
+          args: null,
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
@@ -539,6 +540,7 @@ describe('RelayResponseNormalizer', () => {
       });
       expect(followupPayloads).toEqual([
         {
+          args: null,
           operationReference:
             'RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql',
           dataID:
@@ -739,6 +741,7 @@ describe('RelayResponseNormalizer', () => {
       });
       expect(followupPayloads).toEqual([
         {
+          args: null,
           operationReference:
             'RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$normalization.graphql',
           dataID: 'client:1:nameRenderer',
@@ -817,6 +820,7 @@ describe('RelayResponseNormalizer', () => {
       });
       expect(followupPayloads).toEqual([
         {
+          args: null,
           operationReference:
             'RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$normalization.graphql',
           dataID: 'client:1:nameRenderer',

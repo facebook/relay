@@ -27,7 +27,7 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
 const {isClientID} = require('./ClientID');
-const {getNoInlineFragmentVariables} = require('./RelayConcreteVariables');
+const {getLocalVariables} = require('./RelayConcreteVariables');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const {generateTypeID} = require('./TypeID');
 
@@ -397,13 +397,14 @@ class DataChecker {
           this._traverseSelections(selection.selections, dataID);
           break;
         case FRAGMENT_SPREAD:
-          const previousVariables = this._variables;
-          this._variables = getNoInlineFragmentVariables(
-            selection,
+          const prevVariables = this._variables;
+          this._variables = getLocalVariables(
             this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
           );
           this._traverseSelections(selection.fragment.selections, dataID);
-          this._variables = previousVariables;
+          this._variables = prevVariables;
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;
@@ -475,7 +476,14 @@ class DataChecker {
     const normalizationRootNode = operationLoader.get(operationReference);
     if (normalizationRootNode != null) {
       const operation = getOperation(normalizationRootNode);
+      const prevVariables = this._variables;
+      this._variables = getLocalVariables(
+        this._variables,
+        operation.argumentDefinitions,
+        moduleImport.args,
+      );
       this._traverse(operation, dataID);
+      this._variables = prevVariables;
     } else {
       // If the fragment is not available, we assume that the data cannot have been
       // processed yet and must therefore be missing.

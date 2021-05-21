@@ -27,6 +27,7 @@ const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
 
 const {generateClientID, generateUniqueClientID} = require('./ClientID');
+const {getLocalVariables} = require('./RelayConcreteVariables');
 const {
   createNormalizationSelector,
   createReaderSelector,
@@ -704,12 +705,22 @@ class Executor {
 
   _normalizeModuleImport(
     moduleImportPayload: ModuleImportPayload,
-    operation: NormalizationSelectableNode,
+    operation: NormalizationSplitOperation | NormalizationOperation,
   ) {
+    let variables;
+    if (operation.kind === 'SplitOperation') {
+      variables = getLocalVariables(
+        moduleImportPayload.variables,
+        operation.argumentDefinitions,
+        moduleImportPayload.args,
+      );
+    } else {
+      variables = moduleImportPayload.variables;
+    }
     const selector = createNormalizationSelector(
       operation,
       moduleImportPayload.dataID,
-      moduleImportPayload.variables,
+      variables,
     );
     return normalizeResponse(
       {data: moduleImportPayload.data},

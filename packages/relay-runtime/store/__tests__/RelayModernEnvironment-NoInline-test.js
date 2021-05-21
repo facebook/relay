@@ -110,7 +110,7 @@ describe('@no_inline', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch),
       store,
     });
     operation = createOperationDescriptor(Query, {size: [1]});
@@ -1018,6 +1018,160 @@ describe('@no_inline', () => {
       const selectorData2 = environment.lookup(selector2);
       expect(selectorData2.data).toEqual({
         newsFeed: {edges: [{node: {feedback: {author: {name: 'Alice'}}}}]},
+      });
+    });
+  });
+
+  describe('with @module', () => {
+    let resolveFragment;
+    let operationLoader;
+    let fragmentToReturn;
+
+    const QueryWithModule = getRequest(graphql`
+      query RelayModernEnvironmentNoInlineTestModuleQuery($cond: Boolean!) {
+        node(id: "1") {
+          ... on User {
+            nameRenderer {
+              ...RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name
+                @module(name: "MarkdownUserNameRenderer.react")
+                @arguments(cond: $cond)
+            }
+          }
+        }
+      }
+    `);
+    const NoInlineFragmentMarkdownUserNameRenderer = getFragment(graphql`
+      fragment RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name on MarkdownUserNameRenderer
+        @argumentDefinitions(cond: {type: "Boolean!"}) {
+        markdown @skip(if: $cond)
+        data @include(if: $cond) {
+          markup
+        }
+      }
+    `);
+    const markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql');
+
+    beforeEach(() => {
+      fragmentToReturn = null;
+      operationLoader = {
+        load: jest.fn(moduleName => {
+          return new Promise(resolve => {
+            resolveFragment = resolve;
+          });
+        }),
+        get: jest.fn(() => fragmentToReturn),
+      };
+      store = new RelayModernStore(source, {
+        gcReleaseBufferSize: 0,
+        operationLoader,
+      });
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+        operationLoader,
+      });
+    });
+
+    it('executes and reads back results for the MarkdownUserNameRenderer', () => {
+      operation = createOperationDescriptor(QueryWithModule, {
+        cond: true,
+      });
+      environment.execute({operation}).subscribe(callbacks);
+
+      subject.next({
+        data: {
+          node: {
+            id: '1',
+            __typename: 'User',
+            nameRenderer: {
+              __typename: 'MarkdownUserNameRenderer',
+              __module_component_RelayModernEnvironmentNoInlineTestModuleQuery:
+                'MarkdownUserNameRenderer.react',
+              __module_operation_RelayModernEnvironmentNoInlineTestModuleQuery:
+                'RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql',
+              markdown: 'markdown payload',
+              data: {
+                id: 'data-1',
+                markup: '<markup/>',
+              },
+            },
+          },
+        },
+      });
+      expect(callbacks.complete).toBeCalledTimes(0);
+      expect(callbacks.error).toBeCalledTimes(0);
+      expect(callbacks.next).toBeCalledTimes(1);
+      expect(operationLoader.load).toBeCalledTimes(1);
+
+      const queryData = environment.lookup(operation.fragment);
+      expect(queryData.data).toEqual({
+        node: {
+          nameRenderer: {
+            __id: 'client:1:nameRenderer',
+            __fragments: {
+              [NoInlineFragmentMarkdownUserNameRenderer.name]: {cond: true},
+            },
+            __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
+            __fragmentPropName: 'name',
+            __module_component: 'MarkdownUserNameRenderer.react',
+          },
+        },
+      });
+
+      const selector = nullthrows(
+        getSingularSelector(
+          NoInlineFragmentMarkdownUserNameRenderer,
+          (queryData.data: $FlowFixMe).node.nameRenderer,
+        ),
+      );
+      const initialSelectorData = environment.lookup(selector);
+      expect(initialSelectorData.isMissingData).toBe(true);
+      expect(initialSelectorData.data).toEqual({
+        markdown: undefined,
+      });
+
+      // Include `markup` and skip `markdown` becasue $cond is true
+      resolveFragment(markdownRendererNormalizationFragment);
+      jest.runAllTimers();
+      const selectorData = environment.lookup(selector);
+      expect(selectorData.data).toEqual({
+        data: {
+          markup: '<markup/>',
+        },
+      });
+      expect(selectorData.isMissingData).toBe(false);
+
+      // available before a GC
+      fragmentToReturn = markdownRendererNormalizationFragment;
+      expect(environment.check(operation)).toEqual({
+        fetchTime: null,
+        status: 'available',
+      });
+
+      // `markdown` field is not normalized
+      const operationCondTrue = createOperationDescriptor(QueryWithModule, {
+        cond: false,
+      });
+      expect(environment.check(operationCondTrue)).toEqual({
+        status: 'missing',
+      });
+
+      // available after GC if the query is retained
+      const retain = environment.retain(operation);
+      (environment.getStore(): $FlowFixMe).scheduleGC();
+      jest.runAllTimers();
+      expect(environment.check(operation)).toEqual({
+        fetchTime: null,
+        status: 'available',
+      });
+
+      // missing after being freed plus a GC run
+      retain.dispose();
+      (environment.getStore(): $FlowFixMe).scheduleGC();
+      jest.runAllTimers();
+      expect(environment.check(operation)).toEqual({
+        status: 'missing',
       });
     });
   });

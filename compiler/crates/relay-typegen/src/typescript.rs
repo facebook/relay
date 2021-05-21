@@ -48,6 +48,7 @@ impl Writer for TypeScriptPrinter {
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
+            AST::ActorChangePoint(_) => panic!("Not supported yet"),
         }
     }
 

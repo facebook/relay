@@ -31,9 +31,10 @@ use lazy_static::lazy_static;
 use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
-    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, REQUIRED_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
+    REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -41,25 +42,27 @@ use std::{fmt::Result, path::Path};
 use writer::{Prop, AST, SPREAD_KEY};
 
 lazy_static! {
-    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
-    static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
-    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
-    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
-    static ref VARIABLES: StringKey = "variables".intern();
-    static ref RESPONSE: StringKey = "response".intern();
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
-    pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
-    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
-    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
-    static ref KEY_TYPENAME: StringKey = "__typename".intern();
-    static ref TYPE_ID: StringKey = "ID".intern();
-    static ref TYPE_STRING: StringKey = "String".intern();
-    static ref TYPE_FLOAT: StringKey = "Float".intern();
-    static ref TYPE_INT: StringKey = "Int".intern();
-    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    static ref ACTOR_CHANGE_POINT: StringKey = "ActorChangePoint".intern();
+    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
     static ref JS_FIELD_NAME: StringKey = "js".intern();
+    static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
+    static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
+    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
+    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
+    static ref REACT_RELAY_MULTI_ACTOR: StringKey = "react-relay/multi-actor".intern();
+    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
+    static ref RESPONSE: StringKey = "response".intern();
+    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    static ref TYPE_FLOAT: StringKey = "Float".intern();
+    static ref TYPE_ID: StringKey = "ID".intern();
+    static ref TYPE_INT: StringKey = "Int".intern();
+    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref VARIABLES: StringKey = "variables".intern();
 }
 
 pub fn generate_fragment_type(
@@ -121,6 +124,7 @@ struct TypeGenerator<'a> {
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
+    has_actor_change: bool,
 }
 impl<'a> TypeGenerator<'a> {
     fn new(schema: &'a SDLSchema, typegen_config: &'a TypegenConfig) -> Self {
@@ -136,6 +140,7 @@ impl<'a> TypeGenerator<'a> {
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: Self::create_writer(typegen_config),
+            has_actor_change: false,
         }
     }
 
@@ -186,6 +191,7 @@ impl<'a> TypeGenerator<'a> {
             self.runtime_imports.fragment_reference = true;
         }
 
+        self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
         if let Some(refetchable_fragment_name) = refetchable_fragment_name {
             self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
@@ -325,6 +331,7 @@ impl<'a> TypeGenerator<'a> {
         };
 
         self.runtime_imports.fragment_reference = true;
+        self.write_import_actor_change_point()?;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
         self.write_runtime_imports()?;
@@ -517,19 +524,62 @@ impl<'a> TypeGenerator<'a> {
                 node_selections: None,
                 document_name: None,
             });
-            return;
-        }
-        let mut selections = self.visit_selections(&inline_fragment.selections);
-        if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in &mut selections {
-                if type_condition.is_abstract_type() {
-                    selection.conditional = true;
-                } else {
-                    selection.concrete_type = Some(type_condition);
+        } else if inline_fragment
+            .directives
+            .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+            .is_some()
+        {
+            self.visit_actor_change(type_selections, &inline_fragment);
+        } else {
+            let mut selections = self.visit_selections(&inline_fragment.selections);
+            if let Some(type_condition) = inline_fragment.type_condition {
+                for selection in &mut selections {
+                    if type_condition.is_abstract_type() {
+                        selection.conditional = true;
+                    } else {
+                        selection.concrete_type = Some(type_condition);
+                    }
                 }
             }
+            type_selections.append(&mut selections);
         }
-        type_selections.append(&mut selections);
+    }
+
+    fn visit_actor_change(
+        &mut self,
+        type_selections: &mut Vec<TypeSelection>,
+        inline_fragment: &InlineFragment,
+    ) {
+        let linked_field = match &inline_fragment.selections[0] {
+            Selection::LinkedField(linked_field) => linked_field,
+            _ => {
+                panic!("Expect to have only linked field in the selection of the actor change")
+            }
+        };
+
+        self.has_actor_change = true;
+        let field = self.schema.field(linked_field.definition.item);
+        let schema_name = field.name;
+        let key = if let Some(alias) = linked_field.alias {
+            alias.item
+        } else {
+            schema_name
+        };
+
+        let linked_field_selections = self.visit_selections(&linked_field.selections);
+        type_selections.push(TypeSelection {
+            key,
+            schema_name: Some(schema_name),
+            node_type: None,
+            value: Some(AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
+                self.selections_to_babel(linked_field_selections.into_iter(), false, None),
+            ))))),
+            conditional: false,
+            concrete_type: None,
+            ref_: None,
+            node_selections: None,
+            document_name: None,
+        });
     }
 
     fn raw_response_visit_inline_fragment(
@@ -1084,6 +1134,15 @@ impl<'a> TypeGenerator<'a> {
             }
         }
         Ok(())
+    }
+
+    fn write_import_actor_change_point(&mut self) -> Result {
+        if self.has_actor_change {
+            self.writer
+                .write_import_type(&[*ACTOR_CHANGE_POINT], *REACT_RELAY_MULTI_ACTOR)
+        } else {
+            Ok(())
+        }
     }
 
     fn write_relay_resolver_imports(&mut self) -> Result {

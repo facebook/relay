@@ -372,6 +372,11 @@ fn apply_typegen_transforms(
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
+
+    program = log_event.time("relay_actor_change_transform", || {
+        relay_actor_change_transform(&program, &feature_flags.actor_change_support)
+    })?;
+
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))

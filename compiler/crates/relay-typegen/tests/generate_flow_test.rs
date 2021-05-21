@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8c5f2adedeca2c393c8409a89bfe0106>>
+ * @generated SignedSource<<48c9bb57189c7244fccbab5572451566>>
  */
 
 mod generate_flow;
 
 use generate_flow::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn actor_change() {
+    let input = include_str!("generate_flow/fixtures/actor-change.graphql");
+    let expected = include_str!("generate_flow/fixtures/actor-change.expected");
+    test_fixture(transform_fixture, "actor-change.graphql", "generate_flow/fixtures/actor-change.expected", input, expected);
+}
+
+#[test]
+fn actor_change_with_query() {
+    let input = include_str!("generate_flow/fixtures/actor-change-with-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/actor-change-with-query.expected");
+    test_fixture(transform_fixture, "actor-change-with-query.graphql", "generate_flow/fixtures/actor-change-with-query.expected", input, expected);
+}
 
 #[test]
 fn conditional() {

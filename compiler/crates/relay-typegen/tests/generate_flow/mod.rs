@@ -41,6 +41,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             enable_required_transform_for_prefix: Some("".intern()),
             no_inline: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
+            actor_change_support: FeatureFlag::Enabled,
             ..Default::default()
         }),
         Arc::new(ConsoleLogger),

@@ -26,37 +26,12 @@ const {
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
 
-import type {ActorChangePoint} from '../ActorChange';
-import type {
-  ActorChangeTestFeedUnitFragment$key,
-  ActorChangeTestFeedUnitFragment$ref,
-} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
-import type {ActorChangeTestQueryVariables} from './__generated__/ActorChangeTestQuery.graphql';
+import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
+import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
-
-// TODO: T89695920 Remove manual flow-types when the compiler changes are completed
-type ActorChangeTestQueryResponse = {|
-  +viewer: ?{|
-    +newsFeed: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
-        +actor_node: ?ActorChangePoint<{|
-          +$fragmentRefs: ActorChangeTestFeedUnitFragment$ref,
-        |}>,
-      |}>,
-    |},
-  |},
-|};
-
-type ActorChangeTestQuery = {|
-  variables: ActorChangeTestQueryVariables,
-  response: ActorChangeTestQueryResponse,
-|};
 
 function ComponentWrapper(
   props: $ReadOnly<{

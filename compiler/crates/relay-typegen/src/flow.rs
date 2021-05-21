@@ -52,6 +52,7 @@ impl Writer for FlowPrinter {
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
+            AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
         }
     }
 
@@ -251,6 +252,13 @@ impl FlowPrinter {
             "$Call<<R>((...empty[]) => R) => R, typeof {}>",
             function_name
         )
+    }
+
+    fn write_actor_change_point(&mut self, selections: &AST) -> Result {
+        write!(&mut self.result, "ActorChangePoint<")?;
+        self.write(selections)?;
+        write!(&mut self.result, ">")?;
+        Ok(())
     }
 }
 

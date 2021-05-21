@@ -4259,7 +4259,18 @@ describe('RelayResponseNormalizer', () => {
       const recordSource = new RelayRecordSourceMapImpl();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const result = expectToWarn(
-        'RelayResponseNormalizer: Payload did not contain a value for field `__viewer`. Check that you are parsing with the same query that was used to fetch the payload.',
+        'RelayResponseNormalizer: Payload did not contain a value for field `__viewer`. ' +
+          'Check that you are parsing with the same query that was used to fetch the payload. Payload is `' +
+          JSON.stringify(
+            {
+              __typename: 'User',
+              id: 'user-1234',
+              name: 'Antonio',
+            },
+            null,
+            2,
+          ) +
+          '`.',
         () => {
           return normalize(
             recordSource,

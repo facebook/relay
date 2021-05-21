@@ -26,9 +26,8 @@ const {
 } = require('relay-runtime/multi-actor-environment');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
-import type {ActorChangeWithDeferTestDeferFragment$key} from './__generated__/ActorChangeWithDeferTestDeferFragment.graphql';
-import type {ActorChangeWithDeferTestFragment$key} from './__generated__/ActorChangeWithDeferTestFragment.graphql';
-import type {ActorChangeWithDeferTestQuery} from './__generated__/ActorChangeWithDeferTestQuery.graphql';
+import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
+import type {ActorChangeWithStreamTestQuery} from './__generated__/ActorChangeWithStreamTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
@@ -52,36 +51,13 @@ function ComponentWrapper(
   );
 }
 
-const fragment = graphql`
-  fragment ActorChangeWithDeferTestFragment on FeedUnit {
-    id
-    actor {
-      name
-    }
-    ...ActorChangeWithDeferTestDeferFragment @defer
-  }
-`;
-
-const deferFragment = graphql`
-  fragment ActorChangeWithDeferTestDeferFragment on FeedUnit {
-    message {
-      text
-    }
-  }
-`;
-
 const query = graphql`
-  query ActorChangeWithDeferTestQuery {
+  query ActorChangeWithStreamTestQuery {
     viewer {
       newsFeed {
         edges {
-          node {
-            actor {
-              name
-            }
-          }
-          actor_node: node @EXPERIMENTAL__as_actor {
-            ...ActorChangeWithDeferTestFragment
+          node @EXPERIMENTAL__as_actor {
+            ...ActorChangeWithStreamTestFragment
           }
         }
       }
@@ -90,19 +66,19 @@ const query = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeWithDeferTestQuery>(query, {});
+  const data = useLazyLoadQuery<ActorChangeWithStreamTestQuery>(query, {});
 
   return (
     <div>
       {data.viewer?.newsFeed?.edges?.map((edge, index) => {
-        const actorNode = edge?.actor_node;
-        if (actorNode == null) {
-          return null;
+        const node = edge?.node;
+        if (node == null) {
+          throw new Error('expected to have node.');
         }
         return (
-          <ActorChange key={index} actorChangePoint={actorNode}>
+          <ActorChange key={index} actorChangePoint={node}>
             {fragmentRef => {
-              return <ActorMessage fragmentRef={fragmentRef} />;
+              return <ActorChangeComponent fragmentRef={fragmentRef} />;
             }}
           </ActorChange>
         );
@@ -111,27 +87,39 @@ function MainComponent() {
   );
 }
 
-function ActorMessage(
+function ActorChangeComponent(
   props: $ReadOnly<{
-    fragmentRef: ActorChangeWithDeferTestFragment$key,
+    fragmentRef: ActorChangeWithStreamTestFragment$key,
   }>,
 ) {
-  const data = useFragment(fragment, props.fragmentRef);
+  const data = useFragment(
+    graphql`
+      fragment ActorChangeWithStreamTestFragment on FeedUnit {
+        id
+        message {
+          text
+        }
+        feedback {
+          id
+          actors @stream(initial_count: 1) {
+            name
+          }
+        }
+      }
+    `,
+    props.fragmentRef,
+  );
 
   return (
-    <div className="actor">
-      <div data-test-id={`name-${data.id}`}>{data.actor?.name}</div>
-      <DeferMessage fragmentRef={data} />
+    <div className="actor" data-test-id={`actor-${data.id}`}>
+      <span className="message">{data.message?.text}</span>
+      <div data-test-id={`feedback-${data.id}`}>
+        {data.feedback?.actors?.map((actor, index) => {
+          return <div key={`actor-${index}`}>{actor?.name}</div>;
+        })}
+      </div>
     </div>
   );
-}
-
-function DeferMessage(props: {
-  fragmentRef: ActorChangeWithDeferTestDeferFragment$key,
-}) {
-  const data = useFragment(deferFragment, props.fragmentRef);
-
-  return <div data-test-id="deferred-message">{data.message?.text}</div>;
 }
 
 disallowWarnings();
@@ -176,43 +164,41 @@ describe('ActorChange with @defer', () => {
             edges: [
               {
                 node: {
-                  id: 'node-1',
-                  __typename: 'FeedUnit',
-                  actor: {
-                    id: 'actor-1',
-                    __typename: 'User',
-                    name: 'Antonio Banderas',
-                  },
-                },
-                actor_node: {
                   __viewer: 'actor:4321',
                   id: 'node-1',
                   __typename: 'FeedUnit',
-                  actor: {
-                    id: 'actor-1',
-                    __typename: 'User',
-                    name: 'Antonio Banderas',
+                  message: {
+                    text: 'Scene 1',
+                  },
+                  feedback: {
+                    id: 'feedback-123',
+                    actors: [
+                      {
+                        id: 'actor-1',
+                        __typename: 'User',
+                        name: 'Antonio Banderas',
+                      },
+                    ],
                   },
                 },
               },
               {
                 node: {
-                  id: 'node-2',
-                  __typename: 'FeedUnit',
-                  actor: {
-                    id: 'actor-2',
-                    __typename: 'User',
-                    name: 'Silvester Stallone',
-                  },
-                },
-                actor_node: {
                   __viewer: 'actor:5678',
                   id: 'node-2',
                   __typename: 'FeedUnit',
-                  actor: {
-                    id: 'actor-2',
-                    __typename: 'User',
-                    name: 'Silvester Stallone',
+                  message: {
+                    text: 'Scene 2',
+                  },
+                  feedback: {
+                    id: 'feedback-456',
+                    actors: [
+                      {
+                        id: 'actor-2',
+                        __typename: 'User',
+                        name: 'Silvester Stallone',
+                      },
+                    ],
                   },
                 },
               },
@@ -226,40 +212,55 @@ describe('ActorChange with @defer', () => {
     ReactTestRenderer.act(jest.runAllTimers);
 
     expect(testRenderer.toJSON()).toMatchSnapshot(
-      'should render 2 actor cards, and empty deferred message boxes.',
+      'Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester.',
     );
 
     ReactTestRenderer.act(() => {
       dataSource.next({
         data: {
-          message: {
-            text: 'Hello, Antonio!',
-          },
+          id: 'actor-3',
+          __typename: 'User',
+          name: 'Julianne Moore',
         },
-        label:
-          'ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment',
-        path: ['viewer', 'newsFeed', 'edges', 0, 'actor_node'],
+        label: 'ActorChangeWithStreamTestFragment$stream$actors',
+        path: [
+          'viewer',
+          'newsFeed',
+          'edges',
+          0,
+          'node',
+          'feedback',
+          'actors',
+          1,
+        ],
       });
     });
     expect(testRenderer.toJSON()).toMatchSnapshot(
-      'should render a list of actors with the first message for Antonio',
+      'Julianne should join Antonio in the first list.',
     );
 
     ReactTestRenderer.act(() => {
       dataSource.next({
         data: {
-          message: {
-            text: 'Ciao, Silvester!',
-          },
+          id: 'actor-4',
+          __typename: 'User',
+          name: 'Anatoli Davydov',
         },
-        label:
-          'ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment',
-        path: ['viewer', 'newsFeed', 'edges', 1, 'actor_node'],
+        label: 'ActorChangeWithStreamTestFragment$stream$actors',
+        path: [
+          'viewer',
+          'newsFeed',
+          'edges',
+          1,
+          'node',
+          'feedback',
+          'actors',
+          1,
+        ],
       });
     });
-
     expect(testRenderer.toJSON()).toMatchSnapshot(
-      'should render all messages, for all actors',
+      'Finally, Anatoli is joining the second scene.',
     );
   });
 });

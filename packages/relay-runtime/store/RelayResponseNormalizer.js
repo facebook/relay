@@ -597,8 +597,9 @@ class RelayResponseNormalizer {
           false,
           'RelayResponseNormalizer: Payload did not contain a value ' +
             'for field `%s`. Check that you are parsing with the same ' +
-            'query that was used to fetch the payload.',
+            'query that was used to fetch the payload. Payload is `%s`.',
           ACTOR_IDENTIFIER_FIELD_NAME,
+          JSON.stringify(fieldValue, null, 2),
         );
       }
       RelayModernRecord.setValue(record, storageKey, null);

@@ -1244,7 +1244,9 @@ class Executor {
     placeholder: StreamPlaceholder,
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
-    const {parentID, node, variables} = placeholder;
+    const {parentID, node, variables, actorIdentifier} = placeholder;
+    const prevActorIdentifier = this._actorIdentifier;
+    this._actorIdentifier = actorIdentifier ?? this._actorIdentifier;
     // Find the LinkedField where @stream was applied
     const field = node.selections[0];
     invariant(
@@ -1319,6 +1321,8 @@ class Executor {
         handleFieldsRelayPayload,
       );
     }
+
+    this._actorIdentifier = prevActorIdentifier;
     return relayPayload;
   }
 

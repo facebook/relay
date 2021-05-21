@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c12e9ac19e33ec583855fb519708ef6e>>
+ * @generated SignedSource<<c042d87c07d5bd07fd3a3cae277f3fb2>>
  */
 
 mod compile_relay_artifacts;
@@ -150,6 +150,13 @@ fn auto_filled_argument_on_match() {
     let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected");
     test_fixture(transform_fixture, "auto-filled-argument-on-match.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected", input, expected);
+}
+
+#[test]
+fn circular_no_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/circular-no-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/circular-no-inline-fragment.expected");
+    test_fixture(transform_fixture, "circular-no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/circular-no-inline-fragment.expected", input, expected);
 }
 
 #[test]

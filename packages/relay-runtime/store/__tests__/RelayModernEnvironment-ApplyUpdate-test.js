@@ -64,6 +64,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         store = new RelayModernStore(source);
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(jest.fn()),
+          createStoreForActor: _actorID => store,
         });
         environment =
           environmentType === 'MultiActorEnvironment'

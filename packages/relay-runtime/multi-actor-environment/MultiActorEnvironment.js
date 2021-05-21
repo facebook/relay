@@ -27,20 +27,22 @@ import type {INetwork} from '../network/RelayNetworkTypes';
 import type {ActiveState, TaskScheduler} from '../store/OperationExecutor';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
-  OptimisticResponseConfig,
-  OptimisticUpdateFunction,
-  OperationDescriptor,
-  OperationAvailability,
-  Snapshot,
-  SelectorStoreUpdater,
-  OperationLoader,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
-  SingularReaderSelector,
-  StoreUpdater,
-  RequiredFieldLogger,
   ExecuteMutationConfig,
   LogFunction,
+  MissingFieldHandler,
+  OperationAvailability,
+  OperationDescriptor,
+  OperationLoader,
+  OptimisticResponseConfig,
+  OptimisticUpdateFunction,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
+  RequiredFieldLogger,
+  SelectorStoreUpdater,
+  SingularReaderSelector,
+  Snapshot,
+  Store,
+  StoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
@@ -59,6 +61,7 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   handlerProvider?: HandlerProvider,
   isServer?: ?boolean,
   logFn?: ?LogFunction,
+  missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   operationLoader?: ?OperationLoader,
   reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
@@ -66,15 +69,18 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
+  createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
   +_actorEnvironments: Map<ActorIdentifier, IActorEnvironment>;
   +_createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork;
+  +_createStoreForActor: ?(actorIdentifier: ActorIdentifier) => Store;
   +_getDataID: GetDataID;
   +_handlerProvider: HandlerProvider;
   +_isServer: boolean;
   +_logFn: LogFunction;
+  +_missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
   +_reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
@@ -100,6 +106,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
     this._isServer = config.isServer ?? false;
+    this._missingFieldHandlers = config.missingFieldHandlers;
+    this._createStoreForActor = config.createStoreForActor;
   }
 
   /**
@@ -115,7 +123,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         multiActorEnvironment: this,
         logFn: this._logFn,
         requiredFieldLogger: this._requiredFieldLogger,
-        store: new RelayModernStore(RelayRecordSource.create()),
+        store:
+          this._createStoreForActor != null
+            ? this._createStoreForActor(actorIdentifier)
+            : new RelayModernStore(RelayRecordSource.create()),
         network: this._createNetworkForActor(actorIdentifier),
       });
       this._actorEnvironments.set(actorIdentifier, newEnvironment);
@@ -129,8 +140,35 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
   ): OperationAvailability {
-    // TODO: make actor aware
-    return actorEnvironment.getStore().check(operation);
+    if (
+      this._missingFieldHandlers == null ||
+      this._missingFieldHandlers.length === 0
+    ) {
+      return actorEnvironment.getStore().check(operation);
+    }
+    return this._checkSelectorAndHandleMissingFields(
+      actorEnvironment,
+      operation,
+      this._missingFieldHandlers,
+    );
+  }
+
+  _checkSelectorAndHandleMissingFields(
+    actorEnvironment: IActorEnvironment,
+    operation: OperationDescriptor,
+    handlers: $ReadOnlyArray<MissingFieldHandler>,
+  ): OperationAvailability {
+    const target = RelayRecordSource.create();
+    const result = actorEnvironment
+      .getStore()
+      .check(operation, {target, handlers});
+    if (target.size() > 0) {
+      this._scheduleUpdates(() => {
+        actorEnvironment.getPublishQueue().commitSource(target);
+        actorEnvironment.getPublishQueue().run();
+      });
+    }
+    return result;
   }
 
   subscribe(

@@ -154,7 +154,42 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     optimisticUpdate: OptimisticUpdateFunction,
   ): Disposable {
-    return todo('applyUpdate');
+    const publishQueue = actorEnvironment.getPublishQueue();
+    const dispose = () => {
+      this._scheduleUpdates(() => {
+        publishQueue.revertUpdate(optimisticUpdate);
+        publishQueue.run();
+      });
+    };
+    this._scheduleUpdates(() => {
+      publishQueue.applyUpdate(optimisticUpdate);
+      publishQueue.run();
+    });
+    return {dispose};
+  }
+
+  revertUpdate(
+    actorEnvironment: IActorEnvironment,
+    update: OptimisticUpdateFunction,
+  ): void {
+    const publishQueue = actorEnvironment.getPublishQueue();
+    this._scheduleUpdates(() => {
+      publishQueue.revertUpdate(update);
+      publishQueue.run();
+    });
+  }
+
+  replaceUpdate(
+    actorEnvironment: IActorEnvironment,
+    update: OptimisticUpdateFunction,
+    replacement: OptimisticUpdateFunction,
+  ): void {
+    const publishQueue = actorEnvironment.getPublishQueue();
+    this._scheduleUpdates(() => {
+      publishQueue.revertUpdate(update);
+      publishQueue.applyUpdate(replacement);
+      publishQueue.run();
+    });
   }
 
   applyMutation(
@@ -176,7 +211,13 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     operationDescriptor: OperationDescriptor,
     payload: PayloadData,
   ): void {
-    return todo('commitPayload');
+    this._execute(actorEnvironment, {
+      createSource: () => RelayObservable.from({data: payload}),
+      isClientPayload: true,
+      operation: operationDescriptor,
+      optimisticConfig: null,
+      updater: null,
+    }).subscribe({});
   }
 
   lookup(
@@ -317,6 +358,15 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       });
       return () => executor.cancel();
     });
+  }
+
+  _scheduleUpdates(task: () => void) {
+    const scheduler = this._scheduler;
+    if (scheduler != null) {
+      scheduler.schedule(task);
+    } else {
+      task();
+    }
   }
 }
 

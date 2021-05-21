@@ -102,6 +102,21 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this.multiActorEnvironment.applyUpdate(this, optimisticUpdate);
   }
 
+  revertUpdate(optimisticUpdate: OptimisticUpdateFunction): void {
+    return this.multiActorEnvironment.revertUpdate(this, optimisticUpdate);
+  }
+
+  replaceUpdate(
+    optimisticUpdate: OptimisticUpdateFunction,
+    replacementUpdate: OptimisticUpdateFunction,
+  ): void {
+    return this.multiActorEnvironment.replaceUpdate(
+      this,
+      optimisticUpdate,
+      replacementUpdate,
+    );
+  }
+
   check(operation: OperationDescriptor): OperationAvailability {
     return this.multiActorEnvironment.check(this, operation);
   }

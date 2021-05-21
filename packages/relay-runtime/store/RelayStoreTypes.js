@@ -631,6 +631,19 @@ export interface IEnvironment {
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable;
 
   /**
+   * Revert updates for the `update` function.
+   */
+  revertUpdate(update: OptimisticUpdateFunction): void;
+
+  /**
+   * Revert updates for the `update` function, and apply the `replacement` update.
+   */
+  replaceUpdate(
+    update: OptimisticUpdateFunction,
+    replacement: OptimisticUpdateFunction,
+  ): void;
+
+  /**
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */

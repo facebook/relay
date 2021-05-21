@@ -50,7 +50,7 @@ import type {
 } from './MultiActorEnvironmentTypes';
 
 function todo(what: string) {
-  throw new Error(`Not implementd: ${what}`);
+  throw new Error(`Not implemented: ${what}`);
 }
 
 export type MultiActorEnvironmentConfig = $ReadOnly<{

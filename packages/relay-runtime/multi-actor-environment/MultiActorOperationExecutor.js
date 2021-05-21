@@ -162,6 +162,7 @@ class Executor {
   +_retainDisposables: Map<ActorIdentifier, Disposable>;
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
+  +_seenActors: Set<ActorIdentifier>;
 
   constructor({
     actorIdentifier,
@@ -211,6 +212,7 @@ class Executor {
       this._operation.request.node.params.operationKind === 'subscription';
     this._shouldProcessClientComponents = shouldProcessClientComponents;
     this._retainDisposables = new Map();
+    this._seenActors = new Set();
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -252,19 +254,16 @@ class Executor {
     const optimisticUpdates = this._optimisticUpdates;
     if (optimisticUpdates !== null) {
       this._optimisticUpdates = null;
+      this._seenActors.add(this._actorIdentifier);
       optimisticUpdates.forEach(update =>
         this._getPublishQueue(this._actorIdentifier).revertUpdate(update),
       );
       // OK: run revert on cancel
-      this._getPublishQueue(this._actorIdentifier).run();
+      this._runPublishQueue();
     }
     this._incrementalResults.clear();
     this._completeOperationTracker();
-    const disposable = this._retainDisposables.get(this._actorIdentifier);
-    if (disposable) {
-      disposable.dispose();
-      this._retainDisposables.delete(this._actorIdentifier);
-    }
+    this._disposeRetainedData();
   }
 
   _updateActiveState(): void {
@@ -435,6 +434,7 @@ class Executor {
     if (this._state === 'completed') {
       return;
     }
+    this._seenActors.clear();
 
     const responses = Array.isArray(response) ? response : [response];
     const responsesWithData = this._handleErrorResponse(responses);
@@ -475,23 +475,15 @@ class Executor {
       const payloadFollowups = this._processResponses(nonIncrementalResponses);
 
       if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        const updatedOwners = this._getPublishQueue(this._actorIdentifier).run(
-          this._operation,
-        );
+        const updatedOwners = this._runPublishQueue(this._operation);
         this._updateOperationTracker(updatedOwners);
       }
 
       this._processPayloadFollowups(payloadFollowups);
 
       if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        if (
-          this._incrementalPayloadsPending &&
-          !this._retainDisposables.has(this._actorIdentifier)
-        ) {
-          this._retainDisposables.set(
-            this._actorIdentifier,
-            this._getStore(this._actorIdentifier).retain(this._operation),
-          );
+        if (this._incrementalPayloadsPending) {
+          this._retainData();
         }
       }
     }
@@ -505,9 +497,7 @@ class Executor {
         // For the incremental case, we're only handling follow-up responses
         // for already initiated operation (and we're not passing it to
         // the run(...) call)
-        const updatedOwners = this._getPublishQueue(
-          this._actorIdentifier,
-        ).run();
+        const updatedOwners = this._runPublishQueue();
         this._updateOperationTracker(updatedOwners);
       }
       this._processPayloadFollowups(payloadFollowups);
@@ -533,18 +523,13 @@ class Executor {
       // If we have non-incremental responses, we passing `this._operation` to
       // the publish queue here, which will later be passed to the store (via
       // notify) to indicate that this operation caused the store to update
-      const updatedOwners = this._getPublishQueue(this._actorIdentifier).run(
+      const updatedOwners = this._runPublishQueue(
         hasNonIncrementalResponses ? this._operation : undefined,
       );
+
       if (hasNonIncrementalResponses) {
-        if (
-          this._incrementalPayloadsPending &&
-          !this._retainDisposables.has(this._actorIdentifier)
-        ) {
-          this._retainDisposables.set(
-            this._actorIdentifier,
-            this._getStore(this._actorIdentifier).retain(this._operation),
-          );
+        if (this._incrementalPayloadsPending) {
+          this._retainData();
         }
       }
       this._updateOperationTracker(updatedOwners);
@@ -603,12 +588,13 @@ class Executor {
       });
     }
     this._optimisticUpdates = optimisticUpdates;
+    this._seenActors.add(this._actorIdentifier);
     optimisticUpdates.forEach(update =>
       this._getPublishQueue(this._actorIdentifier).applyUpdate(update),
     );
     // OK: only called on construction and when receiving an optimistic payload from network,
     // which doesn't fall-through to the regular next() handling
-    this._getPublishQueue(this._actorIdentifier).run();
+    this._runPublishQueue();
   }
 
   _processOptimisticFollowups(
@@ -720,6 +706,7 @@ class Executor {
           operation,
           moduleImportPayload,
         );
+        this._seenActors.add(this._actorIdentifier);
         moduleImportOptimisticUpdates.forEach(update =>
           this._getPublishQueue(this._actorIdentifier).applyUpdate(update),
         );
@@ -733,7 +720,7 @@ class Executor {
         } else {
           this._optimisticUpdates.push(...moduleImportOptimisticUpdates);
           // OK: always have to run() after an module import resolves async
-          this._getPublishQueue(this._actorIdentifier).run();
+          this._runPublishQueue();
         }
       });
   }
@@ -742,9 +729,9 @@ class Executor {
     responses: $ReadOnlyArray<GraphQLResponseWithData>,
   ): $ReadOnlyArray<RelayResponsePayload> {
     if (this._optimisticUpdates !== null) {
-      this._optimisticUpdates.forEach(update =>
-        this._getPublishQueue(this._actorIdentifier).revertUpdate(update),
-      );
+      this._optimisticUpdates.forEach(update => {
+        this._getPublishQueue(this._actorIdentifier).revertUpdate(update);
+      });
       this._optimisticUpdates = null;
     }
 
@@ -766,6 +753,7 @@ class Executor {
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
       );
+      this._seenActors.add(this._actorIdentifier);
       this._getPublishQueue(this._actorIdentifier).commitPayload(
         this._operation,
         relayPayload,
@@ -806,7 +794,11 @@ class Executor {
       if (incrementalPlaceholders && incrementalPlaceholders.length !== 0) {
         this._incrementalPayloadsPending = this._state !== 'loading_final';
         incrementalPlaceholders.forEach(incrementalPlaceholder => {
+          const prevActorIdentifier = this._actorIdentifier;
+          this._actorIdentifier =
+            incrementalPlaceholder.actorIdentifier ?? this._actorIdentifier;
           this._processIncrementalPlaceholder(payload, incrementalPlaceholder);
+          this._actorIdentifier = prevActorIdentifier;
         });
 
         if (this._isClientPayload || this._state === 'loading_final') {
@@ -839,9 +831,7 @@ class Executor {
           });
           if (relayPayloads.length > 0) {
             if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-              const updatedOwners = this._getPublishQueue(
-                this._actorIdentifier,
-              ).run();
+              const updatedOwners = this._runPublishQueue();
               this._updateOperationTracker(updatedOwners);
             }
             this._processPayloadFollowups(relayPayloads);
@@ -933,9 +923,7 @@ class Executor {
                     getOperation(operation),
                   );
                   // OK: always have to run after an async module import resolves
-                  const updatedOwners = this._getPublishQueue(
-                    this._actorIdentifier,
-                  ).run();
+                  const updatedOwners = this._runPublishQueue();
                   this._updateOperationTracker(updatedOwners);
                 });
               }
@@ -991,12 +979,13 @@ class Executor {
       followupPayload,
       normalizationNode,
     );
+    this._seenActors.add(this._actorIdentifier);
     this._getPublishQueue(this._actorIdentifier).commitPayload(
       this._operation,
       relayPayload,
     );
     if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-      const updatedOwners = this._getPublishQueue(this._actorIdentifier).run();
+      const updatedOwners = this._runPublishQueue();
       this._updateOperationTracker(updatedOwners);
     }
     this._processPayloadFollowups([relayPayload]);
@@ -1097,6 +1086,7 @@ class Executor {
       record: nextParentRecord,
       fieldPayloads: nextParentPayloads,
     });
+
     // If there were any queued responses, process them now that placeholders
     // are in place
     if (pendingResponses != null) {
@@ -1104,9 +1094,7 @@ class Executor {
         pendingResponses,
       );
       if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        const updatedOwners = this._getPublishQueue(
-          this._actorIdentifier,
-        ).run();
+        const updatedOwners = this._runPublishQueue();
         this._updateOperationTracker(updatedOwners);
       }
       this._processPayloadFollowups(payloadFollowups);
@@ -1195,6 +1183,9 @@ class Executor {
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
     const {dataID: parentID} = placeholder.selector;
+    const prevActorIdentifier = this._actorIdentifier;
+    this._actorIdentifier =
+      placeholder.actorIdentifier ?? this._actorIdentifier;
     const relayPayload = normalizeResponse(
       response,
       placeholder.selector,
@@ -1209,6 +1200,7 @@ class Executor {
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
     );
+    this._seenActors.add(this._actorIdentifier);
     this._getPublishQueue(this._actorIdentifier).commitPayload(
       this._operation,
       relayPayload,
@@ -1238,6 +1230,8 @@ class Executor {
         handleFieldsRelayPayload,
       );
     }
+
+    this._actorIdentifier = prevActorIdentifier;
     return relayPayload;
   }
 
@@ -1275,6 +1269,7 @@ class Executor {
     // Publish the new item and update the parent record to set
     // field[index] = item *if* the parent record hasn't been concurrently
     // modified.
+    this._seenActors.add(this._actorIdentifier);
     this._getPublishQueue(this._actorIdentifier).commitPayload(
       this._operation,
       relayPayload,
@@ -1456,6 +1451,39 @@ class Executor {
 
   _completeOperationTracker() {
     this._operationTracker.complete(this._operation.request);
+  }
+
+  _runPublishQueue(
+    operation?: OperationDescriptor,
+  ): $ReadOnlyArray<RequestDescriptor> {
+    const updatedOwners = [];
+    for (const actorIdentifier of this._seenActors) {
+      updatedOwners.push(
+        ...this._getPublishQueue(actorIdentifier).run(operation),
+      );
+    }
+    return updatedOwners;
+  }
+
+  _retainData() {
+    for (const actorIdentifier of this._seenActors) {
+      if (!this._retainDisposables.has(actorIdentifier)) {
+        this._retainDisposables.set(
+          actorIdentifier,
+          this._getStore(actorIdentifier).retain(this._operation),
+        );
+      }
+    }
+  }
+
+  _disposeRetainedData() {
+    for (const actorIdentifier of this._seenActors) {
+      const disposable = this._retainDisposables.get(actorIdentifier);
+      if (disposable) {
+        disposable.dispose();
+        this._retainDisposables.delete(actorIdentifier);
+      }
+    }
   }
 }
 

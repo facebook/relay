@@ -384,6 +384,7 @@ class RelayResponseNormalizer {
           this._variables,
         ),
         typeName: RelayModernRecord.getType(record),
+        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -416,6 +417,7 @@ class RelayResponseNormalizer {
         parentID: RelayModernRecord.getDataID(record),
         node: stream,
         variables: this._variables,
+        actorIdentifier: this._actorIdentifier,
       });
     }
   }

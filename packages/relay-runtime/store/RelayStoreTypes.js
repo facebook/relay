@@ -876,6 +876,7 @@ export type DeferPlaceholder = {|
   +path: $ReadOnlyArray<string>,
   +selector: NormalizationSelector,
   +typeName: string,
+  +actorIdentifier: ?ActorIdentifier,
 |};
 export type StreamPlaceholder = {|
   +kind: 'stream',
@@ -884,6 +885,7 @@ export type StreamPlaceholder = {|
   +parentID: DataID,
   +node: NormalizationSelectableNode,
   +variables: Variables,
+  +actorIdentifier: ?ActorIdentifier,
 |};
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 

@@ -288,7 +288,10 @@ class Executor {
       }
       default:
         (this._state: empty);
-        invariant(false, 'OperationExecutor: invalid executor state.');
+        invariant(
+          false,
+          'MultiActorOperationExecutor: invalid executor state.',
+        );
     }
     this._operationExecutions.set(
       this._operation.request.identifier,
@@ -406,7 +409,10 @@ class Executor {
           responsePart => responsePart.extensions?.isOptimistic === true,
         )
       ) {
-        invariant(false, 'Optimistic responses cannot be batched.');
+        invariant(
+          false,
+          'MultiActorOperationExecutor: Optimistic responses cannot be batched.',
+        );
       }
       return false;
     }
@@ -415,7 +421,7 @@ class Executor {
     if (isOptimistic && this._state !== 'started') {
       invariant(
         false,
-        'OperationExecutor: optimistic payload received after server payload.',
+        'MultiActorOperationExecutor: optimistic payload received after server payload.',
       );
     }
     if (isOptimistic) {
@@ -544,7 +550,7 @@ class Executor {
   ): void {
     invariant(
       this._optimisticUpdates === null,
-      'environment.execute: only support one optimistic response per ' +
+      'MultiActorOperationExecutor: environment.execute: only support one optimistic response per ' +
         'execute.',
     );
     if (response == null && updater == null) {
@@ -626,7 +632,7 @@ class Executor {
             (followupPayload: empty);
             invariant(
               false,
-              'OperationExecutor(): Unexpected followup kind `%s`.',
+              'MultiActorOperationExecutor: Unexpected followup kind `%s`.',
               followupPayload.kind,
             );
         }
@@ -702,7 +708,7 @@ class Executor {
         if (this._optimisticUpdates == null) {
           warning(
             false,
-            'OperationExecutor: Unexpected ModuleImport optimistic ' +
+            'MultiActorOperationExecutor: Unexpected ModuleImport optimistic ' +
               'update in operation %s.' +
               this._operation.request.node.params.name,
           );
@@ -935,7 +941,7 @@ class Executor {
         (followupPayload: empty);
         invariant(
           false,
-          'OperationExecutor(): Unexpected followup kind `%s`.',
+          'MultiActorOperationExecutor: Unexpected followup kind `%s`.',
           followupPayload.kind,
         );
     }
@@ -1017,7 +1023,7 @@ class Executor {
       (placeholder: empty);
       invariant(
         false,
-        'Unsupported incremental placeholder kind `%s`.',
+        'MultiActorOperationExecutor: Unsupported incremental placeholder kind `%s`.',
         placeholder.kind,
       );
     }
@@ -1041,7 +1047,7 @@ class Executor {
     // exist.
     invariant(
       parentRecord != null,
-      'RelayModernEnvironment: Expected record `%s` to exist.',
+      'MultiActorOperationExecutor: Expected record `%s` to exist.',
       parentID,
     );
     let nextParentRecord;
@@ -1116,7 +1122,7 @@ class Executor {
         const placeholder = resultForPath.placeholder;
         invariant(
           placeholder.kind === 'defer',
-          'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+          'MultiActorOperationExecutor: Expected data for path `%s` for label `%s` ' +
             'to be data for @defer, was `@%s`.',
           pathKey,
           label,
@@ -1146,7 +1152,7 @@ class Executor {
         const placeholder = resultForPath.placeholder;
         invariant(
           placeholder.kind === 'stream',
-          'RelayModernEnvironment: Expected data for path `%s` for label `%s` ' +
+          'MultiActorOperationExecutor: Expected data for path `%s` for label `%s` ' +
             'to be data for @stream, was `@%s`.',
           pathKey,
           label,
@@ -1195,7 +1201,7 @@ class Executor {
     const parentEntry = this._source.get(parentID);
     invariant(
       parentEntry != null,
-      'RelayModernEnvironment: Expected the parent record `%s` for @defer ' +
+      'MultiActorOperationExecutor: Expected the parent record `%s` for @defer ' +
         'data to exist.',
       parentID,
     );
@@ -1235,7 +1241,7 @@ class Executor {
     const field = node.selections[0];
     invariant(
       field != null && field.kind === 'LinkedField' && field.plural === true,
-      'RelayModernEnvironment: Expected @stream to be used on a plural field.',
+      'MultiActorOperationExecutor: Expected @stream to be used on a plural field.',
     );
     const {
       fieldPayloads,
@@ -1328,7 +1334,7 @@ class Executor {
     const {data} = response;
     invariant(
       typeof data === 'object',
-      'RelayModernEnvironment: Expected the GraphQL @stream payload `data` ' +
+      'MultiActorOperationExecutor: Expected the GraphQL @stream payload `data` ' +
         'value to be an object.',
     );
     const responseKey = field.alias ?? field.name;
@@ -1339,7 +1345,7 @@ class Executor {
     const parentEntry = this._source.get(parentID);
     invariant(
       parentEntry != null,
-      'RelayModernEnvironment: Expected the parent record `%s` for @stream ' +
+      'MultiActorOperationExecutor: Expected the parent record `%s` for @stream ' +
         'data to exist.',
       parentID,
     );
@@ -1354,7 +1360,7 @@ class Executor {
     );
     invariant(
       prevIDs != null,
-      'RelayModernEnvironment: Expected record `%s` to have fetched field ' +
+      'MultiActorOperationExecutor: Expected record `%s` to have fetched field ' +
         '`%s` with @stream.',
       parentID,
       field.name,
@@ -1365,7 +1371,7 @@ class Executor {
     const itemIndex = parseInt(finalPathEntry, 10);
     invariant(
       itemIndex === finalPathEntry && itemIndex >= 0,
-      'RelayModernEnvironment: Expected path for @stream to end in a ' +
+      'MultiActorOperationExecutor: Expected path for @stream to end in a ' +
         'positive integer index, got `%s`',
       finalPathEntry,
     );
@@ -1373,7 +1379,7 @@ class Executor {
     const typeName = field.concreteType ?? data[TYPENAME_KEY];
     invariant(
       typeof typeName === 'string',
-      'RelayModernEnvironment: Expected @stream field `%s` to have a ' +
+      'MultiActorOperationExecutor: Expected @stream field `%s` to have a ' +
         '__typename.',
       field.name,
     );
@@ -1388,7 +1394,7 @@ class Executor {
       generateClientID(parentID, storageKey, itemIndex);
     invariant(
       typeof itemID === 'string',
-      'RelayModernEnvironment: Expected id of elements of field `%s` to ' +
+      'MultiActorOperationExecutor: Expected id of elements of field `%s` to ' +
         'be strings.',
       storageKey,
     );
@@ -1499,7 +1505,7 @@ function partitionGraphQLResponses(
       if (label == null || path == null) {
         invariant(
           false,
-          'OperationExecutor: invalid incremental payload, expected ' +
+          'MultiActorOperationExecutor: invalid incremental payload, expected ' +
             '`path` and `label` to either both be null/undefined, or ' +
             '`path` to be an `Array<string | number>` and `label` to be a ' +
             '`string`.',
@@ -1551,7 +1557,7 @@ function validateOptimisticResponsePayload(
   if (incrementalPlaceholders != null && incrementalPlaceholders.length !== 0) {
     invariant(
       false,
-      'OperationExecutor: optimistic responses cannot be returned ' +
+      'MultiActorOperationExecutor: optimistic responses cannot be returned ' +
         'for operations that use incremental data delivery (@defer, ' +
         '@stream, and @stream_connection).',
     );

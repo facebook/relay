@@ -3829,4 +3829,193 @@ describe('RelayResponseNormalizer', () => {
       });
     });
   });
+  describe('"falsy" IDs in payload', () => {
+    let recordSource;
+    const Query = graphql`
+      query RelayResponseNormalizerTest30Query {
+        me {
+          author {
+            id
+          }
+        }
+      }
+    `;
+
+    const QueryWithList = graphql`
+      query RelayResponseNormalizerTest31Query {
+        me {
+          actors {
+            id
+          }
+        }
+      }
+    `;
+
+    beforeEach(() => {
+      recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    });
+
+    it('should create client IDs for "falsy" values in payload', () => {
+      const queryPayload = {
+        me: {
+          __typename: 'User',
+          id: '',
+          author: {
+            id: 'author-id',
+          },
+        },
+      };
+      normalize(
+        recordSource,
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        queryPayload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {
+            __ref: 'client:root:me',
+          },
+        },
+        'client:root:me': {
+          // For this record we don't use the value `""` of the ID field
+          __id: 'client:root:me',
+          __typename: 'User',
+          author: {
+            __ref: 'author-id',
+          },
+          id: '',
+        },
+        'author-id': {
+          __id: 'author-id',
+          __typename: 'User',
+          id: 'author-id',
+        },
+      });
+    });
+
+    it('should create client IDs for "falsy" values in payload - same id', () => {
+      const queryPayload = {
+        me: {
+          __typename: 'User',
+          id: '',
+          author: {
+            id: '',
+          },
+        },
+      };
+      normalize(
+        recordSource,
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        queryPayload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {
+            __ref: 'client:root:me',
+          },
+        },
+        'client:root:me': {
+          // For this record we don't use the value `""` of the ID field
+          __id: 'client:root:me',
+          __typename: 'User',
+          author: {
+            // interesting observation, that client ID here is not re-used...
+            __ref: 'client:root:me:author',
+          },
+          id: '',
+        },
+        'client:root:me:author': {
+          __id: 'client:root:me:author',
+          __typename: 'User',
+          id: '',
+        },
+      });
+    });
+
+    it('should create client IDs for "falsy" values in payload for list', () => {
+      const queryPayload = {
+        me: {
+          __typename: 'User',
+          id: 'my-id',
+          actors: [
+            {
+              __typename: 'User',
+              id: '',
+            },
+            {
+              __typename: 'User',
+              id: 0,
+            },
+            {
+              __typename: 'User',
+              id: false,
+            },
+            {
+              __typename: 'User',
+              id: null,
+            },
+          ],
+        },
+      };
+      normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(QueryWithList).operation,
+          ROOT_ID,
+          {},
+        ),
+        queryPayload,
+        defaultOptions,
+      );
+      expect(recordSource.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {
+            __ref: 'my-id',
+          },
+        },
+        'my-id': {
+          __typename: 'User',
+          __id: 'my-id',
+          actors: {
+            __refs: [
+              'client:my-id:actors:0',
+              'client:my-id:actors:1',
+              'client:my-id:actors:2',
+              'client:my-id:actors:3',
+            ],
+          },
+          id: 'my-id',
+        },
+        'client:my-id:actors:0': {
+          __id: 'client:my-id:actors:0',
+          __typename: 'User',
+          id: '',
+        },
+        'client:my-id:actors:1': {
+          __id: 'client:my-id:actors:1',
+          __typename: 'User',
+          id: 0,
+        },
+        'client:my-id:actors:2': {
+          __id: 'client:my-id:actors:2',
+          __typename: 'User',
+          id: false,
+        },
+        'client:my-id:actors:3': {
+          __id: 'client:my-id:actors:3',
+          __typename: 'User',
+          id: null,
+        },
+      });
+    });
+  });
 });

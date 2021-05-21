@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7d113c1f944ff4c8c7c8de6fa72d4348>>
+ * @generated SignedSource<<625c5e9b02897487980ab24414466fc8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,6 +43,7 @@ var node/*: ReaderFragment*/ = {
   "name": "RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user",
       "fragmentName": "RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_module_user",
       "fragmentPropName": "module_user",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d345632d07ab8eb18acfb6e13d701ff2>>
+ * @generated SignedSource<<b0d684fd86e4dce1cbbf28a09107aa82>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,6 +55,7 @@ v2 = [
     "kind": "InlineFragment",
     "selections": [
       {
+        "args": null,
         "documentName": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
         "fragmentName": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
         "fragmentPropName": "user",

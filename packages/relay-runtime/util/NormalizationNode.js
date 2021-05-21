@@ -103,6 +103,7 @@ export type NormalizationLinkedField = {|
 |};
 
 export type NormalizationModuleImport = {|
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,

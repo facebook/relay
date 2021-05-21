@@ -25,6 +25,7 @@ fragment noInlineFragmentAndModule_parent on User @no_inline {
         "plural": false,
         "selections": [
           {
+            "args": null,
             "documentName": "noInlineFragmentAndModuleQuery",
             "fragmentName": "noInlineFragmentAndModule_parent",
             "fragmentPropName": "parent",
@@ -52,6 +53,7 @@ fragment noInlineFragmentAndModule_parent on User @no_inline {
         "plural": false,
         "selections": [
           {
+            "args": null,
             "documentName": "noInlineFragmentAndModuleQuery",
             "fragmentName": "noInlineFragmentAndModule_parent",
             "fragmentPropName": "parent",

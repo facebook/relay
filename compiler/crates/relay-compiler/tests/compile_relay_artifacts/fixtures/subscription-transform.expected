@@ -39,6 +39,7 @@ fragment subscriptionTransform_CommentCreateResponsePayload on CommentCreateResp
         "plural": false,
         "selections": [
           {
+            "args": null,
             "documentName": "subscriptionTransformSubscription__subscription",
             "fragmentName": "subscriptionTransform_CommentCreateResponsePayload",
             "fragmentPropName": "CommentCreateResponsePayload",
@@ -78,6 +79,7 @@ fragment subscriptionTransform_CommentCreateResponsePayload on CommentCreateResp
         "plural": false,
         "selections": [
           {
+            "args": null,
             "documentName": "subscriptionTransformSubscription__subscription",
             "fragmentName": "subscriptionTransform_CommentCreateResponsePayload",
             "fragmentPropName": "CommentCreateResponsePayload",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<efa96a867eb05d53b7889144fb1f3814>>
+ * @generated SignedSource<<b43c0233e81ab247d99d611622a72a4d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -289,6 +289,7 @@ return {
                                 "kind": "InlineFragment",
                                 "selections": [
                                   {
+                                    "args": null,
                                     "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
                                     "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
                                     "fragmentPropName": "name",
@@ -302,6 +303,7 @@ return {
                                 "kind": "InlineFragment",
                                 "selections": [
                                   {
+                                    "args": null,
                                     "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
                                     "fragmentName": "FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name",
                                     "fragmentPropName": "name",
@@ -335,6 +337,7 @@ return {
                                 "kind": "InlineFragment",
                                 "selections": [
                                   {
+                                    "args": null,
                                     "documentName": "FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer",
                                     "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
                                     "fragmentPropName": "name",

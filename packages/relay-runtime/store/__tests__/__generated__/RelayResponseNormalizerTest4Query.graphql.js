@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5d094e3a388e0d27cfc1a8c52098cda8>>
+ * @generated SignedSource<<485c1c3da06a4fdd0feb852ece9e4646>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -127,6 +127,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayResponseNormalizerTestFragment",
                         "fragmentName": "RelayResponseNormalizerTestPlainUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -140,6 +141,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayResponseNormalizerTestFragment",
                         "fragmentName": "RelayResponseNormalizerTestMarkdownUserNameRenderer_name",
                         "fragmentPropName": "name",

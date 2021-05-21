@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a4355aefbd1da7121327bbf15c279bb8>>
+ * @generated SignedSource<<497bb4297c53bc07f37f6c1e7d0b7911>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -82,6 +82,7 @@ v4 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "requestSubscriptionTestSubscription",
       "fragmentName": "requestSubscriptionTestPlainUserNameRenderer_name",
       "fragmentPropName": "name",

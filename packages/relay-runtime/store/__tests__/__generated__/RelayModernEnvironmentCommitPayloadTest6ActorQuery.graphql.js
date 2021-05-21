@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2d7a7399b36432338c8d78b3b99fb0bf>>
+ * @generated SignedSource<<f5897da017446f060d849cbd266b9566>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,6 +50,7 @@ v1 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentCommitPayloadTest6ActorQuery",
       "fragmentName": "RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name",
       "fragmentPropName": "name",

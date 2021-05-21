@@ -146,6 +146,7 @@ fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameR
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
                   "fragmentName": "matchOnChildOfPlural_PlainUserNameRenderer_name",
                   "fragmentPropName": "PlainUserNameRenderer_name",
@@ -159,6 +160,7 @@ fragment matchOnChildOfPlural_MarkdownUserNameRenderer_name on MarkdownUserNameR
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "matchOnChildOfPlural_ActorsRendererFragmentQuery",
                   "fragmentName": "matchOnChildOfPlural_MarkdownUserNameRenderer_name",
                   "fragmentPropName": "MarkdownUserNameRenderer_name",

@@ -255,8 +255,15 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            // @arguments on the fragment spread is not allowed
-            if !spread.arguments.is_empty() {
+            let should_use_no_inline = {
+                match self.no_inline_flag {
+                    FeatureFlag::Disabled => false,
+                    FeatureFlag::Enabled => true,
+                    FeatureFlag::Limited { allowlist } => allowlist.contains(&spread.fragment.item),
+                }
+            };
+            // @arguments on the fragment spread is not allowed without @no_inline
+            if !should_use_no_inline && !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithArguments,
                     spread.arguments[0].name.location,
@@ -482,13 +489,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ..spread.clone()
             }));
 
-            let should_use_no_inline = {
-                match self.no_inline_flag {
-                    FeatureFlag::Disabled => false,
-                    FeatureFlag::Enabled => true,
-                    FeatureFlag::Limited { allowlist } => allowlist.contains(&fragment.name.item),
-                }
-            };
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)

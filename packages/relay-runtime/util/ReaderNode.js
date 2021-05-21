@@ -137,6 +137,7 @@ export type ReaderLinkedField = {|
 |};
 
 export type ReaderModuleImport = {|
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,

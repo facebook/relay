@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20b3fc0226aedf7b2495ba7a20a4a55d>>
+ * @generated SignedSource<<ab32b5cdd04da17f622de3434ab95b79>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -225,6 +225,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -238,6 +239,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -271,6 +273,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                             "fragmentPropName": "name",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<025ff76c1e98a4e6afc7ed54c9cc28f6>>
+ * @generated SignedSource<<7bc803aab3347f35c68965729d005183>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,6 +35,7 @@ export type RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatche
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
+  "args": null,
   "documentName": "RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery",
   "fragmentName": "RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user",
   "fragmentPropName": "module_user",

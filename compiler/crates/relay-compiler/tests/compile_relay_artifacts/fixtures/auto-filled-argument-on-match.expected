@@ -178,6 +178,7 @@ fragment autoFilledArgumentOnMatchMarkdownUserNameRenderer_name on MarkdownUserN
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "autoFilledArgumentOnMatchNameRendererFragment",
               "fragmentName": "autoFilledArgumentOnMatchPlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -191,6 +192,7 @@ fragment autoFilledArgumentOnMatchMarkdownUserNameRenderer_name on MarkdownUserN
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "autoFilledArgumentOnMatchNameRendererFragment",
               "fragmentName": "autoFilledArgumentOnMatchMarkdownUserNameRenderer_name",
               "fragmentPropName": "name",

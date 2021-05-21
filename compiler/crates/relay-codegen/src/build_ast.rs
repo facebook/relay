@@ -490,7 +490,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     .directives
                     .named(MATCH_CONSTANTS.custom_module_directive_name)
                 {
-                    self.build_module_import_selections(match_directive)
+                    self.build_module_import_selections(match_directive, &inline_fragment)
                 } else if inline_fragment
                     .directives
                     .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
@@ -1554,7 +1554,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_module_import_selections(&mut self, directive: &Directive) -> Vec<Primitive> {
+    fn build_module_import_selections(
+        &mut self,
+        directive: &Directive,
+        inline_fragment: &InlineFragment,
+    ) -> Vec<Primitive> {
         let fragment_name = directive
             .arguments
             .named(MATCH_CONSTANTS.name_arg)
@@ -1576,7 +1580,24 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 fragment_name
             )
         });
+
+        let frag_spread = inline_fragment.selections.iter().find_map(|sel| match sel {
+            Selection::FragmentSpread(frag_spread) => Some(frag_spread),
+            _ => None,
+        });
+        let args = if let Some(frag_spread) = frag_spread {
+            self.build_arguments(&frag_spread.arguments)
+        } else {
+            None
+        };
         let selection = Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.args,
+                value: match args {
+                    None => Primitive::Null,
+                    Some(key) => Primitive::Key(key),
+                },
+            },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.document_name,
                 value: Primitive::String(key),
@@ -1734,7 +1755,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Selection::LinkedField(linked_field) => linked_field.clone(),
             _ => panic!("Expect to have a single linked field in the actor change fragment"),
         };
-
 
         match self.variant {
             CodegenVariant::Normalization => {

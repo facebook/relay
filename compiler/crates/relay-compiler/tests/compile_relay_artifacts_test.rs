@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8d8a7048501b5738b154f87b09ff2c25>>
+ * @generated SignedSource<<c12e9ac19e33ec583855fb519708ef6e>>
  */
 
 mod compile_relay_artifacts;
@@ -703,6 +703,13 @@ fn query_with_module_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive.expected");
     test_fixture(transform_fixture, "query-with-module-directive.graphql", "compile_relay_artifacts/fixtures/query-with-module-directive.expected", input, expected);
+}
+
+#[test]
+fn query_with_module_directive_and_arguments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-and-arguments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-and-arguments.expected");
+    test_fixture(transform_fixture, "query-with-module-directive-and-arguments.graphql", "compile_relay_artifacts/fixtures/query-with-module-directive-and-arguments.expected", input, expected);
 }
 
 #[test]

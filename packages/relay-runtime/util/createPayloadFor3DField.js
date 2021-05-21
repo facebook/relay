@@ -19,7 +19,7 @@ const {
 } = require('../store/RelayStoreUtils');
 
 import type {NormalizationSplitOperation} from './NormalizationNode';
-import type {JSResourceReference} from 'JSResourceReference';
+import type {JSResourceReference} from './JSResourceTypes.flow.js';
 
 export opaque type Local3DPayload<
   +DocumentName: string,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<64fb0d0fe070b18cb3de4f3b63eefca2>>
+ * @generated SignedSource<<a731b8f96b6163a6f0a611d8ac413498>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,6 +23,11 @@ export type ActorChangeTestQueryResponse = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
+        +node: ?{|
+          +actor: ?{|
+            +name: ?string,
+          |},
+        |},
         +actor_node: ?ActorChangePoint<{|
           +__viewer: string,
           +$fragmentRefs: ActorChangeTestFeedUnitFragment$ref,
@@ -42,10 +47,17 @@ var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "__typename",
+  "name": "name",
   "storageKey": null
 },
 v1 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "__typename",
+  "storageKey": null
+},
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -83,6 +95,29 @@ return {
                 "name": "edges",
                 "plural": true,
                 "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": null,
+                        "kind": "LinkedField",
+                        "name": "actor",
+                        "plural": false,
+                        "selections": [
+                          (v0/*: any*/)
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  },
                   {
                     "kind": "ActorChange",
                     "alias": "actor_node",
@@ -139,6 +174,33 @@ return {
                 "plural": true,
                 "selections": [
                   {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      (v1/*: any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": null,
+                        "kind": "LinkedField",
+                        "name": "actor",
+                        "plural": false,
+                        "selections": [
+                          (v1/*: any*/),
+                          (v0/*: any*/),
+                          (v2/*: any*/)
+                        ],
+                        "storageKey": null
+                      },
+                      (v2/*: any*/)
+                    ],
+                    "storageKey": null
+                  },
+                  {
                     "kind": "ActorChange",
                     "linkedField": {
                       "alias": "actor_node",
@@ -148,29 +210,27 @@ return {
                       "name": "node",
                       "plural": false,
                       "selections": [
-                        (v0/*: any*/),
+                        (v1/*: any*/),
                         {
                           "kind": "TypeDiscriminator",
                           "abstractKey": "__isFeedUnit"
                         },
-                        (v1/*: any*/),
+                        (v2/*: any*/),
                         {
                           "alias": null,
                           "args": null,
-                          "concreteType": null,
+                          "concreteType": "Text",
                           "kind": "LinkedField",
-                          "name": "actor",
+                          "name": "message",
                           "plural": false,
                           "selections": [
-                            (v0/*: any*/),
                             {
                               "alias": null,
                               "args": null,
                               "kind": "ScalarField",
-                              "name": "name",
+                              "name": "text",
                               "storageKey": null
-                            },
-                            (v1/*: any*/)
+                            }
                           ],
                           "storageKey": null
                         },
@@ -197,18 +257,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "531861a2f1b48d44c70d6f989da32b79",
+    "cacheID": "3b1748be1dae9b8e0328a22d2a60825d",
     "id": null,
     "metadata": {},
     "name": "ActorChangeTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5a460460a3acd6d3e615ced7c9a01261";
+  (node/*: any*/).hash = "238c5a805ed65dc124d36b712abb37fb";
 }
 
 module.exports = node;

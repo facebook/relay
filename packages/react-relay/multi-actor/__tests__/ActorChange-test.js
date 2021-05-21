@@ -25,6 +25,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
 import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
@@ -54,8 +55,8 @@ function ComponentWrapper(
 const fragment = graphql`
   fragment ActorChangeTestFeedUnitFragment on FeedUnit {
     id
-    actor {
-      name
+    message {
+      text
     }
   }
 `;
@@ -65,6 +66,11 @@ const query = graphql`
     viewer {
       newsFeed {
         edges {
+          node {
+            actor {
+              name
+            }
+          }
           actor_node: node @EXPERIMENTAL__as_actor {
             ...ActorChangeTestFeedUnitFragment
           }
@@ -93,11 +99,18 @@ function MainComponent() {
           return null;
         }
         return (
-          <ActorChange key={index} actorChangePoint={actorNode}>
-            {fragmentRef => {
-              return <ActorMessage myFragment={fragmentRef} />;
-            }}
-          </ActorChange>
+          <div key={index}>
+            <span
+              className="default-store-actors"
+              data-test-id={`default-store-${edge?.node?.actor?.name ??
+                'not an actor'}`}
+            />
+            <ActorChange key={index} actorChangePoint={actorNode}>
+              {fragmentRef => {
+                return <ActorMessage myFragment={fragmentRef} />;
+              }}
+            </ActorChange>
+          </div>
         );
       })}
     </div>
@@ -113,8 +126,8 @@ function ActorMessage(props: Props) {
   const [commit] = useMutation(mutation);
 
   return (
-    <div className="actor">
-      <div data-test-id={`name-${data.id}`}>{data.actor?.name}</div>
+    <div className="actor-messages">
+      <div data-test-id={`message-${data.id}`}>{data.message?.text}</div>
       <button
         data-test-id={`button-${data.id}`}
         onClick={() =>
@@ -128,6 +141,8 @@ function ActorMessage(props: Props) {
     </div>
   );
 }
+
+disallowWarnings();
 
 describe('ActorChange', () => {
   let environment;
@@ -155,8 +170,7 @@ describe('ActorChange', () => {
               newsFeed: {
                 edges: [
                   {
-                    actor_node: {
-                      __viewer: 'actor:4321',
+                    node: {
                       id: 'node-1',
                       __typename: 'FeedUnit',
                       actor: {
@@ -165,16 +179,33 @@ describe('ActorChange', () => {
                         name: 'Antonio Banderas',
                       },
                     },
+                    actor_node: {
+                      __viewer: 'actor:4321',
+                      id: 'node-1',
+                      __typename: 'FeedUnit',
+                      message: {
+                        __typename: 'Text',
+                        text: 'Antonio Text',
+                      },
+                    },
                   },
                   {
-                    actor_node: {
-                      __viewer: 'actor:5678',
+                    node: {
                       id: 'node-2',
                       __typename: 'FeedUnit',
                       actor: {
                         id: 'actor-2',
                         __typename: 'User',
                         name: 'Sylvester Stallone',
+                      },
+                    },
+                    actor_node: {
+                      __viewer: 'actor:5678',
+                      id: 'node-2',
+                      __typename: 'FeedUnit',
+                      message: {
+                        __typename: 'Text',
+                        text: 'Sylvester Text',
                       },
                     },
                   },
@@ -198,20 +229,35 @@ describe('ActorChange', () => {
     ReactTestRenderer.act(jest.runAllTimers);
 
     const testInstance = testRenderer.root;
+    // Default Viewer data
+    expect(
+      testInstance.findAllByProps({
+        className: 'default-store-actors',
+      }).length,
+    ).toBe(2);
+    // And we should be able to find this data
+    testInstance.findByProps({
+      'data-test-id': 'default-store-Antonio Banderas',
+    });
+    testInstance.findByProps({
+      'data-test-id': 'default-store-Sylvester Stallone',
+    });
+
+    // Actor Specific Items
     const actorCards = testInstance.findAllByProps({
-      className: 'actor',
+      className: 'actor-messages',
     });
     expect(actorCards.length).toEqual(2);
     expect(
       testInstance.findByProps({
-        'data-test-id': 'name-node-1',
+        'data-test-id': 'message-node-1',
       }).children,
-    ).toEqual(['Antonio Banderas']);
+    ).toEqual(['Antonio Text']);
     expect(
       testInstance.findByProps({
-        'data-test-id': 'name-node-2',
+        'data-test-id': 'message-node-2',
       }).children,
-    ).toEqual(['Sylvester Stallone']);
+    ).toEqual(['Sylvester Text']);
   });
 
   it('should send a query and mutations with correct actor id, from the correct environment', () => {
@@ -223,8 +269,7 @@ describe('ActorChange', () => {
               newsFeed: {
                 edges: [
                   {
-                    actor_node: {
-                      __viewer: 'actor:4321',
+                    node: {
                       id: 'node-1',
                       __typename: 'FeedUnit',
                       actor: {
@@ -233,16 +278,33 @@ describe('ActorChange', () => {
                         name: 'Antonio Banderas',
                       },
                     },
+                    actor_node: {
+                      __viewer: 'actor:4321',
+                      id: 'node-1',
+                      __typename: 'FeedUnit',
+                      message: {
+                        __typename: 'Text',
+                        text: 'Antonio Text',
+                      },
+                    },
                   },
                   {
-                    actor_node: {
-                      __viewer: 'actor:5678',
+                    node: {
                       id: 'node-2',
                       __typename: 'FeedUnit',
                       actor: {
                         id: 'actor-2',
                         __typename: 'User',
                         name: 'Sylvester Stallone',
+                      },
+                    },
+                    actor_node: {
+                      __viewer: 'actor:5678',
+                      id: 'node-2',
+                      __typename: 'FeedUnit',
+                      message: {
+                        __typename: 'Text',
+                        text: 'Sylvester Text',
                       },
                     },
                   },

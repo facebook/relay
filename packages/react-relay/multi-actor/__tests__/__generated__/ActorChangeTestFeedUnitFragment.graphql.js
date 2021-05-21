@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9b3d22c4bb96be0892586e0a4a2d85af>>
+ * @generated SignedSource<<eb88a73a08abe9530c3c15bf719dc348>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,8 +21,8 @@ declare export opaque type ActorChangeTestFeedUnitFragment$ref: FragmentReferenc
 declare export opaque type ActorChangeTestFeedUnitFragment$fragmentType: ActorChangeTestFeedUnitFragment$ref;
 export type ActorChangeTestFeedUnitFragment = {|
   +id: string,
-  +actor: ?{|
-    +name: ?string,
+  +message: ?{|
+    +text: ?string,
   |},
   +$refType: ActorChangeTestFeedUnitFragment$ref,
 |};
@@ -50,16 +50,16 @@ var node/*: ReaderFragment*/ = {
     {
       "alias": null,
       "args": null,
-      "concreteType": null,
+      "concreteType": "Text",
       "kind": "LinkedField",
-      "name": "actor",
+      "name": "message",
       "plural": false,
       "selections": [
         {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "name",
+          "name": "text",
           "storageKey": null
         }
       ],
@@ -71,7 +71,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "da7a170ddd5452b9936c41f99bf7a85c";
+  (node/*: any*/).hash = "52c3c2a080b7bc16a00e823abf0cdb25";
 }
 
 module.exports = node;

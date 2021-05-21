@@ -154,7 +154,11 @@ export type {
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
-export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
+export type {
+  DEPRECATED_GraphQLSubscriptionConfig,
+  GraphQLSubscriptionConfig,
+  SubscriptionParameters,
+} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,

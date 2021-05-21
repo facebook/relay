@@ -35,7 +35,24 @@ import type {
   Variables,
 } from '../util/RelayRuntimeTypes';
 
-export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
+export type SubscriptionParameters = {|
+  +response: {...},
+  +variables: interface {},
+  +rawResponse?: {...},
+|};
+
+export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
+  configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
+  subscription: GraphQLTaggedNode,
+  variables: $ElementType<T, 'variables'>,
+  onCompleted?: ?() => void,
+  onError?: ?(error: Error) => void,
+  onNext?: ?(response: ?$ElementType<T, 'response'>) => void,
+  updater?: ?SelectorStoreUpdater,
+|};
+
+export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLTaggedNode,
@@ -48,7 +65,7 @@ export type GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
 
 function requestSubscription<TSubscriptionPayload>(
   environment: IEnvironment,
-  config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
+  config: DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {

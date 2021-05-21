@@ -11,19 +11,40 @@
 
 'use strict';
 
-export opaque type ActorChangePoint<TFragmentRef> = {
-  __actorFragmentRef: TFragmentRef,
+const React = require('react');
+const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
+
+const useRelayActorEnvironment = require('./useRelayActorEnvironment');
+
+import type {ActorIdentifier} from 'relay-runtime/multi-actor-environment';
+
+export opaque type ActorChangePoint<TFragmentRef> = $ReadOnly<{
+  __fragmentRef: TFragmentRef,
+  __viewer: ActorIdentifier,
+}>;
+
+type ActorChangeProps<TFragmentRef> = {
+  actorChangePoint: ActorChangePoint<TFragmentRef>,
+  children: (
+    fragmentRef: TFragmentRef,
+    actorIdentifier: ActorIdentifier,
+  ) => React.MixedElement,
 };
 
-type ActorChangeProps<TFragmentRef, TOtherProps> = {
-  actorChange: ActorChangePoint<TFragmentRef>,
-  otherProps: TOtherProps,
-};
-
-function ActorChange<TFragmentRef, TOtherProps>(
-  props: ActorChangeProps<TFragmentRef, TOtherProps>,
-) {
-  throw new Error('ActorChange: Not Implemented.');
+function ActorChange<TFragmentRef>(
+  props: ActorChangeProps<TFragmentRef>,
+): React.Element<typeof RelayEnvironmentProvider> {
+  const actorEnvironment = useRelayActorEnvironment(
+    props.actorChangePoint.__viewer,
+  );
+  return (
+    <RelayEnvironmentProvider environment={actorEnvironment}>
+      {props.children(
+        props.actorChangePoint.__fragmentRef,
+        props.actorChangePoint.__viewer,
+      )}
+    </RelayEnvironmentProvider>
+  );
 }
 
 module.exports = ActorChange;

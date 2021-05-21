@@ -6,10 +6,6 @@ schema {
   subscription: Subscription
 }
 
-# NOTE: In practive this directive will be different, but for
-# tests we will use this name for now
-directive @actor_change_directive on FIELD
-
 directive @customDirective(level: Int!) on FIELD
 
 directive @fixme_fat_interface on FIELD

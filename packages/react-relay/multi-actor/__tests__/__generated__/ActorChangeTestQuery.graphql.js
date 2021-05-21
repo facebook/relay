@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af3e28146ff1888fc045609ec807bbef>>
+ * @generated SignedSource<<a1e3fc1a4e7fae59b01e3119997f062d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,6 @@ export type ActorChangeTestQueryResponse = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
-        +node: ?{|
-          +id: string,
-        |},
         +actor_node: ?{|
           +$fragmentRefs: ActorChangeTestFeedUnitFragment$ref,
         |},
@@ -43,14 +40,14 @@ var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
+  "name": "__typename",
   "storageKey": null
 },
 v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "__typename",
+  "name": "id",
   "storageKey": null
 };
 return {
@@ -85,32 +82,16 @@ return {
                 "plural": true,
                 "selections": [
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      (v0/*: any*/)
-                    ],
-                    "storageKey": null
-                  },
-                  {
+                    "kind": "ActorChange",
                     "alias": "actor_node",
-                    "args": null,
-                    "concreteType": null,
-                    "kind": "LinkedField",
                     "name": "node",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "args": null,
-                        "kind": "FragmentSpread",
-                        "name": "ActorChangeTestFeedUnitFragment"
-                      }
-                    ],
-                    "storageKey": null
+                    "storageKey": null,
+                    "args": null,
+                    "fragmentSpread": {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "ActorChangeTestFeedUnitFragment"
+                    }
                   }
                 ],
                 "storageKey": null
@@ -156,72 +137,69 @@ return {
                 "plural": true,
                 "selections": [
                   {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      (v1/*: any*/),
-                      (v0/*: any*/)
-                    ],
-                    "storageKey": null
-                  },
-                  {
-                    "alias": "actor_node",
-                    "args": null,
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      (v1/*: any*/),
-                      {
-                        "kind": "TypeDiscriminator",
-                        "abstractKey": "__isFeedUnit"
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": null,
-                        "kind": "LinkedField",
-                        "name": "actor",
-                        "plural": false,
-                        "selections": [
-                          (v1/*: any*/),
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "name",
-                            "storageKey": null
-                          },
-                          (v0/*: any*/)
-                        ],
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "Text",
-                        "kind": "LinkedField",
-                        "name": "message",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "text",
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      },
-                      (v0/*: any*/)
-                    ],
-                    "storageKey": null
+                    "kind": "ActorChange",
+                    "linkedField": {
+                      "alias": "actor_node",
+                      "args": null,
+                      "concreteType": null,
+                      "kind": "LinkedField",
+                      "name": "node",
+                      "plural": false,
+                      "selections": [
+                        (v0/*: any*/),
+                        {
+                          "kind": "TypeDiscriminator",
+                          "abstractKey": "__isFeedUnit"
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": null,
+                          "kind": "LinkedField",
+                          "name": "actor",
+                          "plural": false,
+                          "selections": [
+                            (v0/*: any*/),
+                            {
+                              "alias": null,
+                              "args": null,
+                              "kind": "ScalarField",
+                              "name": "name",
+                              "storageKey": null
+                            },
+                            (v1/*: any*/)
+                          ],
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": "Text",
+                          "kind": "LinkedField",
+                          "name": "message",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "alias": null,
+                              "args": null,
+                              "kind": "ScalarField",
+                              "name": "text",
+                              "storageKey": null
+                            }
+                          ],
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "__viewer",
+                          "storageKey": null
+                        },
+                        (v1/*: any*/)
+                      ],
+                      "storageKey": null
+                    }
                   }
                 ],
                 "storageKey": null
@@ -235,18 +213,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "390c8f26369eddbcc3dd39f28f187cb0",
+    "cacheID": "2ae2dcb761474c880d0ee5af7a377591",
     "id": null,
     "metadata": {},
     "name": "ActorChangeTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          id\n        }\n        actor_node: node @actor_change_directive {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  actor {\n    __typename\n    name\n    id\n  }\n  message {\n    text\n  }\n}\n"
+    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  actor {\n    __typename\n    name\n    id\n  }\n  message {\n    text\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c557adde580505bada9c525d46b9e54f";
+  (node/*: any*/).hash = "5a460460a3acd6d3e615ced7c9a01261";
 }
 
 module.exports = node;

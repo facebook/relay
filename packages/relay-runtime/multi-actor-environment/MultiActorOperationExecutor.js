@@ -606,12 +606,7 @@ class Executor {
       for (const followupPayload of followupPayloads) {
         switch (followupPayload.kind) {
           case 'ModuleImportPayload':
-            const operationLoader = this._operationLoader;
-            invariant(
-              operationLoader,
-              'MultiActorOperationExecutor: Expected an operationLoader to be ' +
-                'configured when using `@match`.',
-            );
+            const operationLoader = this._expectOperationLoader();
             const operation = operationLoader.get(
               followupPayload.operationReference,
             );
@@ -690,13 +685,7 @@ class Executor {
   _processAsyncOptimisticModuleImport(
     moduleImportPayload: ModuleImportPayload,
   ): void {
-    const operationLoader = this._operationLoader;
-    invariant(
-      operationLoader,
-      'MultiActorOperationExecutor: Expected an operationLoader to be ' +
-        'configured when using `@match`.',
-    );
-    operationLoader
+    this._expectOperationLoader()
       .load(moduleImportPayload.operationReference)
       .then(operation => {
         if (operation == null || this._state !== 'started') {
@@ -880,12 +869,7 @@ class Executor {
   _processFollowupPayload(followupPayload: FollowupPayload): void {
     switch (followupPayload.kind) {
       case 'ModuleImportPayload':
-        const operationLoader = this._operationLoader;
-        invariant(
-          operationLoader,
-          'MultiActorOperationExecutor: Expected an operationLoader to be ' +
-            'configured when using `@match`.',
-        );
+        const operationLoader = this._expectOperationLoader();
         const node = operationLoader.get(followupPayload.operationReference);
         if (node != null) {
           // If the operation module is available synchronously, normalize the
@@ -1488,6 +1472,16 @@ class Executor {
         this._retainDisposables.delete(actorIdentifier);
       }
     }
+  }
+
+  _expectOperationLoader(): OperationLoader {
+    const operationLoader = this._operationLoader;
+    invariant(
+      operationLoader,
+      'MultiActorOperationExecutor: Expected an operationLoader to be ' +
+        'configured when using `@match`.',
+    );
+    return operationLoader;
   }
 }
 

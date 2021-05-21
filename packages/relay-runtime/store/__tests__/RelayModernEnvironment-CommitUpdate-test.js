@@ -18,6 +18,10 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  getActorIdentifier,
+  MultiActorEnvironment,
+} = require('../../multi-actor-environment');
 const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -27,124 +31,135 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-describe('commitUpdate()', () => {
-  let environment;
-  let operation;
-  let ParentQuery;
-  let source;
-  let store;
-  let UserFragment;
+describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
+  'commitUpdate()',
+  environmentType => {
+    let environment;
+    let operation;
+    let ParentQuery;
+    let source;
+    let store;
+    let UserFragment;
 
-  beforeEach(() => {
-    jest.resetModules();
+    describe(environmentType, () => {
+      beforeEach(() => {
+        ParentQuery = getRequest(graphql`
+          query RelayModernEnvironmentCommitUpdateTestParentQuery {
+            me {
+              id
+              name
+            }
+          }
+        `);
+        UserFragment = getFragment(graphql`
+          fragment RelayModernEnvironmentCommitUpdateTestUserFragment on User {
+            id
+            name
+          }
+        `);
 
-    ParentQuery = getRequest(graphql`
-      query RelayModernEnvironmentCommitUpdateTestParentQuery {
-        me {
-          id
-          name
-        }
-      }
-    `);
-    UserFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentCommitUpdateTestUserFragment on User {
-        id
-        name
-      }
-    `);
-
-    source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(jest.fn()),
-      store,
-    });
-    operation = createOperationDescriptor(ParentQuery, {});
-  });
-
-  it('applies the update to the store', () => {
-    const selector = createReaderSelector(
-      UserFragment,
-      '4',
-      {},
-      operation.request,
-    );
-    const callback = jest.fn();
-    const snapshot = environment.lookup(selector);
-    environment.subscribe(snapshot, callback);
-
-    environment.commitUpdate(proxyStore => {
-      const zuck = proxyStore.create('4', 'User');
-      zuck.setValue('4', 'id');
-      zuck.setValue('zuck', 'name');
-    });
-    expect(callback.mock.calls.length).toBe(1);
-    expect(callback.mock.calls[0][0].data).toEqual({
-      id: '4',
-      name: 'zuck',
-    });
-  });
-
-  describe('when using a scheduler', () => {
-    let taskID;
-    let tasks;
-    let scheduler;
-    let runTask;
-
-    beforeEach(() => {
-      taskID = 0;
-      tasks = new Map();
-      scheduler = {
-        cancel: id => {
-          tasks.delete(id);
-        },
-        schedule: task => {
-          const id = String(taskID++);
-          tasks.set(id, task);
-          return id;
-        },
-      };
-      runTask = () => {
-        for (const [id, task] of tasks) {
-          tasks.delete(id);
-          task();
-          break;
-        }
-      };
-      environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(jest.fn()),
-        scheduler,
-        store,
-      });
-    });
-
-    it('applies the mutation to the store', () => {
-      const selector = createReaderSelector(
-        UserFragment,
-        '4',
-        {},
-        operation.request,
-      );
-      const callback = jest.fn();
-      const snapshot = environment.lookup(selector);
-      environment.subscribe(snapshot, callback);
-
-      environment.commitUpdate(proxyStore => {
-        const zuck = proxyStore.create('4', 'User');
-        zuck.setValue('4', 'id');
-        zuck.setValue('zuck', 'name');
+        source = RelayRecordSource.create();
+        store = new RelayModernStore(source);
+        const fetch = jest.fn();
+        const multiActorEnvironment = new MultiActorEnvironment({
+          createNetworkForActor: _actorID => RelayNetwork.create(fetch),
+          createStoreForActor: _actorID => store,
+        });
+        environment =
+          environmentType === 'MultiActorEnvironment'
+            ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
+            : new RelayModernEnvironment({
+                network: RelayNetwork.create(fetch),
+                store,
+              });
+        operation = createOperationDescriptor(ParentQuery, {});
       });
 
-      // Verify task was scheduled and run it
-      expect(tasks.size).toBe(1);
-      runTask();
+      it('applies the update to the store', () => {
+        const selector = createReaderSelector(
+          UserFragment,
+          '4',
+          {},
+          operation.request,
+        );
+        const callback = jest.fn();
+        const snapshot = environment.lookup(selector);
+        environment.subscribe(snapshot, callback);
 
-      // Update is applied after scheduler runs scheduled tas
-      expect(callback.mock.calls.length).toBe(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        id: '4',
-        name: 'zuck',
+        environment.commitUpdate(proxyStore => {
+          const zuck = proxyStore.create('4', 'User');
+          zuck.setValue('4', 'id');
+          zuck.setValue('zuck', 'name');
+        });
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0].data).toEqual({
+          id: '4',
+          name: 'zuck',
+        });
+      });
+
+      describe('when using a scheduler', () => {
+        let taskID;
+        let tasks;
+        let scheduler;
+        let runTask;
+
+        beforeEach(() => {
+          taskID = 0;
+          tasks = new Map();
+          scheduler = {
+            cancel: id => {
+              tasks.delete(id);
+            },
+            schedule: task => {
+              const id = String(taskID++);
+              tasks.set(id, task);
+              return id;
+            },
+          };
+          runTask = () => {
+            for (const [id, task] of tasks) {
+              tasks.delete(id);
+              task();
+              break;
+            }
+          };
+          environment = new RelayModernEnvironment({
+            network: RelayNetwork.create(jest.fn()),
+            scheduler,
+            store,
+          });
+        });
+
+        it('applies the mutation to the store', () => {
+          const selector = createReaderSelector(
+            UserFragment,
+            '4',
+            {},
+            operation.request,
+          );
+          const callback = jest.fn();
+          const snapshot = environment.lookup(selector);
+          environment.subscribe(snapshot, callback);
+
+          environment.commitUpdate(proxyStore => {
+            const zuck = proxyStore.create('4', 'User');
+            zuck.setValue('4', 'id');
+            zuck.setValue('zuck', 'name');
+          });
+
+          // Verify task was scheduled and run it
+          expect(tasks.size).toBe(1);
+          runTask();
+
+          // Update is applied after scheduler runs scheduled tas
+          expect(callback.mock.calls.length).toBe(1);
+          expect(callback.mock.calls[0][0].data).toEqual({
+            id: '4',
+            name: 'zuck',
+          });
+        });
       });
     });
-  });
-});
+  },
+);

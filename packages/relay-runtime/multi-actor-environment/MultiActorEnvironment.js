@@ -241,7 +241,11 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     updater: StoreUpdater,
   ): void {
-    return todo('commitUpdate');
+    const publishQueue = actorEnvironment.getPublishQueue();
+    this._scheduleUpdates(() => {
+      publishQueue.commitUpdate(updater);
+      publishQueue.run();
+    });
   }
 
   commitPayload(

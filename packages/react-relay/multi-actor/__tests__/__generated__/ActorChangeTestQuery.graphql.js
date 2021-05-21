@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a1e3fc1a4e7fae59b01e3119997f062d>>
+ * @generated SignedSource<<a37600acf8181ad229ca10ec28f331a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -151,6 +151,7 @@ return {
                           "kind": "TypeDiscriminator",
                           "abstractKey": "__isFeedUnit"
                         },
+                        (v1/*: any*/),
                         {
                           "alias": null,
                           "args": null,
@@ -174,29 +175,10 @@ return {
                         {
                           "alias": null,
                           "args": null,
-                          "concreteType": "Text",
-                          "kind": "LinkedField",
-                          "name": "message",
-                          "plural": false,
-                          "selections": [
-                            {
-                              "alias": null,
-                              "args": null,
-                              "kind": "ScalarField",
-                              "name": "text",
-                              "storageKey": null
-                            }
-                          ],
-                          "storageKey": null
-                        },
-                        {
-                          "alias": null,
-                          "args": null,
                           "kind": "ScalarField",
                           "name": "__viewer",
                           "storageKey": null
-                        },
-                        (v1/*: any*/)
+                        }
                       ],
                       "storageKey": null
                     }
@@ -213,12 +195,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "2ae2dcb761474c880d0ee5af7a377591",
+    "cacheID": "531861a2f1b48d44c70d6f989da32b79",
     "id": null,
     "metadata": {},
     "name": "ActorChangeTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  actor {\n    __typename\n    name\n    id\n  }\n  message {\n    text\n  }\n}\n"
+    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

@@ -80,6 +80,10 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       defaultGetDataID,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
+
+    // We need to add this here to pass `isRelayModernEnvironment` check
+    // $FlowFixMe[prop-missing]
+    this['@@RelayModernEnvironment'] = true;
   }
 
   getPublishQueue(): RelayPublishQueue {

@@ -371,7 +371,7 @@ export interface StoreSubscriptions {
   /**
    * Notifies each subscription if the snapshot for the subscription selector has changed.
    * Mutates the updatedOwners array with any owners (RequestDescriptors) associated
-   * with the subscriptions that were notifed; i.e. the owners affected by the changes.
+   * with the subscriptions that were notified; i.e. the owners affected by the changes.
    */
   updateSubscriptions(
     source: RecordSource,
@@ -711,7 +711,7 @@ export interface IEnvironment {
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Query or Subscription operation responses, the result of which is
-   * then normalized and comitted to the publish queue.
+   * then normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to:

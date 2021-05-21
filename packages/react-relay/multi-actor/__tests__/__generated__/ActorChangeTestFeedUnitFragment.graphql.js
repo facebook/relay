@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b1e530f8bfaa1d662adc0e3468c27975>>
+ * @generated SignedSource<<9b3d22c4bb96be0892586e0a4a2d85af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,9 @@ import type { FragmentReference } from "relay-runtime";
 declare export opaque type ActorChangeTestFeedUnitFragment$ref: FragmentReference;
 declare export opaque type ActorChangeTestFeedUnitFragment$fragmentType: ActorChangeTestFeedUnitFragment$ref;
 export type ActorChangeTestFeedUnitFragment = {|
+  +id: string,
   +actor: ?{|
     +name: ?string,
-  |},
-  +message: ?{|
-    +text: ?string,
   |},
   +$refType: ActorChangeTestFeedUnitFragment$ref,
 |};
@@ -45,6 +43,13 @@ var node/*: ReaderFragment*/ = {
     {
       "alias": null,
       "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
       "concreteType": null,
       "kind": "LinkedField",
       "name": "actor",
@@ -59,24 +64,6 @@ var node/*: ReaderFragment*/ = {
         }
       ],
       "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "Text",
-      "kind": "LinkedField",
-      "name": "message",
-      "plural": false,
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "text",
-          "storageKey": null
-        }
-      ],
-      "storageKey": null
     }
   ],
   "type": "FeedUnit",
@@ -84,7 +71,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c59828d97112ef7a54d99ee024673caa";
+  (node/*: any*/).hash = "da7a170ddd5452b9936c41f99bf7a85c";
 }
 
 module.exports = node;

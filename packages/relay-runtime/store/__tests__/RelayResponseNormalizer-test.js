@@ -4355,5 +4355,101 @@ describe('RelayResponseNormalizer', () => {
         },
       });
     });
+
+    it('should normalize fields with and without actor change', () => {
+      const queryWithAlias = graphql`
+        query RelayResponseNormalizerTestActorChangeWithAliasQuery {
+          viewer {
+            me: actor {
+              name
+            }
+            actor @EXPERIMENTAL__as_actor {
+              ...RelayResponseNormalizerTestActorChangeFragment
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        viewer: {
+          __typename: 'Viewer',
+          me: {
+            __typename: 'User',
+            id: 'user-1234',
+            name: 'Antonio',
+          },
+          actor: {
+            __typename: 'User',
+            id: 'user-1234',
+            __viewer: 'actor-4321',
+            name: 'Antonio',
+          },
+        },
+      };
+      const recordSource = new RelayRecordSourceMapImpl();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      const result = normalize(
+        recordSource,
+        createNormalizationSelector(
+          getRequest(queryWithAlias).operation,
+          ROOT_ID,
+          {},
+        ),
+        payload,
+        {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
+      );
+      expect(result).toEqual({
+        errors: null,
+        fieldPayloads: [],
+        followupPayloads: [
+          {
+            actorIdentifier: 'actor-4321',
+            data: {
+              __typename: 'User',
+              __viewer: 'actor-4321',
+              id: 'user-1234',
+              name: 'Antonio',
+            },
+            dataID: 'user-1234',
+            kind: 'ActorPayload',
+            node: expect.objectContaining({
+              kind: 'LinkedField',
+              name: 'actor',
+            }),
+            path: ['viewer', 'actor'],
+            typeName: 'User',
+            variables: {},
+          },
+        ],
+        incrementalPlaceholders: [],
+        isFinal: false,
+        source: expect.any(RelayRecordSourceMapImpl),
+      });
+
+      expect(result.source.toJSON()).toEqual({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {
+            __ref: 'client:root:viewer',
+          },
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          actor: {
+            __actorIdentifier: 'actor-4321',
+            __ref: 'user-1234',
+          },
+        },
+        'user-1234': {
+          __id: 'user-1234',
+          __typename: 'User',
+          id: 'user-1234',
+          name: 'Antonio',
+        },
+      });
+    });
   });
 });

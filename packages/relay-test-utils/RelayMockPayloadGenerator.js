@@ -23,6 +23,7 @@ const {
 } = require('relay-runtime');
 
 const {
+  ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   CONDITION,
@@ -498,6 +499,8 @@ class RelayMockPayloadGenerator {
           break;
         case FLIGHT_FIELD:
           throw new Error('Flight fields are not yet supported.');
+        case ACTOR_CHANGE:
+          throw new Error('ActorChange fields are not yet supported.');
         default:
           (selection: empty);
           invariant(

@@ -23,7 +23,11 @@ import type {
   NormalizationArgument,
   NormalizationField,
 } from '../util/NormalizationNode';
-import type {ReaderArgument, ReaderField} from '../util/ReaderNode';
+import type {
+  ReaderArgument,
+  ReaderField,
+  ReaderActorChange,
+} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 export type Arguments = interface {+[string]: mixed};
@@ -121,7 +125,11 @@ function getHandleStorageKey(
  * used here for consistency.
  */
 function getStorageKey(
-  field: NormalizationField | NormalizationHandle | ReaderField,
+  field:
+    | NormalizationField
+    | NormalizationHandle
+    | ReaderField
+    | ReaderActorChange,
   variables: Variables,
 ): string {
   if (field.storageKey) {
@@ -195,6 +203,7 @@ function getModuleOperationKey(documentName: string): string {
  * Constants shared by all implementations of RecordSource/MutableRecordSource/etc.
  */
 const RelayStoreUtils = {
+  ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',

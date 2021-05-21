@@ -20,6 +20,11 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 const {
+  ACTOR_IDENTIFIER_FIELD_NAME,
+  getActorIdentifierFromPayload,
+} = require('../multi-actor-environment/ActorUtils');
+const {
+  ACTOR_CHANGE,
   CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
@@ -56,8 +61,10 @@ const {
 } = require('./RelayStoreUtils');
 const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {PayloadData} from '../network/RelayNetworkTypes';
 import type {
+  NormalizationActorChange,
   NormalizationDefer,
   NormalizationFlightField,
   NormalizationLinkedField,
@@ -92,6 +99,7 @@ export type NormalizationOptions = {|
   +reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
   +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +shouldProcessClientComponents?: ?boolean,
+  +actorIdentifier?: ?ActorIdentifier,
 |};
 
 /**
@@ -119,6 +127,7 @@ function normalize(
  * Helper for handling payloads.
  */
 class RelayResponseNormalizer {
+  _actorIdentifier: ?ActorIdentifier;
   _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _treatMissingFieldsAsNull: boolean;
@@ -138,6 +147,7 @@ class RelayResponseNormalizer {
     variables: Variables,
     options: NormalizationOptions,
   ) {
+    this._actorIdentifier = options.actorIdentifier;
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
     this._treatMissingFieldsAsNull = options.treatMissingFieldsAsNull;
@@ -328,6 +338,9 @@ class RelayResponseNormalizer {
             throw new Error('Flight fields are not yet supported.');
           }
           break;
+        case ACTOR_CHANGE:
+          this._normalizeActorChange(node, selection, record, data);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -441,6 +454,7 @@ class RelayResponseNormalizer {
         path: [...this._path],
         typeName,
         variables: this._variables,
+        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -531,6 +545,98 @@ class RelayResponseNormalizer {
         selection.kind,
       );
     }
+  }
+
+  _normalizeActorChange(
+    parent: NormalizationNode,
+    selection: NormalizationActorChange,
+    record: Record,
+    data: PayloadData,
+  ) {
+    const field = selection.linkedField;
+    invariant(
+      typeof data === 'object' && data,
+      '_normalizeActorChange(): Expected data for field `%s` to be an object.',
+      field.name,
+    );
+    const responseKey = field.alias || field.name;
+    const storageKey = getStorageKey(field, this._variables);
+    const fieldValue = data[responseKey];
+
+    if (fieldValue == null) {
+      if (fieldValue === undefined) {
+        const isOptionalField =
+          this._isClientExtension || this._isUnmatchedAbstractType;
+
+        if (isOptionalField) {
+          return;
+        } else if (!this._treatMissingFieldsAsNull) {
+          if (__DEV__) {
+            warning(
+              false,
+              'RelayResponseNormalizer: Payload did not contain a value ' +
+                'for field `%s: %s`. Check that you are parsing with the same ' +
+                'query that was used to fetch the payload.',
+              responseKey,
+              storageKey,
+            );
+          }
+          return;
+        }
+      }
+      RelayModernRecord.setValue(record, storageKey, null);
+      return;
+    }
+
+    const actorIdentifier = getActorIdentifierFromPayload(fieldValue);
+    if (actorIdentifier == null) {
+      if (__DEV__) {
+        warning(
+          false,
+          'RelayResponseNormalizer: Payload did not contain a value ' +
+            'for field `%s`. Check that you are parsing with the same ' +
+            'query that was used to fetch the payload.',
+          ACTOR_IDENTIFIER_FIELD_NAME,
+        );
+      }
+      RelayModernRecord.setValue(record, storageKey, null);
+      return;
+    }
+
+    // $FlowFixMe[incompatible-call]
+    const typeName = field.concreteType ?? this._getRecordType(fieldValue);
+    const nextID =
+      this._getDataId(
+        // $FlowFixMe[incompatible-call]
+        fieldValue,
+        typeName,
+      ) ||
+      RelayModernRecord.getLinkedRecordID(record, storageKey) ||
+      generateClientID(RelayModernRecord.getDataID(record), storageKey);
+
+    invariant(
+      typeof nextID === 'string',
+      'RelayResponseNormalizer: Expected id on field `%s` to be a string.',
+      storageKey,
+    );
+
+    RelayModernRecord.setActorLinkedRecordID(
+      record,
+      storageKey,
+      actorIdentifier,
+      nextID,
+    );
+
+    this._followupPayloads.push({
+      kind: 'ActorPayload',
+      data: (fieldValue: $FlowFixMe),
+      dataID: nextID,
+      path: [...this._path, responseKey],
+      typeName,
+      variables: this._variables,
+      node: field,
+      actorIdentifier,
+    });
   }
 
   _normalizeFlightField(
@@ -673,6 +779,7 @@ class RelayResponseNormalizer {
           path: [],
           typeName: ROOT_TYPE,
           variables: query.variables,
+          actorIdentifier: this._actorIdentifier,
         });
       }
       reachableExecutableDefinitions.push({
@@ -690,6 +797,7 @@ class RelayResponseNormalizer {
           path: [],
           typeName: fragment.__typename,
           variables: fragment.variables,
+          actorIdentifier: this._actorIdentifier,
         });
       }
       reachableExecutableDefinitions.push({

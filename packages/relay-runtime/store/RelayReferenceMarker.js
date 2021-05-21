@@ -43,6 +43,7 @@ import type {
 } from './RelayStoreTypes';
 
 const {
+  ACTOR_CHANGE,
   CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
@@ -137,6 +138,10 @@ class RelayReferenceMarker {
     selections.forEach(selection => {
       /* eslint-disable no-fallthrough */
       switch (selection.kind) {
+        case ACTOR_CHANGE:
+          // TODO: T89695151 Support multi-actor record sources in RelayReferenceMarker.js
+          this._traverseLink(selection.linkedField, record);
+          break;
         case LINKED_FIELD:
           if (selection.plural) {
             this._traversePluralLink(selection, record);

@@ -28,6 +28,7 @@ import type {
   StoreSubscriptions,
   DataIDSet,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
 
 type Subscription = {|
   backup: ?Snapshot,
@@ -43,13 +44,15 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
   _subscriptionsByDataId: Map<DataID, Set<Subscription>>;
   _staleSubscriptions: Set<Subscription>;
   __log: ?LogFunction;
+  _resolverCache: ResolverCache;
 
-  constructor(log?: ?LogFunction) {
+  constructor(log?: ?LogFunction, resolverCache: ResolverCache) {
     this._notifiedRevision = 0;
     this._snapshotRevision = 0;
     this._subscriptionsByDataId = new Map();
     this._staleSubscriptions = new Set();
     this.__log = log;
+    this._resolverCache = resolverCache;
   }
 
   subscribe(
@@ -113,7 +116,11 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
           return;
         }
         const snapshot = subscription.snapshot;
-        const backup = RelayReader.read(source, snapshot.selector);
+        const backup = RelayReader.read(
+          source,
+          snapshot.selector,
+          this._resolverCache,
+        );
         const nextData = recycleNodesInto(snapshot.data, backup.data);
         (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
         subscription.backup = backup;
@@ -217,7 +224,7 @@ class RelayStoreSubscriptionsUsingMapByID implements StoreSubscriptions {
     let nextSnapshot: Snapshot =
       stale && backup != null
         ? backup
-        : RelayReader.read(source, snapshot.selector);
+        : RelayReader.read(source, snapshot.selector, this._resolverCache);
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
     nextSnapshot = ({
       data: nextData,

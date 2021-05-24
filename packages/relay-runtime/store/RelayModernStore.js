@@ -147,16 +147,19 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._storeSubscriptions =
-      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
-        ? new RelayStoreSubscriptionsUsingMapByID(options?.log)
-        : new RelayStoreSubscriptions(options?.log);
-    this._updatedRecordIDs = new Set();
-    this._shouldProcessClientComponents =
-      options?.shouldProcessClientComponents;
     this._resolverCache = new RecordResolverCache(() =>
       this._getMutableRecordSource(),
     );
+    this._storeSubscriptions =
+      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
+        ? new RelayStoreSubscriptionsUsingMapByID(
+            options?.log,
+            this._resolverCache,
+          )
+        : new RelayStoreSubscriptions(options?.log, this._resolverCache);
+    this._updatedRecordIDs = new Set();
+    this._shouldProcessClientComponents =
+      options?.shouldProcessClientComponents;
 
     initializeRecordSource(this._recordSource);
   }

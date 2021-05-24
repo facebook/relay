@@ -235,7 +235,16 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     optimisticConfig: OptimisticResponseConfig,
   ): Disposable {
-    return todo('applyMutation');
+    const subscription = this._execute(actorEnvironment, {
+      createSource: () => RelayObservable.create(_sink => {}),
+      isClientPayload: false,
+      operation: optimisticConfig.operation,
+      optimisticConfig,
+      updater: null,
+    }).subscribe({});
+    return {
+      dispose: () => subscription.unsubscribe(),
+    };
   }
 
   commitUpdate(

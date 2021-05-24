@@ -18,6 +18,10 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  getActorIdentifier,
+  MultiActorEnvironment,
+} = require('../../multi-actor-environment');
 const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -27,187 +31,200 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-describe('applyMutation()', () => {
-  let commentID;
-  let CommentFragment;
-  let CommentQuery;
-  let CreateCommentMutation;
-  let CreateCommentWithSpreadMutation;
-  let environment;
-  let fetch;
-  let operation;
-  let queryOperation;
-  let source;
-  let store;
-  let variables;
-  let queryVariables;
+describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
+  'applyMutation()',
+  environmentType => {
+    let commentID;
+    let CommentFragment;
+    let CommentQuery;
+    let CreateCommentMutation;
+    let CreateCommentWithSpreadMutation;
+    let environment;
+    let operation;
+    let queryOperation;
+    let source;
+    let store;
+    let variables;
+    let queryVariables;
 
-  beforeEach(() => {
-    commentID = 'comment-id';
+    describe(environmentType, () => {
+      beforeEach(() => {
+        commentID = 'comment-id';
 
-    CreateCommentMutation = getRequest(graphql`
-      mutation RelayModernEnvironmentApplyMutationTestMutation(
-        $input: CommentCreateInput!
-      ) {
-        commentCreate(input: $input) {
-          comment {
+        CreateCommentMutation = getRequest(graphql`
+          mutation RelayModernEnvironmentApplyMutationTestMutation(
+            $input: CommentCreateInput!
+          ) {
+            commentCreate(input: $input) {
+              comment {
+                id
+                body {
+                  text
+                }
+              }
+            }
+          }
+        `);
+
+        CommentFragment = getFragment(graphql`
+          fragment RelayModernEnvironmentApplyMutationTestFragment on Comment {
             id
             body {
               text
             }
           }
-        }
-      }
-    `);
+        `);
 
-    CommentFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentApplyMutationTestFragment on Comment {
-        id
-        body {
-          text
-        }
-      }
-    `);
-
-    CreateCommentWithSpreadMutation = getRequest(graphql`
-      mutation RelayModernEnvironmentApplyMutationTest1Mutation(
-        $input: CommentCreateInput!
-      ) {
-        commentCreate(input: $input) {
-          comment {
-            ...RelayModernEnvironmentApplyMutationTestFragment
+        CreateCommentWithSpreadMutation = getRequest(graphql`
+          mutation RelayModernEnvironmentApplyMutationTest1Mutation(
+            $input: CommentCreateInput!
+          ) {
+            commentCreate(input: $input) {
+              comment {
+                ...RelayModernEnvironmentApplyMutationTestFragment
+              }
+            }
           }
-        }
-      }
-    `);
+        `);
 
-    CommentQuery = getRequest(graphql`
-      query RelayModernEnvironmentApplyMutationTest1Query($id: ID!) {
-        node(id: $id) {
-          id
-          ...RelayModernEnvironmentApplyMutationTestFragment
-        }
-      }
-    `);
+        CommentQuery = getRequest(graphql`
+          query RelayModernEnvironmentApplyMutationTest1Query($id: ID!) {
+            node(id: $id) {
+              id
+              ...RelayModernEnvironmentApplyMutationTestFragment
+            }
+          }
+        `);
 
-    variables = {
-      input: {
-        clientMutationId: '0',
-        feedbackId: '1',
-      },
-    };
-    queryVariables = {
-      id: commentID,
-    };
-    operation = createOperationDescriptor(CreateCommentMutation, variables);
-    queryOperation = createOperationDescriptor(CommentQuery, queryVariables);
+        variables = {
+          input: {
+            clientMutationId: '0',
+            feedbackId: '1',
+          },
+        };
+        queryVariables = {
+          id: commentID,
+        };
+        operation = createOperationDescriptor(CreateCommentMutation, variables);
+        queryOperation = createOperationDescriptor(
+          CommentQuery,
+          queryVariables,
+        );
 
-    fetch = jest.fn();
-    source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      store,
-    });
-  });
+        source = RelayRecordSource.create();
+        store = new RelayModernStore(source);
+        const multiActorEnvironment = new MultiActorEnvironment({
+          createNetworkForActor: _actorID => RelayNetwork.create(jest.fn()),
+          createStoreForActor: _actorID => store,
+        });
+        environment =
+          environmentType === 'MultiActorEnvironment'
+            ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
+            : new RelayModernEnvironment({
+                network: RelayNetwork.create(jest.fn()),
+                store,
+              });
+      });
 
-  it('applies the optimistic updater immediately', () => {
-    const selector = createReaderSelector(
-      CommentFragment,
-      commentID,
-      {},
-      queryOperation.request,
-    );
-    const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
+      it('applies the optimistic updater immediately', () => {
+        const selector = createReaderSelector(
+          CommentFragment,
+          commentID,
+          {},
+          queryOperation.request,
+        );
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
 
-    environment.applyMutation({
-      operation,
-      response: null,
-      updater: storeProxy => {
-        const comment = storeProxy.create(commentID, 'Comment');
-        comment.setValue(commentID, 'id');
-        const body = storeProxy.create(commentID + '.text', 'Text');
-        comment.setLinkedRecord(body, 'body');
-        body.setValue('Give Relay', 'text');
-      },
-    });
+        environment.applyMutation({
+          operation,
+          response: null,
+          updater: storeProxy => {
+            const comment = storeProxy.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = storeProxy.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        });
 
-    expect(callback.mock.calls.length).toBe(1);
-    expect(callback.mock.calls[0][0].data).toEqual({
-      id: commentID,
-      body: {
-        text: 'Give Relay',
-      },
-    });
-  });
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0].data).toEqual({
+          id: commentID,
+          body: {
+            text: 'Give Relay',
+          },
+        });
+      });
 
-  it('reverts the optimistic update if disposed', () => {
-    const selector = createReaderSelector(
-      CommentFragment,
-      commentID,
-      {},
-      queryOperation.request,
-    );
-    const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
+      it('reverts the optimistic update if disposed', () => {
+        const selector = createReaderSelector(
+          CommentFragment,
+          commentID,
+          {},
+          queryOperation.request,
+        );
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
 
-    const disposable = environment.applyMutation({
-      operation,
-      response: null,
-      updater: storeProxy => {
-        const comment = storeProxy.create(commentID, 'Comment');
-        comment.setValue(commentID, 'id');
-        const body = storeProxy.create(commentID + '.text', 'Text');
-        comment.setLinkedRecord(body, 'body');
-        body.setValue('Give Relay', 'text');
-      },
-    });
-    callback.mockClear();
-    disposable.dispose();
-    expect(callback.mock.calls.length).toBe(1);
-    expect(callback.mock.calls[0][0].data).toEqual(undefined);
-  });
+        const disposable = environment.applyMutation({
+          operation,
+          response: null,
+          updater: storeProxy => {
+            const comment = storeProxy.create(commentID, 'Comment');
+            comment.setValue(commentID, 'id');
+            const body = storeProxy.create(commentID + '.text', 'Text');
+            comment.setLinkedRecord(body, 'body');
+            body.setValue('Give Relay', 'text');
+          },
+        });
+        callback.mockClear();
+        disposable.dispose();
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0].data).toEqual(undefined);
+      });
 
-  it('commits optimistic response with fragment spread', () => {
-    operation = createOperationDescriptor(
-      CreateCommentWithSpreadMutation,
-      variables,
-    );
+      it('commits optimistic response with fragment spread', () => {
+        operation = createOperationDescriptor(
+          CreateCommentWithSpreadMutation,
+          variables,
+        );
 
-    const selector = createReaderSelector(
-      CommentFragment,
-      commentID,
-      {},
-      queryOperation.request,
-    );
-    const snapshot = environment.lookup(selector);
-    const callback = jest.fn();
-    environment.subscribe(snapshot, callback);
+        const selector = createReaderSelector(
+          CommentFragment,
+          commentID,
+          {},
+          queryOperation.request,
+        );
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn();
+        environment.subscribe(snapshot, callback);
 
-    environment.applyMutation({
-      operation,
-      response: {
-        commentCreate: {
-          comment: {
-            id: commentID,
-            body: {
-              text: 'Give Relay',
+        environment.applyMutation({
+          operation,
+          response: {
+            commentCreate: {
+              comment: {
+                id: commentID,
+                body: {
+                  text: 'Give Relay',
+                },
+              },
             },
           },
-        },
-      },
-      updater: null,
-    });
+          updater: null,
+        });
 
-    expect(callback.mock.calls.length).toBe(1);
-    expect(callback.mock.calls[0][0].data).toEqual({
-      id: commentID,
-      body: {
-        text: 'Give Relay',
-      },
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0].data).toEqual({
+          id: commentID,
+          body: {
+            text: 'Give Relay',
+          },
+        });
+      });
     });
-  });
-});
+  },
+);

@@ -968,9 +968,11 @@ class Executor {
               const operation = getOperation(loadedNode);
               const [duration] = withDuration(() => {
                 this._handleModuleImportPayload(moduleImportPayload, operation);
-                // OK: always have to run after an async module import resolves
-                const updatedOwners = this._publishQueue.run();
-                this._updateOperationTracker(updatedOwners);
+                if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+                  // OK: always have to run after an async module import resolves
+                  const updatedOwners = this._publishQueue.run();
+                  this._updateOperationTracker(updatedOwners);
+                }
               });
               this._log({
                 name: 'execute.async.module',

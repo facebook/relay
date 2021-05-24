@@ -51,10 +51,6 @@ import type {
   IMultiActorEnvironment,
 } from './MultiActorEnvironmentTypes';
 
-function todo(what: string) {
-  throw new Error(`Not implemented: ${what}`);
-}
-
 export type MultiActorEnvironmentConfig = $ReadOnly<{
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   getDataID?: GetDataID,
@@ -350,7 +346,13 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       source: RelayObservable<GraphQLResponse>,
     },
   ): RelayObservable<GraphQLResponse> {
-    return todo('executeWithSource');
+    return this._execute(actorEnvironment, {
+      createSource: () => config.source,
+      isClientPayload: false,
+      operation: config.operation,
+      optimisticConfig: null,
+      updater: null,
+    });
   }
 
   isRequestActive(

@@ -50,6 +50,10 @@ fragment TodoList_list on TodoList @argumentDefinitions(
 
 With `usePaginationFragment`, Relay expects connection fields to be annotated with a `@connection` directive. For more detailed information and an example, check out the [docs on `usePaginationFragment`](../../guided-tour/list-data/rendering-connections).
 
+## `@refetchable(queryName: String!)`
+
+With `useRefetchableFragment` and `usePaginationFragment`, Relay expects a `@refetchable` directive. The `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are declared on `Viewer` or `Query` types, or on a type that implements `Node` (i.e. a type that has an id). The `@refetchable` directive will autogenerate a query with the specified `queryName`. This will also generate Flow types for the query, available to import from the generated file: `<queryName>.graphql.js`. For more detailed information and examples, check out the docs on [`useRefetchableFragment`](../use-refetchable-fragment/) or [`usePaginationFragment`](../use-pagination-fragment/).
+
 ## `@relay(plural: Boolean)`
 
 When defining a fragment for use with a Fragment container, you can use the `@relay(plural: true)` directive to indicate that container expects the prop for that fragment to be a list of items instead of a single item. A query or parent that spreads a `@relay(plural: true)` fragment should do so within a plural field (ie a field backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For example:

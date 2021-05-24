@@ -28,7 +28,10 @@ import type {
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
 type ResolverContext = {|
-  getDataForResolverFragment: SingularReaderSelector => mixed,
+  getDataForResolverFragment: (
+    SingularReaderSelector,
+    FragmentReference,
+  ) => mixed,
 |};
 const contextStack: Array<ResolverContext> = [];
 
@@ -101,7 +104,7 @@ declare function readFragment<
 
 function readFragment(
   fragmentInput: GraphQLTaggedNode,
-  fragmentRef: mixed,
+  fragmentRef: FragmentReference,
 ): mixed {
   if (!contextStack.length) {
     throw new Error(
@@ -119,7 +122,7 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  return context.getDataForResolverFragment(fragmentSelector);
+  return context.getDataForResolverFragment(fragmentSelector, fragmentRef);
 }
 
 module.exports = {readFragment, withResolverContext};

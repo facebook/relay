@@ -12,6 +12,7 @@
 
 'use strict';
 
+const ClientID = require('./ClientID');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 
@@ -450,55 +451,80 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
-    const result = this._resolverCache.readFromCacheOrEvaluate(
-      record,
-      field,
-      this._variables,
-      () => this._evaluateResolver(field, record),
+    const {resolverModule, fragment} = field;
+    const storageKey = getStorageKey(field, this._variables);
+    const resolverID = ClientID.generateClientID(
+      RelayModernRecord.getDataID(record),
+      storageKey,
     );
-    data[applicationName] = result;
-    return result;
-  }
 
-  _evaluateResolver(selection, record) {
-    const {resolverModule, fragment} = selection;
-    const key = {
-      __id: RelayModernRecord.getDataID(record),
-      __fragmentOwner: this._owner,
-      __fragments: {
-        [fragment.name]: {}, // Arguments to this fragment; not yet supported.
-      },
-    };
-    const resolverContext = {
-      getDataForResolverFragment: singularReaderSelector => {
+    // Found when reading the resolver fragment, which can happen either when
+    // evaluating the resolver and it calls readFragment, or when checking if the
+    // inputs have changed since a previous evaluation:
+    let fragmentValue;
+    let fragmentReaderSelector;
+    const fragmentSeenRecordIDs = new Set();
+
+    const getDataForResolverFragment = singularReaderSelector => {
+      if (fragmentValue != null) {
+        // It was already read when checking for input staleness; no need to read it again.
+        // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
+        // already been set and will still be used in this case.
+        return fragmentValue;
+      }
+      fragmentReaderSelector = singularReaderSelector;
+      const existingSeenRecords = this._seenRecords;
+      try {
+        this._seenRecords = fragmentSeenRecordIDs;
         const resolverFragmentData = {};
         this._createInlineDataOrResolverFragmentPointer(
           singularReaderSelector.node,
           record,
           resolverFragmentData,
         );
-        const answer = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
+        fragmentValue = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
         invariant(
-          typeof answer === 'object' && answer !== null,
+          typeof fragmentValue === 'object' && fragmentValue !== null,
           `Expected reader data to contain a __fragments property with a property for the fragment named ${fragment.name}, but it is missing.`,
         );
-        return answer;
-      },
-    };
-    return withResolverContext(resolverContext, () => {
-      let resolverResult;
-      const seenRecords = new Set();
-      const existingSeenRecords = this._seenRecords;
-      try {
-        this._seenRecords = seenRecords;
-        // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-        resolverResult = resolverModule(key);
+        return fragmentValue;
       } finally {
         this._seenRecords = existingSeenRecords;
       }
-      return {resolverResult, seenRecords};
-    });
+    };
+    const resolverContext = {getDataForResolverFragment};
+
+    const [result, seenRecord] = this._resolverCache.readFromCacheOrEvaluate(
+      record,
+      field,
+      this._variables,
+      () => {
+        const key = {
+          __id: RelayModernRecord.getDataID(record),
+          __fragmentOwner: this._owner,
+          __fragments: {
+            [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+          },
+        };
+        return withResolverContext(resolverContext, () => {
+          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+          const resolverResult = resolverModule(key);
+          return {
+            resolverResult,
+            fragmentValue,
+            resolverID,
+            seenRecordIDs: fragmentSeenRecordIDs,
+            readerSelector: fragmentReaderSelector,
+          };
+        });
+      },
+      getDataForResolverFragment,
+    );
+    if (seenRecord != null) {
+      this._seenRecords.add(seenRecord);
+    }
+    data[storageKey] = result;
+    return result;
   }
 
   _readFlightField(

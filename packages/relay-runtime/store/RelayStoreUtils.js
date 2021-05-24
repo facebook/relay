@@ -217,6 +217,9 @@ const RelayStoreUtils = {
   INVALIDATED_AT_KEY: '__invalidated_at',
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
   RELAY_RESOLVER_VALUE_KEY: '__resolverValue',
+  RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
+  RELAY_RESOLVER_INPUTS_KEY: '__resolverInputValues',
+  RELAY_RESOLVER_READER_SELECTOR_KEY: '__resolverReaderSelector',
 
   formatStorageKey,
   getArgumentValue,

@@ -28,31 +28,31 @@ const {getDefaultActorIdentifier} = require('../ActorIdentifier');
 test('forActor: creates an environment', () => {
   const actorIdentifer = getDefaultActorIdentifier();
   const fetchFn = jest.fn();
-  const multiActorEnvrionment = new MultiActorEnvironment({
+  const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     requiredFieldLogger: jest.fn(),
   });
-  const actorEnvironment = multiActorEnvrionment.forActor(actorIdentifer);
+  const actorEnvironment = multiActorEnvironment.forActor(actorIdentifer);
 
   expect(actorEnvironment.actorIdentifier).toBe(actorIdentifer);
-  expect(actorEnvironment.multiActorEnvironment).toBe(multiActorEnvrionment);
+  expect(actorEnvironment.multiActorEnvironment).toBe(multiActorEnvironment);
 });
 
 test('forActor: memoize an environment', () => {
   const actorIdentifer = getDefaultActorIdentifier();
   const fetchFn = jest.fn();
-  const multiActorEnvrionment = new MultiActorEnvironment({
+  const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     requiredFieldLogger: jest.fn(),
   });
-  const actorEnvironment = multiActorEnvrionment.forActor(actorIdentifer);
+  const actorEnvironment = multiActorEnvironment.forActor(actorIdentifer);
 
   expect(actorEnvironment.actorIdentifier).toBe(actorIdentifer);
-  expect(actorEnvironment.multiActorEnvironment).toBe(multiActorEnvrionment);
+  expect(actorEnvironment.multiActorEnvironment).toBe(multiActorEnvironment);
 
-  const newEnvironment = multiActorEnvrionment.forActor(actorIdentifer);
+  const newEnvironment = multiActorEnvironment.forActor(actorIdentifer);
 
   expect(newEnvironment).toBe(actorEnvironment);
 });

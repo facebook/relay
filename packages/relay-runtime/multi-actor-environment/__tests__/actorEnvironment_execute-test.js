@@ -33,12 +33,12 @@ const {getDefaultActorIdentifier} = require('../ActorIdentifier');
 test('send a network request with actor specific params', () => {
   const actorIdentifier = getDefaultActorIdentifier();
   const fetchFn = jest.fn(() => new Promise(jest.fn()));
-  const multiActorEnvrionment = new MultiActorEnvironment({
+  const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     requiredFieldLogger: jest.fn(),
   });
-  const actorEnvironment = multiActorEnvrionment.forActor(actorIdentifier);
+  const actorEnvironment = multiActorEnvironment.forActor(actorIdentifier);
 
   const operation = createOperationDescriptor(
     getRequest(graphql`

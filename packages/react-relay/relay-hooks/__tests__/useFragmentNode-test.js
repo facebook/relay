@@ -288,7 +288,10 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>,
       // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-      {unstable_isConcurrent: isConcurrent},
+      {
+        unstable_isConcurrent: isConcurrent,
+        unstable_concurrentUpdatesByDefault: true,
+      },
     );
   };
 
@@ -306,7 +309,10 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>,
       // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-      {unstable_isConcurrent: isConcurrent},
+      {
+        unstable_isConcurrent: isConcurrent,
+        unstable_concurrentUpdatesByDefault: true,
+      },
     );
   };
 });

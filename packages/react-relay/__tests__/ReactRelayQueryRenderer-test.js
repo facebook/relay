@@ -169,6 +169,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
 
           // Flush some of the changes, but don't commit
@@ -238,6 +239,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
           const owner = createOperationDescriptor(TestQuery, variables);
 
@@ -323,6 +325,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
           const owner = createOperationDescriptor(TestQuery, variables);
 

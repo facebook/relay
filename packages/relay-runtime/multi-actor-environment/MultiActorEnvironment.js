@@ -104,6 +104,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._isServer = config.isServer ?? false;
     this._missingFieldHandlers = config.missingFieldHandlers;
     this._createStoreForActor = config.createStoreForActor;
+    this._reactFlightPayloadDeserializer =
+      config.reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
   }
 
   /**

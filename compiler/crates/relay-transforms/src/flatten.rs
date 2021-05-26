@@ -18,10 +18,10 @@ use interner::StringKey;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
+use common::sync::*;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
-use rayon::prelude::*;
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -41,12 +41,12 @@ pub fn flatten(program: &mut Program, is_for_codegen: bool) -> DiagnosticsResult
     let transform = FlattenTransform::new(program, is_for_codegen);
     let errors = Arc::new(Mutex::new(Vec::new()));
 
-    program.par_operations_mut().for_each(|operation| {
+    par_iter(&mut program.operations).for_each(|operation| {
         if let Err(err) = transform.transform_operation(operation) {
             errors.lock().extend(err.into_iter());
         }
     });
-    program.par_fragments_mut().for_each(|fragment| {
+    par_iter(&mut program.fragments).for_each(|(_, fragment)| {
         if let Err(err) = transform.transform_fragment(fragment) {
             errors.lock().extend(err.into_iter());
         }

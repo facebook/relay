@@ -107,7 +107,6 @@ interner = { path = "../interner" }
 itertools = "0.8"
 lazy_static = "1.0"
 parking_lot = "0.10.2"
-rayon = "1.2"
 schema = { path = "../schema" }
 serde = { version = "=1.0.118", features = ["derive", "rc"] }
 thiserror = "1.0"

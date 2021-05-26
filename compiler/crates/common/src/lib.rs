@@ -15,6 +15,7 @@ mod location;
 mod named_item;
 mod perf_logger;
 mod span;
+pub mod sync;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
 pub use diagnostic::{

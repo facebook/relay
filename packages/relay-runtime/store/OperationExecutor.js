@@ -955,45 +955,62 @@ class Executor {
       // Observable.from(operationLoader.load()) wouldn't catch synchronous
       // errors thrown by the load function, which is user-defined. Guard
       // against that with Observable.from(new Promise(<work>)).
-      RelayObservable.from(
+      const networkObservable = RelayObservable.from(
         new Promise((resolve, reject) => {
           operationLoader
             .load(moduleImportPayload.operationReference)
             .then(resolve, reject);
         }),
-      )
-        .map((loadedNode: ?NormalizationRootNode) => {
-          if (loadedNode != null) {
-            this._schedule(() => {
-              const operation = getOperation(loadedNode);
-              const [duration] = withDuration(() => {
-                this._handleModuleImportPayload(moduleImportPayload, operation);
-                if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-                  // OK: always have to run after an async module import resolves
-                  const updatedOwners = this._publishQueue.run();
-                  this._updateOperationTracker(updatedOwners);
+      );
+      RelayObservable.create(sink => {
+        const subscription = networkObservable.subscribe({
+          next: (loadedNode: ?NormalizationRootNode) => {
+            if (loadedNode != null) {
+              this._schedule(() => {
+                try {
+                  const operation = getOperation(loadedNode);
+                  const [duration] = withDuration(() => {
+                    this._handleModuleImportPayload(
+                      moduleImportPayload,
+                      operation,
+                    );
+                    if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+                      // OK: always have to run after an async module import resolves
+                      const updatedOwners = this._publishQueue.run();
+                      this._updateOperationTracker(updatedOwners);
+                    }
+                  });
+                  this._log({
+                    name: 'execute.async.module',
+                    executeId: this._executeId,
+                    operationName: operation.name,
+                    duration,
+                  });
+                  sink.complete();
+                } catch (error) {
+                  sink.error(error);
                 }
               });
-              this._log({
-                name: 'execute.async.module',
-                executeId: this._executeId,
-                operationName: operation.name,
-                duration,
-              });
-            });
-          }
-        })
-        .subscribe({
-          complete: () => {
-            this._complete(id);
-            decrementPendingCount();
+            } else {
+              sink.complete();
+            }
           },
-          error: error => {
-            this._error(error);
-            decrementPendingCount();
-          },
-          start: subscription => this._start(id, subscription),
+          error: sink.error,
         });
+        return () => {
+          subscription.unsubscribe();
+        };
+      }).subscribe({
+        complete: () => {
+          this._complete(id);
+          decrementPendingCount();
+        },
+        error: error => {
+          this._error(error);
+          decrementPendingCount();
+        },
+        start: subscription => this._start(id, subscription),
+      });
     }
   }
 

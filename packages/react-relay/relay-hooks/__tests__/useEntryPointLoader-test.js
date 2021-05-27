@@ -70,6 +70,7 @@ beforeEach(() => {
       loadedEntryPoint,
       entryPointLoaderCallback,
       disposeEntryPoint,
+      // $FlowFixMe[prop-missing]
     ] = useEntryPointLoader(environmentProvider, entryPoint);
     return null;
   };

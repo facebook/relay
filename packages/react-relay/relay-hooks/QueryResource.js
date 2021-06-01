@@ -16,6 +16,7 @@
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {isPromise} = require('relay-runtime');
 
@@ -46,6 +47,11 @@ type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +id: number,
   +cacheIdentifier: string,
+  // The number of received payloads for the operation.
+  // We want to differentiate the initial graphql response for the operation
+  // from the incremental responses, so later we can choose how to handle errors
+  // in the incremental payloads.
+  processedPayloadsCount: number,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
   setNetworkSubscription(?Subscription): void,
@@ -148,6 +154,7 @@ function createCacheEntry(
   const cacheEntry = {
     cacheIdentifier,
     id: nextID++,
+    processedPayloadsCount: 0,
     getValue() {
       return currentValue;
     },
@@ -508,6 +515,7 @@ class QueryResourceImpl {
             queryResult,
             networkSubscription,
           );
+          cacheEntry.processedPayloadsCount += 1;
           cacheEntry.setValue(queryResult);
           resolveNetworkPromise();
 
@@ -524,7 +532,23 @@ class QueryResourceImpl {
             error,
             networkSubscription,
           );
-          cacheEntry.setValue(error);
+
+          // If, this is the first thing we receive for the query,
+          // before any other payload handled is error, we will cache and
+          // re-throw that error later.
+
+          // We will ignore errors for any incremental payloads we receive.
+          if (cacheEntry.processedPayloadsCount === 0) {
+            cacheEntry.setValue(error);
+          } else {
+            warning(
+              false,
+              'QueryResource: An incremental payload for query `%` returned an error: `%`:`%`.',
+              operation.fragment.node.name,
+              error.message,
+              error.stack,
+            );
+          }
           resolveNetworkPromise();
 
           networkSubscription = null;

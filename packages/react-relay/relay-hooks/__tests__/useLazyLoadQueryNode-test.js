@@ -80,14 +80,17 @@ describe('useLazyLoadQueryNode', () => {
   let Container;
   let setProps;
   let logs;
+  let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
+    errorBoundaryDidCatchFn = jest.fn();
 
     class ErrorBoundary extends React.Component<any, any> {
       state = {error: null};
       componentDidCatch(error) {
+        errorBoundaryDidCatchFn(error);
         this.setState({error});
       }
       render() {
@@ -251,7 +254,7 @@ describe('useLazyLoadQueryNode', () => {
 
   it('fetches and renders correctly even if fetched query data still has missing data', () => {
     // This scenario might happen if for example we are making selections on
-    // abstract types which the concrete type doesn't implemenet
+    // abstract types which the concrete type doesn't implement
 
     const instance = render(environment, <Container variables={variables} />);
 
@@ -669,6 +672,109 @@ describe('useLazyLoadQueryNode', () => {
     expect(
       environment.mock.isLoading(query.request.node, variables, {force: true}),
     ).toEqual(false);
+  });
+
+  describe('with @defer and re-rendering', () => {
+    beforeEach(() => {
+      graphql`
+        fragment useLazyLoadQueryNodeTestDeferFragment on User {
+          id
+          name
+        }
+      `;
+      gqlQuery = getRequest(graphql`
+        query useLazyLoadQueryNodeTest1Query($id: ID) {
+          node(id: $id) {
+            ...useLazyLoadQueryNodeTestDeferFragment @defer
+          }
+        }
+      `);
+      variables = {id: 'user:1234'};
+      query = createOperationDescriptor(gqlQuery, variables);
+    });
+
+    it('should handle errors ', () => {
+      const instance = render(
+        environment,
+        <Container key={0} variables={variables} />,
+      );
+
+      expect(instance.toJSON()).toEqual('Fallback');
+      expect(renderFn).not.toBeCalled();
+
+      const payloadError = new Error('Invalid Payload');
+
+      expect(errorBoundaryDidCatchFn).not.toBeCalled();
+
+      environment.mock.reject(query, payloadError);
+
+      // force re-rendering of the component, to read from the QueryResource
+      // by default, error responses do not trigger react updates
+      ReactTestRenderer.act(() => {
+        setProps({variables, key: 1});
+      });
+
+      // This time, error boundary will render the error
+      expect(errorBoundaryDidCatchFn).toBeCalledWith(payloadError);
+      expect(renderFn).not.toBeCalled();
+    });
+
+    it('should render the query with defer payloads without errors for defer payloads', () => {
+      jest.mock('warning');
+      const warning = require('warning');
+
+      const instance = render(
+        environment,
+        <Container key={0} variables={variables} />,
+      );
+
+      expect(instance.toJSON()).toEqual('Fallback');
+      expect(renderFn).not.toBeCalled();
+
+      ReactTestRenderer.act(() => {
+        environment.mock.nextValue(query, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: variables.id,
+            },
+          },
+        });
+      });
+
+      const data = environment.lookup(query.fragment).data;
+
+      expectToBeRendered(renderFn, data);
+
+      expect(errorBoundaryDidCatchFn).not.toBeCalled();
+
+      const payloadError = new Error('Invalid Payload');
+      // $FlowFixMe(prop-missing)
+      warning.mockClear();
+
+      environment.mock.reject(query, payloadError);
+      expect(warning).toBeCalledWith(
+        false,
+        expect.stringContaining(
+          'QueryResource: An incremental payload for query `%`',
+        ),
+        'useLazyLoadQueryNodeTest1Query',
+        expect.stringContaining('Invalid Payload'),
+        expect.stringContaining('Invalid Payload'),
+      );
+
+      // force re-rendering of the component, to read from the QueryResource
+      // by default, error responses do not trigger react updates
+      ReactTestRenderer.act(() => {
+        setProps({variables, key: 1});
+      });
+
+      // error boundary should not display that error
+      expect(errorBoundaryDidCatchFn).not.toBeCalled();
+
+      // and we also should re-render the same view as for the initial response
+      expectToBeRendered(renderFn, data);
+    });
   });
 
   describe('partial rendering', () => {

@@ -81,7 +81,9 @@ test('it should preload entry point with queries', () => {
     entryPoint,
     {id: 'my-id'},
   );
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(networkSpy).toBeCalledTimes(1);
   expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
@@ -253,7 +255,9 @@ test('it should preload entry point with nested entry points', () => {
     entryPoint,
     {id: 'my-id'},
   );
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
@@ -340,7 +344,9 @@ test('it should preload entry point with both queries and nested entry points', 
   expect(networkSpy).toBeCalledTimes(2);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
   expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({

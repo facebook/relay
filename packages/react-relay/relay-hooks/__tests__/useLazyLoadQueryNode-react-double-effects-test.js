@@ -31,7 +31,9 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToHaveFetched(environment, query) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     request: {
@@ -71,6 +73,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     environment = createMockEnvironment();
 
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment: $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
@@ -83,6 +86,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     });
 
     cancelNetworkRequest = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecute = environment.execute;
     (environment: $FlowFixMe).execute = jest.fn((...args) => {
       const originalObservable = originalExecute(...args);
@@ -172,12 +176,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     // Assert that query is suspended
     expectToHaveFetched(environment, query);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
     // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Resolve network response
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
@@ -207,6 +213,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // a re-render is triggered to refetch, re-retain, and
     // re-suspend:
     expectToHaveFetched(environment, query);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
     // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
@@ -226,6 +233,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     // Resolve response for second request
     renderLogs = [];
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
@@ -243,8 +251,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     // Assert that after refetch: double invoke effects don't trigger
     // again, and that we don't trigger a second refetch
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(0);
     expect(release).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
     expect(renderLogs).toEqual([
       'render: Alice 2',
@@ -260,6 +270,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       jest.runAllTimers();
     });
     expect(release).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
   });
 
@@ -303,12 +314,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     // Assert that query is suspended
     expectToHaveFetched(environment, query);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
     // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Fallback');
 
     // Resolve network response
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
@@ -337,7 +350,9 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // The effect setup will re-execute, so we assert that
     // a re-render is triggered to re-retain, but it does not
     // refetch:
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(0);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
 
     // Assert render state of component using the query after re-rendering:
@@ -365,6 +380,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       jest.runAllTimers();
     });
     expect(release).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
   });
 
@@ -421,12 +437,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Assert that query is suspended
       expectToHaveFetched(environment, queryWithDefer);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
       // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Fallback');
 
       // Resolve network response
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
@@ -454,6 +472,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // a re-render is triggered to refetch, re-retain, and
       // re-suspend:
       expectToHaveFetched(environment, queryWithDefer);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Fallback']);
@@ -473,6 +492,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Resolve response for second request
       renderLogs = [];
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
@@ -489,8 +509,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Assert that after refetch: double invoke effects don't trigger
       // again, and that we don't trigger a second refetch
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
       expect(release).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(renderLogs).toEqual([
         'render: Alice 2',
@@ -516,8 +538,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Assert that after refetch: double invoke effects don't trigger
       // again, and that we don't trigger a second refetch
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
       expect(release).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(renderLogs).toEqual([
         'render: Alice 2',
@@ -533,6 +557,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         jest.runAllTimers();
       });
       expect(release).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
@@ -588,12 +613,14 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Assert that query is suspended
       expectToHaveFetched(environment, queryWithDefer);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
       // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual('Fallback');
 
       // Resolve network response
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
@@ -621,6 +648,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // a re-render is triggered to refetch, re-retain, and
       // re-suspend:
       expectToHaveFetched(environment, queryWithDefer);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       // $FlowFixMe[incompatible-use]
       expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
@@ -644,6 +672,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Resolve response for second request
       renderLogs = [];
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
       ReactTestRenderer.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
@@ -660,8 +689,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Assert that after refetch: double invoke effects don't trigger
       // again, and that we don't trigger a second refetch
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
       expect(release).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(renderLogs).toEqual([
         'render: Alice 2',
@@ -687,8 +718,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
       // Assert that after refetch: double invoke effects don't trigger
       // again, and that we don't trigger a second refetch
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
       expect(release).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       expect(renderLogs).toEqual([
         'render: Alice 2',
@@ -704,6 +737,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         jest.runAllTimers();
       });
       expect(release).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
   });

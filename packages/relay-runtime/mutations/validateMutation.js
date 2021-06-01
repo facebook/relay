@@ -30,6 +30,7 @@ type ValidationContext = {|
 
 const warning = require('warning');
 
+// $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 const {

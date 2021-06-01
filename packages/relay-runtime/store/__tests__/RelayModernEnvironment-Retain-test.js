@@ -85,6 +85,7 @@ describe('retain()', () => {
   });
 
   it('releases data when disposed', () => {
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.retain(operation);
     const selector = createReaderSelector(
       ParentQuery.fragment,

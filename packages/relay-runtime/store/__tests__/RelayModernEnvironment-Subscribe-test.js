@@ -101,6 +101,7 @@ describe('subscribe()', () => {
       ),
     );
     const callback = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.subscribe(snapshot, callback);
     dispose();
     setName('4', 'Mark'); // Zuck -> Mark

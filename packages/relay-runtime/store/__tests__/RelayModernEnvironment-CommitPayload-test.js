@@ -59,7 +59,9 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
           operation = createOperationDescriptor(ActorQuery, {});
           source = RelayRecordSource.create();
           store = new RelayModernStore(source);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           (store: $FlowFixMe).notify = jest.fn(store.notify.bind(store));
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           (store: $FlowFixMe).publish = jest.fn(store.publish.bind(store));
           const fetch = jest.fn();
           const multiActorEnvironment = new MultiActorEnvironment({

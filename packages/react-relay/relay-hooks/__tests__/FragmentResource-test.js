@@ -625,10 +625,13 @@ function runTest(setFlag, label) {
           },
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data
@@ -658,7 +661,9 @@ function runTest(setFlag, label) {
         expect(result.data).toEqual({id: '4', name: 'Mark Updated'});
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -674,6 +679,7 @@ function runTest(setFlag, label) {
           },
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -686,7 +692,9 @@ function runTest(setFlag, label) {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -733,7 +741,9 @@ function runTest(setFlag, label) {
         expect(result.data).toEqual({id: '4', name: 'Mark Updated 2'});
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -749,6 +759,7 @@ function runTest(setFlag, label) {
           },
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -761,7 +772,9 @@ function runTest(setFlag, label) {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -808,7 +821,9 @@ function runTest(setFlag, label) {
         expect(result.data).toEqual({id: '4', name: 'Mark'});
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -818,13 +833,16 @@ function runTest(setFlag, label) {
           null,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(0);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(0);
       });
@@ -835,13 +853,16 @@ function runTest(setFlag, label) {
           [],
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(0);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(0);
       });
@@ -864,14 +885,19 @@ function runTest(setFlag, label) {
             fragmentRef,
             componentDisplayName,
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
           const disposable1 = FragmentResource.subscribe(result, callback1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           const disposable2 = FragmentResource.subscribe(result, callback2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           // Update data once
@@ -897,7 +923,9 @@ function runTest(setFlag, label) {
 
           // Unsubscribe the second listener
           disposable2.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
 
           // Update data again
@@ -924,6 +952,7 @@ function runTest(setFlag, label) {
           expect(result.data).toEqual({id: '4', name: 'Mark Update 2'});
 
           disposable1.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(2);
         });
       });
@@ -945,10 +974,13 @@ function runTest(setFlag, label) {
             fragmentRef,
             componentDisplayName,
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
           const disposable = FragmentResource.subscribe(result, callback);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           // Update data
@@ -972,7 +1004,9 @@ function runTest(setFlag, label) {
           expect(result.data).toEqual([{id: '4', name: 'Mark Updated'}]);
 
           disposable.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
         });
 
@@ -992,6 +1026,7 @@ function runTest(setFlag, label) {
             fragmentRef,
             componentDisplayName,
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
           // Update data once, before subscribe has been called
@@ -1004,7 +1039,9 @@ function runTest(setFlag, label) {
           });
 
           const disposable = FragmentResource.subscribe(result, callback);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           // Assert that callback was immediately called
@@ -1039,7 +1076,9 @@ function runTest(setFlag, label) {
           expect(result.data).toEqual([{id: '4', name: 'Mark Updated 2'}]);
 
           disposable.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
         });
 
@@ -1084,10 +1123,13 @@ function runTest(setFlag, label) {
             fragmentRef,
             componentDisplayName,
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
           const disposable = FragmentResource.subscribe(result, callback);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           // Update data
@@ -1114,7 +1156,9 @@ function runTest(setFlag, label) {
           ]);
 
           disposable.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
         });
 
@@ -1171,6 +1215,7 @@ function runTest(setFlag, label) {
             fragmentRef,
             componentDisplayName,
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
           // Update data once, before subscribe has been called
@@ -1190,7 +1235,9 @@ function runTest(setFlag, label) {
           });
 
           const disposable = FragmentResource.subscribe(result, callback);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(3);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           // Assert that callback was immediately called
@@ -1233,7 +1280,9 @@ function runTest(setFlag, label) {
           ]);
 
           disposable.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(3);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
         });
 
@@ -1264,6 +1313,7 @@ function runTest(setFlag, label) {
             fragmentRef,
             componentDisplayName,
           );
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
           // Update data once, before subscribe has been called
@@ -1276,7 +1326,9 @@ function runTest(setFlag, label) {
           });
 
           const disposable = FragmentResource.subscribe(result, callback);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
           // Assert that callback was immediately called
@@ -1311,7 +1363,9 @@ function runTest(setFlag, label) {
           expect(result.data).toEqual([{id: '4', name: 'Mark'}]);
 
           disposable.dispose();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
         });
       });
@@ -1342,14 +1396,17 @@ function runTest(setFlag, label) {
           },
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribeSpec(result, callback);
         expect(unsubscribe).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
 
         disposable.dispose();
         expect(unsubscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
       });
 

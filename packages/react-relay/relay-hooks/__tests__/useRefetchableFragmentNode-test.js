@@ -483,6 +483,7 @@ describe('useRefetchableFragmentNode', () => {
 
     beforeEach(() => {
       release = jest.fn();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
           dispose: release,
@@ -494,6 +495,7 @@ describe('useRefetchableFragmentNode', () => {
       expected,
       requestEnvironment = environment,
     ) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
         expected.requestCount,
       );
@@ -530,7 +532,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert query is retained by loadQuery and
       // temporarily retained while component is suspended
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(env.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(env.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
       );
@@ -563,6 +567,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` on unmounted component',
         ),
       ).toEqual(true);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
     });
 
@@ -585,6 +590,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` while using a null fragment ref',
         ),
       ).toEqual(true);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
     });
 
@@ -639,6 +645,7 @@ describe('useRefetchableFragmentNode', () => {
         jest.runAllTimers();
       });
       expect(release).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
     });
 
@@ -702,7 +709,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -766,7 +775,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -853,7 +864,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -922,7 +935,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
@@ -992,7 +1007,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
@@ -1042,7 +1059,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Update refetched data
@@ -1116,7 +1135,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Set new environment
@@ -1145,6 +1166,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was released
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
 
       // Update data in new environment
@@ -1217,7 +1239,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Pass new parent fragment ref with different variables
@@ -1251,6 +1275,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was released
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
 
       // Update new parent data
@@ -1305,7 +1330,9 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1374,7 +1401,9 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1443,7 +1472,9 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1551,7 +1582,9 @@ describe('useRefetchableFragmentNode', () => {
 
         const doAndAssertRefetch = fragmentResults => {
           renderSpy.mockClear();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.retain.mockClear();
 
           TestRenderer.act(() => {
@@ -1588,7 +1621,9 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults(fragmentResults);
 
           // Assert refetch query was retained
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
         };
 
@@ -1625,7 +1660,9 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1725,7 +1762,9 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1844,7 +1883,9 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1866,6 +1907,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Switch back to initial refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -1966,6 +2008,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: refetchingUser}]);
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         TestRenderer.act(() => {
@@ -2847,6 +2890,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchVariables,
             refetchQuery,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
 
           // Mock network response
@@ -2876,6 +2920,7 @@ describe('useRefetchableFragmentNode', () => {
             ...createFragmentRef('4', refetchQuery),
           };
           expectFragmentResults([{data: refetchedUser}]);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.retain.mockClear();
           release.mockClear();
 
@@ -2906,6 +2951,7 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults([{data: null}]);
           // Assert previous query was released
           expect(release).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(2);
         });
       });
@@ -3385,7 +3431,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3443,7 +3491,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3534,7 +3584,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
@@ -3666,7 +3718,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3742,7 +3796,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
@@ -3754,6 +3810,7 @@ describe('useRefetchableFragmentNode', () => {
       beforeEach(() => {
         newEnvironment = createMockEnvironment();
         newRelease = jest.fn();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         newEnvironment.retain.mockImplementation((...args) => {
           return {
             dispose: newRelease,
@@ -3837,7 +3894,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(newRelease).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(newEnvironment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(newEnvironment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
         // Should be able to use the new data if switched to new environment
@@ -3862,6 +3921,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Refetch on another enironment afterwards should work
         renderSpy.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         const anotherNewEnvironment = createMockEnvironment();
         TestRenderer.act(() => jest.runAllImmediates());

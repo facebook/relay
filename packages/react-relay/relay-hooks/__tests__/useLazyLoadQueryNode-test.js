@@ -46,7 +46,9 @@ function expectToBeRendered(renderFn, readyState) {
 }
 
 function expectToHaveFetched(environment, query) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     root: expect.anything(),
@@ -136,6 +138,7 @@ describe('useLazyLoadQueryNode', () => {
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain.bind(environment);
     // $FlowFixMe[cannot-write]
     environment.retain = jest.fn((...args) => {
@@ -179,6 +182,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -204,6 +208,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     environment.mock.resolve(gqlQuery, {
@@ -253,6 +258,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -287,6 +293,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -311,7 +318,9 @@ describe('useLazyLoadQueryNode', () => {
     ).toEqual({});
 
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     instance = render(environment, <Container variables={variables} />);
@@ -319,6 +328,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -358,7 +368,9 @@ describe('useLazyLoadQueryNode', () => {
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     // Switch to the second query
@@ -371,9 +383,12 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, nextQuery);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     // Switch back to the first query, it shouldn't request again
@@ -382,8 +397,10 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toBeCalledTimes(0);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(0);
 
     const payload = {
@@ -422,7 +439,9 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
 
@@ -441,6 +460,7 @@ describe('useLazyLoadQueryNode', () => {
 
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     renderFn.mockClear();
 
@@ -452,13 +472,16 @@ describe('useLazyLoadQueryNode', () => {
 
     // Assert that GC doesn't run since the query doesn't
     // incorrectly get fully released (which would trigger GC)
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(store.scheduleGC).toHaveBeenCalledTimes(0);
 
     // Assert that a new request was not started
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(0);
 
     // Expect to still be able to render the same data
     expectToBeRendered(renderFn, data);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
   });
 
@@ -472,7 +495,9 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
 
@@ -491,6 +516,7 @@ describe('useLazyLoadQueryNode', () => {
 
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     renderFn.mockClear();
 
@@ -507,6 +533,7 @@ describe('useLazyLoadQueryNode', () => {
       setProps({variables: {id: '2'}, extraData: 1});
     });
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(1);
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
@@ -544,6 +571,7 @@ describe('useLazyLoadQueryNode', () => {
 
     expect(instance.toJSON()).toEqual('Bob');
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     // Suspend on the first query
@@ -554,9 +582,12 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     ReactTestRenderer.act(() => {
@@ -578,6 +609,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     // Resolve a payload but don't complete the network request
@@ -613,6 +645,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     ReactTestRenderer.act(() => {
       instance.unmount();
@@ -694,6 +727,7 @@ describe('useLazyLoadQueryNode', () => {
       expect(instance.toJSON()).toEqual('Fallback around fragment');
       expectToHaveFetched(environment, onlyFragsQuery);
       expect(renderFn).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
 
       environment.mock.resolve(gqlOnlyFragmentsQuery, {

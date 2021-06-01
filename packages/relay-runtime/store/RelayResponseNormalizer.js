@@ -301,13 +301,17 @@ class RelayResponseNormalizer {
           const fieldKey = getStorageKey(selection, this._variables);
           const handleKey = getHandleStorageKey(selection, this._variables);
           this._handleFieldPayloads.push({
+            /* $FlowFixMe[class-object-subtyping] added when improving typing
+             * for this parameters */
             args,
             dataID: RelayModernRecord.getDataID(record),
             fieldKey,
             handle: selection.handle,
             handleKey,
             handleArgs: selection.handleArgs
-              ? getArgumentValues(selection.handleArgs, this._variables)
+              ? /* $FlowFixMe[class-object-subtyping] added when improving typing
+                 * for this parameters */
+                getArgumentValues(selection.handleArgs, this._variables)
               : {},
           });
           break;

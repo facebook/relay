@@ -11,6 +11,7 @@
 
 'use strict';
 
+// $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 function isEmptyObject(obj: interface {+[key: string]: mixed}): boolean {

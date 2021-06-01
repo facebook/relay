@@ -123,6 +123,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       expected,
       requestEnvironment = environment,
     ) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
         expected.requestCount,
       );
@@ -156,7 +157,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
       // Assert query is retained by loadQuery and
       // tentatively retained while component is suspended
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
       );
@@ -380,7 +383,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
         // Assert refetch query was retained by loadQuery and the component
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -438,6 +443,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -568,6 +574,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -709,6 +716,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -744,6 +752,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
           // Switch back to initial refetch, assert network
           // request doesn't fire again
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           refetch(
             {id: '2'},

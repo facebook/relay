@@ -144,6 +144,7 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -287,6 +288,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -410,6 +412,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -582,6 +585,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -649,6 +653,7 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
@@ -801,6 +806,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -865,6 +871,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -943,6 +950,7 @@ describe('Configs: RANGE_ADD', () => {
 
     environment.subscribe(snapshot, callback);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();

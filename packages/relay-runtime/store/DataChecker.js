@@ -186,6 +186,8 @@ class DataChecker {
     ...
   } {
     return {
+      /* $FlowFixMe[class-object-subtyping] added when improving typing for
+       * this parameters */
       args: field.args ? getArgumentValues(field.args, this._variables) : {},
       // Getting a snapshot of the record state is potentially expensive since
       // we will need to merge the sink and source records. Since we do not create

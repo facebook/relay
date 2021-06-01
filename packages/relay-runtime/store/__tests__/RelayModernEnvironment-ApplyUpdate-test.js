@@ -112,6 +112,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const snapshot = environment.lookup(selector);
         environment.subscribe(snapshot, callback);
 
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = environment.applyUpdate({
           storeUpdater: proxyStore => {
             const zuck = proxyStore.create('4', 'User');
@@ -303,6 +304,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const snapshot = environment.lookup(selector);
           environment.subscribe(snapshot, callback);
 
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const {dispose} = environment.applyUpdate({
             storeUpdater: proxyStore => {
               const zuck = proxyStore.create('4', 'User');

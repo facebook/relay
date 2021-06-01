@@ -47,6 +47,7 @@ function eq(a: any, b: any, aStack: Array<any>, bStack: Array<any>): boolean {
   if (typeof a !== 'object' || typeof b !== 'object') {
     return false;
   }
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const objToStr = Object.prototype.toString;
   const className = objToStr.call(a);
   if (className !== objToStr.call(b)) {

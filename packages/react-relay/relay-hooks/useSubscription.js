@@ -40,6 +40,7 @@ function useSubscription<TSubscriptionParameters: SubscriptionParameters>(
     requestSubscriptionFn ?? (requestSubscription: $FlowFixMe);
   const environment = useRelayEnvironment();
   useEffect(() => {
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = actualRequestSubscription(environment, config);
     return dispose;
   }, [environment, config, actualRequestSubscription]);

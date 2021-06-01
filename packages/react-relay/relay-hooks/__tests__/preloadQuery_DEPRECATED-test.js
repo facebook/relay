@@ -96,6 +96,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   }),
                 });
 
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           const environmentCheck = environment.check;
           check = jest.fn((...args) =>
             environmentCheck.apply(environment, args),

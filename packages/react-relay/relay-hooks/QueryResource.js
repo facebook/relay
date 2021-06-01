@@ -541,6 +541,8 @@ class QueryResourceImpl {
           if (cacheEntry.processedPayloadsCount === 0) {
             cacheEntry.setValue(error);
           } else {
+            // TODO:T92030819 Remove this warning and actually throw the network error
+            // To complete this task we need to have a way of precisely tracking suspendable points
             warning(
               false,
               'QueryResource: An incremental payload for query `%` returned an error: `%`:`%`.',

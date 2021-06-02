@@ -23,6 +23,7 @@ indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
 lazy_static = "1.0"
 schema = { path = "../schema" }
+strsim = "0.10.0"
 thiserror = "1.0"
 
 [dev-dependencies]

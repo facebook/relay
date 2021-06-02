@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2bc00c2b0194ce813522315e73cf18ba>>
+ * @generated SignedSource<<8d8ff89de727114663496ec69641b682>>
  */
 
 mod parse;
@@ -528,6 +528,13 @@ fn undefined_type_invalid() {
     let input = include_str!("parse/fixtures/undefined-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/undefined-type.invalid.expected");
     test_fixture(transform_fixture, "undefined-type.invalid.graphql", "parse/fixtures/undefined-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn unknown_field_invalid() {
+    let input = include_str!("parse/fixtures/unknown_field.invalid.graphql");
+    let expected = include_str!("parse/fixtures/unknown_field.invalid.expected");
+    test_fixture(transform_fixture, "unknown_field.invalid.graphql", "parse/fixtures/unknown_field.invalid.expected", input, expected);
 }
 
 #[test]

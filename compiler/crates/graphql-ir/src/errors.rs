@@ -6,7 +6,7 @@
  */
 
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
@@ -23,8 +23,12 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("The type `{type_}` has no field `{field}`")]
-    UnknownField { type_: StringKey, field: StringKey },
+    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownField {
+        type_: StringKey,
+        field: StringKey,
+        suggestions: Vec<StringKey>,
+    },
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {
         field_name: StringKey,
@@ -724,4 +728,32 @@ pub enum ValidationMessage {
 
     #[error("Duplicate variable `{name}`")]
     DuplicateVariable { name: StringKey },
+}
+
+/// Given [ A, B, C ] return ' Did you mean A, B, or C?'.
+fn did_you_mean(suggestions: &[StringKey]) -> String {
+    if suggestions.is_empty() {
+        return "".to_string();
+    }
+
+    let suggestions_string = match suggestions.len() {
+        1 => format!("`{}`", suggestions[0].lookup()),
+        2 => format!("`{}` or `{}`", suggestions[0], suggestions[1]),
+        _ => {
+            let mut suggestions = suggestions.to_vec();
+            let last_option = suggestions.pop();
+
+            format!(
+                "{}, or `{}`",
+                suggestions
+                    .iter()
+                    .map(|suggestion| format!("`{}`", suggestion.lookup()))
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                last_option.unwrap_or_else(|| "".intern())
+            )
+        }
+    };
+
+    format!(" Did you mean {}?", suggestions_string)
 }

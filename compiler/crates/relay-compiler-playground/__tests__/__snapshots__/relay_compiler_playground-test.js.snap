@@ -1,0 +1,84 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Ok parse_to_reader_ast 1`] = `
+"{
+  \\"argumentDefinitions\\": [],
+  \\"kind\\": \\"Fragment\\",
+  \\"metadata\\": null,
+  \\"name\\": \\"AgeFragment\\",
+  \\"selections\\": [
+    {
+      \\"alias\\": null,
+      \\"args\\": null,
+      \\"kind\\": \\"ScalarField\\",
+      \\"name\\": \\"age\\",
+      \\"storageKey\\": null
+    }
+  ],
+  \\"type\\": \\"User\\",
+  \\"abstractKey\\": null
+}
+
+{
+  \\"argumentDefinitions\\": [],
+  \\"kind\\": \\"Operation\\",
+  \\"name\\": \\"MyQuery\\",
+  \\"selections\\": [
+    {
+      \\"alias\\": null,
+      \\"args\\": null,
+      \\"concreteType\\": \\"User\\",
+      \\"kind\\": \\"LinkedField\\",
+      \\"name\\": \\"me\\",
+      \\"plural\\": false,
+      \\"selections\\": [
+        {
+          \\"alias\\": null,
+          \\"args\\": null,
+          \\"kind\\": \\"ScalarField\\",
+          \\"name\\": \\"name\\",
+          \\"storageKey\\": null
+        },
+        {
+          \\"args\\": null,
+          \\"kind\\": \\"FragmentSpread\\",
+          \\"name\\": \\"AgeFragment\\"
+        },
+        {
+          \\"alias\\": null,
+          \\"args\\": null,
+          \\"concreteType\\": \\"User\\",
+          \\"kind\\": \\"LinkedField\\",
+          \\"name\\": \\"best_friend\\",
+          \\"plural\\": false,
+          \\"selections\\": [
+            {
+              \\"args\\": null,
+              \\"kind\\": \\"FragmentSpread\\",
+              \\"name\\": \\"AgeFragment\\"
+            }
+          ],
+          \\"storageKey\\": null
+        }
+      ],
+      \\"storageKey\\": null
+    }
+  ]
+}"
+`;
+
+exports[`Ok transform 1`] = `
+"query MyQuery {
+  me {
+    name
+    ...AgeFragment
+    best_friend {
+      ...AgeFragment
+    }
+  }
+}
+
+fragment AgeFragment on User {
+  age
+}"
+`;

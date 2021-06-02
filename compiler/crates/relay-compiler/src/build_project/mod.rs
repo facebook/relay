@@ -8,7 +8,6 @@
 //! This module is responsible to build a single project. It does not handle
 //! watch mode or other state.
 
-mod apply_transforms;
 mod artifact_content;
 pub mod artifact_writer;
 mod build_ir;
@@ -26,8 +25,6 @@ use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
-pub use apply_transforms::apply_transforms;
-pub use apply_transforms::Programs;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
@@ -42,11 +39,13 @@ use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
 use relay_codegen::Printer;
-use relay_transforms::{find_resolver_dependencies, DependencyMap};
+use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
+
+use self::log_program_stats::print_stats;
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
@@ -136,6 +135,7 @@ pub fn transform_program(
                 .unwrap_or_else(|| config.feature_flags.clone()),
         ),
         perf_logger,
+        Some(print_stats),
     )
     .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
 

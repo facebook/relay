@@ -5,14 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::*;
+use common::sync::try_join;
 use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use interner::StringKey;
-use relay_transforms::*;
 use std::sync::Arc;
-
-use super::log_program_stats::print_stats;
 
 #[derive(Debug)]
 pub struct Programs {
@@ -30,6 +29,7 @@ pub fn apply_transforms<TPerfLogger>(
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<TPerfLogger>,
+    print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Programs>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -75,6 +75,7 @@ where
                                 Arc::clone(&base_fragment_names),
                                 Arc::clone(&feature_flags),
                                 Arc::clone(&perf_logger),
+                                print_stats,
                             )
                         },
                         || {
@@ -244,10 +245,13 @@ fn apply_normalization_transforms(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     feature_flags: Arc<FeatureFlags>,
     perf_logger: Arc<impl PerfLogger>,
+    maybe_print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_normalization_transforms");
     log_event.string("project", project_name.to_string());
-    print_stats("normalization start", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("normalization start", &program);
+    }
 
     let mut program = log_event.time("apply_fragment_arguments", || {
         apply_fragment_arguments(
@@ -257,32 +261,50 @@ fn apply_normalization_transforms(
             &base_fragment_names,
         )
     })?;
-    print_stats("apply_fragment_arguments", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("apply_fragment_arguments", &program);
+    }
     program = log_event.time("relay_early_flush", || relay_early_flush(&program))?;
-    print_stats("relay_early_flush", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("relay_early_flush", &program);
+    }
 
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
-    print_stats("skip_unreachable_node", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("skip_unreachable_node", &program);
+    }
 
     program = log_event.time("inline_fragments", || inline_fragments(&program));
-    print_stats("inline_fragments", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("inline_fragments", &program);
+    }
 
     program = log_event.time("client_extensions", || client_extensions(&program));
-    print_stats("client_extensions", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("client_extensions", &program);
+    }
 
     program = log_event.time("generate_typename", || generate_typename(&program, true));
-    print_stats("generate_typename", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("generate_typename", &program);
+    }
 
     log_event.time("flatten", || flatten(&mut program, true))?;
-    print_stats("flatten", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("flatten", &program);
+    }
 
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
-    print_stats("skip_redundant_nodes", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("skip_redundant_nodes", &program);
+    }
 
     program = log_event.time("generate_test_operation_metadata", || {
         generate_test_operation_metadata(&program)
     });
-    print_stats("generate_test_operation_metadata", &program);
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("generate_test_operation_metadata", &program);
+    }
 
     perf_logger.complete_event(log_event);
 
@@ -380,16 +402,4 @@ fn apply_typegen_transforms(
     perf_logger.complete_event(log_event);
 
     Ok(Arc::new(program))
-}
-
-fn try_join<T1, F1, T2, F2, E>(f1: F1, f2: F2) -> Result<(T1, T2), Vec<E>>
-where
-    F1: FnOnce() -> Result<T1, Vec<E>> + Send,
-    F2: FnOnce() -> Result<T2, Vec<E>> + Send,
-    T1: Send,
-    T2: Send,
-    E: Send,
-{
-    let (v1, v2) = rayon::join(f1, f2);
-    Ok((v1?, v2?))
 }

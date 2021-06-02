@@ -13,6 +13,7 @@
 
 mod applied_fragment_name;
 mod apply_fragment_arguments;
+mod apply_transforms;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
@@ -73,6 +74,7 @@ pub type DependencyMap = FnvHashMap<OperationName, FnvHashSet<OperationName>>;
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
+pub use apply_transforms::{apply_transforms, Programs};
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,

@@ -16,11 +16,8 @@ use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
 use interner::{Intern, StringKey};
 use lsp_types::{request::Request, Url};
-use relay_compiler::{
-    apply_transforms,
-    config::{Config, ProjectConfig},
-    Programs,
-};
+use relay_compiler::config::{Config, ProjectConfig};
+use relay_transforms::{apply_transforms, Programs};
 use schema::SDLSchema;
 
 use crate::{
@@ -147,6 +144,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
                 .unwrap_or_else(|| config.feature_flags.clone()),
         ),
         perf_logger,
+        None,
     )
     .map_err(|errors| format!("{:?}", errors))
 }

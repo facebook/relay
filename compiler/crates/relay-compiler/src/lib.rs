@@ -23,14 +23,14 @@ pub mod saved_state;
 pub mod status_reporter;
 
 pub use build_project::{
-    add_to_mercurial, apply_transforms,
+    add_to_mercurial,
     artifact_writer::{
         ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter, NoopArtifactWriter,
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
     is_operation_preloadable, transform_program, validate, validate_program, Artifact,
-    ArtifactContent, BuildProjectFailure, Programs, SourceHashes,
+    ArtifactContent, BuildProjectFailure, SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
 pub use file_source::{

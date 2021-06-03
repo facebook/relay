@@ -160,6 +160,8 @@ class Executor {
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
   _retainDisposable: ?Disposable;
+  _asyncStoreUpdateHandle: ?TimeoutID;
+  _completeFns: Array<() => void>;
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
 
@@ -211,6 +213,7 @@ class Executor {
     this._isSubscriptionOperation =
       this._operation.request.node.params.operationKind === 'subscription';
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+    this._completeFns = [];
 
     const id = this._nextSubscriptionId++;
     source.subscribe({
@@ -268,6 +271,11 @@ class Executor {
       this._publishQueue.run();
     }
     this._incrementalResults.clear();
+    if (this._asyncStoreUpdateHandle != null) {
+      clearTimeout(this._asyncStoreUpdateHandle);
+      this._asyncStoreUpdateHandle = null;
+    }
+    this._completeFns = [];
     this._completeOperationTracker();
     if (this._retainDisposable) {
       this._retainDisposable.dispose();
@@ -976,8 +984,14 @@ class Executor {
                     );
                     if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
                       // OK: always have to run after an async module import resolves
-                      const updatedOwners = this._publishQueue.run();
-                      this._updateOperationTracker(updatedOwners);
+                      if (
+                        RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES
+                      ) {
+                        this._scheduleAsyncStoreUpdate(sink.complete);
+                      } else {
+                        const updatedOwners = this._publishQueue.run();
+                        this._updateOperationTracker(updatedOwners);
+                      }
                     }
                   });
                   this._log({
@@ -986,7 +1000,14 @@ class Executor {
                     operationName: operation.name,
                     duration,
                   });
-                  sink.complete();
+                  if (
+                    !(
+                      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES &&
+                      RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES
+                    )
+                  ) {
+                    sink.complete();
+                  }
                 } catch (error) {
                   sink.error(error);
                 }
@@ -1464,6 +1485,22 @@ class Executor {
       relayPayload,
       storageKey,
     };
+  }
+
+  _scheduleAsyncStoreUpdate(completeFn: () => void): void {
+    this._completeFns.push(completeFn);
+    if (this._asyncStoreUpdateHandle != null) {
+      return;
+    }
+    this._asyncStoreUpdateHandle = setTimeout(() => {
+      const updatedOwners = this._publishQueue.run();
+      this._updateOperationTracker(updatedOwners);
+      this._asyncStoreUpdateHandle = null;
+      for (const complete of this._completeFns) {
+        complete();
+      }
+      this._completeFns = [];
+    }, 0);
   }
 
   _updateOperationTracker(

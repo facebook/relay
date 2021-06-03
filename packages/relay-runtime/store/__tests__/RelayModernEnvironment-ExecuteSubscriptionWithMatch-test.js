@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -441,6 +442,83 @@ describe('executeSubscrption() with @match', () => {
         .getOperationTracker()
         .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
+  });
+
+  it('calls complete() only after match payloads are processed (root network completes first, with batching on)', () => {
+    const prevFlagStore = RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES;
+    const prevFlagAsync = RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
+    RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = true;
+    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = true;
+    environment.execute({operation}).subscribe(callbacks);
+    const payload = {
+      data: {
+        commentCreateSubscribe: {
+          comment: {
+            id: commentID,
+            actor: {
+              id: '4',
+              name: 'actor-name',
+              __typename: 'User',
+              nameRenderer: {
+                __typename: 'MarkdownUserNameRenderer',
+                __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
+                markdown: 'markdown payload',
+                data: {
+                  id: 'data-1',
+                  markup: '<markup/>', // server data is lowercase
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+    dataSource.next(payload);
+    dataSource.complete();
+    jest.runAllTimers();
+    expect(complete).toBeCalledTimes(0);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+
+    // The subscription affecting the query should still appear in flight;
+    // even though the root request has completed, we're still waiting on the
+    // module resource
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).not.toBe(null);
+
+    expect(operationLoader.load).toBeCalledTimes(1);
+    expect(operationLoader.load.mock.calls[0][0]).toEqual(
+      'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
+    );
+    resolveFragment(markdownRendererNormalizationFragment);
+    jest.runAllImmediates();
+    // The subscription affecting the query should still be in flight
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).not.toBe(null);
+
+    jest.runAllTimers();
+    expect(complete).toBeCalledTimes(1);
+    expect(error).toBeCalledTimes(0);
+    expect(next).toBeCalledTimes(1);
+
+    // The subscription affecting the query should no longer be in flight
+    expect(
+      environment
+        .getOperationTracker()
+        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+    ).toBe(null);
+
+    RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = prevFlagStore;
+    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = prevFlagAsync;
   });
 
   it('calls complete() only after match payloads are processed (root network completes last)', () => {

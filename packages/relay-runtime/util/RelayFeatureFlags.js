@@ -32,6 +32,7 @@ type FeatureFlags = {|
     | 'disabled'
     | 'epoch'
     | 'reduce-snapshot-size',
+  ENABLE_BATCHED_ASYNC_MODULE_UPDATES: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -51,6 +52,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_UNIQUE_SUBSCRIPTION_ROOT: false,
   ENABLE_BATCHED_STORE_UPDATES: false,
   ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION: 'disabled',
+  ENABLE_BATCHED_ASYNC_MODULE_UPDATES: false,
 };
 
 module.exports = RelayFeatureFlags;

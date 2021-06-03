@@ -971,10 +971,11 @@ class Executor {
         }),
       );
       RelayObservable.create(sink => {
+        let cancellationToken;
         const subscription = networkObservable.subscribe({
           next: (loadedNode: ?NormalizationRootNode) => {
             if (loadedNode != null) {
-              this._schedule(() => {
+              const publishModuleImportPayload = () => {
                 try {
                   const operation = getOperation(loadedNode);
                   const [duration] = withDuration(() => {
@@ -1011,7 +1012,15 @@ class Executor {
                 } catch (error) {
                   sink.error(error);
                 }
-              });
+              };
+              const scheduler = this._scheduler;
+              if (scheduler == null) {
+                publishModuleImportPayload();
+              } else {
+                cancellationToken = scheduler.schedule(
+                  publishModuleImportPayload,
+                );
+              }
             } else {
               sink.complete();
             }
@@ -1020,6 +1029,9 @@ class Executor {
         });
         return () => {
           subscription.unsubscribe();
+          if (this._scheduler != null && cancellationToken != null) {
+            this._scheduler.cancel(cancellationToken);
+          }
         };
       }).subscribe({
         complete: () => {

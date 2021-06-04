@@ -28,6 +28,7 @@ use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
+use relay_codegen::JsModuleFormat;
 use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
@@ -68,9 +69,10 @@ lazy_static! {
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
+    js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, typegen_config);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
     generator.into_string()
 }
@@ -79,9 +81,10 @@ pub fn generate_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
+    js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, typegen_config);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -92,9 +95,10 @@ pub fn generate_split_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
+    js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, typegen_config);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
     generator
         .generate_split_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -121,13 +125,18 @@ struct TypeGenerator<'a> {
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
+    js_module_format: JsModuleFormat,
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
     has_actor_change: bool,
 }
 impl<'a> TypeGenerator<'a> {
-    fn new(schema: &'a SDLSchema, typegen_config: &'a TypegenConfig) -> Self {
+    fn new(
+        schema: &'a SDLSchema,
+        js_module_format: JsModuleFormat,
+        typegen_config: &'a TypegenConfig,
+    ) -> Self {
         Self {
             schema,
             generated_fragments: Default::default(),
@@ -136,6 +145,7 @@ impl<'a> TypeGenerator<'a> {
             imported_resolvers: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
+            js_module_format,
             typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
@@ -340,20 +350,22 @@ impl<'a> TypeGenerator<'a> {
         let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
         let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
         if let Some(refetchable_metadata) = refetchable_metadata {
-            if self.typegen_config.haste {
-                // TODO(T22653277) support non-haste environments when importing
-                // fragments
-                self.writer.write_import_fragment_type(
-                    &[old_fragment_type_name, new_fragment_type_name],
-                    format!("{}.graphql", refetchable_metadata.operation_name).intern(),
-                )?;
-            } else {
-                self.writer
-                    .write_any_type_definition(old_fragment_type_name)?;
-                self.writer
-                    .write_any_type_definition(new_fragment_type_name)?;
+            match self.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    // TODO(T22653277) support non-haste environments when
+                    // importing fragments
+                    self.writer
+                        .write_any_type_definition(old_fragment_type_name)?;
+                    self.writer
+                        .write_any_type_definition(new_fragment_type_name)?;
+                }
+                JsModuleFormat::Haste => {
+                    self.writer.write_import_fragment_type(
+                        &[old_fragment_type_name, new_fragment_type_name],
+                        format!("{}.graphql", refetchable_metadata.operation_name).intern(),
+                    )?;
+                }
             }
-
             self.writer
                 .write_export_fragment_types(old_fragment_type_name, new_fragment_type_name)?;
         } else {
@@ -1117,19 +1129,21 @@ impl<'a> TypeGenerator<'a> {
         for used_fragment in self.used_fragments.iter().sorted() {
             let fragment_type_name = get_old_fragment_type_name(*used_fragment);
             if !self.generated_fragments.contains(used_fragment) {
-                if self.typegen_config.haste {
-                    // TODO(T22653277) support non-haste environments when importing
-                    // fragments
-                    self.writer.write_import_fragment_type(
-                        &[fragment_type_name],
-                        format!("{}.graphql", used_fragment).intern(),
-                    )?;
-                // } else if (state.useSingleArtifactDirectory) {
-                //   imports.push(
-                //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
-                //   );
-                } else {
-                    self.writer.write_any_type_definition(fragment_type_name)?;
+                match self.js_module_format {
+                    JsModuleFormat::CommonJS => {
+                        // if useSingleArtifactDirectory {
+                        //   importTypes([fragmentTypeName], './' + usedFragment + '.graphql');
+                        // } else {
+                        self.writer.write_any_type_definition(fragment_type_name)?;
+                    }
+                    JsModuleFormat::Haste => {
+                        // TODO(T22653277) support non-haste environments when importing
+                        // fragments
+                        self.writer.write_import_fragment_type(
+                            &[fragment_type_name],
+                            format!("{}.graphql", used_fragment).intern(),
+                        )?;
+                    }
                 }
             }
         }
@@ -1158,14 +1172,17 @@ impl<'a> TypeGenerator<'a> {
         }
 
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
-            if self.typegen_config.haste {
-                self.writer.write_import_fragment_type(
-                    &[imported_raw_response_type],
-                    format!("{}.graphql", imported_raw_response_type).intern(),
-                )?;
-            } else {
-                self.writer
-                    .write_any_type_definition(imported_raw_response_type)?;
+            match self.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    self.writer
+                        .write_any_type_definition(imported_raw_response_type)?;
+                }
+                JsModuleFormat::Haste => {
+                    self.writer.write_import_fragment_type(
+                        &[imported_raw_response_type],
+                        format!("{}.graphql", imported_raw_response_type).intern(),
+                    )?;
+                }
             }
         }
 

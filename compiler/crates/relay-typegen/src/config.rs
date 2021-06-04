@@ -54,8 +54,7 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
 
-    /// Use haste style (global name) imports instead of common-js path based
-    /// style.
+    /// DEPRECATED config.js_module_format should be used instead
     #[serde(default)]
     pub haste: bool,
 }

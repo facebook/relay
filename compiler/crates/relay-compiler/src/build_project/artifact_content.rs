@@ -285,6 +285,7 @@ import type {{ ConcreteRequest }} from 'relay-runtime';"
                 typegen_operation,
                 normalization_operation,
                 schema,
+                project_config.js_module_format,
                 &project_config.typegen_config,
             )
         )
@@ -348,6 +349,7 @@ fn generate_split_operation(
                 typegen_operation,
                 normalization_operation,
                 schema,
+                project_config.js_module_format,
                 &project_config.typegen_config,
             )
         )
@@ -430,7 +432,12 @@ fn generate_fragment(
         write!(
             content,
             "{}",
-            generate_fragment_type(typegen_fragment, schema, &project_config.typegen_config)
+            generate_fragment_type(
+                typegen_fragment,
+                schema,
+                project_config.js_module_format,
+                &project_config.typegen_config
+            )
         )
         .unwrap();
     }

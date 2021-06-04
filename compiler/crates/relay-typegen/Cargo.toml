@@ -14,6 +14,7 @@ indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
 itertools = "0.8"
 lazy_static = "1.0"
+relay-codegen = { path = "../relay-codegen" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 serde = { version = "=1.0.118", features = ["derive", "rc"] }

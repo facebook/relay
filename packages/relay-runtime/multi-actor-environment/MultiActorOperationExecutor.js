@@ -508,10 +508,7 @@ class Executor {
       }
       this._processPayloadFollowups(payloadFollowups);
     }
-    if (
-      this._isSubscriptionOperation &&
-      RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
-    ) {
+    if (this._isSubscriptionOperation) {
       // We attach the id to allow the `requestSubscription` to read from the store using
       // the current id in its `onNext` callback
       if (responsesWithData[0].extensions == null) {
@@ -846,23 +843,21 @@ class Executor {
     ) {
       this._completeOperationTracker();
     }
-    if (RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT) {
-      const nextID = generateUniqueClientID();
-      this._operation = {
-        request: this._operation.request,
-        fragment: createReaderSelector(
-          this._operation.fragment.node,
-          nextID,
-          this._operation.fragment.variables,
-          this._operation.fragment.owner,
-        ),
-        root: createNormalizationSelector(
-          this._operation.root.node,
-          nextID,
-          this._operation.root.variables,
-        ),
-      };
-    }
+    const nextID = generateUniqueClientID();
+    this._operation = {
+      request: this._operation.request,
+      fragment: createReaderSelector(
+        this._operation.fragment.node,
+        nextID,
+        this._operation.fragment.variables,
+        this._operation.fragment.owner,
+      ),
+      root: createNormalizationSelector(
+        this._operation.root.node,
+        nextID,
+        this._operation.root.variables,
+      ),
+    };
   }
 
   /**

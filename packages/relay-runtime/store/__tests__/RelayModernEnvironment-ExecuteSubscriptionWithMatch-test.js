@@ -239,9 +239,15 @@ describe('executeSubscrption() with @match', () => {
     expect(next.mock.calls.length).toBe(1);
     expect(complete).not.toBeCalled();
     expect(error).not.toBeCalled();
-
-    expect(operationCallback).toBeCalledTimes(1);
-    const operationSnapshot = operationCallback.mock.calls[0][0];
+    const nextID = payload.extensions?.__relay_subscription_root_id;
+    const nextOperation = createReaderSelector(
+      operation.fragment.node,
+      // $FlowFixMe
+      nullthrows(nextID),
+      operation.fragment.variables,
+      operation.fragment.owner,
+    );
+    const operationSnapshot = environment.lookup(nextOperation);
     expect(operationSnapshot.isMissingData).toBe(false);
     expect(operationSnapshot.data).toEqual({
       commentCreateSubscribe: {
@@ -336,10 +342,15 @@ describe('executeSubscrption() with @match', () => {
       'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
     );
 
-    expect(operationCallback).toBeCalledTimes(1);
-    // result tested above
-    const operationSnapshot = operationCallback.mock.calls[0][0];
-    operationCallback.mockClear();
+    const nextID = payload.extensions?.__relay_subscription_root_id;
+    const nextOperation = createReaderSelector(
+      operation.fragment.node,
+      // $FlowFixMe
+      nullthrows(nextID),
+      operation.fragment.variables,
+      operation.fragment.owner,
+    );
+    const operationSnapshot = environment.lookup(nextOperation);
 
     const matchSelector = nullthrows(
       getSingularSelector(

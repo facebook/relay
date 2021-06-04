@@ -528,10 +528,7 @@ class Executor {
       // For subscriptions, to avoid every new payload from overwriting existing
       // data from previous payloads, assign a unique rootID for every new
       // non-incremental payload.
-      if (
-        this._isSubscriptionOperation &&
-        RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
-      ) {
+      if (this._isSubscriptionOperation) {
         const nextID = generateUniqueClientID();
         this._operation = {
           request: this._operation.request,
@@ -578,10 +575,7 @@ class Executor {
       }
       this._processPayloadFollowups(payloadFollowups);
     }
-    if (
-      this._isSubscriptionOperation &&
-      RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT
-    ) {
+    if (this._isSubscriptionOperation) {
       // We attach the id to allow the `requestSubscription` to read from the store using
       // the current id in its `onNext` callback
       if (responsesWithData[0].extensions == null) {

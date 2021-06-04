@@ -130,12 +130,13 @@ impl<'program> SubscriptionTransform<'program> {
             fragment_spread,
         } = valid_result;
         let location = linked_field.definition.location;
+        let operation_name_with_suffix = format!("{}__subscription", operation.name.item.lookup());
 
         let mut selections = linked_field.selections.clone();
         selections.push(Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(WithLocation::new(
                 location,
-                format!("__module_operation_{}", operation.name.item.lookup()).intern(),
+                format!("__module_operation_{}", operation_name_with_suffix).intern(),
             )),
             definition: WithLocation::new(location, js_field_id),
             arguments: vec![Argument {
@@ -168,7 +169,7 @@ impl<'program> SubscriptionTransform<'program> {
             selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition,
                 directives: vec![super::build_module_metadata_as_directive(
-                    format!("{}__subscription", operation.name.item.lookup()).intern(),
+                    operation_name_with_suffix.intern(),
                     format!(
                         "{}.{}",
                         operation.name.item,

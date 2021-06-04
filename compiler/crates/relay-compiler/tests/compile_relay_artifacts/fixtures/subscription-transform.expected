@@ -108,7 +108,7 @@ subscription subscriptionTransformSubscription(
 ) {
   commentCreateSubscribe(input: $input) {
     ...subscriptionTransform_CommentCreateResponsePayload
-    __module_operation_subscriptionTransformSubscription: js(module: "subscriptionTransform_CommentCreateResponsePayload$normalization.graphql")
+    __module_operation_subscriptionTransformSubscription__subscription: js(module: "subscriptionTransform_CommentCreateResponsePayload$normalization.graphql")
   }
 }
 

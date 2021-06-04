@@ -82,3 +82,15 @@ describe('forActor: renderPolicy configs', () => {
     expect(actorEnvironment.UNSTABLE_getDefaultRenderPolicy()).toBe('full');
   });
 });
+
+test('options on the environment', () => {
+  const multiActorEnvironment = new MultiActorEnvironment({
+    createNetworkForActor: jest.fn(),
+  });
+  const actorEnvironment = multiActorEnvironment.forActor(
+    getActorIdentifier('actor:1234'),
+  );
+  expect(actorEnvironment.options).toEqual({
+    actorID: 'actor:1234',
+  });
+});

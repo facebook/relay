@@ -83,6 +83,10 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       defaultGetDataID,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy;
+    // TODO:T92305692 Remove `options` in favor of directly using `actorIdentifier` on the environment
+    this.options = {
+      actorID: this.actorIdentifier,
+    };
 
     // We need to add this here to pass `isRelayModernEnvironment` check
     // $FlowFixMe[prop-missing]

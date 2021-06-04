@@ -55,6 +55,7 @@ import type {
 export type MultiActorEnvironmentConfig = $ReadOnly<{
   createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
+  createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
   getDataID?: GetDataID,
   handlerProvider?: HandlerProvider,
   isServer?: ?boolean,
@@ -67,7 +68,6 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
-  createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {

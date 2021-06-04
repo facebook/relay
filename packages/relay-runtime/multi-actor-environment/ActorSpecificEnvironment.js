@@ -55,19 +55,17 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
-  +configName: ?string;
-  +options: mixed;
   __log: LogFunction;
-  requiredFieldLogger: RequiredFieldLogger;
-  +_store: Store;
+  +_defaultRenderPolicy: RenderPolicy;
   +_network: INetwork;
   +_operationTracker: OperationTracker;
   +_publishQueue: RelayPublishQueue;
-  +_defaultRenderPolicy: RenderPolicy;
-
-  // Actor specific properties
+  +_store: Store;
   +actorIdentifier: ActorIdentifier;
+  +configName: ?string;
   +multiActorEnvironment: IMultiActorEnvironment;
+  +options: mixed;
+  requiredFieldLogger: RequiredFieldLogger;
 
   constructor(config: ActorSpecificEnvironmentConfig) {
     this.configName = config.configName;

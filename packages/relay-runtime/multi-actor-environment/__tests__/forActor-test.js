@@ -59,3 +59,26 @@ test('forActor with configName', () => {
   );
   expect(actorEnvironment.configName).toBe('Environment(actor:1234)');
 });
+
+describe('forActor: renderPolicy configs', () => {
+  it('should be `partial` by default', () => {
+    const multiActorEnvironment = new MultiActorEnvironment({
+      createNetworkForActor: jest.fn(),
+    });
+    const actorEnvironment = multiActorEnvironment.forActor(
+      getActorIdentifier('actor:1234'),
+    );
+    expect(actorEnvironment.UNSTABLE_getDefaultRenderPolicy()).toBe('partial');
+  });
+
+  it('can be changed via config', () => {
+    const multiActorEnvironment = new MultiActorEnvironment({
+      createNetworkForActor: jest.fn(),
+      defaultRenderPolicy: 'full',
+    });
+    const actorEnvironment = multiActorEnvironment.forActor(
+      getActorIdentifier('actor:1234'),
+    );
+    expect(actorEnvironment.UNSTABLE_getDefaultRenderPolicy()).toBe('full');
+  });
+});

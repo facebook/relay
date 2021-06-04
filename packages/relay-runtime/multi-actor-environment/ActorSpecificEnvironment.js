@@ -45,7 +45,7 @@ import type {
 export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   actorIdentifier: ActorIdentifier,
   configName: ?string,
-  defaultRenderPolicy?: ?RenderPolicy,
+  defaultRenderPolicy: RenderPolicy,
   handlerProvider: HandlerProvider,
   logFn: LogFunction,
   multiActorEnvironment: IMultiActorEnvironment,
@@ -82,7 +82,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       config.handlerProvider,
       defaultGetDataID,
     );
-    this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
+    this._defaultRenderPolicy = config.defaultRenderPolicy;
 
     // We need to add this here to pass `isRelayModernEnvironment` check
     // $FlowFixMe[prop-missing]

@@ -45,6 +45,7 @@ import type {
   StoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
+import type {RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
 import type {
   IActorEnvironment,
@@ -56,6 +57,7 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
+  defaultRenderPolicy?: ?RenderPolicy,
   getDataID?: GetDataID,
   handlerProvider?: HandlerProvider,
   isServer?: ?boolean,
@@ -75,6 +77,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_createConfigNameForActor: ?(actorIdentifier: ActorIdentifier) => string;
   +_createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork;
   +_createStoreForActor: ?(actorIdentifier: ActorIdentifier) => Store;
+  +_defaultRenderPolicy: RenderPolicy;
   +_getDataID: GetDataID;
   +_handlerProvider: HandlerProvider;
   +_isServer: boolean;
@@ -111,6 +114,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       config.reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
     this._createConfigNameForActor = config.createConfigNameForActor;
+    this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
   }
 
   /**
@@ -135,6 +139,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
             : new RelayModernStore(RelayRecordSource.create()),
         network: this._createNetworkForActor(actorIdentifier),
         handlerProvider: this._handlerProvider,
+        defaultRenderPolicy: this._defaultRenderPolicy,
       });
       this._actorEnvironments.set(actorIdentifier, newEnvironment);
       return newEnvironment;

@@ -108,7 +108,7 @@ export type NormalizationActorChange = {|
 |};
 
 export type NormalizationModuleImport = {|
-  +args?: ?$ReadOnlyArray<NormalizationArgument>,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,

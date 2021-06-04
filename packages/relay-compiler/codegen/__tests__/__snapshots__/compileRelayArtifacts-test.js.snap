@@ -9015,6 +9015,7 @@ Request {
                       InlineFragment {
                         selections: [
                           ModuleImport {
+                            args: null,
                             documentName: "UserFragment_with3d",
                             fragmentName: "MarkdownUserNameRenderer_name",
                             fragmentPropName: "name",
@@ -11306,6 +11307,7 @@ Request {
               InlineFragment {
                 selections: [
                   ModuleImport {
+                    args: null,
                     documentName: "moduleDedupingQuery",
                     fragmentName: "moduleDeduping_frag",
                     fragmentPropName: "frag",
@@ -11533,6 +11535,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "FooNameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -11544,6 +11547,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "FooNameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -11697,6 +11701,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "BarNameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12281,6 +12286,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12314,6 +12320,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12618,6 +12625,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery_nameRenderer",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -12651,6 +12659,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "MatchQuery",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -13675,6 +13684,7 @@ Request {
                       InlineFragment {
                         selections: [
                           ModuleImport {
+                            args: null,
                             documentName: "NameRendererFragment",
                             fragmentName: "MarkdownUserNameRenderer_name",
                             fragmentPropName: "name",
@@ -14346,6 +14356,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -14357,6 +14368,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -14745,6 +14757,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -14756,6 +14769,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15177,6 +15191,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15188,6 +15203,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15581,6 +15597,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "PlainUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15592,6 +15609,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",
@@ -15971,6 +15989,7 @@ Request {
                   InlineFragment {
                     selections: [
                       ModuleImport {
+                        args: null,
                         documentName: "NameRendererFragment",
                         fragmentName: "MarkdownUserNameRenderer_name",
                         fragmentPropName: "name",

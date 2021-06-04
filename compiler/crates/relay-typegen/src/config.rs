@@ -53,8 +53,4 @@ pub struct TypegenConfig {
     /// { "Url": "String" }
     #[serde(default)]
     pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
-
-    /// DEPRECATED config.js_module_format should be used instead
-    #[serde(default)]
-    pub haste: bool,
 }

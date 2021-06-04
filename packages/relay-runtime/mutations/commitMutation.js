@@ -54,7 +54,7 @@ export type DEPRECATED_MutationConfig<T> = {|
 
 export type MutationParameters = {|
   +response: {...},
-  +variables: {...},
+  +variables: interface {},
   +rawResponse?: {...},
 |};
 
@@ -113,6 +113,8 @@ function commitMutation<T: MutationParameters>(
   } = config;
   const operation = createOperationDescriptor(
     mutation,
+    /* $FlowFixMe[class-object-subtyping] added when improving typing for this
+     * parameters */
     variables,
     cacheConfig,
     generateUniqueClientID(),

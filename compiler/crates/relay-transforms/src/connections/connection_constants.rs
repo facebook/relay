@@ -6,14 +6,18 @@
  */
 
 use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
+
+lazy_static! {
+    pub static ref CONNECTION_METADATA_DIRECTIVE_NAME: StringKey = "__connectionMetadata".intern();
+    pub static ref CONNECTION_METADATA_ARGUMENT_NAME: StringKey =
+        "__connectionMetadataArgument".intern();
+}
 
 #[derive(Debug, Copy, Clone)]
 pub struct ConnectionConstants {
     pub connection_directive_name: StringKey,
     pub stream_connection_directive_name: StringKey,
-
-    pub connection_metadata_directive_name: StringKey,
-    pub connection_metadata_argument_name: StringKey,
 
     pub direction_forward: StringKey,
     pub direction_backward: StringKey,
@@ -43,9 +47,6 @@ impl Default for ConnectionConstants {
         Self {
             connection_directive_name: "connection".intern(),
             stream_connection_directive_name: "stream_connection".intern(),
-
-            connection_metadata_directive_name: "__connectionMetadata".intern(),
-            connection_metadata_argument_name: "__connectionMetadataArgument".intern(),
 
             direction_forward: "forward".intern(),
             direction_backward: "backward".intern(),

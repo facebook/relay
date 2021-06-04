@@ -383,6 +383,28 @@ const watch = gulp.series(dist, () =>
   gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
 );
 
+const experimentalCompiler = gulp.parallel(
+  function copyLicense() {
+    return gulp
+      .src(['LICENSE'])
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+  },
+  function copyPackageFiles() {
+    return gulp
+      .src(['package.json', 'cli.js', 'index.js'], {
+        cwd: path.join(PACKAGES, 'relay-compiler-experimental'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+  },
+  function copyCompilerBins() {
+    return gulp
+      .src('**', {
+        cwd: path.join('artifacts'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler-experimental')));
+  },
+);
+
 /**
  * Updates the package.json files `/dist/` with a version to release to npm under
  * the master tag.
@@ -392,6 +414,7 @@ const setMasterVersion = async () => {
     throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
   }
   const packages = builds.map(build => build.package);
+  packages.push('relay-compiler-experimental');
   packages.forEach(pkg => {
     const pkgJsonPath = path.join('.', 'dist', pkg, 'package.json');
     const packageJson = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
@@ -421,6 +444,10 @@ const cleanbuild = gulp.series(clean, dist);
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.masterrelease = gulp.series(cleanbuild, setMasterVersion);
+exports.masterrelease = gulp.series(
+  cleanbuild,
+  experimentalCompiler,
+  setMasterVersion,
+);
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;

@@ -6,7 +6,7 @@
  */
 
 use graphql_syntax::OperationKind;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use schema::{Type, TypeReference};
 use thiserror::Error;
 
@@ -23,8 +23,12 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("The type `{type_}` has no field `{field}`")]
-    UnknownField { type_: StringKey, field: StringKey },
+    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownField {
+        type_: StringKey,
+        field: StringKey,
+        suggestions: Vec<StringKey>,
+    },
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {
         field_name: StringKey,
@@ -86,11 +90,11 @@ pub enum ValidationMessage {
     )]
     VariableDefinitionsAndArgumentDirective(),
     #[error(
-        "Expected @argumentDefinitions value to have a 'type' field with a literal string value (e.g. 'type: \"Int!\"')"
+        "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
     ExpectedArgumentDefinitionLiteralType(),
     #[error(
-        "Expected @argumentDefinitions value to be an object with 'type' and (optionally) 'defaultValue' properties"
+        "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
     ExpectedArgumentDefinitionToBeObject(),
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
@@ -138,9 +142,9 @@ pub enum ValidationMessage {
     InvalidDirectiveUsageUnsupportedLocation(StringKey),
 
     #[error(
-        "Invalid values passed to '@arguments', supported options include 'type' and 'defaultValue', got '{0}'"
+        "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
     )]
-    InvalidArgumentsKeys(String),
+    InvalidArgumentDefinitionsKey(StringKey),
 
     #[error("Unexpected arguments on `__typename` field")]
     InvalidArgumentsOnTypenameField(),
@@ -417,6 +421,27 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Variable `${variable_name}` is never used in fragment `{fragment_name}`. `@argumentDefinitions` defines local variables, global variables are implicitly available."
+    )]
+    UnusedFragmentVariable {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "Variable `${variable_name}` of fragment `{fragment_name}` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed."
+    )]
+    UselessUnusedFragmentVariableAnnotation {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
+
+    #[error(
+        "`unusedLocalVariable_DEPRECATED` can only be set to a constant `true` value. Remove the `unusedLocalVariable_DEPRECATED` or update the value."
+    )]
+    InvalidUnusedFragmentVariableSuppressionArg,
+
+    #[error(
         "Invalid usage of '@DEPRECATED__relay_ignore_unused_variables_error'. No unused variables found in the query '{operation_name}'."
     )]
     UnusedIgnoreUnusedVariablesDirective { operation_name: StringKey },
@@ -427,22 +452,24 @@ pub enum ValidationMessage {
         variables_string: String,
     },
 
-    #[error("Expected the 'queryName' argument of @refetchable to be provided")]
-    QueryNameRequired,
-
     #[error(
         "Expected the 'queryName' argument of @refetchable to be a string, got '{query_name_value}"
     )]
     ExpectQueryNameToBeString { query_name_value: String },
 
     #[error(
-        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{fragment_name}' and '{previous_fragment_name}'"
+        "Duplicate definition for @refetchable operation '{query_name}' from fragments '{first_fragment_name}' and '{second_fragment_name}'"
     )]
     DuplicateRefetchableOperation {
         query_name: StringKey,
-        fragment_name: StringKey,
-        previous_fragment_name: StringKey,
+        first_fragment_name: StringKey,
+        second_fragment_name: StringKey,
     },
+
+    #[error(
+        r#"When provided, the `directives` argument to `@refetchable` needs to be a list of literal strings. Each string should be a server directive valid on queries. Example: `@refetchable(queryName: "ExampleQuery", directives: ["@owner(name: \"an owner\")"])"#
+    )]
+    RefetchableDirectivesArgRequiresLiteralStringList,
 
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}"
@@ -701,4 +728,32 @@ pub enum ValidationMessage {
 
     #[error("Duplicate variable `{name}`")]
     DuplicateVariable { name: StringKey },
+}
+
+/// Given [ A, B, C ] return ' Did you mean A, B, or C?'.
+fn did_you_mean(suggestions: &[StringKey]) -> String {
+    if suggestions.is_empty() {
+        return "".to_string();
+    }
+
+    let suggestions_string = match suggestions.len() {
+        1 => format!("`{}`", suggestions[0].lookup()),
+        2 => format!("`{}` or `{}`", suggestions[0], suggestions[1]),
+        _ => {
+            let mut suggestions = suggestions.to_vec();
+            let last_option = suggestions.pop();
+
+            format!(
+                "{}, or `{}`",
+                suggestions
+                    .iter()
+                    .map(|suggestion| format!("`{}`", suggestion.lookup()))
+                    .collect::<Vec<String>>()
+                    .join(", "),
+                last_option.unwrap_or_else(|| "".intern())
+            )
+        }
+    };
+
+    format!(" Did you mean {}?", suggestions_string)
 }

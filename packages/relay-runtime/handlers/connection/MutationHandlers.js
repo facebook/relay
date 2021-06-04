@@ -13,6 +13,7 @@
 'use strict';
 
 const ConnectionHandler = require('./ConnectionHandler');
+const ConnectionInterface = require('./ConnectionInterface');
 
 const invariant = require('invariant');
 const warning = require('warning');
@@ -50,6 +51,7 @@ const DeleteEdgeHandler = {
     if (record == null) {
       return;
     }
+    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -99,6 +101,7 @@ function edgeUpdater(
     if (record == null) {
       return;
     }
+    // $FlowFixMe[prop-missing]
     const {connections} = payload.handleArgs;
     invariant(
       connections != null,
@@ -120,11 +123,17 @@ function edgeUpdater(
       );
       return;
     }
+    const {NODE, EDGES} = ConnectionInterface.get();
     const serverEdgeList = serverEdges ?? [singleServerEdge];
     for (const serverEdge of serverEdgeList) {
       if (serverEdge == null) {
         continue;
       }
+      const serverNode = serverEdge.getLinkedRecord('node');
+      if (!serverNode) {
+        continue;
+      }
+      const serverNodeId = serverNode.getDataID();
       for (const connectionID of connections) {
         const connection = store.get(connectionID);
         if (connection == null) {
@@ -132,6 +141,14 @@ function edgeUpdater(
             false,
             `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
           );
+          continue;
+        }
+        const nodeAlreadyExistsInConnection = connection
+          .getLinkedRecords(EDGES)
+          ?.some(
+            edge => edge?.getLinkedRecord(NODE)?.getDataID() === serverNodeId,
+          );
+        if (nodeAlreadyExistsInConnection) {
           continue;
         }
         const clientEdge = ConnectionHandler.buildConnectionEdge(
@@ -157,6 +174,7 @@ function nodeUpdater(
     if (record == null) {
       return;
     }
+    // $FlowFixMe[prop-missing]
     const {connections, edgeTypeName} = payload.handleArgs;
     invariant(
       connections != null,
@@ -180,11 +198,13 @@ function nodeUpdater(
       warning(false, 'MutationHandlers: Expected target node to exist.');
       return;
     }
+    const {NODE, EDGES} = ConnectionInterface.get();
     const serverNodeList = serverNodes ?? [singleServerNode];
     for (const serverNode of serverNodeList) {
       if (serverNode == null) {
         continue;
       }
+      const serverNodeId = serverNode.getDataID();
       for (const connectionID of connections) {
         const connection = store.get(connectionID);
         if (connection == null) {
@@ -192,6 +212,14 @@ function nodeUpdater(
             false,
             `[Relay][Mutation] The connection with id '${connectionID}' doesn't exist.`,
           );
+          continue;
+        }
+        const nodeAlreadyExistsInConnection = connection
+          .getLinkedRecords(EDGES)
+          ?.some(
+            edge => edge?.getLinkedRecord(NODE)?.getDataID() === serverNodeId,
+          );
+        if (nodeAlreadyExistsInConnection) {
           continue;
         }
         const clientEdge = ConnectionHandler.createEdge(

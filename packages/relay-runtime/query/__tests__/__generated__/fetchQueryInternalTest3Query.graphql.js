@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e3decfda278e7110cac93a1e7b2f8810>>
+ * @generated SignedSource<<e189084c47343cd2d90b1d7fcaa91168>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,6 +57,7 @@ v2 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "fetchQueryInternalTest3Query",
       "fragmentName": "fetchQueryInternalTestPlain1Fragment_name",
       "fragmentPropName": "name",
@@ -70,6 +71,7 @@ v3 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "fetchQueryInternalTest3Query",
       "fragmentName": "fetchQueryInternalTestMarkdown1Fragment_name",
       "fragmentPropName": "name",

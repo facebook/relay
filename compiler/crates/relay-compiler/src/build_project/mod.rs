@@ -8,7 +8,6 @@
 //! This module is responsible to build a single project. It does not handle
 //! watch mode or other state.
 
-mod apply_transforms;
 mod artifact_content;
 pub mod artifact_writer;
 mod build_ir;
@@ -24,10 +23,8 @@ mod validate;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use crate::watchman::SourceControlUpdateStatus;
+use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
-pub use apply_transforms::apply_transforms;
-pub use apply_transforms::Programs;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
@@ -42,10 +39,13 @@ use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
 use relay_codegen::Printer;
+use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
+
+use self::log_program_stats::print_stats;
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
@@ -63,23 +63,34 @@ impl From<BuildProjectError> for BuildProjectFailure {
 /// their locations to provide information to go_to_definition, hover, etc.
 pub fn build_raw_program(
     project_config: &ProjectConfig,
+    implicit_dependencies: &DependencyMap,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<(Program, FnvHashSet<StringKey>), BuildProjectError> {
+) -> Result<(Program, FnvHashSet<StringKey>, SourceHashes), BuildProjectError> {
+    // Build a type aware IR.
     let BuildIRResult {
         ir,
         base_fragment_names,
-        ..
+        source_hashes,
     } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
-            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        build_ir::build_ir(
+            project_config,
+            &implicit_dependencies,
+            &schema,
+            graphql_asts,
+            is_incremental_build,
+        )
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
-    Ok(log_event.time("build_program_time", || {
-        (Program::from_definitions(schema, ir), base_fragment_names)
-    }))
+    // Turn the IR into a base Program.
+    let program = log_event.time("build_program_time", || {
+        Program::from_definitions(schema, ir)
+    });
+
+    Ok((program, base_fragment_names, source_hashes))
 }
 
 pub fn validate_program(
@@ -124,6 +135,7 @@ pub fn transform_program(
                 .unwrap_or_else(|| config.feature_flags.clone()),
         ),
         perf_logger,
+        Some(print_stats),
     )
     .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
 
@@ -132,7 +144,7 @@ pub fn transform_program(
     result
 }
 
-fn build_programs(
+pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
@@ -150,29 +162,37 @@ fn build_programs(
             true
         };
 
-    // Build a type aware IR.
-    let BuildIRResult {
-        ir,
-        base_fragment_names,
-        source_hashes,
-    } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build).map_err(
-            |errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }),
-        )
-    })?;
-
-    // Turn the IR into a base Program.
-    let program = log_event.time("build_program_time", || {
-        Program::from_definitions(schema, ir)
-    });
+    let (program, base_fragment_names, source_hashes) = build_raw_program(
+        project_config,
+        &compiler_state.implicit_dependencies.read().unwrap(),
+        graphql_asts,
+        schema,
+        log_event,
+        is_incremental_build,
+    )?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    // Call validation rules that go beyond type checking.
-    validate_program(&config, &program, log_event)?;
+    let (validation_results, _) = rayon::join(
+        || {
+            // Call validation rules that go beyond type checking.
+            validate_program(&config, &program, log_event)
+        },
+        || {
+            find_resolver_dependencies(
+                &mut compiler_state
+                    .pending_implicit_dependencies
+                    .write()
+                    .unwrap(),
+                &program,
+            );
+        },
+    );
+
+    validation_results?;
 
     let programs = transform_program(
         config,
@@ -195,7 +215,7 @@ pub fn build_project(
 ) -> Result<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>), BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
     let build_time = log_event.start("build_project_time");
-    let project_name = project_config.name.lookup();
+    let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 
@@ -332,9 +352,9 @@ pub async fn commit_project(
                     break;
                 }
                 if !existing_artifacts.remove(&artifact.path) {
-                    info!(
-                        "[{}] NEW: {:?} -> {:?}",
-                        project_config.name, &artifact.source_definition_names, &artifact.path
+                    debug!(
+                        "[{}] new artifact {:?} from definitions {:?}",
+                        project_config.name, &artifact.path, &artifact.source_definition_names
                     );
                 }
 

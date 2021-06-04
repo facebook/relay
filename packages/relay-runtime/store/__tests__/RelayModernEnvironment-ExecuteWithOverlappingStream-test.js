@@ -29,6 +29,9 @@ const {
   createReaderSelector,
   getSingularSelector,
 } = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
   let callbacks;
@@ -48,10 +51,6 @@ describe('execute() a query with multiple @stream selections on the same record'
   let deferFragment;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery(
         $id: ID!

@@ -74,6 +74,17 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parses a string containing a single directive.
+    pub fn parse_directive(mut self) -> DiagnosticsResult<Directive> {
+        let document = self.parse_directive_impl();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok(document.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     /// Parses a document consisting only of executable nodes: operations and
     /// fragments.
     pub fn parse_executable_document(mut self) -> WithDiagnostics<ExecutableDocument> {
@@ -1053,7 +1064,7 @@ impl<'a> Parser<'a> {
 
     /// Directives[Const] : Directive[?Const]+
     fn parse_directives(&mut self) -> ParseResult<Vec<Directive>> {
-        self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive())
+        self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive_impl())
     }
 
     fn parse_constant_directives(&mut self) -> ParseResult<Vec<ConstantDirective>> {
@@ -1068,7 +1079,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Directive[Const] : @ Name Arguments[?Const]?
-    fn parse_directive(&mut self) -> ParseResult<Directive> {
+    fn parse_directive_impl(&mut self) -> ParseResult<Directive> {
         let start = self.index();
         let at = self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier_with_error_recovery();

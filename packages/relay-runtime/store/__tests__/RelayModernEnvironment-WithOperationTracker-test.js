@@ -26,8 +26,11 @@ const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let tracker;

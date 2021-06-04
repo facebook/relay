@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0b419113886140fb3382c2a63d7adb2e>>
+ * @generated SignedSource<<c0ef4f69afde63e628117360782fbeb2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -13,6 +13,8 @@
 /* eslint-disable */
 
 'use strict';
+
+// @ReactFlightClientDependency RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$normalization.graphql
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';

@@ -35,6 +35,10 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     if !uri.path().starts_with(state.root_dir_str()) {
         return Err(LSPRuntimeError::ExpectedError);
     }
+    if let Ok(result) = state.js_resource.on_code_action(&params, state) {
+        return Ok(result);
+    }
+
     let range = params.range;
 
     let text_document_position_params = TextDocumentPositionParams {
@@ -44,12 +48,14 @@ pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
     let definitions = state.resolve_executable_definitions(&text_document_position_params)?;
 
     let (document, position_span, _project_name) =
-        state.extract_executable_document_from_text(text_document_position_params, 1)?;
+        state.extract_executable_document_from_text(&text_document_position_params, 1)?;
 
     let path = document.resolve((), position_span);
 
     let used_definition_names = get_definition_names(&definitions);
-    Ok(get_code_actions(path, used_definition_names, uri, range))
+    let result = get_code_actions(path, used_definition_names, uri, range)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+    Ok(Some(result))
 }
 
 struct FragmentAndOperationNames {

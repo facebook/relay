@@ -15,12 +15,14 @@
 const {VIEWER_ID, VIEWER_TYPE} = require('./ViewerPattern');
 
 function defaultGetDataID(
-  fieldValue: {[string]: mixed, ...},
+  fieldValue: interface {[string]: mixed},
   typeName: string,
 ): mixed {
   if (typeName === VIEWER_TYPE) {
+    // $FlowFixMe[prop-missing]
     return fieldValue.id == null ? VIEWER_ID : fieldValue.id;
   }
+  // $FlowFixMe[prop-missing]
   return fieldValue.id;
 }
 

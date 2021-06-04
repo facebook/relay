@@ -223,6 +223,7 @@ describe('ReactRelayTestMocker', () => {
 
       writer.networkWrite({
         query: getRequest(ReactRelayTestMockerTestQuery),
+        // $FlowFixMe[incompatible-call]
         payload: {
           data: null,
           errors: [

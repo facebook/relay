@@ -7,7 +7,7 @@ fragment Foo_user on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
 }
 ==================================== ERROR ====================================
 ✖︎ The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named 'PopStarNameResolverFragment_name'.

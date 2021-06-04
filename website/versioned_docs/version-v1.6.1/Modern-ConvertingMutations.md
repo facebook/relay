@@ -12,19 +12,16 @@ FatQueries in Relay Classic mutations was a concept that was confusing for a num
 Example of existing fat query:
 
 ```javascript
-
   RelayClassic.QL`
     fragment on MarkReadNotificationResponsePayload @relay(pattern: true) {
       notification
     }
   `;
-
 ```
 
 Example of converted mutation query:
 
 ```javascript
-
 graphql`
   mutation MarkReadNotificationMutation(
     $input: MarkReadNotificationData!
@@ -37,7 +34,6 @@ graphql`
     }
   }
 `;
-
 ```
 
 ## Migrating Configs
@@ -63,7 +59,6 @@ This is no longer needed in Compatibility Mode for neither environments. Relay w
 Take this example of a simple mutation in Relay Classic:
 
 ```javascript
-
 class LikeStoryMutation extends RelayClassic.Mutation {
   getMutation() {
     return RelayClassic.QL`mutation {likeStory}`;
@@ -102,7 +97,6 @@ class LikeStoryMutation extends RelayClassic.Mutation {
     `,
   };
 }
-
 ```
 
 ### Converting `getMutation()` and `getFatQuery()`
@@ -110,7 +104,6 @@ class LikeStoryMutation extends RelayClassic.Mutation {
 We combine these two into a regular GraphQL mutation, which list out specific fields that needs to be updated.
 
 ```javascript
-
 const mutation = graphql`
   mutation LikeStoryMutation($input: LikeStoryData!) {
     story(data: $input) {
@@ -122,7 +115,6 @@ const mutation = graphql`
     }
   }
 `;
-
 ```
 
 ### Converting `getConfigs()`
@@ -134,13 +126,11 @@ As specified above, `FIELDS_CHANGE` configs can be omitted.
 To convert `getVariables()`, we take the return value from the original function and wrap it in an object that contains a property that matches the variable name for the mutation. In this case, the mutation has a `input` variable that is of type `LikeStoryData`.
 
 ```javascript
-
 const variables = {
   input: {
     storyID: args.storyID
   }
 }
-
 ```
 
 ### Final Result
@@ -148,7 +138,6 @@ const variables = {
 As you can see, our resulting mutation is a lot simpler and more like regular GraphQL than the Relay Classic version we started out with.
 
 ```javascript
-
 const mutation = graphql`
   mutation LikeStoryMutation($input: LikeStoryData!) {
     story {
@@ -174,7 +163,6 @@ function commit(environment: CompatEnvironment, args) {
     variables,
   });
 }
-
 ```
 
 See [Mutation](./mutations) for additional options on `commitMutation` for more complex mutations.

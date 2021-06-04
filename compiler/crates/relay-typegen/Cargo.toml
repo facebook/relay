@@ -21,5 +21,4 @@ serde = { version = "=1.0.118", features = ["derive", "rc"] }
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-syntax = { path = "../graphql-syntax" }
-relay-compiler = { path = "../relay-compiler" }
 relay-test-schema = { path = "../relay-test-schema" }

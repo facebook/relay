@@ -1,0 +1,10 @@
+# noop because FeedbackLikeResponsePayload has no js field
+subscription FeedbackLikeSubscription($input: FeedbackLikeInput!) {
+  feedbackLikeSubscribe(input: $input) {
+    ...FeedbackLike_FeedbackLikeResponsePayload
+  }
+}
+
+fragment FeedbackLike_FeedbackLikeResponsePayload on FeedbackLikeResponsePayload {
+  __typename
+}

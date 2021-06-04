@@ -19,6 +19,8 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
+relay-transforms = { path = "../relay-transforms" }
+schema = { path = "../schema" }
 
 [dev-dependencies]
 common = { path = "../common" }

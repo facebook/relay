@@ -14,7 +14,9 @@ import GridBlock from '../core/GridBlock';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import useThemeContext from '@theme/hooks/useThemeContext';
 import * as React from 'react';
+import {useEffect, useRef, useState} from 'react';
 /* eslint-enable lint/no-value-import */
 
 function LoadQueryLink() {
@@ -62,6 +64,16 @@ const HomeSplash = () => {
               <small>{siteConfig.tagline}</small>
               <small>{siteConfig.subtagline}</small>
             </h2>
+            <div className="try-it">
+              <h3>
+                <a
+                  className="button"
+                  href="https://codesandbox.io/s/relay-sandbox-nxl7i?file=/src/TodoApp.tsx"
+                  target="_blank">
+                  Explore an example
+                </a>
+              </h3>
+            </div>
           </div>
         </div>
       </div>
@@ -72,6 +84,8 @@ const HomeSplash = () => {
 const Index = () => {
   const {siteConfig} = useDocusaurusContext();
   const {withBaseUrl} = useBaseUrlUtils();
+  const {isDarkTheme} = useThemeContext();
+
   const showcase = siteConfig.customFields.users
     .filter(user => {
       return user.pinned;
@@ -166,7 +180,7 @@ const Index = () => {
             ]}
           />
         </Container>
-        <Container className="exampleSection darkBackground">
+        <Container className="exampleSection" background="dark">
           <div className="wrapperInner">
             <div className="radiusRight">
               <h2>Fetching query data</h2>
@@ -190,17 +204,8 @@ const Index = () => {
               <pre className="outerPre">
                 <Code>
                   {`
-// Artist.react.js
 import React from "react";
-import {
-  EnvironmentProvider,
-  loadQuery,
-  graphql,
-  usePreloadedQuery,
-} from "react-relay";
-import environment from "./environment";
-import ArtistCard from "./ArtistCard";
-import {LoadingIndicator, Name} from "./views";
+import { graphql, usePreloadedQuery, /* ... */ } from "react-relay";
 
 const artistsQuery = graphql\`
   query ArtistQuery($artistID: String!) {
@@ -228,10 +233,12 @@ export default function ArtistPage() {
 
 function ArtistView() {
   const data = usePreloadedQuery(artistsQuery, artistsQueryReference);
-  return <>
-    <Name>{data?.artist?.name}</Name>
-    {data?.artist && <ArtistCard artist={data?.artist} />}
-  </>
+  return (
+    <>
+      <Name>{data?.artist?.name}</Name>
+      {data?.artist && <ArtistCard artist={data?.artist} />}
+    </>
+  );
 }
 `}
                 </Code>
@@ -239,7 +246,7 @@ function ArtistView() {
             </div>
           </div>
         </Container>
-        <Container className="exampleSection lightBackground">
+        <Container className="exampleSection" background="light">
           <div className="wrapperInner">
             <div>
               <h2>Fragments</h2>
@@ -270,15 +277,10 @@ function ArtistView() {
               <pre className="outerPre">
                 <Code>
                   {`
-// ArtistCard.react.js
 import React from "react";
-import {
-  graphql,
-  useFragment,
-} from "react-relay";
-import {Bio, Card, Link, Image, Name} from "./views";
+import { graphql, useFragment} from "react-relay";
 
-export default function ArtistHeader(props) {
+export default function ArtistCard(props) {
   const {href, image, bio} = useFragment(
     graphql\`
       fragment ArtistHeader_artist on Artist {
@@ -308,7 +310,6 @@ export default function ArtistHeader(props) {
             </div>
           </div>
         </Container>
-
         <Container className="textSection graphqlSection" background="dark">
           <h2>GraphQL best practices baked in</h2>
           <p>
@@ -414,7 +415,6 @@ export default function ArtistHeader(props) {
             ]}
           />
         </Container>
-
         <Container
           className="textSection declarativeSection"
           background="light">
@@ -468,7 +468,6 @@ export default function ArtistHeader(props) {
             ]}
           />
         </Container>
-
         <Container className="textSection aheadSection" background="dark">
           <h2>Ahead-of-time Safety</h2>
           <GridBlock
@@ -516,7 +515,6 @@ export default function ArtistHeader(props) {
             ]}
           />
         </Container>
-
         <Container className="textSection relaySection" background="light">
           <h2>Can Relay Work For Me?</h2>
           <GridBlock
@@ -587,8 +585,26 @@ export default function ArtistHeader(props) {
             ]}
           />
         </Container>
-
-        <Container className="textSection" background="dark">
+        <Container className="textSection graphqlSection" background="dark">
+          <h2>Explore CodeSandbox Example</h2>
+          <div
+            id="iframe-wrapper"
+            style={{height: 500, width: '100%', marginTop: 40}}>
+            <iframe
+              src={`https://codesandbox.io/embed/relay-sandbox-nxl7i?&module=%2Fsrc%2FTodoApp.tsx&fontsize=14&hidenavigation=1&hidedevtools=1&theme=${
+                isDarkTheme ? 'dark' : 'light'
+              }`}
+              style={{
+                width: '100%',
+                height: 500,
+                border: 0,
+                borderRadius: 4,
+              }}
+              title="relay-sandbox"
+              sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"></iframe>
+          </div>
+        </Container>
+        <Container className="textSection" background="light">
           <h2>Proudly Used Elsewhere</h2>
           <p>
             Relay was originally created for the React Native sections of the

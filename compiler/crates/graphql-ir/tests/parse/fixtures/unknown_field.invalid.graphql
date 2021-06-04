@@ -1,0 +1,30 @@
+# expected-to-throw
+query Q1 {
+  taskc(task_id: 123) {
+    title
+  }
+}
+
+query Q2 {
+  my
+}
+
+query Q3 {
+  stor {
+    names
+    ids
+  }
+}
+
+query Q4 {
+  story {
+    names
+    ids
+    actro
+    nod
+    x_actor
+    x_canViewersComment
+    long_prefix_canViewerComment
+    viewerComment
+  }
+}

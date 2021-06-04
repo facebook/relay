@@ -166,6 +166,7 @@ fragment moduleWithDefer_MarkdownUserNameRenderer_name on MarkdownUserNameRender
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "moduleWithDefer_FooNameRendererFragment",
                             "fragmentName": "moduleWithDefer_MarkdownUserNameRenderer_name",
                             "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -261,6 +262,7 @@ fragment moduleWithDefer_MarkdownUserNameRenderer_name on MarkdownUserNameRender
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "moduleWithDefer_FooNameRendererFragment",
                   "fragmentName": "moduleWithDefer_MarkdownUserNameRenderer_name",
                   "fragmentPropName": "MarkdownUserNameRenderer_name",

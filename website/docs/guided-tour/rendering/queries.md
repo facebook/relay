@@ -2,6 +2,13 @@
 id: queries
 title: Queries
 slug: /guided-tour/rendering/queries/
+description: Relay guide to queries
+keywords:
+- query
+- usePreloadedQuery
+- useLazyLoadQuery
+- useQueryLoader
+- loadQuery
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -9,7 +16,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbEntrypointsExtraInfo from './fb/FbEntrypointsExtraInfo.md';
 
-A [GraphQL Query](https://graphql.github.io/learn/queries/) is a description of data you want to query from a GraphQL servere. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.github.io/learn/schema/) exposed on the server, which describes the data that is available for querying.
+A [GraphQL Query](https://graphql.org/learn/queries/) is a description of data you want to query from a GraphQL server. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.org/learn/schema/) exposed on the server, which describes the data that is available for querying.
 
 A query can be sent as a request over the network, along with an optional collection of [variables](../variables/) that the query uses, in order to fetch the data. The server response will be a JSON object that matches the shape of the query we sent:
 
@@ -65,7 +72,7 @@ Sample response:
 
 ## Rendering Queries
 
-To *render* a query in Relay, you can use the `usePreloadedQuery` Hook:
+To *render* a query in Relay, you can use the `usePreloadedQuery` hook. `usePreloadedQuery` takes a query definition and a query reference, and returns the corresponding data for that query and reference.
 
 ```js
 import type {HomeTabQuery} from 'HomeTabQuery.graphql';
@@ -165,7 +172,7 @@ The example above is somewhat contrived, but let's distill what is happening:
 * Calling `useQueryLoader` allows us to obtain 2 things:
     * `homeTabQueryRef`: A `?PreloadedQuery`, which is an object that describes and references an *instance* of our query that is being (or was) fetched. This value will be null if we haven't fetched the query, i.e. if we haven't called `loadHomeTabQuery`.
     * `loadHomeTabQuery`: A function that will *fetch* the data for this query from the server (if it isn't already cached), and given an object with the [variables](../variables/) the query expects, in this case `{id: '4'}` (we'll go into more detail about how Relay uses cached data in the [Reusing Cached Data For Render](../../reusing-cached-data/) section). Calling this function will also update the value of `homeTabQueryRef` to an instance of a `PreloadedQuery`.
-        * Note that the `variables` we pass to this function will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
+        * Note that the `variables` we pass to this function will be checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
         * Also note that we are calling this function in the event handler that causes the `HomeTab` to be rendered. This allows us to start fetching the data for the screen as early as possible, even before the new tab starts rendering.
             * In fact, note that this function can NOT be called during render; it *must* be called outside of a Component's render function, otherwise it will produce an error.
 * Note that `useQueryLoader` will automatically dispose of all queries that have been loaded when the component unmounts. Disposing of a query means that Relay will no longer hold on to the data for that particular instance of the query in its cache (we'll cover the lifetime of query data in [Reusing Cached Data For Render](../../reusing-cached-data/) section). Additionally, if the request for the query is still in flight when disposal occurs, it will be canceled.

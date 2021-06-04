@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ca8930030a82bff9ecd7695c8db5c586>>
+ * @generated SignedSource<<6b4b5fd9e9b4ddabe6bc2948e03e41d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ type RelayModernSelectorTestUserFragment$ref = any;
 type RelayModernSelectorTestUsersFragment$ref = any;
 export type RelayModernSelectorTestUserQueryVariables = {|
   id: string,
-  size?: ?number,
+  size?: ?$ReadOnlyArray<?number>,
   cond: boolean,
 |};
 export type RelayModernSelectorTestUserQueryResponse = {|
@@ -176,18 +176,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "555c7d35fd9d940d0fe8f33bd3e924d1",
+    "cacheID": "ff14fc374a9b5725c7b45e145387b849",
     "id": null,
     "metadata": {},
     "name": "RelayModernSelectorTestUserQuery",
     "operationKind": "query",
-    "text": "query RelayModernSelectorTestUserQuery(\n  $id: ID!\n  $size: Int\n  $cond: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernSelectorTestUserFragment\n    ...RelayModernSelectorTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernSelectorTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n\nfragment RelayModernSelectorTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n"
+    "text": "query RelayModernSelectorTestUserQuery(\n  $id: ID!\n  $size: [Int]\n  $cond: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernSelectorTestUserFragment\n    ...RelayModernSelectorTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernSelectorTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n\nfragment RelayModernSelectorTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a1c4660072809c07ccdb440e3eec35e7";
+  (node/*: any*/).hash = "afbaf504a28e027de34401ff4a82e567";
 }
 
 module.exports = node;

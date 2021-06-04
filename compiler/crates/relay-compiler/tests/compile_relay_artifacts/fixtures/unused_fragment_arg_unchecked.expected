@@ -1,0 +1,299 @@
+==================================== INPUT ====================================
+query unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery($id: ID!) {
+  node(id: $id) {
+    ...unusedFragmentArgUnchecked_Profile
+  }
+}
+
+fragment unusedFragmentArgUnchecked_Profile on User {
+  id
+  name
+  ...unusedFragmentArgUnchecked_ProfilePhotoWrapper @arguments(size: $size)
+}
+
+fragment unusedFragmentArgUnchecked_ProfilePhotoWrapper on User @argumentDefinitions(size: {type: "Int"}) {
+  __typename
+  ...unusedFragmentArgUnchecked_ProfilePhoto @uncheckedArguments_DEPRECATED(size: $size)
+}
+
+fragment unusedFragmentArgUnchecked_ProfilePhoto on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "unusedFragmentArgUnchecked_Profile"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "size",
+                    "value": [
+                      100
+                    ]
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profilePicture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": "profilePicture(size:[100])"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...unusedFragmentArgUnchecked_Profile
+    id
+  }
+}
+
+fragment unusedFragmentArgUnchecked_Profile on User {
+  id
+  name
+  ...unusedFragmentArgUnchecked_ProfilePhotoWrapper_18PEfK
+}
+
+fragment unusedFragmentArgUnchecked_ProfilePhotoWrapper_18PEfK on User {
+  __typename
+  ...unusedFragmentArgUnchecked_ProfilePhoto_18PEfK
+}
+
+fragment unusedFragmentArgUnchecked_ProfilePhoto_18PEfK on User {
+  profilePicture(size: [100]) {
+    uri
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unusedFragmentArgUnchecked_Profile",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "kind": "FragmentSpread",
+      "name": "unusedFragmentArgUnchecked_ProfilePhotoWrapper"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unusedFragmentArgUnchecked_ProfilePhoto",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "size",
+          "value": [
+            100
+          ]
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": "profilePicture(size:[100])"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unusedFragmentArgUnchecked_ProfilePhotoWrapper",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    },
+    {
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "kind": "FragmentSpread",
+      "name": "unusedFragmentArgUnchecked_ProfilePhoto"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

@@ -20,9 +20,9 @@ const React = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
 
-type Props = {|
+type Props = {
   user: FriendsList_user$key,
-|};
+};
 
 function FriendsList(props: Props) {
   const {

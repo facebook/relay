@@ -6,23 +6,21 @@
  */
 
 //! Utilities for providing the hover feature
-use crate::LSPExtraDataProvider;
 use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{NodeKind, NodeResolutionInfo},
     server::LSPState,
 };
+use crate::{server::SourcePrograms, LSPExtraDataProvider};
 use common::PerfLogger;
-use fnv::FnvHashMap;
-use graphql_ir::{Program, Value};
+use graphql_ir::Value;
 use graphql_text_printer::print_value;
-use interner::StringKey;
 use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -74,7 +72,7 @@ fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
     schema_documentation: &Arc<SchemaDocumentation>,
-    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    source_programs: &SourcePrograms,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
@@ -104,45 +102,56 @@ fn get_hover_response_contents(
             }
         }
         NodeKind::FieldName => {
-            let field = node_resolution_info
+            let (parent_type, field) = node_resolution_info
                 .type_path
                 .resolve_current_field(schema)?;
 
             let type_name = schema.get_type_string(&field.type_);
+            let parent_type_name = schema.get_type_name(parent_type).to_string();
 
-            let mut hover_contents: Vec<MarkedString> = vec![graphql_marked_string(format!(
-                "{}: {}",
-                field.name, type_name
-            ))];
+            let mut hover_contents: Vec<MarkedString> =
+                vec![MarkedString::String(format!("Field: **{}**", field.name))];
 
             if let Some(field_description) =
-                schema_documentation.get_field_description(&type_name, field.name.lookup())
+                schema_documentation.get_field_description(&parent_type_name, field.name.lookup())
             {
                 hover_contents.push(MarkedString::String(field_description.to_string()));
             }
+
+            hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name)));
+
             if let Some(type_description) = schema_documentation.get_type_description(&type_name) {
                 hover_contents.push(MarkedString::String(type_description.to_string()));
             }
 
             if !field.arguments.is_empty() {
-                let mut args_string: Vec<String> =
-                    vec!["This field accepts following arguments:".to_string()];
-                args_string.push("```".to_string());
-                for arg in field.arguments.iter() {
-                    let default_value = match &arg.default_value {
-                        Some(default_value) => format!(" = {}", default_value),
-                        None => "".to_string(),
-                    };
+                hover_contents.push(MarkedString::String(
+                    "This field accepts following arguments".to_string(),
+                ));
 
-                    args_string.push(format!(
-                        "- {}: {}{}",
+                for arg in field.arguments.iter() {
+                    hover_contents.push(MarkedString::from_markdown(format!(
+                        "`{}: {}{}`\n\n{}",
                         arg.name,
                         schema.get_type_string(&arg.type_),
-                        default_value,
-                    ));
+                        if let Some(default_value) = &arg.default_value {
+                            format!(" = {}", default_value)
+                        } else {
+                            "".to_string()
+                        },
+                        if let Some(description) = schema_documentation
+                            .get_field_argument_description(
+                                &parent_type_name,
+                                field.name.lookup(),
+                                arg.name.lookup(),
+                            )
+                        {
+                            description.to_string()
+                        } else {
+                            "".to_string()
+                        }
+                    )));
                 }
-                args_string.push("```".to_string());
-                hover_contents.push(MarkedString::String(args_string.join("\n")))
             }
             Some(HoverContents::Array(hover_contents))
         }
@@ -167,7 +176,7 @@ fn get_hover_response_contents(
         }
         NodeKind::FragmentSpread(fragment_name) => {
             let project_name = node_resolution_info.project_name;
-            if let Some(source_program) = source_programs.read().unwrap().get(&project_name) {
+            if let Some(source_program) = source_programs.get(&project_name) {
                 let fragment = source_program.fragment(fragment_name)?;
                 let mut hover_contents: Vec<MarkedString> = vec![];
                 hover_contents.push(graphql_marked_string(format!(
@@ -282,19 +291,14 @@ pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
     let node_resolution_info = state.resolve_node(params)?;
 
     log::debug!("Hovering over {:?}", node_resolution_info);
-    if let Some(schemas) = state
-        .get_schemas()
-        .read()
-        .expect("on_hover: could not acquire read lock for state.get_schemas")
-        .get(&node_resolution_info.project_name)
-    {
-        let schema_documentation = state.extra_data_provider.get_schema_documentation(
-            state.get_schema_name_for_project(&node_resolution_info.project_name),
-        );
+    if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {
+        let schema_documentation = state
+            .extra_data_provider
+            .get_schema_documentation(&node_resolution_info.project_name.to_string());
 
         let contents = get_hover_response_contents(
             node_resolution_info,
-            schemas,
+            &schema,
             &schema_documentation,
             state.get_source_programs_ref(),
             state.extra_data_provider.as_ref(),

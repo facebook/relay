@@ -24,7 +24,6 @@ However, when [specifying connection fragments](#createpaginationcontainer) for 
 The purpose of the `@connection` directive is to allow Relay to uniquely identify different connections under a parent type. The `@connection` directive takes 2 arguments that help identify the connection:
 
 ```graphql
-
 @connection(key: String!, filters: [String])
 
 ```
@@ -37,7 +36,6 @@ The purpose of the `@connection` directive is to allow Relay to uniquely identif
 Specifying just the `key`:
 
 ```javascript
-
 fragment Feed_user on User {
   # This connection, under a specific User, will be uniquely identified by
   # the key "Feed_feed" and the value of `$orderBy` (given that no `filters` were provided)
@@ -53,13 +51,11 @@ fragment Feed_user on User {
       }
   }
 }
-
 ```
 
 Specifying `key` and `filters`:
 
 ```javascript
-
 fragment Feed_user on User {
   # This connection, under a specific User, will be uniquely identified by
   # the key "Feed_feed" and /only/ the value of `$searchTerm`, i.e.
@@ -77,7 +73,6 @@ fragment Feed_user on User {
       }
   }
 }
-
 ```
 
 ## `createPaginationContainer`
@@ -85,7 +80,6 @@ fragment Feed_user on User {
 `createPaginationContainer` has the following signature:
 
 ```javascript
-
 createPaginationContainer(
   component: ReactComponentClass,
   fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
@@ -113,7 +107,6 @@ type ConnectionData = {
     startCursor: ?string,
   },
 };
-
 ```
 
 ### Arguments
@@ -137,7 +130,6 @@ type ConnectionData = {
 The Component resulting from `createPaginationContainer` will receive the following `props`:
 
 ```javascript
-
 type Props = {
   relay: {
     environment: Environment,
@@ -148,7 +140,6 @@ type Props = {
   },
   // Additional props as specified by the fragmentSpec
 }
-
 ```
 
 -   `relay`:
@@ -163,7 +154,6 @@ type Props = {
 `hasMore` is a function available on the `relay` [prop](#available-props). This function indicates wether there are more pages to fetch from the server or not.
 
 ```javascript
-
 hasMore: () => boolean,
 
 ```
@@ -173,7 +163,6 @@ hasMore: () => boolean,
 `isLoading` is a function available on the `relay` [prop](#available-props). This function indicates if a previous call to [`loadMore()`](#loadmore) is still pending. This is convenient for avoiding duplicate load calls.
 
 ```javascript
-
 isLoading: () => boolean,
 
 ```
@@ -183,7 +172,6 @@ isLoading: () => boolean,
 `loadMore` is a function available on the `relay` [prop](#available-props). You can call `loadMore()` to fetch more items from the server based on the `connectionConfig` provided to the container. This will return null if there are no more items to fetch, otherwise it will fetch more items and return a Disposable that can be used to cancel the fetch.
 
 ```javascript
-
 loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
 
 ```
@@ -198,7 +186,6 @@ loadMore(pageSize: number, callback: ?(error: ?Error) => void): ?Disposable
 `refetchConnection` is a function available on the `relay` [prop](#available-props). You can call `refetchConnection` to restart pagination on a connection from scratch, with optionally a completely new set of variables to pass to the pagination `query`. This is useful for example if you are paginating over a collection based on a userID and the userID changes, you'd want to start paginating over the new collection for the new user.
 
 ```javascript
-
 refetchConnection:(
   count: number,
   callback: (error: ?Error) => void,
@@ -216,7 +203,6 @@ refetchConnection:(
 ## Pagination Example
 
 ```javascript
-
 // Feed.js
 import {createPaginationContainer, graphql} from 'react-relay';
 
@@ -311,5 +297,4 @@ module.exports = createPaginationContainer(
     `
   }
 );
-
 ```

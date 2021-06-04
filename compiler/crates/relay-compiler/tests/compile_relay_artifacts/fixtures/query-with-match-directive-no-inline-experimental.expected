@@ -178,6 +178,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -191,6 +192,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_na
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -377,6 +379,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",
@@ -390,6 +393,7 @@ fragment queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name 
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveNoInlineExperimental_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",

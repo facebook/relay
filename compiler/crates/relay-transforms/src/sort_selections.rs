@@ -13,9 +13,7 @@ use graphql_ir::{
 use std::collections::HashMap;
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
-///
 /// Sorts selections in the fragments and queries (and their selections)
-///
 pub fn sort_selections(program: &Program) -> Program {
     let mut transform = SortSelectionsTransform::new(program);
     transform

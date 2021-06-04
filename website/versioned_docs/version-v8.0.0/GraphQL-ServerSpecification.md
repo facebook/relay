@@ -90,7 +90,6 @@ type IntroduceShipPayload {
 type Mutation {
   introduceShip(input: IntroduceShipInput!): IntroduceShipPayload
 }
-
 ```
 
 ## Object Identification
@@ -109,7 +108,6 @@ query RebelsQuery {
     name
   }
 }
-
 ```
 
 returns
@@ -122,7 +120,6 @@ returns
     "name": "Alliance to Restore the Republic"
   }
 }
-
 ```
 
 So now we know the ID of the Rebels in our system. We can now refetch them:
@@ -137,7 +134,6 @@ query RebelsRefetchQuery {
     }
   }
 }
-
 ```
 
 returns
@@ -150,7 +146,6 @@ returns
     "name": "Alliance to Restore the Republic"
   }
 }
-
 ```
 
 If we do the same thing with the Empire, we'll find that it returns a different ID, and we can refetch it as well:
@@ -163,7 +158,6 @@ query EmpireQuery {
     name
   }
 }
-
 ```
 
 yields
@@ -176,7 +170,6 @@ yields
     "name": "Galactic Empire"
   }
 }
-
 ```
 
 and
@@ -191,7 +184,6 @@ query EmpireRefetchQuery {
     }
   }
 }
-
 ```
 
 yields
@@ -204,7 +196,6 @@ yields
     "name": "Galactic Empire"
   }
 }
-
 ```
 
 The `Node` interface and `node` field assume globally unique IDs for this refetching. A system without globally unique IDs can usually synthesize them by combining the type with the type-specific ID, which is what was done in this example.
@@ -233,7 +224,6 @@ query RebelsShipsQuery {
     }
   }
 }
-
 ```
 
 yields
@@ -254,7 +244,6 @@ yields
     }
   }
 }
-
 ```
 
 That used the `first` argument to `ships` to slice the result set down to the first one. But what if we wanted to paginate through it? On each edge, a cursor will be exposed that we can use to paginate. Let's ask for the first two this time, and get the cursor as well:
@@ -274,7 +263,6 @@ query MoreRebelShipsQuery {
     }
   }
 }
-
 ```
 
 and we get back
@@ -302,7 +290,6 @@ and we get back
     }
   }
 }
-
 ```
 
 Notice that the cursor is a base64 string. That's the pattern from earlier: the server is reminding us that this is an opaque string. We can pass this string back to the server as the `after` argument to the `ships` field, which will let us ask for the next three ships after the last one in the previous result:
@@ -322,7 +309,6 @@ query EndOfRebelShipsQuery {
     }
   }
 }
-
 ```
 
 gives us
@@ -357,7 +343,6 @@ gives us
     }
   }
 }
-
 ```
 
 Sweet! Let's keep going and get the next four!
@@ -377,7 +362,6 @@ query RebelsQuery {
     }
   }
 }
-
 ```
 
 yields
@@ -392,7 +376,6 @@ yields
     }
   }
 }
-
 ```
 
 Hm. There were no more ships; guess there were only five in the system for the rebels. It would have been nice to know that we'd reached the end of the connection, without having to do another round trip in order to verify that. The connection model exposes this capability with a type called `PageInfo`. So let's issue the two queries that got us ships again, but this time ask for `hasNextPage`:
@@ -424,7 +407,6 @@ query EndOfRebelShipsQuery {
     }
   }
 }
-
 ```
 
 and we get back
@@ -475,7 +457,6 @@ and we get back
     }
   }
 }
-
 ```
 
 So on the first query for ships, GraphQL told us there was a next page, but on the next one, it told us we'd reached the end of the connection.
@@ -503,7 +484,6 @@ type IntroduceShipPayload {
   faction: Faction
   ship: Ship
 }
-
 ```
 
 With this input and payload, we can issue the following mutation:
@@ -521,7 +501,6 @@ mutation AddBWingQuery($input: IntroduceShipInput!) {
     }
   }
 }
-
 ```
 
 with these params:
@@ -534,7 +513,6 @@ with these params:
     "factionId": "1"
   }
 }
-
 ```
 
 and we'll get this result:
@@ -552,7 +530,6 @@ and we'll get this result:
     }
   }
 }
-
 ```
 
 ## Further Reading

@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3caa3d3b5d39fe5a7a5e6070067aa328>>
+ * @generated SignedSource<<48c9bb57189c7244fccbab5572451566>>
  */
 
 mod generate_flow;
 
 use generate_flow::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn actor_change() {
+    let input = include_str!("generate_flow/fixtures/actor-change.graphql");
+    let expected = include_str!("generate_flow/fixtures/actor-change.expected");
+    test_fixture(transform_fixture, "actor-change.graphql", "generate_flow/fixtures/actor-change.expected", input, expected);
+}
+
+#[test]
+fn actor_change_with_query() {
+    let input = include_str!("generate_flow/fixtures/actor-change-with-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/actor-change-with-query.expected");
+    test_fixture(transform_fixture, "actor-change-with-query.graphql", "generate_flow/fixtures/actor-change-with-query.expected", input, expected);
+}
 
 #[test]
 fn conditional() {
@@ -192,6 +206,34 @@ fn relay_client_id_field() {
     let input = include_str!("generate_flow/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, "relay-client-id-field.graphql", "generate_flow/fixtures/relay-client-id-field.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver.expected");
+    test_fixture(transform_fixture, "relay-resolver.graphql", "generate_flow/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_in_fragment() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.expected");
+    test_fixture(transform_fixture, "relay-resolver-in-fragment.graphql", "generate_flow/fixtures/relay-resolver-in-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_multiple_consumers() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-multiple-consumers.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-multiple-consumers.expected");
+    test_fixture(transform_fixture, "relay-resolver-multiple-consumers.graphql", "generate_flow/fixtures/relay-resolver-multiple-consumers.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_raw_response() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-raw-response.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-raw-response.expected");
+    test_fixture(transform_fixture, "relay-resolver-raw-response.graphql", "generate_flow/fixtures/relay-resolver-raw-response.expected", input, expected);
 }
 
 #[test]

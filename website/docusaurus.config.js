@@ -11,7 +11,7 @@
 
 const versions = require('./versions.json');
 
-const {fbContent} = require('internaldocs-fb-helpers');
+const {fbContent, isInternal} = require('internaldocs-fb-helpers');
 
 module.exports = {
   title: 'Relay',
@@ -20,7 +20,13 @@ module.exports = {
   baseUrl: '/',
   organizationName: 'facebook',
   projectName: 'relay',
-  scripts: ['/js/redirect.js'],
+  scripts: [
+    {
+      src:
+        'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
+      defer: true,
+    },
+  ],
   favicon: 'img/favicon.png',
   customFields: {
     users: [
@@ -209,7 +215,15 @@ module.exports = {
             internal: 'current',
             external: versions[0],
           }),
-          onlyIncludeVersions: ['current', ...versions.slice(0, 2)],
+          onlyIncludeVersions: fbContent({
+            internal: ['current'],
+            external: [
+              'current',
+              ...versions.filter(
+                version => version !== 'experimental' && version !== 'classic',
+              ),
+            ],
+          }),
           versions: {
             current: {
               label: 'Next 🚧',
@@ -232,6 +246,17 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
+        createRedirects: function(toPath) {
+          if (toPath.startsWith('/docs/')) {
+            const docPath = toPath.substring(6);
+            const fromPaths = ['/docs/en/' + docPath];
+            if (isInternal()) {
+              fromPaths.push('/docs/next/' + docPath);
+              fromPaths.push('/docs/en/next/' + docPath);
+            }
+            return fromPaths;
+          }
+        },
         redirects: [
           {
             to: '/docs/',
@@ -280,6 +305,41 @@ module.exports = {
               '/docs/en/thinking-in-relay',
               '/docs/thinking-in-relay.html',
               '/docs/thinking-in-relay',
+            ],
+          },
+          {
+            to: '/docs/guides/type-emission/',
+            from: [
+              '/docs/en/type-emission',
+              '/docs/v3.0.0/type-emission',
+              '/docs/type-emission',
+            ],
+          },
+          {
+            to: '/docs/guides/client-schema-extensions/',
+            from: [
+              '/docs/en/local-state-management',
+              '/docs/en/next/local-state-management',
+              '/docs/local-state-management',
+              '/docs/next/local-state-management',
+            ],
+          },
+          {
+            to: '/docs/api-reference/store/',
+            from: [
+              '/docs/en/relay-store',
+              '/docs/en/next/relay-store',
+              '/docs/relay-store',
+              '/docs/next/relay-store',
+            ],
+          },
+          {
+            to: '/docs/guided-tour/updating-data/graphql-mutations/',
+            from: [
+              '/docs/en/mutations',
+              '/docs/en/next/mutations',
+              '/docs/mutations',
+              '/docs/next/mutations',
             ],
           },
         ],
@@ -380,8 +440,12 @@ module.exports = {
     algolia: {
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',
+      contextualSearch: true,
     },
     gtag: {
+      trackingID: 'UA-44373548-50',
+    },
+    googleAnalytics: {
       trackingID: 'UA-44373548-50',
     },
   },

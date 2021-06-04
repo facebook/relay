@@ -13,6 +13,10 @@
 'use strict';
 
 import type {
+  ActorIdentifier,
+  IActorEnvironment,
+} from '../multi-actor-environment';
+import type {
   GraphQLResponse,
   INetwork,
   PayloadData,
@@ -27,6 +31,7 @@ import type {
   NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelectableNode,
+  NormalizationArgument,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {
@@ -144,6 +149,9 @@ export type Props = {[key: string]: mixed, ...};
  */
 export type RelayContext = {|
   environment: IEnvironment,
+  getEnvironmentForActor?: ?(
+    actorIdentifier: ActorIdentifier,
+  ) => IActorEnvironment,
 |};
 
 /**
@@ -332,6 +340,11 @@ export interface Store {
     invalidationState: InvalidationState,
     callback: () => void,
   ): Disposable;
+
+  /**
+   * Get the current write epoch
+   */
+  getEpoch(): number;
 }
 
 export interface StoreSubscriptions {
@@ -359,7 +372,7 @@ export interface StoreSubscriptions {
   /**
    * Notifies each subscription if the snapshot for the subscription selector has changed.
    * Mutates the updatedOwners array with any owners (RequestDescriptors) associated
-   * with the subscriptions that were notifed; i.e. the owners affected by the changes.
+   * with the subscriptions that were notified; i.e. the owners affected by the changes.
    */
   updateSubscriptions(
     source: RecordSource,
@@ -468,33 +481,67 @@ export type LogEvent =
     |}
   | {|
       +name: 'network.info',
-      +transactionID: number,
+      +networkRequestId: number,
       +info: mixed,
     |}
   | {|
       +name: 'network.start',
-      +transactionID: number,
+      +networkRequestId: number,
       +params: RequestParameters,
       +variables: Variables,
       +cacheConfig: CacheConfig,
     |}
   | {|
       +name: 'network.next',
-      +transactionID: number,
+      +networkRequestId: number,
       +response: GraphQLResponse,
     |}
   | {|
       +name: 'network.error',
-      +transactionID: number,
+      +networkRequestId: number,
       +error: Error,
     |}
   | {|
       +name: 'network.complete',
-      +transactionID: number,
+      +networkRequestId: number,
     |}
   | {|
       +name: 'network.unsubscribe',
-      +transactionID: number,
+      +networkRequestId: number,
+    |}
+  | {|
+      +name: 'execute.start',
+      +executeId: number,
+      +params: RequestParameters,
+      +variables: Variables,
+      +cacheConfig: CacheConfig,
+    |}
+  | {|
+      +name: 'execute.next',
+      +executeId: number,
+      +response: GraphQLResponse,
+      +duration: number,
+    |}
+  | {|
+      +name: 'execute.async.module',
+      +executeId: number,
+      +operationName: string,
+      +duration: number,
+    |}
+  | {|
+      +name: 'execute.flight.payload_deserialize',
+      +executeId: number,
+      +operationName: string,
+      +duration: number,
+    |}
+  | {|
+      +name: 'execute.error',
+      +executeId: number,
+      +error: Error,
+    |}
+  | {|
+      +name: 'execute.complete',
+      +executeId: number,
     |}
   | {|
       +name: 'store.publish',
@@ -585,6 +632,19 @@ export interface IEnvironment {
   applyUpdate(optimisticUpdate: OptimisticUpdateFunction): Disposable;
 
   /**
+   * Revert updates for the `update` function.
+   */
+  revertUpdate(update: OptimisticUpdateFunction): void;
+
+  /**
+   * Revert updates for the `update` function, and apply the `replacement` update.
+   */
+  replaceUpdate(
+    update: OptimisticUpdateFunction,
+    replacement: OptimisticUpdateFunction,
+  ): void;
+
+  /**
    * Apply an optimistic mutation response and/or updater. The mutation can be
    * reverted by calling `dispose()` on the returned value.
    */
@@ -658,18 +718,14 @@ export interface IEnvironment {
    * the result is subscribed to:
    * environment.executeMutation({...}).subscribe({...}).
    */
-  executeMutation({|
-    operation: OperationDescriptor,
-    optimisticUpdater?: ?SelectorStoreUpdater,
-    optimisticResponse?: ?Object,
-    updater?: ?SelectorStoreUpdater,
-    uploadables?: ?UploadableMap,
-  |}): RelayObservable<GraphQLResponse>;
+  executeMutation(
+    config: ExecuteMutationConfig,
+  ): RelayObservable<GraphQLResponse>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Query or Subscription operation responses, the result of which is
-   * then normalized and comitted to the publish queue.
+   * then normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to:
@@ -754,6 +810,7 @@ export type HandleFieldPayload = {|
  * with a `@module` fragment spread, or a Flight field's:
  *
  * ## @module Fragment Spread
+ * - args: Local arguments from the parent
  * - data: The GraphQL response value for the @match field.
  * - dataID: The ID of the store object linked to by the @match field.
  * - operationReference: A reference to a generated module containing the
@@ -781,13 +838,47 @@ export type HandleFieldPayload = {|
  *     root data.
  */
 export type ModuleImportPayload = {|
+  +kind: 'ModuleImportPayload',
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
   +data: PayloadData,
   +dataID: DataID,
   +operationReference: mixed,
   +path: $ReadOnlyArray<string>,
   +typeName: string,
   +variables: Variables,
+  +actorIdentifier: ?ActorIdentifier,
 |};
+
+/**
+ * A payload that represents data necessary to process the results of an object
+ * with experimental actor change directive.
+ *
+ * - data: The GraphQL response value for the actor change field.
+ * - dataID: The ID of the store object linked to by the actor change field.
+ * - node: NormalizationLinkedField, where the actor change directive is used
+ * - path: to a field in the response
+ * - variables: Query variables.
+ * - typeName: the type that matched.
+ *
+ * The dataID, variables, and fragmentName can be used to create a Selector
+ * which can in turn be used to normalize and publish the data. The dataID and
+ * typeName can also be used to construct a root record for normalization.
+ */
+export type ActorPayload = {|
+  +kind: 'ActorPayload',
+  +data: PayloadData,
+  +dataID: DataID,
+  +node: NormalizationLinkedField,
+  +path: $ReadOnlyArray<string>,
+  +typeName: string,
+  +variables: Variables,
+  +actorIdentifier: ActorIdentifier,
+|};
+
+/**
+ * Union type of possible payload followups we may handle during normalization.
+ */
+export type FollowupPayload = ModuleImportPayload | ActorPayload;
 
 /**
  * Data emitted after processing a Defer or Stream node during normalization
@@ -801,6 +892,7 @@ export type DeferPlaceholder = {|
   +path: $ReadOnlyArray<string>,
   +selector: NormalizationSelector,
   +typeName: string,
+  +actorIdentifier: ?ActorIdentifier,
 |};
 export type StreamPlaceholder = {|
   +kind: 'stream',
@@ -809,6 +901,7 @@ export type StreamPlaceholder = {|
   +parentID: DataID,
   +node: NormalizationSelectableNode,
   +variables: Variables,
+  +actorIdentifier: ?ActorIdentifier,
 |};
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 
@@ -930,13 +1023,24 @@ export type RelayResponsePayload = {|
   +errors: ?Array<PayloadError>,
   +fieldPayloads: ?Array<HandleFieldPayload>,
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
-  +moduleImportPayloads: ?Array<ModuleImportPayload>,
+  +followupPayloads: ?Array<FollowupPayload>,
   +source: MutableRecordSource,
   +isFinal: boolean,
 |};
 
 /**
- * Public interface for Publish Queue
+ * Configuration on the executeMutation(...).
+ */
+export type ExecuteMutationConfig = {|
+  operation: OperationDescriptor,
+  optimisticUpdater?: ?SelectorStoreUpdater,
+  optimisticResponse?: ?Object,
+  updater?: ?SelectorStoreUpdater,
+  uploadables?: ?UploadableMap,
+|};
+
+/**
+ * Public interface for Publish Queue.
  */
 export interface PublishQueue {
   /**
@@ -990,7 +1094,7 @@ export interface PublishQueue {
  */
 export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
 
-export type ReactFlightReachableQuery = {|
+export type ReactFlightReachableExecutableDefinitions = {|
   +module: mixed,
   +variables: Variables,
 |};

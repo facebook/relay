@@ -26,8 +26,11 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('execute() a query with @module on a field with a nullable concrete type', () => {
   let authorFragment;
@@ -52,8 +55,6 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery(
         $id: ID!

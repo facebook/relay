@@ -2,6 +2,10 @@
 id: pagination
 title: Pagination
 slug: /guided-tour/list-data/pagination/
+description: Relay guide to pagination
+keywords:
+- pagination
+- usePaginationFragment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -24,10 +24,13 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute()', () => {
   let callbacks;
-  let commentID;
+  const commentID = 'comment-id';
   let CommentFragment;
   let CommentQuery;
   let complete;
@@ -45,9 +48,6 @@ describe('execute()', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
-    commentID = 'comment-id';
-
     CommentCreateSubscription = getRequest(graphql`
       subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput!

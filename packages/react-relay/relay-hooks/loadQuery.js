@@ -298,6 +298,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       // store in the first place, so it couldn't have been cached.
       const networkObservable =
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         // $FlowFixMe[incompatible-call]
         queryId,

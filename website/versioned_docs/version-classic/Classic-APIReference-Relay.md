@@ -126,7 +126,6 @@ var Container = Relay.createContainer(Component, {
   prepareVariables?: (variables: Object, route: string) => Object,
   fragments: {[key: string]: Function}
 });
-
 ```
 
 Creates a new Relay Container - see the [Container Guide](./classic-guides-containers) for more details and examples.
@@ -140,7 +139,6 @@ Relay.injectNetworkLayer(networkLayer: {
   sendQueries: (queries: Array<RelayQueryRequest>) => void;
   supports: (...options: Array<string>): boolean;
 });
-
 ```
 
 Overrides the [DefaultNetworkLayer](#defaultnetworklayer-static-property).
@@ -166,7 +164,6 @@ class MutationLoggingNetworkLayer extends DefaultNetworkLayer {
 };
 
 Relay.injectNetworkLayer(new MutationLoggingNetworkLayer());
-
 ```
 
 ### injectTaskScheduler (static method)
@@ -176,7 +173,6 @@ Relay.injectNetworkLayer(new MutationLoggingNetworkLayer());
 Relay.injectTaskScheduler(scheduler: Scheduler): void;
 
 type Scheduler = (task: Function) => void;
-
 ```
 
 Relay wraps its core processing functions inside lightweight tasks, which by default are executed immediately (i.e. synchronously). In order to customize _when_ these tasks are run - for example to avoid interrupting an animation during a touch gesture - applications can provide a custom scheduling function.
@@ -188,7 +184,6 @@ The default implementation is as follows:
 ```
 
 Relay.injectTaskScheduler(task => task());
-
 ```
 
 Notice that it immediately executes the next task. Relay manages the order of tasks to ensure a proper order of operations - the scheduler can't skip or reorder tasks, only decide when to execute the next one.
@@ -200,7 +195,6 @@ In React Native, we can schedule Relay processing so as to avoid interrupting to
 var {InteractionManager} = require('react-native');
 
 Relay.injectTaskScheduler(InteractionManager.runAfterInteractions);
-
 ```
 
 You can read more about `InteractionManager` on the [React Native API docs](https://reactnative.dev/docs/interactionmanager.html).
@@ -210,7 +204,6 @@ You can read more about `InteractionManager` on the [React Native API docs](http
 ```
 
 Relay.isContainer(Component: Object): boolean;
-
 ```
 
 #### Example
@@ -222,5 +215,4 @@ var Component = require('...');
 if (Relay.isContainer(Component)) {
   Component.getFragment('...');
 }
-
 ```

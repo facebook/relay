@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ab3e2b60345f6bf680c4fb645e2f7b0>>
+ * @generated SignedSource<<00c630e836852638035b49c277e642c6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@ import type { ConcreteRequest } from 'relay-runtime';
 type RelayMockPayloadGeneratorTest5Fragment$ref = any;
 export type RelayMockPayloadGeneratorTest5QueryVariables = {|
   first?: ?number,
-  skipUserInConnection?: ?boolean,
+  skipUserInConnection: boolean,
 |};
 export type RelayMockPayloadGeneratorTest5QueryResponse = {|
   +node: ?{|
@@ -273,18 +273,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b89fd06f9631351386a828fb25279161",
+    "cacheID": "156934fb39e536bc929122cf6d9ec8c3",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest5Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest5Query(\n  $first: Int\n  $skipUserInConnection: Boolean\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest5Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest4Fragment on User {\n  name\n  username\n  emailAddresses\n}\n\nfragment RelayMockPayloadGeneratorTest5Fragment on Page {\n  actor {\n    __typename\n    ... on User {\n      id\n      myType: __typename\n      myName: name\n      name\n      friends(first: $first) {\n        edges {\n          cursor\n          node {\n            id\n            ...RelayMockPayloadGeneratorTest4Fragment @skip(if: $skipUserInConnection)\n            __typename\n          }\n        }\n        pageInfo {\n          endCursor\n          hasNextPage\n        }\n      }\n      ...RelayMockPayloadGeneratorTest4Fragment\n    }\n    id\n  }\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest5Query(\n  $first: Int\n  $skipUserInConnection: Boolean!\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest5Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest4Fragment on User {\n  name\n  username\n  emailAddresses\n}\n\nfragment RelayMockPayloadGeneratorTest5Fragment on Page {\n  actor {\n    __typename\n    ... on User {\n      id\n      myType: __typename\n      myName: name\n      name\n      friends(first: $first) {\n        edges {\n          cursor\n          node {\n            id\n            ...RelayMockPayloadGeneratorTest4Fragment @skip(if: $skipUserInConnection)\n            __typename\n          }\n        }\n        pageInfo {\n          endCursor\n          hasNextPage\n        }\n      }\n      ...RelayMockPayloadGeneratorTest4Fragment\n    }\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "3d4165faab24d7fd2ec4efa8ec644469";
+  (node/*: any*/).hash = "23c84e020a1563dfe94d3c227d810700";
 }
 
 module.exports = node;

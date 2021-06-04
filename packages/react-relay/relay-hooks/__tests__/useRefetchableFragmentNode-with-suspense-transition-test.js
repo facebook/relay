@@ -35,8 +35,6 @@ const {
 
 const {createMockEnvironment} = require('relay-test-utils');
 
-const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
-
 describe('useRefetchableFragmentNode with useTransition', () => {
   if (typeof React.useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
@@ -60,9 +58,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       fragmentNode,
       fragmentRef,
     ) {
-      const [startTransition, isPending] = useTransition(
-        PAGINATION_SUSPENSE_CONFIG,
-      );
+      const [isPending, startTransition] = useTransition();
       const {
         fragmentData: data,
         ...result
@@ -127,6 +123,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       expected,
       requestEnvironment = environment,
     ) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
         expected.requestCount,
       );
@@ -160,7 +157,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
       // Assert query is retained by loadQuery and
       // tentatively retained while component is suspended
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
       );
@@ -210,7 +209,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       gqlQuery = getRequest(graphql`
         query useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery(
           $id: ID!
-          $scale: Int!
+          $scale: Float!
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment
@@ -384,7 +383,9 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         expectFragmentResults([{data: refetchedUser, isPending: false}]);
 
         // Assert refetch query was retained by loadQuery and the component
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -442,6 +443,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -572,6 +574,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -713,6 +716,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           });
 
           // Call refetch a second time
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           const refetchVariables2 = {id: '4', scale: 16};
           const refetchQuery2 = createOperationDescriptor(
@@ -748,6 +752,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
 
           // Switch back to initial refetch, assert network
           // request doesn't fire again
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
           refetch(
             {id: '2'},

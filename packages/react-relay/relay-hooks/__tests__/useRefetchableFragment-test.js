@@ -97,7 +97,7 @@ describe('useRefetchableFragment', () => {
 
     variables = {id: '1', scale: 16};
     gqlQuery = getRequest(graphql`
-      query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Int!) {
+      query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...useRefetchableFragmentTestUserFragment
         }
@@ -137,6 +137,7 @@ describe('useRefetchableFragment', () => {
         // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
+          // $FlowFixMe[prop-missing]
             query.request.variables.id ?? query.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [gqlFragment.name]: {},

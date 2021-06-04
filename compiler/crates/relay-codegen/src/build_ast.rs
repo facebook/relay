@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
+
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use common::{NamedItem, WithLocation};
@@ -24,8 +26,10 @@ use relay_transforms::{
     ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
     DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
     NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
+    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME, REQUIRED_METADATA_KEY,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
@@ -220,7 +224,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 key: CODEGEN_CONSTANTS.kind,
                 value: Primitive::String(CODEGEN_CONSTANTS.fragment_value),
             },
-            // TODO(T63303840) include correct fragment metadata
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.metadata,
                 value: if skip_metadata {
@@ -257,10 +260,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     }
 
     fn build_fragment_metadata(&mut self, fragment: &FragmentDefinition) -> Primitive {
-        let connection_metadata = extract_connection_metadata_from_directive(
-            &fragment.directives,
-            self.connection_constants,
-        );
+        let connection_metadata = extract_connection_metadata_from_directive(&fragment.directives);
 
         let mut plural = false;
         let mut unmask = false;
@@ -364,7 +364,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 },
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.operation,
-                    value: Primitive::ModuleDependency(refetch_metadata.operation_name),
+                    value: Primitive::GraphQLModuleDependency(refetch_metadata.operation_name),
                 },
             ];
             if let Some(identifier_field) = refetch_metadata.identifier_field {
@@ -470,31 +470,35 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             Selection::FragmentSpread(frag_spread) => {
                 vec![self.build_fragment_spread(&frag_spread)]
             }
-            Selection::InlineFragment(inline_frag) => {
-                let defer = inline_frag
+            Selection::InlineFragment(inline_fragment) => {
+                let defer = inline_fragment
                     .directives
                     .named(DEFER_STREAM_CONSTANTS.defer_name);
                 if let Some(defer) = defer {
-                    vec![self.build_defer(&inline_frag, defer)]
-                } else if let Some(inline_data_directive) = inline_frag
+                    vec![self.build_defer(&inline_fragment, defer)]
+                } else if let Some(inline_data_directive) = inline_fragment
                     .directives
                     .named(INLINE_DATA_CONSTANTS.internal_directive_name)
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![
-                        self.build_inline_data_fragment_spread(
-                            &inline_frag,
-                            &inline_data_directive,
-                        ),
-                    ]
-                } else if let Some(match_directive) = inline_frag
+                    vec![self.build_inline_data_fragment_spread(
+                        &inline_fragment,
+                        &inline_data_directive,
+                    )]
+                } else if let Some(match_directive) = inline_fragment
                     .directives
                     .named(MATCH_CONSTANTS.custom_module_directive_name)
                 {
-                    self.build_module_import_selections(match_directive)
+                    self.build_module_import_selections(match_directive, &inline_fragment)
+                } else if inline_fragment
+                    .directives
+                    .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+                    .is_some()
+                {
+                    vec![self.build_actor_change(&inline_fragment)]
                 } else {
-                    vec![self.build_inline_fragment(&inline_frag)]
+                    vec![self.build_inline_fragment(&inline_fragment)]
                 }
             }
             Selection::LinkedField(field) => {
@@ -864,7 +868,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             return self.build_relay_client_component_fragment_spread(frag_spread);
         }
         let args = self.build_arguments(&frag_spread.arguments);
-        Primitive::Key(self.object(vec![
+        let primitive = Primitive::Key(self.object(vec![
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.args,
                 value: match args {
@@ -879,6 +883,72 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.name,
                 value: Primitive::String(frag_spread.fragment.item),
+            },
+        ]));
+
+        match frag_spread
+            .directives
+            .named(*RELAY_RESOLVER_METADATA_DIRECTIVE_NAME)
+        {
+            Some(directive) => self.build_relay_resolver(primitive, directive),
+            None => primitive,
+        }
+    }
+
+    fn build_relay_resolver(
+        &mut self,
+        fragment_primitive: Primitive,
+        directive: &Directive,
+    ) -> Primitive {
+        let module = directive
+            .arguments
+            .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
+            .unwrap()
+            .value
+            .item
+            .expect_string_literal()
+            .to_string()
+            .intern();
+
+        let field_name = directive
+            .arguments
+            .named(*RELAY_RESOLVER_METADATA_FIELD_NAME)
+            .unwrap()
+            .value
+            .item
+            .expect_string_literal()
+            .to_string()
+            .intern();
+
+        let field_alias = directive
+            .arguments
+            .named(*RELAY_RESOLVER_METADATA_FIELD_ALIAS)
+            .map(|arg| arg.value.item.expect_string_literal().to_string().intern());
+
+        // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
+        let haste_import_name = Path::new(&module.to_string())
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .intern();
+
+        Primitive::Key(self.object(vec![
+            build_alias(field_alias, field_name),
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.fragment,
+                value: fragment_primitive,
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.kind,
+                value: Primitive::String(CODEGEN_CONSTANTS.relay_resolver),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.name,
+                value: Primitive::String(field_name),
+            },
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.resolver_module,
+                value: Primitive::JSModuleDependency(haste_import_name),
             },
         ]))
     }
@@ -895,7 +965,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment,
-                value: Primitive::ModuleDependency(frag_spread.fragment.item),
+                value: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,
@@ -924,7 +994,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         Primitive::Key(self.object(vec![
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.fragment,
-                value: Primitive::ModuleDependency(normalization_name),
+                value: Primitive::GraphQLModuleDependency(normalization_name),
             },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.kind,
@@ -1484,7 +1554,11 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         }
     }
 
-    fn build_module_import_selections(&mut self, directive: &Directive) -> Vec<Primitive> {
+    fn build_module_import_selections(
+        &mut self,
+        directive: &Directive,
+        inline_fragment: &InlineFragment,
+    ) -> Vec<Primitive> {
         let fragment_name = directive
             .arguments
             .named(MATCH_CONSTANTS.name_arg)
@@ -1506,7 +1580,24 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 fragment_name
             )
         });
+
+        let frag_spread = inline_fragment.selections.iter().find_map(|sel| match sel {
+            Selection::FragmentSpread(frag_spread) => Some(frag_spread),
+            _ => None,
+        });
+        let args = if let Some(frag_spread) = frag_spread {
+            self.build_arguments(&frag_spread.arguments)
+        } else {
+            None
+        };
         let selection = Primitive::Key(self.object(vec![
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.args,
+                value: match args {
+                    None => Primitive::Null,
+                    Some(key) => Primitive::Key(key),
+                },
+            },
             ObjectEntry {
                 key: CODEGEN_CONSTANTS.document_name,
                 value: Primitive::String(key),
@@ -1584,10 +1675,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .collect();
 
         // add connection metadata
-        let connection_metadata = extract_connection_metadata_from_directive(
-            &operation.directives,
-            self.connection_constants,
-        );
+        let connection_metadata = extract_connection_metadata_from_directive(&operation.directives);
         if let Some(connection_metadata) = connection_metadata {
             metadata_items.push(self.build_connection_metadata(&connection_metadata))
         }
@@ -1660,6 +1748,82 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         };
 
         self.object(params_object)
+    }
+
+    fn build_actor_change(&mut self, actor_change: &InlineFragment) -> Primitive {
+        let linked_field = match &actor_change.selections[0] {
+            Selection::LinkedField(linked_field) => linked_field.clone(),
+            _ => panic!("Expect to have a single linked field in the actor change fragment"),
+        };
+
+        match self.variant {
+            CodegenVariant::Normalization => {
+                let linked_field_value = self.build_linked_field(&linked_field);
+
+                Primitive::Key(self.object(vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.linked_field_property,
+                        value: linked_field_value,
+                    },
+                ]))
+            }
+            CodegenVariant::Reader => {
+                let schema_field = self.schema.field(linked_field.definition.item);
+                let (name, alias) = self.build_field_name_and_alias(
+                    schema_field.name,
+                    linked_field.alias,
+                    &linked_field.directives,
+                );
+                let args = self.build_arguments(&linked_field.arguments);
+                let fragment_spread = linked_field
+                    .selections
+                    .iter()
+                    .find(|item| matches!(item, Selection::FragmentSpread(_)))
+                    .unwrap();
+                let fragment_spread_key =
+                    self.build_selections_from_selection(&fragment_spread)[0].assert_key();
+
+                Primitive::Key(self.object(vec![
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.kind,
+                        value: Primitive::String(CODEGEN_CONSTANTS.actor_change),
+                    },
+                    build_alias(alias, name),
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.name,
+                        value: Primitive::String(name),
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.storage_key,
+                        value: match args {
+                            None => Primitive::Null,
+                            Some(key) => {
+                                if is_static_storage_key_available(&linked_field.arguments) {
+                                    Primitive::StorageKey(name, key)
+                                } else {
+                                    Primitive::Null
+                                }
+                            }
+                        },
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.args,
+                        value: match args {
+                            None => Primitive::Null,
+                            Some(key) => Primitive::Key(key),
+                        },
+                    },
+                    ObjectEntry {
+                        key: CODEGEN_CONSTANTS.fragment_spread_property,
+                        value: Primitive::Key(fragment_spread_key),
+                    },
+                ]))
+            }
+        }
     }
 }
 

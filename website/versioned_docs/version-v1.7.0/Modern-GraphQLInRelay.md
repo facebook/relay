@@ -14,7 +14,6 @@ Table of Contents:
 The `graphql` template tag provided by Relay serves as the mechanism to write queries, fragments, mutations or subscriptions in the [GraphQL](http://graphql.org/learn/) language. For example:
 
 ```javascript
-
 import {graphql} from 'react-relay';
 
 graphql`
@@ -24,7 +23,6 @@ graphql`
     }
   }
 `;
-
 ```
 
 The result of using the `graphql` template tag are `GraphQLTaggedNode`s, which are used to define [Query Renderers](./query-renderer), [Fragment Containers](./fragment-container), [Refetch Containers](./refetch-container), [Pagination Containers](./pagination-container), etc.
@@ -42,11 +40,9 @@ Relay uses directives to add additional information to GraphQL documents, which 
 `@arguments` is a directive used to pass arguments to a fragment that was defined using [`@argumentDefinitions`](#argumentdefinitions). For example:
 
 ```graphql
-
 query TodoListQuery($userID: ID) {
   ...TodoList_list @arguments(count: $count, userID: $userID) # Pass arguments here
 }
-
 ```
 
 See [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragment) for more details.
@@ -56,7 +52,6 @@ See [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragme
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment. For example:
 
 ```graphql
-
 fragment TodoList_list on TodoList @argumentDefinitions(
   count: {type: "Int", defaultValue: 10},  # Optional argument
   userID: {type: "ID"},                    # Required argument
@@ -66,7 +61,6 @@ fragment TodoList_list on TodoList @argumentDefinitions(
     ...TodoItem_item
   }
 }
-
 ```
 
 See [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragment) for more details.
@@ -82,13 +76,11 @@ When using the [Pagination Container](./pagination-container), Relay expects con
 When defining a fragment, you can use the `@relay(plural: true)` directive to indicate that the fragment is backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null), meaning that it will inform Relay that this particular field is an array. For example:
 
 ```javascript
-
 graphql`
 fragment TodoItems_items on TodoItem @relay(plural: true) {
   id
   text
 }`;
-
 ```
 
 ### `@relay(mask: Boolean)`
@@ -106,7 +98,6 @@ Keep in mind that it is typically considered an **anti-pattern** to create a sin
 In the example below, the `user` prop will include the data for `id` and `name` fields wherever `...Component_internUser` is included, instead of Relay's normal behavior to mask those fields:
 
 ```javascript
-
 graphql`
   fragment Component_internUser on InternUser @relay(mask: false) {
     id
@@ -134,7 +125,6 @@ export default createFragmentContainer(
     }
   `,
 );
-
 ```
 
 ## Relay Compiler
@@ -144,7 +134,6 @@ Relay uses the Relay Compiler to convert [`graphql`](#graphql) literals into gen
 A query like the following:
 
 ```javascript
-
 graphql`
   fragment MyComponent on Type {
     field
@@ -168,7 +157,6 @@ See our relay-compiler section in our [Installation and Setup guide](./installat
 To use the Relay Compiler, you need either a .graphql or .json GraphQL schema file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
 
 ```graphql
-
 schema {
   query: Root
 }
@@ -186,7 +174,6 @@ type WordDefinition {
   text: String
   image: String
 }
-
 ```
 
 ### Source files
@@ -202,7 +189,6 @@ For example, given the two files:
 -   `src/Components/DictionaryComponent.js`
 
     ```javascript
-
     const DictionaryWordFragment = graphql`
       fragment DictionaryComponent_word on Word {
         id
@@ -224,7 +210,6 @@ For example, given the two files:
 -   `src/Queries/DictionaryQuery.js`
 
     ```javascript
-
     const DictionaryQuery = graphql`
       query DictionaryQuery {
         dictionary {
@@ -248,9 +233,7 @@ Typically you will not need to import your generated definitions. The [Relay Bab
 However the Relay Compiler also automatically generates [Flow](https://flow.org) types as [type comments](https://flow.org/en/docs/types/comments/). For example, you can import the generated Flow types like so:
 
 ```javascript
-
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
-
 ```
 
 ### Advanced usage

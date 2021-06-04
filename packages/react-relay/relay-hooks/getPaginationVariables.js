@@ -54,6 +54,7 @@ function getPaginationVariables(
         'determined by Relay.',
       backwardMetadata.count,
     );
+    // $FlowFixMe[cannot-spread-interface]
     const paginationVariables = {
       ...baseVariables,
       ...extraVariables,
@@ -90,6 +91,7 @@ function getPaginationVariables(
       'determined by Relay.',
     forwardMetadata.count,
   );
+  // $FlowFixMe[cannot-spread-interface]
   const paginationVariables = {
     ...baseVariables,
     ...extraVariables,

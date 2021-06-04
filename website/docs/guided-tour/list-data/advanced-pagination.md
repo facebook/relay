@@ -2,6 +2,11 @@
 id: advanced-pagination
 title: Advanced Pagination
 slug: /guided-tour/list-data/advanced-pagination/
+description: Relay guide for advanced pagination
+keywords:
+- pagination
+- usePaginationFragment
+- prefetching
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -146,7 +151,6 @@ function FriendsListComponent(props: Props) {
     </>
   );
 }
-
 ```
 
 * The APIs for both *"forward"* and *"backward"* are exactly the same, they're only named differently. When paginating forward, then the  `after` and `first` connection arguments will be used, when paginating backward, the `before` and `last` connection arguments will be used.

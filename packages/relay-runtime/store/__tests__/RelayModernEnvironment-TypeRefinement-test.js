@@ -27,6 +27,12 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {generateTypeID} = require('../TypeID');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
   let ParentQuery;
@@ -42,7 +48,6 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   let abstractOperation;
 
   beforeEach(() => {
-    jest.resetModules();
     ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentTypeRefinementTestParentQuery {
         userOrPage(id: "abc") {
@@ -143,6 +148,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   }
 
   it('concrete spread on matching concrete type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -200,6 +214,13 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('concrete spread on non-matching concrete type reads data but does not count missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -259,6 +280,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('concrete inline fragment on matching concrete type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -315,6 +345,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('available');
   });
   it('concrete inline fragment on non-matching concrete type does not read data or count data as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -341,6 +377,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract spread on implementing type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -397,6 +442,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('available');
   });
   it('abstract spread on non-implementing type reads data but does not count missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -471,6 +519,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract spread missing the discriminator and user fields: reads data and counts data as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -519,6 +576,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment on implementing type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -576,6 +642,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment on non-implementing type reads data but does not count missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -652,6 +721,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment missing the discriminator and user fields: reads data and counts data as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -729,6 +807,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
 
     it('reads and reports missing data if only user fields are missing', () => {
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `lastName: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
       commitPayload(operation, {
         viewer: {
           actor: {
@@ -814,6 +898,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
 
     it('reads and reports missing data if the discriminator and user fields are missing', () => {
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `lastName: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
       commitPayload(operation, {
         viewer: {
           actor: {

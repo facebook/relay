@@ -55,7 +55,7 @@ describe('RelayModernSelector', () => {
     UserQuery = getRequest(graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $cond: Boolean!
       ) {
         node(id: $id) {
@@ -666,6 +666,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);
@@ -701,6 +702,7 @@ describe('RelayModernSelector', () => {
       );
       const clone = {
         ...selector,
+        // $FlowFixMe[cannot-spread-interface]
         variables: {...selector.variables},
       };
       expect(areEqualSelectors(selector, selector)).toBe(true);

@@ -234,7 +234,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         query RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery(
           $id: ID = "<default>"
           $first: Int = 5
-          $cursor: String = ""
+          $cursor: ID = ""
         ) {
           user: node(id: $id) {
             id
@@ -300,6 +300,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           getConnectionFromProps(props) {
             return props.user.friends;
           },
+          // $FlowFixMe[cannot-spread-interface]
           getFragmentVariables(vars, totalCount) {
             return {
               ...vars,
@@ -350,6 +351,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             ID({path}, generateId) {
               if (path != null && path.join('.') === 'user.id') {
+                // $FlowFixMe[prop-missing]
                 return operation.request.variables.id;
               }
             },
@@ -386,6 +388,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
+                // $FlowFixMe[prop-missing]
                 return operation.request.variables.id;
               }
               return `my-custom-id-${generateId() + 5}`;
@@ -425,6 +428,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
+                // $FlowFixMe[prop-missing]
                 return operation.request.variables.id;
               }
               return `my-custom-id-${generateId() + 10}`;
@@ -727,6 +731,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         environment.mock.resolveMostRecentOperation(operation =>
           MockPayloadGenerator.generate(operation, {
             ID() {
+              // $FlowFixMe[prop-missing]
               return operation.request.variables.id;
             },
             Feedback() {
@@ -764,6 +769,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
+                // $FlowFixMe[prop-missing]
                 id: operation.request.variables?.input?.feedbackId,
                 doesViewerLike: true,
               };
@@ -969,6 +975,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation, {
           ID() {
+            // $FlowFixMe[prop-missing]
             return operation.request.variables.id;
           },
           Feedback() {
@@ -1006,6 +1013,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
+                // $FlowFixMe[prop-missing]
                 id: operation.request.variables?.input?.feedbackId,
                 doesViewerLike: true,
               };
@@ -1093,6 +1101,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         userQuery,
         MockPayloadGenerator.generate(userQuery, {
           Node: () => ({
+            // $FlowFixMe[prop-missing]
             id: userQuery.request.variables.userId,
             name: 'Alice',
           }),
@@ -1102,6 +1111,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         pageQuery,
         MockPayloadGenerator.generate(pageQuery, {
           Node: () => ({
+            // $FlowFixMe[prop-missing]
             id: pageQuery.request.variables.pageId,
             name: 'My Page',
           }),

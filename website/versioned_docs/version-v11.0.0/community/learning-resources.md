@@ -6,6 +6,7 @@ slug: /community-learning-resources/
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import DocsRating from '@site/src/core/DocsRating';
+import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 
 ## Relay example projects
 
@@ -22,8 +23,12 @@ These projects serve as an example of how to use Relay in real world application
 -   [Relay Modern with TypeScript - how to configure Relay Modern to make it with TypeScript](https://medium.com/@sibelius/relay-modern-migration-to-typescript-c26ab0ee749c) (by @sibelius)
 -   [Collection of random thoughts and discoveries around Relay](https://mrtnzlml.com/docs/relay)
 
+<OssOnly>
+
 ## Relay Modern articles
 
 Note: you can find many more resources by looking at the <a href={useBaseUrl('docs/v10.1.3/community-learning-resources/')}>Relay Modern Documentation.</a>
+
+</OssOnly>
 
 <DocsRating />

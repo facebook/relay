@@ -19,15 +19,5 @@ graphql`ignored`
  **/
 graphql`not ignored 2`
 ==================================== OUTPUT ===================================
-[
-    GraphQLSource {
-        text: "not ignored 1",
-        line_index: 13,
-        column_index: 18,
-    },
-    GraphQLSource {
-        text: "not ignored 2",
-        line_index: 18,
-        column_index: 8,
-    },
-]
+line: 13, column: 18, text: <not ignored 1>
+line: 18, column: 8, text: <not ignored 2>

@@ -24,11 +24,14 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeSubscrption() with @stream', () => {
   let callbacks;
   let feedbackFragment;
-  let feedbackID;
+  const feedbackID = '1';
   let complete;
   let dataSource;
   let environment;
@@ -47,9 +50,6 @@ describe('executeSubscrption() with @stream', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
-    feedbackID = '1';
-
     subscription = getRequest(graphql`
       subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput!

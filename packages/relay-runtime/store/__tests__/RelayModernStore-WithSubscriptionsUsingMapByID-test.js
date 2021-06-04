@@ -122,7 +122,7 @@ function cloneEventWithSets(event) {
         `);
         UserQuery = getRequest(graphql`
           query RelayModernStoreWithSubscriptionsUsingMapByIDTest1Query(
-            $size: Int
+            $size: [Int]
           ) {
             me {
               ...RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment
@@ -171,7 +171,7 @@ function cloneEventWithSets(event) {
         // subscribe(), publish(), notify() -> subscriber called
         UserQuery = getRequest(graphql`
           query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(
-            $size: Float!
+            $size: [Int]!
           ) {
             me {
               ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment
@@ -466,6 +466,7 @@ function cloneEventWithSets(event) {
         );
         const snapshot = store.lookup(selector);
         const callback = jest.fn();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({

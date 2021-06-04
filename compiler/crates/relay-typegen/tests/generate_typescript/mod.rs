@@ -11,9 +11,8 @@ use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use interner::Intern;
-use relay_compiler::apply_transforms;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags};
+use relay_transforms::{apply_transforms, ConnectionInterface, FeatureFlags};
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
@@ -42,6 +41,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             ..Default::default()
         }),
         Arc::new(ConsoleLogger),
+        None,
     )
     .unwrap();
 

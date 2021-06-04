@@ -410,7 +410,6 @@ $ relay-compiler --artifactDirectory ./src/__generated__ […]
     ["relay", { "artifactDirectory": "./src/__generated__" }]
   ]
 }
-
 ```
 
 It is recommended to alias this directory in your module resolution configuration such that you don’t need to specify relative paths in your source files. This is what is also done in the above examples, where artifacts are imported from a `__generated__` alias, rather than relative paths like `../../../../__generated__`.

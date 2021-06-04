@@ -37,8 +37,6 @@ const {
 
 const {createMockEnvironment} = require('relay-test-utils');
 
-const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
-
 describe('useBlockingPaginationFragment with useTransition', () => {
   if (typeof React.useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
@@ -83,9 +81,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       fragmentNode,
       fragmentRef,
     ) {
-      const [startTransition, isPendingNext] = useTransition(
-        PAGINATION_SUSPENSE_CONFIG,
-      );
+      const [isPendingNext, startTransition] = useTransition();
       // $FlowFixMe[incompatible-call]
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,
@@ -146,6 +142,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectRequestIsInFlight(expected) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
         environment.mock.isLoading(
@@ -215,6 +212,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         handlerProvider: () => ConnectionHandler,
       });
       release = jest.fn();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
           dispose: release,
@@ -1022,6 +1020,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
       function expectRefetchRequestIsInFlight(expected) {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
         );
@@ -1077,7 +1076,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
         // Assert query is retained by loadQuery
         // and tentatively retained while component is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(
           expected.refetchQuery,
         );
@@ -1191,10 +1192,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
         // Assert refetch query was retained by loadQuery and component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         loadNext(1);
 

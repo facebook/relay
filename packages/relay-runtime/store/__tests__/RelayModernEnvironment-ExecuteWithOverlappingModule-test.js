@@ -23,6 +23,10 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {graphql, getRequest} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
 describe('execute() multiple queries with overlapping @module-s', () => {
   let actorOperation;
   let actorOperationCallback;
@@ -39,7 +43,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
     actorQuery = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery(
         $id: ID!

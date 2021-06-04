@@ -6,7 +6,15 @@
  */
 
 use schema_documentation::SchemaDocumentation;
-use std::{path::PathBuf, sync::Arc};
+use serde::{Deserialize, Serialize};
+use std::sync::Arc;
+
+#[derive(Deserialize, Serialize)]
+pub struct FieldDefinitionSourceInfo {
+    pub file_path: String,
+    pub line_number: u64,
+    pub is_local: bool,
+}
 
 /// Interface for the LSP server to handle external data sources
 pub trait LSPExtraDataProvider {
@@ -14,9 +22,8 @@ pub trait LSPExtraDataProvider {
     fn resolve_field_definition(
         &self,
         project_name: String,
-        root_dir: &PathBuf,
         parent_type: String,
         field_name: Option<String>,
-    ) -> Option<Result<(String, u64), String>>;
-    fn get_schema_documentation(&self, schema_name: String) -> Arc<SchemaDocumentation>;
+    ) -> Result<FieldDefinitionSourceInfo, String>;
+    fn get_schema_documentation(&self, schema_name: &str) -> Arc<SchemaDocumentation>;
 }

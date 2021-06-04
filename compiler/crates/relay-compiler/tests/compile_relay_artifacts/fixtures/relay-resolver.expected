@@ -14,7 +14,7 @@ query relayResolver_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
 }
 ==================================== OUTPUT ===================================
 {
@@ -42,9 +42,15 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "args": null,
-                "kind": "FragmentSpread",
-                "name": "relayResolver_PopStarNameResolverFragment_name"
+                "alias": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "relayResolver_PopStarNameResolverFragment_name"
+                },
+                "kind": "RelayResolver",
+                "name": "pop_star_name",
+                "resolverModule": require('PopStarNameResolver')
               }
             ],
             "type": "User",

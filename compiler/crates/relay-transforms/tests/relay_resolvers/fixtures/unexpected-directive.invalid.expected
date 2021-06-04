@@ -17,13 +17,13 @@ fragment PopStarNameResolverFragment_name on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
 }
 ==================================== ERROR ====================================
 ✖︎ Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives.
 
-  unexpected-directive.invalid.graphql:3:18
+  unexpected-directive.invalid.graphql:3:17
     2 │ fragment Foo_user on User {
     3 │   pop_star_name @required(action: THROW)
-      │                  ^^^^^^^^
+      │                 ^^^^^^^^^
     4 │ }

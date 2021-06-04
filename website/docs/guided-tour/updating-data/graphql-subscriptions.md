@@ -2,6 +2,9 @@
 id: graphql-subscriptions
 title: GraphQL Subscriptions
 slug: /guided-tour/updating-data/graphql-subscriptions/
+description: Relay guide to GraphQl subscriptions
+keywords:
+- subscription
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -34,8 +37,6 @@ subscription FeedbackLikeSubscription($input: FeedbackLikeSubscribeData!) {
 
 * Subscribing to the above subscription will notify the client whenever the specified `Feedback` object has been "liked" or "unliked". The `feedback_like_subscription` field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
 * `feedback_like_subscription` returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Feedback object with its *updated* `like_count`, which will allows us to show the like count in real time.
-* In order to set up a subscription in the server, check out this guide: https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/
-
 
 An example of a subscription payload received by the client could look like this:
 
@@ -218,21 +219,45 @@ This is only a thin wrapper around the `requestSubscription` API. It's behavior:
 If you have the need to do something more complicated, such as imperatively requesting a subscription, please use the `requestSubscription` API directly.
 
 
-## Delaying subscription updates (aka Forking data)
+## Configuring the Network Layer
 
-Sometimes when subscribing to real-time updates from the server, we just want to show an indication that there's new data available, but not immediately update our source of truth in the client, since it could cause a jarring experience. In these cases, we'd like only to apply the latest updates after some user interaction.
+<OssOnly>
 
+You will need to Configure your [Network Layer](../../../guides/network-layer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
 
-> TBD
+```javascript
+import {
+    ...
+    Network,
+    Observable
+} from 'relay-runtime';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
 
+...
 
+const subscriptionClient = new SubscriptionClient('ws://localhost:3000', {
+    reconnect: true,
+});
+
+const subscribe = (request, variables) => {
+    const subscribeObservable = subscriptionClient.request({
+        query: request.text,
+        operationName: request.name,
+        variables,
+    });
+    // Important: Convert subscriptions-transport-ws observable type to Relay's
+    return Observable.from(subscribeObservable);
+};
+
+const network = Network.create(fetchQuery, subscribe);
+
+...
+```
+</OssOnly>
 
 <FbInternalOnly>
 
-
-## Writing Subscriptions at FB
-
-For more details about writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/).
+At Facebook, the Network Layer has already been configured to handle GraphQL Subscriptions. For more details on writing subscriptions at Facebook, check out this [guide](../../../guides/writing-subscriptions/). For a guide on setting up subscriptions on the server side, check out this [wiki](https://our.internmc.facebook.com/intern/wiki/GraphQL_Subscriptions/creating-a-new-subscription/).
 
 </FbInternalOnly>
 

@@ -46,7 +46,9 @@ function expectToBeRendered(renderFn, readyState) {
 }
 
 function expectToHaveFetched(environment, query) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     root: expect.anything(),
@@ -60,7 +62,12 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {|variables: {...}, fetchPolicy?: FetchPolicy, key?: number|};
+type Props = {|
+  variables: {...},
+  fetchPolicy?: FetchPolicy,
+  key?: number,
+  extraData?: number,
+|};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -73,14 +80,17 @@ describe('useLazyLoadQueryNode', () => {
   let Container;
   let setProps;
   let logs;
+  let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
+    errorBoundaryDidCatchFn = jest.fn();
 
     class ErrorBoundary extends React.Component<any, any> {
       state = {error: null};
       componentDidCatch(error) {
+        errorBoundaryDidCatchFn(error);
         this.setState({error});
       }
       render() {
@@ -131,6 +141,7 @@ describe('useLazyLoadQueryNode', () => {
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain.bind(environment);
     // $FlowFixMe[cannot-write]
     environment.retain = jest.fn((...args) => {
@@ -174,6 +185,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -199,6 +211,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     environment.mock.resolve(gqlQuery, {
@@ -241,13 +254,14 @@ describe('useLazyLoadQueryNode', () => {
 
   it('fetches and renders correctly even if fetched query data still has missing data', () => {
     // This scenario might happen if for example we are making selections on
-    // abstract types which the concrete type doesn't implemenet
+    // abstract types which the concrete type doesn't implement
 
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -282,6 +296,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -306,7 +321,9 @@ describe('useLazyLoadQueryNode', () => {
     ).toEqual({});
 
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     instance = render(environment, <Container variables={variables} />);
@@ -314,6 +331,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() => {
@@ -353,7 +371,9 @@ describe('useLazyLoadQueryNode', () => {
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     // Switch to the second query
@@ -366,9 +386,12 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, nextQuery);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     // Switch back to the first query, it shouldn't request again
@@ -377,8 +400,10 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     expect(instance.toJSON()).toEqual('Fallback');
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toBeCalledTimes(0);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(0);
 
     const payload = {
@@ -417,7 +442,9 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
 
@@ -436,6 +463,7 @@ describe('useLazyLoadQueryNode', () => {
 
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     renderFn.mockClear();
 
@@ -447,14 +475,85 @@ describe('useLazyLoadQueryNode', () => {
 
     // Assert that GC doesn't run since the query doesn't
     // incorrectly get fully released (which would trigger GC)
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(store.scheduleGC).toHaveBeenCalledTimes(0);
 
     // Assert that a new request was not started
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(0);
 
     // Expect to still be able to render the same data
     expectToBeRendered(renderFn, data);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
+  });
+
+  it('disposes the temporary retain when the component is re-rendered and switches to another query', () => {
+    // Render the component
+    const instance = render(
+      environment,
+      <Container extraData={0} variables={variables} />,
+    );
+
+    expect(instance.toJSON()).toEqual('Fallback');
+    expectToHaveFetched(environment, query);
+    expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.execute.mockClear();
+    renderFn.mockClear();
+
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '1',
+            name: 'Bob',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    const data = environment.lookup(query.fragment).data;
+    expectToBeRendered(renderFn, data);
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    expect(environment.retain).toHaveBeenCalledTimes(1);
+    renderFn.mockClear();
+
+    ReactTestRenderer.act(() => {
+      // Update `extraData` to trigger a re-render
+      setProps({variables, extraData: 1});
+    });
+
+    // Nothing to release here since variables didn't change
+    expect(release).toHaveBeenCalledTimes(0);
+
+    ReactTestRenderer.act(() => {
+      // Update `variables` to fetch new data
+      setProps({variables: {id: '2'}, extraData: 1});
+    });
+
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    expect(environment.execute).toHaveBeenCalledTimes(1);
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '2',
+            name: 'Bob',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    // Variables were changed and the retain for the previous query
+    // should be released
+    expect(release).toHaveBeenCalledTimes(1);
   });
 
   it('disposes ongoing network request when component unmounts while suspended', () => {
@@ -475,6 +574,7 @@ describe('useLazyLoadQueryNode', () => {
 
     expect(instance.toJSON()).toEqual('Bob');
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     // Suspend on the first query
@@ -485,9 +585,12 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
     renderFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
 
     ReactTestRenderer.act(() => {
@@ -509,6 +612,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     // Resolve a payload but don't complete the network request
@@ -544,6 +648,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query);
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     ReactTestRenderer.act(() => {
       instance.unmount();
@@ -567,6 +672,109 @@ describe('useLazyLoadQueryNode', () => {
     expect(
       environment.mock.isLoading(query.request.node, variables, {force: true}),
     ).toEqual(false);
+  });
+
+  describe('with @defer and re-rendering', () => {
+    beforeEach(() => {
+      graphql`
+        fragment useLazyLoadQueryNodeTestDeferFragment on User {
+          id
+          name
+        }
+      `;
+      gqlQuery = getRequest(graphql`
+        query useLazyLoadQueryNodeTest1Query($id: ID) {
+          node(id: $id) {
+            ...useLazyLoadQueryNodeTestDeferFragment @defer
+          }
+        }
+      `);
+      variables = {id: 'user:1234'};
+      query = createOperationDescriptor(gqlQuery, variables);
+    });
+
+    it('should handle errors ', () => {
+      const instance = render(
+        environment,
+        <Container key={0} variables={variables} />,
+      );
+
+      expect(instance.toJSON()).toEqual('Fallback');
+      expect(renderFn).not.toBeCalled();
+
+      const payloadError = new Error('Invalid Payload');
+
+      expect(errorBoundaryDidCatchFn).not.toBeCalled();
+
+      environment.mock.reject(query, payloadError);
+
+      // force re-rendering of the component, to read from the QueryResource
+      // by default, error responses do not trigger react updates
+      ReactTestRenderer.act(() => {
+        setProps({variables, key: 1});
+      });
+
+      // This time, error boundary will render the error
+      expect(errorBoundaryDidCatchFn).toBeCalledWith(payloadError);
+      expect(renderFn).not.toBeCalled();
+    });
+
+    it('should render the query with defer payloads without errors for defer payloads', () => {
+      jest.mock('warning');
+      const warning = require('warning');
+
+      const instance = render(
+        environment,
+        <Container key={0} variables={variables} />,
+      );
+
+      expect(instance.toJSON()).toEqual('Fallback');
+      expect(renderFn).not.toBeCalled();
+
+      ReactTestRenderer.act(() => {
+        environment.mock.nextValue(query, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: variables.id,
+            },
+          },
+        });
+      });
+
+      const data = environment.lookup(query.fragment).data;
+
+      expectToBeRendered(renderFn, data);
+
+      expect(errorBoundaryDidCatchFn).not.toBeCalled();
+
+      const payloadError = new Error('Invalid Payload');
+      // $FlowFixMe(prop-missing)
+      warning.mockClear();
+
+      environment.mock.reject(query, payloadError);
+      expect(warning).toBeCalledWith(
+        false,
+        expect.stringContaining(
+          'QueryResource: An incremental payload for query `%`',
+        ),
+        'useLazyLoadQueryNodeTest1Query',
+        expect.stringContaining('Invalid Payload'),
+        expect.stringContaining('Invalid Payload'),
+      );
+
+      // force re-rendering of the component, to read from the QueryResource
+      // by default, error responses do not trigger react updates
+      ReactTestRenderer.act(() => {
+        setProps({variables, key: 1});
+      });
+
+      // error boundary should not display that error
+      expect(errorBoundaryDidCatchFn).not.toBeCalled();
+
+      // and we also should re-render the same view as for the initial response
+      expectToBeRendered(renderFn, data);
+    });
   });
 
   describe('partial rendering', () => {
@@ -625,6 +833,7 @@ describe('useLazyLoadQueryNode', () => {
       expect(instance.toJSON()).toEqual('Fallback around fragment');
       expectToHaveFetched(environment, onlyFragsQuery);
       expect(renderFn).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
 
       environment.mock.resolve(gqlOnlyFragmentsQuery, {
@@ -666,8 +875,12 @@ describe('useLazyLoadQueryNode', () => {
 
       expect(logs).toMatchObject([
         {
+          name: 'execute.start',
+          executeId: 100001,
+        },
+        {
           name: 'network.start',
-          transactionID: 100000,
+          networkRequestId: 100000,
         },
         {
           name: 'queryresource.fetch',
@@ -676,11 +889,19 @@ describe('useLazyLoadQueryNode', () => {
         },
         {
           name: 'network.next',
-          transactionID: 100000,
+          networkRequestId: 100000,
+        },
+        {
+          name: 'execute.next',
+          executeId: 100001,
         },
         {
           name: 'network.complete',
-          transactionID: 100000,
+          networkRequestId: 100000,
+        },
+        {
+          name: 'execute.complete',
+          executeId: 100001,
         },
         {
           name: 'queryresource.retain',
@@ -696,9 +917,10 @@ describe('useLazyLoadQueryNode', () => {
       const variablesTwo = {id: '2'};
 
       // Render the component
-      const initialQuery = createOperationDescriptor(gqlQuery, {
-        id: 'first-render',
-      });
+      const initialQuery = createOperationDescriptor(
+        gqlQuery,
+        initialVariables,
+      );
       environment.commitPayload(initialQuery, {
         node: {
           __typename: 'User',
@@ -707,6 +929,7 @@ describe('useLazyLoadQueryNode', () => {
         },
       });
 
+      logs = [];
       render(
         environment,
         <Container variables={initialVariables} fetchPolicy="store-only" />,
@@ -762,9 +985,15 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
+          // execution for variables one starts
+          name: 'execute.start',
+          executeId: 100002,
+          variables: variablesOne,
+        },
+        {
           // request for variables one starts
           name: 'network.start',
-          transactionID: 100000,
+          networkRequestId: 100001,
           variables: variablesOne,
         },
         {
@@ -780,9 +1009,15 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
+          // execution for variables two starts
+          name: 'execute.start',
+          executeId: 100004,
+          variables: variablesTwo,
+        },
+        {
           // request for variables two starts
           name: 'network.start',
-          transactionID: 100001,
+          networkRequestId: 100003,
           variables: variablesTwo,
         },
         {
@@ -801,11 +1036,19 @@ describe('useLazyLoadQueryNode', () => {
         // since it's already cached and reused
         {
           name: 'network.next',
-          transactionID: 100000,
+          networkRequestId: 100001,
+        },
+        {
+          name: 'execute.next',
+          executeId: 100002,
         },
         {
           name: 'network.complete',
-          transactionID: 100000,
+          networkRequestId: 100001,
+        },
+        {
+          name: 'execute.complete',
+          executeId: 100002,
         },
         // retain event for variables one
         {

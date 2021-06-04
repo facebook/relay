@@ -2,6 +2,10 @@
 id: workflow
 title: Workflow
 slug: /guided-tour/workflow/
+description: Relay guide to workflow
+keywords:
+- workflow
+- compiler
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

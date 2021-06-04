@@ -39,13 +39,11 @@ yarn add --dev babel-plugin-relay graphql
 Add `"relay"` to the list of plugins in your `.babelrc` file:
 
 ```javascript
-
 {
   "plugins": [
     "relay"
   ]
 }
-
 ```
 
 Please note that the `"relay"` plugin should run before other plugins or
@@ -55,9 +53,7 @@ Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpre
 Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
 
 ```javascript
-
 const graphql = require('babel-plugin-relay/macro');
-
 ```
 
 If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
@@ -76,22 +72,18 @@ yarn add --dev relay-compiler
 
 This installs the bin script `relay-compiler` in your `node_modules` folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql"
 }
-
 ```
 
 or if you are using jsx:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"
 }
-
 ```
 
 Then, whenever you've made edits to your application files, you can run the `relay` script to run the compiler and generate new compiled artifacts:
@@ -128,7 +120,6 @@ yarn add --dev relay-config
 And create the configuration file:
 
 ```javascript
-
 // relay.config.js
 module.exports = {
   // ...
@@ -137,7 +128,6 @@ module.exports = {
   schema: "./data/schema.graphql",
   exclude: ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
 }
-
 ```
 
 ## Rendering Data Basics
@@ -147,7 +137,6 @@ module.exports = {
 The main building block for declaring data dependencies for React Components in Relay are [GraphQL fragments](https://graphql.org/learn/queries/#fragments), which are essentially a selection of fields on a GraphQL Type:
 
 ```graphql
-
 fragment UserFragment on User {
   name
   age
@@ -155,13 +144,11 @@ fragment UserFragment on User {
     uri
   }
 }
-
 ```
 
 In order to declare a fragment inside your JavaScript code, you must use the `graphql` tag:
 
 ```javascript
-
 const {graphql} = require('react-relay/hooks');
 
 const userFragment = graphql`
@@ -173,13 +160,11 @@ const userFragment = graphql`
     }
   }
 `;
-
 ```
 
 In order to _render_ the data for a fragment, you can use the **`useFragment`** Hook:
 
 ```javascript
-
 import type {UserComponent_user$key} from 'UserComponent_user.graphql';
 
 const React = require('React');
@@ -214,7 +199,6 @@ function UserComponent(props: Props) {
 }
 
 module.exports = UserComponent;
-
 ```
 
 Let's distill what's going on here:
@@ -231,7 +215,6 @@ Let's distill what's going on here:
 If you need to render data from multiple fragments inside the same component, you can use  **`useFragment`** multiple times:
 
 ```javascript
-
 import type {UserComponent_user$key} from 'UserComponent_user.graphql';
 import type {UserComponent_viewer$key} from 'UserComponent_viewer.graphql';
 
@@ -279,7 +262,6 @@ function UserComponent(props: Props) {
 }
 
 module.exports = UserComponent;
-
 ```
 
 ### Composing Fragments
@@ -301,13 +283,11 @@ fragment AnotherUserFragment on User {
   username
   ...FooUserFragment
 }
-
 ```
 
 With Relay, you can compose fragment components in a similar way, using both component composition and fragment composition. Each React component is responsible for fetching the data dependencies of its direct children - just as it has to know about its children's props in order to render them correctly. This pattern means that developers are able to reason locally about components - what data they need, what components they render - but Relay is able to derive a global view of the data dependencies of an entire UI tree.
 
 ```javascript
-
 /**
  * UsernameSection.react.js
  *
@@ -337,11 +317,9 @@ function UsernameSection(props: Props) {
 }
 
 module.exports = UsernameSection;
-
 ```
 
 ```javascript
-
 /**
  * UserComponent.react.js
  *
@@ -391,7 +369,6 @@ function UserComponent(props: Props) {
 }
 
 module.exports = UserComponent;
-
 ```
 
 There are a few things to note here:
@@ -403,10 +380,9 @@ There are a few things to note here:
 
 ### Queries
 
-A [GraphQL query](https://graphql.github.io/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [Variables](#variables), in order to fetch some data. It consists of a selection of fields, and potentially includes other fragments:
+A [GraphQL query](https://graphql.org/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [Variables](#variables), in order to fetch some data. It consists of a selection of fields, and potentially includes other fragments:
 
 ```graphql
-
 query UserQuery($id: ID!) {
   user(id: $id) {
     id
@@ -423,7 +399,6 @@ query UserQuery($id: ID!) {
 fragment UserFragment on User {
   username
 }
-
 ```
 
 Sample response:
@@ -444,7 +419,6 @@ Sample response:
     }
   }
 }
-
 ```
 
 **_NOTE:_** Fragments in Relay allow declaring data dependencies for a component, but they can't be fetched by themselves; they need to be included by a query, either directly or transitively. This implies that **_all fragments must belong to a query when they are rendered_**, or in other words, they must be _rooted_ under some query. Note that a single fragment can still be included by multiple queries, but when rendering a specific _instance_ of a fragment component, it must have been included as part of a specific query request.
@@ -454,7 +428,6 @@ Sample response:
 To **_fetch_** _and_ render a query in Relay, you can use **`useLazyLoadQuery`** Hook:
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -476,7 +449,6 @@ function App() {
     <h1>{data.user?.name}</h1>
   );
 }
-
 ```
 
 Lets see what's going on here:
@@ -494,7 +466,6 @@ Lets see what's going on here:
 To fetch and render a query that includes a fragment, you can compose them in the same way fragments are composed, as shown in the [Composing Fragments](#composing-fragments) section:
 
 ```javascript
-
 /**
  * UserComponent.react.js
  *
@@ -520,11 +491,9 @@ function UserComponent(props: Props) {
 }
 
 module.exports = UserComponent;
-
 ```
 
 ```javascript
-
 /**
  * App.react.js
  *
@@ -561,7 +530,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 Note that:
@@ -571,12 +539,11 @@ Note that:
 
 ### Variables
 
-You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.github.io/learn/queries/#variables).
+You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.org/learn/queries/#variables).
 
 GraphQL variables are a construct that allows referencing dynamic values inside a GraphQL query. When fetching a query from the server, we also need to provide as input the actual set of values to use for the variables declared inside the query:
 
 ```graphql
-
 # `$id` is a variable of type `ID!`
 query UserQuery($id: ID!) {
 
@@ -586,13 +553,11 @@ query UserQuery($id: ID!) {
     name
   }
 }
-
 ```
 
 When sending a network request to fetch the query above, we need to provide both the query, and the variables to be used for this particular execution of the query. For example:
 
 ```graphql
-
 # Query:
 query UserQuery($id: ID!) {
   # ...
@@ -600,13 +565,11 @@ query UserQuery($id: ID!) {
 
 # Variables:
 {"id": 4}
-
 ```
 
 Fetching the above query and variables from the server would produce the following response:
 
 ```javascript
-
 {
   "data": {
     "user": {
@@ -615,7 +578,6 @@ Fetching the above query and variables from the server would produce the followi
     }
   }
 }
-
 ```
 
 -   Note that changing the value of the `id` variable used as input would of course produce a different response.
@@ -625,7 +587,6 @@ Fetching the above query and variables from the server would produce the followi
 Fragments can also reference variables that have been declared by a query:
 
 ```graphql
-
 fragment UserFragment on User {
   name
   profile_picture(scale: $scale) {
@@ -640,7 +601,6 @@ query ViewerQuery($scale: Float!) {
     }
   }
 }
-
 ```
 
 -   Even though the fragment above doesn't _declare_ the `$scale` variable directly, it can still reference it. Doing so makes it so any query that includes this fragment, either directly or transitively, **_must_** declare the variable and it's type, otherwise an error will be produced by the Relay compiler.
@@ -649,7 +609,6 @@ query ViewerQuery($scale: Float!) {
 In Relay, fragment declarations inside components can also reference query variables:
 
 ```javascript
-
 function UserComponent(props: Props) {
   const data = useFragment(
     graphql`
@@ -665,7 +624,6 @@ function UserComponent(props: Props) {
 
   return (...);
 }
-
 ```
 
 -   The above fragment could be included by multiple queries, and rendered by different components, which means that any query that ends up rendering/including the above fragment **_must_** declare the `$scale` variable.
@@ -676,7 +634,6 @@ function UserComponent(props: Props) {
 However, in order to prevent bloating queries with global variable declarations, Relay also provides a way to declare variables that are scoped locally to a fragment using the **`@arguments`** and **`@argumentDefinitions`** directives:
 
 ```javascript
-
 /**
  * Declare a fragment that accepts arguments with @argumentDefinitions
  */
@@ -697,11 +654,9 @@ function PictureComponent(props) {
     props.user,
   );
 }
-
 ```
 
 ```javascript
-
 /**
  * Include fragment using @arguments
  */
@@ -719,11 +674,9 @@ function UserComponent(props) {
     props.user,
   );
 }
-
 ```
 
 ```javascript
-
 /**
  * Include same fragment using _different_ @arguments
  */
@@ -742,7 +695,6 @@ function OtherUserComponent(props) {
     props.user,
   );
 }
-
 ```
 
 -   Note that when passing `@arguments` to a fragment, we can pass a literal value or pass another variable. The variable can be a global query variable, or another local variable declared via `@argumentDefinitions`.
@@ -753,7 +705,6 @@ function OtherUserComponent(props) {
 Fragments that expect arguments can also declare default values, making the arguments optional:
 
 ```javascript
-
 /**
  * Declare a fragment that accepts arguments with default values
  */
@@ -774,11 +725,9 @@ function PictureComponent(props) {
     props.user,
   );
 }
-
 ```
 
 ```javascript
-
 function UserComponent(props) {
   const data = useFragment(
     graphql`
@@ -792,7 +741,6 @@ function UserComponent(props) {
     props.user,
   );
 }
-
 ```
 
 -   Not passing the argument to `PictureComponent_user` makes it use the default value for its locally declared `$scale` variable, in this case 2.0.
@@ -818,7 +766,6 @@ For a lot more details on Suspense, check the [React docs on Suspense](https://r
 When a component is suspended, we need to render a _fallback_ in place of the component while we await for it to become _"ready"_. In order to do so, we use the `Suspense` component provided by React:
 
 ```javascript
-
 const React = require('React');
 const {Suspense} = require('React');
 
@@ -830,7 +777,6 @@ function App() {
     </Suspense>
   );
 }
-
 ```
 
 `Suspense` components can be used to wrap any component; if the target component suspends, `Suspense` will render the provided fallback until all its descendants become _"ready"_ (i.e. until _all_ of the promises thrown inside its subtree of descendants resolve). Usually, the fallback is used to render a loading state, such as a glimmer.
@@ -838,7 +784,6 @@ function App() {
 Usually, different pieces of content in our app might suspend, so we can show loading state until they are resolved by using `Suspense` :
 
 ```javascript
-
 /**
  * App.react.js
  */
@@ -859,7 +804,6 @@ function App() {
     </Suspense>
   );
 }
-
 ```
 
 Let's distill what's going on here:
@@ -869,7 +813,6 @@ Let's distill what's going on here:
 What's nice about Suspense is that you have granular control about how to accumulate loading states for different parts of your component tree:
 
 ```javascript
-
 /**
  * App.react.js
  */
@@ -892,7 +835,6 @@ function App() {
     </Suspense>
   );
 }
-
 ```
 
 -   In this case, both `MainContent` and `SecondaryContent` may suspend while they load their asynchronous resources; by wrapping both in a `Suspense`, we can show a single loading state up until they are **_all_** ready, and then render the entire content in a single paint, after everything has successfully loaded.
@@ -901,7 +843,6 @@ function App() {
 Conversely, you can also decide to be more granular about your loading UI and wrap Suspense components around smaller or individual parts of your component tree:
 
 ```javascript
-
 /**
  * App.react.js
  */
@@ -935,7 +876,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 -   In this case, we're showing 2 separate loading UIs:
@@ -950,7 +890,6 @@ function App() {
 Whenever we're going to make a transition that might cause new content to suspend, we should use the [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to schedule the update for  transition:
 
 ```javascript
-
 const {
   useState,
   useTransition,
@@ -978,7 +917,6 @@ function TabSwitcher() {
     </div>
   );
 }
-
 ```
 
 Let's take a look at what's happening here:
@@ -993,7 +931,6 @@ The **_pending_** stage is the first state in a transition, and is usually rende
 By default, when a suspense transition occurs, if the new content suspends, React will automatically transition to the loading state and show the fallbacks from any `Suspense` boundaries that are in place for the new content.  However, if we want to delay showing the loading state, and show a _pending_ state instead, we can also use [**`useTransition`**](https://reactjs.org/docs/concurrent-mode-patterns.html#transitions) to do so:
 
 ```javascript
-
 const {
   useState,
   useTransition,
@@ -1031,7 +968,6 @@ function TabSwitcher() {
     </div>
   );
 }
-
 ```
 
 <blockquote>
@@ -1054,7 +990,6 @@ In our case, our query renderer components are components that can suspend, so w
 Say we have the following query renderer component:
 
 ```javascript
-
 /**
  * MainContent.react.js
  *
@@ -1073,11 +1008,9 @@ function MainContent() {
 
   return (...);
 }
-
 ```
 
 ```javascript
-
 /**
  * App.react.js
  */
@@ -1098,7 +1031,6 @@ function App() {
     </Suspense>
   );
 }
-
 ```
 
 Let's distill what's going on here:
@@ -1123,7 +1055,6 @@ We can use [**Error Boundary**](https://reactjs.org/docs/error-boundaries.html) 
 [Error boundaries](https://reactjs.org/docs/error-boundaries.html) are simply components that implement the static **`getDerivedStateFromError`** method:
 
 ```javascript
-
 const React = require('React');
 
 type State = {|error: ?Error|};
@@ -1134,13 +1065,11 @@ class ErrorBoundary extends React.Component<Props, State> {
     return {error: error};
   }
 }
-
 ```
 
 Which we can use like so:
 
 ```javascript
-
 /**
  * App.react.js
  */
@@ -1161,7 +1090,6 @@ function App() {
     </ErrorBoundary>
   );
 }
-
 ```
 
 -   We can use the Error Boundary to wrap subtrees and show a different UI when an error occurs within that subtree. When an error occurs, the specified `fallback` will be rendered instead of the content inside the boundary.
@@ -1172,7 +1100,6 @@ function App() {
 In order to retry fetching a query after an error has occurred, we can attempt to re-mount the query component that produced an error:
 
 ```javascript
-
 /**
  * ErrorBoundaryWithRetry.react.js
  */
@@ -1206,11 +1133,9 @@ class ErrorBoundaryWithRetry extends React.Component<Props, State> {
     return children;
   }
 }
-
 ```
 
 ```javascript
-
 /**
  * App.react.js
  */
@@ -1237,7 +1162,6 @@ function App() {
     </ErrorBoundaryWithRetry>
   );
 }
-
 ```
 
 -   The sample Error Boundary in this example code will provide a `retry` function to re-attempt to render the content that originally produced the error. By doing so, we will attempt to re-render our query component (that uses `useLazyLoadQuery`), and consequently attempt to fetch the query again.
@@ -1254,7 +1178,6 @@ If you wish to access error information in your application to display user-frie
 For example, you could expose a field in your schema that returns either the expected result, or an Error object if an error occurred while resolving that field (instead of returning null):
 
 ```graphql
-
 type Error {
   # User friendly message
   message: String!
@@ -1263,7 +1186,6 @@ type Error {
 type Foo {
   bar: Result | Error
 }
-
 ```
 
 ### Environment
@@ -1273,7 +1195,6 @@ type Foo {
 In order to render Relay components, you need to render a `RelayEnvironmentProvider` component at the root of the app:
 
 ```javascript
-
 // App root
 
 const {RelayEnvironmentProvider} = require('react-relay/hooks');
@@ -1285,7 +1206,6 @@ function Root() {
     </RelayEnvironmentProvider>
   );
 }
-
 ```
 
 -   The `RelayEnvironmentProvider `takes an environment, which it will make available to all descendant Relay components, and which is necessary for Relay to function.
@@ -1295,7 +1215,6 @@ function Root() {
 If you want to access the _current_ Relay Environment within a descendant of a `RelayEnvironmentProvider` component, you can use the **`useRelayEnvironment`** Hook:
 
 ```javascript
-
 const {useRelayEnvironment} = require('react-relay/hooks');
 
 function UserComponent(props: Props) {
@@ -1303,7 +1222,6 @@ function UserComponent(props: Props) {
 
   return (...);
 }
-
 ```
 
 ## Reusing Cached Data for Render
@@ -1342,7 +1260,6 @@ function App() {
     <h1>{data.user?.name}</h1>
   );
 }
-
 ```
 
 The provided `fetchPolicy` will determine:
@@ -1393,7 +1310,6 @@ By default, any query components using useLazyLoadQuery or our other APIs will r
 If you need to retain a specific query outside of the components lifecycle, you can use the [**`retain`**](#retaining-queries) operation:
 
 ```javascript
-
 // Retain query; this will prevent the data for this query and
 // variables from being garbage collected by Relay
 const disposable = environment.retain(queryDescriptor);
@@ -1402,7 +1318,6 @@ const disposable = environment.retain(queryDescriptor);
 // and variables, meaning that it can be deleted at any moment
 // by Relay's garbage collection if it hasn't been retained elsewhere
 disposable.dispose();
-
 ```
 
 -   As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
@@ -1416,7 +1331,6 @@ There are currently 2 options you can provide to your Relay Store in to control 
 The **`gcScheduler`** is a function you can provide to the Relay Store which will determine when a GC execution should be scheduled to run:
 
 ```javascript
-
 // Sample scheduler function
 // Accepts a callback and schedules it to run at some future time.
 function gcScheduler(run: () => void) {
@@ -1424,7 +1338,6 @@ function gcScheduler(run: () => void) {
 }
 
 const store = new Store(source, {gcScheduler});
-
 ```
 
 -   By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
@@ -1437,9 +1350,7 @@ The Relay Store internally holds a release buffer to keep a specific (configurab
 In order to configure the size of the release buffer, you can provide a **`gcReleaseBufferSize`** option to the Relay Store:
 
 ```javascript
-
 const store = new Store(source, {gcReleaseBufferSize: 10});
-
 ```
 
 -   Note that having a buffer size of 0 is equivalent to not having the release buffer, which means that queries will be immediately released and collected.
@@ -1461,11 +1372,9 @@ The coarsest type of data invalidation we can perform is invalidating the whole 
 To invalidate the store, we can call **`invalidateStore()`** within an [updater](#updater-functions) function:
 
 ```javascript
-
 function updater(store) {
   store.invalidateStore();
 }
-
 ```
 
 -   Calling `invalidateStore()` will cause **_all_** data that was written to the store before invalidation occurred to be considered stale, and will require any query to be refetched again the next time it’s evaluated.
@@ -1478,14 +1387,12 @@ We can also be more granular about which data we invalidate and only invalidate 
 To invalidate a record, we can call **`invalidateRecord()`** within an [updater](#updater-functions) function:
 
 ```javascript
-
 function updater(store) {
   const user = store.get('<id>');
   if (user != null) {
     user.invalidateRecord();
   }
 }
-
 ```
 
 -   Calling `invalidateRecord()` on the user record will mark _that_ specific user in the store as stale. That means that any query that is cached and references that invalidated user will now be considered stale, and will require to be refetched again the next time it’s evaluated.
@@ -1503,7 +1410,6 @@ This is useful for a lot of use cases, but there are some times when we’d like
 To support these use cases, Relay exposes the **`useSubscribeToInvalidationState`** hook:
 
 ```javascript
-
 function ProfilePage(props) {
   // Example of querying data for the current page for a given user
   const data = usePreloadedQuery(
@@ -1524,7 +1430,6 @@ function ProfilePage(props) {
 
   return (...);
 }
-
 ```
 
 -   `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
@@ -1547,7 +1452,6 @@ To do this, we rely on the ability of fragment containers to [_suspend_](#loadin
 Let's explain what this means with an example. Say we have the following fragment component:
 
 ```javascript
-
 /**
  * UsernameComponent.react.js
  *
@@ -1576,13 +1480,11 @@ function UsernameComponent(props: Props) {
 }
 
 module.exports = UsernameComponent;
-
 ```
 
 And we have the following query component, which queries for some data, and also includes the fragment above:
 
 ```javascript
-
 /**
  * App.react.js
  *
@@ -1615,7 +1517,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 Say that when this `App` component is rendered, we've already previously fetched _(_only_)_ the **`name`** for the `User` with `{id: 4}`, and it is locally cached in the Relay Store.
@@ -1631,7 +1532,6 @@ At this point, when `UsernameComponent` suspends due to the missing **`username`
 In order to achieve the desired effect of rendering the **`name`** when it's available even if the **`username`**  is missing, we just need to wrap the `UsernameComponent` in `Suspense,` to _allow_ the other parts of `App` to continue rendering:
 
 ```javascript
-
 /**
  * App.react.js
  *
@@ -1672,7 +1572,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 * * *
@@ -1686,14 +1585,12 @@ In the previous section we covered how to reuse data that is fully or partially 
 However, when using different queries, there might still be cases where different queries point to the same data, which we'd want to be able to reuse. For example, imagine the following two queries:
 
 ```graphql
-
 // Query 1
 query UserQuery {
   user(id: 4) {
     name
   }
 }
-
 ```
 
 ```
@@ -1706,7 +1603,6 @@ query NodeQuery {
     }
   }
 }
-
 ```
 
 These two queries are different, but reference the exact same data. Ideally, if one of the queries was already cached in the store, we should be able to reuse that data when rendering the other query. However, Relay doesn't have this knowledge by default, so we need to configure it to encode the knowledge that a `node(id: 4)` **_"is also a"_** `user(id: 4)`.
@@ -1714,7 +1610,6 @@ These two queries are different, but reference the exact same data. Ideally, if 
 To do so, we can provide **`missingFieldHandlers`** to the `RelayEnvironment`, which specify this knowledge:
 
 ```javascript
-
 const {ROOT_TYPE, Environment} = require('react-relay');
 
 const missingFieldHandlers = [
@@ -1749,7 +1644,6 @@ const environment = new Environment({
   // and other fields
   missingFieldHandlers,
 });
-
 ```
 
 -   `missingFieldHandlers` is an array of _handlers_. Each handler must specify a `handle` function, and the kind of missing fields it knows how to handle. The 2 main types of fields that you'd want to handle are:
@@ -1775,7 +1669,6 @@ Assuming you're not using real-time updates to update your data (e.g. using [Gra
 To refresh a query, you can use the **`fetchQuery`** function described in our [Fetching Queries](#fetching-queries) section. Specifically, you can call `fetchQuery` inside the component with the exact same query and variables. Given that the query component is subscribed to any changes in its own data, when the request completes, the component will automatically update and re-render with the latest data:
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -1814,13 +1707,11 @@ function App() {
     </>
   );
 }
-
 ```
 
 If you want to know whether the request is in flight, in order to show a busy indicator or disable a UI control, you can subscribe to the observable returned by `fetchQuery`, and keep state in your component:
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -1868,7 +1759,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 #### Refreshing Fragments
@@ -1878,7 +1768,6 @@ In order to refresh the data for a fragment, we can also use `fetchQuery`, but w
 However, we don't need to manually write the query; instead, we can use the **`@refetchable`** directive, which will make it so Relay automatically generates a query to fetch the fragment when the compiler is run:
 
 ```javascript
-
 import type {UserComponent_user$key} from 'UserComponent_user.graphql';
 
 const React = require('React');
@@ -1928,7 +1817,6 @@ function UserComponent(props: Props) {
 }
 
 module.exports = UserComponent;
-
 ```
 
 -   Relay will autogenerate a query by adding the `@refetchable` directive to our fragment, and we can import it and pass it to `fetchQuery`. Note that `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
@@ -1951,7 +1839,6 @@ Some examples of when you might want to do this:
 As mentioned in the [Queries](#queries) section, passing **_different query variables_** than the ones originally passed when using `useLazyLoadQuery` will cause the query to be fetched with the new variables, and re-render your component with the new data:
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -1989,7 +1876,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 Let's distill what's going on here:
@@ -2001,7 +1887,6 @@ Let's distill what's going on here:
 You can also provide a different **`fetchPolicy`** when refetching the query in order to specify whether to use locally cached data (as we covered in [Reusing Cached Data for Render](#reusing-cached-data-for-render)):
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -2046,7 +1931,6 @@ function App() {
     </>
   );
 }
-
 ```
 
 -   In this case, we're keeping both the `fetchPolicy` and `variables` in component state in order to trigger a refetch both with different `variables` and a different `fetchPolicy`.
@@ -2058,7 +1942,6 @@ Sometimes, upon an event or user interaction, we'd like to render the _same_ exa
 To do so, you can use the **`useRefetchableFragment`** hook, in order to refetch a fragment under new query and variables, using the **`refetch`** function:
 
 ```javascript
-
 import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
@@ -2100,7 +1983,6 @@ function CommentBody(props: Props) {
 }
 
 module.exports = CommentBody;
-
 ```
 
 Let's distill what's happening in this example:
@@ -2116,11 +1998,11 @@ Let's distill what's happening in this example:
 
 ## Rendering List Data and Pagination
 
-There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we won't want to query the _entire_ set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.github.io/learn/pagination/).
+There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we won't want to query the _entire_ set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.org/learn/pagination/).
 
 ### Connections
 
-Specifically in Relay, we do this via GraphQL fields known as [Connections](https://graphql.github.io/learn/pagination/#complete-connection-model). Connections are GraphQL fields that take a set of arguments to specify which "slice" of the list to query, and include in their response both the "slice" of the list that was requested, as well as information to indicate if there is more data available in the list and how to query it; this additional information can be used in order to perform pagination by querying for more "slices" or pages on the list.
+Specifically in Relay, we do this via GraphQL fields known as [Connections](https://graphql.org/learn/pagination/#complete-connection-model). Connections are GraphQL fields that take a set of arguments to specify which "slice" of the list to query, and include in their response both the "slice" of the list that was requested, as well as information to indicate if there is more data available in the list and how to query it; this additional information can be used in order to perform pagination by querying for more "slices" or pages on the list.
 
 More specifically, we perform _cursor-based pagination,_ in which the input used to query for "slices" of the list is a `cursor` and a `count`. Cursors are essentially opaque tokens that serve as markers or pointers to a position in the list. If you're curious to learn more about the details of cursor-based pagination and connections, check out [this spec](https://relay.dev/graphql/connections.htm).
 
@@ -2129,7 +2011,6 @@ More specifically, we perform _cursor-based pagination,_ in which the input used
 In Relay, in order to perform pagination, first you need to declare a fragment that queries for a connection:
 
 ```javascript
-
 const {graphql} = require('react-relay');
 
 const userFragment = graphql`
@@ -2145,7 +2026,6 @@ const userFragment = graphql`
     }
   }
 `;
-
 ```
 
 -   In the example above, we're querying for the `friends` field, which is a connection; in other words, it adheres to the connection spec. Specifically, we can query the `edges` and `node`s in the connection; the `edges` usually contain information about the relationship between the entities, while the `node`s are the actual entities at the other end of the relationship; in this case, the `node`s are objects of type `User` representing the user's friends.
@@ -2155,7 +2035,6 @@ const userFragment = graphql`
 In order to render this fragment which queries for a connection, we can use the **`usePaginationFragment`** Hook:
 
 ```javascript
-
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
@@ -2208,7 +2087,6 @@ function FriendsListComponent(props: Props) {
 }
 
 module.exports = FriendsListComponent;
-
 ```
 
 -   `usePaginationFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), so our list of friends is available under **`data.friends.edges.node`**, as declared by the fragment. However, it also has a few additions:
@@ -2222,7 +2100,6 @@ module.exports = FriendsListComponent;
 To actually perform pagination over the connection, we need use the **`loadNext`** function to fetch the next page of items, which is available from `usePaginationFragment`:
 
 ```javascript
-
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
@@ -2283,7 +2160,6 @@ function FriendsListComponent(props: Props) {
 }
 
 module.exports = FriendsListComponent;
-
 ```
 
 Let's distill what's happening here:
@@ -2296,7 +2172,6 @@ Let's distill what's happening here:
 Often, you will also want to access information about whether there are more items available to load. To do this, you can use the `hasNext` value, also available from `usePaginationFragment`:
 
 ```javascript
-
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
@@ -2365,7 +2240,6 @@ function FriendsListComponent(props: Props) {
 }
 
 module.exports = FriendsListComponent;
-
 ```
 
 -   `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection .
@@ -2384,7 +2258,6 @@ So far in the previous pagination sections, we've implicitly been referring to t
 However, if we want to implement **_"all at once"_** pagination, we need to use a different API, **`useBlockingPaginationFragment`**:
 
 ```javascript
-
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsListComponent_user$key} from 'FriendsList_user.graphql';
 
@@ -2468,7 +2341,6 @@ function FriendsListComponent(props: Props) {
 }
 
 module.exports = FriendsListComponent;
-
 ```
 
 Let's distill what's going on here:
@@ -2490,7 +2362,6 @@ Some examples of this are:
 Specifically, in GraphQL, connection fields can accept arguments to sort or filter the set of queried results:
 
 ```graphql
-
 fragment UserFragment on User {
   name
   friends(order_by: DATE_ADDED, search_term: "Alice", first: 10) {
@@ -2502,13 +2373,11 @@ fragment UserFragment on User {
     }
   }
 }
-
 ```
 
 In Relay, we can pass those arguments as usual using GraphQL [Variables](#variables).
 
 ```javascript
-
 type Props = {|
   user: FriendsListComponent_user$key,
 |};
@@ -2540,13 +2409,11 @@ function FriendsListComponent(props: Props) {
 
   return (...);
 }
-
 ```
 
 When paginating, the original values for those filters will be preserved:
 
 ```javascript
-
 type Props = {|
   user: FriendsListComponent_user$key,
 |};
@@ -2585,7 +2452,6 @@ function FriendsListComponent(props: Props) {
     </>
   );
 }
-
 ```
 
 -   Note that calling `loadNext` will use the **_original_** **`order_by`** and **`search_term`** values used for the initial query. During pagination, these value won't (_and shouldn't_) change.
@@ -2593,7 +2459,6 @@ function FriendsListComponent(props: Props) {
 If we want to refetch the connection with _different_ variables, we can use the **`refetch`** function provided by `usePaginationFragment`, similarly to how we do so when [Re-rendering Fragments With Different Data](#re-rendering-fragments-with-different-data):
 
 ```javascript
-
 /**
  * FriendsListComponent.react.js
  */
@@ -2661,7 +2526,6 @@ function FriendsListComponent(props: Props) {
     </>
   );
 }
-
 ```
 
 Let's distill what's going on here:
@@ -2685,7 +2549,6 @@ In Relay, connection fields that are marked with the `@connection` directive are
 For example, given the following fragment that declares a `@connection`:
 
 ```javascript
-
 const {graphql} = require('react-relay');
 
 const storyFragment = graphql`
@@ -2699,13 +2562,11 @@ const storyFragment = graphql`
     }
   }
 `;
-
 ```
 
 We can access the connection record inside an `updater` function using **`ConnectionHandler.getConnection`**:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2717,7 +2578,6 @@ function updater(store: RecordSourceSelectorProxy) {
 
   // ...
 }
-
 ```
 
 ### Adding Edges
@@ -2727,7 +2587,6 @@ Once we have a connection record, we also need a record for the new edge that we
 For example, in the following mutation we can query for the newly created edge in the mutation response:
 
 ```javascript
-
 const {graphql} = require('react-relay');
 
 const createCommentMutation = graphql`
@@ -2744,7 +2603,6 @@ const createCommentMutation = graphql`
     }
   }
 `;
-
 ```
 
 -   Note that we also query for the **`cursor`** for the new edge; this isn't strictly necessary, but it is information that will be required if we need to perform pagination based on that `cursor`.
@@ -2752,7 +2610,6 @@ const createCommentMutation = graphql`
 Inside an `updater`, we can access the edge inside the mutation response using Relay store APIs:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2777,7 +2634,6 @@ function updater(store: RecordSourceSelectorProxy) {
 
   // ...
 }
-
 ```
 
 -   The mutation payload is available as a root field on that store, which can be read using the `store.getRootField` API. In our case, we're reading `comment_create`, which is the root field in the response.
@@ -2786,7 +2642,6 @@ function updater(store: RecordSourceSelectorProxy) {
 If you need to create a new edge from scratch, you can use **`ConnectionHandler.createEdge`**:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2810,13 +2665,11 @@ function updater(store: RecordSourceSelectorProxy) {
 
   // ...
 }
-
 ```
 
 Once we have a new edge record, we can add it to the the connection using **`ConnectionHandler.insertEdgeAfter`** or **`ConnectionHandler.insertEdgeBefore`**:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2840,7 +2693,6 @@ function updater(store: RecordSourceSelectorProxy) {
     newEdge,
   );
 }
-
 ```
 
 -   Note that these APIs will _mutate_ the connection in-place.
@@ -2850,7 +2702,6 @@ function updater(store: RecordSourceSelectorProxy) {
 `ConnectionHandler` provides a similar API to remove an edge from a connection, via **`ConnectionHandler.deleteNode`**:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2866,7 +2717,6 @@ function updater(store: RecordSourceSelectorProxy) {
     commentIDToDelete,
   );
 }
-
 ```
 
 -   In this case `ConnectionHandler.deleteNode` will remove an edge given a **\*`node`** ID\*. This means it will look up which edge in the connection contains a node with the provided ID, and remove that edge.
@@ -2885,7 +2735,6 @@ In our previous examples, our connections didn't take any arguments as filters. 
 For example, let's say the `comments` field took the following arguments, which we pass in as GraphQL [Variables](#variables):
 
 ```javascript
-
 const {graphql} = require('react-relay');
 
 const storyFragment = graphql`
@@ -2905,7 +2754,6 @@ const storyFragment = graphql`
     }
   }
 `;
-
 ```
 
 In the example above, this means that whatever values we used for `$orderBy`, `$filterMode` and `$language` when we queried for the `comments` field will be part of the connection identifier, and we'll need to use those values when accessing the connection record from the Relay store.
@@ -2913,7 +2761,6 @@ In the example above, this means that whatever values we used for `$orderBy`, `$
 In order to do so, we need to pass a third argument to **`ConnectionHandler.getConnection`**, with concrete filter values to identify the connection:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2935,7 +2782,6 @@ function updater(store: RecordSourceSelectorProxy) {
     {order_by: null, filter_mode: 'FRIENDS_ONLY', langugage: null}
   );
 }
-
 ```
 
 This implies that by default, **_each combination of values used for filters will produce a different record for the connection._**
@@ -2943,7 +2789,6 @@ This implies that by default, **_each combination of values used for filters wil
 When making updates to a connection, you will need to make sure to update all of the relevant records affected by a change. For example, if we were to add a new comment to our example connection, we'd need to make sure **_not_** to add the comment to the `FRIENDS_ONLY` connection, if the new comment wasn't made by a friend of the user:
 
 ```javascript
-
 const {ConnectionHandler} = require('react-relay');
 
 function updater(store: RecordSourceSelectorProxy) {
@@ -2982,7 +2827,6 @@ function updater(store: RecordSourceSelectorProxy) {
     );
   }
 }
-
 ```
 
 _**Managing connections with many filters:**_
@@ -2994,7 +2838,6 @@ As you can see, just adding a few filters to a connection can make the complexit
 By default, **_all_** **non-pagination** filters will be used as part of the connection identifier. However, when declaring a `@connection`, you can specify the exact set of filters to use for connection identity:
 
 ```javascript
-
 const {graphql} = require('react-relay');
 
 const storyFragment = graphql`
@@ -3018,7 +2861,6 @@ const storyFragment = graphql`
     }
   }
 `;
-
 ```
 
 -   By specifying `filters` when declaring the `@connection`, we're indicating to Relay the exact set of filter values that should be used as part of connection identity. In this case, we're excluding `language`, which means that only values for `order_by` and `filter_mode` will affect connection identity and thus produce new connection records.
@@ -3040,7 +2882,6 @@ In this section we're going to cover how to implement more advanced pagination u
 If you need to paginate over multiple connections within the same component, you can use `usePaginationFragment` multiple times:
 
 ```javascript
-
 import type {CombinedFriendsListComponent_user$key} from 'CombinedFriendsListComponent_user.graphql';
 import type {CombinedFriendsListComponent_viewer$key} from 'CombinedFriendsListComponent_viewer.graphql';
 
@@ -3101,7 +2942,6 @@ function CombinedFriendsListComponent(props: Props) {
 
   return (...);
 }
-
 ```
 
 However, we recommend trying to keep a single connection per component, to keep the components easier to follow.
@@ -3113,7 +2953,6 @@ In the [Pagination](#pagination) section we covered how to use `usePaginationFra
 Regardless of the semantic meaning of the direction, Relay also provides the same APIs to paginate in the opposite direction using **`usePaginationFragment`**, as long  as the **`before`** and **`last`** connection arguments are also used along with `after` and `first`:
 
 ```javascript
-
 import type {FriendsListComponent_user$key} from 'FriendsListComponent_user.graphql';
 
 const React = require('React');
@@ -3275,7 +3114,6 @@ In GraphQL, data in the server is updated using [GraphQL Mutations](https://grap
 A GraphQL mutation looks very similar to a query, with the exception that it uses the **`mutation`** keyword:
 
 ```graphql
-
 mutation LikePostMutation($input: LikePostData!) {
   like_post(data: $input) {
     post {
@@ -3285,7 +3123,6 @@ mutation LikePostMutation($input: LikePostData!) {
     }
   }
 }
-
 ```
 
 -   The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data in the backend.
@@ -3304,13 +3141,11 @@ An example of a successful response for the above mutation could look like this:
     }
   }
 }
-
 ```
 
 In Relay, we can declare GraphQL mutations using the `graphql` tag too:
 
 ```javascript
-
 const {graphql} = require('react-relay');
 
 const likeMutation = graphql`
@@ -3324,7 +3159,6 @@ const likeMutation = graphql`
     }
   }
 `;
-
 ```
 
 -   Note that mutations can also reference GraphQL [Variables](#variables) in the same way queries or fragments do.
@@ -3332,7 +3166,6 @@ const likeMutation = graphql`
 In order to _execute_ a mutation against the server in Relay, we can use the **`useMutation`** hook.
 
 ```javascript
-
 import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
 const {graphql, useMutation} = require('react-relay/hooks');
@@ -3367,7 +3200,6 @@ function LikeButton(props: Props) {
 }
 
 module.exports = LikeButton;
-
 ```
 
 Let's distill what's happening here:
@@ -3378,7 +3210,6 @@ Let's distill what's happening here:
 -   `commit` is a function that accepts a `UseMutationConfig`. The type of `UseMutationConfig` is as follows:
 
 ```javascript
-
 type UseMutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   onError?: ?(error: Error) => void,
@@ -3400,7 +3231,6 @@ type UseMutationConfig<TMutation: MutationParameters> = {|
   uploadables?: UploadableMap,
   variables: $ElementType<TMutation, 'variables'>,
 |};
-
 ```
 
 -   The only required property in the `UseMutationConfig` object is `variables`, which is an object containing the parameters to the mutation.
@@ -3416,7 +3246,6 @@ type UseMutationConfig<TMutation: MutationParameters> = {|
 However, if the updates you wish to perform on the local data in response to the mutation are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an **`updater`** function to `commit` for full control over how to update the store:
 
 ```javascript
-
 import type {LikePostData, LikePostMutation} from 'LikePostMutation.graphql';
 
 const {graphql, useMutation} = require('react-relay/hooks');
@@ -3479,7 +3308,6 @@ function LikeButton(props: Props) {
 }
 
 module.exports = LikeButton;
-
 ```
 
 Let's distill this example:
@@ -3504,7 +3332,6 @@ When you can predict what the server response for a mutation is going to be, the
 ```javascript
 
 
-
 ```
 
 Let's see what's happening in this example.
@@ -3520,7 +3347,6 @@ _**Optimistic Updater**_
 However, in some cases we can't statically predict what the server response will be, or we need to optimistically perform more complex updates, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection). In these cases we can provide an **``** function to ``. For example, we can rewrite the above example using an `` instead of an ``:
 
 ```javascript
-
 
 
 ```
@@ -3559,7 +3385,6 @@ This means that in more complicated scenarios you can still provide all 3 option
 ```javascript
 
 
-
 ```
 
 Let's distill this example, according to the execution order of the updaters:
@@ -3594,7 +3419,6 @@ A GraphQL Subscription looks very similar to a query, with the exception that it
 ```graphql
 
 
-
 ```
 
 -   Subscribing to the above subscription will notify the client whenever the specified `` object has been "liked" or "unliked". The **``** field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
@@ -3605,13 +3429,11 @@ An example of a subscription payload received by the client could look like this
 ```javascript
 
 
-
 ```
 
 In Relay, we can declare GraphQL subcriptions using the `` tag too:
 
 ```javascript
-
 
 
 ```
@@ -3621,7 +3443,6 @@ In Relay, we can declare GraphQL subcriptions using the `` tag too:
 In order to _execute_ a subscription against the server in Relay, we can use the **``** hook:
 
 ```javascript
-
 
 
 ```
@@ -3638,7 +3459,6 @@ Let's distill what's happening here:
 However, if the updates you wish to perform on the local data in response to the subscription are more complex than just updating the values of fields, like deleting or creating new records, or [Adding and Removing Items From a Connection](#adding-and-removing-items-from-a-connection), you can provide an `` function to **``** for full control over how to update the store:
 
 ```javascript
-
 
 
 ```
@@ -3663,7 +3483,6 @@ To make updates using an `` function, you can use the **``** API:
 ```javascript
 
 
-
 ```
 
 -   `` update simply takes an environment and an updater function.
@@ -3676,7 +3495,6 @@ To make updates using an `` function, you can use the **``** API:
 **``** takes an `` and the payload for the query, and writes it to the Relay Store. The payload will be resolved like a normal server response for a query.
 
 ```javascript
-
 
 
 ```
@@ -3702,7 +3520,6 @@ In order to extend an existing type, add a `` file to the appropriate schema ext
 ```graphql
 
 
-
 ```
 
 -   In this example, we're using the **``** keyword to extend an existing type, and we're adding a new field, `` to the existing `` type, which we will be able to [read](#reading-client-only-data) in our components, and [update](#updating-client-only-data) when necessary using normal Relay APIs; you might imagine that we might use this field to render a different visual treatment for a comment if it's new, and we might set it when creating a new comment.
@@ -3715,7 +3532,6 @@ You can define types using the same regular GraphQL syntax, by defining it insid
 ```graphql
 
 
-
 ```
 
 -   In this contrived example, we're defining 2 new client-only types, and `` and a regular ``. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.
@@ -3726,7 +3542,6 @@ You can define types using the same regular GraphQL syntax, by defining it insid
 We can read client-only data by selecting it inside [fragments](#fragments) or [queries](#queries) as normal:
 
 ```javascript
-
 
 
 ```
@@ -3758,7 +3573,6 @@ If you want to fetch a query outside of React, you can use the **``** function, 
 ```javascript
 
 
-
 ```
 
 -   `` will automatically save the fetched data to the in-memory Relay store, and notify any components subscribed to the relevant data.
@@ -3769,7 +3583,6 @@ If you want to fetch a query outside of React, you can use the **``** function, 
 If desired, you can convert the request into a Promise using **``**:
 
 ```javascript
-
 
 
 ```
@@ -3812,7 +3625,6 @@ This section covers prefetching queries from the client (if you're interested in
 In order to manually retain a query so that the data it references isn't garbage collected by Relay, we can use the **``** method:
 
 ```javascript
-
 
 
 ```

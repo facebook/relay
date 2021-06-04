@@ -22,7 +22,7 @@ fragment LinkedHandleField on User {
                     alias: None,
                     definition: WithLocation {
                         location: linked-handle-field-with-key.graphql:39:46,
-                        item: FieldID(458),
+                        item: FieldID(462),
                     },
                     arguments: [
                         Argument {
@@ -43,7 +43,7 @@ fragment LinkedHandleField on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: linked-handle-field-with-key.graphql:63:76,
+                                location: linked-handle-field-with-key.graphql:62:76,
                                 item: "__clientField",
                             },
                             arguments: [
@@ -83,7 +83,7 @@ fragment LinkedHandleField on User {
                             alias: None,
                             definition: WithLocation {
                                 location: linked-handle-field-with-key.graphql:142:147,
-                                item: FieldID(178),
+                                item: FieldID(180),
                             },
                             arguments: [],
                             directives: [],

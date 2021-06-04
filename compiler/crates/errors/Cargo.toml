@@ -7,4 +7,4 @@ edition = "2018"
 license = "MIT"
 
 [dependencies]
-rayon = "1.2"
+common = { path = "../common" }

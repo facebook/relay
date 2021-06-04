@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::apply_transforms::Programs;
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
 use crate::config::ProjectConfig;
@@ -15,7 +14,7 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::print_full_operation;
 use interner::StringKey;
 use relay_transforms::{
-    RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
+    Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
 };
 use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
@@ -60,7 +59,7 @@ pub fn generate_artifacts(
             };
 
             artifacts.push(Artifact {
-                source_definition_names: metadata.parent_sources.into_iter().collect(),
+                source_definition_names: metadata.parent_documents.into_iter().collect(),
                 path: path_for_artifact(
                     project_config,
                     source_file,

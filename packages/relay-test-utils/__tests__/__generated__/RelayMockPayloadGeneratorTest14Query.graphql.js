@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f6c992fcd72f7d7e13b0885bd88a2535>>
+ * @generated SignedSource<<f25b05203a1abeca3c9a39b7e455786d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -172,18 +172,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a1a63d65a46626e2c15b2597720005e3",
+    "cacheID": "42cbf3fa1272de23df474f4bee2ad0ca",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest14Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest14Query(\n  $smallScale: Int = 1\n  $bigScale: Int = 100\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest14Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest14Fragment on User {\n  id\n  name\n  smallImage: profile_picture(scale: $smallScale) {\n    uri\n  }\n  bigImage: profile_picture(scale: $bigScale) {\n    uri\n  }\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest14Query(\n  $smallScale: Float = 1\n  $bigScale: Float = 100\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest14Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest14Fragment on User {\n  id\n  name\n  smallImage: profile_picture(scale: $smallScale) {\n    uri\n  }\n  bigImage: profile_picture(scale: $bigScale) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d131dd86a63779a30fcccad4262a2c77";
+  (node/*: any*/).hash = "4ef820e776fe2defd0a8ebd1a54c7fe1";
 }
 
 module.exports = node;

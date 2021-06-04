@@ -85,7 +85,7 @@ fn resolve_relative_type_for_current_item(
 }
 
 #[derive(Debug, Default)]
-pub struct TypePath(Vec<TypePathItem>);
+pub struct TypePath(pub Vec<TypePathItem>);
 
 impl From<Vec<TypePathItem>> for TypePath {
     fn from(type_path: Vec<TypePathItem>) -> TypePath {
@@ -126,7 +126,7 @@ impl TypePath {
     }
 
     /// Returns the leaf is it is a field
-    pub fn resolve_current_field(self, schema: &SDLSchema) -> Option<&Field> {
+    pub fn resolve_current_field(self, schema: &SDLSchema) -> Option<(Type, &Field)> {
         let mut type_path = self.0;
         type_path.reverse();
         let mut type_ =
@@ -136,10 +136,10 @@ impl TypePath {
                 return match path_item {
                     TypePathItem::LinkedField { name } => schema
                         .named_field(type_, name)
-                        .map(|field_id| schema.field(field_id)),
+                        .map(|field_id| (type_, schema.field(field_id))),
                     TypePathItem::ScalarField { name } => schema
                         .named_field(type_, name)
-                        .map(|field_id| schema.field(field_id)),
+                        .map(|field_id| (type_, schema.field(field_id))),
                     _ => None,
                 };
             } else {

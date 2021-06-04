@@ -28,10 +28,9 @@ For a full example using Relay Hooks and our integration with [Suspense for Data
 
 ### `RelayEnvironmentProvider`
 
-This component is used set a Relay environment in React Context. Usually, a _single_ instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:
+This component is used to set a Relay environment in React Context. Usually, a _single_ instance of this component should be rendered at the very root of the application, in order to set the Relay environment for the whole application:
 
 ```javascript
-
 const React = require('React');
 
 const {RelayEnvironmentProvider} = require('react-relay/hooks');
@@ -45,7 +44,6 @@ function Root() {
 }
 
 module.exports = Root;
-
 ```
 
 #### Props
@@ -61,7 +59,6 @@ module.exports = Root;
 Hook used to access a Relay environment that was set by a [`RelayEnvironmentProvider`](#relayenvironmentprovider):
 
 ```javascript
-
 const React = require('React');
 
 const {useRelayEnvironment} = require('react-relay/hooks');
@@ -79,7 +76,6 @@ function MyComponent() {
 }
 
 module.exports = Root;
-
 ```
 
 ### `useQueryLoader`
@@ -89,7 +85,6 @@ Hook used to make it easy to safely load queries, while avoiding data leaking in
 This hook is designed to be used with [`usePreloadedQuery`](#usepreloadedquery) to implement the [“render-as-you-fetch”](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense) pattern.
 
 ```javascript
-
 const React = require('React');
 const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
 
@@ -134,7 +129,6 @@ function NameDisplay({ queryReference }) {
 
   return <h1>{data.user?.name}</h1>;
 }
-
 ```
 
 #### Arguments
@@ -179,7 +173,6 @@ Hook used to access data fetched by an earlier call to [`loadQuery()`](#loadquer
 -   This pattern is encouraged over `useLazyLoadQuery()` as it can allow fetching data earlier while not blocking rendering.
 
 ```javascript
-
 const React = require('React');
 const {useQueryLoader, usePreloadedQuery} = require('react-relay/hooks');
 
@@ -224,7 +217,6 @@ function NameDisplay({ queryReference }) {
 
   return <h1>{data.user?.name}</h1>;
 }
-
 ```
 
 #### Arguments
@@ -253,7 +245,6 @@ function NameDisplay({ queryReference }) {
 Hook used to fetch a GraphQL query _during_ render. This hook can trigger multiple round trips, thereby degrading performance. Instead, prefer [`useQueryLoader()`](#usequeryloader) and [`usePreloadedQuery()`](#usepreloadedquery) instead.
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const React = require('React');
@@ -275,7 +266,6 @@ function App() {
 
   return <h1>{data.user?.name}</h1>;
 }
-
 ```
 
 #### Arguments
@@ -320,7 +310,6 @@ function App() {
 ### `useFragment`
 
 ```javascript
-
 import type {UserComponent_user$key} from 'UserComponent_user.graphql';
 
 const React = require('React');
@@ -353,7 +342,6 @@ function UserComponent(props: Props) {
     </>
   );
 }
-
 ```
 
 #### Arguments
@@ -378,7 +366,6 @@ function UserComponent(props: Props) {
 You can use `useRefetchableFragment` when you want to fetch and re-render a fragment with different data:
 
 ```javascript
-
 import type {CommentBodyRefetchQuery} from 'CommentBodyRefetchQuery.graphql';
 import type {CommentBody_comment$key} from 'CommentBody_comment.graphql';
 
@@ -423,7 +410,6 @@ function CommentBody(props: Props) {
 }
 
 module.exports = CommentBody;
-
 ```
 
 #### Arguments
@@ -478,7 +464,6 @@ Tuple containing the following values
 You can use `usePaginationFragment` to render a fragment that uses a `@connection` and paginate over it:
 
 ```javascript
-
 import type {FriendsListPaginationQuery} from 'FriendsListPaginationQuery.graphql';
 import type {FriendsList_user$key} from 'FriendsList_user.graphql';
 
@@ -538,7 +523,6 @@ function FriendsList(props: Props) {
 }
 
 module.exports = FriendsList;
-
 ```
 
 #### Arguments
@@ -636,7 +620,6 @@ In the meantime, see our **[Blocking ("all-at-once") Pagination Guide](a-guided-
 You can use `useMutation` to execute a mutation in a React component.
 
 ```javascript
-
 import type {FeedbackLikeMutation} from 'FeedbackLikeMutation.graphql';
 
 const React = require('React');
@@ -675,7 +658,6 @@ function LikeButton() {
     />
   );
 }
-
 ```
 
 #### Arguments
@@ -711,7 +693,6 @@ Tuple containing the following values:
 Hook used to subscribe and unsubscribe to a subscription.
 
 ```javascript
-
 import {graphql, useSubscription} from 'RelayHooks';
 import {useMemo} from 'react';
 
@@ -725,7 +706,6 @@ function MyFunctionalComponent({ id }) {
     <div>Move Fast</div>
   );
 }
-
 ```
 
 This is a thin wrapper around the `requestSubscription` API. Its behavior:
@@ -748,7 +728,6 @@ This function is designed to be used with the [`usePreloadedQuery()`](#usepreloa
 Query references returned from `loadQuery` will leak data into the Relay store if `.dispose()` is not called on them once they are no longer referenced. _As such, prefer calling [`useQueryLoader`](#usequeryloader) when possible_, which ensures that query references are disposed for you.
 
 ```javascript
-
 const React = require('React');
 const {loadQuery, useRelayEnvironment} = require('react-relay/hooks');
 
@@ -776,7 +755,6 @@ function MyComponent() {
 
   return <div onClick={onClick}>Click me</div>;
 }
-
 ```
 
 #### Arguments
@@ -816,7 +794,6 @@ The exact format of the return value is unstable and highly likely to change. We
 This function is designed to be used with the `usePreloadedQuery()` hook to implement the "render-as-you-fetch" pattern in conjunction with `usePreloadedQuery`. See the [`usePreloadedQuery()`](#usepreloadedquery) docs for a more complete example.
 
 ```javascript
-
 const {graphql, preloadQuery_DEPRECATED} = require('react-relay/hooks');
 
 const AppEnvironment = require('./AppEnvironment'); // user-defined
@@ -866,7 +843,6 @@ The exact format of the return value is _unstable and highly likely to change_. 
 If you want to fetch a query outside of React, you can use the **`fetchQuery`** function from `react-relay/hooks`:
 
 ```javascript
-
 import type {AppQuery} from 'AppQuery.graphql';
 
 const {fetchQuery} = require('react-relay/hooks');
@@ -888,7 +864,6 @@ fetchQuery<AppQuery>(
   error: (error) => {...},
   next: (data) => {...}
 });
-
 ```
 
 #### Arguments

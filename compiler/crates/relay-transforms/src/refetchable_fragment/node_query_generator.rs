@@ -8,15 +8,14 @@
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
     build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
-    RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
+    RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, ScalarField,
-    Selection, ValidationMessage, Value, Variable, VariableDefinition,
+    Argument, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
+    ValidationMessage, Value, Variable, VariableDefinition,
 };
-use graphql_syntax::OperationKind;
 use interner::StringKey;
 use schema::{Argument as ArgumentDef, FieldID, InterfaceID, SDLSchema, Schema, Type};
 use std::sync::Arc;
@@ -128,34 +127,23 @@ fn build_refetch_operation(
                 directives: vec![],
             });
             Ok(Some(RefetchRoot {
-                operation: Arc::new(OperationDefinition {
-                    kind: OperationKind::Query,
-                    name: WithLocation::new(fragment.name.location, query_name),
-                    type_: query_type,
-                    variable_definitions,
-                    directives: vec![RefetchableDerivedFromMetadata::create_directive(
-                        fragment.name,
-                    )],
-                    selections: vec![Selection::LinkedField(Arc::new(LinkedField {
-                        alias: None,
-                        definition: WithLocation::new(fragment.name.location, node_field_id),
-                        arguments: vec![Argument {
-                            name: WithLocation::new(fragment.name.location, id_arg.name),
-                            value: WithLocation::new(
-                                fragment.name.location,
-                                Value::Variable(Variable {
-                                    name: WithLocation::new(
-                                        fragment.name.location,
-                                        CONSTANTS.id_name,
-                                    ),
-                                    type_: id_arg.type_.non_null(),
-                                }),
-                            ),
-                        }],
-                        directives: vec![],
-                        selections: vec![build_fragment_spread(&fragment)],
-                    }))],
-                }),
+                variable_definitions,
+                selections: vec![Selection::LinkedField(Arc::new(LinkedField {
+                    alias: None,
+                    definition: WithLocation::new(fragment.name.location, node_field_id),
+                    arguments: vec![Argument {
+                        name: WithLocation::new(fragment.name.location, id_arg.name),
+                        value: WithLocation::new(
+                            fragment.name.location,
+                            Value::Variable(Variable {
+                                name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+                                type_: id_arg.type_.non_null(),
+                            }),
+                        ),
+                    }],
+                    directives: vec![],
+                    selections: vec![build_fragment_spread(&fragment)],
+                }))],
                 fragment,
             }))
         }

@@ -2,12 +2,16 @@
 id: variables
 title: Variables
 slug: /guided-tour/rendering/variables/
+description: Relay guide to query variables
+keywords:
+- query
+- variables
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.github.io/learn/queries/#variables).
+You may have noticed that the query declarations in our examples above contain references to an `$id` symbol inside the GraphQL code: these are [GraphQL Variables](https://graphql.org/learn/queries/#variables).
 
 GraphQL variables are a construct that allows referencing dynamic values inside a GraphQL query. When fetching a query from the server, we also need to provide as input the actual set of values to use for the variables declared inside the query:
 
@@ -27,7 +31,7 @@ In the above, `ID!` is the type of the `$id` variable. That is, it is a required
 
 When sending a network request to fetch the query above, we need to provide both the query, and the variables to be used for this particular execution of the query.  For example:
 
-```
+```graphql
 # Query:
 query UserQuery($id: ID!) {
   # ...

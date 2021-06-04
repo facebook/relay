@@ -12,7 +12,6 @@ var fragment = Relay.QL`
     name
   }
 `;
-
 ```
 
 To execute this code, Relay needs access to the schema - which can be too large to bundle inside the application. Instead, these `Relay.QL` template expressions are transpiled into JavaScript descriptions via the `babel-plugin-relay`. This schema information allows Relay to understand things like the types of field arguments, which fields are connections or lists, and how to efficiently refetch records from the server.
@@ -62,7 +61,6 @@ Relay.createContainer(Foo, {
     `,
   }
 });
-
 ```
 
 ### Inline Fragments
@@ -100,7 +98,6 @@ Relay.createContainer(Story, {
     `,
   }
 });
-
 ```
 
 Note that it is _highly_ recommended that `Relay.Container`s define their own fragments and avoid sharing inline `var fragment = Relay.QL...` values between containers or files. If you find yourself wanting to share inline fragments, it's likely a sign that it's time to refactor and introduce a new container.
@@ -132,7 +129,6 @@ Relay.createContainer(Story, {
     `,
   }
 });
-
 ```
 
 Wherever the inverse grammar serves you better, you can use `@skip(if: ...)` instead of `@include(if: ...)`.
@@ -155,7 +151,6 @@ Relay.createContainer(Story, {
     `,
   }
 });
-
 ```
 
 On the Relay Container the prop `bars` will be an array instead of an object.

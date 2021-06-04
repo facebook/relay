@@ -37,7 +37,7 @@ function Root() {
 If you want to access the *current* Relay Environment within a descendant of a `RelayEnvironmentProvider` component, you can use the `useRelayEnvironment` Hook:
 
 ```js
-const {useRelayEnvironment} = require('RelayHooks');
+const {useRelayEnvironment} = require('react-relay');
 
 function UserComponent(props: Props) {
   const environment = useRelayEnvironment();

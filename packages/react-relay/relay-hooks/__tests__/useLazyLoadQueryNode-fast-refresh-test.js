@@ -38,7 +38,9 @@ function expectToBeRendered(renderFn, readyState) {
 }
 
 function expectToHaveFetched(environment, query, cacheConfig) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     root: expect.anything(),
@@ -120,6 +122,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() =>
@@ -137,6 +140,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
     function V2(props) {

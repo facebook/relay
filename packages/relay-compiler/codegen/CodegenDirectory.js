@@ -34,7 +34,7 @@ export interface Filesystem {
   mkdirSync(path: string): void;
   readdirSync(path: string): Array<string>;
   readFileSync(path: string, encoding: string): string;
-  statSync(path: string): {isDirectory(): boolean, ...};
+  statSync(path: string): interface {isDirectory(): boolean};
   unlinkSync(path: string): void;
   writeFileSync(filename: string, data: string, options: string): void;
 }

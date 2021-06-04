@@ -2,6 +2,13 @@
 id: loading-states
 title: Loading States with Suspense
 slug: /guided-tour/rendering/loading-states/
+description: Relay guide to loading states
+keywords:
+- suspense
+- loading
+- glimmer
+- fallback
+- spinner
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -78,7 +85,7 @@ const {Suspense} = require('React');
 
 function App() {
   return (
-    // LoadingSpinner is rendered via the Suspense fallback
+    // LoadingGlimmer is rendered via the Suspense fallback
     <Suspense fallback={<LoadingGlimmer />}>
       <MainContent /> {/* MainContent may suspend */}
     </Suspense>
@@ -107,10 +114,10 @@ const {Suspense} = require('React');
 
 function App() {
   return (
-    // A LoadingSpinner for *_all_* content is rendered via the Suspense fallback
+    // A LoadingGlimmer for *_all_* content is rendered via the Suspense fallback
     <Suspense fallback={<LoadingGlimmer />}>
       <MainContent />
-      <SecondaryContent />  *{**/* SecondaryContent can also suspend */**}*
+      <SecondaryContent /> {/* SecondaryContent can also suspend */}
     </Suspense>
   );
 }
@@ -211,7 +218,7 @@ const {Suspense} = require('React');
 
 function App() {
   return (
-    // LoadingSpinner is rendered via the Suspense fallback
+    // LoadingGlimmer is rendered via the Suspense fallback
     <Suspense fallback={<LoadingGlimmer />}>
       <MainContent /> {/* MainContent may suspend */}
     </Suspense>
@@ -224,7 +231,7 @@ function App() {
 Let's distill what's going on here:
 
 * We have a `MainContent` component, which is a query renderer that fetches and renders a query. `MainContent` will *suspend* rendering when it attempts to fetch the query, indicating that it isn't ready to be rendered yet, and it will resolve when the query is fetched.
-* The `Suspense `component that wraps `MainContent` will detect that `MainContent` suspended, and will render the `fallback` element (i.e. the `LoadingSpinner` in this case) up until `MainContent` is ready to be rendered; that is, up until the query is fetched.
+* The `Suspense `component that wraps `MainContent` will detect that `MainContent` suspended, and will render the `fallback` element (i.e. the `LoadingGlimmer` in this case) up until `MainContent` is ready to be rendered; that is, up until the query is fetched.
 
 
 ### Fragments

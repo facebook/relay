@@ -1,0 +1,41 @@
+# expected-to-throw
+
+fragment refetchableFragmentDirectivesNotLiteralList on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: $var
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesNotLiteralListValue on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: [$var]
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesInvalidSyntax on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["invalid syntax"]
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesNotADirective on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["@doesNotExit"]
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesNotValidOnQuery on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["@defer"] # invalid on queries
+) {
+  id
+}

@@ -441,9 +441,11 @@ function createMockEnvironment(
 
   const createExecuteProxy = (
     env: IEnvironment,
-    fn:
-      | $PropertyType<IEnvironment, 'execute'>
+    fn: // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    | $PropertyType<IEnvironment, 'execute'>
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       | $PropertyType<IEnvironment, 'executeWithSource'>
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       | $PropertyType<IEnvironment, 'executeMutation'>,
   ) => {
     return (...argumentsList) => {
@@ -454,15 +456,18 @@ function createMockEnvironment(
   };
 
   // $FlowExpectedError[cannot-write]
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   environment.execute = createExecuteProxy(environment, environment.execute);
   // $FlowExpectedError[cannot-write]
   environment.executeWithSource = createExecuteProxy(
     environment,
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeWithSource,
   );
   // $FlowExpectedError[cannot-write]
   environment.executeMutation = createExecuteProxy(
     environment,
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeMutation,
   );
 
@@ -519,21 +524,36 @@ function createMockEnvironment(
 
   // $FlowExpectedError[cannot-write]
   environment.mockClear = () => {
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.applyUpdate.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.commitPayload.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.getStore.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.lookup.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.check.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.subscribe.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeMutation.mockClear();
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.getSource.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.lookup.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.notify.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.publish.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.retain.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.subscribe.mockClear();
 
     cache.clear();

@@ -24,7 +24,6 @@ Before starting, make sure to check out our [Prerequisites](./prerequisites) and
 Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
 
 ```graphql
-
 # From schema.graphql
 # https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql
 
@@ -37,7 +36,6 @@ type Query {
     id: ID!
   ): Node
 }
-
 ```
 
 Additionally, we will be using [Flow](https://flow.org/) inside our JavaScript code examples. Flow is optional to set up in your project, but we will include it in our examples for completeness.
@@ -49,7 +47,6 @@ Before we can start rendering pixels on the screen, we need to configure Relay v
 For the purposes of our example, we are simply going to configure our environment to communicate with our existing GraphQL server:
 
 ```javascript
-
 import {
   Environment,
   Network,
@@ -81,7 +78,6 @@ const environment = new Environment({
 });
 
 export default environment;
-
 ```
 
 A Relay Environment requires at least a [Store](./relay-store) and a [Network Layer](./network-layer). The above code uses the default implementation for `Store`, and creates a [Network Layer](./network-layer) using a simple `fetchQuery` function to fetch a GraphQL query from our server.
@@ -95,19 +91,16 @@ Now that we've configured our Relay Environment, we can start fetching queries a
 To start, let's assume we just want to render the user id on the screen. From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L66), we know that we can get the current `User` via the `viewer` field, so let's write a sample query to fetch the current user id:
 
 ```graphql
-
 query UserQuery {
   viewer {
     id
   }
 }
-
 ```
 
 Now, let's see what it would take to create a component that fetches and renders the above query:
 
 ```javascript
-
 // App.js
 import React from 'react';
 import {graphql, QueryRenderer} from 'react-relay';
@@ -140,7 +133,6 @@ export default class App extends React.Component {
     );
   }
 }
-
 ```
 
 Our app is rendering a `QueryRenderer` in the above code, like any other React Component, but let's see what's going on in the props that we are passing to it:
@@ -159,19 +151,16 @@ For more details on `QueryRenderer`, check out the [docs](./query-renderer).
 Let's assume for a moment that in our app we want to be able to view data for different users, so we're going to somehow need to query users by id. From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L69), we know we can query nodes given an id, so let's write a parameterized query to get a user by id:
 
 ```graphql
-
 query UserQuery($userID: ID!) {
   node(id: $userID) {
     id
   }
 }
-
 ```
 
 Now, let's see how we would fetch the above query using a `QueryRenderer`:
 
 ```javascript
-
 // UserTodoList.js
 // @flow
 import React from 'react';
@@ -211,7 +200,6 @@ export default class UserTodoList extends React.Component<Props> {
     );
   }
 }
-
 ```
 
 The above code is doing something very similar to our [previous example](#rendering-graphql-queries). However, we are now passing a `$userID` variable to the GraphQL query via the `variables` prop. This has a couple of important implications:
@@ -228,7 +216,6 @@ Now that we know how to define and fetch queries, let's actually start building 
 First, let's start at the bottom. Suppose that we want to render a component that simply displays a given todo item's text and completed state:
 
 ```javascript
-
 // Todo.js
 import React from 'react';
 
@@ -258,7 +245,6 @@ export default class Todo extends React.Component<Props> {
     );
   }
 }
-
 ```
 
 From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
@@ -266,18 +252,15 @@ From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/dat
 Instead, we can define a reusable [Fragment](http://graphql.org/learn/queries/#fragments), which allows us to define a set of fields on a type and reuse them within our queries wherever we need to:
 
 ```graphql
-
 fragment TodoItemFragment on Todo {
   complete
   text
 }
-
 ```
 
 Our component can then use this fragment to declare its data dependency on the `Todo` GraphQL type:
 
 ```javascript
-
 // Todo.js
 
 // OPTIONAL: Flow type generated after running `yarn relay`, defining an Object type with shape of the fragment:
@@ -337,7 +320,6 @@ Before proceeding, don't forget to run the Relay Compiler with `yarn relay`.
 Given that [Fragment Containers](./fragment-container) are just React components, we can compose them as such. We can even re-use fragment containers within other fragment containers. As an example, let's see how we would define a `TodoList` component that just renders a list of todo items, and whether all have been completed or not:
 
 ```javascript
-
 // TodoList.js
 
 // OPTIONAL: Flow type generated after running `yarn relay`, defining an Object type with shape of the fragment:
@@ -396,7 +378,6 @@ export default createFragmentContainer(
     }
   `,
 );
-
 ```
 
 As with the first fragment container we defined, `TodoList` declares it's data dependencies via a fragment. However, this component additionally re-uses the fragment previously defined by the `Todo` component, and passes the appropriate data when rendering the child `Todo` components (a.k.a. fragment containers).
@@ -411,7 +392,6 @@ fragment containers do not directly fetch data. Instead, containers declare a sp
 A `QueryRenderer` rendering these fragment containers could look like the following:
 
 ```javascript
-
 // ViewerTodoList.js
 import React from 'react';
 import {graphql, QueryRenderer} from 'react-relay';
@@ -452,7 +432,6 @@ export default class ViewerTodoList extends React.Component {
     );
   }
 }
-
 ```
 
 Check out our docs for [Fragment Containers](./fragment-container) for more details, and our guides on [Refetch](./refetch-container) and [Pagination](./pagination-container) for more advanced usage of containers.
@@ -464,7 +443,6 @@ Now that we know how to query for and render data, let's move on to changing our
 From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L35), we know that we have some mutations available to us, so let's start by writing a mutation to change the `complete` status of a given todo item (i.e. mark or unmark it as done):
 
 ```graphql
-
 mutation ChangeTodoStatusMutation($input: ChangeTodoStatusInput!) {
   changeTodoStatus(input: $input) {
     todo {
@@ -473,7 +451,6 @@ mutation ChangeTodoStatusMutation($input: ChangeTodoStatusInput!) {
     }
   }
 }
-
 ```
 
 This mutation allows us to query back some data as a [result of the mutation](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L18), so we're going to query for the updated `complete` status on the todo item.
@@ -481,7 +458,6 @@ This mutation allows us to query back some data as a [result of the mutation](ht
 In order to execute this mutation in Relay, we're going to write a new mutation using Relay's `commitMutation` api:
 
 ```javascript
-
 // ChangeTodoStatusMutation.js
 import {graphql, commitMutation} from 'react-relay';
 
@@ -515,7 +491,6 @@ function commit(
 }
 
 export default {commit};
-
 ```
 
 Whenever we call `ChangeTodoStatusMutation.commit(...)`, Relay will send the mutation to the server and, in our case, upon receiving a response it will automatically update the local data store with the latest data from the server. This also means that upon receiving the response, Relay will ensure that any components (i.e. containers) that depend on the updated data are re-rendered.
@@ -523,7 +498,6 @@ Whenever we call `ChangeTodoStatusMutation.commit(...)`, Relay will send the mut
 In order to actually use this mutation in our component, we could update our `Todo` component in the following way:
 
 ```javascript
-
 // Todo.js
 
 // ...
@@ -557,7 +531,6 @@ In order to make the experience better, we can configure our mutation to do an o
 In Relay, there's a couple of options we can pass to `commitMutation` to enable optimistic updates. Let's see what that would look like in our `ChangeTodoStatusMutation`:
 
 ```javascript
-
 // ChangeTodoStatusMutation.js
 
 // ...
@@ -592,7 +565,6 @@ function commit(
 }
 
 export default {commit};
-
 ```
 
 In the simplest case above, we just need to pass an `optimisticResponse` option, which should refer to an object having the same shape as the mutation response payload. When we pass this option, Relay will know to immediately update our local data with the optimistic response, and then update it with the actual server response or roll it back if an error occurs.

@@ -25,6 +25,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with network that returns optimistic response', () => {
   let callbacks;
@@ -41,8 +44,6 @@ describe('execute() with network that returns optimistic response', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery(
         $fetchSize: Boolean!

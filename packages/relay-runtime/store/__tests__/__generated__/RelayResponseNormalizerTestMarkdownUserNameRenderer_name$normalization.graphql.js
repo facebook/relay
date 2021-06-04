@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fda0f0834e7075696554dd2bc8401ce6>>
+ * @generated SignedSource<<3d68fa4eb50cf8c6b9fb5b5e6b27c2ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,14 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
+
+export type RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization = {|
+  +markdown: ?string,
+  +data: ?{|
+    +markup: ?string,
+    +id: ?string,
+  |},
+|};
 
 */
 

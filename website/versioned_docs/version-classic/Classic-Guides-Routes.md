@@ -23,7 +23,6 @@ query UserQuery {
     name,
   },
 }
-
 ```
 
 On the other hand, GraphQL **fragments** declare fields that exist on any arbitrary type. For example, the following fragment fetches the profile picture URI for _some_ `User`.
@@ -35,7 +34,6 @@ fragment UserProfilePhoto on User {
     uri,
   },
 }
-
 ```
 
 Fragments can be embedded within other fragments or queries. For example, the above fragment could be used to fetch user `123`'s profile photo:
@@ -47,7 +45,6 @@ query UserQuery {
     ...UserProfilePhoto,
   },
 }
-
 ```
 
 However, the fragment could also fetch each of user `123`'s friends' profile photos:
@@ -65,7 +62,6 @@ query UserQuery {
     },
   },
 }
-
 ```
 
 Since Relay containers define fragments and not queries, they can be easily embedded in multiple contexts. Like React components, Relay containers are highly reusable.
@@ -93,7 +89,6 @@ var profileRoute = {
   // Routes must also define a string name.
   name: 'ProfileRoute',
 };
-
 ```
 
 If we wanted to create an instance of this route for arbitrary users, we can subclass the `Relay.Route` abstract class. `Relay.Route` makes it easy to define a set of queries and required parameters to be re-used multiple times:
@@ -113,7 +108,6 @@ class ProfileRoute extends Relay.Route {
   };
   static routeName = 'ProfileRoute';
 }
-
 ```
 
 Now we can instantiate a `ProfileRoute` that fetches data for user `123`:
@@ -122,7 +116,6 @@ Now we can instantiate a `ProfileRoute` that fetches data for user `123`:
 
 // Equivalent to the object literal we created above.
 var profileRoute = new ProfileRoute({userID: '123'});
-
 ```
 
 But now, we can also create routes for arbitrary user IDs. For example, if we wanted to construct a route that fetched data for a user defined by the `userID` query parameter, we might use:
@@ -140,5 +133,4 @@ window.addEventListener('popstate', () => {
     document.getElementById('app')
   );
 });
-
 ```

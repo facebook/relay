@@ -19,10 +19,10 @@ For more information, see the [Defining EntryPoints](../../guides/entrypoints/us
 function EntryPointContainer({
   entryPointReference,
   props,
-}: {|
+}: {
   +entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
   +props: TRuntimeProps,
-|}): ReactElement
+}): ReactElement
 ```
 
 A React component that renders a preloaded EntryPoint.

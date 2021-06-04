@@ -12,20 +12,14 @@ use interner::Intern;
 use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
-    let mut change = detect_changes(
-        &current.split('\n').collect::<Vec<_>>().as_ref(),
-        &previous.split('\n').collect::<Vec<_>>().as_ref(),
-    );
+    let mut change = detect_changes(&[current], &[previous]);
     sort_change(&mut change);
     change
 }
 
 fn is_safe(current: &str, previous: &str) -> bool {
     let schema = build_schema(current).unwrap();
-    let change = detect_changes(
-        &current.split('\n').collect::<Vec<_>>().as_ref(),
-        &previous.split('\n').collect::<Vec<_>>().as_ref(),
-    );
+    let change = detect_changes(&[current], &[previous]);
     change.is_safe(&schema)
 }
 
@@ -763,6 +757,49 @@ fn test_add_object_with_id_node_interface() {
             }
             #"
     ))
+}
+
+#[test]
+fn test_object_special_field_added() {
+    assert!(is_safe(
+        r"
+            type A {
+                key: String
+                foo: String # regular field is okay
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+                id: String # id field is breaking
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+                js: String # js field is breaking
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
 }
 
 #[test]

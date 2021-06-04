@@ -179,6 +179,7 @@ fragment queryWithMatchDirectiveWithTypename_MarkdownUserNameRenderer_name on Ma
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveWithTypename_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveWithTypename_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -192,6 +193,7 @@ fragment queryWithMatchDirectiveWithTypename_MarkdownUserNameRenderer_name on Ma
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "queryWithMatchDirectiveWithTypename_NameRendererFragment",
                         "fragmentName": "queryWithMatchDirectiveWithTypename_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -385,6 +387,7 @@ fragment queryWithMatchDirectiveWithTypename_PlainUserNameRenderer_name on Plain
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveWithTypename_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveWithTypename_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",
@@ -398,6 +401,7 @@ fragment queryWithMatchDirectiveWithTypename_PlainUserNameRenderer_name on Plain
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "queryWithMatchDirectiveWithTypename_NameRendererFragment",
               "fragmentName": "queryWithMatchDirectiveWithTypename_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",

@@ -27,6 +27,12 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with @relay_client_component', () => {
   let callbacks;
@@ -46,10 +52,6 @@ describe('execute() with @relay_client_component', () => {
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     ClientFragment = getFragment(graphql`
       fragment RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment on Story {
         name
@@ -183,6 +185,12 @@ describe('execute() with @relay_client_component', () => {
 
       it('handles missing fragment data', () => {
         environment.execute({operation}).subscribe(callbacks);
+        expectWarningWillFire(
+          'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        );
+        expectWarningWillFire(
+          'RelayResponseNormalizer: Payload did not contain a value for field `body: body`. Check that you are parsing with the same query that was used to fetch the payload.',
+        );
         dataSource.next({
           data: {
             node: {

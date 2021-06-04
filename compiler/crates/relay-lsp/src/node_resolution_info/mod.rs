@@ -320,7 +320,7 @@ pub fn get_node_resolution_info(
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {
     let (document, position_span, project_name) = extract_executable_document_from_text(
-        text_document_position,
+        &text_document_position,
         graphql_source_cache,
         file_categorizer,
         root_dir,

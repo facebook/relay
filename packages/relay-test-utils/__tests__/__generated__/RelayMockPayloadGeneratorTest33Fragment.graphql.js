@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<db3f8d9bdbe44ec70066b3a8ee9025e3>>
+ * @generated SignedSource<<1aac3cdc7e6492a7aad77eea8ebeff5f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -64,6 +64,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayMockPayloadGeneratorTest33Fragment",
               "fragmentName": "RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name",
               "fragmentPropName": "name",

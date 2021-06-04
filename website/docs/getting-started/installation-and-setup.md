@@ -2,6 +2,12 @@
 id: installation-and-setup
 title: Installation and Setup
 slug: /getting-started/installation-and-setup/
+description: Relay installation and setup guide
+keywords:
+- installation
+- setup
+- compiler
+- babel-plugin-relay
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -136,15 +142,13 @@ polyfill in your bundled application, such as [core-js][] or
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:
 
-```js
-
+```javascript
 require('core-js/es6/map');
 require('core-js/es6/set');
 require('core-js/es6/promise');
 require('core-js/es6/object');
 
 require('./myRelayApplication');
-
 ```
 
 [core-js]: https://github.com/zloirock/core-js

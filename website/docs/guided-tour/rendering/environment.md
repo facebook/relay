@@ -2,6 +2,11 @@
 id: environment
 title: Environment
 slug: /guided-tour/rendering/environment/
+description: Relay guide to the environment
+keywords:
+- environment
+- RelayEnvironmentProvider
+- useRelayEnvironment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -37,7 +42,7 @@ function Root() {
 If you want to access the *current* Relay Environment within a descendant of a `RelayEnvironmentProvider` component, you can use the `useRelayEnvironment` Hook:
 
 ```js
-const {useRelayEnvironment} = require('RelayHooks');
+const {useRelayEnvironment} = require('react-relay');
 
 function UserComponent(props: Props) {
   const environment = useRelayEnvironment();

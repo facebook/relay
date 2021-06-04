@@ -16,6 +16,7 @@
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {isPromise} = require('relay-runtime');
 
@@ -46,6 +47,11 @@ type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +id: number,
   +cacheIdentifier: string,
+  // The number of received payloads for the operation.
+  // We want to differentiate the initial graphql response for the operation
+  // from the incremental responses, so later we can choose how to handle errors
+  // in the incremental payloads.
+  processedPayloadsCount: number,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
   setNetworkSubscription(?Subscription): void,
@@ -53,6 +59,7 @@ type QueryResourceCacheEntry = {|
   setValue(Error | Promise<void> | QueryResult): void,
   temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
+  releaseTemporaryRetain(): void,
 |};
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
@@ -147,6 +154,7 @@ function createCacheEntry(
   const cacheEntry = {
     cacheIdentifier,
     id: nextID++,
+    processedPayloadsCount: 0,
     getValue() {
       return currentValue;
     },
@@ -230,6 +238,12 @@ function createCacheEntry(
           }
         },
       };
+    },
+    releaseTemporaryRetain() {
+      if (releaseTemporaryRetain != null) {
+        releaseTemporaryRetain();
+        releaseTemporaryRetain = null;
+      }
     },
   };
 
@@ -366,6 +380,13 @@ class QueryResourceImpl {
     };
   }
 
+  releaseTemporaryRetain(queryResult: QueryResult) {
+    const cacheEntry = this._cache.get(queryResult.cacheIdentifier);
+    if (cacheEntry != null) {
+      cacheEntry.releaseTemporaryRetain();
+    }
+  }
+
   TESTS_ONLY__getCacheEntry(
     operation: OperationDescriptor,
     maybeFetchPolicy?: ?FetchPolicy,
@@ -488,18 +509,21 @@ class QueryResourceImpl {
           observerStart && observerStart(subscription);
         },
         next: () => {
-          const snapshot = environment.lookup(operation.fragment);
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
             queryResult,
             networkSubscription,
           );
+          cacheEntry.processedPayloadsCount += 1;
           cacheEntry.setValue(queryResult);
           resolveNetworkPromise();
 
           const observerNext = observer?.next;
-          observerNext && observerNext(snapshot);
+          if (observerNext != null) {
+            const snapshot = environment.lookup(operation.fragment);
+            observerNext(snapshot);
+          }
         },
         error: error => {
           const cacheEntry = this._getOrCreateCacheEntry(
@@ -508,7 +532,25 @@ class QueryResourceImpl {
             error,
             networkSubscription,
           );
-          cacheEntry.setValue(error);
+
+          // If, this is the first thing we receive for the query,
+          // before any other payload handled is error, we will cache and
+          // re-throw that error later.
+
+          // We will ignore errors for any incremental payloads we receive.
+          if (cacheEntry.processedPayloadsCount === 0) {
+            cacheEntry.setValue(error);
+          } else {
+            // TODO:T92030819 Remove this warning and actually throw the network error
+            // To complete this task we need to have a way of precisely tracking suspendable points
+            warning(
+              false,
+              'QueryResource: An incremental payload for query `%` returned an error: `%`:`%`.',
+              operation.fragment.node.name,
+              error.message,
+              error.stack,
+            );
+          }
           resolveNetworkPromise();
 
           networkSubscription = null;

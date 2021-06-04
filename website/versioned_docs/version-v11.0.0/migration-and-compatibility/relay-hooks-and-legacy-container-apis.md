@@ -4,6 +4,8 @@ title: Relay Hooks and Legacy Container APIs
 slug: /migration-and-compatibility/relay-hooks-and-legacy-container-apis/
 ---
 
+import DocsRating from '@site/src/core/DocsRating';
+
 ## Compatibility between Relay Hooks and Containers
 
 Relay Hooks are fully compatible with Relay's [container-based APIs](../../api-reference/legacy-apis/), meaning that containers can render components that use Hooks, and vice-versa.
@@ -549,3 +551,5 @@ TODO
 ### requestSubscription → useSubscription
 
 TODO
+
+<DocsRating />

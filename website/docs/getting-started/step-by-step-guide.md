@@ -2,6 +2,9 @@
 id: step-by-step-guide
 title: Step-by-step Guide
 slug: /getting-started/step-by-step-guide/
+description: Step-by-step guide for setting up Relay
+keywords:
+- setup
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -12,7 +15,7 @@ Relay is a framework for managing and declaratively fetching GraphQL data. It al
 
 ## Step 1: Create React App
 
-For this example we'll use start with a standard install of [Create React App](https://create-react-app.dev). Create React App makes it easy to get a fully configured React app up and running and also supports configuring Relay. To get started, create a new app with:
+For this example we'll start with a standard install of [Create React App](https://create-react-app.dev). Create React App makes it easy to get a fully configured React app up and running and also supports configuring Relay. To get started, create a new app with:
 
 ```bash
 # NPM
@@ -233,7 +236,7 @@ import fetchGraphQL from './fetchGraphQL';
 import graphql from 'babel-plugin-relay/macro';
 import {
   RelayEnvironmentProvider,
-  preloadQuery,
+  loadQuery,
   usePreloadedQuery,
 } from 'react-relay/hooks';
 import RelayEnvironment from './RelayEnvironment';
@@ -251,15 +254,16 @@ const RepositoryNameQuery = graphql`
 
 // Immediately load the query as our app starts. For a real app, we'd move this
 // into our routing configuration, preloading data as we transition to new routes.
-const preloadedQuery = preloadQuery(RelayEnvironment, RepositoryNameQuery, {
+const preloadedQuery = loadQuery(RelayEnvironment, RepositoryNameQuery, {
   /* query variables */
 });
 
 // Inner component that reads the preloaded query results via `usePreloadedQuery()`.
 // This works as follows:
 // - If the query has completed, it returns the results of the query.
-// - If the query is still pending, it "suspends" (indicates to React is isn't
-//   ready to render yet). This will show the nearest <Suspense> fallback.
+// - If the query is still pending, it "suspends" (indicates to React that the
+//   component isn't ready to render yet). This will show the nearest <Suspense>
+//   fallback.
 // - If the query failed, it throws the failure error. For simplicity we aren't
 //   handling the failure case here.
 function App(props) {

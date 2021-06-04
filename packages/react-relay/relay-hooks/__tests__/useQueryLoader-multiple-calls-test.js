@@ -77,6 +77,7 @@ beforeEach(() => {
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
     networkUnsubscribe = jest.fn();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
@@ -91,6 +92,7 @@ beforeEach(() => {
 
   environment = createMockEnvironment({network: Network.create(fetch)});
 
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;

@@ -1,0 +1,72 @@
+==================================== INPUT ====================================
+query DirectiveFirstQuery($id: ID!) {
+  a: node {
+    ...F1 @customDirective(level: 42)
+  }
+  b: node {
+    ...F1 @defer
+  }
+  b: node {
+    ...F1
+  }
+}
+
+query DirectiveSecondQuery($id: ID!) {
+  a: node {
+    ...F2
+  }
+  b: node {
+    ...F2 @customDirective(level: 5000)
+  }
+  c: node {
+    ...F2 @defer
+  }
+}
+
+fragment F1 on User {
+  firstName
+}
+
+fragment F2 on User {
+  firstName
+}
+==================================== OUTPUT ===================================
+query DirectiveFirstQuery(
+  $id: ID!
+) {
+  a: node {
+    ... on User @customDirective(level: 42) {
+      firstName
+    }
+  }
+  b: node {
+    ... on User @defer {
+      firstName
+    }
+  }
+  b: node {
+    ... on User {
+      firstName
+    }
+  }
+}
+
+query DirectiveSecondQuery(
+  $id: ID!
+) {
+  a: node {
+    ... on User {
+      firstName
+    }
+  }
+  b: node {
+    ... on User @customDirective(level: 5000) {
+      firstName
+    }
+  }
+  c: node {
+    ... on User @defer {
+      firstName
+    }
+  }
+}

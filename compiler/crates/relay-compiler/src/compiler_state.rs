@@ -8,9 +8,9 @@
 use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
 use crate::errors::{Error, Result};
-use crate::watchman::{
-    categorize_files, extract_graphql_strings_from_file, read_to_string, Clock, FileGroup,
-    FileSourceResult, SourceControlUpdateStatus, WatchmanFile,
+use crate::file_source::{
+    categorize_files, extract_graphql_strings_from_file, read_file_to_string, Clock, File,
+    FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
 use common::{PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -18,14 +18,15 @@ use graphql_syntax::GraphQLSource;
 use interner::StringKey;
 use io::BufReader;
 use rayon::prelude::*;
+use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt,
-    fs::File,
+    fs::File as FsFile,
     hash::Hash,
-    io,
+    io, mem,
     path::PathBuf,
     sync::{Arc, RwLock},
 };
@@ -60,7 +61,7 @@ impl ProjectSet {
 }
 
 /// Represents the name of the source set, or list of source sets
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[serde(untagged)]
 pub enum SourceSet {
     SourceSetName(SourceSetName),
@@ -184,11 +185,15 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
+    // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
+    pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
     pub clock: Clock,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, FnvHashSet<PathBuf>>,
+    #[serde(skip)]
+    pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
@@ -205,17 +210,19 @@ impl CompilerState {
         perf_logger: &impl PerfLogger,
     ) -> Result<Self> {
         let categorized = setup_event.time("categorize_files_time", || {
-            categorize_files(config, &file_source_changes.files)
+            categorize_files(config, file_source_changes.files())
         });
 
         let mut result = Self {
             graphql_sources: Default::default(),
             artifacts: Default::default(),
+            implicit_dependencies: Default::default(),
             extensions: Default::default(),
             schemas: Default::default(),
-            clock: file_source_changes.clock.clone(),
+            clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
             dirty_artifact_paths: Default::default(),
+            pending_implicit_dependencies: Default::default(),
             pending_file_source_changes: Default::default(),
             schema_cache: Default::default(),
             source_control_update_status: Default::default(),
@@ -229,15 +236,12 @@ impl CompilerState {
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
-                        .filter(|file| *file.exists)
+                        .filter(|file| file.exists())
                         .filter_map(|file| {
-                            match extract_graphql_strings_from_file(
-                                &file_source_changes.resolved_root,
-                                &file,
-                            ) {
+                            match extract_graphql_strings_from_file(&file_source_changes, &file) {
                                 Ok(graphql_strings) if graphql_strings.is_empty() => None,
                                 Ok(graphql_strings) => {
-                                    Some(Ok(((*file.name).to_owned(), graphql_strings)))
+                                    Some(Ok(((*file.name()).to_owned(), graphql_strings)))
                                 }
                                 Err(err) => Some(Err(err)),
                             }
@@ -275,10 +279,7 @@ impl CompilerState {
                     result.artifacts.insert(
                         project_name,
                         Arc::new(ArtifactMapKind::Unconnected(
-                            files
-                                .into_iter()
-                                .map(|file| file.name.into_inner())
-                                .collect(),
+                            files.into_iter().map(|file| file.into_name()).collect(),
                         )),
                     );
                 }
@@ -384,7 +385,7 @@ impl CompilerState {
         let mut has_changed = false;
         for file_source_changes in self.pending_file_source_changes.write().unwrap().drain(..) {
             let categorized = setup_event.time("categorize_files_time", || {
-                categorize_files(config, &file_source_changes.files)
+                categorize_files(config, file_source_changes.files())
             });
             for (category, files) in categorized {
                 match category {
@@ -400,15 +401,12 @@ impl CompilerState {
                         let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
                             .par_iter()
                             .map(|file| {
-                                let graphql_strings = if *file.exists {
-                                    extract_graphql_strings_from_file(
-                                        &file_source_changes.resolved_root,
-                                        &file,
-                                    )?
+                                let graphql_strings = if file.exists() {
+                                    extract_graphql_strings_from_file(&file_source_changes, &file)?
                                 } else {
                                     Vec::new()
                                 };
-                                Ok(((*file.name).to_owned(), graphql_strings))
+                                Ok(((file.name()).to_owned(), graphql_strings))
                             })
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);
@@ -451,7 +449,7 @@ impl CompilerState {
                         if should_collect_changed_artifacts {
                             self.dirty_artifact_paths.insert(
                                 project_name,
-                                files.iter().map(|f| (*f.name).clone()).collect(),
+                                files.into_iter().map(|f| f.into_name()).collect(),
                             );
                         }
                     }
@@ -472,7 +470,20 @@ impl CompilerState {
         for sources in self.extensions.values_mut() {
             sources.commit_pending_sources();
         }
+        self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
+    }
+
+    pub fn complete_project_compilation(&mut self, project_name: &ProjectName) {
+        if let Some(sources) = self.graphql_sources.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.schemas.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
+        if let Some(sources) = self.extensions.get_mut(project_name) {
+            sources.commit_pending_sources();
+        }
     }
 
     /// Calculate dirty definitions from dirty artifacts
@@ -517,7 +528,7 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
-        let writer = File::create(path).map_err(|err| Error::WriteFileError {
+        let writer = FsFile::create(path).map_err(|err| Error::WriteFileError {
             file: path.clone(),
             source: err,
         })?;
@@ -528,7 +539,7 @@ impl CompilerState {
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let file = File::open(path).map_err(|err| Error::ReadFileError {
+        let file = FsFile::open(path).map_err(|err| Error::ReadFileError {
             file: path.clone(),
             source: err,
         })?;
@@ -562,19 +573,16 @@ impl CompilerState {
 
     fn process_schema_change(
         file_source_changes: &FileSourceResult,
-        files: Vec<WatchmanFile>,
+        files: Vec<File>,
         project_set: ProjectSet,
         source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
     ) -> Result<()> {
         let mut removed_sources = vec![];
         let mut added_sources = FnvHashMap::default();
         for file in files {
-            let file_name = (*file.name).to_owned();
-            if *file.exists {
-                added_sources.insert(
-                    file_name,
-                    read_to_string(&file_source_changes.resolved_root, &file)?,
-                );
+            let file_name = (file.name()).to_owned();
+            if file.exists() {
+                added_sources.insert(file_name, read_file_to_string(&file_source_changes, &file)?);
             } else {
                 removed_sources.push(file_name);
             }
@@ -612,7 +620,7 @@ impl CompilerState {
 /// which requires "self descriptive" serialization formats and `bincode` does not
 /// support those enums.
 mod clock_json_string {
-    use crate::watchman::Clock;
+    use crate::file_source::Clock;
     use serde::{
         de::{Error, Visitor},
         Deserializer, Serializer,

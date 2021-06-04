@@ -11,10 +11,11 @@ use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{TypePath, TypePathItem},
     server::LSPState,
+    server::SourcePrograms,
 };
 use common::{NamedItem, PerfLogger, Span};
 
-use fnv::{FnvHashMap, FnvHashSet};
+use fnv::FnvHashSet;
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
 use graphql_syntax::{
     Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
@@ -29,10 +30,7 @@ use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
-use std::{
-    iter::once,
-    sync::{Arc, RwLock},
-};
+use std::iter::once;
 
 lazy_static! {
     static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
@@ -514,7 +512,7 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
     let project_name = request.project_name;
@@ -522,16 +520,13 @@ fn completion_items_for_request(
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            if let Some(source_program) = source_programs
-                .read()
-                .expect(
-                    "completion_items_for_request: could not acquire read lock for source_programs",
-                )
-                .get(&project_name)
-            {
+            if let Some(source_program) = source_programs.get(&project_name) {
                 debug!("has source program");
-                let items =
-                    resolve_completion_items_for_fragment_spread(leaf_type, source_program, schema);
+                let items = resolve_completion_items_for_fragment_spread(
+                    leaf_type,
+                    &source_program,
+                    schema,
+                );
                 Some(items)
             } else {
                 None
@@ -568,7 +563,7 @@ fn completion_items_for_request(
             kind,
         } => match kind {
             ArgumentKind::Field => {
-                let field = request.type_path.resolve_current_field(schema)?;
+                let (_, field) = request.type_path.resolve_current_field(schema)?;
                 Some(resolve_completion_items_for_argument_name(
                     field.arguments.iter(),
                     schema,
@@ -577,12 +572,8 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let source_program = source_programs.read().expect(
-                    "completion_items_for_request: could not acquire read lock for source_programs",
-                );
-                let fragment = source_program
-                    .get(&request.project_name)?
-                    .fragment(fragment_spread_name)?;
+                let source_program = source_programs.get(&request.project_name)?;
+                let fragment = source_program.fragment(fragment_spread_name)?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -604,16 +595,10 @@ fn completion_items_for_request(
             argument_name,
             kind,
         } => {
-            if let Some(source_program) = source_programs
-                .read()
-                .expect(
-                    "completion_items_for_request: could not acquire read lock for source_programs",
-                )
-                .get(&project_name)
-            {
+            if let Some(source_program) = source_programs.get(&project_name) {
                 let argument_type = match kind {
                     ArgumentKind::Field => {
-                        let field = request.type_path.resolve_current_field(schema)?;
+                        let (_, field) = request.type_path.resolve_current_field(schema)?;
                         &field.arguments.named(argument_name)?.type_
                     }
                     ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
@@ -630,7 +615,7 @@ fn completion_items_for_request(
                 };
                 Some(resolve_completion_items_for_argument_value(
                     argument_type,
-                    source_program,
+                    &source_program,
                     executable_name,
                 ))
             } else {
@@ -988,26 +973,29 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
     state: &mut LSPState<TPerfLogger>,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
-    let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(params.text_document_position, 0)?;
-
-    if let Some(schema) = state
-        .get_schemas()
-        .read()
-        .expect("on_completion: could not acquire read lock for state.get_schemas")
-        .get(&project_name)
-    {
-        let items = resolve_completion_items(
-            document,
-            position_span,
-            project_name,
-            schema,
-            state.get_source_programs_ref(),
-        )
-        .unwrap_or_else(Vec::new);
-        Ok(Some(CompletionResponse::Array(items)))
-    } else {
-        Err(LSPRuntimeError::ExpectedError)
+    match state.extract_executable_document_from_text(&params.text_document_position, 0) {
+        Ok((document, position_span, project_name)) => {
+            if let Some(schema) = &state.get_schemas().get(&project_name) {
+                let items = resolve_completion_items(
+                    document,
+                    position_span,
+                    project_name,
+                    schema,
+                    state.get_source_programs_ref(),
+                )
+                .unwrap_or_else(Vec::new);
+                Ok(Some(CompletionResponse::Array(items)))
+            } else {
+                Err(LSPRuntimeError::ExpectedError)
+            }
+        }
+        Err(graphql_err) => {
+            if let Ok(response) = state.js_resource.on_complete(&params, state) {
+                Ok(response)
+            } else {
+                Err(graphql_err)
+            }
+        }
     }
 }
 
@@ -1016,7 +1004,7 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    source_programs: &Arc<RwLock<FnvHashMap<StringKey, Program>>>,
+    source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);

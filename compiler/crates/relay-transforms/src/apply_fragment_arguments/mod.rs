@@ -8,9 +8,9 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::feature_flags::NoInlineFeature;
+use crate::feature_flags::FeatureFlag;
 use crate::match_::SplitOperationMetadata;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
 use crate::util::get_normalization_operation_name;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
@@ -47,7 +47,7 @@ use std::sync::Arc;
 pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
-    no_inline_feature: &NoInlineFeature,
+    no_inline_feature: &FeatureFlag,
     base_fragment_names: &FnvHashSet<StringKey>,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
@@ -97,7 +97,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     errors: Vec<Diagnostic>,
     fragments: FnvHashMap<StringKey, PendingFragment>,
     is_normalization: bool,
-    no_inline_feature: &'flags NoInlineFeature,
+    no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
@@ -200,9 +200,20 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
     fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
         match value {
-            Value::Variable(variable) => {
-                if let Some(scope_value) = self.scope.get(variable.name.item) {
-                    TransformedValue::Replace(scope_value.clone())
+            Value::Variable(prev_variable) => {
+                if let Some(scope_value) = self.scope.get(prev_variable.name.item) {
+                    match scope_value {
+                        Value::Variable(replacement_variable) => {
+                            TransformedValue::Replace(Value::Variable(Variable {
+                                // Update the name/location to the applied variable name
+                                name: replacement_variable.name,
+                                // But keep the type of the previous variable, which reflects the type
+                                // expected at this location
+                                type_: prev_variable.type_.clone(),
+                            }))
+                        }
+                        _ => TransformedValue::Replace(scope_value.clone()),
+                    }
                 } else {
                     // Assume a global variable if the variable has no local
                     // bindings.
@@ -222,10 +233,16 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         condition_value: &ConditionValue,
     ) -> TransformedValue<ConditionValue> {
         match condition_value {
-            ConditionValue::Variable(variable) => {
-                match self.scope.get(variable.name.item) {
-                    Some(Value::Variable(variable_name)) => {
-                        TransformedValue::Replace(ConditionValue::Variable(variable_name.clone()))
+            ConditionValue::Variable(prev_variable) => {
+                match self.scope.get(prev_variable.name.item) {
+                    Some(Value::Variable(replacement_variable)) => {
+                        TransformedValue::Replace(ConditionValue::Variable(Variable {
+                            // Update the name/location to the applied variable name
+                            name: replacement_variable.name,
+                            // But keep the type of the previous variable, which reflects the type
+                            // expected at this location
+                            type_: prev_variable.type_.clone(),
+                        }))
                     }
                     Some(Value::Constant(ConstantValue::Boolean(constant_value))) => {
                         TransformedValue::Replace(ConditionValue::Constant(*constant_value))
@@ -255,10 +272,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         if self.base_fragment_names.contains(&fragment.name.item) {
             return;
         }
-        if !self
-            .no_inline_feature
-            .enable_for_fragment(fragment.name.item)
-        {
+        if !self.no_inline_feature.is_enabled_for(fragment.name.item) {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
@@ -280,7 +294,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             ..
         } = fragment;
 
-        if !variable_definitions.is_empty() && !self.no_inline_feature.enable_fragment_variables() {
+        if !variable_definitions.is_empty() && !self.no_inline_feature.is_fully_enabled() {
             // arguments disallowed
             self.errors.push(Diagnostic::error(
                 format!(
@@ -296,10 +310,27 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         }
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
-            parent_sources: Default::default(),
+            parent_documents: Default::default(),
             raw_response_type: true,
         };
-        metadata.parent_sources.insert(fragment.name.item);
+        // - A fragment with user defined @no_inline always produces a $normalization file. The `parent_document` of
+        // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer
+        // has the @no_inline directive.
+        // - A fragment with @no_inline generated by @module, `parent_documents` also include fragments that
+        // spread the current fragment with @module
+        metadata.parent_documents.insert(fragment.name.item);
+        let parent_documents_arg = directive.arguments.named(*PARENT_DOCUMENTS_ARG);
+        if let Some(Value::Constant(ConstantValue::List(parent_documents))) =
+            parent_documents_arg.map(|arg| &arg.value.item)
+        {
+            for val in parent_documents {
+                if let ConstantValue::String(name) = val {
+                    metadata.parent_documents.insert(*name);
+                } else {
+                    panic!("Expected item in the parent_documents to be a StringKey.")
+                }
+            }
+        }
         directives.push(metadata.to_directive());
         let normalization_name = get_normalization_operation_name(name.item).intern();
         let operation = OperationDefinition {
@@ -314,7 +345,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         if self.program.operation(normalization_name).is_some() {
             self.errors.push(Diagnostic::error(
                 format!(
-                    "Invalid usage of @no_inline on fragment '{}' - @no_inline is not yet supported on fragments loaded with @module",
+                    "Invalid usage of @no_inline on fragment '{}' - @no_inline is only allowed on allowlisted fragments loaded with @module",
                     fragment.name.item,
                 ),
                 directive.name.location,

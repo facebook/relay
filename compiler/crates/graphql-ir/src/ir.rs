@@ -53,6 +53,18 @@ pub struct OperationDefinition {
     pub selections: Vec<Selection>,
 }
 
+impl OperationDefinition {
+    pub fn is_query(&self) -> bool {
+        self.kind == OperationKind::Query
+    }
+    pub fn is_mutation(&self) -> bool {
+        self.kind == OperationKind::Mutation
+    }
+    pub fn is_subscription(&self) -> bool {
+        self.kind == OperationKind::Subscription
+    }
+}
+
 /// A fully-typed fragment definition
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FragmentDefinition {
@@ -131,6 +143,20 @@ impl Selection {
             }
             Selection::Condition(_) => unreachable!("Unexpected `Condition` selection."),
         };
+    }
+
+    /// A quick method to get the location of the selection. This may
+    /// be helpful for error reporting. Please note, this implementation
+    /// prefers the location of the alias for scalar and linked field selections.
+    /// It also returns `None` for conditional nodes and inline fragments.
+    pub fn location(&self) -> Option<Location> {
+        match self {
+            Selection::Condition(_) => None,
+            Selection::FragmentSpread(node) => Some(node.fragment.location),
+            Selection::InlineFragment(_) => None,
+            Selection::LinkedField(node) => Some(node.alias_or_name_location()),
+            Selection::ScalarField(node) => Some(node.alias_or_name_location()),
+        }
     }
 }
 
@@ -287,6 +313,11 @@ pub struct Variable {
 pub struct ConstantArgument {
     pub name: WithLocation<StringKey>,
     pub value: WithLocation<ConstantValue>,
+}
+impl Named for ConstantArgument {
+    fn name(&self) -> StringKey {
+        self.name.item
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

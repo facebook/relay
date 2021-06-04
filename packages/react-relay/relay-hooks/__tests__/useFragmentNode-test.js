@@ -144,7 +144,7 @@ beforeEach(() => {
   singularVariables = {id: '1', scale: 16};
   pluralVariables = {ids: ['1', '2'], scale: 16};
   gqlSingularQuery = getRequest(graphql`
-    query useFragmentNodeTestUserQuery($id: ID!, $scale: Int!) {
+    query useFragmentNodeTestUserQuery($id: ID!, $scale: Float!) {
       node(id: $id) {
         ...useFragmentNodeTestUserFragment
       }
@@ -161,7 +161,7 @@ beforeEach(() => {
     }
   `);
   gqlPluralQuery = getRequest(graphql`
-    query useFragmentNodeTestUsersQuery($ids: [ID!]!, $scale: Int!) {
+    query useFragmentNodeTestUsersQuery($ids: [ID!]!, $scale: Float!) {
       nodes(ids: $ids) {
         ...useFragmentNodeTestUsersFragment
       }
@@ -225,6 +225,7 @@ beforeEach(() => {
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
       : {
+          // $FlowFixMe[prop-missing]
           [ID_KEY]: owner.request.variables.id,
           [FRAGMENTS_KEY]: {
             useFragmentNodeTestUserFragment: {},
@@ -287,7 +288,10 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>,
       // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-      {unstable_isConcurrent: isConcurrent},
+      {
+        unstable_isConcurrent: isConcurrent,
+        unstable_concurrentUpdatesByDefault: true,
+      },
     );
   };
 
@@ -305,7 +309,10 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>,
       // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-      {unstable_isConcurrent: isConcurrent},
+      {
+        unstable_isConcurrent: isConcurrent,
+        unstable_concurrentUpdatesByDefault: true,
+      },
     );
   };
 });

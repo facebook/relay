@@ -2,6 +2,10 @@
 id: upgrading-to-relay-hooks
 title: Upgrading to Relay Hooks
 slug: /migration-and-compatibility/
+description: Relay guide to upgrading to Relay hooks
+keywords:
+- upgrade
+- hooks
 ---
 
 [Relay Hooks](/blog/2021/03/09/introducing-relay-hooks) is a set of new Hooks-based APIs for using Relay with React that improves upon the existing container-based APIs.

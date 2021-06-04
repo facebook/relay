@@ -2,7 +2,18 @@
 id: relay-hooks-and-legacy-container-apis
 title: Relay Hooks and Legacy Container APIs
 slug: /migration-and-compatibility/relay-hooks-and-legacy-container-apis/
+description: Relay guide to compatibility between hooks and containers
+keywords:
+- migration
+- compatibility
+- container
+- QueryRenderer
+- FragmentContainer
+- RefetchContainer
+- PaginationContainer
 ---
+
+import DocsRating from '@site/src/core/DocsRating';
 
 ## Compatibility between Relay Hooks and Containers
 
@@ -549,3 +560,5 @@ TODO
 ### requestSubscription → useSubscription
 
 TODO
+
+<DocsRating />

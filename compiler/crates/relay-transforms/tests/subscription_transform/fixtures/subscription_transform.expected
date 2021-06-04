@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ...CommentCreate_CommentCreateResponsePayload
+  }
+}
+
+fragment CommentCreate_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}
+==================================== OUTPUT ===================================
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ... on CommentCreateResponsePayload {
+      ... on CommentCreateResponsePayload @__module(key: "CommentCreateSubscription__subscription", id: "CommentCreateSubscription.commentCreateSubscribe", module: "CommentCreate_CommentCreateResponsePayload$normalization.graphql", sourceDocument: "CommentCreateSubscription", name: "CommentCreate_CommentCreateResponsePayload") {
+        ...CommentCreate_CommentCreateResponsePayload
+        __module_operation_CommentCreateSubscription__subscription: js(module: "CommentCreate_CommentCreateResponsePayload$normalization.graphql")
+      }
+    }
+  }
+}
+
+fragment CommentCreate_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}

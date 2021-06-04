@@ -15,7 +15,10 @@ directive @relay_early_flush on QUERY
 
 directive @DEPRECATED__relay_ignore_unused_variables_error on QUERY | MUTATION | SUBSCRIPTION
 
-directive @refetchable(queryName: String!) on FRAGMENT_DEFINITION
+directive @refetchable(
+  queryName: String!
+  directives: [String!]
+) on FRAGMENT_DEFINITION
 
 directive @preloadable on QUERY
 
@@ -79,5 +82,7 @@ directive @relay_client_component on FRAGMENT_SPREAD
 directive @relay_resolver(
   fragment_name: String!
   import_path: String!
-  js_return_type: String!
 ) on FIELD_DEFINITION
+
+# Actor Change Directive
+directive @EXPERIMENTAL__as_actor on FIELD

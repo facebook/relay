@@ -8,14 +8,11 @@
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
     build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
-    RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS,
+    RefetchableMetadata, CONSTANTS,
 };
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, WithLocation};
-use graphql_ir::{
-    FragmentDefinition, LinkedField, OperationDefinition, Selection, ValidationMessage,
-};
-use graphql_syntax::OperationKind;
+use graphql_ir::{FragmentDefinition, LinkedField, Selection, ValidationMessage};
 use interner::StringKey;
 use schema::{FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
@@ -49,22 +46,14 @@ fn build_refetch_operation(
         ..fragment.as_ref().clone()
     });
     Ok(Some(RefetchRoot {
-        operation: Arc::new(OperationDefinition {
-            kind: OperationKind::Query,
-            name: WithLocation::new(fragment.name.location, query_name),
-            type_: query_type,
-            variable_definitions: build_operation_variable_definitions(&fragment),
-            directives: vec![RefetchableDerivedFromMetadata::create_directive(
-                fragment.name,
-            )],
-            selections: vec![Selection::LinkedField(Arc::new(LinkedField {
-                alias: None,
-                definition: WithLocation::new(fragment.name.location, viewer_field_id),
-                arguments: vec![],
-                directives: vec![],
-                selections: vec![build_fragment_spread(&fragment)],
-            }))],
-        }),
+        variable_definitions: build_operation_variable_definitions(&fragment),
+        selections: vec![Selection::LinkedField(Arc::new(LinkedField {
+            alias: None,
+            definition: WithLocation::new(fragment.name.location, viewer_field_id),
+            arguments: vec![],
+            directives: vec![],
+            selections: vec![build_fragment_spread(&fragment)],
+        }))],
         fragment,
     }))
 }

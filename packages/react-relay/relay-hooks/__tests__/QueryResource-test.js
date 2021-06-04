@@ -86,6 +86,7 @@ describe('QueryResource', () => {
     fetchObservableMissingData = fetchQuery(environment, queryMissingData);
 
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
         dispose: release,
@@ -129,7 +130,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -161,7 +164,9 @@ describe('QueryResource', () => {
             },
             operation: queryMissingData,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -188,7 +193,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -208,6 +215,7 @@ describe('QueryResource', () => {
 
           // Assert query is temporarily retained during call to prepare
           expect(release).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           const result2 = QueryResource.prepare(
@@ -219,6 +227,7 @@ describe('QueryResource', () => {
 
           // Assert query is still temporarily retained during second call to prepare
           expect(release).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           const expected = {
@@ -235,6 +244,7 @@ describe('QueryResource', () => {
           };
           expect(result1).toEqual(expected);
           expect(result2).toEqual(expected);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -277,6 +287,7 @@ describe('QueryResource', () => {
           expect(networkExecute).toBeCalledTimes(1);
 
           // Assert query is temporarily retained during call to prepare
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -323,6 +334,7 @@ describe('QueryResource', () => {
             operation: queryMissingData,
           });
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -352,6 +364,7 @@ describe('QueryResource', () => {
           }
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -408,7 +421,9 @@ describe('QueryResource', () => {
               },
               operation: queryWithFragments,
             });
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(0);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
 
             // Assert that query is released after enough time has passed without
@@ -463,7 +478,9 @@ describe('QueryResource', () => {
               },
               operation: queryWithFragments,
             });
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
 
             // Assert that query is released after enough time has passed without
@@ -521,7 +538,9 @@ describe('QueryResource', () => {
               expect(typeof promise.then).toBe('function');
               thrown = true;
             }
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
             expect(thrown).toBe(true);
 
@@ -561,7 +580,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -587,7 +608,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -613,6 +636,7 @@ describe('QueryResource', () => {
 
           // Assert query is temporarily retained during call to prepare
           expect(release).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           let promise2;
@@ -630,11 +654,13 @@ describe('QueryResource', () => {
 
           // Assert query is still temporarily retained during second call to prepare
           expect(release).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that same promise was thrown
           expect(promise1).toBe(promise2);
           // Assert that network was only called once
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -683,6 +709,7 @@ describe('QueryResource', () => {
           expect(networkExecute).toBeCalledTimes(1);
 
           // Assert query is temporarily retained during call to prepare
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -729,6 +756,7 @@ describe('QueryResource', () => {
             operation: queryMissingData,
           });
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -758,6 +786,7 @@ describe('QueryResource', () => {
           }
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -811,6 +840,7 @@ describe('QueryResource', () => {
 
           // Assert that different promises were thrown
           expect(promise1).not.toBe(promise2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(2);
         });
 
@@ -861,7 +891,9 @@ describe('QueryResource', () => {
               },
               operation: queryWithFragments,
             });
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(0);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
 
             // Assert that query is released after enough time has passed without
@@ -911,7 +943,9 @@ describe('QueryResource', () => {
               thrown = true;
             }
 
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
             expect(thrown).toEqual(true);
 
@@ -966,7 +1000,9 @@ describe('QueryResource', () => {
               thrown = true;
             }
 
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
             expect(thrown).toEqual(true);
 
@@ -1006,7 +1042,9 @@ describe('QueryResource', () => {
             };
             expect(result).toEqual(expectedResult);
 
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.execute).toBeCalledTimes(1);
+            // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             expect(environment.retain).toBeCalledTimes(1);
             expect(thrown).toEqual(true);
 
@@ -1078,7 +1116,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1110,7 +1150,9 @@ describe('QueryResource', () => {
             },
             operation: queryMissingData,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1137,7 +1179,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -1174,7 +1218,9 @@ describe('QueryResource', () => {
           };
           expect(result1).toEqual(expected);
           expect(result2).toEqual(expected);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1216,6 +1262,7 @@ describe('QueryResource', () => {
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
           // Assert query is temporarily retained during call to prepare
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1262,6 +1309,7 @@ describe('QueryResource', () => {
             operation: queryMissingData,
           });
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1291,6 +1339,7 @@ describe('QueryResource', () => {
           }
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1329,7 +1378,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1355,7 +1406,9 @@ describe('QueryResource', () => {
             expect(typeof p.then).toEqual('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toEqual(true);
 
@@ -1381,6 +1434,7 @@ describe('QueryResource', () => {
 
           // Assert query is temporarily retained during call to prepare
           expect(release).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           let promise2;
@@ -1398,11 +1452,13 @@ describe('QueryResource', () => {
 
           // Assert query is still temporarily retained during second call to prepare
           expect(release).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that same promise was thrown
           expect(promise1).toBe(promise2);
           // Assert that network was only called once
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1449,6 +1505,7 @@ describe('QueryResource', () => {
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
           // Assert query is temporarily retained during call to prepare
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1495,6 +1552,7 @@ describe('QueryResource', () => {
             operation: queryMissingData,
           });
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1524,6 +1582,7 @@ describe('QueryResource', () => {
           }
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1561,7 +1620,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -1588,7 +1649,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -1616,7 +1679,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -1667,6 +1732,7 @@ describe('QueryResource', () => {
           expect(thrownError).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
           // Assert query is temporarily retained during call to prepare
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1703,6 +1769,7 @@ describe('QueryResource', () => {
             operation: query,
           });
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1733,6 +1800,7 @@ describe('QueryResource', () => {
           }
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1764,7 +1832,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -1791,7 +1861,9 @@ describe('QueryResource', () => {
             expect(typeof promise.then).toBe('function');
             thrown = true;
           }
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
           expect(thrown).toBe(true);
 
@@ -1842,6 +1914,7 @@ describe('QueryResource', () => {
           expect(thrownError).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
           // Assert query is temporarily retained during call to prepare
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1878,6 +1951,7 @@ describe('QueryResource', () => {
             operation: query,
           });
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1908,6 +1982,7 @@ describe('QueryResource', () => {
           }
           expect(thrown).toEqual(true);
           expect(networkExecute).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1952,7 +2027,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -1984,7 +2061,9 @@ describe('QueryResource', () => {
             },
             operation: queryMissingData,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -2017,7 +2096,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -2056,7 +2137,9 @@ describe('QueryResource', () => {
             },
             operation: query,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -2088,7 +2171,9 @@ describe('QueryResource', () => {
             },
             operation: queryMissingData,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(1);
 
           // Assert that query is released after enough time has passed without
@@ -2112,8 +2197,11 @@ describe('QueryResource', () => {
         fetchPolicy,
         renderPolicy,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Data retention ownership is established permanently:
@@ -2121,7 +2209,9 @@ describe('QueryResource', () => {
       // - New permanent retain is established
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Running timers won't release the query since it has been
@@ -2140,6 +2230,7 @@ describe('QueryResource', () => {
       // Assert that disposing releases the query
       disposable.dispose();
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
     });
 
@@ -2150,9 +2241,12 @@ describe('QueryResource', () => {
         fetchPolicy,
         renderPolicy,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(1);
       expect(release).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Running timers before calling `retain` auto-releases the query
@@ -2173,12 +2267,15 @@ describe('QueryResource', () => {
       // the query again.
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[1][0]).toEqual(queryMissingData);
 
       // Assert that disposing releases the query
       disposable.dispose();
       expect(release).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
     });
 
@@ -2189,9 +2286,12 @@ describe('QueryResource', () => {
         fetchPolicy,
         renderPolicy,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(0);
       expect(release).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(query);
 
       // Running timers before calling `retain` auto-releases the query
@@ -2202,12 +2302,15 @@ describe('QueryResource', () => {
       // Calling retain should retain the query.
       const disposable = QueryResource.retain(result);
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[1][0]).toEqual(query);
 
       // Assert that disposing releases the query
       disposable.dispose();
       expect(release).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
     });
 
@@ -2220,10 +2323,13 @@ describe('QueryResource', () => {
       );
       // Assert query is temporarily retained
       expect(release).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
       // Assert rerquest was started
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(1);
       expect(
         environment.mock.isLoading(
@@ -2256,7 +2362,9 @@ describe('QueryResource', () => {
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
@@ -2275,12 +2383,15 @@ describe('QueryResource', () => {
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
 
         // Permanently retain the second result, which is what would happen
@@ -2289,6 +2400,7 @@ describe('QueryResource', () => {
 
         // Assert permanent retain is established and nothing is released
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2296,6 +2408,7 @@ describe('QueryResource', () => {
         // Assert that disposing correctly releases the query
         disposable.dispose();
         expect(release).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
       });
 
@@ -2308,7 +2421,9 @@ describe('QueryResource', () => {
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
@@ -2327,12 +2442,15 @@ describe('QueryResource', () => {
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
 
         // Permanently retain the second result, which is what would happen
@@ -2341,6 +2459,7 @@ describe('QueryResource', () => {
 
         // Assert permanent retain is established and nothing is released
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2349,6 +2468,7 @@ describe('QueryResource', () => {
         // permanently retained
         jest.runAllTimers();
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2356,6 +2476,7 @@ describe('QueryResource', () => {
         // Assert that disposing correctly releases the query
         disposable.dispose();
         expect(release).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
       });
 
@@ -2368,7 +2489,9 @@ describe('QueryResource', () => {
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
@@ -2380,6 +2503,7 @@ describe('QueryResource', () => {
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is called once
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
 
         // Permanently retain the result, which is what would happen
@@ -2388,6 +2512,7 @@ describe('QueryResource', () => {
 
         // Assert permanent retain is established and nothing is released
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count remains at 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2396,6 +2521,7 @@ describe('QueryResource', () => {
         // permanently retained
         jest.runAllTimers();
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count remains at 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2414,7 +2540,9 @@ describe('QueryResource', () => {
 
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that disposing the first disposable doesn't release the
@@ -2422,6 +2550,7 @@ describe('QueryResource', () => {
         disposable.dispose();
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Assert that if the render never commits, the temporary retain
@@ -2429,6 +2558,7 @@ describe('QueryResource', () => {
         jest.runAllTimers();
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
         expect(release).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
       });
 
@@ -2454,7 +2584,9 @@ describe('QueryResource', () => {
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
@@ -2473,18 +2605,22 @@ describe('QueryResource', () => {
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
 
         const disposable1 = QueryResource.retain(result1);
 
         // Assert permanent retain is established and nothing is released
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2493,6 +2629,7 @@ describe('QueryResource', () => {
 
         // Assert permanent retain is still established
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is now 2
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
@@ -2500,6 +2637,7 @@ describe('QueryResource', () => {
         // Assert that disposing the first disposable doesn't release the query
         disposable1.dispose();
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         expect(
           QueryResource.TESTS_ONLY__getCacheEntry(
@@ -2521,6 +2659,7 @@ describe('QueryResource', () => {
         // Assert that disposing the last disposable fully releases the query
         disposable2.dispose();
         expect(release).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         expect(
           QueryResource.TESTS_ONLY__getCacheEntry(
@@ -2562,7 +2701,9 @@ describe('QueryResource', () => {
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
         // Assert that retain count is 1
@@ -2581,18 +2722,22 @@ describe('QueryResource', () => {
         );
         // Assert query is still temporarily retained
         expect(release).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
 
         const disposable1 = QueryResource.retain(result1);
 
         // Assert permanent retain is established and nothing is released
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2601,6 +2746,7 @@ describe('QueryResource', () => {
 
         // Assert permanent retain is still established
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is now 2
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
@@ -2609,6 +2755,7 @@ describe('QueryResource', () => {
         // permanently retained
         jest.runAllTimers();
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is now 2
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
@@ -2616,6 +2763,7 @@ describe('QueryResource', () => {
         // Assert that disposing the first disposable doesn't release the query
         disposable1.dispose();
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         expect(
           QueryResource.TESTS_ONLY__getCacheEntry(
@@ -2637,6 +2785,7 @@ describe('QueryResource', () => {
         // Assert that disposing the last disposable fully releases the query
         disposable2.dispose();
         expect(release).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         expect(
           QueryResource.TESTS_ONLY__getCacheEntry(
@@ -2667,7 +2816,9 @@ describe('QueryResource', () => {
         );
         // Assert query is temporarily retained
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is 1
         const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
@@ -2678,11 +2829,13 @@ describe('QueryResource', () => {
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is called
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
 
         // Assert permanent retain is established
         const disposable1 = QueryResource.retain(result1);
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
         // Assert that retain count is still 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
@@ -2697,7 +2850,9 @@ describe('QueryResource', () => {
         );
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
         // Assert that retain count is now at 2
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
@@ -2708,6 +2863,7 @@ describe('QueryResource', () => {
         // Assert that query is still temporarily retained by new render
         expect(release).toHaveBeenCalledTimes(0);
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Permanently retain the query after the initial retain has been
@@ -2717,6 +2873,7 @@ describe('QueryResource', () => {
         // Assert latest temporary retain is released, so the retain
         // count on the cacheEntry will remain at 1
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Running timers won't release the query since it has been
@@ -2724,12 +2881,14 @@ describe('QueryResource', () => {
         jest.runAllTimers();
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         expect(release).toBeCalledTimes(0);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Assert that disposing the last disposable fully releases the query
         disposable2.dispose();
         expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
         expect(release).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
       });
     });
@@ -2775,6 +2934,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
     fetchObservable = fetchQuery(environment, query);
 
     release = jest.fn();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
         dispose: release,
@@ -2810,7 +2970,9 @@ describe('QueryResource, with an environment meant for SSR', () => {
         },
         operation: query,
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).not.toHaveBeenCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).not.toHaveBeenCalled();
       jest.runAllTimers();
       expect(release).not.toHaveBeenCalled();

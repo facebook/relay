@@ -26,6 +26,9 @@ const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 // Regression test
 describe('query with undeclared, unused fragment argument', () => {
@@ -40,8 +43,6 @@ describe('query with undeclared, unused fragment argument', () => {
   let subject;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestQueryWithUnusedFragmentArgumentDefinitionQuery(
         $id: ID!

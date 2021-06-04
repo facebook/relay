@@ -31,7 +31,6 @@ Relay Modern. The components using Relay Compat can be referred to by both other
 Relay Modern and Relay Classic components.
 
 ```javascript
-
 const {createFragmentContainer, graphql} = require('react-relay/compat');
 
 class TodoItem extends React.Component {
@@ -47,5 +46,4 @@ module.exports = createFragmentContainer(TodoItem, graphql`
     isComplete
   }
 `);
-
 ```

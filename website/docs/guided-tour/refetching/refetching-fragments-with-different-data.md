@@ -1,7 +1,11 @@
 ---
 id: refetching-fragments-with-different-data
-title: Refetching Fragments With Different Data
+title: Refetching Fragments with Different Data
 slug: /guided-tour/refetching/refetching-fragments-with-different-data/
+description: Relay guide to refetching fragments with different data
+keywords:
+- refetching
+- fragment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

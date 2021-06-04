@@ -16,5 +16,5 @@ fragment PopStarNameResolverFragment_name on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", js_return_type: "string")
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name")
 }

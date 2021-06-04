@@ -2,6 +2,10 @@
 id: introduction
 title: Reusing Cached Data
 slug: /guided-tour/reusing-cached-data/
+description: Relay guide to reusing cached data
+keywords:
+- reusing
+- cached
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

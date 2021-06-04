@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<39648a1d3b2a23c31a755265233482bb>>
+ * @generated SignedSource<<98dc4d7406c22f27c1f6e19cd72bfc27>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,10 @@
 
 /*::
 import type { NormalizationSplitOperation } from 'relay-runtime';
+
+export type validateMutationTestGroovyFragment_groovygroovy$normalization = {|
+  +doesViewerLike: ?boolean,
+|};
 
 */
 

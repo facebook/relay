@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20d06942f21a2e29996516e7d1c31c37>>
+ * @generated SignedSource<<b716d7fc9b2f0b2ced1d2b595112bd31>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$ref = 
 type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$ref = any;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables = {|
   id: string,
-  size?: ?number,
+  size?: ?$ReadOnlyArray<?number>,
   fetchSize: boolean,
 |};
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse = {|
@@ -183,18 +183,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4118d2af887cc01d92b8d536439b7404",
+    "cacheID": "b71e6a9ae10b0d558078f4c094133620",
     "id": null,
     "metadata": {},
     "name": "RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery",
     "operationKind": "query",
-    "text": "query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(\n  $id: ID!\n  $size: Int\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment on User {\n  username\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n"
+    "text": "query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(\n  $id: ID!\n  $size: [Int]\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment on User {\n  username\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a5cb4ea541d3ae0684ab957761952e21";
+  (node/*: any*/).hash = "0ac3466c6ebc673ebbcfbbf5e1fead2b";
 }
 
 module.exports = node;

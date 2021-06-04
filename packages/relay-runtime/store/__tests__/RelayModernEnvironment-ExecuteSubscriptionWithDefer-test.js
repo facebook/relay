@@ -19,369 +19,403 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {
+  getActorIdentifier,
+  MultiActorEnvironment,
+} = require('../../multi-actor-environment');
 const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-describe('executeSubscrption() with @defer', () => {
-  let callbacks;
-  let commentFragment;
-  let commentID;
-  let complete;
-  let dataSource;
-  let environment;
-  let error;
-  let fetchFn;
-  let subscribeFn;
-  let fragmentCallback;
-  let subscription;
-  let next;
-  let operation;
-  let commentQuery;
-  let queryOperation;
-  let source;
-  let store;
-  let variables;
-  let queryVariables;
+disallowWarnings();
 
-  beforeEach(() => {
-    jest.resetModules();
-    commentID = '1';
+describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
+  'executeSubscription() with @defer',
+  environmentType => {
+    let callbacks;
+    let commentFragment;
+    const commentID = '1';
+    let complete;
+    let dataSource;
+    let environment;
+    let error;
+    let fetchFn;
+    let subscribeFn;
+    let fragmentCallback;
+    let subscription;
+    let next;
+    let operation;
+    let commentQuery;
+    let queryOperation;
+    let source;
+    let store;
+    let variables;
+    let queryVariables;
 
-    subscription = getRequest(graphql`
-      subscription RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription(
-        $input: CommentCreateSubscriptionInput!
-      ) {
-        commentCreateSubscribe(input: $input) {
-          comment {
-            id
-            ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
-              @defer
+    describe(environmentType, () => {
+      beforeEach(() => {
+        subscription = getRequest(graphql`
+          subscription RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription(
+            $input: CommentCreateSubscriptionInput!
+          ) {
+            commentCreateSubscribe(input: $input) {
+              comment {
+                id
+                ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
+                  @defer
+              }
+            }
           }
-        }
-      }
-    `);
-    commentFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {
-        id
-        actor {
-          name @__clientField(handle: "name_handler")
-        }
-      }
-    `);
-    commentQuery = getRequest(graphql`
-      query RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery(
-        $id: ID!
-      ) {
-        node(id: $id) {
-          id
-          ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
-        }
-      }
-    `);
-    variables = {
-      input: {
-        clientMutationId: '0',
-        feedbackId: '1',
-      },
-    };
-    queryVariables = {
-      id: commentID,
-    };
-    operation = createOperationDescriptor(subscription, variables);
-    queryOperation = createOperationDescriptor(commentQuery, queryVariables);
+        `);
+        commentFragment = getFragment(graphql`
+          fragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {
+            id
+            actor {
+              name @__clientField(handle: "name_handler")
+            }
+          }
+        `);
+        commentQuery = getRequest(graphql`
+          query RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              id
+              ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
+            }
+          }
+        `);
+        variables = {
+          input: {
+            clientMutationId: '0',
+            feedbackId: '1',
+          },
+        };
+        queryVariables = {
+          id: commentID,
+        };
+        operation = createOperationDescriptor(subscription, variables);
+        queryOperation = createOperationDescriptor(
+          commentQuery,
+          queryVariables,
+        );
 
-    const NameHandler = {
-      update(storeProxy, payload) {
-        const record = storeProxy.get(payload.dataID);
-        if (record != null) {
-          const markup = record.getValue(payload.fieldKey);
-          record.setValue(
-            typeof markup === 'string' ? markup.toUpperCase() : null,
-            payload.handleKey,
-          );
-        }
-      },
-    };
+        const NameHandler = {
+          update(storeProxy, payload) {
+            const record = storeProxy.get(payload.dataID);
+            if (record != null) {
+              const markup = record.getValue(payload.fieldKey);
+              record.setValue(
+                typeof markup === 'string' ? markup.toUpperCase() : null,
+                payload.handleKey,
+              );
+            }
+          },
+        };
 
-    complete = jest.fn();
-    error = jest.fn();
-    next = jest.fn();
-    callbacks = {complete, error, next};
-    fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
-      RelayObservable.create(sink => {}),
-    );
-    subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
-      RelayObservable.create(sink => {
-        dataSource = sink;
-      }),
-    );
-    source = RelayRecordSource.create();
-    store = new RelayModernStore(source);
-    environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetchFn, subscribeFn),
-      store,
-      handlerProvider: name => {
-        switch (name) {
-          case 'name_handler':
-            return NameHandler;
-        }
-      },
-    });
+        complete = jest.fn();
+        error = jest.fn();
+        next = jest.fn();
+        callbacks = {complete, error, next};
+        fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
+          RelayObservable.create(sink => {}),
+        );
+        subscribeFn = jest.fn((_query, _variables, _cacheConfig) =>
+          RelayObservable.create(sink => {
+            dataSource = sink;
+          }),
+        );
+        source = RelayRecordSource.create();
+        store = new RelayModernStore(source);
+        const handlerProvider = name => {
+          switch (name) {
+            case 'name_handler':
+              return NameHandler;
+          }
+        };
+        const multiActorEnvironment = new MultiActorEnvironment({
+          createNetworkForActor: _actorID =>
+            RelayNetwork.create(fetchFn, subscribeFn),
+          createStoreForActor: _actorID => store,
+          handlerProvider,
+        });
+        environment =
+          environmentType === 'MultiActorEnvironment'
+            ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
+            : new RelayModernEnvironment({
+                network: RelayNetwork.create(fetchFn, subscribeFn),
+                store,
+                handlerProvider,
+              });
 
-    const selector = createReaderSelector(
-      commentFragment,
-      commentID,
-      {},
-      queryOperation.request,
-    );
-    const fragmentSnapshot = environment.lookup(selector);
-    fragmentCallback = jest.fn();
-    environment.subscribe(fragmentSnapshot, fragmentCallback);
-  });
+        const selector = createReaderSelector(
+          commentFragment,
+          commentID,
+          {},
+          queryOperation.request,
+        );
+        const fragmentSnapshot = environment.lookup(selector);
+        fragmentCallback = jest.fn();
+        environment.subscribe(fragmentSnapshot, fragmentCallback);
+      });
 
-  it('calls next() and publishes the initial payload to the store', () => {
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        commentCreateSubscribe: {
-          comment: {
+      it('calls next() and publishes the initial payload to the store', () => {
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            commentCreateSubscribe: {
+              comment: {
+                id: commentID,
+                __typename: 'Comment',
+              },
+            },
+          },
+        });
+        jest.runAllTimers();
+
+        expect(next).toBeCalledTimes(1);
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+
+        expect(fragmentCallback).toBeCalledTimes(1);
+        const fragmentSnapshot = fragmentCallback.mock.calls[0][0];
+        // data is missing since data for @defer'd fragment hasn't been received
+        expect(fragmentSnapshot.isMissingData).toBe(true);
+        expect(fragmentSnapshot.data).toEqual({
+          id: commentID,
+          actor: undefined,
+        });
+
+        // The subscription should be marked as in flight and affecting the
+        // query owner now
+        expect(
+          environment
+            .getOperationTracker()
+            .getPromiseForPendingOperationsAffectingOwner(
+              queryOperation.request,
+            ),
+        ).not.toBe(null);
+      });
+
+      it('processes deferred payloads', () => {
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            commentCreateSubscribe: {
+              comment: {
+                id: commentID,
+                __typename: 'Comment',
+              },
+            },
+          },
+        });
+        jest.runAllTimers();
+
+        expect(next).toBeCalledTimes(1);
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(fragmentCallback).toBeCalledTimes(1);
+        next.mockClear();
+        fragmentCallback.mockClear();
+
+        dataSource.next({
+          data: {
             id: commentID,
             __typename: 'Comment',
+            actor: {
+              id: 'actor-id',
+              __typename: 'User',
+              name: 'actor-name',
+            },
           },
-        },
-      },
-    });
-    jest.runAllTimers();
+          label:
+            'RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment',
+          path: ['commentCreateSubscribe', 'comment'],
+          extensions: {
+            is_final: true,
+          },
+        });
+        jest.runAllTimers();
 
-    expect(next).toBeCalledTimes(1);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(1);
+        expect(fragmentCallback).toBeCalledTimes(1);
+        const fragmentSnapshot = fragmentCallback.mock.calls[0][0];
+        expect(fragmentSnapshot.isMissingData).toBe(false);
+        expect(fragmentSnapshot.data).toEqual({
+          id: commentID,
+          actor: {
+            name: 'ACTOR-NAME',
+          },
+        });
 
-    expect(fragmentCallback).toBeCalledTimes(1);
-    const fragmentSnapshot = fragmentCallback.mock.calls[0][0];
-    // data is missing since data for @defer'd fragment hasn't been received
-    expect(fragmentSnapshot.isMissingData).toBe(true);
-    expect(fragmentSnapshot.data).toEqual({
-      id: commentID,
-      actor: undefined,
-    });
+        // The subscription affecting the query should no longer be in flight
+        // since all incremental payloads have been resolved
+        expect(
+          environment
+            .getOperationTracker()
+            .getPromiseForPendingOperationsAffectingOwner(
+              queryOperation.request,
+            ),
+        ).toBe(null);
+      });
 
-    // The subscription should be marked as in flight and affecting the
-    // query owner now
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).not.toBe(null);
-  });
+      it('calls complete() if root network request completes after deferred payload resolves', () => {
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            commentCreateSubscribe: {
+              comment: {
+                id: commentID,
+                __typename: 'Comment',
+              },
+            },
+          },
+        });
+        jest.runAllTimers();
 
-  it('processes deferred payloads', () => {
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        commentCreateSubscribe: {
-          comment: {
+        expect(next).toBeCalledTimes(1);
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(fragmentCallback).toBeCalledTimes(1);
+        next.mockClear();
+        fragmentCallback.mockClear();
+
+        dataSource.next({
+          data: {
             id: commentID,
             __typename: 'Comment',
+            actor: {
+              id: 'actor-id',
+              __typename: 'User',
+              name: 'actor-name',
+            },
           },
-        },
-      },
-    });
-    jest.runAllTimers();
-
-    expect(next).toBeCalledTimes(1);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(fragmentCallback).toBeCalledTimes(1);
-    next.mockClear();
-    fragmentCallback.mockClear();
-
-    dataSource.next({
-      data: {
-        id: commentID,
-        __typename: 'Comment',
-        actor: {
-          id: 'actor-id',
-          __typename: 'User',
-          name: 'actor-name',
-        },
-      },
-      label:
-        'RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment',
-      path: ['commentCreateSubscribe', 'comment'],
-      extensions: {
-        is_final: true,
-      },
-    });
-    jest.runAllTimers();
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(1);
-    expect(fragmentCallback).toBeCalledTimes(1);
-    const fragmentSnapshot = fragmentCallback.mock.calls[0][0];
-    expect(fragmentSnapshot.isMissingData).toBe(false);
-    expect(fragmentSnapshot.data).toEqual({
-      id: commentID,
-      actor: {
-        name: 'ACTOR-NAME',
-      },
-    });
-
-    // The subscription affecting the query should no longer be in flight
-    // since all incremental payloads have been resolved
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).toBe(null);
-  });
-
-  it('calls complete() if root network request completes after deferred payload resolves', () => {
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        commentCreateSubscribe: {
-          comment: {
-            id: commentID,
-            __typename: 'Comment',
+          label:
+            'RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment',
+          path: ['commentCreateSubscribe', 'comment'],
+          extensions: {
+            is_final: true,
           },
-        },
-      },
-    });
-    jest.runAllTimers();
+        });
+        jest.runAllTimers();
 
-    expect(next).toBeCalledTimes(1);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(fragmentCallback).toBeCalledTimes(1);
-    next.mockClear();
-    fragmentCallback.mockClear();
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(1);
+        expect(fragmentCallback).toBeCalledTimes(1);
 
-    dataSource.next({
-      data: {
-        id: commentID,
-        __typename: 'Comment',
-        actor: {
-          id: 'actor-id',
-          __typename: 'User',
-          name: 'actor-name',
-        },
-      },
-      label:
-        'RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription$defer$RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment',
-      path: ['commentCreateSubscribe', 'comment'],
-      extensions: {
-        is_final: true,
-      },
-    });
-    jest.runAllTimers();
+        // The subscription affecting the query should no longer be in flight
+        // since all incremental payloads have been resolved
+        expect(
+          environment
+            .getOperationTracker()
+            .getPromiseForPendingOperationsAffectingOwner(
+              queryOperation.request,
+            ),
+        ).toBe(null);
 
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(1);
-    expect(fragmentCallback).toBeCalledTimes(1);
+        dataSource.complete();
 
-    // The subscription affecting the query should no longer be in flight
-    // since all incremental payloads have been resolved
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).toBe(null);
+        expect(complete).toBeCalledTimes(1);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(1);
+        expect(fragmentCallback).toBeCalledTimes(1);
 
-    dataSource.complete();
+        // The subscription affecting the query should no longer be in flight
+        // since all incremental payloads have been resolved
+        expect(
+          environment
+            .getOperationTracker()
+            .getPromiseForPendingOperationsAffectingOwner(
+              queryOperation.request,
+            ),
+        ).toBe(null);
+      });
 
-    expect(complete).toBeCalledTimes(1);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(1);
-    expect(fragmentCallback).toBeCalledTimes(1);
-
-    // The subscription affecting the query should no longer be in flight
-    // since all incremental payloads have been resolved
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).toBe(null);
-  });
-
-  it('calls complete() if root network request completes before deferred payload resolves', () => {
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        commentCreateSubscribe: {
-          comment: {
-            id: commentID,
-            __typename: 'Comment',
+      it('calls complete() if root network request completes before deferred payload resolves', () => {
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            commentCreateSubscribe: {
+              comment: {
+                id: commentID,
+                __typename: 'Comment',
+              },
+            },
           },
-        },
-      },
-    });
-    jest.runAllTimers();
+        });
+        jest.runAllTimers();
 
-    expect(next).toBeCalledTimes(1);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(fragmentCallback).toBeCalledTimes(1);
-    next.mockClear();
-    fragmentCallback.mockClear();
+        expect(next).toBeCalledTimes(1);
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(fragmentCallback).toBeCalledTimes(1);
+        next.mockClear();
+        fragmentCallback.mockClear();
 
-    dataSource.complete();
+        dataSource.complete();
 
-    expect(complete).toBeCalledTimes(1);
-    expect(error).toBeCalledTimes(0);
-    expect(next).toBeCalledTimes(0);
-    expect(fragmentCallback).toBeCalledTimes(0);
+        expect(complete).toBeCalledTimes(1);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(0);
+        expect(fragmentCallback).toBeCalledTimes(0);
 
-    // The subscription affecting the query should no longer be in flight
-    // since the network completed without incremental payloads
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).toBe(null);
-  });
+        // The subscription affecting the query should no longer be in flight
+        // since the network completed without incremental payloads
+        expect(
+          environment
+            .getOperationTracker()
+            .getPromiseForPendingOperationsAffectingOwner(
+              queryOperation.request,
+            ),
+        ).toBe(null);
+      });
 
-  it('calls error() if root network request errors before deferred payload resolves', () => {
-    environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        commentCreateSubscribe: {
-          comment: {
-            id: commentID,
-            __typename: 'Comment',
+      it('calls error() if root network request errors before deferred payload resolves', () => {
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            commentCreateSubscribe: {
+              comment: {
+                id: commentID,
+                __typename: 'Comment',
+              },
+            },
           },
-        },
-      },
+        });
+        jest.runAllTimers();
+
+        expect(next).toBeCalledTimes(1);
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(fragmentCallback).toBeCalledTimes(1);
+        next.mockClear();
+        fragmentCallback.mockClear();
+
+        const err = new Error('Oops');
+        dataSource.error(err);
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(1);
+        expect(error.mock.calls[0][0]).toBe(err);
+        expect(next).toBeCalledTimes(0);
+        expect(fragmentCallback).toBeCalledTimes(0);
+
+        // The subscription affecting the query should no longer be in flight
+        // since network errored without incremental payloads
+        expect(
+          environment
+            .getOperationTracker()
+            .getPromiseForPendingOperationsAffectingOwner(
+              queryOperation.request,
+            ),
+        ).toBe(null);
+      });
     });
-    jest.runAllTimers();
-
-    expect(next).toBeCalledTimes(1);
-    expect(complete).not.toBeCalled();
-    expect(error).not.toBeCalled();
-    expect(fragmentCallback).toBeCalledTimes(1);
-    next.mockClear();
-    fragmentCallback.mockClear();
-
-    const err = new Error('Oops');
-    dataSource.error(err);
-
-    expect(complete).toBeCalledTimes(0);
-    expect(error).toBeCalledTimes(1);
-    expect(error.mock.calls[0][0]).toBe(err);
-    expect(next).toBeCalledTimes(0);
-    expect(fragmentCallback).toBeCalledTimes(0);
-
-    // The subscription affecting the query should no longer be in flight
-    // since network errored without incremental payloads
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).toBe(null);
-  });
-});
+  },
+);

@@ -1,8 +1,10 @@
 ---
 id: suspense-compatibility
-title: Suspense Combatibility
+title: Suspense Compatibility
 slug: /migration-and-compatibility/suspense-compatibility/
 ---
+
+import DocsRating from '@site/src/core/DocsRating';
 
 ## What about Suspense?
 
@@ -26,3 +28,5 @@ What this means for users adopting Relay Hooks is:
 
 * There will be some limitations when using Suspense in React 17, which we've documented in [our docs](../../guided-tour/refetching/refetching-queries-with-different-data/#if-you-need-to-avoid-suspense). Specifically, the current release includes a subset of features that work with both synchronous rendering and concurrent rendering. In order to fully support Suspense for Data Fetching, we also need features such as concurrently rendering suspended trees, and transitioning to new trees when data is refetched. The APIs we've currently released will allow us to support concurrent rendering with the same APIs in future versions of React.
 * When a future version of React is released that fully supports concurrent rendering and Suspense for Data Fetching, Relay will also make a new major release alongside the React release. That release will likely include breaking changes that we will document for the upgrade.
+
+<DocsRating />

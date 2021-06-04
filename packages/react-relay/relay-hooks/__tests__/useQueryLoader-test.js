@@ -332,7 +332,7 @@ afterEach(() => {
 });
 
 it('does not dispose the query before the new component tree unsuspends in concurrent mode', () => {
-  if (typeof React.useTransition === 'function') {
+  if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
     const suspensePromise = new Promise(
@@ -368,14 +368,11 @@ it('does not dispose the query before the new component tree unsuspends in concu
     }
 
     let transitionToSecondRoute;
-    const suspenseTransitionConfig = {
-      timeoutMs: 3000,
-    };
     function ConcurrentWrapper() {
       const [route, setRoute] = React.useState('FIRST');
 
-      const [startTransition] = React.useTransition(suspenseTransitionConfig);
-      transitionToSecondRoute = () => startTransition(() => setRoute('SECOND'));
+      transitionToSecondRoute = () =>
+        React.startTransition(() => setRoute('SECOND'));
 
       return (
         <React.Suspense fallback="fallback">
@@ -415,7 +412,7 @@ it('disposes query references associated with previous suspensions when multiple
   // Three state changes and calls to loadQuery: A, B, C, each causing suspense
   // When C unsuspends, A and B's queries are disposed.
 
-  if (typeof React.useTransition === 'function') {
+  if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
     const resolvableSuspensePromise = new Promise(
@@ -442,15 +439,11 @@ it('disposes query references associated with previous suspensions when multiple
     }
 
     let triggerStateChange: any;
-    const suspenseTransitionConfig = {
-      timeoutMs: 3000,
-    };
     function ConcurrentWrapper() {
       const [promise, setPromise] = React.useState(null);
 
-      const [startTransition] = React.useTransition(suspenseTransitionConfig);
       triggerStateChange = (newPromise, newName) =>
-        startTransition(() => {
+        React.startTransition(() => {
           queryLoaderCallback({});
           setPromise(newPromise);
         });
@@ -516,7 +509,7 @@ it('disposes query references associated with subsequent suspensions when multip
   // Three state changes and calls to loadQuery: A, B, C, each causing suspense
   // When A unsuspends, B and C's queries do not get disposed.
 
-  if (typeof React.useTransition === 'function') {
+  if (typeof React.startTransition === 'function') {
     let resolve;
     let resolved = false;
     const resolvableSuspensePromise = new Promise(
@@ -541,15 +534,11 @@ it('disposes query references associated with subsequent suspensions when multip
     }
 
     let triggerStateChange: any;
-    const suspenseTransitionConfig = {
-      timeoutMs: 3000,
-    };
     function ConcurrentWrapper() {
       const [promise, setPromise] = React.useState(null);
 
-      const [startTransition] = React.useTransition(suspenseTransitionConfig);
       triggerStateChange = (newPromise, newName) =>
-        startTransition(() => {
+        React.startTransition(() => {
           queryLoaderCallback({});
           setPromise(newPromise);
         });

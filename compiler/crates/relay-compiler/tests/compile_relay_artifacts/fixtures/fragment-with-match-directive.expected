@@ -172,6 +172,7 @@ fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUse
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "fragmentWithMatchDirective_NameRendererFragment",
               "fragmentName": "fragmentWithMatchDirective_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",
@@ -185,6 +186,7 @@ fragment fragmentWithMatchDirective_MarkdownUserNameRenderer_name on MarkdownUse
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "fragmentWithMatchDirective_NameRendererFragment",
               "fragmentName": "fragmentWithMatchDirective_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",

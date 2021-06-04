@@ -110,10 +110,11 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
+export type {TaskScheduler} from './store/OperationExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
-export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ExecuteMutationConfig,
   FragmentMap,
   FragmentReference,
   FragmentSpecResolver,
@@ -136,9 +137,9 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
+  ReactFlightClientResponse,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
-  ReactFlightClientResponse,
   ReaderSelector,
   ReadOnlyRecordProxy,
   RecordProxy,
@@ -146,13 +147,18 @@ export type {
   RecordSourceSelectorProxy,
   RelayContext,
   RequestDescriptor,
+  RequiredFieldLogger,
   SelectorData,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
-export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
+export type {
+  DEPRECATED_GraphQLSubscriptionConfig,
+  GraphQLSubscriptionConfig,
+  SubscriptionParameters,
+} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,

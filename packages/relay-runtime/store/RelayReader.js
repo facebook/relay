@@ -12,12 +12,14 @@
 
 'use strict';
 
+const ClientID = require('./ClientID');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 
 const invariant = require('invariant');
 
 const {
+  ACTOR_CHANGE,
   CLIENT_EXTENSION,
   CONDITION,
   DEFER,
@@ -28,6 +30,7 @@ const {
   LINKED_FIELD,
   MODULE_IMPORT,
   REQUIRED_FIELD,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
@@ -44,15 +47,20 @@ const {
   getStorageKey,
   getModuleComponentKey,
 } = require('./RelayStoreUtils');
+const {NoopResolverCache} = require('./ResolverCache');
+const {withResolverContext} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 
 import type {
   ReaderFlightField,
+  ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
   ReaderLinkedField,
+  ReaderActorChange,
   ReaderModuleImport,
   ReaderNode,
+  ReaderRelayResolver,
   ReaderRequiredField,
   ReaderScalarField,
   ReaderSelection,
@@ -68,12 +76,18 @@ import type {
   MissingRequiredFields,
   DataIDSet,
 } from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
 
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
+  resolverCache?: ResolverCache,
 ): Snapshot {
-  const reader = new RelayReader(recordSource, selector);
+  const reader = new RelayReader(
+    recordSource,
+    selector,
+    resolverCache ?? new NoopResolverCache(),
+  );
   return reader.read();
 }
 
@@ -89,8 +103,13 @@ class RelayReader {
   _seenRecords: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
+  _resolverCache: ResolverCache;
 
-  constructor(recordSource: RecordSource, selector: SingularReaderSelector) {
+  constructor(
+    recordSource: RecordSource,
+    selector: SingularReaderSelector,
+    resolverCache: ResolverCache,
+  ) {
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -99,6 +118,7 @@ class RelayReader {
     this._seenRecords = new Set();
     this._selector = selector;
     this._variables = selector.variables;
+    this._resolverCache = resolverCache;
   }
 
   read(): Snapshot {
@@ -192,6 +212,7 @@ class RelayReader {
       'RelayReader(): Undefined variable `%s`.',
       name,
     );
+    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -262,7 +283,9 @@ class RelayReader {
           }
           break;
         case CONDITION:
-          const conditionValue = this._getVariableValue(selection.condition);
+          const conditionValue = Boolean(
+            this._getVariableValue(selection.condition),
+          );
           if (conditionValue === selection.passingValue) {
             const hasExpectedData = this._traverseSelections(
               selection.selections,
@@ -326,6 +349,13 @@ class RelayReader {
           }
           break;
         }
+        case RELAY_RESOLVER: {
+          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+            throw new Error('Relay Resolver fields are not yet supported.');
+          }
+          this._readResolverField(selection, record, data);
+          break;
+        }
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
           break;
@@ -333,7 +363,11 @@ class RelayReader {
           this._readModuleImport(selection, record, data);
           break;
         case INLINE_DATA_FRAGMENT_SPREAD:
-          this._createInlineDataFragmentPointer(selection, record, data);
+          this._createInlineDataOrResolverFragmentPointer(
+            selection,
+            record,
+            data,
+          );
           break;
         case DEFER:
         case CLIENT_EXTENSION: {
@@ -367,6 +401,9 @@ class RelayReader {
             throw new Error('Flight fields are not yet supported.');
           }
           break;
+        case ACTOR_CHANGE:
+          this._readActorChange(selection, record, data);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -393,6 +430,12 @@ class RelayReader {
         } else {
           return this._readLink(selection.field, record, data);
         }
+      case RELAY_RESOLVER:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        this._readResolverField(selection.field, record, data);
+        break;
       default:
         (selection.field.kind: empty);
         invariant(
@@ -401,6 +444,87 @@ class RelayReader {
           selection.kind,
         );
     }
+  }
+
+  _readResolverField(
+    field: ReaderRelayResolver,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const {resolverModule, fragment} = field;
+    const storageKey = getStorageKey(field, this._variables);
+    const resolverID = ClientID.generateClientID(
+      RelayModernRecord.getDataID(record),
+      storageKey,
+    );
+
+    // Found when reading the resolver fragment, which can happen either when
+    // evaluating the resolver and it calls readFragment, or when checking if the
+    // inputs have changed since a previous evaluation:
+    let fragmentValue;
+    let fragmentReaderSelector;
+    const fragmentSeenRecordIDs = new Set();
+
+    const getDataForResolverFragment = singularReaderSelector => {
+      if (fragmentValue != null) {
+        // It was already read when checking for input staleness; no need to read it again.
+        // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
+        // already been set and will still be used in this case.
+        return fragmentValue;
+      }
+      fragmentReaderSelector = singularReaderSelector;
+      const existingSeenRecords = this._seenRecords;
+      try {
+        this._seenRecords = fragmentSeenRecordIDs;
+        const resolverFragmentData = {};
+        this._createInlineDataOrResolverFragmentPointer(
+          singularReaderSelector.node,
+          record,
+          resolverFragmentData,
+        );
+        fragmentValue = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
+        invariant(
+          typeof fragmentValue === 'object' && fragmentValue !== null,
+          `Expected reader data to contain a __fragments property with a property for the fragment named ${fragment.name}, but it is missing.`,
+        );
+        return fragmentValue;
+      } finally {
+        this._seenRecords = existingSeenRecords;
+      }
+    };
+    const resolverContext = {getDataForResolverFragment};
+
+    const [result, seenRecord] = this._resolverCache.readFromCacheOrEvaluate(
+      record,
+      field,
+      this._variables,
+      () => {
+        const key = {
+          __id: RelayModernRecord.getDataID(record),
+          __fragmentOwner: this._owner,
+          __fragments: {
+            [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+          },
+        };
+        return withResolverContext(resolverContext, () => {
+          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
+          const resolverResult = resolverModule(key);
+          return {
+            resolverResult,
+            fragmentValue,
+            resolverID,
+            seenRecordIDs: fragmentSeenRecordIDs,
+            readerSelector: fragmentReaderSelector,
+          };
+        });
+      },
+      getDataForResolverFragment,
+    );
+    if (seenRecord != null) {
+      this._seenRecords.add(seenRecord);
+    }
+    data[storageKey] = result;
+    return result;
   }
 
   _readFlightField(
@@ -485,6 +609,42 @@ class RelayReader {
     return value;
   }
 
+  _readActorChange(
+    field: ReaderActorChange,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
+    const storageKey = getStorageKey(field, this._variables);
+    const externalRef = RelayModernRecord.getActorLinkedRecordID(
+      record,
+      storageKey,
+    );
+
+    if (externalRef == null) {
+      data[applicationName] = externalRef;
+      if (externalRef === undefined) {
+        this._isMissingData = true;
+      }
+      return data[applicationName];
+    }
+    const [actorIdentifier, dataID] = externalRef;
+
+    const fragmentRef = {};
+    this._createFragmentPointer(
+      field.fragmentSpread,
+      {
+        __id: dataID,
+      },
+      fragmentRef,
+    );
+    data[applicationName] = {
+      __fragmentRef: fragmentRef,
+      __viewer: actorIdentifier,
+    };
+    return data[applicationName];
+  }
+
   _readPluralLink(
     field: ReaderLinkedField,
     record: Record,
@@ -567,7 +727,7 @@ class RelayReader {
       {
         kind: 'FragmentSpread',
         name: moduleImport.fragmentName,
-        args: null,
+        args: moduleImport.args,
       },
       record,
       data,
@@ -606,8 +766,8 @@ class RelayReader {
     }
   }
 
-  _createInlineDataFragmentPointer(
-    inlineDataFragmentSpread: ReaderInlineDataFragmentSpread,
+  _createInlineDataOrResolverFragmentPointer(
+    fragmentSpreadOrFragment: ReaderInlineDataFragmentSpread | ReaderFragment,
     record: Record,
     data: SelectorData,
   ): void {
@@ -625,12 +785,12 @@ class RelayReader {
     }
     const inlineData = {};
     this._traverseSelections(
-      inlineDataFragmentSpread.selections,
+      fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
     // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[inlineDataFragmentSpread.name] = inlineData;
+    fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
   }
 }
 

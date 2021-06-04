@@ -15,10 +15,4 @@ const string = `
 
 graphql`some graphql`;
 ==================================== OUTPUT ===================================
-[
-    GraphQLSource {
-        text: "some graphql",
-        line_index: 14,
-        column_index: 8,
-    },
-]
+line: 14, column: 8, text: <some graphql>

@@ -347,10 +347,8 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             Transformed::Replace(replaced) => replaced,
         };
 
-        let connection_metadata_directive = build_connection_metadata_as_directive(
-            &self.current_connection_metadata,
-            self.connection_constants,
-        );
+        let connection_metadata_directive =
+            build_connection_metadata_as_directive(&self.current_connection_metadata);
 
         transformed_operation
             .directives
@@ -379,10 +377,8 @@ impl<'s> Transformer for ConnectionTransform<'s> {
             Transformed::Replace(replaced) => replaced,
         };
 
-        let connection_metadata_directive = build_connection_metadata_as_directive(
-            &self.current_connection_metadata,
-            self.connection_constants,
-        );
+        let connection_metadata_directive =
+            build_connection_metadata_as_directive(&self.current_connection_metadata);
 
         transformed_fragment
             .directives

@@ -321,9 +321,11 @@ function createContainerWithFragments<
         typeof refetchVariables === 'function'
           ? refetchVariables(this._getFragmentVariables())
           : refetchVariables;
+      // $FlowFixMe[cannot-spread-interface]
       fetchVariables = {...rootVariables, ...fetchVariables};
       const fragmentVariables = renderVariables
-        ? {...fetchVariables, ...renderVariables}
+        ? // $FlowFixMe[cannot-spread-interface]
+          {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
       const cacheConfig: ?CacheConfig = options

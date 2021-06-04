@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+query SimpleQuery {
+  node(id: "test-id") {
+    id
+    ... on User {
+      actor @EXPERIMENTAL__as_actor {
+        ...UserFragment
+      }
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}
+==================================== OUTPUT ===================================
+query SimpleQuery {
+  node(id: "test-id") {
+    id
+    ... on User {
+      ... @__as_actor {
+        actor {
+          ...UserFragment
+          __viewer
+        }
+      }
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}

@@ -16,7 +16,6 @@
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
-const mapObject = require('mapObject');
 
 const {
   __internal: {getPromiseForActiveRequest},
@@ -25,6 +24,7 @@ const {
   isPromise,
   recycleNodesInto,
   reportMissingRequiredFields,
+  RelayFeatureFlags,
 } = require('relay-runtime');
 
 import type {Cache} from './LRUCache';
@@ -46,11 +46,22 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+type SeenRecords = $PropertyType<Snapshot, 'seenRecords'>;
+type SnapshotWithoutSeenRecords = $ReadOnly<{|
+  ...$Diff<Snapshot, {|seenRecords: SeenRecords, isMissingData: boolean|}>,
+  seenRecords?: SeenRecords,
+  isMissingData?: boolean,
+|}>;
+type SingularOrPluralSnapshot =
+  | SnapshotWithoutSeenRecords
+  | $ReadOnlyArray<SnapshotWithoutSeenRecords>;
+type SingularOrPluarlStoreSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+
 opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
   snapshot: SingularOrPluralSnapshot | null,
+  storeEpoch: number | null,
 |};
 
 // TODO: Fix to not rely on LRU. If the number of active fragments exceeds this
@@ -71,11 +82,38 @@ function isMissingData(snapshot: SingularOrPluralSnapshot) {
 function getFragmentResult(
   cacheKey: string,
   snapshot: SingularOrPluralSnapshot,
+  storeEpoch: number | null,
 ): FragmentResult {
   if (Array.isArray(snapshot)) {
-    return {cacheKey, snapshot, data: snapshot.map(s => s.data)};
+    return {
+      cacheKey,
+      snapshot:
+        RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION ===
+        'reduce-snapshot-size'
+          ? snapshot.map(s => ({
+              data: s.data,
+              selector: s.selector,
+              missingRequiredFields: s.missingRequiredFields,
+            }))
+          : snapshot,
+      data: snapshot.map(s => s.data),
+      storeEpoch,
+    };
   }
-  return {cacheKey, snapshot, data: snapshot.data};
+  return {
+    cacheKey,
+    snapshot:
+      RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION ===
+      'reduce-snapshot-size'
+        ? {
+            data: snapshot.data,
+            selector: snapshot.selector,
+            missingRequiredFields: snapshot.missingRequiredFields,
+          }
+        : snapshot,
+    data: snapshot.data,
+    storeEpoch,
+  };
 }
 
 function getPromiseForPendingOperationAffectingOwner(
@@ -134,8 +172,18 @@ class FragmentResourceImpl {
     // This is a convenience when consuming fragments via a HOC API, when the
     // prop corresponding to the fragment ref might be passed as null.
     if (fragmentRef == null) {
-      return {cacheKey: fragmentIdentifier, data: null, snapshot: null};
+      return {
+        cacheKey: fragmentIdentifier,
+        data: null,
+        snapshot: null,
+        storeEpoch: null,
+      };
     }
+
+    const storeEpoch =
+      RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch'
+        ? environment.getStore().getEpoch()
+        : null;
 
     // If fragmentRef is plural, ensure that it is an array.
     // If it's empty, return the empty array directly before doing any more work.
@@ -155,6 +203,7 @@ class FragmentResourceImpl {
           cacheKey: fragmentIdentifier,
           data: CONSTANT_READONLY_EMPTY_ARRAY,
           snapshot: CONSTANT_READONLY_EMPTY_ARRAY,
+          storeEpoch,
         };
       }
     }
@@ -208,7 +257,12 @@ class FragmentResourceImpl {
 
     if (!isMissingData(snapshot)) {
       this._reportMissingRequiredFieldsInSnapshot(snapshot);
-      const fragmentResult = getFragmentResult(fragmentIdentifier, snapshot);
+
+      const fragmentResult = getFragmentResult(
+        fragmentIdentifier,
+        snapshot,
+        storeEpoch,
+      );
       this._cache.set(fragmentIdentifier, fragmentResult);
       return fragmentResult;
     }
@@ -220,6 +274,7 @@ class FragmentResourceImpl {
     // to suspend.
     const networkPromise = this._getAndSavePromiseForFragmentRequestInFlight(
       fragmentIdentifier,
+      fragmentNode,
       fragmentOwner,
     );
     if (networkPromise != null) {
@@ -227,7 +282,7 @@ class FragmentResourceImpl {
     }
 
     this._reportMissingRequiredFieldsInSnapshot(snapshot);
-    return getFragmentResult(fragmentIdentifier, snapshot);
+    return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }
 
   _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
@@ -255,15 +310,16 @@ class FragmentResourceImpl {
     fragmentRefs: {[string]: mixed, ...},
     componentDisplayName: string,
   ): {[string]: FragmentResult, ...} {
-    return mapObject(fragmentNodes, (fragmentNode, fragmentKey) => {
-      const fragmentRef = fragmentRefs[fragmentKey];
-      return this.read(
-        fragmentNode,
-        fragmentRef,
+    const result = {};
+    for (const key in fragmentNodes) {
+      result[key] = this.read(
+        fragmentNodes[key],
+        fragmentRefs[key],
         componentDisplayName,
-        fragmentKey,
+        key,
       );
-    });
+    }
+    return result;
   }
 
   subscribe(fragmentResult: FragmentResult, callback: () => void): Disposable {
@@ -297,11 +353,17 @@ class FragmentResourceImpl {
       currentSnapshot.forEach((snapshot, idx) => {
         dataSubscriptions.push(
           environment.subscribe(snapshot, latestSnapshot => {
+            const storeEpoch =
+              RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION ===
+              'epoch'
+                ? environment.getStore().getEpoch()
+                : null;
             this._updatePluralSnapshot(
               cacheKey,
               currentSnapshot,
               latestSnapshot,
               idx,
+              storeEpoch,
             );
             callback();
           }),
@@ -315,9 +377,13 @@ class FragmentResourceImpl {
       );
       dataSubscriptions.push(
         environment.subscribe(currentSnapshot, latestSnapshot => {
+          const storeEpoch =
+            RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch'
+              ? environment.getStore().getEpoch()
+              : null;
           this._cache.set(
             cacheKey,
-            getFragmentResult(cacheKey, latestSnapshot),
+            getFragmentResult(cacheKey, latestSnapshot, storeEpoch),
           );
           callback();
         }),
@@ -350,20 +416,30 @@ class FragmentResourceImpl {
 
   checkMissedUpdates(
     fragmentResult: FragmentResult,
-  ): [boolean, SingularOrPluralSnapshot | null] {
+  ): [boolean, SingularOrPluarlStoreSnapshot | null] {
     const environment = this._environment;
-    const {cacheKey} = fragmentResult;
     const renderedSnapshot = fragmentResult.snapshot;
     if (!renderedSnapshot) {
       return [false, null];
     }
 
-    let didMissUpdates = false;
+    let storeEpoch = null;
+    // Bail out if the store hasn't been written since last read
+    if (RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch') {
+      storeEpoch = environment.getStore().getEpoch();
+      if (fragmentResult.storeEpoch === storeEpoch) {
+        // $FlowFixMe In current feature flag path, the snapshot is expected to contain full data
+        return [false, fragmentResult.snapshot];
+      }
+    }
+
+    const {cacheKey} = fragmentResult;
 
     if (Array.isArray(renderedSnapshot)) {
+      let didMissUpdates = false;
       const currentSnapshots = [];
       renderedSnapshot.forEach((snapshot, idx) => {
-        let currentSnapshot = environment.lookup(snapshot.selector);
+        let currentSnapshot: Snapshot = environment.lookup(snapshot.selector);
         const renderData = snapshot.data;
         const currentData = currentSnapshot.data;
         const updatedData = recycleNodesInto(renderData, currentData);
@@ -373,19 +449,21 @@ class FragmentResourceImpl {
         }
         currentSnapshots[idx] = currentSnapshot;
       });
+      // Only update the cache when the data is changed to avoid
+      // returning different `data` instances
       if (didMissUpdates) {
         this._cache.set(
           cacheKey,
-          getFragmentResult(cacheKey, currentSnapshots),
+          getFragmentResult(cacheKey, currentSnapshots, storeEpoch),
         );
       }
       return [didMissUpdates, currentSnapshots];
     }
-    let currentSnapshot = environment.lookup(renderedSnapshot.selector);
+    const currentSnapshot = environment.lookup(renderedSnapshot.selector);
     const renderData = renderedSnapshot.data;
     const currentData = currentSnapshot.data;
     const updatedData = recycleNodesInto(renderData, currentData);
-    currentSnapshot = {
+    const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
       isMissingData: currentSnapshot.isMissingData,
       seenRecords: currentSnapshot.seenRecords,
@@ -393,10 +471,12 @@ class FragmentResourceImpl {
       missingRequiredFields: currentSnapshot.missingRequiredFields,
     };
     if (updatedData !== renderData) {
-      this._cache.set(cacheKey, getFragmentResult(cacheKey, currentSnapshot));
-      didMissUpdates = true;
+      this._cache.set(
+        cacheKey,
+        getFragmentResult(cacheKey, updatedCurrentSnapshot, storeEpoch),
+      );
     }
-    return [didMissUpdates, currentSnapshot];
+    return [updatedData !== renderData, updatedCurrentSnapshot];
   }
 
   checkMissedUpdatesSpec(fragmentResults: {
@@ -410,6 +490,7 @@ class FragmentResourceImpl {
 
   _getAndSavePromiseForFragmentRequestInFlight(
     cacheKey: string,
+    fragmentNode: ReaderFragment,
     fragmentOwner: RequestDescriptor,
   ): Promise<void> | null {
     const environment = this._environment;
@@ -432,8 +513,14 @@ class FragmentResourceImpl {
       });
     this._cache.set(cacheKey, promise);
 
+    const queryName = fragmentOwner.node.params.name;
+    const fragmentName = fragmentNode.name;
+    const promiseDisplayName =
+      queryName === fragmentName
+        ? `Relay(${queryName})`
+        : `Relay(${queryName}:${fragmentName})`;
     // $FlowExpectedError[prop-missing] Expando to annotate Promises.
-    promise.displayName = 'Relay(' + fragmentOwner.node.params.name + ')';
+    promise.displayName = promiseDisplayName;
     return promise;
   }
 
@@ -442,6 +529,7 @@ class FragmentResourceImpl {
     baseSnapshots: $ReadOnlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
+    storeEpoch: number | null,
   ): void {
     const currentFragmentResult = this._cache.get(cacheKey);
     if (isPromise(currentFragmentResult)) {
@@ -459,7 +547,10 @@ class FragmentResourceImpl {
       ? [...currentSnapshot]
       : [...baseSnapshots];
     nextSnapshots[idx] = latestSnapshot;
-    this._cache.set(cacheKey, getFragmentResult(cacheKey, nextSnapshots));
+    this._cache.set(
+      cacheKey,
+      getFragmentResult(cacheKey, nextSnapshots, storeEpoch),
+    );
   }
 }
 

@@ -49,6 +49,7 @@ import type {ActorIdentifier} from './ActorIdentifier';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
+  MultiActorStoreUpdater,
 } from './MultiActorEnvironmentTypes';
 
 export type MultiActorEnvironmentConfig = $ReadOnly<{
@@ -423,6 +424,14 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       scheduler.schedule(task);
     } else {
       task();
+    }
+  }
+
+  commitMultiActorUpdate(updater: MultiActorStoreUpdater): void {
+    for (const [actorIdentifier, environment] of this._actorEnvironments) {
+      environment.commitUpdate(storeProxy => {
+        updater(actorIdentifier, environment, storeProxy);
+      });
     }
   }
 }

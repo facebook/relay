@@ -25,9 +25,16 @@ import type {
   StoreUpdater,
   IEnvironment,
   ExecuteMutationConfig,
+  RecordSourceProxy,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
+
+export type MultiActorStoreUpdater = (
+  actorIdentifier: ActorIdentifier,
+  environment: IActorEnvironment,
+  store: RecordSourceProxy,
+) => void;
 
 /**
  * Interface of actor specific sub-environment
@@ -139,6 +146,11 @@ export interface IMultiActorEnvironment {
     actorEnvironment: IActorEnvironment,
     updater: StoreUpdater,
   ): void;
+
+  /**
+   * Commit store updates for each actor-specific environment known to MultiActorEnvironment
+   */
+  commitMultiActorUpdate(updater: MultiActorStoreUpdater): void;
 
   /**
    * Commit a payload to the environment using the given operation selector.

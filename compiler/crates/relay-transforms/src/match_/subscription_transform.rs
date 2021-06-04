@@ -131,6 +131,11 @@ impl<'program> SubscriptionTransform<'program> {
         } = valid_result;
         let location = linked_field.definition.location;
         let operation_name_with_suffix = format!("{}__subscription", operation.name.item.lookup());
+        let normalization_operation_name = format!(
+            "{}.graphql",
+            get_normalization_operation_name(fragment_spread.fragment.item)
+        )
+        .intern();
 
         let mut selections = linked_field.selections.clone();
         selections.push(Selection::ScalarField(Arc::new(ScalarField {
@@ -143,13 +148,7 @@ impl<'program> SubscriptionTransform<'program> {
                 name: WithLocation::new(location, MATCH_CONSTANTS.js_field_module_arg),
                 value: WithLocation::new(
                     location,
-                    Value::Constant(ConstantValue::String(
-                        format!(
-                            "{}.graphql",
-                            get_normalization_operation_name(fragment_spread.fragment.item)
-                        )
-                        .intern(),
-                    )),
+                    Value::Constant(ConstantValue::String(normalization_operation_name)),
                 ),
             }],
             directives: vec![],
@@ -176,7 +175,7 @@ impl<'program> SubscriptionTransform<'program> {
                         linked_field.alias_or_name(&self.program.schema).lookup()
                     )
                     .intern(),
-                    None,
+                    Some(normalization_operation_name),
                     operation.name.item,
                     fragment_spread,
                     location,

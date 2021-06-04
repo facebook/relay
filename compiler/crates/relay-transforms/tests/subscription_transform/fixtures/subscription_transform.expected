@@ -16,7 +16,7 @@ subscription CommentCreateSubscription(
 ) {
   commentCreateSubscribe(input: $input) {
     ... on CommentCreateResponsePayload {
-      ... on CommentCreateResponsePayload @__module(key: "CommentCreateSubscription__subscription", id: "CommentCreateSubscription.commentCreateSubscribe", sourceDocument: "CommentCreateSubscription", name: "CommentCreate_CommentCreateResponsePayload") {
+      ... on CommentCreateResponsePayload @__module(key: "CommentCreateSubscription__subscription", id: "CommentCreateSubscription.commentCreateSubscribe", module: "CommentCreate_CommentCreateResponsePayload$normalization.graphql", sourceDocument: "CommentCreateSubscription", name: "CommentCreate_CommentCreateResponsePayload") {
         ...CommentCreate_CommentCreateResponsePayload
         __module_operation_CommentCreateSubscription__subscription: js(module: "CommentCreate_CommentCreateResponsePayload$normalization.graphql")
       }

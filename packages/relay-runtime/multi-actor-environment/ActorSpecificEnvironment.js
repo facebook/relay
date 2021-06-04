@@ -44,6 +44,7 @@ import type {
 
 export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   actorIdentifier: ActorIdentifier,
+  configName: ?string,
   defaultRenderPolicy?: ?RenderPolicy,
   handlerProvider: HandlerProvider,
   logFn: LogFunction,
@@ -54,6 +55,7 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
+  +configName: ?string;
   +options: mixed;
   __log: LogFunction;
   requiredFieldLogger: RequiredFieldLogger;
@@ -68,6 +70,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   +multiActorEnvironment: IMultiActorEnvironment;
 
   constructor(config: ActorSpecificEnvironmentConfig) {
+    this.configName = config.configName;
     this.actorIdentifier = config.actorIdentifier;
     this.multiActorEnvironment = config.multiActorEnvironment;
 

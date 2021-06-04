@@ -53,6 +53,7 @@ import type {
 } from './MultiActorEnvironmentTypes';
 
 export type MultiActorEnvironmentConfig = $ReadOnly<{
+  createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   getDataID?: GetDataID,
   handlerProvider?: HandlerProvider,
@@ -71,6 +72,7 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
   +_actorEnvironments: Map<ActorIdentifier, IActorEnvironment>;
+  +_createConfigNameForActor: ?(actorIdentifier: ActorIdentifier) => string;
   +_createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork;
   +_createStoreForActor: ?(actorIdentifier: ActorIdentifier) => Store;
   +_getDataID: GetDataID;
@@ -108,6 +110,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._reactFlightPayloadDeserializer =
       config.reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
+    this._createConfigNameForActor = config.createConfigNameForActor;
   }
 
   /**
@@ -119,6 +122,9 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     const environment = this._actorEnvironments.get(actorIdentifier);
     if (environment == null) {
       const newEnvironment = new ActorSpecificEnvironment({
+        configName: this._createConfigNameForActor
+          ? this._createConfigNameForActor(actorIdentifier)
+          : null,
         actorIdentifier,
         multiActorEnvironment: this,
         logFn: this._logFn,

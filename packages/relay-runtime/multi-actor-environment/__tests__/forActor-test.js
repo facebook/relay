@@ -14,19 +14,10 @@
 const MultiActorEnvironment = require('../MultiActorEnvironment');
 
 const {create} = require('../../network/RelayNetwork');
-
-jest.mock('../ActorIdentifier', () => {
-  return {
-    getDefaultActorIdentifier: jest.fn(() => {
-      return 'actor:12345';
-    }),
-  };
-});
-
-const {getDefaultActorIdentifier} = require('../ActorIdentifier');
+const {getActorIdentifier} = require('../ActorIdentifier');
 
 test('forActor: creates an environment', () => {
-  const actorIdentifer = getDefaultActorIdentifier();
+  const actorIdentifer = getActorIdentifier('actor:1234');
   const fetchFn = jest.fn();
   const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
@@ -40,7 +31,7 @@ test('forActor: creates an environment', () => {
 });
 
 test('forActor: memoize an environment', () => {
-  const actorIdentifer = getDefaultActorIdentifier();
+  const actorIdentifer = getActorIdentifier('actor:1234');
   const fetchFn = jest.fn();
   const multiActorEnvironment = new MultiActorEnvironment({
     createNetworkForActor: () => create(fetchFn),
@@ -55,4 +46,16 @@ test('forActor: memoize an environment', () => {
   const newEnvironment = multiActorEnvironment.forActor(actorIdentifer);
 
   expect(newEnvironment).toBe(actorEnvironment);
+});
+
+test('forActor with configName', () => {
+  const multiActorEnvironment = new MultiActorEnvironment({
+    createNetworkForActor: jest.fn(),
+    createConfigNameForActor: actorIdentifer =>
+      `Environment(${String(actorIdentifer)})`,
+  });
+  const actorEnvironment = multiActorEnvironment.forActor(
+    getActorIdentifier('actor:1234'),
+  );
+  expect(actorEnvironment.configName).toBe('Environment(actor:1234)');
 });

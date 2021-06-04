@@ -82,56 +82,53 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     MATCH_CONSTANTS.js_field_id_arg,
                                 )
                                 .expect("Expected id argument to exist on __module directive");
-                                if let Some(component) = get_string_literal_argument_value(
+                                let component = get_string_literal_argument_value(
                                     &module_directive,
                                     MATCH_CONSTANTS.js_field_module_arg,
-                                ) {
-                                    let fragment_spread = inline_fragment
-                                        .selections
-                                        .iter()
-                                        .find(|item| matches!(item, Selection::FragmentSpread(_)));
-                                    // This is expected to be a fragment spread
-                                    let fragment_name = match fragment_spread {
-                                        Some(Selection::FragmentSpread(spread)) => {
-                                            spread.fragment.item
-                                        }
-                                        _ => panic!("Expected to have a fragment spread"),
-                                    };
+                                )
+                                .expect("Expected module argument to exist on __module directive");
 
-                                    let type_name = self
-                                        .program
-                                        .schema
-                                        .get_type_string(&processing_item.parent_type);
-                                    module_entries
-                                        .entry(id)
-                                        .and_modify(|module_entry| {
-                                            module_entry.branches.insert(
+                                let fragment_spread = inline_fragment
+                                    .selections
+                                    .iter()
+                                    .find(|item| matches!(item, Selection::FragmentSpread(_)));
+                                // This is expected to be a fragment spread
+                                let fragment_name = match fragment_spread {
+                                    Some(Selection::FragmentSpread(spread)) => spread.fragment.item,
+                                    _ => panic!("Expected to have a fragment spread"),
+                                };
+
+                                let type_name = self
+                                    .program
+                                    .schema
+                                    .get_type_string(&processing_item.parent_type);
+                                module_entries
+                                    .entry(id)
+                                    .and_modify(|module_entry| {
+                                        module_entry.branches.insert(
+                                            type_name.clone(),
+                                            Branch {
+                                                component,
+                                                fragment: get_fragment_filename(fragment_name),
+                                            },
+                                        );
+                                    })
+                                    .or_insert(ModuleEntry {
+                                        id,
+                                        branches: {
+                                            let mut map: FnvHashMap<String, Branch> =
+                                                Default::default();
+                                            map.insert(
                                                 type_name.clone(),
                                                 Branch {
                                                     component,
                                                     fragment: get_fragment_filename(fragment_name),
                                                 },
                                             );
-                                        })
-                                        .or_insert(ModuleEntry {
-                                            id,
-                                            branches: {
-                                                let mut map: FnvHashMap<String, Branch> =
-                                                    Default::default();
-                                                map.insert(
-                                                    type_name.clone(),
-                                                    Branch {
-                                                        component,
-                                                        fragment: get_fragment_filename(
-                                                            fragment_name,
-                                                        ),
-                                                    },
-                                                );
-                                                map
-                                            },
-                                            plural: processing_item.plural,
-                                        });
-                                }
+                                            map
+                                        },
+                                        plural: processing_item.plural,
+                                    });
                             }
                             processing_queue.push(ProcessingItem {
                                 plural: processing_item.plural,

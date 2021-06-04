@@ -175,7 +175,7 @@ impl<'program> SubscriptionTransform<'program> {
                         linked_field.alias_or_name(&self.program.schema).lookup()
                     )
                     .intern(),
-                    Some(normalization_operation_name),
+                    normalization_operation_name,
                     operation.name.item,
                     fragment_spread,
                     location,

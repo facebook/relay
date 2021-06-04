@@ -504,7 +504,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                         directives: vec![build_module_metadata_as_directive(
                             match_directive_key_argument,
                             module_id,
-                            Some(module_directive_name_argument),
+                            module_directive_name_argument,
                             self.document_name,
                             spread,
                             module_directive.name.location,
@@ -875,7 +875,7 @@ fn get_module_directive_name_argument(
 pub(crate) fn build_module_metadata_as_directive(
     match_directive_key_argument: StringKey,
     module_id: StringKey,
-    module_directive_name_argument: Option<StringKey>,
+    module_directive_name_argument: StringKey,
     source_document_name: StringKey,
     fragment_spread: &FragmentSpread,
     location: Location,
@@ -888,24 +888,22 @@ pub(crate) fn build_module_metadata_as_directive(
             location,
         ),
         build_string_literal_argument(MATCH_CONSTANTS.js_field_id_arg, module_id, location),
-    ];
-    if let Some(module_directive_name_argument) = module_directive_name_argument {
-        arguments.push(build_string_literal_argument(
+        build_string_literal_argument(
             MATCH_CONSTANTS.js_field_module_arg,
             module_directive_name_argument,
             location,
-        ));
-    }
-    arguments.push(build_string_literal_argument(
-        MATCH_CONSTANTS.source_document_arg,
-        source_document_name,
-        location,
-    ));
-    arguments.push(build_string_literal_argument(
-        MATCH_CONSTANTS.name_arg,
-        fragment_spread.fragment.item,
-        location,
-    ));
+        ),
+        build_string_literal_argument(
+            MATCH_CONSTANTS.source_document_arg,
+            source_document_name,
+            location,
+        ),
+        build_string_literal_argument(
+            MATCH_CONSTANTS.name_arg,
+            fragment_spread.fragment.item,
+            location,
+        ),
+    ];
     if use_no_inline {
         arguments.push(Argument {
             name: WithLocation::new(location, MATCH_CONSTANTS.no_inline_arg),

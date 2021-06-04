@@ -48,7 +48,10 @@ impl<'config> WatchmanFileSource<'config> {
         })?;
         let resolved_root = client.resolve_root(canonical_root).await?;
         perf_logger_event.stop(connect_timer);
-
+        debug!(
+            "WatchmanFileSource::connect(...) resolved_root = {:?}",
+            resolved_root
+        );
         Ok(Self {
             client,
             config,
@@ -179,6 +182,10 @@ impl<'config> WatchmanFileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
     ) -> Result<FileSourceResult> {
         let expression = get_watchman_expr(&self.config);
+        debug!(
+            "WatchmanFileSource::query_file_result(...) get_watchman_expr = {:?}",
+            &expression
+        );
 
         let query_timer = perf_logger_event.start("watchman_query_time");
         // If `since` is available, we should not pass the `path` parameter.
@@ -201,11 +208,19 @@ impl<'config> WatchmanFileSource<'config> {
                 ..Default::default()
             }
         };
+        debug!(
+            "WatchmanFileSource::query_file_result(...) request = {:?}",
+            &request
+        );
         let query_result = self
             .client
             .query::<WatchmanFile>(&self.resolved_root, request)
             .await?;
         perf_logger_event.stop(query_timer);
+
+        // print debug information for this result
+        // (file list will include only files with specified extension)
+        debug_query_results(&query_result, "graphql");
 
         let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
         Ok(FileSourceResult::Watchman(WatchmanFileSourceResult {
@@ -232,14 +247,26 @@ impl<'config> WatchmanFileSource<'config> {
             clock: ClockSpec::null(),
             scm: Some(saved_state_config),
         });
+        debug!(
+            "WatchmanFileSource::try_saved_state(...) scm_since = {:?}",
+            &scm_since
+        );
         let file_source_result = self
             .query_file_result(Some(scm_since), perf_logger_event)
             .await
             .map_err(|_| "query failed")?;
+        debug!(
+            "WatchmanFileSource::try_saved_state(...) file_source_result = {:?}",
+            &file_source_result
+        );
         let saved_state_info = file_source_result
             .saved_state_info()
             .as_ref()
             .ok_or("no saved state in watchman response")?;
+        debug!(
+            "WatchmanFileSource::saved_state_info(...) file_source_result = {:?}",
+            &saved_state_info
+        );
         let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
             saved_state_loader
                 .load(&saved_state_info, self.config)
@@ -369,4 +396,55 @@ fn get_base_revision(commit_hash: Option<String>) -> String {
     }
 
     String::from_utf8_lossy(&output.stdout).to_string()
+}
+
+fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {
+    if let Ok(rust_log) = std::env::var("RUST_LOG") {
+        if rust_log == *"debug" {
+            debug!(
+                "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
+                query_result.version
+            );
+            debug!(
+                "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
+                query_result.clock
+            );
+            debug!(
+                "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
+                query_result.is_fresh_instance
+            );
+            debug!(
+                "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
+                query_result.saved_state_info
+            );
+            debug!(
+                "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
+                query_result.state_metadata
+            );
+            if let Some(files) = &query_result.files {
+                debug!(
+                    "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
+                    extension_filter,
+                    files
+                        .iter()
+                        .filter_map(|file| {
+                            if file.name.extension().is_some()
+                                && file.name.extension().unwrap() == extension_filter
+                            {
+                                Some(format!(
+                                    "name: {:?}, hash: {:?}, exists: {}",
+                                    *file.name, *file.hash, *file.exists
+                                ))
+                            } else {
+                                None
+                            }
+                        })
+                        .collect::<Vec<String>>()
+                        .join("\n")
+                );
+            } else {
+                debug!("WatchmanFileSource::query_file_result(...): no files found");
+            }
+        }
+    }
 }

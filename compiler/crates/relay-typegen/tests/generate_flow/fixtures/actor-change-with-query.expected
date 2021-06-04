@@ -22,7 +22,7 @@ export type ViewerVariables = {||};
 export type ViewerResponse = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
-      +__viewer: string,
+      +actor_key: string,
       +$fragmentRefs: ActorFragment$ref,
     |}>,
   |},

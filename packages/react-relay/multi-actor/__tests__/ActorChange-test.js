@@ -180,7 +180,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:4321',
+                      actor_key: 'actor:4321',
                       id: 'node-1',
                       __typename: 'FeedUnit',
                       message: {
@@ -200,7 +200,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:5678',
+                      actor_key: 'actor:5678',
                       id: 'node-2',
                       __typename: 'FeedUnit',
                       message: {
@@ -279,7 +279,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:4321',
+                      actor_key: 'actor:4321',
                       id: 'node-1',
                       __typename: 'FeedUnit',
                       message: {
@@ -299,7 +299,7 @@ describe('ActorChange', () => {
                       },
                     },
                     actor_node: {
-                      __viewer: 'actor:5678',
+                      actor_key: 'actor:5678',
                       id: 'node-2',
                       __typename: 'FeedUnit',
                       message: {

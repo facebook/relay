@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ef3c2a1d34c232a4b6a1dada9f0fc4b>>
+ * @generated SignedSource<<fe68304d079f4c4a35d522aa107f99cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type ActorChangeWithStreamTestQueryResponse = {|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
-          +__viewer: string,
+          +actor_key: string,
           +$fragmentRefs: ActorChangeWithStreamTestFragment$ref,
         |}>,
       |}>,
@@ -217,7 +217,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -236,12 +236,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "be0061e6915a1fc52ee1fa364d8d6452",
+    "cacheID": "9f91b879e7aa3200714e49d5fba899ca",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithStreamTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
+    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
   }
 };
 })();

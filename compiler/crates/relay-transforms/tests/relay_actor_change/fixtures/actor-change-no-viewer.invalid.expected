@@ -11,7 +11,7 @@ fragment StoryFragment on Story {
   seenState
 }
 ==================================== ERROR ====================================
-✖︎ The directive 'EXPERIMENTAL__as_actor' automatically adds '__viewer' to the selection of the field 'story'. But the field '__viewer' does not exist on the type 'Story'. Please makes sure the GraphQL schema supports actor change on 'Story'.
+✖︎ The directive 'EXPERIMENTAL__as_actor' automatically adds 'actor_key' to the selection of the field 'story'. But the field 'actor_key' does not exist on the type 'Story'. Please makes sure the GraphQL schema supports actor change on 'Story'.
 
   actor-change-no-viewer.invalid.graphql:4:9
     3 │ fragment TestFragment on Query {

@@ -220,7 +220,7 @@ describe('ActorChange', () => {
             edges: [
               {
                 node: {
-                  __viewer: 'actor:4321',
+                  actor_key: 'actor:4321',
                   id: 'node-1',
                   __typename: 'FeedUnit',
                   actor: {

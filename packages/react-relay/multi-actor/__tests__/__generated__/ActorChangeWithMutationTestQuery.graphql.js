@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3eab2b8570c04dcba5a0c7f33427d608>>
+ * @generated SignedSource<<6efe6d512782c036969ebd27ba7a785c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ export type ActorChangeWithMutationTestQueryResponse = {|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
-          +__viewer: string,
+          +actor_key: string,
           +$fragmentRefs: ActorChangeWithMutationTestFragment$ref,
         |}>,
       |}>,
@@ -198,7 +198,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -217,12 +217,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "69397d3b37fd2b3f91770d41eeebeb48",
+    "cacheID": "74e911a55b86f57b56004121bc7941a7",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithMutationTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithMutationTestQuery {\n  viewer {\n    actor {\n      __typename\n      id\n      name\n    }\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithMutationTestFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithMutationTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    id\n    name\n  }\n}\n"
+    "text": "query ActorChangeWithMutationTestQuery {\n  viewer {\n    actor {\n      __typename\n      id\n      name\n    }\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithMutationTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithMutationTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    id\n    name\n  }\n}\n"
   }
 };
 })();

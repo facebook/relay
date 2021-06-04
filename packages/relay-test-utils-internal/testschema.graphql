@@ -481,7 +481,7 @@ interface FeedUnit {
   id: ID!
   message: Text
   tracking: String
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type FriendsConnection {
@@ -624,7 +624,7 @@ interface Actor {
   url(relative: Boolean, site: String): String
   websites: [String]
   username: String
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type NodeSavedStateResponsePayload {
@@ -688,7 +688,7 @@ type Page implements Node & Actor & Entity {
   viewerSavedState: String
   nameWithArgs(capitalize: Boolean!): String
   nameWithDefaultArgs(capitalize: Boolean! = false): String
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type PageInfo {
@@ -751,7 +751,7 @@ type NonNodeStory implements FeedUnit @fetchable(field_name: "fetch_id") {
     last: Int
     orderby: String
   ): CommentsConnection
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type PhotoStory implements FeedUnit & Node {
@@ -815,7 +815,7 @@ type PhotoStory implements FeedUnit & Node {
   websites: [String]
   username: String
   viewerSavedState: String
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type Story implements FeedUnit & Node & MaybeNodeInterface {
@@ -879,7 +879,7 @@ type Story implements FeedUnit & Node & MaybeNodeInterface {
   username: String
   viewerSavedState: String
   flight(component: String, props: ReactFlightProps): ReactFlightComponent
-  __viewer: ID!
+  actor_key: ID!
 }
 
 type StoryAttachment {
@@ -1077,7 +1077,7 @@ type User implements Named & Node & Actor & HasJsField & Entity & AllConcreteTyp
   neighbors: [User!]
   nearest_neighbor: User!
   parents: [User!]!
-  __viewer: ID!
+  actor_key: ID!
 }
 
 enum NameRendererContext {

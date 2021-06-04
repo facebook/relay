@@ -11,7 +11,7 @@ fragment WrongViewerFragment on WithWrongViewer {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ The directive 'EXPERIMENTAL__as_actor' automatically adds '__viewer' to the selection of the field 'wrongViewer'. The field '__viewer' should be defined as a scalar field in the GraphQL Schema, but is defined with the type 'Viewer' instead.
+✖︎ The directive 'EXPERIMENTAL__as_actor' automatically adds 'actor_key' to the selection of the field 'wrongViewer'. The field 'actor_key' should be defined as a scalar field in the GraphQL Schema, but is defined with the type 'Viewer' instead.
 
   actor-change-wrong-viewer.invalid.graphql:4:15
     3 │ fragment TestFragment on Query {

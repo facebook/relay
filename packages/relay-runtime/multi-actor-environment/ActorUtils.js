@@ -11,7 +11,7 @@
 
 'use strict';
 
-const ACTOR_IDENTIFIER_FIELD_NAME = '__viewer';
+const ACTOR_IDENTIFIER_FIELD_NAME = 'actor_key';
 
 const {getActorIdentifier} = require('./ActorIdentifier');
 

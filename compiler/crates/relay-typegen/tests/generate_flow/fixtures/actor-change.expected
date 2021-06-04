@@ -40,7 +40,7 @@ declare export opaque type ViewerFragment$ref: FragmentReference;
 declare export opaque type ViewerFragment$fragmentType: ViewerFragment$ref;
 export type ViewerFragment = {|
   +actor: ?ActorChangePoint<{|
-    +__viewer: string,
+    +actor_key: string,
     +$fragmentRefs: ActorFragment$ref,
   |}>,
   +$refType: ViewerFragment$ref,

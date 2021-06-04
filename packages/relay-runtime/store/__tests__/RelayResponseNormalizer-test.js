@@ -4050,7 +4050,7 @@ describe('RelayResponseNormalizer', () => {
           actor: {
             __typename: 'User',
             id: 'user-1234',
-            __viewer: 'actor-1234',
+            actor_key: 'actor-1234',
             name: 'Antonio',
           },
         },
@@ -4073,7 +4073,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-1234',
             data: {
               __typename: 'User',
-              __viewer: 'actor-1234',
+              actor_key: 'actor-1234',
               id: 'user-1234',
               name: 'Antonio',
             },
@@ -4119,7 +4119,7 @@ describe('RelayResponseNormalizer', () => {
           actor: {
             __typename: 'User',
             id: 'user-1234',
-            __viewer: 'actor-4321',
+            actor_key: 'actor-4321',
             name: 'Antonio',
           },
         },
@@ -4141,7 +4141,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-4321',
             data: {
               __typename: 'User',
-              __viewer: 'actor-4321',
+              actor_key: 'actor-4321',
               id: 'user-1234',
               name: 'Antonio',
             },
@@ -4188,7 +4188,7 @@ describe('RelayResponseNormalizer', () => {
             __typename: 'User',
             // ID maybe missing/falsy
             id: '',
-            __viewer: 'actor-4321',
+            actor_key: 'actor-4321',
             name: 'Antonio',
           },
         },
@@ -4210,7 +4210,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-4321',
             data: {
               __typename: 'User',
-              __viewer: 'actor-4321',
+              actor_key: 'actor-4321',
               id: '',
               name: 'Antonio',
             },
@@ -4249,7 +4249,7 @@ describe('RelayResponseNormalizer', () => {
       });
     });
 
-    it('should warn if `__viewer` is missing in the response', () => {
+    it('should warn if `actor_key` is missing in the response', () => {
       const payload = {
         viewer: {
           __typename: 'Viewer',
@@ -4263,7 +4263,7 @@ describe('RelayResponseNormalizer', () => {
       const recordSource = new RelayRecordSourceMapImpl();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const result = expectToWarn(
-        'RelayResponseNormalizer: Payload did not contain a value for field `__viewer`. ' +
+        'RelayResponseNormalizer: Payload did not contain a value for field `actor_key`. ' +
           'Check that you are parsing with the same query that was used to fetch the payload. Payload is `' +
           JSON.stringify(
             {
@@ -4385,7 +4385,7 @@ describe('RelayResponseNormalizer', () => {
           actor: {
             __typename: 'User',
             id: 'user-1234',
-            __viewer: 'actor-4321',
+            actor_key: 'actor-4321',
             name: 'Antonio',
           },
         },
@@ -4411,7 +4411,7 @@ describe('RelayResponseNormalizer', () => {
             actorIdentifier: 'actor-4321',
             data: {
               __typename: 'User',
-              __viewer: 'actor-4321',
+              actor_key: 'actor-4321',
               id: 'user-1234',
               name: 'Antonio',
             },

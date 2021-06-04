@@ -38,7 +38,7 @@ pub fn relay_actor_change_transform(
 lazy_static! {
     pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE: StringKey = "EXPERIMENTAL__as_actor".intern();
     pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey = "__as_actor".intern();
-    static ref VIEWER_FIELD_NAME: StringKey = "__viewer".intern();
+    static ref VIEWER_FIELD_NAME: StringKey = "actor_key".intern();
 }
 
 struct ActorChangeTransform<'program, 'feature> {

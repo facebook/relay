@@ -80,7 +80,7 @@ fragment UserFragment on User {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "__viewer",
+                    "name": "actor_key",
                     "storageKey": null
                   }
                 ],

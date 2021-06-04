@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a623da01cb524f82d96684ebda41d6ed>>
+ * @generated SignedSource<<a946e519d17399e5980b0a007d3e37f3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type RelayResponseNormalizerTestActorChangeQueryVariables = {||};
 export type RelayResponseNormalizerTestActorChangeQueryResponse = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
-      +__viewer: string,
+      +actor_key: string,
       +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$ref,
     |}>,
   |},
@@ -116,7 +116,7 @@ var node/*: ConcreteRequest*/ = {
                   "alias": null,
                   "args": null,
                   "kind": "ScalarField",
-                  "name": "__viewer",
+                  "name": "actor_key",
                   "storageKey": null
                 },
                 {
@@ -136,12 +136,12 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "0447f9134e2f738916e446e932e3cf46",
+    "cacheID": "c5a4dbc2c33e6e4553a678a556cc3b46",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTestActorChangeQuery",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTestActorChangeQuery {\n  viewer {\n    actor {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      __viewer\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
+    "text": "query RelayResponseNormalizerTestActorChangeQuery {\n  viewer {\n    actor {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
   }
 };
 

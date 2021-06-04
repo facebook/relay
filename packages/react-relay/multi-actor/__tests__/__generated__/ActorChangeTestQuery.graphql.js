@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a731b8f96b6163a6f0a611d8ac413498>>
+ * @generated SignedSource<<b6a72b8869c9c77a41f6c57b5c28112b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type ActorChangeTestQueryResponse = {|
           |},
         |},
         +actor_node: ?ActorChangePoint<{|
-          +__viewer: string,
+          +actor_key: string,
           +$fragmentRefs: ActorChangeTestFeedUnitFragment$ref,
         |}>,
       |}>,
@@ -238,7 +238,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -257,12 +257,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3b1748be1dae9b8e0328a22d2a60825d",
+    "cacheID": "04462875af06e8ea0576e8960a260887",
     "id": null,
     "metadata": {},
     "name": "ActorChangeTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n}\n"
+    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n}\n"
   }
 };
 })();

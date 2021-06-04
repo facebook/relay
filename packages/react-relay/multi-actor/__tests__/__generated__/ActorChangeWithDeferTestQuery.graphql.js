@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c243e8bb0ecfdee0f946511c0fbe8dbc>>
+ * @generated SignedSource<<0cd2efa022a39d64af8978aaa1864206>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type ActorChangeWithDeferTestQueryResponse = {|
           |},
         |},
         +actor_node: ?ActorChangePoint<{|
-          +__viewer: string,
+          +actor_key: string,
           +$fragmentRefs: ActorChangeWithDeferTestFragment$ref,
         |}>,
       |}>,
@@ -249,7 +249,7 @@ return {
                           "alias": null,
                           "args": null,
                           "kind": "ScalarField",
-                          "name": "__viewer",
+                          "name": "actor_key",
                           "storageKey": null
                         }
                       ],
@@ -268,12 +268,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "1f7f6ef4d5a1b6256cb3a9ded0359e33",
+    "cacheID": "f7fe1810549865a9fcce336549e17c93",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithDeferTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithDeferTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeWithDeferTestFragment\n          __viewer\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithDeferTestDeferFragment on FeedUnit {\n  __isFeedUnit: __typename\n  message {\n    text\n  }\n}\n\nfragment ActorChangeWithDeferTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n  ...ActorChangeWithDeferTestDeferFragment @defer(label: \"ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment\")\n}\n"
+    "text": "query ActorChangeWithDeferTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeWithDeferTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithDeferTestDeferFragment on FeedUnit {\n  __isFeedUnit: __typename\n  message {\n    text\n  }\n}\n\nfragment ActorChangeWithDeferTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n  ...ActorChangeWithDeferTestDeferFragment @defer(label: \"ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment\")\n}\n"
   }
 };
 })();

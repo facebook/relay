@@ -140,7 +140,7 @@ fragment actorChangeSimpleQueryUserFragment on User {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "__viewer",
+                      "name": "actor_key",
                       "storageKey": null
                     },
                     {
@@ -182,7 +182,7 @@ query actorChangeSimpleQuery {
       actor {
         __typename
         ...actorChangeSimpleQueryUserFragment
-        __viewer
+        actor_key
         id
       }
     }

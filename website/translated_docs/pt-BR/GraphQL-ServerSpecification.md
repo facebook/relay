@@ -24,7 +24,7 @@ As três principais premissas que o Relay possui sobre um Server GraphQL são qu
 
 Este exemplo demonstra todas estas três premissas. Este exemplo não é abrangente, mas foi projetado para introduzir rapidamente essas premissas básicas, para fornecer algum contexto antes de mergulhar nas especificações mais detalhadas da biblioteca.
 
-A premissa desse é exemple é que nos queremos utilizar o GraphQL para buscar informações sobre naves e facções da trilogia original do Star Wars.
+A premissa do exemplo é que queremos utilizar o GraphQL para buscar informações sobre naves e facções da trilogia original do Star Wars.
 
 Presume-se que o leitor já esteja familiarizado com [GraphQL](http://graphql.org/); caso contrário, o README do repo oficial do [GraphQL.js](https://github.com/graphql/graphql-js) é um bom lugar para começar.
 

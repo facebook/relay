@@ -42,7 +42,7 @@ Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
 
 ## How to Get in Touch
 
-If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://facebook.github.io/relay/en/help.html).
+If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://relay.dev/help).
 
 ## Style Guide
 

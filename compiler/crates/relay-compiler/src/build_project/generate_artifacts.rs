@@ -9,7 +9,7 @@ pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
-use common::{NamedItem, SourceLocationKey};
+use common::{sync::par_iter, sync::ParallelIterator, NamedItem, SourceLocationKey};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::print_full_operation;
 use interner::StringKey;
@@ -35,88 +35,85 @@ pub fn generate_artifacts(
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Result<Vec<Artifact>, BuildProjectError> {
-    let mut artifacts = Vec::new();
-    for normalization_operation in programs.normalization.operations() {
-        if let Some(directive) = normalization_operation
-            .directives
-            .named(*DIRECTIVE_SPLIT_OPERATION)
-        {
-            // Generate normalization file for SplitOperation
-            let metadata = SplitOperationMetadata::from(directive);
-            let source_fragment = programs
-                .source
-                .fragment(metadata.derived_from)
-                .expect("Expected the source document for the SplitOperation to exist.");
-            let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
-            let source_file = source_fragment.name.location.source_location();
-            let typegen_operation = if metadata.raw_response_type {
-                programs
-                    .normalization
-                    .operation(normalization_operation.name.item)
-                    .map(Arc::clone)
-            } else {
-                None
-            };
+    let artifacts: Vec<_> = par_iter(&programs.normalization.operations)
+        .map(|normalization_operation| {
+            if let Some(directive) = normalization_operation
+                .directives
+                .named(*DIRECTIVE_SPLIT_OPERATION)
+            {
+                // Generate normalization file for SplitOperation
+                let metadata = SplitOperationMetadata::from(directive);
+                let source_fragment = programs
+                    .source
+                    .fragment(metadata.derived_from)
+                    .expect("Expected the source document for the SplitOperation to exist.");
+                let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
+                let source_file = source_fragment.name.location.source_location();
+                let typegen_operation = if metadata.raw_response_type {
+                    programs
+                        .normalization
+                        .operation(normalization_operation.name.item)
+                        .map(Arc::clone)
+                } else {
+                    None
+                };
 
-            artifacts.push(Artifact {
-                source_definition_names: metadata.parent_documents.into_iter().collect(),
-                path: path_for_artifact(
-                    project_config,
+                Artifact {
+                    source_definition_names: metadata.parent_documents.into_iter().collect(),
+                    path: path_for_artifact(
+                        project_config,
+                        source_file,
+                        normalization_operation.name.item,
+                    ),
+                    content: ArtifactContent::SplitOperation {
+                        normalization_operation: Arc::clone(normalization_operation),
+                        typegen_operation,
+                        source_hash,
+                    },
                     source_file,
-                    normalization_operation.name.item,
-                ),
-                content: ArtifactContent::SplitOperation {
-                    normalization_operation: Arc::clone(normalization_operation),
-                    typegen_operation,
+                }
+            } else if let Some(source_name) =
+                RefetchableDerivedFromMetadata::from_directives(&normalization_operation.directives)
+            {
+                let source_fragment = programs
+                    .source
+                    .fragment(source_name)
+                    .expect("Expected the source document for the SplitOperation to exist.");
+                let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+
+                generate_normalization_artifact(
+                    source_name,
+                    project_config,
+                    programs,
+                    normalization_operation,
                     source_hash,
-                },
-                source_file,
-            });
-        } else if let Some(source_name) =
-            RefetchableDerivedFromMetadata::from_directives(&normalization_operation.directives)
-        {
-            let source_fragment = programs
-                .source
-                .fragment(source_name)
-                .expect("Expected the source document for the SplitOperation to exist.");
-            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
-
-            artifacts.push(generate_normalization_artifact(
-                source_name,
-                project_config,
-                programs,
-                normalization_operation,
-                source_hash,
-                source_fragment.name.location.source_location(),
-            ));
-        } else {
-            let source_hash = source_hashes
-                .get(&normalization_operation.name.item)
-                .cloned()
-                .unwrap();
-            artifacts.push(generate_normalization_artifact(
-                normalization_operation.name.item,
-                project_config,
-                programs,
-                normalization_operation,
-                source_hash,
-                normalization_operation.name.location.source_location(),
-            ));
-        }
-    }
-
-    for reader_fragment in programs.reader.fragments() {
-        let source_hash = source_hashes
-            .get(&reader_fragment.name.item)
-            .cloned()
-            .unwrap();
-        artifacts.push(generate_reader_artifact(
-            project_config,
-            programs,
-            reader_fragment,
-            source_hash,
-        ));
-    }
+                    source_fragment.name.location.source_location(),
+                )
+            } else {
+                let source_hash = source_hashes
+                    .get(&normalization_operation.name.item)
+                    .cloned()
+                    .unwrap();
+                generate_normalization_artifact(
+                    normalization_operation.name.item,
+                    project_config,
+                    programs,
+                    normalization_operation,
+                    source_hash,
+                    normalization_operation.name.location.source_location(),
+                )
+            }
+        })
+        .chain(
+            par_iter(&programs.reader.fragments).map(|(_, reader_fragment)| {
+                let source_hash = source_hashes
+                    .get(&reader_fragment.name.item)
+                    .cloned()
+                    .unwrap();
+                generate_reader_artifact(project_config, programs, reader_fragment, source_hash)
+            }),
+        )
+        .collect();
 
     Ok(artifacts)
 }

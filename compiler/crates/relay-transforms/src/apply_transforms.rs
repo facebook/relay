@@ -155,7 +155,7 @@ fn apply_common_transforms(
     if feature_flags.enable_flight_transform {
         program = log_event.time("react_flight", || react_flight(&program))?;
         program = log_event.time("relay_client_component", || {
-            relay_client_component(&program)
+            relay_client_component(&program, &feature_flags)
         })?;
     }
 

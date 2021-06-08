@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::feature_flags::FeatureFlags;
 use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
-use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
 use crate::util::get_normalization_operation_name;
 use crate::{defer_stream::DEFER_STREAM_CONSTANTS, FeatureFlag};
+use crate::{feature_flags::FeatureFlags, no_inline::attach_no_inline_directives_to_fragments};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
@@ -255,13 +254,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            let should_use_no_inline = {
-                match self.no_inline_flag {
-                    FeatureFlag::Disabled => false,
-                    FeatureFlag::Enabled => true,
-                    FeatureFlag::Limited { allowlist } => allowlist.contains(&spread.fragment.item),
-                }
-            };
+            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
             // @arguments on the fragment spread is not allowed without @no_inline
             if !should_use_no_inline && !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
@@ -713,30 +706,10 @@ impl Transformer for MatchTransform<'_, '_> {
             next_program
         } else {
             let mut next_program = next_program.replace_or_else(|| program.clone());
-            for (fragment_name, parent_sources) in self.no_inline_fragments.drain() {
-                let fragment = Arc::make_mut(next_program.fragment_mut(fragment_name).unwrap());
-                let parent_documents_arg = Argument {
-                    name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                        parent_sources
-                            .into_iter()
-                            .map(ConstantValue::String)
-                            .collect(),
-                    ))),
-                };
-                let no_inline_directive = fragment
-                    .directives
-                    .iter_mut()
-                    .find(|d| d.name.item == *NO_INLINE_DIRECTIVE_NAME);
-                if let Some(no_inline_directive) = no_inline_directive {
-                    no_inline_directive.arguments.push(parent_documents_arg);
-                } else {
-                    fragment.directives.push(Directive {
-                        name: WithLocation::new(fragment.name.location, *NO_INLINE_DIRECTIVE_NAME),
-                        arguments: vec![parent_documents_arg],
-                    })
-                }
-            }
+            attach_no_inline_directives_to_fragments(
+                &mut self.no_inline_fragments,
+                &mut next_program,
+            );
             TransformedValue::Replace(next_program)
         }
     }

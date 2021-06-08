@@ -955,23 +955,34 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
     fn build_normalization_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
         let args = self.build_arguments(&frag_spread.arguments);
+
         Primitive::Key(self.object(vec![
-            ObjectEntry {
-                key: CODEGEN_CONSTANTS.args,
-                value: match args {
-                    None => Primitive::Null,
-                    Some(key) => Primitive::Key(key),
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.args,
+                    value: match args {
+                        None => Primitive::Null,
+                        Some(key) => Primitive::Key(key),
+                    },
                 },
-            },
-            ObjectEntry {
-                key: CODEGEN_CONSTANTS.fragment,
-                value: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
-            },
-            ObjectEntry {
-                key: CODEGEN_CONSTANTS.kind,
-                value: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
-            },
-        ]))
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.fragment,
+                    value: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
+                },
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.kind,
+                    value: Primitive::String(
+                        if frag_spread
+                            .directives
+                            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+                            .is_some()
+                        {
+                            CODEGEN_CONSTANTS.client_component
+                        } else {
+                            CODEGEN_CONSTANTS.fragment_spread
+                        },
+                    ),
+                },
+            ]))
     }
 
     fn build_relay_client_component_fragment_spread(

@@ -161,6 +161,7 @@ export type NormalizationFlightField = {|
 |};
 
 export type NormalizationClientComponent = {|
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ClientComponent',
   +fragment: NormalizationNode,
 |};

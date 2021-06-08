@@ -28,7 +28,10 @@ use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{PerfLogEvent, PerfLogger};
+use common::{
+    sync::{par_iter, ParallelIterator},
+    PerfLogEvent, PerfLogger,
+};
 use fnv::{FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
@@ -345,29 +348,20 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let write_artifacts_time = log_event.start("write_artifacts_time");
+            write_artifacts(
+                config,
+                project_config,
+                schema,
+                should_stop_updating_artifacts,
+                &artifacts,
+            )?;
             for artifact in &artifacts {
-                if should_stop_updating_artifacts() {
-                    break;
-                }
                 if !existing_artifacts.remove(&artifact.path) {
                     debug!(
                         "[{}] new artifact {:?} from definitions {:?}",
                         project_config.name, &artifact.path, &artifact.source_definition_names
                     );
-                }
-
-                let path = config.root_dir.join(&artifact.path);
-                let content = artifact.content.as_bytes(
-                    config,
-                    project_config,
-                    &mut printer,
-                    schema,
-                    artifact.source_file,
-                );
-                if config.artifact_writer.should_write(&path, &content)? {
-                    config.artifact_writer.write(path, content)?;
                 }
             }
             log_event.stop(write_artifacts_time);
@@ -383,28 +377,20 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
             let write_artifacts_incremental_time =
                 log_event.start("write_artifacts_incremental_time");
 
             // Write or update artifacts
+            write_artifacts(
+                config,
+                project_config,
+                schema,
+                should_stop_updating_artifacts,
+                &artifacts,
+            )?;
             for artifact in artifacts {
-                if should_stop_updating_artifacts() {
-                    break;
-                }
-                let path = config.root_dir.join(&artifact.path);
-                let content = artifact.content.as_bytes(
-                    config,
-                    project_config,
-                    &mut printer,
-                    schema,
-                    artifact.source_file,
-                );
-                if config.artifact_writer.should_write(&path, &content)? {
-                    config.artifact_writer.write(path, content)?;
-                }
                 current_paths_map.insert(artifact);
             }
             log_event.stop(write_artifacts_incremental_time);
@@ -486,4 +472,34 @@ The compiler may produce outdated artifacts, but it will regenerate the correct 
     perf_logger.complete_event(log_event);
 
     Ok(next_artifact_map)
+}
+
+fn write_artifacts<F: Fn() -> bool + Sync + Send>(
+    config: &Config,
+    project_config: &ProjectConfig,
+    schema: &SDLSchema,
+    should_stop_updating_artifacts: F,
+    artifacts: &[Artifact],
+) -> Result<(), BuildProjectFailure> {
+    par_iter(artifacts).try_for_each_init(
+        || Printer::with_dedupe(project_config.js_module_format),
+        |mut printer, artifact| {
+            if should_stop_updating_artifacts() {
+                return Err(BuildProjectFailure::Cancelled);
+            }
+            let path = config.root_dir.join(&artifact.path);
+            let content = artifact.content.as_bytes(
+                config,
+                project_config,
+                &mut printer,
+                schema,
+                artifact.source_file,
+            );
+            if config.artifact_writer.should_write(&path, &content)? {
+                config.artifact_writer.write(path, content)?;
+            }
+            Ok(())
+        },
+    )?;
+    Ok(())
 }

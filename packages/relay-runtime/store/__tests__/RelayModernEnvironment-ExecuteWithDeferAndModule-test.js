@@ -30,7 +30,10 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {graphql} = require('relay-runtime');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
@@ -177,6 +180,14 @@ function runTestsWithBatchedStoreUpdatesSetting(enableBatchedStoreUpdates) {
         });
 
         it('processes deferred payloads', () => {
+          if (
+            environmentType === 'MultiActorEnvironment' &&
+            !enableBatchedStoreUpdates
+          ) {
+            expectWarningWillFire(
+              'RelayPublishQueue.run was called, but the call would have been a noop.',
+            );
+          }
           const initialSnapshot = environment.lookup(selector);
           const callback = jest.fn();
           environment.subscribe(initialSnapshot, callback);

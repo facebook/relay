@@ -25,7 +25,10 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
@@ -208,6 +211,9 @@ describe('ActorChange', () => {
       </ComponentWrapper>,
     );
 
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
     dataSource.next({
       data: {
         viewer: {

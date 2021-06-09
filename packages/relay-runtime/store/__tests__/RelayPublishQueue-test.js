@@ -35,6 +35,7 @@ const {
   simpleClone,
   disallowWarnings,
   expectWarningWillFire,
+  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -219,6 +220,9 @@ describe('RelayPublishQueue', () => {
       queue.revertUpdate(optimisticUpdate);
       let sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
@@ -248,6 +252,9 @@ describe('RelayPublishQueue', () => {
       queue.revertUpdate(optimisticUpdate);
       let sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       sourceData = store.getSource().toJSON();
       expect(sourceData).toEqual(initialData);
@@ -1749,7 +1756,7 @@ describe('RelayPublishQueue', () => {
   });
 
   describe('run()', () => {
-    it('notifies the store even when no mutations have occurred', () => {
+    it('does not notify the store if no mutations have occurred', () => {
       const notify = jest.fn(() => []);
       const publish = jest.fn();
       const source = new RelayRecordSourceMapImpl();
@@ -1762,9 +1769,12 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       expect(publish).not.toBeCalled();
-      expect(notify).toBeCalled();
+      expect(notify).not.toBeCalled();
     });
 
     it('notifies the store if an optimistic mutation is applied', () => {
@@ -1891,6 +1901,9 @@ describe('RelayPublishQueue', () => {
         snapshot: jest.fn(() => []),
       };
       const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      expectWarningWillFire(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+      );
       queue.run();
       expect(holdGC).not.toBeCalled();
     });
@@ -1919,7 +1932,12 @@ describe('RelayPublishQueue', () => {
       queue.run();
       expect(holdGC).toBeCalled();
       expect(disposeGC).not.toBeCalled();
-      queue.run();
+      expectToWarn(
+        'RelayPublishQueue.run was called, but the call would have been a noop.',
+        () => {
+          queue.run();
+        },
+      );
       expect(disposeGC).not.toBeCalled(); // Exactly! We should not dispose GC on each run
       // Let's revert all updates
       queue.revertAll();

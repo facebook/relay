@@ -33,7 +33,10 @@ const {
   getSingularSelector,
   createReaderSelector,
 } = require('../RelayModernSelector');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 
@@ -357,6 +360,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('loads the @match fragment and normalizes/publishes the field payload', () => {
+        if (environmentType === 'MultiActorEnvironment') {
+          expectWarningWillFire(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+          );
+        }
+
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -440,6 +449,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls complete() only after match payloads are processed (network completes first)', () => {
+        if (environmentType === 'MultiActorEnvironment') {
+          expectWarningWillFire(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+          );
+        }
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {
@@ -506,6 +520,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('calls complete() only after match payloads are processed (network completes last)', () => {
+        if (environmentType === 'MultiActorEnvironment') {
+          expectWarningWillFire(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+          );
+        }
         environment.executeMutation({operation}).subscribe(callbacks);
         const payload = {
           data: {

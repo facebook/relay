@@ -24,7 +24,10 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 import type {ActorChangeWithDeferTestDeferFragment$key} from './__generated__/ActorChangeWithDeferTestDeferFragment.graphql';
 import type {ActorChangeWithDeferTestFragment$key} from './__generated__/ActorChangeWithDeferTestFragment.graphql';
@@ -169,6 +172,15 @@ describe('ActorChange with @defer', () => {
       </ComponentWrapper>,
     );
 
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
     dataSource.next({
       data: {
         viewer: {

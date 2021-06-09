@@ -25,7 +25,10 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
 import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
@@ -226,6 +229,15 @@ describe('ActorChange', () => {
     );
     expect(testRenderer.toJSON()).toEqual('Loading...');
 
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
     ReactTestRenderer.act(jest.runAllTimers);
 
     const testInstance = testRenderer.root;
@@ -322,6 +334,15 @@ describe('ActorChange', () => {
         multiActorEnvironment={multiActorEnvironment}>
         <MainComponent />
       </ComponentWrapper>,
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    expectWarningWillFire(
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
     );
     ReactTestRenderer.act(jest.runAllTimers);
     // Loading data should be for default actor

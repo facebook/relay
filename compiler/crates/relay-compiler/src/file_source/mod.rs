@@ -17,7 +17,7 @@ mod watchman_query_builder;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Result;
-use common::{PerfLogEvent, PerfLogger};
+use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
 use serde_bser::value::Value;
 use std::path::{Path, PathBuf};
 
@@ -26,6 +26,7 @@ pub use self::extract_graphql::{
 };
 pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
+use rayon::iter::IntoParallelRefIterator;
 pub use read_file_to_string::read_file_to_string;
 pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
@@ -131,14 +132,12 @@ impl FileSourceResult {
         }
     }
 
-    pub fn files(&self) -> impl Iterator<Item = File> + '_ {
+    pub fn files(&self) -> impl ParallelIterator<Item = File> + '_ {
         match self {
-            Self::Watchman(file_source_result) => Box::new(
-                file_source_result
-                    .files
-                    .iter()
-                    .map(|file| File::Watchman(file.to_owned())),
-            ),
+            Self::Watchman(file_source_result) => file_source_result
+                .files
+                .par_iter()
+                .map(|file| File::Watchman(file.to_owned())),
         }
     }
 

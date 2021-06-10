@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a171a970cec43cf9124e46c65d982bba>>
+ * @generated SignedSource<<e7074df4d1e22aab8024fb1b6df7ad2c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -136,17 +136,17 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "548a74d74e41f28be31605ff8ef3f493",
+    "cacheID": "cc2929f7ee2deb609c210c99c635bd36",
     "id": null,
     "metadata": {},
     "name": "RelayReaderTestActorChangeQuery",
     "operationKind": "query",
-    "text": "query RelayReaderTestActorChangeQuery {\n  viewer {\n    actor {\n      __typename\n      ...RelayReaderTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayReaderTestActorChangeFragment on User {\n  name\n}\n"
+    "text": "query RelayReaderTestActorChangeQuery {\n  viewer {\n    actor @fb_actor_change {\n      __typename\n      ...RelayReaderTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayReaderTestActorChangeFragment on User {\n  name\n}\n"
   }
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "015228b966bba15ac251f5d7e774f2de";
+  (node/*: any*/).hash = "773250516ecbc96c49a303ebd13fe989";
 }
 
 module.exports = node;

@@ -2,7 +2,7 @@
 # expected-to-throw
 
 fragment TestFragment on Query {
-  wrongViewer @EXPERIMENTAL__as_actor {
+  wrongViewer @fb_actor_change {
     ...WrongViewerFragment
   }
 }
@@ -11,10 +11,10 @@ fragment WrongViewerFragment on WithWrongViewer {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ The directive 'EXPERIMENTAL__as_actor' automatically adds 'actor_key' to the selection of the field 'wrongViewer'. The field 'actor_key' should be defined as a scalar field in the GraphQL Schema, but is defined with the type 'Viewer' instead.
+✖︎ The directive 'fb_actor_change' automatically adds 'actor_key' to the selection of the field 'wrongViewer'. The field 'actor_key' should be defined as a scalar field in the GraphQL Schema, but is defined with the type 'Viewer' instead.
 
   actor-change-wrong-viewer.invalid.graphql:4:15
     3 │ fragment TestFragment on Query {
-    4 │   wrongViewer @EXPERIMENTAL__as_actor {
-      │               ^^^^^^^^^^^^^^^^^^^^^^^
+    4 │   wrongViewer @fb_actor_change {
+      │               ^^^^^^^^^^^^^^^^
     5 │     ...WrongViewerFragment

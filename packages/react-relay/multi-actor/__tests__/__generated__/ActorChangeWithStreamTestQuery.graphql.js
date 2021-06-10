@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fe68304d079f4c4a35d522aa107f99cb>>
+ * @generated SignedSource<<6f19e740b46f1e7fae2478eab8c55750>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -236,18 +236,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9f91b879e7aa3200714e49d5fba899ca",
+    "cacheID": "af2db8fd534769c172bc84e7a133c65a",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithStreamTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
+    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node @fb_actor_change {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a95b7afa50598a0657cf6298f8189f35";
+  (node/*: any*/).hash = "d36707add9f4e27149d6e1bf38a04360";
 }
 
 module.exports = node;

@@ -2,7 +2,7 @@ query actorChangeSimpleQuery {
   node(id: "test-id") {
     id
     ... on User {
-      actor @EXPERIMENTAL__as_actor {
+      actor @fb_actor_change {
         ...actorChangeSimpleQueryUserFragment
       }
     }

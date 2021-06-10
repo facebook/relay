@@ -10,7 +10,7 @@ fragment ActorFragment on User {
 
 query Viewer {
   viewer {
-    actor @EXPERIMENTAL__as_actor {
+    actor @fb_actor_change {
       ...ActorFragment
     }
   }

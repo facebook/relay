@@ -1,7 +1,7 @@
 # expected-to-throw
 
 fragment TestFragment on Query {
-  wrongViewer @EXPERIMENTAL__as_actor {
+  wrongViewer @fb_actor_change {
     ...WrongViewerFragment
   }
 }

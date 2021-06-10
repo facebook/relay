@@ -3,7 +3,7 @@ query actorChangeSimpleQuery {
   node(id: "test-id") {
     id
     ... on User {
-      actor @EXPERIMENTAL__as_actor {
+      actor @fb_actor_change {
         ...actorChangeSimpleQueryUserFragment
       }
     }
@@ -179,7 +179,7 @@ query actorChangeSimpleQuery {
     __typename
     id
     ... on User {
-      actor {
+      actor @fb_actor_change {
         __typename
         ...actorChangeSimpleQueryUserFragment
         actor_key

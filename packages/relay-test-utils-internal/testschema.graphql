@@ -26,6 +26,8 @@ directive @fetchable(field_name: String!) on OBJECT
 
 directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
 
+directive @fb_actor_change on FIELD
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings

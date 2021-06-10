@@ -197,7 +197,7 @@ fn directive() {
             "include",
             "connection",
             "skip",
-            "EXPERIMENTAL__as_actor",
+            "fb_actor_change",
         ],
     );
 }
@@ -390,7 +390,7 @@ fn empty_directive() {
             "include",
             "connection",
             "skip",
-            "EXPERIMENTAL__as_actor",
+            "fb_actor_change",
         ],
     );
 }

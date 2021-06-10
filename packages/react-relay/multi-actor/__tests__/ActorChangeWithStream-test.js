@@ -59,7 +59,7 @@ const query = graphql`
     viewer {
       newsFeed {
         edges {
-          node @EXPERIMENTAL__as_actor {
+          node @fb_actor_change {
             ...ActorChangeWithStreamTestFragment
           }
         }

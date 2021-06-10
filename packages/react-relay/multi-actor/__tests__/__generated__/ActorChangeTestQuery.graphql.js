@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b6a72b8869c9c77a41f6c57b5c28112b>>
+ * @generated SignedSource<<bd2db378c5771021be4c054a504201c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -257,18 +257,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "04462875af06e8ea0576e8960a260887",
+    "cacheID": "026747e93e93639360c8c054e270234d",
     "id": null,
     "metadata": {},
     "name": "ActorChangeTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n}\n"
+    "text": "query ActorChangeTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node @fb_actor_change {\n          __typename\n          ...ActorChangeTestFeedUnitFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeTestFeedUnitFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "238c5a805ed65dc124d36b712abb37fb";
+  (node/*: any*/).hash = "200bd87fc1d5bddf56a7ab99f431c3ba";
 }
 
 module.exports = node;

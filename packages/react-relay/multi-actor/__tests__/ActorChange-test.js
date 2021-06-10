@@ -74,7 +74,7 @@ const query = graphql`
               name
             }
           }
-          actor_node: node @EXPERIMENTAL__as_actor {
+          actor_node: node @fb_actor_change {
             ...ActorChangeTestFeedUnitFragment
           }
         }

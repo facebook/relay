@@ -1972,7 +1972,7 @@ describe('RelayReader', () => {
     const query = graphql`
       query RelayReaderTestActorChangeQuery {
         viewer {
-          actor @EXPERIMENTAL__as_actor {
+          actor @fb_actor_change {
             ...RelayReaderTestActorChangeFragment
           }
         }

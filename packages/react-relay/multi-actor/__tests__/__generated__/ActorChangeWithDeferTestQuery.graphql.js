@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0cd2efa022a39d64af8978aaa1864206>>
+ * @generated SignedSource<<8a2b354cd1e3a55e03b5425cc288cc20>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -268,18 +268,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "f7fe1810549865a9fcce336549e17c93",
+    "cacheID": "878ffbe2b2e192cee6ea324706e70741",
     "id": null,
     "metadata": {},
     "name": "ActorChangeWithDeferTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithDeferTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node {\n          __typename\n          ...ActorChangeWithDeferTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithDeferTestDeferFragment on FeedUnit {\n  __isFeedUnit: __typename\n  message {\n    text\n  }\n}\n\nfragment ActorChangeWithDeferTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n  ...ActorChangeWithDeferTestDeferFragment @defer(label: \"ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment\")\n}\n"
+    "text": "query ActorChangeWithDeferTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node {\n          __typename\n          actor {\n            __typename\n            name\n            id\n          }\n          id\n        }\n        actor_node: node @fb_actor_change {\n          __typename\n          ...ActorChangeWithDeferTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithDeferTestDeferFragment on FeedUnit {\n  __isFeedUnit: __typename\n  message {\n    text\n  }\n}\n\nfragment ActorChangeWithDeferTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  actor {\n    __typename\n    name\n    id\n  }\n  ...ActorChangeWithDeferTestDeferFragment @defer(label: \"ActorChangeWithDeferTestFragment$defer$ActorChangeWithDeferTestDeferFragment\")\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ae22c21318f4d1ae969ab38f6c150b27";
+  (node/*: any*/).hash = "5140be47d96491c09c1d7e9dac4df2ee";
 }
 
 module.exports = node;

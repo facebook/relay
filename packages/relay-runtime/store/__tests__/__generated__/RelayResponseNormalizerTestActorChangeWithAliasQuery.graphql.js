@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6482628ca7fb89b1bf43a77552052515>>
+ * @generated SignedSource<<678774e3cb4c7989ed077ab08edce4b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -168,18 +168,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ba82e503731e62399fa18a0167a50573",
+    "cacheID": "8d9706b47742c098b3900e2e529295a5",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTestActorChangeWithAliasQuery",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTestActorChangeWithAliasQuery {\n  viewer {\n    me: actor {\n      __typename\n      name\n      id\n    }\n    actor {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
+    "text": "query RelayResponseNormalizerTestActorChangeWithAliasQuery {\n  viewer {\n    me: actor {\n      __typename\n      name\n      id\n    }\n    actor @fb_actor_change {\n      __typename\n      ...RelayResponseNormalizerTestActorChangeFragment\n      actor_key\n      id\n    }\n  }\n}\n\nfragment RelayResponseNormalizerTestActorChangeFragment on User {\n  name\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "40e7357eeb0ff3ea6f26da4529203e8e";
+  (node/*: any*/).hash = "4d26736797149779b0919c716b985847";
 }
 
 module.exports = node;

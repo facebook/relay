@@ -75,7 +75,7 @@ const query = graphql`
       }
       newsFeed {
         edges {
-          node @EXPERIMENTAL__as_actor {
+          node @fb_actor_change {
             ...ActorChangeWithMutationTestFragment
           }
         }

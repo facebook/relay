@@ -4030,7 +4030,7 @@ describe('RelayResponseNormalizer', () => {
     const query = graphql`
       query RelayResponseNormalizerTestActorChangeQuery {
         viewer {
-          actor @EXPERIMENTAL__as_actor {
+          actor @fb_actor_change {
             ...RelayResponseNormalizerTestActorChangeFragment
           }
         }
@@ -4367,7 +4367,7 @@ describe('RelayResponseNormalizer', () => {
             me: actor {
               name
             }
-            actor @EXPERIMENTAL__as_actor {
+            actor @fb_actor_change {
               ...RelayResponseNormalizerTestActorChangeFragment
             }
           }

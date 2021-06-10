@@ -1,16 +1,16 @@
 # expected-to-throw
 fragment UserFragmentWithScalarField on User {
-  name @EXPERIMENTAL__as_actor
+  name @fb_actor_change
 }
 
 fragment UserFragmentWithLinkedField on User {
-  author @EXPERIMENTAL__as_actor {
+  author @fb_actor_change {
     name
   }
 }
 
 fragment UserFragmentWithLinkedFieldAndSpread on User {
-  author @EXPERIMENTAL__as_actor {
+  author @fb_actor_change {
     name
     ...ForActorChange
   }

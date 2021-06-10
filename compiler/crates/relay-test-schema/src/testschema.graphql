@@ -16,6 +16,8 @@ directive @configurable on VARIABLE_DEFINITION
 
 directive @_auto_hoisted on VARIABLE_DEFINITION
 
+directive @fb_actor_change on FIELD
+
 directive @defer(
   label: String!
   if: Boolean = true

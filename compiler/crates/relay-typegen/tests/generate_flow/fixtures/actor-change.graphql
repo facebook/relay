@@ -8,7 +8,7 @@ fragment ActorFragment on User {
 }
 
 fragment ViewerFragment on Viewer {
-  actor @EXPERIMENTAL__as_actor {
+  actor @fb_actor_change {
     ...ActorFragment
   }
 }

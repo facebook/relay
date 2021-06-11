@@ -8,10 +8,12 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::feature_flags::FeatureFlag;
 use crate::match_::SplitOperationMetadata;
 use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
 use crate::util::get_normalization_operation_name;
+use crate::{
+    feature_flags::FeatureFlag, no_inline::get_no_inline_fragments_with_raw_response_type,
+};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
@@ -50,6 +52,11 @@ pub fn apply_fragment_arguments(
     no_inline_feature: &FeatureFlag,
     base_fragment_names: &FnvHashSet<StringKey>,
 ) -> DiagnosticsResult<Program> {
+    let no_inline_fragments_with_raw_response_type = if is_normalization {
+        get_no_inline_fragments_with_raw_response_type(program)
+    } else {
+        Default::default()
+    };
     let mut transform = ApplyFragmentArgumentsTransform {
         base_fragment_names,
         errors: Vec::new(),
@@ -59,6 +66,7 @@ pub fn apply_fragment_arguments(
         program,
         scope: Default::default(),
         split_operations: Default::default(),
+        no_inline_fragments_with_raw_response_type,
     };
 
     let mut next_program = transform
@@ -101,6 +109,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     program: &'program Program,
     scope: Scope,
     split_operations: FnvHashMap<StringKey, OperationDefinition>,
+    no_inline_fragments_with_raw_response_type: FnvHashSet<StringKey>,
 }
 
 impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
@@ -311,7 +320,9 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
             parent_documents: Default::default(),
-            raw_response_type: true,
+            raw_response_type: self
+                .no_inline_fragments_with_raw_response_type
+                .contains(&fragment.name.item),
         };
         // - A fragment with user defined @no_inline always produces a $normalization file. The `parent_document` of
         // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer

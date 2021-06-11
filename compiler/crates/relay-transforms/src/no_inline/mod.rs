@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::Arc;
+mod get_no_inline_with_raw_response_types;
+pub use get_no_inline_with_raw_response_types::get_no_inline_fragments_with_raw_response_type;
 
 use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, Directive, Program, Value};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use std::sync::Arc;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: StringKey = "no_inline".intern();

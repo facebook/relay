@@ -11,10 +11,11 @@ use crate::{
     errors::BuildProjectError,
     Artifact, ArtifactContent,
 };
-use common::PerfLogEvent;
+use common::{sync::ParallelIterator, PerfLogEvent};
 use lazy_static::lazy_static;
 use log::debug;
 use md5::{Digest, Md5};
+use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
 use std::{fs, path::PathBuf};
 
@@ -32,7 +33,7 @@ pub async fn persist_operations(
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
-        .iter_mut()
+        .par_iter_mut()
         .flat_map(|artifact| {
             if let ArtifactContent::Operation {
                 ref text,

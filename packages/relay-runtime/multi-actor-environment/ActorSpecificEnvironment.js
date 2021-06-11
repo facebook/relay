@@ -15,6 +15,7 @@ const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('../store/RelayPublishQueue');
 
 const defaultGetDataID = require('../store/defaultGetDataID');
+const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
@@ -91,6 +92,10 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     // We need to add this here to pass `isRelayModernEnvironment` check
     // $FlowFixMe[prop-missing]
     this['@@RelayModernEnvironment'] = true;
+
+    // Register this Relay Environment with Relay DevTools if it exists.
+    // Note: this must always be the last step in the constructor.
+    registerEnvironmentWithDevTools(this);
   }
 
   getPublishQueue(): RelayPublishQueue {

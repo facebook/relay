@@ -25,6 +25,7 @@ const defaultGetDataID = require('./defaultGetDataID');
 const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
+const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
@@ -163,24 +164,16 @@ class RelayModernEnvironment implements IEnvironment {
       (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
     }
 
-    // Register this Relay Environment with Relay DevTools if it exists.
-    // Note: this must always be the last step in the constructor.
-    const _global =
-      typeof global !== 'undefined'
-        ? global
-        : typeof window !== 'undefined'
-        ? window
-        : undefined;
-    const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
-    if (devToolsHook) {
-      devToolsHook.registerEnvironment(this);
-    }
     this._missingFieldHandlers = config.missingFieldHandlers;
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
     this._reactFlightServerErrorHandler = reactFlightServerErrorHandler;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
+
+    // Register this Relay Environment with Relay DevTools if it exists.
+    // Note: this must always be the last step in the constructor.
+    registerEnvironmentWithDevTools(this);
   }
 
   getStore(): Store {

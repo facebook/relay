@@ -89,6 +89,7 @@ describe('IRValidator', () => {
           expect(node.kind).toBe(kind);
           sequence.push(kind);
           seenKinds.add(kind);
+          // $FlowFixMe[incompatible-use]
           this.traverse(node, state);
         };
       }

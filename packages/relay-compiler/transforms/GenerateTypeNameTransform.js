@@ -69,8 +69,10 @@ function generateTypeNameTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitFragment(fragment: Fragment, state: State): Fragment {
+  // $FlowFixMe[incompatible-use]
   const schema: Schema = this.getContext().getSchema();
   const rawType = schema.getRawType(fragment.type);
+  // $FlowFixMe[incompatible-use]
   let transformedNode = (this.traverse(fragment, state): Fragment);
   const isClientType = !schema.isServerType(rawType);
   if (!isClientType && schema.isAbstractType(rawType)) {
@@ -102,12 +104,14 @@ function visitInlineFragment(
   fragment: InlineFragment,
   state: State,
 ): InlineFragment {
+  // $FlowFixMe[incompatible-use]
   const schema: Schema = this.getContext().getSchema();
   let transformedNode = cache.get(fragment);
   if (transformedNode != null && transformedNode.kind === 'InlineFragment') {
     return transformedNode;
   }
   const rawType = schema.getRawType(fragment.typeCondition);
+  // $FlowFixMe[incompatible-use]
   transformedNode = (this.traverse(fragment, state): InlineFragment);
   const isClientType = !schema.isServerType(rawType);
   if (!isClientType && schema.isAbstractType(rawType)) {
@@ -137,11 +141,13 @@ function visitInlineFragment(
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  // $FlowFixMe[incompatible-use]
   const schema: Schema = this.getContext().getSchema();
   let transformedNode = cache.get(field);
   if (transformedNode != null && transformedNode.kind === 'LinkedField') {
     return transformedNode;
   }
+  // $FlowFixMe[incompatible-use]
   transformedNode = (this.traverse(field, state): LinkedField);
   if (
     schema.isAbstractType(schema.getRawType(transformedNode.type)) &&

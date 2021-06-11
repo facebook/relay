@@ -77,6 +77,7 @@ function generateIDFieldTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  // $FlowFixMe[incompatible-use]
   const transformedNode = this.traverse(field, state);
 
   // If the field already has an unaliased `id` field, do nothing
@@ -84,6 +85,7 @@ function visitLinkedField(field: LinkedField, state: State): LinkedField {
     return transformedNode;
   }
 
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
   const unmodifiedType = schema.assertCompositeType(

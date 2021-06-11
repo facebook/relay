@@ -42,6 +42,7 @@ function useSubscription<TSubscriptionParameters: SubscriptionParameters>(
   useEffect(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = actualRequestSubscription(environment, config);
+    // $FlowFixMe[incompatible-call]
     return dispose;
   }, [environment, config, actualRequestSubscription]);
 }

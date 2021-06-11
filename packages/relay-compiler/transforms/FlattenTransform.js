@@ -74,6 +74,7 @@ function flattenTransformImpl(
 
 function memoizedFlattenSelection(cache: Map<Node, Map<?TypeID, any>>) {
   return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
+    // $FlowFixMe[incompatible-use]
     const context: CompilerContext = this.getContext();
     let nodeCache = cache.get(node);
     if (nodeCache == null) {
@@ -117,6 +118,7 @@ function memoizedFlattenSelection(cache: Map<Node, Map<?TypeID, any>>) {
       ? {...node, selections: Array.from(nextSelections.values())}
       : node;
     state.parentType = type;
+    // $FlowFixMe[incompatible-use]
     const deeplyFlattenedNode = this.traverse(flattenedNode, state);
     state.parentType = parentType;
     nodeCache.set(parentType, deeplyFlattenedNode);

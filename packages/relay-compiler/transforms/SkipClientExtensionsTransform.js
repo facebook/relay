@@ -28,14 +28,17 @@ function skipClientExtensionTransform(
 }
 
 function visitFragment(node: Fragment): ?Fragment {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   if (context.getSchema().isServerType(node.type)) {
+    // $FlowFixMe[incompatible-use]
     return this.traverse(node);
   }
   return null;
 }
 
 function vistFragmentSpread(node: FragmentSpread): ?FragmentSpread {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const fragment = context.getFragment(node.name, node.loc);
   const isServer = context.getSchema().isServerType(fragment.type);

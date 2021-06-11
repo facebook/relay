@@ -34,6 +34,7 @@ function fieldHandleTransform(context: CompilerContext): CompilerContext {
  * @internal
  */
 function visitField<F: LinkedField | ScalarField>(field: F): F {
+  // $FlowFixMe[incompatible-use]
   const nextField = field.kind === 'LinkedField' ? this.traverse(field) : field;
   const handles = nextField.handles;
   if (!handles || !handles.length) {
@@ -46,6 +47,7 @@ function visitField<F: LinkedField | ScalarField>(field: F): F {
       '"handle" property, got `%s`.',
     handles.join(', '),
   );
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
   const alias = nextField.alias;

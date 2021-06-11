@@ -137,6 +137,7 @@ function skipRedundantNodesTransform(
 let cache = new Map();
 function visitNode<T: Fragment | Root | SplitOperation>(node: T): ?T {
   cache = new Map();
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   return transformNode(context.getSchema(), node, new IMap()).node;
 }

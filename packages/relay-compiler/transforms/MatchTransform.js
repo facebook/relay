@@ -91,6 +91,7 @@ function visitInlineFragment(
   node: InlineFragment,
   state: State,
 ): InlineFragment {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(node, {
     ...state,
     parentType: node.typeCondition,
@@ -98,6 +99,7 @@ function visitInlineFragment(
 }
 
 function visitScalarField(field: ScalarField): ScalarField {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
 
@@ -125,6 +127,7 @@ function visitScalarField(field: ScalarField): ScalarField {
 }
 
 function visitLinkedField(node: LinkedField, state: State): LinkedField {
+  // $FlowFixMe[incompatible-use]
   const context: CompilerContext = this.getContext();
   const schema = context.getSchema();
 
@@ -153,6 +156,7 @@ function visitLinkedField(node: LinkedField, state: State): LinkedField {
   }
 
   state.path.push(node);
+  // $FlowFixMe[incompatible-use]
   const transformedNode: LinkedField = this.traverse(node, {
     ...state,
     moduleKey,

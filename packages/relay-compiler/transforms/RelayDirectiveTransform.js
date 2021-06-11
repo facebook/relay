@@ -49,10 +49,12 @@ function visitRelayMetadata<T: Fragment | FragmentSpread>(
   return function(node) {
     const relayDirective = node.directives.find(({name}) => name === RELAY);
     if (!relayDirective) {
+      // $FlowFixMe[incompatible-use]
       return this.traverse(node);
     }
     const argValues = getLiteralArgumentValues(relayDirective.args);
     const metadata = metadataFn(argValues);
+    // $FlowFixMe[incompatible-use]
     return this.traverse({
       ...node,
       directives: node.directives.filter(

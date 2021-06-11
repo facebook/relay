@@ -93,6 +93,12 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     // $FlowFixMe[prop-missing]
     this['@@RelayModernEnvironment'] = true;
 
+    if (__DEV__) {
+      const {inspect} = require('../store/StoreInspector');
+      (this: $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
+        inspect(this, dataID);
+    }
+
     // Register this Relay Environment with Relay DevTools if it exists.
     // Note: this must always be the last step in the constructor.
     registerEnvironmentWithDevTools(this);

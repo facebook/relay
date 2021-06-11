@@ -495,7 +495,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 
       resolveFragments[0](markdownRendererNormalizationFragment);
       resolveFragments[1](plaintextRendererNormalizationFragment);
-      if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+      if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
         // Resolve fragments but not publish
         jest.runAllImmediates();
         expect(
@@ -593,7 +593,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 
       resolveFragments[0](markdownRendererNormalizationFragment);
       resolveFragments[1](plaintextRendererNormalizationFragment);
-      if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
+      if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
         jest.runAllImmediates();
         subscription.unsubscribe();
         jest.runAllTimers();
@@ -607,8 +607,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 }
 
 runWithFeatureFlags(flags => {
-  flags.ENABLE_BATCHED_STORE_UPDATES = true;
   flags.ENABLE_BATCHED_STORE_UPDATES = false;
+  flags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = false;
 });
 
 runWithFeatureFlags(flags => {

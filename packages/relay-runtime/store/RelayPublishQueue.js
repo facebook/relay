@@ -55,7 +55,7 @@ type PendingUpdater = {|
 |};
 
 const applyWithGuard =
-  global.ErrorUtils?.applyWithGuard ??
+  global?.ErrorUtils?.applyWithGuard ??
   ((callback, context, args, onError, name) => callback.apply(context, args));
 
 /**

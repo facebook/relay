@@ -25,8 +25,6 @@ describe('RelayReferenceMarker', () => {
   let source;
 
   beforeEach(() => {
-    jest.resetModules();
-
     const data = {
       '1': {
         __id: '1',

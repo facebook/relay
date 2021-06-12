@@ -8,7 +8,7 @@
 use std::sync::{Arc, RwLock};
 
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::Sender;
+use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use interner::StringKey;

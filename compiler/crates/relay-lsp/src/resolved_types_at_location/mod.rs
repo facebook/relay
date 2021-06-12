@@ -21,8 +21,8 @@ pub(crate) enum ResolvedTypesAtLocation {}
 #[derive(Deserialize, Serialize)]
 pub(crate) struct ResolvedTypesAtLocationParams {
     file_name: String,
-    line: u64,
-    character: u64,
+    line: u32,
+    character: u32,
 }
 
 impl ResolvedTypesAtLocationParams {

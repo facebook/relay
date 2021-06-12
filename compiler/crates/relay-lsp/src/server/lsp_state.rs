@@ -15,7 +15,7 @@ use crate::{
 };
 use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
-use crossbeam::Sender;
+use crossbeam::channel::Sender;
 use dashmap::{mapref::entry::Entry, DashMap};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
@@ -326,5 +326,6 @@ fn convert_diagnostic(
         severity: Some(DiagnosticSeverity::Error),
         source: None,
         tags: None,
+        ..Default::default()
     }
 }

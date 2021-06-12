@@ -8,7 +8,7 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-crossbeam = "0.7"
+crossbeam = "0.8"
 dashmap = { version = "4.0.2", features = ["serde"] }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
@@ -18,8 +18,8 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
 lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
-lsp-server = "0.3.2"
-lsp-types = "0.73.0"
+lsp-server = "0.5"
+lsp-types = "0.89.0"
 rand = { version = "0.7", features = ["small_rng"] }
 rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }

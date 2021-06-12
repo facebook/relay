@@ -11,7 +11,7 @@ use crate::lsp::{
     Url,
 };
 use common::{Diagnostic as CompilerDiagnostic, Location};
-use crossbeam::crossbeam_channel::Sender;
+use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use lsp_server::Message;
@@ -194,6 +194,7 @@ impl DiagnosticReporter {
             severity: Some(DiagnosticSeverity::Error),
             source: None,
             tags: None,
+            ..Default::default()
         };
         self.add_diagnostic(url, diagnostic);
     }
@@ -225,6 +226,7 @@ impl DiagnosticReporter {
             severity: Some(DiagnosticSeverity::Error),
             source: None,
             tags: None,
+            ..Default::default()
         };
         let url = Url::from_directory_path(&self.root_dir)
             .expect("print_generic_error: Could not convert self.root_dir to Url");
@@ -236,7 +238,6 @@ impl DiagnosticReporter {
 mod tests {
     use super::DiagnosticReporter;
     use common::{Diagnostic, Location, SourceLocationKey, Span};
-    use crossbeam::crossbeam_channel;
     use interner::Intern;
     use relay_compiler::SourceReader;
     use std::path::PathBuf;
@@ -252,7 +253,7 @@ mod tests {
     #[test]
     fn report_diagnostic_test() {
         let root_dir = PathBuf::from("/tmp");
-        let (sender, _) = crossbeam_channel::unbounded();
+        let (sender, _) = crossbeam::channel::unbounded();
         let mut reporter = DiagnosticReporter::new(root_dir, sender);
         reporter.set_source_reader(Box::new(MockSourceReader("Content".to_string())));
         let source_location = SourceLocationKey::Standalone {
@@ -271,7 +272,7 @@ mod tests {
     #[test]
     fn do_not_report_diagnostic_without_url_test() {
         let root_dir = PathBuf::from("/tmp");
-        let (sender, _) = crossbeam_channel::unbounded();
+        let (sender, _) = crossbeam::channel::unbounded();
 
         let mut reporter = DiagnosticReporter::new(root_dir, sender);
         reporter.set_source_reader(Box::new(MockSourceReader("".to_string())));

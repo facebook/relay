@@ -71,10 +71,10 @@ impl Span {
                 character = 0;
             }
             if index == start {
-                start_position = lsp_types::Position::new(line as u64, character as u64);
+                start_position = lsp_types::Position::new(line as u32, character as u32);
             }
             if index == end {
-                end_position = lsp_types::Position::new(line as u64, character as u64);
+                end_position = lsp_types::Position::new(line as u32, character as u32);
                 break;
             }
             // Make sure to only increment the character offset if this

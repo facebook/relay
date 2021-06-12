@@ -41,7 +41,7 @@ use crate::{
     ExtensionConfig,
 };
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::{SendError, Sender};
+use crossbeam::channel::{SendError, Sender};
 use log::debug;
 use lsp_notification_dispatch::LSPNotificationDispatch;
 use lsp_request_dispatch::LSPRequestDispatch;
@@ -76,11 +76,12 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
             work_done_progress_options: WorkDoneProgressOptions {
                 work_done_progress: None,
             },
+            ..Default::default()
         }),
 
-        hover_provider: Some(true),
-        definition_provider: Some(true),
-        references_provider: Some(true),
+        hover_provider: Some(lsp_types::HoverProviderCapability::Simple(true)),
+        definition_provider: Some(lsp_types::OneOf::Left(true)),
+        references_provider: Some(lsp_types::OneOf::Left(true)),
         code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
         ..Default::default()
     };

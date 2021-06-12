@@ -169,7 +169,7 @@ pub fn position_to_offset(
     text: &str,
 ) -> Option<u32> {
     let mut index_of_first_character_of_current_line = 0;
-    let mut line_index = line_index as u64;
+    let mut line_index = line_index as u32;
 
     let mut chars = text.chars().enumerate().peekable();
 
@@ -185,12 +185,12 @@ pub fn position_to_offset(
         if is_newline {
             line_index += 1;
             // Add index_offset to account for different position index between hover and autocomplete
-            index_of_first_character_of_current_line = (index + index_offset) as u64;
+            index_of_first_character_of_current_line = index + index_offset;
         }
 
         if line_index == position.line {
             let start_offset =
-                (index_of_first_character_of_current_line + position.character) as u32;
+                (index_of_first_character_of_current_line + position.character as usize) as u32;
             return Some(start_offset);
         }
     }
@@ -199,13 +199,13 @@ pub fn position_to_offset(
 
 #[derive(Debug)]
 pub(crate) struct SameLineOffset {
-    character_offset: u64,
+    character_offset: u32,
 }
 
 #[derive(Debug)]
 pub(crate) struct DifferentLineOffset {
-    line_offset: u64,
-    character: u64,
+    line_offset: u32,
+    character: u32,
 }
 
 /// Represents the offset from a given position to another position.
@@ -254,14 +254,14 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
     let mut start_position_offset = None;
     let mut end_position_offset = None;
     let Span { start, end } = span;
-    let span_start = start as u64;
-    let span_end = end as u64;
-    let mut characters_iterated: u64 = 0;
+    let span_start = start;
+    let span_end = end;
+    let mut characters_iterated = 0u32;
 
     // For each line, determine whether the start and end of the span
     // occur on that line.
     for (line_index, line) in text.lines().enumerate() {
-        let line_length = line.len() as u64;
+        let line_length = line.len() as u32;
         if start_position_offset.is_none() && characters_iterated + line_length >= span_start {
             start_position_offset = Some(if line_index == 0 {
                 PositionOffset::SameLineOffset(SameLineOffset {
@@ -269,7 +269,7 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
                 })
             } else {
                 PositionOffset::DifferentLineOffset(DifferentLineOffset {
-                    line_offset: line_index as u64,
+                    line_offset: line_index as u32,
                     character: span_start - characters_iterated,
                 })
             });
@@ -281,7 +281,7 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
                 })
             } else {
                 PositionOffset::DifferentLineOffset(DifferentLineOffset {
-                    line_offset: line_index as u64,
+                    line_offset: line_index as u32,
                     character: span_end - characters_iterated,
                 })
             });

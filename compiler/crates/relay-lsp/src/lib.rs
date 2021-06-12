@@ -99,6 +99,7 @@ mod tests {
             trace: None,
             workspace_folders: None,
             client_info: None,
+            locale: None,
         };
         client::initialize(&client, &init_params, 0);
         let params = server::initialize(&connection)?;

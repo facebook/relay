@@ -234,7 +234,7 @@ pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
     let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(&params, 1)?;
+        state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
     let path = document.resolve((), position_span);
 
     let goto_definition_response = get_goto_definition_response(
@@ -249,7 +249,10 @@ pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
 }
 
 fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {
-    let start = lsp_types::Position { line, character: 0 };
+    let start = lsp_types::Position {
+        line: line as u32,
+        character: 0,
+    };
     let range = lsp_types::Range { start, end: start };
 
     let uri = Url::parse(&format!("file://{}", path)).map_err(|e| {
@@ -302,7 +305,7 @@ mod test {
     use graphql_ir::Program;
     use graphql_syntax::{parse_executable_with_features, ParserFeatures};
     use interner::Intern;
-    use lsp_types::{request::GotoDefinitionResponse, Location};
+    use lsp_types::{GotoDefinitionResponse, Location};
     use relay_test_schema::get_test_schema_with_extensions;
     use schema_documentation::SchemaDocumentation;
 

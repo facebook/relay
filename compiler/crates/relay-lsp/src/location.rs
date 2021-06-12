@@ -79,12 +79,12 @@ fn read_file_and_get_range(
         source.text.to_string(),
         lsp_types::Range {
             start: lsp_types::Position {
-                line: source.line_index as u64,
-                character: source.column_index as u64,
+                line: source.line_index as u32,
+                character: source.column_index as u32,
             },
             end: lsp_types::Position {
-                line: (source.line_index + line_count) as u64,
-                character: last_line.len() as u64,
+                line: (source.line_index + line_count) as u32,
+                character: last_line.len() as u32,
             },
         },
     ))

@@ -669,6 +669,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     )),
                     data: None,
                     tags: None,
+                    ..Default::default()
                 }
             }
         })
@@ -731,6 +732,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                 )),
                 data: None,
                 tags: None,
+                ..Default::default()
             }
         }
     })
@@ -842,6 +844,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 command,
                 data: None,
                 tags: None,
+                ..Default::default()
             }
         })
         .collect()
@@ -889,6 +892,7 @@ fn resolve_completion_items_for_fragment_spread(
                         )),
                         data: None,
                         tags: None,
+                        ..Default::default()
                     }
                 });
             }
@@ -944,6 +948,7 @@ fn completion_item_from_directive(
         )),
         data: None,
         tags: None,
+        ..Default::default()
     }
 }
 

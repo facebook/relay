@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crossbeam::SendError;
+use crossbeam::channel::SendError;
 use lsp_server::{Message, ProtocolError};
 use relay_compiler::errors::Error as CompilerError;
 use serde_json::Error as SerdeError;

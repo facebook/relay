@@ -193,13 +193,15 @@ fn create_name_suggestion_action(
 
     CodeActionOrCommand::CodeAction(CodeAction {
         title,
-        kind: Some("quickfix".to_string()),
+        kind: Some(lsp_types::CodeActionKind::QUICKFIX),
         diagnostics: None,
         edit: Some(WorkspaceEdit {
             changes: Some(changes),
             document_changes: None,
+            ..Default::default()
         }),
         command: None,
         is_preferred: Some(false),
+        ..Default::default()
     })
 }

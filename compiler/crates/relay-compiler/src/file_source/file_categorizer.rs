@@ -11,6 +11,7 @@ use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
 use common::sync::ParallelIterator;
 use fnv::FnvHashSet;
+use relay_typegen::TypegenLanguage;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::path::{Component, PathBuf};
@@ -88,6 +89,7 @@ pub fn categorize_files(
 /// Watchman into what kind of files they are, such as source files of a
 /// specific source file group or generated files from some project.
 pub struct FileCategorizer {
+    source_language: HashMap<ProjectName, TypegenLanguage>,
     extensions_mapping: PathMapping<ProjectSet>,
     default_generated_dir: &'static OsStr,
     generated_dir_mapping: PathMapping<ProjectName>,
@@ -159,8 +161,16 @@ impl FileCategorizer {
                 generated_dir_mapping.push((extra_artifacts_output.clone(), project_name));
             }
         }
+        let source_language: HashMap<ProjectName, TypegenLanguage> = config
+            .projects
+            .iter()
+            .map(|(project_name, project_config)| {
+                (project_name.clone(), project_config.typegen_config.language)
+            })
+            .collect::<HashMap<_, _>>();
 
         Self {
+            source_language,
             extensions_mapping: PathMapping::new(extensions_map.into_iter().collect()),
             default_generated_dir: OsStr::new("__generated__"),
             generated_dir_mapping: PathMapping::new(generated_dir_mapping),
@@ -180,7 +190,8 @@ impl FileCategorizer {
         let extension = path
             .extension()
             .unwrap_or_else(|| panic!("Got unexpected path without extension: `{:?}`.", path));
-        if extension == "js" {
+
+        if is_source_code_extension(extension) {
             let source_set = self.source_mapping.get(path);
             if self.in_relative_generated_dir(path) {
                 if let SourceSet::SourceSetName(source_set_name) = source_set {
@@ -195,6 +206,8 @@ impl FileCategorizer {
                     );
                 }
             } else {
+                self.validate_extension_for_source_set(&source_set, extension, &path);
+
                 FileGroup::Source { source_set }
             }
         } else if extension == "graphql" {
@@ -214,8 +227,8 @@ impl FileCategorizer {
             }
         } else {
             panic!(
-                "Received file {:?} from watchman with unexpected extension.",
-                path
+                "File categorizer encounter a file `{:?}` with unsupported extension `{:?}`.",
+                path, extension
             )
         }
     }
@@ -225,6 +238,38 @@ impl FileCategorizer {
             Component::Normal(comp) => comp == self.default_generated_dir,
             _ => false,
         })
+    }
+
+    fn validate_extension_for_source_set(
+        &self,
+        source_set: &SourceSet,
+        extension: &OsStr,
+        path: &Path,
+    ) {
+        match source_set {
+            SourceSet::SourceSetName(source_set_name) => {
+                if let Some(language) = self.source_language.get(source_set_name) {
+                    if !is_valid_source_code_extension(language, extension) {
+                        panic!(
+                            "Unexpected file `{:?}` for language `{:?}`.",
+                            path, language
+                        );
+                    }
+                }
+            }
+            SourceSet::SourceSetNames(source_set_names) => {
+                for source_set_name in source_set_names {
+                    if let Some(language) = self.source_language.get(source_set_name) {
+                        if !is_valid_source_code_extension(language, extension) {
+                            panic!(
+                                "Unexpected file `{:?}` for language `{:?}`.",
+                                path, language
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -259,21 +304,34 @@ impl<T: Clone> PathMapping<T> {
     }
 }
 
+fn is_source_code_extension(extension: &OsStr) -> bool {
+    extension == "js" || extension == "ts" || extension == "tsx"
+}
+
+fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
+    match (typegen_language, extension.to_str()) {
+        (TypegenLanguage::Flow, Some("js")) => true,
+        (TypegenLanguage::TypeScript, Some("ts")) => true,
+        (TypegenLanguage::TypeScript, Some("tsx")) => true,
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use interner::Intern;
 
-    #[test]
-    fn test_categorize() {
-        let config = Config::from_string_for_test(
+    fn create_test_config() -> Config {
+        Config::from_string_for_test(
             r#"
                 {
                     "sources": {
                         "src/js": "public",
                         "src/js/internal": "internal",
                         "src/vendor": "public",
-                        "src/custom": "with_custom_generated_dir"
+                        "src/custom": "with_custom_generated_dir",
+                        "src/typescript": "typescript"
                     },
                     "projects": {
                         "public": {
@@ -285,12 +343,21 @@ mod tests {
                         "with_custom_generated_dir": {
                             "schema": "graphql/__generated__/custom.graphql",
                             "output": "graphql/custom-generated"
+                        },
+                        "typescript": {
+                            "schema": "graphql/ts_schema.graphql",
+                            "language": "typescript"
                         }
                     }
                 }
             "#,
         )
-        .unwrap();
+        .unwrap()
+    }
+
+    #[test]
+    fn test_categorize() {
+        let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
 
         assert_eq!(
@@ -345,5 +412,33 @@ mod tests {
                 project_set: ProjectSet::ProjectName("internal".intern())
             },
         );
+        assert_eq!(
+            categorizer.categorize(&PathBuf::from("src/typescript/a.ts")),
+            FileGroup::Source {
+                source_set: SourceSet::SourceSetName("typescript".intern()),
+            },
+        );
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "File categorizer encounter a file `\"src/js/a.cpp\"` with unsupported extension `\"cpp\"`."
+    )]
+    fn test_invalid_extension() {
+        let config = create_test_config();
+        let categorizer = FileCategorizer::from_config(&config);
+
+        categorizer.categorize(&PathBuf::from("src/js/a.cpp"));
+    }
+
+    #[test]
+    #[should_panic(
+        expected = "Unexpected file `\"src/typescript/a.js\"` for language `TypeScript`."
+    )]
+    fn test_extension_mismatch_panic() {
+        let config = create_test_config();
+        let categorizer = FileCategorizer::from_config(&config);
+
+        categorizer.categorize(&PathBuf::from("src/typescript/a.js"));
     }
 }

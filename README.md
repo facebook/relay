@@ -28,7 +28,7 @@ We actively welcome pull requests, learn how to [contribute](./.github/CONTRIBUT
 
 ## Users
 
-We have a [community-maintained list](https://relay.dev/en/users) of people and projects using Relay in production.
+We have a [community-maintained list](https://relay.dev/users/) of people and projects using Relay in production.
 
 ## License
 

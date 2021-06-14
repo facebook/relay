@@ -31,10 +31,10 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 #[derive(Serialize, Debug)]
 pub struct WasmDiagnostic {
     message: String,
-    line_start: u64,
-    line_end: u64,
-    column_start: u64,
-    column_end: u64,
+    line_start: u32,
+    line_end: u32,
+    column_start: u32,
+    column_end: u32,
 }
 
 enum InputType<'a> {

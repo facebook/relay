@@ -130,72 +130,30 @@ describe('execute() a query with @module if the module fragment is available syn
       );
   });
 
-  describe('with ENABLE_BATCH_STORE_UPDATES set to true', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = true;
-    });
-    it('commits only after data from the query and from the @module fragment have been normalized', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      dataSource.next({
-        data: {
-          me: {
-            id: '1',
-            name: 'Joseph',
-
-            // Data associated with @module fragment:
-            lastName: 'Henry',
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery:
-              'User.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization.graphql',
-          },
-        },
-      });
-
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
+  it('commits only after data from the query and from the @module fragment have been normalized', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
         me: {
+          id: '1',
           name: 'Joseph',
+
+          // Data associated with @module fragment:
           lastName: 'Henry',
+          __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery:
+            'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization.graphql',
         },
-      });
+      },
     });
-  });
 
-  describe('with ENABLE_BATCH_STORE_UPDATES set to false', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = false;
-    });
-    it('commits twice, first including only the query data, and second including the @module fragment data', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      dataSource.next({
-        data: {
-          me: {
-            id: '1',
-            name: 'Joseph',
-
-            // Data associated with @module fragment:
-            lastName: 'Henry',
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery:
-              'User.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization.graphql',
-          },
-        },
-      });
-
-      expect(callback).toHaveBeenCalledTimes(2);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        me: {
-          name: 'Joseph',
-        },
-      });
-      expect(callback.mock.calls[1][0].data).toEqual({
-        me: {
-          name: 'Joseph',
-          lastName: 'Henry',
-        },
-      });
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Joseph',
+        lastName: 'Henry',
+      },
     });
   });
 });
@@ -294,96 +252,41 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       );
   });
 
-  describe('with ENABLE_BATCH_STORE_UPDATES set to true', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = true;
-    });
-
-    it('commits only after data from the query and from the @module fragment have been normalized', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      dataSource.next([
-        {
-          data: {
-            me: {
-              id: '1',
-              name: 'Joseph',
-            },
-          },
-        },
-        {
-          data: {
+  it('commits only after data from the query and from the @module fragment have been normalized', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next([
+      {
+        data: {
+          me: {
             id: '1',
-            __typename: 'User',
-
-            // Data associated with @module fragment:
-            lastName: 'Henry',
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user:
-              'User.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_module_user$normalization.graphql',
+            name: 'Joseph',
           },
-          label:
-            'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferredQuery$defer$RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user',
-          path: ['me'],
         },
-      ]);
+      },
+      {
+        data: {
+          id: '1',
+          __typename: 'User',
 
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        me: {
-          name: 'Joseph',
+          // Data associated with @module fragment:
           lastName: 'Henry',
+          __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user:
+            'User.react',
+          __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user:
+            'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_module_user$normalization.graphql',
         },
-      });
-    });
-  });
+        label:
+          'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferredQuery$defer$RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user',
+        path: ['me'],
+      },
+    ]);
 
-  describe('with ENABLE_BATCH_STORE_UPDATES set to false', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = false;
-    });
-
-    it('commits twice - once including only the query data, and again with the @module fragment data', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      dataSource.next([
-        {
-          data: {
-            me: {
-              id: '1',
-              name: 'Joseph',
-            },
-          },
-        },
-        {
-          data: {
-            id: '1',
-            __typename: 'User',
-
-            // Data associated with @module fragment:
-            lastName: 'Henry',
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user:
-              'User.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_module_user$normalization.graphql',
-          },
-          label:
-            'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferredQuery$defer$RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user',
-          path: ['me'],
-        },
-      ]);
-
-      expect(callback).toHaveBeenCalledTimes(2);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        me: {
-          name: 'Joseph',
-        },
-      });
-      expect(callback.mock.calls[1][0].data).toEqual({
-        me: {
-          name: 'Joseph',
-          lastName: 'Henry',
-        },
-      });
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Joseph',
+        lastName: 'Henry',
+      },
     });
   });
 });
@@ -486,116 +389,51 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       );
   });
 
-  describe('with ENABLE_BATCH_STORE_UPDATES set to true', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = true;
-    });
-
-    it('should commit once, including data from both the outer and inner module fragments, after the outer module fragment normalization file is available', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      dataSource.next({
-        data: {
-          me: {
-            id: '1',
-
-            name: 'Joseph',
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery:
-              'User.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization',
-
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user:
-              'User2.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization',
-            lastName: 'Henry',
-          },
-        },
-      });
-
-      // Observe the creation of this object in the store
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
+  it('should commit once, including data from both the outer and inner module fragments, after the outer module fragment normalization file is available', () => {
+    environment.execute({operation}).subscribe(callbacks);
+    dataSource.next({
+      data: {
         me: {
-          lastName: undefined,
-          name: undefined,
-        },
-      });
-      callback.mockClear();
+          id: '1',
 
-      // Resolve the promise for the outer normalization fragment
-      resolve(
-        RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization,
-      );
-      jest.runAllTimers();
-
-      // Observe only a single commit
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        me: {
           name: 'Joseph',
+          __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery:
+            'User.react',
+          __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery:
+            'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization',
+
+          __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user:
+            'User2.react',
+          __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user:
+            'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization',
           lastName: 'Henry',
         },
-      });
-    });
-  });
-
-  describe('with ENABLE_BATCH_STORE_UPDATES set to false', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES = false;
+      },
     });
 
-    it('should commit twice, once including data from only the outer module fragment, then also including data from the inner module fragment, after the outer module fragment normalization file is available', () => {
-      environment.execute({operation}).subscribe(callbacks);
-      dataSource.next({
-        data: {
-          me: {
-            id: '1',
+    // Observe the creation of this object in the store
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        lastName: undefined,
+        name: undefined,
+      },
+    });
+    callback.mockClear();
 
-            name: 'Joseph',
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery:
-              'User.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization',
+    // Resolve the promise for the outer normalization fragment
+    resolve(
+      RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization,
+    );
+    jest.runAllTimers();
 
-            __module_component_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user:
-              'User2.react',
-            __module_operation_RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user:
-              'RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization',
-            lastName: 'Henry',
-          },
-        },
-      });
-
-      // Observe the creation of this object in the store
-      expect(callback).toHaveBeenCalledTimes(1);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        me: {
-          lastName: undefined,
-          name: undefined,
-        },
-      });
-      callback.mockClear();
-
-      // Resolve the promise for the outer normalization fragment
-      resolve(
-        RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization,
-      );
-      jest.runAllTimers();
-
-      // Observe two commits, the first with partial data
-      expect(callback).toHaveBeenCalledTimes(2);
-      expect(callback.mock.calls[0][0].data).toEqual({
-        me: {
-          name: 'Joseph',
-        },
-      });
-      expect(callback.mock.calls[1][0].data).toEqual({
-        me: {
-          name: 'Joseph',
-          lastName: 'Henry',
-        },
-      });
+    // Observe only a single commit
+    expect(callback).toHaveBeenCalledTimes(1);
+    expect(callback.mock.calls[0][0].data).toEqual({
+      me: {
+        name: 'Joseph',
+        lastName: 'Henry',
+      },
     });
   });
 });

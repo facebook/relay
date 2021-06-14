@@ -548,31 +548,13 @@ class Executor {
 
       const payloadFollowups = this._processResponses(nonIncrementalResponses);
 
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        const updatedOwners = this._publishQueue.run(this._operation);
-        this._updateOperationTracker(updatedOwners);
-      }
-
       this._processPayloadFollowups(payloadFollowups);
-
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        if (this._incrementalPayloadsPending && !this._retainDisposable) {
-          this._retainDisposable = this._store.retain(this._operation);
-        }
-      }
     }
 
     if (incrementalResponses.length > 0) {
       const payloadFollowups = this._processIncrementalResponses(
         incrementalResponses,
       );
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        // For the incremental case, we're only handling follow-up responses
-        // for already initiated operation (and we're not passing it to
-        // the run(...) call)
-        const updatedOwners = this._publishQueue.run();
-        this._updateOperationTracker(updatedOwners);
-      }
       this._processPayloadFollowups(payloadFollowups);
     }
     if (this._isSubscriptionOperation) {
@@ -588,18 +570,16 @@ class Executor {
       }
     }
 
-    if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-      // OK: run once after each new payload
-      // If we have non-incremental responses, we passing `this._operation` to
-      // the publish queue here, which will later be passed to the store (via
-      // notify) to indicate that this operation caused the store to update
-      const updatedOwners = this._publishQueue.run(
-        hasNonIncrementalResponses ? this._operation : undefined,
-      );
-      if (hasNonIncrementalResponses) {
-        if (this._incrementalPayloadsPending && !this._retainDisposable) {
-          this._retainDisposable = this._store.retain(this._operation);
-        }
+    // OK: run once after each new payload
+    // If we have non-incremental responses, we passing `this._operation` to
+    // the publish queue here, which will later be passed to the store (via
+    // notify) to indicate that this operation caused the store to update
+    const updatedOwners = this._publishQueue.run(
+      hasNonIncrementalResponses ? this._operation : undefined,
+    );
+    if (hasNonIncrementalResponses) {
+      if (this._incrementalPayloadsPending && !this._retainDisposable) {
+        this._retainDisposable = this._store.retain(this._operation);
       }
       this._updateOperationTracker(updatedOwners);
     }
@@ -902,10 +882,6 @@ class Executor {
             }
           });
           if (relayPayloads.length > 0) {
-            if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-              const updatedOwners = this._publishQueue.run();
-              this._updateOperationTracker(updatedOwners);
-            }
             this._processPayloadFollowups(relayPayloads);
           }
         }
@@ -977,16 +953,12 @@ class Executor {
                       moduleImportPayload,
                       operation,
                     );
-                    if (RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-                      // OK: always have to run after an async module import resolves
-                      if (
-                        RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES
-                      ) {
-                        this._scheduleAsyncStoreUpdate(sink.complete);
-                      } else {
-                        const updatedOwners = this._publishQueue.run();
-                        this._updateOperationTracker(updatedOwners);
-                      }
+                    // OK: always have to run after an async module import resolves
+                    if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+                      this._scheduleAsyncStoreUpdate(sink.complete);
+                    } else {
+                      const updatedOwners = this._publishQueue.run();
+                      this._updateOperationTracker(updatedOwners);
                     }
                   });
                   this._log({
@@ -995,12 +967,7 @@ class Executor {
                     operationName: operation.name,
                     duration,
                   });
-                  if (
-                    !(
-                      RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES &&
-                      RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES
-                    )
-                  ) {
+                  if (!RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
                     sink.complete();
                   }
                 } catch (error) {
@@ -1050,10 +1017,6 @@ class Executor {
       operation,
     );
     this._publishQueue.commitPayload(this._operation, relayPayload);
-    if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-      const updatedOwners = this._publishQueue.run();
-      this._updateOperationTracker(updatedOwners);
-    }
     this._processPayloadFollowups([relayPayload]);
   }
 
@@ -1158,10 +1121,6 @@ class Executor {
       const payloadFollowups = this._processIncrementalResponses(
         pendingResponses,
       );
-      if (!RelayFeatureFlags.ENABLE_BATCHED_STORE_UPDATES) {
-        const updatedOwners = this._publishQueue.run();
-        this._updateOperationTracker(updatedOwners);
-      }
       this._processPayloadFollowups(payloadFollowups);
     }
   }

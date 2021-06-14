@@ -172,15 +172,6 @@ describe('ActorChange with @defer', () => {
       </ComponentWrapper>,
     );
 
-    expectWarningWillFire(
-      'RelayPublishQueue.run was called, but the call would have been a noop.',
-    );
-    expectWarningWillFire(
-      'RelayPublishQueue.run was called, but the call would have been a noop.',
-    );
-    expectWarningWillFire(
-      'RelayPublishQueue.run was called, but the call would have been a noop.',
-    );
     dataSource.next({
       data: {
         viewer: {

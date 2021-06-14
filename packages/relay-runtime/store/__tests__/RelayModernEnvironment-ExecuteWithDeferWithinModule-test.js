@@ -332,7 +332,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             path: ['viewer', 'actor'],
           });
         }
-
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
         expect(complete).toBeCalledTimes(0);
@@ -341,16 +340,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next).toBeCalledTimes(2);
 
         resolveFragment(userNormalizationFragment);
-        if (environmentType === 'RelayModernEnvironment') {
-          jest.runAllTimers();
-        } else {
-          expectToWarn(
-            'RelayPublishQueue.run was called, but the call would have been a noop.',
-            () => {
-              jest.runAllTimers();
-            },
-          );
-        }
+        jest.runAllTimers();
 
         expect(error.mock.calls.map(call => call[0])).toEqual([]);
         expect(userCallback).toBeCalledTimes(1);
@@ -364,16 +354,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userCallback.mockClear();
 
         resolveFragment(actorNormalizationFragment);
-        if (environmentType === 'RelayModernEnvironment') {
-          jest.runAllTimers();
-        } else {
-          expectToWarn(
-            'RelayPublishQueue.run was called, but the call would have been a noop.',
-            () => {
-              jest.runAllTimers();
-            },
-          );
-        }
+        jest.runAllTimers();
         expect(error.mock.calls.map(call => call[0])).toEqual([]);
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(1);
@@ -422,16 +403,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         resolveFragment(userNormalizationFragment);
-        if (environmentType === 'RelayModernEnvironment') {
-          jest.runAllTimers();
-        } else {
-          expectToWarn(
-            'RelayPublishQueue.run was called, but the call would have been a noop.',
-            () => {
-              jest.runAllTimers();
-            },
-          );
-        }
+        jest.runAllTimers();
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
 
@@ -461,16 +433,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userCallback.mockClear();
 
         resolveFragment(actorNormalizationFragment);
-        if (environmentType === 'RelayModernEnvironment') {
-          jest.runAllTimers();
-        } else {
-          expectToWarn(
-            'RelayPublishQueue.run was called, but the call would have been a noop.',
-            () => {
-              jest.runAllTimers();
-            },
-          );
-        }
+        jest.runAllTimers();
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
 
@@ -597,27 +560,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           jest.runAllTimers();
 
           expect(tasks.size).toBe(2);
-          if (environmentType === 'RelayModernEnvironment') {
-            expectToWarn(
-              'RelayPublishQueue.run was called, but the call would have been a noop.',
-              () => {
-                runTask();
-              },
-            );
-          } else {
-            runTask();
-          }
-          if (environmentType === 'RelayModernEnvironment') {
-            expectToWarn(
-              'RelayPublishQueue.run was called, but the call would have been a noop.',
-              () => {
-                runTask();
-              },
-            );
-          } else {
-            runTask();
-          }
 
+          if (environmentType === 'RelayModernEnvironment') {
+            expectToWarn(
+              'RelayPublishQueue.run was called, but the call would have been a noop.',
+              () => {
+                runTask();
+              },
+            );
+            expectToWarn(
+              'RelayPublishQueue.run was called, but the call would have been a noop.',
+              () => {
+                runTask();
+              },
+            );
+          } else {
+            runTask();
+            runTask();
+          }
           expect(userCallback).toBeCalledTimes(0);
           expect(actorCallback).toBeCalledTimes(0);
           expect(complete).toBeCalledTimes(0);
@@ -629,16 +589,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // Run scheduler task to process @module
           expect(tasks.size).toBe(1);
-          if (environmentType === 'RelayModernEnvironment') {
-            runTask();
-          } else {
-            expectToWarn(
-              'RelayPublishQueue.run was called, but the call would have been a noop.',
-              () => {
-                runTask();
-              },
-            );
-          }
+          runTask();
 
           // A new task should not have been scheduled to process the
           // deferred payloads, it should've be processed synchronously
@@ -661,16 +612,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // Run scheduler task to process @module
           expect(tasks.size).toBe(1);
-          if (environmentType === 'RelayModernEnvironment') {
-            runTask();
-          } else {
-            expectToWarn(
-              'RelayPublishQueue.run was called, but the call would have been a noop.',
-              () => {
-                runTask();
-              },
-            );
-          }
+          runTask();
 
           // A new task should not have been scheduled to process the
           // deferred payloads, it should've be processed synchronously

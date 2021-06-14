@@ -607,11 +607,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 }
 
 runWithFeatureFlags(flags => {
-  flags.ENABLE_BATCHED_STORE_UPDATES = false;
   flags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = false;
 });
 
 runWithFeatureFlags(flags => {
-  flags.ENABLE_BATCHED_STORE_UPDATES = true;
   flags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = true;
 });

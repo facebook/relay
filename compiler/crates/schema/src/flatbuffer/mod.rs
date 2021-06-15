@@ -5,18 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-mod graphqlschema_generated;
 mod serialize;
 mod wrapper;
 
 use crate::definitions::{Argument, Directive, *};
 use common::Span;
-use flatbuffers::*;
+use flatbuffers::{ForwardsUOffset, Vector};
 use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
     FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
 };
-use graphqlschema_generated as flatbuffer;
 use interner::{Intern, StringKey};
 pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
@@ -28,20 +26,22 @@ pub struct FlatBufferSchema<'fb> {
     query_type: Type,
     mutation_type: Option<Type>,
     subscription_type: Option<Type>,
-    directives: Vector<'fb, ForwardsUOffset<flatbuffer::DirectiveMapEntry<'fb>>>,
-    enums: Vector<'fb, ForwardsUOffset<flatbuffer::Enum<'fb>>>,
-    fields: Vector<'fb, ForwardsUOffset<flatbuffer::Field<'fb>>>,
-    input_objects: Vector<'fb, ForwardsUOffset<flatbuffer::InputObject<'fb>>>,
-    interfaces: Vector<'fb, ForwardsUOffset<flatbuffer::Interface<'fb>>>,
-    objects: Vector<'fb, ForwardsUOffset<flatbuffer::Object<'fb>>>,
-    scalars: Vector<'fb, ForwardsUOffset<flatbuffer::Scalar<'fb>>>,
-    types: Vector<'fb, ForwardsUOffset<flatbuffer::TypeMapEntry<'fb>>>,
-    unions: Vector<'fb, ForwardsUOffset<flatbuffer::Union<'fb>>>,
+    directives: Vector<'fb, ForwardsUOffset<schema_flatbuffer::DirectiveMapEntry<'fb>>>,
+    enums: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Enum<'fb>>>,
+    fields: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Field<'fb>>>,
+    input_objects: Vector<'fb, ForwardsUOffset<schema_flatbuffer::InputObject<'fb>>>,
+    interfaces: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Interface<'fb>>>,
+    objects: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Object<'fb>>>,
+    scalars: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Scalar<'fb>>>,
+    types: Vector<'fb, ForwardsUOffset<schema_flatbuffer::TypeMapEntry<'fb>>>,
+    unions: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Union<'fb>>>,
 }
 
 impl<'fb> FlatBufferSchema<'fb> {
     pub fn build(bytes: &'fb [u8]) -> Self {
-        let fb_schema: flatbuffer::Schema<'fb> = flatbuffer::get_root_as_schema(bytes);
+        #![allow(deprecated)]
+        let fb_schema: schema_flatbuffer::Schema<'fb> =
+            schema_flatbuffer::get_root_as_schema(bytes);
 
         let query_type = Type::Object(ObjectID(fb_schema.query_type()));
         let mutation_type = fb_schema
@@ -141,7 +141,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         None
     }
 
-    fn parse_directive(&self, directive: flatbuffer::Directive<'fb>) -> Option<Directive> {
+    fn parse_directive(&self, directive: schema_flatbuffer::Directive<'fb>) -> Option<Directive> {
         let locations = directive
             .locations()?
             .iter()
@@ -179,16 +179,19 @@ impl<'fb> FlatBufferSchema<'fb> {
         None
     }
 
-    fn parse_type(&self, type_: flatbuffer::Type<'_>) -> Type {
+    fn parse_type(&self, type_: schema_flatbuffer::Type<'_>) -> Type {
         match type_.kind() {
-            flatbuffer::TypeKind::Scalar => Type::Scalar(ScalarID(type_.scalar_id())),
-            flatbuffer::TypeKind::InputObject => {
+            schema_flatbuffer::TypeKind::Scalar => Type::Scalar(ScalarID(type_.scalar_id())),
+            schema_flatbuffer::TypeKind::InputObject => {
                 Type::InputObject(InputObjectID(type_.input_object_id()))
             }
-            flatbuffer::TypeKind::Enum => Type::Enum(EnumID(type_.enum_id())),
-            flatbuffer::TypeKind::Object => Type::Object(ObjectID(type_.object_id())),
-            flatbuffer::TypeKind::Interface => Type::Interface(InterfaceID(type_.interface_id())),
-            flatbuffer::TypeKind::Union => Type::Union(UnionID(type_.union_id())),
+            schema_flatbuffer::TypeKind::Enum => Type::Enum(EnumID(type_.enum_id())),
+            schema_flatbuffer::TypeKind::Object => Type::Object(ObjectID(type_.object_id())),
+            schema_flatbuffer::TypeKind::Interface => {
+                Type::Interface(InterfaceID(type_.interface_id()))
+            }
+            schema_flatbuffer::TypeKind::Union => Type::Union(UnionID(type_.union_id())),
+            unknown => panic!("unknown TypeKind value: {:?}", unknown),
         }
     }
 
@@ -277,7 +280,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_enum_values(
         &self,
-        values: Vector<'_, ForwardsUOffset<flatbuffer::EnumValue<'_>>>,
+        values: Vector<'_, ForwardsUOffset<schema_flatbuffer::EnumValue<'_>>>,
     ) -> Option<Vec<EnumValue>> {
         values
             .iter()
@@ -285,7 +288,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             .collect::<Option<Vec<_>>>()
     }
 
-    fn parse_enum_value(&self, value: flatbuffer::EnumValue<'fb>) -> Option<EnumValue> {
+    fn parse_enum_value(&self, value: schema_flatbuffer::EnumValue<'fb>) -> Option<EnumValue> {
         let directives = self.parse_directive_values(value.directives()?)?;
         Some(EnumValue {
             value: value.value()?.intern(),
@@ -295,7 +298,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_arguments(
         &self,
-        arguments: Vector<'fb, ForwardsUOffset<flatbuffer::Argument<'_>>>,
+        arguments: Vector<'fb, ForwardsUOffset<schema_flatbuffer::Argument<'_>>>,
     ) -> Option<ArgumentDefinitions> {
         let items = arguments
             .iter()
@@ -304,7 +307,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         Some(ArgumentDefinitions::new(items?))
     }
 
-    fn parse_argument(&self, argument: flatbuffer::Argument<'fb>) -> Option<Argument> {
+    fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
         Some(Argument {
             name: argument.name().unwrap().intern(),
             default_value: match argument.value() {
@@ -317,25 +320,26 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_type_reference(
         &self,
-        type_reference: flatbuffer::TypeReference<'fb>,
+        type_reference: schema_flatbuffer::TypeReference<'fb>,
     ) -> Option<TypeReference> {
         Some(match type_reference.kind() {
-            flatbuffer::TypeReferenceKind::Named => {
+            schema_flatbuffer::TypeReferenceKind::Named => {
                 let type_name = self.get_fbtype_name(&type_reference.named()?);
                 TypeReference::Named(self.get_type(type_name).unwrap())
             }
-            flatbuffer::TypeReferenceKind::NonNull => {
+            schema_flatbuffer::TypeReferenceKind::NonNull => {
                 TypeReference::NonNull(Box::new(self.parse_type_reference(type_reference.null()?)?))
             }
-            flatbuffer::TypeReferenceKind::List => {
+            schema_flatbuffer::TypeReferenceKind::List => {
                 TypeReference::List(Box::new(self.parse_type_reference(type_reference.list()?)?))
             }
+            unknown => panic!("unknown TypeReferenceKind value: {:?}", unknown),
         })
     }
 
     fn parse_directive_values(
         &self,
-        directives: Vector<'_, ForwardsUOffset<flatbuffer::DirectiveValue<'_>>>,
+        directives: Vector<'_, ForwardsUOffset<schema_flatbuffer::DirectiveValue<'_>>>,
     ) -> Option<Vec<DirectiveValue>> {
         directives
             .iter()
@@ -345,7 +349,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_directive_value(
         &self,
-        directive: flatbuffer::DirectiveValue<'fb>,
+        directive: schema_flatbuffer::DirectiveValue<'fb>,
     ) -> Option<DirectiveValue> {
         let arguments = self.parse_argument_values(directive.arguments()?)?;
         Some(DirectiveValue {
@@ -356,7 +360,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_argument_values(
         &self,
-        arguments: Vector<'_, ForwardsUOffset<flatbuffer::ArgumentValue<'_>>>,
+        arguments: Vector<'_, ForwardsUOffset<schema_flatbuffer::ArgumentValue<'_>>>,
     ) -> Option<Vec<ArgumentValue>> {
         arguments
             .iter()
@@ -366,7 +370,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_argument_value(
         &self,
-        argument: flatbuffer::ArgumentValue<'fb>,
+        argument: schema_flatbuffer::ArgumentValue<'fb>,
     ) -> Option<ArgumentValue> {
         Some(ArgumentValue {
             name: argument.name()?.intern(),
@@ -374,36 +378,27 @@ impl<'fb> FlatBufferSchema<'fb> {
         })
     }
 
-    fn parse_const_value(&self, value: flatbuffer::ConstValue<'fb>) -> Option<ConstantValue> {
+    fn parse_const_value(
+        &self,
+        value: schema_flatbuffer::ConstValue<'fb>,
+    ) -> Option<ConstantValue> {
+        use schema_flatbuffer::ConstValueKind as FB;
         Some(match value.kind() {
-            flatbuffer::ConstValueKind::Null => ConstantValue::Null(get_empty_token()),
-            flatbuffer::ConstValueKind::String => {
-                ConstantValue::String(get_string_node(value.string_value()?.to_string()))
-            }
-            flatbuffer::ConstValueKind::Bool => {
-                ConstantValue::Boolean(get_boolean_node(value.bool_value()))
-            }
-            flatbuffer::ConstValueKind::Int => {
-                ConstantValue::Int(get_int_node(value.int_value()?.to_string()))
-            }
-            flatbuffer::ConstValueKind::Float => {
-                ConstantValue::Float(get_float_node(value.float_value()?.to_string()))
-            }
-            flatbuffer::ConstValueKind::Enum => {
-                ConstantValue::Enum(get_enum_node(value.enum_value()?.to_string()))
-            }
-            flatbuffer::ConstValueKind::List => {
-                ConstantValue::List(self.parse_list_value(value.list_value()?)?)
-            }
-            flatbuffer::ConstValueKind::Object => {
-                ConstantValue::Object(self.parse_object_value(value.object_value()?)?)
-            }
+            FB::Null => ConstantValue::Null(get_empty_token()),
+            FB::String => ConstantValue::String(get_string_node(value.string_value()?.to_string())),
+            FB::Bool => ConstantValue::Boolean(get_boolean_node(value.bool_value())),
+            FB::Int => ConstantValue::Int(get_int_node(value.int_value()?.to_string())),
+            FB::Float => ConstantValue::Float(get_float_node(value.float_value()?.to_string())),
+            FB::Enum => ConstantValue::Enum(get_enum_node(value.enum_value()?.to_string())),
+            FB::List => ConstantValue::List(self.parse_list_value(value.list_value()?)?),
+            FB::Object => ConstantValue::Object(self.parse_object_value(value.object_value()?)?),
+            unknown => panic!("unknown ConstValueKind value: {:?}", unknown),
         })
     }
 
     fn parse_list_value(
         &self,
-        list_value: flatbuffer::ListValue<'fb>,
+        list_value: schema_flatbuffer::ListValue<'fb>,
     ) -> Option<List<ConstantValue>> {
         let items = list_value
             .values()?
@@ -420,7 +415,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_object_value(
         &self,
-        object_value: flatbuffer::ObjectValue<'fb>,
+        object_value: schema_flatbuffer::ObjectValue<'fb>,
     ) -> Option<List<ConstantArgument>> {
         let items = object_value
             .fields()?
@@ -442,30 +437,31 @@ impl<'fb> FlatBufferSchema<'fb> {
         })
     }
 
-    fn get_fbtype_name(&self, type_: &flatbuffer::Type<'_>) -> StringKey {
+    fn get_fbtype_name(&self, type_: &schema_flatbuffer::Type<'_>) -> StringKey {
         match type_.kind() {
-            flatbuffer::TypeKind::Scalar => self
+            schema_flatbuffer::TypeKind::Scalar => self
                 .scalars
                 .get(type_.scalar_id().try_into().unwrap())
                 .name(),
-            flatbuffer::TypeKind::InputObject => self
+            schema_flatbuffer::TypeKind::InputObject => self
                 .input_objects
                 .get(type_.input_object_id().try_into().unwrap())
                 .name(),
-            flatbuffer::TypeKind::Enum => {
+            schema_flatbuffer::TypeKind::Enum => {
                 self.enums.get(type_.enum_id().try_into().unwrap()).name()
             }
-            flatbuffer::TypeKind::Object => self
+            schema_flatbuffer::TypeKind::Object => self
                 .objects
                 .get(type_.object_id().try_into().unwrap())
                 .name(),
-            flatbuffer::TypeKind::Interface => self
+            schema_flatbuffer::TypeKind::Interface => self
                 .interfaces
                 .get(type_.interface_id().try_into().unwrap())
                 .name(),
-            flatbuffer::TypeKind::Union => {
+            schema_flatbuffer::TypeKind::Union => {
                 self.unions.get(type_.union_id().try_into().unwrap()).name()
             }
+            unknown => panic!("unknown TypeKind value: {:?}", unknown),
         }
         .unwrap()
         .intern()
@@ -531,27 +527,29 @@ fn wrap_ids<T>(ids: Option<Vector<'_, u32>>, f: impl Fn(u32) -> T) -> Vec<T> {
     ids.map_or_else(Vec::new, |ids| ids.into_iter().map(f).collect())
 }
 
-fn get_mapped_location(location: flatbuffer::DirectiveLocation) -> DirectiveLocation {
-    use flatbuffer::DirectiveLocation::*;
+fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> DirectiveLocation {
+    use schema_flatbuffer::DirectiveLocation as FDL;
+    use DirectiveLocation as DL;
     match location {
-        Query => DirectiveLocation::Query,
-        Mutation => DirectiveLocation::Mutation,
-        Subscription => DirectiveLocation::Subscription,
-        Field => DirectiveLocation::Field,
-        FragmentDefinition => DirectiveLocation::FragmentDefinition,
-        FragmentSpread => DirectiveLocation::FragmentSpread,
-        InlineFragment => DirectiveLocation::InlineFragment,
-        Schema => DirectiveLocation::Schema,
-        Scalar => DirectiveLocation::Scalar,
-        Object => DirectiveLocation::Object,
-        FieldDefinition => DirectiveLocation::FieldDefinition,
-        ArgumentDefinition => DirectiveLocation::ArgumentDefinition,
-        Interface => DirectiveLocation::Interface,
-        Union => DirectiveLocation::Union,
-        Enum => DirectiveLocation::Enum,
-        EnumValue => DirectiveLocation::EnumValue,
-        InputObject => DirectiveLocation::InputObject,
-        InputFieldDefinition => DirectiveLocation::InputFieldDefinition,
-        VariableDefinition => DirectiveLocation::VariableDefinition,
+        FDL::Query => DL::Query,
+        FDL::Mutation => DL::Mutation,
+        FDL::Subscription => DL::Subscription,
+        FDL::Field => DL::Field,
+        FDL::FragmentDefinition => DL::FragmentDefinition,
+        FDL::FragmentSpread => DL::FragmentSpread,
+        FDL::InlineFragment => DL::InlineFragment,
+        FDL::Schema => DL::Schema,
+        FDL::Scalar => DL::Scalar,
+        FDL::Object => DL::Object,
+        FDL::FieldDefinition => DL::FieldDefinition,
+        FDL::ArgumentDefinition => DL::ArgumentDefinition,
+        FDL::Interface => DL::Interface,
+        FDL::Union => DL::Union,
+        FDL::Enum => DL::Enum,
+        FDL::EnumValue => DL::EnumValue,
+        FDL::InputObject => DL::InputObject,
+        FDL::InputFieldDefinition => DL::InputFieldDefinition,
+        FDL::VariableDefinition => DL::VariableDefinition,
+        unknown => panic!("unknown DirectiveLocation value: {:?}", unknown),
     }
 }

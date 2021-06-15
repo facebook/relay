@@ -10,7 +10,7 @@
  *   ./generate_flatbuffer.py
  *
  * Using:
- *   flatc version 1.12.0
+ *   flatc version 2.0.0
  *
  * NOTE: The script requires `flatc` in the path which can be installed
  *       using `brew install flatbuffers` or similar.
@@ -18,64 +18,19 @@
  * @generated
  */
 
-#![allow(unused_imports, dead_code, clippy::redundant_static_lifetimes, clippy::redundant_field_names, clippy::single_component_path_imports)]
-
 use std::mem;
 use std::cmp::Ordering;
 
-use flatbuffers;
+extern crate flatbuffers;
+use self::flatbuffers::{EndianScalar, Follow};
 
-#[allow(non_camel_case_types)]
-#[repr(i8)]
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum ConstValueKind {
-  Null = 0,
-  String = 1,
-  Bool = 2,
-  Int = 3,
-  Float = 4,
-  Enum = 5,
-  List = 6,
-  Object = 7,
-
-}
-
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_CONST_VALUE_KIND: i8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MAX_CONST_VALUE_KIND: i8 = 7;
-
-impl<'a> flatbuffers::Follow<'a> for ConstValueKind {
-  type Inner = Self;
-  #[inline]
-  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    flatbuffers::read_scalar_at::<Self>(buf, loc)
-  }
-}
-
-impl flatbuffers::EndianScalar for ConstValueKind {
-  #[inline]
-  fn to_little_endian(self) -> Self {
-    let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const ConstValueKind;
-    unsafe { *p }
-  }
-  #[inline]
-  fn from_little_endian(self) -> Self {
-    let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const ConstValueKind;
-    unsafe { *p }
-  }
-}
-
-impl flatbuffers::Push for ConstValueKind {
-    type Output = ConstValueKind;
-    #[inline]
-    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<ConstValueKind>(dst, *self);
-    }
-}
-
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_CONST_VALUE_KIND:[ConstValueKind; 8] = [
+pub const ENUM_VALUES_CONST_VALUE_KIND: [ConstValueKind; 8] = [
   ConstValueKind::Null,
   ConstValueKind::String,
   ConstValueKind::Bool,
@@ -83,62 +38,170 @@ pub const ENUM_VALUES_CONST_VALUE_KIND:[ConstValueKind; 8] = [
   ConstValueKind::Float,
   ConstValueKind::Enum,
   ConstValueKind::List,
-  ConstValueKind::Object
+  ConstValueKind::Object,
 ];
 
-#[allow(non_camel_case_types)]
-pub const ENUM_NAMES_CONST_VALUE_KIND:[&'static str; 8] = [
-    "Null",
-    "String",
-    "Bool",
-    "Int",
-    "Float",
-    "Enum",
-    "List",
-    "Object"
-];
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct ConstValueKind(pub i8);
+#[allow(non_upper_case_globals)]
+impl ConstValueKind {
+  pub const Null: Self = Self(0);
+  pub const String: Self = Self(1);
+  pub const Bool: Self = Self(2);
+  pub const Int: Self = Self(3);
+  pub const Float: Self = Self(4);
+  pub const Enum: Self = Self(5);
+  pub const List: Self = Self(6);
+  pub const Object: Self = Self(7);
 
-pub fn enum_name_const_value_kind(e: ConstValueKind) -> &'static str {
-  let index = e as i8;
-  ENUM_NAMES_CONST_VALUE_KIND[index as usize]
+  pub const ENUM_MIN: i8 = 0;
+  pub const ENUM_MAX: i8 = 7;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::Null,
+    Self::String,
+    Self::Bool,
+    Self::Int,
+    Self::Float,
+    Self::Enum,
+    Self::List,
+    Self::Object,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::Null => Some("Null"),
+      Self::String => Some("String"),
+      Self::Bool => Some("Bool"),
+      Self::Int => Some("Int"),
+      Self::Float => Some("Float"),
+      Self::Enum => Some("Enum"),
+      Self::List => Some("List"),
+      Self::Object => Some("Object"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for ConstValueKind {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for ConstValueKind {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<i8>(buf, loc)
+    };
+    Self(b)
+  }
 }
 
-#[allow(non_camel_case_types)]
-#[repr(i8)]
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum TypeKind {
-  Scalar = 0,
-  InputObject = 1,
-  Enum = 2,
-  Object = 3,
-  Interface = 4,
-  Union = 5,
-
+impl flatbuffers::Push for ConstValueKind {
+    type Output = ConstValueKind;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<i8>(dst, self.0); }
+    }
 }
 
+impl flatbuffers::EndianScalar for ConstValueKind {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = i8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = i8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for ConstValueKind {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    i8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for ConstValueKind {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_TYPE_KIND: i8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MAX_TYPE_KIND: i8 = 5;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_TYPE_KIND: [TypeKind; 6] = [
+  TypeKind::Scalar,
+  TypeKind::InputObject,
+  TypeKind::Enum,
+  TypeKind::Object,
+  TypeKind::Interface,
+  TypeKind::Union,
+];
 
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct TypeKind(pub i8);
+#[allow(non_upper_case_globals)]
+impl TypeKind {
+  pub const Scalar: Self = Self(0);
+  pub const InputObject: Self = Self(1);
+  pub const Enum: Self = Self(2);
+  pub const Object: Self = Self(3);
+  pub const Interface: Self = Self(4);
+  pub const Union: Self = Self(5);
+
+  pub const ENUM_MIN: i8 = 0;
+  pub const ENUM_MAX: i8 = 5;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::Scalar,
+    Self::InputObject,
+    Self::Enum,
+    Self::Object,
+    Self::Interface,
+    Self::Union,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::Scalar => Some("Scalar"),
+      Self::InputObject => Some("InputObject"),
+      Self::Enum => Some("Enum"),
+      Self::Object => Some("Object"),
+      Self::Interface => Some("Interface"),
+      Self::Union => Some("Union"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for TypeKind {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
 impl<'a> flatbuffers::Follow<'a> for TypeKind {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    flatbuffers::read_scalar_at::<Self>(buf, loc)
-  }
-}
-
-impl flatbuffers::EndianScalar for TypeKind {
-  #[inline]
-  fn to_little_endian(self) -> Self {
-    let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const TypeKind;
-    unsafe { *p }
-  }
-  #[inline]
-  fn from_little_endian(self) -> Self {
-    let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const TypeKind;
-    unsafe { *p }
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<i8>(buf, loc)
+    };
+    Self(b)
   }
 }
 
@@ -146,68 +209,90 @@ impl flatbuffers::Push for TypeKind {
     type Output = TypeKind;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<TypeKind>(dst, *self);
+        unsafe { flatbuffers::emplace_scalar::<i8>(dst, self.0); }
     }
 }
 
-#[allow(non_camel_case_types)]
-pub const ENUM_VALUES_TYPE_KIND:[TypeKind; 6] = [
-  TypeKind::Scalar,
-  TypeKind::InputObject,
-  TypeKind::Enum,
-  TypeKind::Object,
-  TypeKind::Interface,
-  TypeKind::Union
-];
-
-#[allow(non_camel_case_types)]
-pub const ENUM_NAMES_TYPE_KIND:[&'static str; 6] = [
-    "Scalar",
-    "InputObject",
-    "Enum",
-    "Object",
-    "Interface",
-    "Union"
-];
-
-pub fn enum_name_type_kind(e: TypeKind) -> &'static str {
-  let index = e as i8;
-  ENUM_NAMES_TYPE_KIND[index as usize]
+impl flatbuffers::EndianScalar for TypeKind {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = i8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = i8::from_le(self.0);
+    Self(b)
+  }
 }
 
-#[allow(non_camel_case_types)]
-#[repr(i8)]
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum TypeReferenceKind {
-  Named = 0,
-  NonNull = 1,
-  List = 2,
-
+impl<'a> flatbuffers::Verifiable for TypeKind {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    i8::run_verifier(v, pos)
+  }
 }
 
+impl flatbuffers::SimpleToVerifyInSlice for TypeKind {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MIN_TYPE_REFERENCE_KIND: i8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 pub const ENUM_MAX_TYPE_REFERENCE_KIND: i8 = 2;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+#[allow(non_camel_case_types)]
+pub const ENUM_VALUES_TYPE_REFERENCE_KIND: [TypeReferenceKind; 3] = [
+  TypeReferenceKind::Named,
+  TypeReferenceKind::NonNull,
+  TypeReferenceKind::List,
+];
 
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct TypeReferenceKind(pub i8);
+#[allow(non_upper_case_globals)]
+impl TypeReferenceKind {
+  pub const Named: Self = Self(0);
+  pub const NonNull: Self = Self(1);
+  pub const List: Self = Self(2);
+
+  pub const ENUM_MIN: i8 = 0;
+  pub const ENUM_MAX: i8 = 2;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::Named,
+    Self::NonNull,
+    Self::List,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::Named => Some("Named"),
+      Self::NonNull => Some("NonNull"),
+      Self::List => Some("List"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for TypeReferenceKind {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
 impl<'a> flatbuffers::Follow<'a> for TypeReferenceKind {
   type Inner = Self;
   #[inline]
   fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    flatbuffers::read_scalar_at::<Self>(buf, loc)
-  }
-}
-
-impl flatbuffers::EndianScalar for TypeReferenceKind {
-  #[inline]
-  fn to_little_endian(self) -> Self {
-    let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const TypeReferenceKind;
-    unsafe { *p }
-  }
-  #[inline]
-  fn from_little_endian(self) -> Self {
-    let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const TypeReferenceKind;
-    unsafe { *p }
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<i8>(buf, loc)
+    };
+    Self(b)
   }
 }
 
@@ -215,91 +300,42 @@ impl flatbuffers::Push for TypeReferenceKind {
     type Output = TypeReferenceKind;
     #[inline]
     fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<TypeReferenceKind>(dst, *self);
+        unsafe { flatbuffers::emplace_scalar::<i8>(dst, self.0); }
     }
 }
 
-#[allow(non_camel_case_types)]
-pub const ENUM_VALUES_TYPE_REFERENCE_KIND:[TypeReferenceKind; 3] = [
-  TypeReferenceKind::Named,
-  TypeReferenceKind::NonNull,
-  TypeReferenceKind::List
-];
-
-#[allow(non_camel_case_types)]
-pub const ENUM_NAMES_TYPE_REFERENCE_KIND:[&'static str; 3] = [
-    "Named",
-    "NonNull",
-    "List"
-];
-
-pub fn enum_name_type_reference_kind(e: TypeReferenceKind) -> &'static str {
-  let index = e as i8;
-  ENUM_NAMES_TYPE_REFERENCE_KIND[index as usize]
-}
-
-#[allow(non_camel_case_types)]
-#[repr(i8)]
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub enum DirectiveLocation {
-  Query = 0,
-  Mutation = 1,
-  Subscription = 2,
-  Field = 3,
-  FragmentDefinition = 4,
-  FragmentSpread = 5,
-  InlineFragment = 6,
-  Schema = 7,
-  Scalar = 8,
-  Object = 9,
-  FieldDefinition = 10,
-  ArgumentDefinition = 11,
-  Interface = 12,
-  Union = 13,
-  Enum = 14,
-  EnumValue = 15,
-  InputObject = 16,
-  InputFieldDefinition = 17,
-  VariableDefinition = 18,
-
-}
-
-pub const ENUM_MIN_DIRECTIVE_LOCATION: i8 = 0;
-pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 18;
-
-impl<'a> flatbuffers::Follow<'a> for DirectiveLocation {
-  type Inner = Self;
-  #[inline]
-  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-    flatbuffers::read_scalar_at::<Self>(buf, loc)
-  }
-}
-
-impl flatbuffers::EndianScalar for DirectiveLocation {
+impl flatbuffers::EndianScalar for TypeReferenceKind {
   #[inline]
   fn to_little_endian(self) -> Self {
-    let n = i8::to_le(self as i8);
-    let p = &n as *const i8 as *const DirectiveLocation;
-    unsafe { *p }
+    let b = i8::to_le(self.0);
+    Self(b)
   }
   #[inline]
+  #[allow(clippy::wrong_self_convention)]
   fn from_little_endian(self) -> Self {
-    let n = i8::from_le(self as i8);
-    let p = &n as *const i8 as *const DirectiveLocation;
-    unsafe { *p }
+    let b = i8::from_le(self.0);
+    Self(b)
   }
 }
 
-impl flatbuffers::Push for DirectiveLocation {
-    type Output = DirectiveLocation;
-    #[inline]
-    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
-        flatbuffers::emplace_scalar::<DirectiveLocation>(dst, *self);
-    }
+impl<'a> flatbuffers::Verifiable for TypeReferenceKind {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    i8::run_verifier(v, pos)
+  }
 }
 
+impl flatbuffers::SimpleToVerifyInSlice for TypeReferenceKind {}
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MIN_DIRECTIVE_LOCATION: i8 = 0;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
+pub const ENUM_MAX_DIRECTIVE_LOCATION: i8 = 18;
+#[deprecated(since = "2.0.0", note = "Use associated constants instead. This will no longer be generated in 2021.")]
 #[allow(non_camel_case_types)]
-pub const ENUM_VALUES_DIRECTIVE_LOCATION:[DirectiveLocation; 19] = [
+pub const ENUM_VALUES_DIRECTIVE_LOCATION: [DirectiveLocation; 19] = [
   DirectiveLocation::Query,
   DirectiveLocation::Mutation,
   DirectiveLocation::Subscription,
@@ -318,39 +354,138 @@ pub const ENUM_VALUES_DIRECTIVE_LOCATION:[DirectiveLocation; 19] = [
   DirectiveLocation::EnumValue,
   DirectiveLocation::InputObject,
   DirectiveLocation::InputFieldDefinition,
-  DirectiveLocation::VariableDefinition
+  DirectiveLocation::VariableDefinition,
 ];
 
-#[allow(non_camel_case_types)]
-pub const ENUM_NAMES_DIRECTIVE_LOCATION:[&'static str; 19] = [
-    "Query",
-    "Mutation",
-    "Subscription",
-    "Field",
-    "FragmentDefinition",
-    "FragmentSpread",
-    "InlineFragment",
-    "Schema",
-    "Scalar",
-    "Object",
-    "FieldDefinition",
-    "ArgumentDefinition",
-    "Interface",
-    "Union",
-    "Enum",
-    "EnumValue",
-    "InputObject",
-    "InputFieldDefinition",
-    "VariableDefinition"
-];
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
+#[repr(transparent)]
+pub struct DirectiveLocation(pub i8);
+#[allow(non_upper_case_globals)]
+impl DirectiveLocation {
+  pub const Query: Self = Self(0);
+  pub const Mutation: Self = Self(1);
+  pub const Subscription: Self = Self(2);
+  pub const Field: Self = Self(3);
+  pub const FragmentDefinition: Self = Self(4);
+  pub const FragmentSpread: Self = Self(5);
+  pub const InlineFragment: Self = Self(6);
+  pub const Schema: Self = Self(7);
+  pub const Scalar: Self = Self(8);
+  pub const Object: Self = Self(9);
+  pub const FieldDefinition: Self = Self(10);
+  pub const ArgumentDefinition: Self = Self(11);
+  pub const Interface: Self = Self(12);
+  pub const Union: Self = Self(13);
+  pub const Enum: Self = Self(14);
+  pub const EnumValue: Self = Self(15);
+  pub const InputObject: Self = Self(16);
+  pub const InputFieldDefinition: Self = Self(17);
+  pub const VariableDefinition: Self = Self(18);
 
-pub fn enum_name_directive_location(e: DirectiveLocation) -> &'static str {
-  let index = e as i8;
-  ENUM_NAMES_DIRECTIVE_LOCATION[index as usize]
+  pub const ENUM_MIN: i8 = 0;
+  pub const ENUM_MAX: i8 = 18;
+  pub const ENUM_VALUES: &'static [Self] = &[
+    Self::Query,
+    Self::Mutation,
+    Self::Subscription,
+    Self::Field,
+    Self::FragmentDefinition,
+    Self::FragmentSpread,
+    Self::InlineFragment,
+    Self::Schema,
+    Self::Scalar,
+    Self::Object,
+    Self::FieldDefinition,
+    Self::ArgumentDefinition,
+    Self::Interface,
+    Self::Union,
+    Self::Enum,
+    Self::EnumValue,
+    Self::InputObject,
+    Self::InputFieldDefinition,
+    Self::VariableDefinition,
+  ];
+  /// Returns the variant's name or "" if unknown.
+  pub fn variant_name(self) -> Option<&'static str> {
+    match self {
+      Self::Query => Some("Query"),
+      Self::Mutation => Some("Mutation"),
+      Self::Subscription => Some("Subscription"),
+      Self::Field => Some("Field"),
+      Self::FragmentDefinition => Some("FragmentDefinition"),
+      Self::FragmentSpread => Some("FragmentSpread"),
+      Self::InlineFragment => Some("InlineFragment"),
+      Self::Schema => Some("Schema"),
+      Self::Scalar => Some("Scalar"),
+      Self::Object => Some("Object"),
+      Self::FieldDefinition => Some("FieldDefinition"),
+      Self::ArgumentDefinition => Some("ArgumentDefinition"),
+      Self::Interface => Some("Interface"),
+      Self::Union => Some("Union"),
+      Self::Enum => Some("Enum"),
+      Self::EnumValue => Some("EnumValue"),
+      Self::InputObject => Some("InputObject"),
+      Self::InputFieldDefinition => Some("InputFieldDefinition"),
+      Self::VariableDefinition => Some("VariableDefinition"),
+      _ => None,
+    }
+  }
+}
+impl std::fmt::Debug for DirectiveLocation {
+  fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    if let Some(name) = self.variant_name() {
+      f.write_str(name)
+    } else {
+      f.write_fmt(format_args!("<UNKNOWN {:?}>", self.0))
+    }
+  }
+}
+impl<'a> flatbuffers::Follow<'a> for DirectiveLocation {
+  type Inner = Self;
+  #[inline]
+  fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
+    let b = unsafe {
+      flatbuffers::read_scalar_at::<i8>(buf, loc)
+    };
+    Self(b)
+  }
 }
 
+impl flatbuffers::Push for DirectiveLocation {
+    type Output = DirectiveLocation;
+    #[inline]
+    fn push(&self, dst: &mut [u8], _rest: &[u8]) {
+        unsafe { flatbuffers::emplace_scalar::<i8>(dst, self.0); }
+    }
+}
+
+impl flatbuffers::EndianScalar for DirectiveLocation {
+  #[inline]
+  fn to_little_endian(self) -> Self {
+    let b = i8::to_le(self.0);
+    Self(b)
+  }
+  #[inline]
+  #[allow(clippy::wrong_self_convention)]
+  fn from_little_endian(self) -> Self {
+    let b = i8::from_le(self.0);
+    Self(b)
+  }
+}
+
+impl<'a> flatbuffers::Verifiable for DirectiveLocation {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    i8::run_verifier(v, pos)
+  }
+}
+
+impl flatbuffers::SimpleToVerifyInSlice for DirectiveLocation {}
 pub enum ConstValueOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct ConstValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -360,18 +495,14 @@ impl<'a> flatbuffers::Follow<'a> for ConstValue<'a> {
     type Inner = ConstValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> ConstValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        ConstValue {
-            _tab: table,
-        }
+        ConstValue { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -424,23 +555,42 @@ impl<'a> ConstValue<'a> {
   }
   #[inline]
   pub fn list_value(&self) -> Option<ListValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<ListValue<'a>>>(ConstValue::VT_LIST_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<ListValue>>(ConstValue::VT_LIST_VALUE, None)
   }
   #[inline]
   pub fn object_value(&self) -> Option<ObjectValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<ObjectValue<'a>>>(ConstValue::VT_OBJECT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<ObjectValue>>(ConstValue::VT_OBJECT_VALUE, None)
   }
 }
 
+impl flatbuffers::Verifiable for ConstValue<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<ConstValueKind>(&"kind", Self::VT_KIND, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"string_value", Self::VT_STRING_VALUE, false)?
+     .visit_field::<bool>(&"bool_value", Self::VT_BOOL_VALUE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"int_value", Self::VT_INT_VALUE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"float_value", Self::VT_FLOAT_VALUE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"enum_value", Self::VT_ENUM_VALUE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<ListValue>>(&"list_value", Self::VT_LIST_VALUE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<ObjectValue>>(&"object_value", Self::VT_OBJECT_VALUE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ConstValueArgs<'a> {
     pub kind: ConstValueKind,
-    pub string_value: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub string_value: Option<flatbuffers::WIPOffset<&'a str>>,
     pub bool_value: bool,
-    pub int_value: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub float_value: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub enum_value: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub list_value: Option<flatbuffers::WIPOffset<ListValue<'a >>>,
-    pub object_value: Option<flatbuffers::WIPOffset<ObjectValue<'a >>>,
+    pub int_value: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub float_value: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub enum_value: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub list_value: Option<flatbuffers::WIPOffset<ListValue<'a>>>,
+    pub object_value: Option<flatbuffers::WIPOffset<ObjectValue<'a>>>,
 }
 impl<'a> Default for ConstValueArgs<'a> {
     #[inline]
@@ -457,11 +607,11 @@ impl<'a> Default for ConstValueArgs<'a> {
         }
     }
 }
-pub struct ConstValueBuilder<'a, 'b> {
+pub struct ConstValueBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ConstValueBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ConstValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_kind(&mut self, kind: ConstValueKind) {
     self.fbb_.push_slot::<ConstValueKind>(ConstValue::VT_KIND, kind, ConstValueKind::Null);
@@ -488,11 +638,11 @@ impl<'a, 'b> ConstValueBuilder<'a, 'b> {
   }
   #[inline]
   pub fn add_list_value(&mut self, list_value: flatbuffers::WIPOffset<ListValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ListValue<'_>>>(ConstValue::VT_LIST_VALUE, list_value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ListValue>>(ConstValue::VT_LIST_VALUE, list_value);
   }
   #[inline]
   pub fn add_object_value(&mut self, object_value: flatbuffers::WIPOffset<ObjectValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ObjectValue<'_>>>(ConstValue::VT_OBJECT_VALUE, object_value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ObjectValue>>(ConstValue::VT_OBJECT_VALUE, object_value);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ConstValueBuilder<'a, 'b> {
@@ -509,8 +659,22 @@ impl<'a, 'b> ConstValueBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for ConstValue<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("ConstValue");
+      ds.field("kind", &self.kind());
+      ds.field("string_value", &self.string_value());
+      ds.field("bool_value", &self.bool_value());
+      ds.field("int_value", &self.int_value());
+      ds.field("float_value", &self.float_value());
+      ds.field("enum_value", &self.enum_value());
+      ds.field("list_value", &self.list_value());
+      ds.field("object_value", &self.object_value());
+      ds.finish()
+  }
+}
 pub enum ListValueOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct ListValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -520,18 +684,14 @@ impl<'a> flatbuffers::Follow<'a> for ListValue<'a> {
     type Inner = ListValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> ListValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        ListValue {
-            _tab: table,
-        }
+        ListValue { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -546,12 +706,24 @@ impl<'a> ListValue<'a> {
 
   #[inline]
   pub fn values(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ConstValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ConstValue<'a>>>>>(ListValue::VT_VALUES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ConstValue>>>>(ListValue::VT_VALUES, None)
   }
 }
 
+impl flatbuffers::Verifiable for ListValue<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ConstValue>>>>(&"values", Self::VT_VALUES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ListValueArgs<'a> {
-    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<ConstValue<'a >>>>>,
+    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ConstValue<'a>>>>>,
 }
 impl<'a> Default for ListValueArgs<'a> {
     #[inline]
@@ -561,11 +733,11 @@ impl<'a> Default for ListValueArgs<'a> {
         }
     }
 }
-pub struct ListValueBuilder<'a, 'b> {
+pub struct ListValueBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ListValueBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ListValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_values(&mut self, values: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<ConstValue<'b >>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ListValue::VT_VALUES, values);
@@ -585,8 +757,15 @@ impl<'a, 'b> ListValueBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for ListValue<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("ListValue");
+      ds.field("values", &self.values());
+      ds.finish()
+  }
+}
 pub enum ObjectFieldOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct ObjectField<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -596,18 +775,14 @@ impl<'a> flatbuffers::Follow<'a> for ObjectField<'a> {
     type Inner = ObjectField<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> ObjectField<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        ObjectField {
-            _tab: table,
-        }
+        ObjectField { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -628,13 +803,26 @@ impl<'a> ObjectField<'a> {
   }
   #[inline]
   pub fn value(&self) -> Option<ConstValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue<'a>>>(ObjectField::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue>>(ObjectField::VT_VALUE, None)
   }
 }
 
+impl flatbuffers::Verifiable for ObjectField<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<ConstValue>>(&"value", Self::VT_VALUE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ObjectFieldArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a >>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a>>>,
 }
 impl<'a> Default for ObjectFieldArgs<'a> {
     #[inline]
@@ -645,18 +833,18 @@ impl<'a> Default for ObjectFieldArgs<'a> {
         }
     }
 }
-pub struct ObjectFieldBuilder<'a, 'b> {
+pub struct ObjectFieldBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ObjectFieldBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ObjectFieldBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ObjectField::VT_NAME, name);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue<'_>>>(ObjectField::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue>>(ObjectField::VT_VALUE, value);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ObjectFieldBuilder<'a, 'b> {
@@ -673,8 +861,16 @@ impl<'a, 'b> ObjectFieldBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for ObjectField<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("ObjectField");
+      ds.field("name", &self.name());
+      ds.field("value", &self.value());
+      ds.finish()
+  }
+}
 pub enum ObjectValueOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct ObjectValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -684,18 +880,14 @@ impl<'a> flatbuffers::Follow<'a> for ObjectValue<'a> {
     type Inner = ObjectValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> ObjectValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        ObjectValue {
-            _tab: table,
-        }
+        ObjectValue { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -710,12 +902,24 @@ impl<'a> ObjectValue<'a> {
 
   #[inline]
   pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ObjectField<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ObjectField<'a>>>>>(ObjectValue::VT_FIELDS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ObjectField>>>>(ObjectValue::VT_FIELDS, None)
   }
 }
 
+impl flatbuffers::Verifiable for ObjectValue<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ObjectField>>>>(&"fields", Self::VT_FIELDS, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ObjectValueArgs<'a> {
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<ObjectField<'a >>>>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ObjectField<'a>>>>>,
 }
 impl<'a> Default for ObjectValueArgs<'a> {
     #[inline]
@@ -725,11 +929,11 @@ impl<'a> Default for ObjectValueArgs<'a> {
         }
     }
 }
-pub struct ObjectValueBuilder<'a, 'b> {
+pub struct ObjectValueBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ObjectValueBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ObjectValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_fields(&mut self, fields: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<ObjectField<'b >>>>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ObjectValue::VT_FIELDS, fields);
@@ -749,8 +953,15 @@ impl<'a, 'b> ObjectValueBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for ObjectValue<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("ObjectValue");
+      ds.field("fields", &self.fields());
+      ds.finish()
+  }
+}
 pub enum TypeOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Type<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -760,18 +971,14 @@ impl<'a> flatbuffers::Follow<'a> for Type<'a> {
     type Inner = Type<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Type<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Type {
-            _tab: table,
-        }
+        Type { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -826,8 +1033,26 @@ impl<'a> Type<'a> {
   }
 }
 
+impl flatbuffers::Verifiable for Type<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<TypeKind>(&"kind", Self::VT_KIND, false)?
+     .visit_field::<u32>(&"scalar_id", Self::VT_SCALAR_ID, false)?
+     .visit_field::<u32>(&"input_object_id", Self::VT_INPUT_OBJECT_ID, false)?
+     .visit_field::<u32>(&"enum_id", Self::VT_ENUM_ID, false)?
+     .visit_field::<u32>(&"object_id", Self::VT_OBJECT_ID, false)?
+     .visit_field::<u32>(&"interface_id", Self::VT_INTERFACE_ID, false)?
+     .visit_field::<u32>(&"union_id", Self::VT_UNION_ID, false)?
+     .finish();
+    Ok(())
+  }
+}
 #[derive(Copy, Clone)]
-    pub struct TypeArgs {
+pub struct TypeArgs {
     pub kind: TypeKind,
     pub scalar_id: u32,
     pub input_object_id: u32,
@@ -850,11 +1075,11 @@ impl<'a> Default for TypeArgs {
         }
     }
 }
-pub struct TypeBuilder<'a, 'b> {
+pub struct TypeBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> TypeBuilder<'a, 'b> {
+impl<'a: 'b, 'b> TypeBuilder<'a, 'b> {
   #[inline]
   pub fn add_kind(&mut self, kind: TypeKind) {
     self.fbb_.push_slot::<TypeKind>(Type::VT_KIND, kind, TypeKind::Scalar);
@@ -898,8 +1123,21 @@ impl<'a, 'b> TypeBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Type<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Type");
+      ds.field("kind", &self.kind());
+      ds.field("scalar_id", &self.scalar_id());
+      ds.field("input_object_id", &self.input_object_id());
+      ds.field("enum_id", &self.enum_id());
+      ds.field("object_id", &self.object_id());
+      ds.field("interface_id", &self.interface_id());
+      ds.field("union_id", &self.union_id());
+      ds.finish()
+  }
+}
 pub enum TypeReferenceOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct TypeReference<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -909,18 +1147,14 @@ impl<'a> flatbuffers::Follow<'a> for TypeReference<'a> {
     type Inner = TypeReference<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> TypeReference<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        TypeReference {
-            _tab: table,
-        }
+        TypeReference { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -945,23 +1179,38 @@ impl<'a> TypeReference<'a> {
   }
   #[inline]
   pub fn named(&self) -> Option<Type<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<Type<'a>>>(TypeReference::VT_NAMED, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<Type>>(TypeReference::VT_NAMED, None)
   }
   #[inline]
   pub fn null(&self) -> Option<TypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(TypeReference::VT_NULL, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference>>(TypeReference::VT_NULL, None)
   }
   #[inline]
   pub fn list(&self) -> Option<TypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(TypeReference::VT_LIST, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference>>(TypeReference::VT_LIST, None)
   }
 }
 
+impl flatbuffers::Verifiable for TypeReference<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<TypeReferenceKind>(&"kind", Self::VT_KIND, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Type>>(&"named", Self::VT_NAMED, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<TypeReference>>(&"null", Self::VT_NULL, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<TypeReference>>(&"list", Self::VT_LIST, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct TypeReferenceArgs<'a> {
     pub kind: TypeReferenceKind,
-    pub named: Option<flatbuffers::WIPOffset<Type<'a >>>,
-    pub null: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
-    pub list: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
+    pub named: Option<flatbuffers::WIPOffset<Type<'a>>>,
+    pub null: Option<flatbuffers::WIPOffset<TypeReference<'a>>>,
+    pub list: Option<flatbuffers::WIPOffset<TypeReference<'a>>>,
 }
 impl<'a> Default for TypeReferenceArgs<'a> {
     #[inline]
@@ -974,26 +1223,26 @@ impl<'a> Default for TypeReferenceArgs<'a> {
         }
     }
 }
-pub struct TypeReferenceBuilder<'a, 'b> {
+pub struct TypeReferenceBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> TypeReferenceBuilder<'a, 'b> {
+impl<'a: 'b, 'b> TypeReferenceBuilder<'a, 'b> {
   #[inline]
   pub fn add_kind(&mut self, kind: TypeReferenceKind) {
     self.fbb_.push_slot::<TypeReferenceKind>(TypeReference::VT_KIND, kind, TypeReferenceKind::Named);
   }
   #[inline]
   pub fn add_named(&mut self, named: flatbuffers::WIPOffset<Type<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type<'_>>>(TypeReference::VT_NAMED, named);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type>>(TypeReference::VT_NAMED, named);
   }
   #[inline]
   pub fn add_null(&mut self, null: flatbuffers::WIPOffset<TypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(TypeReference::VT_NULL, null);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference>>(TypeReference::VT_NULL, null);
   }
   #[inline]
   pub fn add_list(&mut self, list: flatbuffers::WIPOffset<TypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(TypeReference::VT_LIST, list);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference>>(TypeReference::VT_LIST, list);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> TypeReferenceBuilder<'a, 'b> {
@@ -1010,8 +1259,18 @@ impl<'a, 'b> TypeReferenceBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for TypeReference<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("TypeReference");
+      ds.field("kind", &self.kind());
+      ds.field("named", &self.named());
+      ds.field("null", &self.null());
+      ds.field("list", &self.list());
+      ds.finish()
+  }
+}
 pub enum ArgumentValueOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct ArgumentValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1021,18 +1280,14 @@ impl<'a> flatbuffers::Follow<'a> for ArgumentValue<'a> {
     type Inner = ArgumentValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> ArgumentValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        ArgumentValue {
-            _tab: table,
-        }
+        ArgumentValue { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1053,13 +1308,26 @@ impl<'a> ArgumentValue<'a> {
   }
   #[inline]
   pub fn value(&self) -> Option<ConstValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue<'a>>>(ArgumentValue::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue>>(ArgumentValue::VT_VALUE, None)
   }
 }
 
+impl flatbuffers::Verifiable for ArgumentValue<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<ConstValue>>(&"value", Self::VT_VALUE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ArgumentValueArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a >>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a>>>,
 }
 impl<'a> Default for ArgumentValueArgs<'a> {
     #[inline]
@@ -1070,18 +1338,18 @@ impl<'a> Default for ArgumentValueArgs<'a> {
         }
     }
 }
-pub struct ArgumentValueBuilder<'a, 'b> {
+pub struct ArgumentValueBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ArgumentValueBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ArgumentValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(ArgumentValue::VT_NAME, name);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue<'_>>>(ArgumentValue::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue>>(ArgumentValue::VT_VALUE, value);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ArgumentValueBuilder<'a, 'b> {
@@ -1098,8 +1366,16 @@ impl<'a, 'b> ArgumentValueBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for ArgumentValue<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("ArgumentValue");
+      ds.field("name", &self.name());
+      ds.field("value", &self.value());
+      ds.finish()
+  }
+}
 pub enum DirectiveValueOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct DirectiveValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1109,18 +1385,14 @@ impl<'a> flatbuffers::Follow<'a> for DirectiveValue<'a> {
     type Inner = DirectiveValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> DirectiveValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        DirectiveValue {
-            _tab: table,
-        }
+        DirectiveValue { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1141,13 +1413,26 @@ impl<'a> DirectiveValue<'a> {
   }
   #[inline]
   pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ArgumentValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ArgumentValue<'a>>>>>(DirectiveValue::VT_ARGUMENTS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ArgumentValue>>>>(DirectiveValue::VT_ARGUMENTS, None)
   }
 }
 
+impl flatbuffers::Verifiable for DirectiveValue<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<ArgumentValue>>>>(&"arguments", Self::VT_ARGUMENTS, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct DirectiveValueArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<ArgumentValue<'a >>>>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<ArgumentValue<'a>>>>>,
 }
 impl<'a> Default for DirectiveValueArgs<'a> {
     #[inline]
@@ -1158,11 +1443,11 @@ impl<'a> Default for DirectiveValueArgs<'a> {
         }
     }
 }
-pub struct DirectiveValueBuilder<'a, 'b> {
+pub struct DirectiveValueBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> DirectiveValueBuilder<'a, 'b> {
+impl<'a: 'b, 'b> DirectiveValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(DirectiveValue::VT_NAME, name);
@@ -1186,8 +1471,16 @@ impl<'a, 'b> DirectiveValueBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for DirectiveValue<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("DirectiveValue");
+      ds.field("name", &self.name());
+      ds.field("arguments", &self.arguments());
+      ds.finish()
+  }
+}
 pub enum ArgumentOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Argument<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1197,18 +1490,14 @@ impl<'a> flatbuffers::Follow<'a> for Argument<'a> {
     type Inner = Argument<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Argument<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Argument {
-            _tab: table,
-        }
+        Argument { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1231,18 +1520,32 @@ impl<'a> Argument<'a> {
   }
   #[inline]
   pub fn type_(&self) -> Option<TypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(Argument::VT_TYPE_, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference>>(Argument::VT_TYPE_, None)
   }
   #[inline]
   pub fn value(&self) -> Option<ConstValue<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue<'a>>>(Argument::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<ConstValue>>(Argument::VT_VALUE, None)
   }
 }
 
+impl flatbuffers::Verifiable for Argument<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<TypeReference>>(&"type_", Self::VT_TYPE_, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<ConstValue>>(&"value", Self::VT_VALUE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ArgumentArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
-    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a >>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a>>>,
+    pub value: Option<flatbuffers::WIPOffset<ConstValue<'a>>>,
 }
 impl<'a> Default for ArgumentArgs<'a> {
     #[inline]
@@ -1254,22 +1557,22 @@ impl<'a> Default for ArgumentArgs<'a> {
         }
     }
 }
-pub struct ArgumentBuilder<'a, 'b> {
+pub struct ArgumentBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ArgumentBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ArgumentBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Argument::VT_NAME, name);
   }
   #[inline]
   pub fn add_type_(&mut self, type_: flatbuffers::WIPOffset<TypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(Argument::VT_TYPE_, type_);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference>>(Argument::VT_TYPE_, type_);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<ConstValue<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue<'_>>>(Argument::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<ConstValue>>(Argument::VT_VALUE, value);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> ArgumentBuilder<'a, 'b> {
@@ -1286,8 +1589,17 @@ impl<'a, 'b> ArgumentBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Argument<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Argument");
+      ds.field("name", &self.name());
+      ds.field("type_", &self.type_());
+      ds.field("value", &self.value());
+      ds.finish()
+  }
+}
 pub enum DirectiveOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Directive<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1297,18 +1609,14 @@ impl<'a> flatbuffers::Follow<'a> for Directive<'a> {
     type Inner = Directive<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Directive<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Directive {
-            _tab: table,
-        }
+        Directive { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1339,7 +1647,7 @@ impl<'a> Directive<'a> {
   }
   #[inline]
   pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument<'a>>>>>(Directive::VT_ARGUMENTS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument>>>>(Directive::VT_ARGUMENTS, None)
   }
   #[inline]
   pub fn locations(&self) -> Option<flatbuffers::Vector<'a, DirectiveLocation>> {
@@ -1351,11 +1659,27 @@ impl<'a> Directive<'a> {
   }
 }
 
+impl flatbuffers::Verifiable for Directive<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument>>>>(&"arguments", Self::VT_ARGUMENTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, DirectiveLocation>>>(&"locations", Self::VT_LOCATIONS, false)?
+     .visit_field::<bool>(&"repeatable", Self::VT_REPEATABLE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct DirectiveArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Argument<'a >>>>>,
-    pub locations: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , DirectiveLocation>>>,
+    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>>>,
+    pub locations: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, DirectiveLocation>>>,
     pub repeatable: bool,
 }
 impl<'a> Default for DirectiveArgs<'a> {
@@ -1370,11 +1694,11 @@ impl<'a> Default for DirectiveArgs<'a> {
         }
     }
 }
-pub struct DirectiveBuilder<'a, 'b> {
+pub struct DirectiveBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> DirectiveBuilder<'a, 'b> {
+impl<'a: 'b, 'b> DirectiveBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Directive::VT_NAME, name);
@@ -1410,8 +1734,19 @@ impl<'a, 'b> DirectiveBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Directive<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Directive");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("arguments", &self.arguments());
+      ds.field("locations", &self.locations());
+      ds.field("repeatable", &self.repeatable());
+      ds.finish()
+  }
+}
 pub enum EnumValueOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct EnumValue<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1421,18 +1756,14 @@ impl<'a> flatbuffers::Follow<'a> for EnumValue<'a> {
     type Inner = EnumValue<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> EnumValue<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        EnumValue {
-            _tab: table,
-        }
+        EnumValue { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1453,13 +1784,26 @@ impl<'a> EnumValue<'a> {
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(EnumValue::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(EnumValue::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for EnumValue<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"value", Self::VT_VALUE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct EnumValueArgs<'a> {
-    pub value: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub value: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for EnumValueArgs<'a> {
     #[inline]
@@ -1470,11 +1814,11 @@ impl<'a> Default for EnumValueArgs<'a> {
         }
     }
 }
-pub struct EnumValueBuilder<'a, 'b> {
+pub struct EnumValueBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> EnumValueBuilder<'a, 'b> {
+impl<'a: 'b, 'b> EnumValueBuilder<'a, 'b> {
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(EnumValue::VT_VALUE, value);
@@ -1498,8 +1842,16 @@ impl<'a, 'b> EnumValueBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for EnumValue<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("EnumValue");
+      ds.field("value", &self.value());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum ScalarOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Scalar<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1509,18 +1861,14 @@ impl<'a> flatbuffers::Follow<'a> for Scalar<'a> {
     type Inner = Scalar<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Scalar<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Scalar {
-            _tab: table,
-        }
+        Scalar { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1547,14 +1895,28 @@ impl<'a> Scalar<'a> {
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Scalar::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(Scalar::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for Scalar<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ScalarArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for ScalarArgs<'a> {
     #[inline]
@@ -1566,11 +1928,11 @@ impl<'a> Default for ScalarArgs<'a> {
         }
     }
 }
-pub struct ScalarBuilder<'a, 'b> {
+pub struct ScalarBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ScalarBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ScalarBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Scalar::VT_NAME, name);
@@ -1598,8 +1960,17 @@ impl<'a, 'b> ScalarBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Scalar<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Scalar");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum InputObjectOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct InputObject<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1609,18 +1980,14 @@ impl<'a> flatbuffers::Follow<'a> for InputObject<'a> {
     type Inner = InputObject<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> InputObject<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        InputObject {
-            _tab: table,
-        }
+        InputObject { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1643,18 +2010,32 @@ impl<'a> InputObject<'a> {
   }
   #[inline]
   pub fn fields(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument<'a>>>>>(InputObject::VT_FIELDS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument>>>>(InputObject::VT_FIELDS, None)
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(InputObject::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(InputObject::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for InputObject<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument>>>>(&"fields", Self::VT_FIELDS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct InputObjectArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Argument<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for InputObjectArgs<'a> {
     #[inline]
@@ -1666,11 +2047,11 @@ impl<'a> Default for InputObjectArgs<'a> {
         }
     }
 }
-pub struct InputObjectBuilder<'a, 'b> {
+pub struct InputObjectBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> InputObjectBuilder<'a, 'b> {
+impl<'a: 'b, 'b> InputObjectBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(InputObject::VT_NAME, name);
@@ -1698,8 +2079,17 @@ impl<'a, 'b> InputObjectBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for InputObject<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("InputObject");
+      ds.field("name", &self.name());
+      ds.field("fields", &self.fields());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum EnumOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Enum<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1709,18 +2099,14 @@ impl<'a> flatbuffers::Follow<'a> for Enum<'a> {
     type Inner = Enum<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Enum<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Enum {
-            _tab: table,
-        }
+        Enum { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1749,19 +2135,34 @@ impl<'a> Enum<'a> {
   }
   #[inline]
   pub fn values(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<EnumValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<EnumValue<'a>>>>>(Enum::VT_VALUES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<EnumValue>>>>(Enum::VT_VALUES, None)
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Enum::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(Enum::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for Enum<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<EnumValue>>>>(&"values", Self::VT_VALUES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct EnumArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<EnumValue<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub values: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<EnumValue<'a>>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for EnumArgs<'a> {
     #[inline]
@@ -1774,11 +2175,11 @@ impl<'a> Default for EnumArgs<'a> {
         }
     }
 }
-pub struct EnumBuilder<'a, 'b> {
+pub struct EnumBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> EnumBuilder<'a, 'b> {
+impl<'a: 'b, 'b> EnumBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Enum::VT_NAME, name);
@@ -1810,8 +2211,18 @@ impl<'a, 'b> EnumBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Enum<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Enum");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("values", &self.values());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum ObjectOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Object<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1821,18 +2232,14 @@ impl<'a> flatbuffers::Follow<'a> for Object<'a> {
     type Inner = Object<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Object<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Object {
-            _tab: table,
-        }
+        Object { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -1871,16 +2278,32 @@ impl<'a> Object<'a> {
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Object::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(Object::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for Object<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>(&"fields", Self::VT_FIELDS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>(&"interfaces", Self::VT_INTERFACES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct ObjectArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for ObjectArgs<'a> {
     #[inline]
@@ -1894,11 +2317,11 @@ impl<'a> Default for ObjectArgs<'a> {
         }
     }
 }
-pub struct ObjectBuilder<'a, 'b> {
+pub struct ObjectBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> ObjectBuilder<'a, 'b> {
+impl<'a: 'b, 'b> ObjectBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Object::VT_NAME, name);
@@ -1934,8 +2357,19 @@ impl<'a, 'b> ObjectBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Object<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Object");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("fields", &self.fields());
+      ds.field("interfaces", &self.interfaces());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum InterfaceOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Interface<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -1945,18 +2379,14 @@ impl<'a> flatbuffers::Follow<'a> for Interface<'a> {
     type Inner = Interface<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Interface<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Interface {
-            _tab: table,
-        }
+        Interface { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -2001,17 +2431,34 @@ impl<'a> Interface<'a> {
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Interface::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(Interface::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for Interface<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>(&"fields", Self::VT_FIELDS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>(&"interfaces", Self::VT_INTERFACES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>(&"implementing_objects", Self::VT_IMPLEMENTING_OBJECTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct InterfaceArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub implementing_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub implementing_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for InterfaceArgs<'a> {
     #[inline]
@@ -2026,11 +2473,11 @@ impl<'a> Default for InterfaceArgs<'a> {
         }
     }
 }
-pub struct InterfaceBuilder<'a, 'b> {
+pub struct InterfaceBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> InterfaceBuilder<'a, 'b> {
+impl<'a: 'b, 'b> InterfaceBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Interface::VT_NAME, name);
@@ -2070,8 +2517,20 @@ impl<'a, 'b> InterfaceBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Interface<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Interface");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("fields", &self.fields());
+      ds.field("interfaces", &self.interfaces());
+      ds.field("implementing_objects", &self.implementing_objects());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum UnionOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Union<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -2081,18 +2540,14 @@ impl<'a> flatbuffers::Follow<'a> for Union<'a> {
     type Inner = Union<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Union<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Union {
-            _tab: table,
-        }
+        Union { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -2125,15 +2580,30 @@ impl<'a> Union<'a> {
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Union::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(Union::VT_DIRECTIVES, None)
   }
 }
 
+impl flatbuffers::Verifiable for Union<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, u32>>>(&"members", Self::VT_MEMBERS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct UnionArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub members: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a ,  u32>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
+    pub members: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, u32>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
 }
 impl<'a> Default for UnionArgs<'a> {
     #[inline]
@@ -2146,11 +2616,11 @@ impl<'a> Default for UnionArgs<'a> {
         }
     }
 }
-pub struct UnionBuilder<'a, 'b> {
+pub struct UnionBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> UnionBuilder<'a, 'b> {
+impl<'a: 'b, 'b> UnionBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Union::VT_NAME, name);
@@ -2182,8 +2652,18 @@ impl<'a, 'b> UnionBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Union<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Union");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("members", &self.members());
+      ds.field("directives", &self.directives());
+      ds.finish()
+  }
+}
 pub enum FieldOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Field<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -2193,18 +2673,14 @@ impl<'a> flatbuffers::Follow<'a> for Field<'a> {
     type Inner = Field<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Field<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Field {
-            _tab: table,
-        }
+        Field { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -2237,29 +2713,46 @@ impl<'a> Field<'a> {
   }
   #[inline]
   pub fn arguments(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument<'a>>>>>(Field::VT_ARGUMENTS, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument>>>>(Field::VT_ARGUMENTS, None)
   }
   #[inline]
   pub fn type_(&self) -> Option<TypeReference<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference<'a>>>(Field::VT_TYPE_, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<TypeReference>>(Field::VT_TYPE_, None)
   }
   #[inline]
   pub fn directives(&self) -> Option<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>(Field::VT_DIRECTIVES, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(Field::VT_DIRECTIVES, None)
   }
   #[inline]
   pub fn parent_type(&self) -> Option<Type<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<Type<'a>>>(Field::VT_PARENT_TYPE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<Type>>(Field::VT_PARENT_TYPE, None)
   }
 }
 
+impl flatbuffers::Verifiable for Field<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, false)?
+     .visit_field::<bool>(&"is_extension", Self::VT_IS_EXTENSION, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Argument>>>>(&"arguments", Self::VT_ARGUMENTS, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<TypeReference>>(&"type_", Self::VT_TYPE_, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveValue>>>>(&"directives", Self::VT_DIRECTIVES, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Type>>(&"parent_type", Self::VT_PARENT_TYPE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct FieldArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
     pub is_extension: bool,
-    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Argument<'a >>>>>,
-    pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a >>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveValue<'a >>>>>,
-    pub parent_type: Option<flatbuffers::WIPOffset<Type<'a >>>,
+    pub arguments: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Argument<'a>>>>>,
+    pub type_: Option<flatbuffers::WIPOffset<TypeReference<'a>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveValue<'a>>>>>,
+    pub parent_type: Option<flatbuffers::WIPOffset<Type<'a>>>,
 }
 impl<'a> Default for FieldArgs<'a> {
     #[inline]
@@ -2274,11 +2767,11 @@ impl<'a> Default for FieldArgs<'a> {
         }
     }
 }
-pub struct FieldBuilder<'a, 'b> {
+pub struct FieldBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> FieldBuilder<'a, 'b> {
+impl<'a: 'b, 'b> FieldBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(Field::VT_NAME, name);
@@ -2293,7 +2786,7 @@ impl<'a, 'b> FieldBuilder<'a, 'b> {
   }
   #[inline]
   pub fn add_type_(&mut self, type_: flatbuffers::WIPOffset<TypeReference<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference<'_>>>(Field::VT_TYPE_, type_);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<TypeReference>>(Field::VT_TYPE_, type_);
   }
   #[inline]
   pub fn add_directives(&mut self, directives: flatbuffers::WIPOffset<flatbuffers::Vector<'b , flatbuffers::ForwardsUOffset<DirectiveValue<'b >>>>) {
@@ -2301,7 +2794,7 @@ impl<'a, 'b> FieldBuilder<'a, 'b> {
   }
   #[inline]
   pub fn add_parent_type(&mut self, parent_type: flatbuffers::WIPOffset<Type<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type<'_>>>(Field::VT_PARENT_TYPE, parent_type);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type>>(Field::VT_PARENT_TYPE, parent_type);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> FieldBuilder<'a, 'b> {
@@ -2318,8 +2811,20 @@ impl<'a, 'b> FieldBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Field<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Field");
+      ds.field("name", &self.name());
+      ds.field("is_extension", &self.is_extension());
+      ds.field("arguments", &self.arguments());
+      ds.field("type_", &self.type_());
+      ds.field("directives", &self.directives());
+      ds.field("parent_type", &self.parent_type());
+      ds.finish()
+  }
+}
 pub enum TypeMapEntryOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct TypeMapEntry<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -2329,18 +2834,14 @@ impl<'a> flatbuffers::Follow<'a> for TypeMapEntry<'a> {
     type Inner = TypeMapEntry<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> TypeMapEntry<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        TypeMapEntry {
-            _tab: table,
-        }
+        TypeMapEntry { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -2360,7 +2861,7 @@ impl<'a> TypeMapEntry<'a> {
     self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(TypeMapEntry::VT_NAME, None).unwrap()
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &TypeMapEntry<'_>) ->  bool {
+  pub fn key_compare_less_than(&self, o: &TypeMapEntry) ->  bool {
     self.name() < o.name()
   }
 
@@ -2371,13 +2872,26 @@ impl<'a> TypeMapEntry<'a> {
   }
   #[inline]
   pub fn value(&self) -> Option<Type<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<Type<'a>>>(TypeMapEntry::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<Type>>(TypeMapEntry::VT_VALUE, None)
   }
 }
 
+impl flatbuffers::Verifiable for TypeMapEntry<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Type>>(&"value", Self::VT_VALUE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct TypeMapEntryArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<Type<'a >>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub value: Option<flatbuffers::WIPOffset<Type<'a>>>,
 }
 impl<'a> Default for TypeMapEntryArgs<'a> {
     #[inline]
@@ -2388,18 +2902,18 @@ impl<'a> Default for TypeMapEntryArgs<'a> {
         }
     }
 }
-pub struct TypeMapEntryBuilder<'a, 'b> {
+pub struct TypeMapEntryBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> TypeMapEntryBuilder<'a, 'b> {
+impl<'a: 'b, 'b> TypeMapEntryBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(TypeMapEntry::VT_NAME, name);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<Type<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type<'_>>>(TypeMapEntry::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Type>>(TypeMapEntry::VT_VALUE, value);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> TypeMapEntryBuilder<'a, 'b> {
@@ -2417,8 +2931,16 @@ impl<'a, 'b> TypeMapEntryBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for TypeMapEntry<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("TypeMapEntry");
+      ds.field("name", &self.name());
+      ds.field("value", &self.value());
+      ds.finish()
+  }
+}
 pub enum DirectiveMapEntryOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct DirectiveMapEntry<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -2428,18 +2950,14 @@ impl<'a> flatbuffers::Follow<'a> for DirectiveMapEntry<'a> {
     type Inner = DirectiveMapEntry<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> DirectiveMapEntry<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        DirectiveMapEntry {
-            _tab: table,
-        }
+        DirectiveMapEntry { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -2459,7 +2977,7 @@ impl<'a> DirectiveMapEntry<'a> {
     self._tab.get::<flatbuffers::ForwardsUOffset<&str>>(DirectiveMapEntry::VT_NAME, None).unwrap()
   }
   #[inline]
-  pub fn key_compare_less_than(&self, o: &DirectiveMapEntry<'_>) ->  bool {
+  pub fn key_compare_less_than(&self, o: &DirectiveMapEntry) ->  bool {
     self.name() < o.name()
   }
 
@@ -2470,13 +2988,26 @@ impl<'a> DirectiveMapEntry<'a> {
   }
   #[inline]
   pub fn value(&self) -> Option<Directive<'a>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<Directive<'a>>>(DirectiveMapEntry::VT_VALUE, None)
+    self._tab.get::<flatbuffers::ForwardsUOffset<Directive>>(DirectiveMapEntry::VT_VALUE, None)
   }
 }
 
+impl flatbuffers::Verifiable for DirectiveMapEntry<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<flatbuffers::ForwardsUOffset<&str>>(&"name", Self::VT_NAME, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<Directive>>(&"value", Self::VT_VALUE, false)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct DirectiveMapEntryArgs<'a> {
-    pub name: Option<flatbuffers::WIPOffset<&'a  str>>,
-    pub value: Option<flatbuffers::WIPOffset<Directive<'a >>>,
+    pub name: Option<flatbuffers::WIPOffset<&'a str>>,
+    pub value: Option<flatbuffers::WIPOffset<Directive<'a>>>,
 }
 impl<'a> Default for DirectiveMapEntryArgs<'a> {
     #[inline]
@@ -2487,18 +3018,18 @@ impl<'a> Default for DirectiveMapEntryArgs<'a> {
         }
     }
 }
-pub struct DirectiveMapEntryBuilder<'a, 'b> {
+pub struct DirectiveMapEntryBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> DirectiveMapEntryBuilder<'a, 'b> {
+impl<'a: 'b, 'b> DirectiveMapEntryBuilder<'a, 'b> {
   #[inline]
   pub fn add_name(&mut self, name: flatbuffers::WIPOffset<&'b  str>) {
     self.fbb_.push_slot_always::<flatbuffers::WIPOffset<_>>(DirectiveMapEntry::VT_NAME, name);
   }
   #[inline]
   pub fn add_value(&mut self, value: flatbuffers::WIPOffset<Directive<'b >>) {
-    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Directive<'_>>>(DirectiveMapEntry::VT_VALUE, value);
+    self.fbb_.push_slot_always::<flatbuffers::WIPOffset<Directive>>(DirectiveMapEntry::VT_VALUE, value);
   }
   #[inline]
   pub fn new(_fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>) -> DirectiveMapEntryBuilder<'a, 'b> {
@@ -2516,8 +3047,16 @@ impl<'a, 'b> DirectiveMapEntryBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for DirectiveMapEntry<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("DirectiveMapEntry");
+      ds.field("name", &self.name());
+      ds.field("value", &self.value());
+      ds.finish()
+  }
+}
 pub enum SchemaOffset {}
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, PartialEq)]
 
 pub struct Schema<'a> {
   pub _tab: flatbuffers::Table<'a>,
@@ -2527,18 +3066,14 @@ impl<'a> flatbuffers::Follow<'a> for Schema<'a> {
     type Inner = Schema<'a>;
     #[inline]
     fn follow(buf: &'a [u8], loc: usize) -> Self::Inner {
-        Self {
-            _tab: flatbuffers::Table { buf: buf, loc: loc },
-        }
+        Self { _tab: flatbuffers::Table { buf, loc } }
     }
 }
 
 impl<'a> Schema<'a> {
     #[inline]
     pub fn init_from_table(table: flatbuffers::Table<'a>) -> Self {
-        Schema {
-            _tab: table,
-        }
+        Schema { _tab: table }
     }
     #[allow(unused_mut)]
     pub fn create<'bldr: 'args, 'args: 'mut_bldr, 'mut_bldr>(
@@ -2599,57 +3134,82 @@ impl<'a> Schema<'a> {
   }
   #[inline]
   pub fn types(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<TypeMapEntry<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<TypeMapEntry<'a>>>>>(Schema::VT_TYPES, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<TypeMapEntry>>>>(Schema::VT_TYPES, None).unwrap()
   }
   #[inline]
   pub fn directives(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a>>>>>(Schema::VT_DIRECTIVES, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveMapEntry>>>>(Schema::VT_DIRECTIVES, None).unwrap()
   }
   #[inline]
   pub fn scalars(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Scalar<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Scalar<'a>>>>>(Schema::VT_SCALARS, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Scalar>>>>(Schema::VT_SCALARS, None).unwrap()
   }
   #[inline]
   pub fn input_objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<InputObject<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<InputObject<'a>>>>>(Schema::VT_INPUT_OBJECTS, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<InputObject>>>>(Schema::VT_INPUT_OBJECTS, None).unwrap()
   }
   #[inline]
   pub fn enums(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Enum<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Enum<'a>>>>>(Schema::VT_ENUMS, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Enum>>>>(Schema::VT_ENUMS, None).unwrap()
   }
   #[inline]
   pub fn objects(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Object<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Object<'a>>>>>(Schema::VT_OBJECTS, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Object>>>>(Schema::VT_OBJECTS, None).unwrap()
   }
   #[inline]
   pub fn interfaces(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Interface<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Interface<'a>>>>>(Schema::VT_INTERFACES, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Interface>>>>(Schema::VT_INTERFACES, None).unwrap()
   }
   #[inline]
   pub fn unions(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Union<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Union<'a>>>>>(Schema::VT_UNIONS, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Union>>>>(Schema::VT_UNIONS, None).unwrap()
   }
   #[inline]
   pub fn fields(&self) -> flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Field<'a>>> {
-    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Field<'a>>>>>(Schema::VT_FIELDS, None).unwrap()
+    self._tab.get::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Field>>>>(Schema::VT_FIELDS, None).unwrap()
   }
 }
 
+impl flatbuffers::Verifiable for Schema<'_> {
+  #[inline]
+  fn run_verifier(
+    v: &mut flatbuffers::Verifier, pos: usize
+  ) -> Result<(), flatbuffers::InvalidFlatbuffer> {
+    use self::flatbuffers::Verifiable;
+    v.visit_table(pos)?
+     .visit_field::<u32>(&"query_type", Self::VT_QUERY_TYPE, false)?
+     .visit_field::<bool>(&"has_mutation_type", Self::VT_HAS_MUTATION_TYPE, false)?
+     .visit_field::<u32>(&"mutation_type", Self::VT_MUTATION_TYPE, false)?
+     .visit_field::<bool>(&"has_subscription_type", Self::VT_HAS_SUBSCRIPTION_TYPE, false)?
+     .visit_field::<u32>(&"subscription_type", Self::VT_SUBSCRIPTION_TYPE, false)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<TypeMapEntry>>>>(&"types", Self::VT_TYPES, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<DirectiveMapEntry>>>>(&"directives", Self::VT_DIRECTIVES, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Scalar>>>>(&"scalars", Self::VT_SCALARS, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<InputObject>>>>(&"input_objects", Self::VT_INPUT_OBJECTS, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Enum>>>>(&"enums", Self::VT_ENUMS, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Object>>>>(&"objects", Self::VT_OBJECTS, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Interface>>>>(&"interfaces", Self::VT_INTERFACES, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Union>>>>(&"unions", Self::VT_UNIONS, true)?
+     .visit_field::<flatbuffers::ForwardsUOffset<flatbuffers::Vector<'_, flatbuffers::ForwardsUOffset<Field>>>>(&"fields", Self::VT_FIELDS, true)?
+     .finish();
+    Ok(())
+  }
+}
 pub struct SchemaArgs<'a> {
     pub query_type: u32,
     pub has_mutation_type: bool,
     pub mutation_type: u32,
     pub has_subscription_type: bool,
     pub subscription_type: u32,
-    pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<TypeMapEntry<'a >>>>>,
-    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a >>>>>,
-    pub scalars: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Scalar<'a >>>>>,
-    pub input_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<InputObject<'a >>>>>,
-    pub enums: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Enum<'a >>>>>,
-    pub objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Object<'a >>>>>,
-    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Interface<'a >>>>>,
-    pub unions: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Union<'a >>>>>,
-    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a , flatbuffers::ForwardsUOffset<Field<'a >>>>>,
+    pub types: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<TypeMapEntry<'a>>>>>,
+    pub directives: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<DirectiveMapEntry<'a>>>>>,
+    pub scalars: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Scalar<'a>>>>>,
+    pub input_objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<InputObject<'a>>>>>,
+    pub enums: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Enum<'a>>>>>,
+    pub objects: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Object<'a>>>>>,
+    pub interfaces: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Interface<'a>>>>>,
+    pub unions: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Union<'a>>>>>,
+    pub fields: Option<flatbuffers::WIPOffset<flatbuffers::Vector<'a, flatbuffers::ForwardsUOffset<Field<'a>>>>>,
 }
 impl<'a> Default for SchemaArgs<'a> {
     #[inline]
@@ -2672,11 +3232,11 @@ impl<'a> Default for SchemaArgs<'a> {
         }
     }
 }
-pub struct SchemaBuilder<'a, 'b> {
+pub struct SchemaBuilder<'a: 'b, 'b> {
   fbb_: &'b mut flatbuffers::FlatBufferBuilder<'a>,
   start_: flatbuffers::WIPOffset<flatbuffers::TableUnfinishedWIPOffset>,
 }
-impl<'a, 'b> SchemaBuilder<'a, 'b> {
+impl<'a: 'b, 'b> SchemaBuilder<'a, 'b> {
   #[inline]
   pub fn add_query_type(&mut self, query_type: u32) {
     self.fbb_.push_slot::<u32>(Schema::VT_QUERY_TYPE, query_type, 0);
@@ -2757,16 +3317,98 @@ impl<'a, 'b> SchemaBuilder<'a, 'b> {
   }
 }
 
+impl std::fmt::Debug for Schema<'_> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    let mut ds = f.debug_struct("Schema");
+      ds.field("query_type", &self.query_type());
+      ds.field("has_mutation_type", &self.has_mutation_type());
+      ds.field("mutation_type", &self.mutation_type());
+      ds.field("has_subscription_type", &self.has_subscription_type());
+      ds.field("subscription_type", &self.subscription_type());
+      ds.field("types", &self.types());
+      ds.field("directives", &self.directives());
+      ds.field("scalars", &self.scalars());
+      ds.field("input_objects", &self.input_objects());
+      ds.field("enums", &self.enums());
+      ds.field("objects", &self.objects());
+      ds.field("interfaces", &self.interfaces());
+      ds.field("unions", &self.unions());
+      ds.field("fields", &self.fields());
+      ds.finish()
+  }
+}
 #[inline]
+#[deprecated(since="2.0.0", note="Deprecated in favor of `root_as...` methods.")]
 pub fn get_root_as_schema<'a>(buf: &'a [u8]) -> Schema<'a> {
-  flatbuffers::get_root::<Schema<'a>>(buf)
+  unsafe { flatbuffers::root_unchecked::<Schema<'a>>(buf) }
 }
 
 #[inline]
+#[deprecated(since="2.0.0", note="Deprecated in favor of `root_as...` methods.")]
 pub fn get_size_prefixed_root_as_schema<'a>(buf: &'a [u8]) -> Schema<'a> {
-  flatbuffers::get_size_prefixed_root::<Schema<'a>>(buf)
+  unsafe { flatbuffers::size_prefixed_root_unchecked::<Schema<'a>>(buf) }
 }
 
+#[inline]
+/// Verifies that a buffer of bytes contains a `Schema`
+/// and returns it.
+/// Note that verification is still experimental and may not
+/// catch every error, or be maximally performant. For the
+/// previous, unchecked, behavior use
+/// `root_as_schema_unchecked`.
+pub fn root_as_schema(buf: &[u8]) -> Result<Schema, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::root::<Schema>(buf)
+}
+#[inline]
+/// Verifies that a buffer of bytes contains a size prefixed
+/// `Schema` and returns it.
+/// Note that verification is still experimental and may not
+/// catch every error, or be maximally performant. For the
+/// previous, unchecked, behavior use
+/// `size_prefixed_root_as_schema_unchecked`.
+pub fn size_prefixed_root_as_schema(buf: &[u8]) -> Result<Schema, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::size_prefixed_root::<Schema>(buf)
+}
+#[inline]
+/// Verifies, with the given options, that a buffer of bytes
+/// contains a `Schema` and returns it.
+/// Note that verification is still experimental and may not
+/// catch every error, or be maximally performant. For the
+/// previous, unchecked, behavior use
+/// `root_as_schema_unchecked`.
+pub fn root_as_schema_with_opts<'b, 'o>(
+  opts: &'o flatbuffers::VerifierOptions,
+  buf: &'b [u8],
+) -> Result<Schema<'b>, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::root_with_opts::<Schema<'b>>(opts, buf)
+}
+#[inline]
+/// Verifies, with the given verifier options, that a buffer of
+/// bytes contains a size prefixed `Schema` and returns
+/// it. Note that verification is still experimental and may not
+/// catch every error, or be maximally performant. For the
+/// previous, unchecked, behavior use
+/// `root_as_schema_unchecked`.
+pub fn size_prefixed_root_as_schema_with_opts<'b, 'o>(
+  opts: &'o flatbuffers::VerifierOptions,
+  buf: &'b [u8],
+) -> Result<Schema<'b>, flatbuffers::InvalidFlatbuffer> {
+  flatbuffers::size_prefixed_root_with_opts::<Schema<'b>>(opts, buf)
+}
+#[inline]
+/// Assumes, without verification, that a buffer of bytes contains a Schema and returns it.
+/// # Safety
+/// Callers must trust the given bytes do indeed contain a valid `Schema`.
+pub unsafe fn root_as_schema_unchecked(buf: &[u8]) -> Schema {
+  flatbuffers::root_unchecked::<Schema>(buf)
+}
+#[inline]
+/// Assumes, without verification, that a buffer of bytes contains a size prefixed Schema and returns it.
+/// # Safety
+/// Callers must trust the given bytes do indeed contain a valid size prefixed `Schema`.
+pub unsafe fn size_prefixed_root_as_schema_unchecked(buf: &[u8]) -> Schema {
+  flatbuffers::size_prefixed_root_unchecked::<Schema>(buf)
+}
 #[inline]
 pub fn finish_schema_buffer<'a, 'b>(
     fbb: &'b mut flatbuffers::FlatBufferBuilder<'a>,

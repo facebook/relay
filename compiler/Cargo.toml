@@ -23,6 +23,7 @@ members = [
     "crates/schema",
     "crates/schema-diff",
     "crates/schema-documentation",
+    "crates/schema-flatbuffer",
     "crates/schema-print",
     "crates/schema-validate",
     "crates/signedsource",

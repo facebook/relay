@@ -178,7 +178,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const BarFragment = graphql`
       fragment DataCheckerTestFragment on User
-      @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 1) {
@@ -1681,7 +1681,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest8Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1722,7 +1722,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest9Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1764,7 +1764,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest10Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2085,7 +2085,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest13Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2156,7 +2156,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest14Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           client_actor_field

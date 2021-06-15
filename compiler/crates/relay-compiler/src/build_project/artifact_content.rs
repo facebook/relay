@@ -15,7 +15,7 @@ use relay_transforms::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
     RELAY_CLIENT_COMPONENT_METADATA_KEY, RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
 };
-use relay_typegen::generate_fragment_type;
+use relay_typegen::{generate_fragment_type, TypegenLanguage};
 use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
@@ -227,7 +227,9 @@ fn generate_operation(
     if let Some(operation_hash) = operation_hash {
         writeln!(content, " * @relayHash {}", operation_hash).unwrap();
     }
-    writeln!(content, " * @flow").unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow").unwrap();
+    }
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
     if let Some(codegen_command) = &config.codegen_command {
@@ -327,7 +329,9 @@ fn generate_split_operation(
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @flow").unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow").unwrap();
+    }
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
     if let Some(codegen_command) = &config.codegen_command {
@@ -381,7 +385,9 @@ fn generate_fragment(
 ) -> Vec<u8> {
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    writeln!(content, " * @flow").unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, " * @flow").unwrap();
+    }
     writeln!(content, " * @lightSyntaxTransform").unwrap();
     writeln!(content, " * @nogrep").unwrap();
     if let Some(codegen_command) = &config.codegen_command {

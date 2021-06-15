@@ -19,6 +19,7 @@ use graphql_syntax::{
 use graphqlschema_generated as flatbuffer;
 use interner::{Intern, StringKey};
 pub use serialize::serialize_as_flatbuffer;
+use std::cmp::Ordering;
 use std::convert::TryInto;
 pub use wrapper::SchemaWrapper;
 
@@ -124,14 +125,17 @@ impl<'fb> FlatBufferSchema<'fb> {
         let name = name.lookup();
         while start <= end {
             let mid = (start + end) / 2;
-            let cmp = self.directives.get(mid).key_compare_with_value(name);
-            if cmp == ::std::cmp::Ordering::Equal {
-                let directive = self.directives.get(mid).value()?;
-                return Some(self.parse_directive(directive)?);
-            } else if cmp == ::std::cmp::Ordering::Less {
-                start = mid + 1;
-            } else {
-                end = mid - 1;
+            match self.directives.get(mid).key_compare_with_value(name) {
+                Ordering::Less => {
+                    start = mid + 1;
+                }
+                Ordering::Equal => {
+                    let directive = self.directives.get(mid).value()?;
+                    return Some(self.parse_directive(directive)?);
+                }
+                Ordering::Greater => {
+                    end = mid - 1;
+                }
             }
         }
         None
@@ -159,14 +163,17 @@ impl<'fb> FlatBufferSchema<'fb> {
         let type_name = type_name.lookup();
         while start <= end {
             let mid = (start + end) / 2;
-            let cmp = self.types.get(mid).key_compare_with_value(type_name);
-            if cmp == ::std::cmp::Ordering::Equal {
-                let type_ = self.types.get(mid).value()?;
-                return Some(self.parse_type(type_));
-            } else if cmp == ::std::cmp::Ordering::Less {
-                start = mid + 1;
-            } else {
-                end = mid - 1;
+            match self.types.get(mid).key_compare_with_value(type_name) {
+                Ordering::Less => {
+                    start = mid + 1;
+                }
+                Ordering::Equal => {
+                    let type_ = self.types.get(mid).value()?;
+                    return Some(self.parse_type(type_));
+                }
+                Ordering::Greater => {
+                    end = mid - 1;
+                }
             }
         }
         None

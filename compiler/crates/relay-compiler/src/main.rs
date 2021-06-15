@@ -7,7 +7,7 @@
 
 use env_logger::Env;
 use log::{error, info};
-use relay_compiler::{compiler::Compiler, config::CliConfig, config::Config};
+use relay_compiler::{compiler::Compiler, config::CliConfig, config::Config, RemotePersister};
 use std::{env::current_dir, path::PathBuf, sync::Arc};
 use structopt::StructOpt;
 
@@ -45,10 +45,12 @@ async fn main() {
         Config::search(&current_dir().expect("Unable to get current working directory."))
     };
 
-    let config = config_result.unwrap_or_else(|err| {
+    let mut config = config_result.unwrap_or_else(|err| {
         error!("{}", err);
         std::process::exit(1);
     });
+    config.operation_persister = Some(Box::new(RemotePersister));
+
 
     let compiler = Compiler::new(Arc::new(config), Arc::new(common::NoopPerfLogger));
 

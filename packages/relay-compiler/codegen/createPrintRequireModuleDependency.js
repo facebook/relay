@@ -12,10 +12,8 @@
 
 'use strict';
 
-function createPrintRequireModuleDependency(
-  extension: string,
-): string => string {
-  return moduleName => `require('./${moduleName}.${extension}')`;
+function createPrintRequireModuleDependency(): string => string {
+  return moduleName => `require('./${moduleName}')`;
 }
 
 module.exports = createPrintRequireModuleDependency;

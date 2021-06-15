@@ -58,7 +58,7 @@ function writeRelayGeneratedFile(
   extension: string,
   printModuleDependency: (
     moduleName: string,
-  ) => string = createPrintRequireModuleDependency(extension),
+  ) => string = createPrintRequireModuleDependency(),
   shouldRepersist: boolean,
   writeQueryParameters: (
     dir: CodegenDirectory,

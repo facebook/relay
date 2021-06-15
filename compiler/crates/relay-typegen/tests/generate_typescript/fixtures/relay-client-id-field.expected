@@ -28,31 +28,31 @@ query RelayClientIDFieldQuery($id: ID!) {
 }
 ==================================== OUTPUT ===================================
 export type RelayClientIDFieldQueryVariables = {
-  id: string
+  id: string;
 };
 export type RelayClientIDFieldQueryResponse = {
-  readonly __id: string,
+  readonly __id: string;
   readonly me: {
-    readonly __id: string,
-    readonly __typename: string,
-    readonly id: string,
-  } | null,
+    readonly __id: string;
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
   readonly node: {
-    readonly __id: string,
-    readonly __typename: string,
-    readonly id: string,
+    readonly __id: string;
+    readonly __typename: string;
+    readonly id: string;
     readonly commentBody?: {
-      readonly __id: string,
-      readonly __typename: string,
+      readonly __id: string;
+      readonly __typename: string;
       readonly text?: {
-        readonly __id: string,
-        readonly __typename: string,
-        readonly text: string | null,
-      } | null,
-    } | null,
-  } | null,
+        readonly __id: string;
+        readonly __typename: string;
+        readonly text: string | null;
+      } | null;
+    } | null;
+  } | null;
 };
 export type RelayClientIDFieldQuery = {
-  variables: RelayClientIDFieldQueryVariables,
-  response: RelayClientIDFieldQueryResponse,
+  variables: RelayClientIDFieldQueryVariables;
+  response: RelayClientIDFieldQueryResponse;
 };

@@ -39,8 +39,8 @@ impl Writer for TypeScriptPrinter {
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
-            AST::ExactObject(props) => self.write_object(props, true),
-            AST::InexactObject(props) => self.write_object(props, false),
+            AST::ExactObject(props) => self.write_object(props),
+            AST::InexactObject(props) => self.write_object(props),
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
@@ -153,7 +153,7 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_object(&mut self, props: &[Prop], exact: bool) -> Result {
+    fn write_object(&mut self, props: &[Prop]) -> Result {
         if props.is_empty() {
             write!(&mut self.result, "{{}}")?;
             return Ok(());
@@ -169,7 +169,6 @@ impl TypeScriptPrinter {
         writeln!(&mut self.result, "{{")?;
         self.indentation += 1;
 
-        let mut first = true;
         for prop in props {
             if prop.key == *SPREAD_KEY {
                 continue;
@@ -209,12 +208,7 @@ impl TypeScriptPrinter {
             }
             write!(&mut self.result, ": ")?;
             self.write(&prop.value)?;
-            if first && props.len() == 1 && exact {
-                writeln!(&mut self.result)?;
-            } else {
-                writeln!(&mut self.result, ",")?;
-            }
-            first = false;
+            writeln!(&mut self.result, ";")?;
         }
         self.indentation -= 1;
         self.write_indentation()?;
@@ -311,7 +305,7 @@ mod tests {
                 value: AST::String,
             },])),
             r"{
-  single: string
+  single: string;
 }"
             .to_string()
         );
@@ -331,8 +325,8 @@ mod tests {
                 },
             ])),
             r"{
-  foo?: string,
-  readonly bar: number,
+  foo?: string;
+  readonly bar: number;
 }"
             .to_string()
         );
@@ -370,10 +364,10 @@ mod tests {
             ])),
             r"{
   foo?: {
-    nested_foo?: string,
-    readonly nested_foo2: number,
-  },
-  readonly bar: number,
+    nested_foo?: string;
+    readonly nested_foo2: number;
+  };
+  readonly bar: number;
 }"
             .to_string()
         );
@@ -394,7 +388,7 @@ mod tests {
                 value: AST::String,
             },])),
             r"{
-  single: string,
+  single: string;
 }"
             .to_string()
         );
@@ -415,8 +409,8 @@ mod tests {
                 }
             ])),
             r"{
-  foo: string,
-  readonly bar?: number,
+  foo: string;
+  readonly bar?: number;
 }"
             .to_string()
         );
@@ -434,7 +428,7 @@ mod tests {
             r#"{
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  with_comment: "%other"
+  with_comment: "%other";
 }"#
             .to_string()
         );

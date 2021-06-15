@@ -18,53 +18,53 @@ query ScalarHandleField($id: ID!) @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 export type LinkedHandleFieldVariables = {
-  id: string
+  id: string;
 };
 export type LinkedHandleFieldResponse = {
   readonly node: {
     readonly friends?: {
-      readonly count: number | null
-    } | null
-  } | null
+      readonly count: number | null;
+    } | null;
+  } | null;
 };
 export type LinkedHandleFieldRawResponse = {
   readonly node: {
-    readonly __typename: "User",
-    readonly id: string,
+    readonly __typename: "User";
+    readonly id: string;
     readonly friends: {
-      readonly count: number | null
-    } | null,
+      readonly count: number | null;
+    } | null;
   } | {
-    readonly __typename: string,
-    readonly id: string,
-  } | null
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
 };
 export type LinkedHandleField = {
-  variables: LinkedHandleFieldVariables,
-  response: LinkedHandleFieldResponse,
-  rawResponse: LinkedHandleFieldRawResponse,
+  variables: LinkedHandleFieldVariables;
+  response: LinkedHandleFieldResponse;
+  rawResponse: LinkedHandleFieldRawResponse;
 };
 -------------------------------------------------------------------------------
 export type ScalarHandleFieldVariables = {
-  id: string
+  id: string;
 };
 export type ScalarHandleFieldResponse = {
   readonly node: {
-    readonly name?: string | null
-  } | null
+    readonly name?: string | null;
+  } | null;
 };
 export type ScalarHandleFieldRawResponse = {
   readonly node: {
-    readonly __typename: "User",
-    readonly id: string,
-    readonly name: string | null,
+    readonly __typename: "User";
+    readonly id: string;
+    readonly name: string | null;
   } | {
-    readonly __typename: string,
-    readonly id: string,
-  } | null
+    readonly __typename: string;
+    readonly id: string;
+  } | null;
 };
 export type ScalarHandleField = {
-  variables: ScalarHandleFieldVariables,
-  response: ScalarHandleFieldResponse,
-  rawResponse: ScalarHandleFieldRawResponse,
+  variables: ScalarHandleFieldVariables;
+  response: ScalarHandleFieldResponse;
+  rawResponse: ScalarHandleFieldRawResponse;
 };

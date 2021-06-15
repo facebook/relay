@@ -256,9 +256,9 @@ impl FlattenTransform {
                 }
             }
 
-            let flattened_selection = flattened_selections
-                .iter_mut()
-                .find(|sel| NodeIdentifier::are_equal(&self.schema, sel, selection));
+            let flattened_selection = flattened_selections.iter_mut().find(|sel| {
+                sel == &selection || NodeIdentifier::are_equal(&self.schema, sel, selection)
+            });
 
             match flattened_selection {
                 None => {
@@ -266,16 +266,18 @@ impl FlattenTransform {
                 }
                 Some(flattened_selection) => {
                     has_changes = true;
+                    if flattened_selection == selection {
+                        continue;
+                    }
                     match flattened_selection {
                         Selection::InlineFragment(flattened_node) => {
-                            let type_condition =
-                                flattened_node.type_condition.unwrap_or(parent_type);
-
                             let node = match selection {
                                 Selection::InlineFragment(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected an InlineFragment."),
                             };
 
+                            let type_condition =
+                                flattened_node.type_condition.unwrap_or(parent_type);
                             if let Some(flattened_module_directive) = flattened_node
                                 .directives
                                 .named(MATCH_CONSTANTS.custom_module_directive_name)
@@ -349,15 +351,15 @@ impl FlattenTransform {
                             )?;
                         }
                         Selection::Condition(flattened_node) => {
-                            let node_selections = match selection {
-                                Selection::Condition(node) => &node.selections,
+                            let node = match selection {
+                                Selection::Condition(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a Condition."),
                             };
 
                             let flattened_node = Arc::make_mut(flattened_node);
                             self.flatten_selections(
                                 &mut flattened_node.selections,
-                                &node_selections,
+                                &node.selections,
                                 parent_type,
                             )?;
                         }

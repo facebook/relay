@@ -65,6 +65,19 @@ describe('RelayQueryResponseCache', () => {
       Date.now = () => 11;
       expect(cache.get(queryID, variables)).toBe(null);
     });
+
+    it('returns known entries for response batch', () => {
+      const cache = new RelayQueryResponseCache({size: 1, ttl: 1000});
+      const payload = [{}, {}];
+      const variables = {id: 1};
+      const result = [
+        {extensions: {cacheTimestamp: 5}},
+        {extensions: {cacheTimestamp: 5}},
+      ];
+      Date.now = () => 5;
+      cache.set(queryID, variables, payload);
+      expect(cache.get(queryID, variables)).toEqual(result);
+    });
   });
 
   describe('set()', () => {

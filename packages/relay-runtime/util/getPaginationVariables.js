@@ -16,8 +16,10 @@
 const invariant = require('invariant');
 const warning = require('warning');
 
-import type {Direction} from './useLoadMoreFunction';
-import type {ReaderPaginationMetadata, Variables} from 'relay-runtime';
+import type {ReaderPaginationMetadata} from './ReaderNode';
+import type {Variables} from './RelayRuntimeTypes';
+
+export type Direction = 'forward' | 'backward';
 
 function getPaginationVariables(
   direction: Direction,

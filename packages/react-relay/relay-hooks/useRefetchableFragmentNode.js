@@ -15,8 +15,6 @@
 
 const ProfilerContext = require('./ProfilerContext');
 
-const getRefetchMetadata = require('./getRefetchMetadata');
-const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
 const useFragmentNode = require('./useFragmentNode');
 const useIsMountedRef = require('./useIsMountedRef');
@@ -31,7 +29,9 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragmentIdentifier,
+  getRefetchMetadata,
   getSelector,
+  getValueAtPath,
 } = require('relay-runtime');
 
 import type {LoaderFn} from './useQueryLoader';

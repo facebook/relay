@@ -13,8 +13,6 @@
 
 'use strict';
 
-const getPaginationVariables = require('./getPaginationVariables');
-const getValueAtPath = require('./getValueAtPath');
 const invariant = require('invariant');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
@@ -27,11 +25,14 @@ const {
   ConnectionInterface,
   __internal: {fetchQuery},
   createOperationDescriptor,
+  getPaginationVariables,
+  getValueAtPath,
   getSelector,
 } = require('relay-runtime');
 
 import type {
   ConcreteRequest,
+  Direction,
   Disposable,
   GraphQLResponse,
   Observer,
@@ -40,8 +41,6 @@ import type {
   ReaderPaginationMetadata,
   VariablesOf,
 } from 'relay-runtime';
-
-export type Direction = 'forward' | 'backward';
 
 export type LoadMoreFn<TQuery: OperationType> = (
   count: number,

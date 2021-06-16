@@ -16,8 +16,7 @@
 const React = require('react');
 const Scheduler = require('scheduler');
 
-import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 const {useEffect, useTransition, useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
@@ -38,7 +37,7 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useBlockingPaginationFragment with useTransition', () => {
-  if (typeof React.useTransition !== 'function') {
+  if (typeof useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });

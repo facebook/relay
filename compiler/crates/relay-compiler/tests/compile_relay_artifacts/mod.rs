@@ -52,7 +52,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform_for_prefix: Some("".intern()),
+        enable_required_transform: true,
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
         enable_3d_branch_arg_generation: true,

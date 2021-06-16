@@ -9,14 +9,13 @@ use common::DiagnosticsResult;
 use fixture_tests::Fixture;
 use graphql_ir::Program;
 use graphql_test_helpers::apply_transform_for_test;
-use interner::Intern;
 use relay_transforms::{required_directive, FeatureFlags};
 
 fn transform(program: &Program) -> DiagnosticsResult<Program> {
     required_directive(
         program,
         &FeatureFlags {
-            enable_required_transform_for_prefix: Some("Enabled".intern()),
+            enable_required_transform: true,
             ..Default::default()
         },
     )

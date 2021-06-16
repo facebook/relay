@@ -38,8 +38,7 @@ pub fn required_directive(
     program: &Program,
     feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Program> {
-    let mut transform =
-        RequiredDirective::new(program, feature_flags.enable_required_transform_for_prefix);
+    let mut transform = RequiredDirective::new(program, feature_flags.enable_required_transform);
 
     let next_program = transform
         .transform_program(program)
@@ -72,12 +71,11 @@ struct RequiredDirective<'s> {
     path_required_map: FnvHashMap<StringKey, MaybeRequiredField>,
     current_node_required_children: FnvHashMap<StringKey, RequiredField>,
     required_children_map: FnvHashMap<StringKey, FnvHashMap<StringKey, RequiredField>>,
-    prefix: Option<StringKey>,
-    operation_name: Option<StringKey>,
+    enabled: bool,
 }
 
 impl<'program> RequiredDirective<'program> {
-    fn new(program: &'program Program, prefix: Option<StringKey>) -> Self {
+    fn new(program: &'program Program, enabled: bool) -> Self {
         Self {
             program,
             errors: Default::default(),
@@ -87,8 +85,7 @@ impl<'program> RequiredDirective<'program> {
             path_required_map: Default::default(),
             current_node_required_children: Default::default(),
             required_children_map: Default::default(),
-            prefix,
-            operation_name: None,
+            enabled,
         }
     }
 
@@ -97,7 +94,6 @@ impl<'program> RequiredDirective<'program> {
         self.current_node_required_children = Default::default();
         self.parent_inline_fragment_directive = None;
         self.required_children_map = Default::default();
-        self.operation_name = Default::default();
     }
 
     fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: &Location) {
@@ -183,26 +179,11 @@ impl<'program> RequiredDirective<'program> {
         let field_name = field.name_with_location(&self.program.schema);
 
         if let Some(metadata) = maybe_required {
-            let supported = match &self.prefix {
-                None => false,
-                Some(prefix) => {
-                    let operation_name = self
-                        .operation_name
-                        // If we're parsing a @required directive, we are inside a fragment.
-                        .unwrap()
-                        .lookup();
-                    // TODO(T74397896): Clean up once @required is rolled out
-                    prefix
-                        .lookup()
-                        .split('|')
-                        .any(|prefix| operation_name.starts_with(prefix))
-                }
-            };
-            if !supported {
+            if !self.enabled {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::RequiredNotSupported,
                     metadata.directive_location,
-                ))
+                ));
             }
             self.assert_not_within_abstract_inline_fragment(&metadata.directive_location);
             self.assert_not_within_inline_directive(&metadata.directive_location);
@@ -316,7 +297,6 @@ impl<'s> Transformer for RequiredDirective<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.reset_state();
-        self.operation_name = Some(fragment.name.item);
         self.parent_inline_fragment_directive = fragment
             .directives
             .named(*INLINE_DIRECTIVE_NAME)
@@ -342,7 +322,6 @@ impl<'s> Transformer for RequiredDirective<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.reset_state();
-        self.operation_name = Some(operation.name.item);
         let selections = self.transform_selections(&operation.selections);
         let directives = maybe_add_children_can_bubble_metadata_directive(
             &operation.directives,

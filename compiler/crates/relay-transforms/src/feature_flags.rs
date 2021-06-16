@@ -10,13 +10,14 @@ use interner::StringKey;
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result};
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
     pub enable_flight_transform: bool,
 
-    pub enable_required_transform_for_prefix: Option<StringKey>,
+    #[serde(default)]
+    pub enable_required_transform: bool,
 
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
@@ -34,19 +35,6 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub actor_change_support: FeatureFlag,
-}
-
-impl Default for FeatureFlags {
-    fn default() -> Self {
-        FeatureFlags {
-            enable_flight_transform: false,
-            enable_required_transform_for_prefix: None,
-            enable_relay_resolver_transform: false,
-            no_inline: Default::default(),
-            enable_3d_branch_arg_generation: false,
-            actor_change_support: Default::default(),
-        }
-    }
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

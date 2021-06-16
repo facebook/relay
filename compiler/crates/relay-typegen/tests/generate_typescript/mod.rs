@@ -38,7 +38,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         Default::default(),
         &ConnectionInterface::default(),
         Arc::new(FeatureFlags {
-            enable_required_transform_for_prefix: Some("".intern()),
+            enable_required_transform: true,
             ..Default::default()
         }),
         Arc::new(ConsoleLogger),

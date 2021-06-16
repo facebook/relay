@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::VecDeque;
+
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
@@ -802,13 +804,21 @@ impl<'a> Parser<'a> {
     /**
      * Description : StringValue
      */
-    fn parse_optional_description(&mut self) {
-        // TODO actually return the description
+    fn parse_optional_description(&mut self) -> Option<StringNode> {
         match self.peek_token_kind() {
-            TokenKind::StringLiteral | TokenKind::BlockStringLiteral => {
-                self.parse_token();
+            TokenKind::StringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = source[1..source.len() - 1].to_string().intern();
+                Some(StringNode { token, value })
             }
-            _ => {}
+            TokenKind::BlockStringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = clean_block_string_literal(source).intern();
+                Some(StringNode { token, value })
+            }
+            _ => None,
         }
     }
 
@@ -1565,6 +1575,13 @@ impl<'a> Parser<'a> {
                     value: value.intern(),
                 }))
             }
+            TokenKind::BlockStringLiteral => {
+                let value = clean_block_string_literal(source);
+                Ok(ConstantValue::String(StringNode {
+                    token,
+                    value: value.intern(),
+                }))
+            }
             TokenKind::IntegerLiteral => {
                 let value = source.parse::<i64>();
                 match value {
@@ -1982,5 +1999,138 @@ impl<'a> Parser<'a> {
             span: Span::new(index, index),
             kind: TokenKind::Empty,
         }
+    }
+}
+
+// https://spec.graphql.org/June2018/#sec-String-Value
+fn clean_block_string_literal(source: &str) -> String {
+    let inner = &source[3..source.len() - 3];
+    let common_indent = get_common_indent(&inner);
+
+    let mut formatted_lines = inner
+        .lines()
+        .enumerate()
+        .map(|(i, line)| {
+            if i == 0 {
+                line.to_string()
+            } else {
+                line.chars().skip(common_indent).collect::<String>()
+            }
+        })
+        .collect::<VecDeque<String>>();
+
+    while formatted_lines.front().map_or(false, line_is_whitespace) {
+        formatted_lines.pop_front();
+    }
+    while formatted_lines.back().map_or(false, line_is_whitespace) {
+        formatted_lines.pop_back();
+    }
+
+    let lines_vec: Vec<String> = formatted_lines.into_iter().collect();
+    lines_vec.join("\n")
+}
+
+fn get_common_indent(source: &str) -> usize {
+    let lines = source.lines().skip(1);
+    let mut common_indent: Option<usize> = None;
+    for line in lines {
+        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next() {
+            if common_indent.map_or(true, |indent| first_index < indent) {
+                common_indent = Some(first_index)
+            }
+        }
+    }
+    common_indent.unwrap_or(0)
+}
+
+fn line_is_whitespace(line: &String) -> bool {
+    !line.contains(is_not_whitespace)
+}
+
+// https://spec.graphql.org/June2018/#sec-White-Space
+fn is_not_whitespace(c: char) -> bool {
+    c != ' ' && c != '\t'
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn triple_quote(inner: &str) -> String {
+        format!("\"\"\"{}\"\"\"", inner)
+    }
+
+    #[test]
+    fn common_indent_ignores_first_line() {
+        let actual = get_common_indent("            1\n  2\n  3");
+        assert_eq!(actual, 2);
+    }
+    #[test]
+    fn common_indent_uses_smallest_indent() {
+        let actual = get_common_indent("1\n  2\n        3");
+        assert_eq!(actual, 2);
+    }
+
+    #[test]
+    fn common_indent_ignores_lines_that_are_all_whitespace() {
+        let actual = get_common_indent("1\n    2\n \t\n    3\n");
+        assert_eq!(actual, 4);
+    }
+
+    #[test]
+    fn common_indent_ignores_lines_blank_lines() {
+        let actual = get_common_indent("1\n    2\n\n    3\n");
+        assert_eq!(actual, 4);
+    }
+
+    #[test]
+    fn clean_block_string_literal_does_not_trim_leading_whitespace() {
+        let actual = clean_block_string_literal(&triple_quote("       Hello world!"));
+        assert_eq!(actual, "       Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_leading_whitespace_lines() {
+        let actual = clean_block_string_literal(&triple_quote("       \n\t\t\t\nHello world!"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_trailing_whitespace_lines() {
+        let actual = clean_block_string_literal(&triple_quote("Hello world!\n    \n\t\t   \n"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_trailing_empty_lines() {
+        let actual = clean_block_string_literal(&triple_quote("Hello world!\n\n\n\n\n"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_dedents_smallest_common_indent() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "Hello world!\n  Two Char Indent\n    Four Char Indent",
+        ));
+        assert_eq!(actual, "Hello world!\nTwo Char Indent\n  Four Char Indent");
+    }
+
+    #[test]
+    fn clean_block_string_literal_ignores_first_line_indent() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "        Hello world!\n  Two Char Indent\n    Four Char Indent",
+        ));
+        assert_eq!(
+            actual,
+            "        Hello world!\nTwo Char Indent\n  Four Char Indent"
+        );
+    }
+
+    #[test]
+    fn clean_block_string_literal_treats_tab_and_space_as_equal() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "Hello world!\n\t\tTwo Tab Indent\n    Four Space Indent",
+        ));
+        assert_eq!(actual, "Hello world!\nTwo Tab Indent\n  Four Space Indent");
     }
 }

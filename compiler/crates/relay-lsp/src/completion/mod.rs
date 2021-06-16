@@ -938,11 +938,18 @@ fn completion_item_from_directive(
         }
     };
 
+    let documentation = directive.description.map(|desc| {
+        Documentation::MarkupContent(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value: desc.to_string(),
+        })
+    });
+
     CompletionItem {
         label,
         kind: None,
         detail: None,
-        documentation: None,
+        documentation,
         deprecated: None,
         preselect: None,
         sort_text: None,

@@ -882,6 +882,7 @@ impl InMemorySchema {
                 arguments,
                 repeatable,
                 locations,
+                description,
             }) => {
                 if self.directives.contains_key(&name.value) {
                     let str_name = name.value.lookup();
@@ -901,6 +902,7 @@ impl InMemorySchema {
                         locations: locations.clone(),
                         repeatable: *repeatable,
                         is_extension,
+                        description: description.as_ref().map(|node| node.value),
                     },
                 );
             }

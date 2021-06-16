@@ -153,6 +153,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             arguments: self.parse_arguments(directive.arguments()?)?,
             locations,
             repeatable: directive.repeatable(),
+            description: None,
         };
         Some(parsed_directive)
     }

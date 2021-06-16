@@ -287,7 +287,7 @@ impl<'a> Parser<'a> {
     /// [x]  TypeSystemDefinition
     /// []  TypeSystemExtension
     fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let token = self.peek();
         if token.kind != TokenKind::Identifier {
             // TODO
@@ -317,7 +317,7 @@ impl<'a> Parser<'a> {
                 self.parse_input_object_type_definition()?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
-                self.parse_directive_definition()?,
+                self.parse_directive_definition(description)?,
             )),
             "extend" => self.parse_type_system_extension(),
             token_str => {
@@ -706,7 +706,10 @@ impl<'a> Parser<'a> {
      * DirectiveDefinition :
      *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
      */
-    fn parse_directive_definition(&mut self) -> ParseResult<DirectiveDefinition> {
+    fn parse_directive_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<DirectiveDefinition> {
         self.parse_keyword("directive")?;
         self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
@@ -723,6 +726,7 @@ impl<'a> Parser<'a> {
             arguments,
             repeatable,
             locations,
+            description,
         })
     }
 

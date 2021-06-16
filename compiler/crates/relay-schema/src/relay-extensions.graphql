@@ -65,6 +65,38 @@ enum RequiredFieldAction {
   LOG
   THROW
 }
+
+"""
+`@required` is a directive you can add to fields in your Relay queries to
+declare how null values should be handled at runtime. You can think of it as
+saying "if this field is ever null, its parent field is invalid and should be
+null".
+
+When you have a GraphQL schema where many fields are nullable, a considerable
+amount of product code is needed to handle each field's potential "nullness"
+before the underlying data can be used. With `@required`, Relay can handle
+some types of null checks before it returns data to your component, which
+means that **any field you annotate with** **`@required`** **will become
+non-nullable in the generated types for your response**.
+
+If a `@required` field is null at runtime, Relay will "bubble" that nullness
+up to the field's parent. For example, given this query:
+
+```graphql
+query MyQuery {
+  viewer {
+    name @required(action: LOG)
+    age
+  }
+}
+```
+
+If `name` is null, relay would return `{ viewer: null }`. You can think of
+`@required` in this instance as saying "`viewer` is useless without a
+`name`".
+
+Read more: https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/
+"""
 directive @required(action: RequiredFieldAction!) on FIELD
 
 # DeclarativeConnection

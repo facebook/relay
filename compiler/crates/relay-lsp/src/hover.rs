@@ -97,8 +97,13 @@ fn get_hover_response_contents(
                 );
                 Some(hover_content_wrapper(content))
             } else {
-                let directive_text = print_directive(schema, &schema_directive);
-                Some(hover_content_wrapper(directive_text))
+                let directive_definition = print_directive(schema, &schema_directive);
+                let markdown_definition = graphql_marked_string(directive_definition);
+                let mut hover_contents: Vec<MarkedString> = vec![markdown_definition];
+                if let Some(description) = schema_directive.description {
+                    hover_contents.push(MarkedString::String(description.to_string()));
+                }
+                Some(HoverContents::Array(hover_contents))
             }
         }
         NodeKind::FieldName => {

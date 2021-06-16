@@ -233,6 +233,7 @@ pub struct Directive {
     pub locations: Vec<DirectiveLocation>,
     pub repeatable: bool,
     pub is_extension: bool,
+    pub description: Option<StringKey>,
 }
 
 impl Named for Directive {

@@ -2635,6 +2635,15 @@ SchemaDocument {
                     FragmentSpread,
                     InlineFragment,
                 ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 2431:2485,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "This is a description of the `@skip` directive",
+                    },
+                ),
             },
         ),
         DirectiveDefinition(
@@ -2699,6 +2708,7 @@ SchemaDocument {
                     FragmentSpread,
                     InlineFragment,
                 ],
+                description: None,
             },
         ),
         DirectiveDefinition(
@@ -2763,6 +2773,7 @@ SchemaDocument {
                     FragmentSpread,
                     InlineFragment,
                 ],
+                description: None,
             },
         ),
         DirectiveDefinition(
@@ -2826,6 +2837,7 @@ SchemaDocument {
                     Object,
                     Interface,
                 ],
+                description: None,
             },
         ),
         SchemaExtension(

@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<76b131a2f8845ae00d0ecdcf9a927879>>
+ * @generated SignedSource<<0141311d55f1d51679a9d50fa0b5b1da>>
  */
 
 mod parse_schema_document;
 
 use parse_schema_document::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn directive_description() {
+    let input = include_str!("parse_schema_document/fixtures/directive_description.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/directive_description.expected");
+    test_fixture(transform_fixture, "directive_description.graphql", "parse_schema_document/fixtures/directive_description.expected", input, expected);
+}
 
 #[test]
 fn field_description() {

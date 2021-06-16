@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6238cdf7e73ffb31d3ca3900af6e8cba>>
+ * @generated SignedSource<<af01acc6b17dbce8e5d8dbf2e2b9c617>>
  */
 
 mod build_schema;
@@ -17,6 +17,13 @@ fn directives_for_external_types() {
     let input = include_str!("build_schema/fixtures/directives-for-external-types.graphql");
     let expected = include_str!("build_schema/fixtures/directives-for-external-types.expected");
     test_fixture(transform_fixture, "directives-for-external-types.graphql", "build_schema/fixtures/directives-for-external-types.expected", input, expected);
+}
+
+#[test]
+fn field_descriptions() {
+    let input = include_str!("build_schema/fixtures/field-descriptions.graphql");
+    let expected = include_str!("build_schema/fixtures/field-descriptions.expected");
+    test_fixture(transform_fixture, "field-descriptions.graphql", "build_schema/fixtures/field-descriptions.expected", input, expected);
 }
 
 #[test]

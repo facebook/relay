@@ -302,6 +302,7 @@ pub struct Field {
     /// __id, which are queryable on all types and therefore don't have
     /// a single parent type.
     pub parent_type: Option<Type>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

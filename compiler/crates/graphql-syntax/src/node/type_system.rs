@@ -6,7 +6,7 @@
  */
 
 use super::constant_directive::ConstantDirective;
-use super::constant_value::ConstantValue;
+use super::constant_value::{ConstantValue, StringNode};
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 use common::Span;
@@ -373,6 +373,7 @@ pub struct FieldDefinition {
     pub type_: TypeAnnotation,
     pub arguments: Option<List<InputValueDefinition>>,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
 }
 
 impl fmt::Display for FieldDefinition {

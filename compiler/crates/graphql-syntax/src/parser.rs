@@ -838,7 +838,7 @@ impl<'a> Parser<'a> {
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
     fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
         self.parse_kind(TokenKind::Colon)?;
@@ -849,6 +849,7 @@ impl<'a> Parser<'a> {
             arguments,
             type_,
             directives,
+            description,
         })
     }
 

@@ -81,6 +81,7 @@ Document {
                                     ),
                                     arguments: None,
                                     directives: [],
+                                    description: None,
                                 },
                             ],
                             end: Token {

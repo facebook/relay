@@ -274,6 +274,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             type_: self.parse_type_reference(field.type_()?)?,
             directives: self.parse_directive_values(field.directives()?)?,
             parent_type: self.get_type(self.get_fbtype_name(&field.parent_type()?)),
+            description: None,
         };
         Some(parsed_field)
     }

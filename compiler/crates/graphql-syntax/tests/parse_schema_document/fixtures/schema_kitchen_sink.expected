@@ -267,6 +267,15 @@ SchemaDocument {
                                 ),
                                 arguments: None,
                                 directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 305:338,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Description of the `one` field.",
+                                    },
+                                ),
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -334,6 +343,15 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 353:406,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "This is a description of the `two` field.",
+                                    },
+                                ),
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -414,6 +432,15 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 521:570,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "This is a description of the `three` field.",
+                                    },
+                                ),
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -482,6 +509,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -587,6 +615,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -685,6 +714,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -750,6 +780,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -936,6 +967,7 @@ SchemaDocument {
                                         arguments: None,
                                     },
                                 ],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -1051,6 +1083,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -1134,6 +1167,7 @@ SchemaDocument {
                                 ),
                                 arguments: None,
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -1202,6 +1236,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -1340,6 +1375,7 @@ SchemaDocument {
                                         arguments: None,
                                     },
                                 ],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -1460,6 +1496,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -1560,6 +1597,7 @@ SchemaDocument {
                                 ),
                                 arguments: None,
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -1627,6 +1665,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                             FieldDefinition {
                                 name: Identifier {
@@ -1695,6 +1734,7 @@ SchemaDocument {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {

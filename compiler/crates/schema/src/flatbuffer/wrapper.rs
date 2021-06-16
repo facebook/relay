@@ -95,6 +95,7 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
             name: result.clientid_field_name,
@@ -105,6 +106,7 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: result.fetch_token_field_name,
@@ -115,6 +117,7 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(

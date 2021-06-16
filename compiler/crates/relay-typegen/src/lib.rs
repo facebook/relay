@@ -201,6 +201,13 @@ impl<'a> TypeGenerator<'a> {
             self.runtime_imports.fragment_reference = true;
         }
 
+        // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
+        if self.typegen_config.language == TypegenLanguage::TypeScript
+            && has_fragment_spread(typegen_operation)
+        {
+            self.runtime_imports.fragment_reference = true;
+        }
+
         self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
         if let Some(refetchable_fragment_name) = refetchable_fragment_name {
@@ -1489,6 +1496,27 @@ fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
         .directives
         .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
         .is_some()
+}
+
+fn has_fragment_spread(operation: &OperationDefinition) -> bool {
+    let mut selections: Vec<&[Selection]> = vec![&operation.selections];
+    while let Some(selection) = selections.pop() {
+        for sel in selection.iter() {
+            match sel {
+                Selection::FragmentSpread(_) => {
+                    return true;
+                }
+                Selection::Condition(condition) => selections.push(&condition.selections),
+                Selection::LinkedField(linked_field) => selections.push(&linked_field.selections),
+                Selection::InlineFragment(inline_fragment) => {
+                    selections.push(&inline_fragment.selections)
+                }
+                Selection::ScalarField(_) => {}
+            }
+        }
+    }
+
+    false
 }
 
 fn apply_required_directive_nullability(

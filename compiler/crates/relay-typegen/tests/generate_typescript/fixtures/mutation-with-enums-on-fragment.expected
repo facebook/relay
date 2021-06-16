@@ -27,6 +27,7 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {
   clientMutationId?: string | null;

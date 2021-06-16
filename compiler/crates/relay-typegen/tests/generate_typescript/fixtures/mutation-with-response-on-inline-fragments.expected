@@ -27,6 +27,7 @@ fragment InlineFragmentWithOverlappingFields on Actor {
   }
 }
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
 export type CommentCreateInput = {
   clientMutationId?: string | null;
   feedbackId?: string | null;

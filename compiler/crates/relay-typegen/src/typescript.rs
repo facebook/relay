@@ -88,9 +88,11 @@ impl Writer for TypeScriptPrinter {
     fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
         Ok(())
     }
+
     fn write_export_fragment_type(&mut self, _old_name: StringKey, _new_name: StringKey) -> Result {
         Ok(())
     }
+
     fn write_export_fragment_types(
         &mut self,
         _old_fragment_type_name: StringKey,

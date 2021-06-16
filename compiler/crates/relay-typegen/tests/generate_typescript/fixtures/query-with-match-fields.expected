@@ -28,7 +28,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
-import { Local3DPayload } from "relay-runtime";
+import { FragmentRefs, Local3DPayload } from "relay-runtime";
 export type TestVariables = {};
 export type TestResponse = {
   readonly node: {

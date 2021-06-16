@@ -22,6 +22,7 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
 export type ExampleQueryVariables = {
   id: string;
 };

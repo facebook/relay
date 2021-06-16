@@ -7,7 +7,7 @@
 
 //! Utilities for providing the completion language feature
 use crate::{
-    lsp::{CompletionItem, CompletionResponse},
+    lsp::{CompletionItem, CompletionResponse, Documentation, MarkupContent},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{TypePath, TypePathItem},
     server::LSPState,
@@ -25,7 +25,10 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use log::debug;
-use lsp_types::request::{Completion, Request};
+use lsp_types::{
+    request::{Completion, Request},
+    MarkupKind,
+};
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
@@ -828,11 +831,18 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             } else {
                 (None, None)
             };
+
+            let documentation = field.description.map(|desc| {
+                Documentation::MarkupContent(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: desc.to_string(),
+                })
+            });
             CompletionItem {
                 label: name,
                 kind: None,
                 detail: deprecated_reason,
-                documentation: None,
+                documentation,
                 deprecated: Some(deprecated_directive.is_some()),
                 preselect: None,
                 sort_text: None,

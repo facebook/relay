@@ -493,8 +493,15 @@ type FriendsEdge {
 }
 
 type Image {
+  "URI where the image can be found"
   uri: String
+  """
+  Width in pixels
+  """
   width: Int
+  """
+  Height in pixels
+  """
   height: Int
   test_enums: TestEnums
 }

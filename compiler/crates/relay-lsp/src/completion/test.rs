@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashSet, sync::Arc};
+use std::{collections::HashMap, collections::HashSet, sync::Arc};
 
 use crate::server::SourcePrograms;
 
@@ -16,7 +16,7 @@ use fnv::FnvBuildHasher;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::Intern;
-use lsp_types::CompletionItem;
+use lsp_types::{CompletionItem, Documentation, MarkupContent, MarkupKind};
 use relay_test_schema::get_test_schema;
 
 fn parse_and_resolve_completion_items(
@@ -393,4 +393,52 @@ fn empty_directive() {
             "fb_actor_change",
         ],
     );
+}
+
+fn make_markdown_documentation(value: &str) -> Documentation {
+    Documentation::MarkupContent(MarkupContent {
+        kind: MarkupKind::Markdown,
+        value: value.to_string(),
+    })
+}
+
+#[test]
+fn field_documentation() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on User {
+                profile_picture {
+                    uri|
+                }
+            }
+        "#,
+        None,
+    )
+    .unwrap();
+
+    let docs = items
+        .into_iter()
+        .map(|item| (item.label, item.documentation))
+        .collect::<HashMap<String, Option<Documentation>>>();
+
+    let mut expected: HashMap<String, Option<Documentation>> = HashMap::default();
+
+    expected.insert(
+        "uri".to_string(),
+        Some(make_markdown_documentation(
+            "URI where the image can be found",
+        )),
+    );
+
+    expected.insert(
+        "width".to_string(),
+        Some(make_markdown_documentation("Width in pixels")),
+    );
+    expected.insert(
+        "height".to_string(),
+        Some(make_markdown_documentation("Height in pixels")),
+    );
+    expected.insert("test_enums".to_string(), None);
+
+    assert_eq!(docs, expected);
 }

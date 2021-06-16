@@ -556,7 +556,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(release).toHaveBeenCalledTimes(1);
   });
 
-  it('disposes ongoing network request when component unmounts while suspended', () => {
+  it('does not cancel ongoing network request when component unmounts while suspended', () => {
     const initialVariables = {id: 'first-render'};
     const initialQuery = createOperationDescriptor(gqlQuery, initialVariables);
     environment.commitPayload(initialQuery, {
@@ -592,21 +592,24 @@ describe('useLazyLoadQueryNode', () => {
     environment.retain.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
 
     ReactTestRenderer.act(() => {
       instance.unmount();
     });
 
     // Assert data is released
-    expect(release).toBeCalledTimes(2);
+    expect(release).toBeCalledTimes(1);
 
-    // Assert request in flight is cancelled
+    // Assert request in flight is not cancelled
     expect(
-      environment.mock.isLoading(query.request.node, variables, {force: true}),
-    ).toEqual(false);
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
   });
 
-  it('disposes ongoing network request when component unmounts after committing', () => {
+  it('does not cancel ongoing network request when component unmounts after committing', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -630,19 +633,24 @@ describe('useLazyLoadQueryNode', () => {
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
 
+    // Assert request was created
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
+
     ReactTestRenderer.act(() => {
       instance.unmount();
     });
 
     // Assert data is released
     expect(release).toBeCalledTimes(1);
-    // Assert request in flight is cancelled
+    // Assert request in flight is not cancelled
     expect(
-      environment.mock.isLoading(query.request.node, variables, {force: true}),
-    ).toEqual(false);
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
   });
 
-  it('cancels network request when temporarily retained component that never commits is disposed of after timeout', () => {
+  it('does not cancel network request when temporarily retained component that never commits is disposed of after timeout', () => {
     const instance = render(environment, <Container variables={variables} />);
 
     expect(instance.toJSON()).toEqual('Fallback');
@@ -663,15 +671,19 @@ describe('useLazyLoadQueryNode', () => {
         },
       },
     });
+    // Assert request in created
+    expect(
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
 
     // Trigger releasing of the temporary retain
     jest.runAllTimers();
     // Assert data is released
     expect(release).toBeCalledTimes(1);
-    // Assert request in flight is cancelled
+    // Assert request in flight is not cancelled
     expect(
-      environment.mock.isLoading(query.request.node, variables, {force: true}),
-    ).toEqual(false);
+      environment.mock.isLoading(query.request.node, variables, {}),
+    ).toEqual(true);
   });
 
   describe('with @defer and re-rendering', () => {

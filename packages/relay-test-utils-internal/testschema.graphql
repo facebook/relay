@@ -28,6 +28,14 @@ directive @relay_client_component_server(module_id: String!) on FRAGMENT_SPREAD
 
 directive @fb_actor_change on FIELD
 
+directive @live_query(
+  enabled: Boolean = true
+  polling_interval: Int
+  config_id: String
+  partial: Boolean
+  event_stream: String
+) on QUERY
+
 type Query {
   checkinSearchQuery(query: CheckinSearchInput): CheckinSearchResult
   defaultSettings: Settings

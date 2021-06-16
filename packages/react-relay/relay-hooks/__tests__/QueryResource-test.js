@@ -34,10 +34,13 @@ describe('QueryResource', () => {
   let fetchPolicy;
   let fetchObservable;
   let fetchObservableMissingData;
+  let fetchObserverableLiveMissingData;
   let gqlQuery;
   let query;
   let queryMissingData;
   let gqlQueryMissingData;
+  let liveQueryMissingData;
+  let gqlLiveQueryMissingData;
   let release;
   let renderPolicy;
   let store;
@@ -75,6 +78,24 @@ describe('QueryResource', () => {
       variables,
       {force: true},
     );
+
+    gqlLiveQueryMissingData = getRequest(graphql`
+      query QueryResourceTest10Query($id: ID!)
+        @live_query(polling_interval: 10000) {
+        node(id: $id) {
+          ... on User {
+            id
+            name
+          }
+        }
+      }
+    `);
+    liveQueryMissingData = createOperationDescriptor(
+      gqlLiveQueryMissingData,
+      variables,
+      {force: true},
+    );
+
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
@@ -84,6 +105,10 @@ describe('QueryResource', () => {
 
     fetchObservable = fetchQuery(environment, query);
     fetchObservableMissingData = fetchQuery(environment, queryMissingData);
+    fetchObserverableLiveMissingData = fetchQuery(
+      environment,
+      liveQueryMissingData,
+    );
 
     release = jest.fn();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -795,7 +820,7 @@ describe('QueryResource', () => {
           expect(release).toBeCalledTimes(1);
         });
 
-        it('should discard old promise cache when query observable is unsubscribed, and create a new promise on a new request', () => {
+        it('should keep old promise cache when query observable is unsubscribed, since the request is not canceled', () => {
           let promise1;
           let subscription;
           try {
@@ -816,14 +841,14 @@ describe('QueryResource', () => {
           }
           subscription && subscription.unsubscribe();
 
-          // Assert cache is cleared
+          // Assert cache is not cleared
           expect(
             QueryResource.TESTS_ONLY__getCacheEntry(
               queryMissingData,
               fetchPolicy,
               renderPolicy,
             ),
-          ).toBeUndefined();
+          ).not.toBeUndefined();
 
           let promise2;
           try {
@@ -838,10 +863,10 @@ describe('QueryResource', () => {
             promise2 = p;
           }
 
-          // Assert that different promises were thrown
-          expect(promise1).not.toBe(promise2);
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-          expect(environment.execute).toBeCalledTimes(2);
+          // Assert that it didn't make a second request
+          expect(promise1).toBe(promise2);
+          // $FlowFixMe[method-unbinding] misfiring of method unbinding check
+          expect(environment.execute).toBeCalledTimes(1);
         });
 
         describe('when using fragments', () => {
@@ -2232,6 +2257,13 @@ describe('QueryResource', () => {
       expect(release).toBeCalledTimes(1);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(1);
+      expect(
+        QueryResource.TESTS_ONLY__getCacheEntry(
+          queryMissingData,
+          fetchPolicy,
+          renderPolicy,
+        ),
+      ).not.toBeDefined();
     });
 
     it('should auto-release if enough time has passed before `retain` is called after `prepare`', () => {
@@ -2277,6 +2309,13 @@ describe('QueryResource', () => {
       expect(release).toBeCalledTimes(2);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      expect(
+        QueryResource.TESTS_ONLY__getCacheEntry(
+          queryMissingData,
+          fetchPolicy,
+          renderPolicy,
+        ),
+      ).not.toBeDefined();
     });
 
     it("retains the query during `prepare` even if a network request wasn't started", () => {
@@ -2314,7 +2353,7 @@ describe('QueryResource', () => {
       expect(environment.retain).toBeCalledTimes(2);
     });
 
-    it('cancels the query after releasing a query that was retaned if request is still in flight', () => {
+    it('does not cancel a non-live query after releasing a query that was retaned if request is still in flight', () => {
       const result = QueryResource.prepare(
         queryMissingData,
         fetchObservableMissingData,
@@ -2342,11 +2381,49 @@ describe('QueryResource', () => {
       const disposable = QueryResource.retain(result);
       disposable.dispose();
 
-      // Assert request was canceled
+      // Assert request was not canceled
       expect(
         environment.mock.isLoading(
           queryMissingData.request.node,
           queryMissingData.request.variables,
+          {force: true},
+        ),
+      ).toEqual(true);
+    });
+
+    it('cancels a live query after releasing a query that was retaned if request is still in flight', () => {
+      const result = QueryResource.prepare(
+        liveQueryMissingData,
+        fetchObserverableLiveMissingData,
+        fetchPolicy,
+        renderPolicy,
+      );
+      // Assert query is temporarily retained
+      expect(release).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] misfiring of method unbinding check
+      expect(environment.retain).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] misfiring of method unbinding check
+      expect(environment.retain.mock.calls[0][0]).toEqual(liveQueryMissingData);
+
+      // Assert rerquest was started
+      // $FlowFixMe[method-unbinding] misfiring of method unbinding check
+      expect(environment.execute).toBeCalledTimes(1);
+      expect(
+        environment.mock.isLoading(
+          liveQueryMissingData.request.node,
+          liveQueryMissingData.request.variables,
+          {force: true},
+        ),
+      ).toEqual(true);
+
+      const disposable = QueryResource.retain(result);
+      disposable.dispose();
+
+      // Assert request was canceled
+      expect(
+        environment.mock.isLoading(
+          liveQueryMissingData.request.node,
+          liveQueryMissingData.request.variables,
           {force: true},
         ),
       ).toEqual(false);
@@ -2668,15 +2745,15 @@ describe('QueryResource', () => {
             renderPolicy,
           ),
         ).toBeUndefined();
-        // Assert request is canceled
+        // Assert request is not canceled because it is not a live query
         expect(
           environment.mock.isLoading(
             queryMissingData.request.node,
             queryMissingData.request.variables,
             {force: true},
           ),
-        ).toEqual(false);
-        expect(subscription1.unsubscribe).toBeCalledTimes(1);
+        ).toEqual(true);
+        expect(subscription1.unsubscribe).toBeCalledTimes(0);
       });
 
       it('when same query commits twice, should not release the query before all callers have released it and auto-release timers have expired', () => {
@@ -2794,15 +2871,15 @@ describe('QueryResource', () => {
             renderPolicy,
           ),
         ).toBeUndefined();
-        // Assert request is canceled
+        // Assert request is not canceled because it is not a live query
         expect(
           environment.mock.isLoading(
             queryMissingData.request.node,
             queryMissingData.request.variables,
             {force: true},
           ),
-        ).toEqual(false);
-        expect(subscription1.unsubscribe).toBeCalledTimes(1);
+        ).toEqual(true);
+        expect(subscription1.unsubscribe).toBeCalledTimes(0);
       });
 
       it('correctly retains query when releasing and re-retaining', () => {

@@ -78,6 +78,10 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
+function operationIsLiveQuery(operation: OperationDescriptor): boolean {
+  return operation.request.node.params.metadata.live !== undefined;
+}
+
 function getQueryCacheIdentifier(
   environment: IEnvironment,
   operation: OperationDescriptor,
@@ -123,6 +127,8 @@ function createCacheEntry(
   networkSubscription: ?Subscription,
   onDispose: QueryResourceCacheEntry => void,
 ): QueryResourceCacheEntry {
+  const isLiveQuery = operationIsLiveQuery(operation);
+
   let currentValue: Error | Promise<void> | QueryResult = value;
   let retainCount = 0;
   let retainDisposable: ?Disposable = null;
@@ -168,7 +174,7 @@ function createCacheEntry(
       return currentNetworkSubscription;
     },
     setNetworkSubscription(subscription: ?Subscription) {
-      if (currentNetworkSubscription != null) {
+      if (isLiveQuery && currentNetworkSubscription != null) {
         currentNetworkSubscription.unsubscribe();
       }
       currentNetworkSubscription = subscription;
@@ -196,7 +202,11 @@ function createCacheEntry(
         // Normally if this entry never commits, the request would've ended by the
         // time this timeout expires and the temporary retain is released. However,
         // we need to do this for live queries which remain open indefinitely.
-        if (retainCount <= 0 && currentNetworkSubscription != null) {
+        if (
+          isLiveQuery &&
+          retainCount <= 0 &&
+          currentNetworkSubscription != null
+        ) {
           currentNetworkSubscription.unsubscribe();
         }
       };
@@ -233,7 +243,11 @@ function createCacheEntry(
       return {
         dispose: () => {
           disposable.dispose();
-          if (retainCount <= 0 && currentNetworkSubscription != null) {
+          if (
+            isLiveQuery &&
+            retainCount <= 0 &&
+            currentNetworkSubscription != null
+          ) {
             currentNetworkSubscription.unsubscribe();
           }
         },
@@ -504,9 +518,19 @@ class QueryResourceImpl {
           if (cacheEntry) {
             cacheEntry.setNetworkSubscription(networkSubscription);
           }
-
           const observerStart = observer?.start;
-          observerStart && observerStart(subscription);
+          if (observerStart) {
+            const subscriptionWithConditionalCancelation = {
+              ...subscription,
+              unsubscribe: () => {
+                // Only live queries should have their network requests canceled.
+                if (operationIsLiveQuery(operation)) {
+                  subscription.unsubscribe();
+                }
+              },
+            };
+            observerStart(subscriptionWithConditionalCancelation);
+          }
         },
         next: () => {
           const cacheEntry = this._getOrCreateCacheEntry(

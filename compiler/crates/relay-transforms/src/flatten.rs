@@ -257,7 +257,7 @@ impl FlattenTransform {
             }
 
             let flattened_selection = flattened_selections.iter_mut().find(|sel| {
-                sel == &selection || NodeIdentifier::are_equal(&self.schema, sel, selection)
+                sel.ptr_eq(selection) || NodeIdentifier::are_equal(&self.schema, sel, selection)
             });
 
             match flattened_selection {
@@ -266,7 +266,7 @@ impl FlattenTransform {
                 }
                 Some(flattened_selection) => {
                     has_changes = true;
-                    if flattened_selection == selection {
+                    if flattened_selection.ptr_eq(selection) {
                         continue;
                     }
                     match flattened_selection {

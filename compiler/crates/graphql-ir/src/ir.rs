@@ -158,6 +158,23 @@ impl Selection {
             Selection::ScalarField(node) => Some(node.alias_or_name_location()),
         }
     }
+
+    /// Similar to `==`, but only checking for `Arc::ptr_eq` without
+    /// doing a deeper structural equality check
+    pub fn ptr_eq(&self, other: &Selection) -> bool {
+        match (self, other) {
+            (Selection::LinkedField(a), Selection::LinkedField(b)) => Arc::ptr_eq(a, b),
+            (Selection::ScalarField(a), Selection::ScalarField(b)) => Arc::ptr_eq(a, b),
+            (Selection::InlineFragment(a), Selection::InlineFragment(b)) => Arc::ptr_eq(a, b),
+            (Selection::FragmentSpread(a), Selection::FragmentSpread(b)) => Arc::ptr_eq(a, b),
+            (Selection::Condition(a), Selection::Condition(b)) => Arc::ptr_eq(a, b),
+            (Selection::LinkedField(_), _)
+            | (Selection::ScalarField(_), _)
+            | (Selection::InlineFragment(_), _)
+            | (Selection::FragmentSpread(_), _)
+            | (Selection::Condition(_), _) => false,
+        }
+    }
 }
 
 impl fmt::Debug for Selection {

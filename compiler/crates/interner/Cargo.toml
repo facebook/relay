@@ -10,4 +10,4 @@ license = "MIT"
 fnv = "1.0"
 lazy_static = "1.0"
 parking_lot = "0.10.2"
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
+serde = { version = "1.0.126", features = ["derive", "rc"] }

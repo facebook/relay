@@ -11,7 +11,7 @@ name = "tests"
 path = "tests/lib.rs"
 
 [dependencies]
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
+serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0", features = ["float_roundtrip"] }
 thiserror = "1.0"
 

@@ -728,6 +728,11 @@ pub enum ValidationMessage {
 
     #[error("Duplicate variable `{name}`")]
     DuplicateVariable { name: StringKey },
+
+    #[error(
+        "The `raw_response_type` argument should be set to `true` for the @no_inline fragment `{fragment_name}` used in the query with @raw_response_type."
+    )]
+    RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
 }
 
 /// Given [ A, B, C ] return ' Did you mean A, B, or C?'.

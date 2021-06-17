@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c042d87c07d5bd07fd3a3cae277f3fb2>>
+ * @generated SignedSource<<96674ab22820237889f836d016c689e6>>
  */
 
 mod compile_relay_artifacts;
@@ -633,6 +633,13 @@ fn no_inline_fragment_and_module() {
     let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-and-module.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-and-module.expected");
     test_fixture(transform_fixture, "no-inline-fragment-and-module.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment-and-module.expected", input, expected);
+}
+
+#[test]
+fn no_inline_fragment_in_raw_response_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-in-raw-response-query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-fragment-in-raw-response-query.expected");
+    test_fixture(transform_fixture, "no-inline-fragment-in-raw-response-query.graphql", "compile_relay_artifacts/fixtures/no-inline-fragment-in-raw-response-query.expected", input, expected);
 }
 
 #[test]

@@ -5,17 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::Arc;
-
+use common::NamedItem;
 use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, Directive, Program, Value};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use std::sync::Arc;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: StringKey = "no_inline".intern();
     pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
+    pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
 
 pub fn attach_no_inline_directives_to_fragments(
@@ -53,6 +54,18 @@ pub fn attach_no_inline_directives_to_fragments(
                 arguments: vec![create_parent_documents_arg(parent_sources)],
             })
         }
+    }
+}
+
+pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
+    if let Some(Value::Constant(ConstantValue::Boolean(val))) = directive
+        .arguments
+        .named(*RAW_RESPONSE_TYPE_NAME)
+        .map(|arg| &arg.value.item)
+    {
+        *val
+    } else {
+        false
     }
 }
 

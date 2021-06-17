@@ -8,10 +8,10 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::feature_flags::FeatureFlag;
 use crate::match_::SplitOperationMetadata;
 use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
 use crate::util::get_normalization_operation_name;
+use crate::{feature_flags::FeatureFlag, no_inline::is_raw_response_type_enabled};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
@@ -311,7 +311,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
             parent_documents: Default::default(),
-            raw_response_type: true,
+            raw_response_type: is_raw_response_type_enabled(directive),
         };
         // - A fragment with user defined @no_inline always produces a $normalization file. The `parent_document` of
         // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer

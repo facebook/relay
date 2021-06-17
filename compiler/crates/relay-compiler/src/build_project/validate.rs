@@ -10,7 +10,8 @@ use errors::try_all;
 use graphql_ir::Program;
 use relay_transforms::{
     disallow_circular_no_inline_fragments, disallow_reserved_aliases, disallow_typename_on_root,
-    validate_connections, validate_module_names, validate_relay_directives,
+    validate_connections, validate_module_names,
+    validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
     validate_unused_fragment_variables, validate_unused_variables, ConnectionInterface,
 };
 
@@ -28,6 +29,7 @@ pub fn validate(
         validate_connections(program, connection_interface),
         validate_relay_directives(program),
         validate_module_names(program),
+        validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
         if let Some(ref validate) = additional_validations {
             validate(program)

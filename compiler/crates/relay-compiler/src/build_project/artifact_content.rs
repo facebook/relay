@@ -236,13 +236,12 @@ fn generate_operation(
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
-    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
-        writeln!(content, "/* tslint:disable */").unwrap();
-        writeln!(content, "// @ts-nocheck").unwrap();
-    }
-    writeln!(content, "/* eslint-disable */\n").unwrap();
 
-    writeln!(content, "'use strict';\n").unwrap();
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content).unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n").unwrap();
+    }
+
     if let Some(id) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
@@ -280,6 +279,7 @@ fn generate_operation(
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "/*::").unwrap();
     }
+
     write_import_type_from(
         &project_config.typegen_config.language,
         &mut content,
@@ -305,6 +305,10 @@ fn generate_operation(
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "*/\n").unwrap();
     }
+    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
+        writeln!(content).unwrap();
+    }
+
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
@@ -365,9 +369,9 @@ fn generate_split_operation(
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
-    writeln!(content, "/* eslint-disable */\n").unwrap();
-    writeln!(content, "'use strict';\n").unwrap();
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content).unwrap();
     if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n").unwrap();
         writeln!(content, "/*::").unwrap();
     }
 
@@ -397,6 +401,10 @@ fn generate_split_operation(
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "*/\n").unwrap();
     }
+    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
+        writeln!(content).unwrap();
+    }
+
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
@@ -444,8 +452,11 @@ fn generate_fragment(
         writeln!(content, " * @codegen-command: {}", codegen_command).unwrap();
     }
     writeln!(content, " */\n").unwrap();
-    writeln!(content, "/* eslint-disable */\n").unwrap();
-    writeln!(content, "'use strict';\n").unwrap();
+    write_disable_lint_header(&project_config.typegen_config.language, &mut content).unwrap();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(content, "'use strict';\n").unwrap();
+    }
+
     let data_driven_dependency_metadata = reader_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
@@ -505,6 +516,10 @@ fn generate_fragment(
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "*/\n").unwrap();
     }
+    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
+        writeln!(content).unwrap();
+    }
+
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
@@ -547,6 +562,19 @@ fn write_variable_value_with_type(
         ),
         TypegenLanguage::TypeScript => {
             writeln!(content, "const {}: {} = {};\n", variable_name, type_, value)
+        }
+    }
+}
+
+fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -> Result {
+    match language {
+        TypegenLanguage::TypeScript => {
+            writeln!(content, "/* tslint:disable */")?;
+            writeln!(content, "/* eslint-disable */")?;
+            writeln!(content, "// @ts-nocheck\n")
+        }
+        TypegenLanguage::Flow => {
+            writeln!(content, "/* eslint-disable */\n")
         }
     }
 }

@@ -604,9 +604,9 @@ impl<'a> Parser<'a> {
         }
         Ok(ObjectTypeExtension {
             name,
-            fields,
             interfaces,
             directives,
+            fields,
         })
     }
 
@@ -850,8 +850,8 @@ impl<'a> Parser<'a> {
         let directives = self.parse_constant_directives()?;
         Ok(FieldDefinition {
             name,
-            arguments,
             type_,
+            arguments,
             directives,
             description,
         })

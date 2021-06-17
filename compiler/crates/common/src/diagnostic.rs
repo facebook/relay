@@ -18,12 +18,12 @@ pub struct WithDiagnostics<T> {
     pub errors: Vec<Diagnostic>,
 }
 
-impl<T> Into<Result<T, Vec<Diagnostic>>> for WithDiagnostics<T> {
-    fn into(self) -> Result<T, Vec<Diagnostic>> {
-        if self.errors.is_empty() {
-            Ok(self.item)
+impl<T> From<WithDiagnostics<T>> for Result<T, Vec<Diagnostic>> {
+    fn from(s: WithDiagnostics<T>) -> Result<T, Vec<Diagnostic>> {
+        if s.errors.is_empty() {
+            Ok(s.item)
         } else {
-            Err(self.errors)
+            Err(s.errors)
         }
     }
 }

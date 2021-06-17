@@ -30,7 +30,7 @@ import { FragmentRefs } from "relay-runtime";
 export type AnotherRecursiveFragment = {
   readonly uri: string | null;
   readonly height: number | null;
-  readonly " $refType": FragmentRefs<"AnotherRecursiveFragment">;
+  readonly " $refType": "AnotherRecursiveFragment";
 };
 export type AnotherRecursiveFragment$data = AnotherRecursiveFragment;
 export type AnotherRecursiveFragment$key = {
@@ -42,7 +42,7 @@ import { FragmentRefs } from "relay-runtime";
 export type PhotoFragment = {
   readonly uri: string | null;
   readonly width: number | null;
-  readonly " $refType": FragmentRefs<"PhotoFragment">;
+  readonly " $refType": "PhotoFragment";
 };
 export type PhotoFragment$data = PhotoFragment;
 export type PhotoFragment$key = {
@@ -69,7 +69,7 @@ export type UserProfile = {
     readonly height: number | null;
     readonly " $fragmentRefs": FragmentRefs<"PhotoFragment">;
   } | null;
-  readonly " $refType": FragmentRefs<"UserProfile">;
+  readonly " $refType": "UserProfile";
 };
 export type UserProfile$data = UserProfile;
 export type UserProfile$key = {

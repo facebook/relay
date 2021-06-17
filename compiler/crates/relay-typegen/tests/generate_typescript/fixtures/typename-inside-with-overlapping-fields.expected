@@ -34,7 +34,7 @@ export type TypenameInsideWithOverlappingFields = {
     // value in case none of the concrete values match.
     readonly __typename: "%other";
   } | null;
-  readonly " $refType": FragmentRefs<"TypenameInsideWithOverlappingFields">;
+  readonly " $refType": "TypenameInsideWithOverlappingFields";
 };
 export type TypenameInsideWithOverlappingFields$data = TypenameInsideWithOverlappingFields;
 export type TypenameInsideWithOverlappingFields$key = {

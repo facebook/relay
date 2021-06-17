@@ -92,7 +92,7 @@ import { FragmentRefs } from "relay-runtime";
 export type FeedbackFragment = {
   readonly id: string;
   readonly name: string | null;
-  readonly " $refType": FragmentRefs<"FeedbackFragment">;
+  readonly " $refType": "FeedbackFragment";
 };
 export type FeedbackFragment$data = FeedbackFragment;
 export type FeedbackFragment$key = {
@@ -107,7 +107,7 @@ export type FriendFragment = {
   readonly feedback: {
     readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">;
   } | null;
-  readonly " $refType": FragmentRefs<"FriendFragment">;
+  readonly " $refType": "FriendFragment";
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {

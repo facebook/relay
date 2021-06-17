@@ -8,7 +8,7 @@ import { FragmentRefs } from "relay-runtime";
 export type NonNullFragment = {
   readonly firstName: string | null;
   readonly lastName: string;
-  readonly " $refType": FragmentRefs<"NonNullFragment">;
+  readonly " $refType": "NonNullFragment";
 } | null;
 export type NonNullFragment$data = NonNullFragment;
 export type NonNullFragment$key = {

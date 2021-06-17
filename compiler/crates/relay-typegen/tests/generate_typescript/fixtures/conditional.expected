@@ -12,7 +12,7 @@ fragment NestedCondition on Node {
 import { FragmentRefs } from "relay-runtime";
 export type ConditionField = {
   readonly id?: string;
-  readonly " $refType": FragmentRefs<"ConditionField">;
+  readonly " $refType": "ConditionField";
 };
 export type ConditionField$data = ConditionField;
 export type ConditionField$key = {
@@ -23,7 +23,7 @@ export type ConditionField$key = {
 import { FragmentRefs } from "relay-runtime";
 export type NestedCondition = {
   readonly id?: string;
-  readonly " $refType": FragmentRefs<"NestedCondition">;
+  readonly " $refType": "NestedCondition";
 };
 export type NestedCondition$data = NestedCondition;
 export type NestedCondition$key = {

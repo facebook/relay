@@ -852,7 +852,7 @@ impl<'a> TypeGenerator<'a> {
                             key: *KEY_REF_TYPE,
                             optional: false,
                             read_only: true,
-                            value: AST::FragmentReference(vec![fragment_type_name]),
+                            value: AST::FragmentReferenceType(fragment_type_name),
                         });
                     }
                     if unmasked {

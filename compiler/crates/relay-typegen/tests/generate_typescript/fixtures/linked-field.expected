@@ -59,7 +59,7 @@ export type LinkedField = {
   readonly actor: {
     readonly id: string;
   } | null;
-  readonly " $refType": FragmentRefs<"LinkedField">;
+  readonly " $refType": "LinkedField";
 };
 export type LinkedField$data = LinkedField;
 export type LinkedField$key = {

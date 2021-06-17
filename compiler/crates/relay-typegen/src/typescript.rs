@@ -45,6 +45,7 @@ impl Writer for TypeScriptPrinter {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReferenceType(fragment) => self.write_fragment_references_type(*fragment),
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
@@ -234,6 +235,10 @@ impl TypeScriptPrinter {
                 .collect(),
         ))?;
         write!(&mut self.result, ">")
+    }
+
+    fn write_fragment_references_type(&mut self, fragment: StringKey) -> Result {
+        self.write(&AST::StringLiteral(fragment))
     }
 
     fn write_function_return_type(&mut self, function_name: StringKey) -> Result {

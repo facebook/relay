@@ -45,10 +45,13 @@ impl Writer for FlowPrinter {
             AST::FragmentReference(fragments) => self.write_intersection(
                 fragments
                     .iter()
-                    .map(|fragment| AST::Identifier(format!("{}$ref", fragment).intern()))
+                    .map(|fragment| AST::FragmentReferenceType(*fragment))
                     .collect::<Vec<_>>()
                     .as_slice(),
             ),
+            AST::FragmentReferenceType(fragment) => {
+                write!(&mut self.result, "{}$ref", fragment)
+            }
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }

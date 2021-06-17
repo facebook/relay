@@ -254,8 +254,7 @@ pub fn build_project(
 
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))
-        .map_err(BuildProjectFailure::Error)?;
+    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes));
     log_event.stop(artifacts_timer);
 
     log_event.number(

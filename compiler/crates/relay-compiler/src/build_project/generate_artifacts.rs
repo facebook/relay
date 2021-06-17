@@ -8,7 +8,6 @@
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
 use crate::config::ProjectConfig;
-use crate::errors::BuildProjectError;
 use common::{sync::par_iter, sync::ParallelIterator, NamedItem, SourceLocationKey};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::print_full_operation;
@@ -34,8 +33,8 @@ pub fn generate_artifacts(
     project_config: &ProjectConfig,
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
-) -> Result<Vec<Artifact>, BuildProjectError> {
-    let artifacts: Vec<_> = par_iter(&programs.normalization.operations)
+) -> Vec<Artifact> {
+    par_iter(&programs.normalization.operations)
         .map(|normalization_operation| {
             if let Some(directive) = normalization_operation
                 .directives
@@ -113,9 +112,7 @@ pub fn generate_artifacts(
                 generate_reader_artifact(project_config, programs, reader_fragment, source_hash)
             }),
         )
-        .collect();
-
-    Ok(artifacts)
+        .collect()
 }
 
 fn generate_normalization_artifact(

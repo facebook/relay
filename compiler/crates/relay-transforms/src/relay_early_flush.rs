@@ -7,8 +7,8 @@
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, OperationDefinition, Program, ScalarField, Selection, Transformed,
-    Transformer, ValidationMessage, Value,
+    Argument, ConstantValue, FragmentDefinition, OperationDefinition, Program, ScalarField,
+    Selection, Transformed, Transformer, ValidationMessage, Value,
 };
 use interner::Intern;
 use interner::StringKey;
@@ -21,18 +21,22 @@ lazy_static! {
     static ref QUERY_NAME_ARG: StringKey = "query_name".intern();
 }
 
-/// NOTE: This is a Facebook only transform
-/// A transform for printTransforms and codegenTransforms that transforms
-/// query Query @relay_early_flush {
+/// NOTE: This is a Facebook specific transform for www static resource delivery.
+///
+/// ```graphql
+/// query QueryName @relay_early_flush {
 ///   a
 /// }
+/// ```
 ///
 /// into
 ///
+/// ```graphql
 /// query QueryName {
-///   relay_early_flush(query_name: QueryName)
+///   relay_early_flush(query_name: "QueryName")
 ///   a
 /// }
+/// ```
 pub fn relay_early_flush(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = RelayEarlyFlush {
         program,
@@ -109,6 +113,13 @@ impl<'s> Transformer for RelayEarlyFlush<'s> {
         } else {
             Transformed::Keep
         }
+    }
+
+    fn transform_fragment(
+        &mut self,
+        _fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        Transformed::Keep
     }
 }
 

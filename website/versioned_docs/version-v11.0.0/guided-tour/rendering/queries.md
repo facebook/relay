@@ -244,9 +244,9 @@ Lets see what's going on here:
 
 * `useLazyLoadQuery`  takes a graphql query and some variables for that query, and returns the data that was fetched for that query. The variables are an object containing the values for the [variables](../variables/) referenced inside the GraphQL query.
 * Similarly to [fragments](../fragments/), the component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
-* `useLazyLoadQuery` additionally, it takes a Flow type parameter, which corresponds to the Flow type for the query, in this case AppQuery.
+* `useLazyLoadQuery` additionally  takes a Flow type parameter which corresponds to the Flow type for the query, in this case AppQuery.
     * Remember that Relay automatically generates Flow types for any declared queries, which you can import and use with `useLazyLoadQuery`. These types are available in the generated files with the following name format: `<query_name>.graphql.js`.
-    * Note that the `variables` will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
+    * Note that the `variables` will be checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
     * Note that the data is already properly Flow typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{ user: ?{ name: ?string } }`.
 * By default, when the component renders, Relay will *fetch* the data for this query (if it isn't already cached), and return it as a the result of the `useLazyLoadQuery` call. We'll go into more detail about how to show loading states in the [Loading States with Suspense](../loading-states/) section, and how Relay uses cached data in the [Reusing Cached Data For Rendering](../../reusing-cached-data/) section.
 * Note that if you re-render your component and pass *different query variables* than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.

@@ -19,6 +19,7 @@ const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProv
 const useFragment = require('../../relay-hooks/useFragment');
 const useLazyLoadQuery = require('../../relay-hooks/useLazyLoadQuery');
 const useMutation = require('../../relay-hooks/useMutation');
+const useRelayActorEnvironment = require('../../multi-actor/useRelayActorEnvironment');
 
 const {Network, graphql, Observable} = require('relay-runtime');
 const {
@@ -33,6 +34,7 @@ const {
 import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
 import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
 import type {
+  ActorIdentifier,
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
@@ -109,8 +111,13 @@ function MainComponent() {
                 'not an actor'}`}
             />
             <ActorChange key={index} actorChangePoint={actorNode}>
-              {fragmentRef => {
-                return <ActorMessage myFragment={fragmentRef} />;
+              {(fragmentRef, actorIdentifier) => {
+                return (
+                  <ActorMessage
+                    myFragment={fragmentRef}
+                    actorIdentifier={actorIdentifier}
+                  />
+                );
               }}
             </ActorChange>
           </div>
@@ -122,11 +129,17 @@ function MainComponent() {
 
 type Props = $ReadOnly<{
   myFragment: ActorChangeTestFeedUnitFragment$key,
+  actorIdentifier: ActorIdentifier,
 }>;
 
 function ActorMessage(props: Props) {
   const data = useFragment(fragment, props.myFragment);
   const [commit] = useMutation(mutation);
+
+  // We're calling this hook only to verify that it won't throw.
+  // `useRelayActorEnvironment` should be able to have access to `getEnvironmentForActor` function
+  // from the RelayEnvironmentProvider.
+  useRelayActorEnvironment(props.actorIdentifier);
 
   return (
     <div className="actor-messages">

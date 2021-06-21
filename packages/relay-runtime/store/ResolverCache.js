@@ -15,6 +15,7 @@
 const RelayModernRecord = require('./RelayModernRecord');
 
 const recycleNodesInto = require('../util/recycleNodesInto');
+const warning = require('warning');
 
 const {generateClientID} = require('./ClientID');
 const {
@@ -191,7 +192,12 @@ class RecordResolverCache implements ResolverCache {
   ) {
     const record = recordSource.get(dataID);
     if (!record) {
-      return; // FIXME log? throw?
+      warning(
+        false,
+        'Expected a resolver record with ID %s, but it was missing.',
+        dataID,
+      );
+      return;
     }
     const nextRecord = RelayModernRecord.clone(record);
     RelayModernRecord.setValue(
@@ -219,7 +225,12 @@ class RecordResolverCache implements ResolverCache {
       RELAY_RESOLVER_READER_SELECTOR_KEY,
     );
     if (originalInputs == null || readerSelector == null) {
-      return true; // FIXME log? throw?
+      warning(
+        false,
+        'Expected previous inputs and reader selector on resolver record with ID %s, but they were missing.',
+        RelayModernRecord.getDataID(record),
+      );
+      return true;
     }
     const latestValues = getDataForResolverFragment(readerSelector);
     const recycled = recycleNodesInto(originalInputs, latestValues);

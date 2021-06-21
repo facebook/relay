@@ -43,6 +43,7 @@ import type {
   GraphQLResponse,
   GraphQLSingularResponse,
   GraphQLResponseWithData,
+  ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
@@ -61,6 +62,7 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
+  ReactFlightClientResponse,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
   Record,
@@ -284,6 +286,26 @@ class Executor {
     this._completeOperationTracker();
     this._disposeRetainedData();
   }
+
+  _deserializeReactFlightPayloadWithLogging = (
+    tree: ReactFlightServerTree,
+  ): ReactFlightClientResponse => {
+    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
+    invariant(
+      typeof reactFlightPayloadDeserializer === 'function',
+      'MultiActorOperationExecutor: Expected reactFlightPayloadDeserializer to be available when calling _deserializeReactFlightPayloadWithLogging.',
+    );
+    const [duration, result] = withDuration(() => {
+      return reactFlightPayloadDeserializer(tree);
+    });
+    this._log({
+      name: 'execute.flight.payload_deserialize',
+      executeId: this._executeId,
+      operationName: this._operation.request.node.params.name,
+      duration,
+    });
+    return result;
+  };
 
   _updateActiveState(): void {
     let activeState;
@@ -578,7 +600,10 @@ class Executor {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightPayloadDeserializer:
+            this._reactFlightPayloadDeserializer != null
+              ? this._deserializeReactFlightPayloadWithLogging
+              : null,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
@@ -685,7 +710,10 @@ class Executor {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: followupPayload.path,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightPayloadDeserializer:
+          this._reactFlightPayloadDeserializer != null
+            ? this._deserializeReactFlightPayloadWithLogging
+            : null,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -767,7 +795,10 @@ class Executor {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightPayloadDeserializer:
+            this._reactFlightPayloadDeserializer != null
+              ? this._deserializeReactFlightPayloadWithLogging
+              : null,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1202,7 +1233,10 @@ class Executor {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: placeholder.path,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightPayloadDeserializer:
+          this._reactFlightPayloadDeserializer != null
+            ? this._deserializeReactFlightPayloadWithLogging
+            : null,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1435,7 +1469,10 @@ class Executor {
       actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      reactFlightPayloadDeserializer:
+        this._reactFlightPayloadDeserializer != null
+          ? this._deserializeReactFlightPayloadWithLogging
+          : null,
       reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,

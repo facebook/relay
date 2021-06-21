@@ -14,7 +14,7 @@ use std::fmt;
 use std::sync::Arc;
 // Definitions
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ExecutableDefinition {
     Operation(OperationDefinition),
     Fragment(FragmentDefinition),
@@ -43,7 +43,7 @@ impl ExecutableDefinition {
 }
 
 /// A fully-typed mutation, query, or subscription definition
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct OperationDefinition {
     pub kind: OperationKind,
     pub name: WithLocation<StringKey>,
@@ -66,7 +66,7 @@ impl OperationDefinition {
 }
 
 /// A fully-typed fragment definition
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct FragmentDefinition {
     pub name: WithLocation<StringKey>,
     pub variable_definitions: Vec<VariableDefinition>,
@@ -77,7 +77,7 @@ pub struct FragmentDefinition {
 }
 
 /// A variable definition of an operation or fragment
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct VariableDefinition {
     pub name: WithLocation<StringKey>,
     pub type_: TypeReference,
@@ -103,7 +103,7 @@ impl Named for VariableDefinition {
 // Selections
 
 /// A selection within an operation or fragment
-#[derive(Clone, Eq, PartialEq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub enum Selection {
     FragmentSpread(Arc<FragmentSpread>),
     InlineFragment(Arc<InlineFragment>),
@@ -190,7 +190,7 @@ impl fmt::Debug for Selection {
 }
 
 /// ... Name
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct FragmentSpread {
     pub fragment: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
@@ -199,7 +199,7 @@ pub struct FragmentSpread {
 
 /// ... SelectionSet
 /// ... on Type SelectionSet
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct InlineFragment {
     pub type_condition: Option<Type>,
     pub directives: Vec<Directive>,
@@ -207,7 +207,7 @@ pub struct InlineFragment {
 }
 
 /// Name Arguments? SelectionSet
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct LinkedField {
     pub alias: Option<WithLocation<StringKey>>,
     pub definition: WithLocation<FieldID>,
@@ -234,7 +234,7 @@ impl LinkedField {
 }
 
 /// Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ScalarField {
     pub alias: Option<WithLocation<StringKey>>,
     pub definition: WithLocation<FieldID>,
@@ -260,7 +260,7 @@ impl ScalarField {
 }
 
 /// https://spec.graphql.org/June2018/#sec--skip
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
@@ -270,7 +270,7 @@ pub struct Condition {
 // Associated Types
 
 /// @ Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct Directive {
     pub name: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
@@ -359,7 +359,7 @@ impl ConstantValue {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub enum ConditionValue {
     Constant(bool),
     Variable(Variable),

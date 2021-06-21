@@ -28,6 +28,7 @@ const warning = require('warning');
 const withDuration = require('../util/withDuration');
 
 const {generateClientID, generateUniqueClientID} = require('../store/ClientID');
+const {getLocalVariables} = require('../store/RelayConcreteVariables');
 const {
   createNormalizationSelector,
   createReaderSelector,
@@ -658,10 +659,23 @@ class Executor {
     followupPayload: FollowupPayload,
     normalizationNode: NormalizationSelectableNode,
   ) {
+    let variables;
+    if (
+      normalizationNode.kind === 'SplitOperation' &&
+      followupPayload.kind === 'ModuleImportPayload'
+    ) {
+      variables = getLocalVariables(
+        followupPayload.variables,
+        normalizationNode.argumentDefinitions,
+        followupPayload.args,
+      );
+    } else {
+      variables = followupPayload.variables;
+    }
     const selector = createNormalizationSelector(
       normalizationNode,
       followupPayload.dataID,
-      followupPayload.variables,
+      variables,
     );
     return normalizeResponse(
       {data: followupPayload.data},

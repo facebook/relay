@@ -1558,7 +1558,7 @@ function validateOptimisticResponsePayload(
 }
 
 const isPerformanceNowAvailable =
-  global.performance != null && typeof global.performance.now === 'function';
+  global != null && global.performance != null && typeof global.performance.now === 'function';
 
 function currentTimestamp(): number {
   if (isPerformanceNowAvailable) {

@@ -20,10 +20,12 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('../store/RelayRecordSource');
 const RelayResponseNormalizer = require('../store/RelayResponseNormalizer');
 
+const generateID = require('../util/generateID');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
+const withDuration = require('../util/withDuration');
 
 const {generateClientID, generateUniqueClientID} = require('../store/ClientID');
 const {
@@ -46,11 +48,11 @@ import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {NormalizationOptions} from '../store/RelayResponseNormalizer';
 import type {
   DeferPlaceholder,
-  RequestDescriptor,
+  FollowupPayload,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
+  LogFunction,
   ModuleImportPayload,
-  FollowupPayload,
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
@@ -62,6 +64,7 @@ import type {
   ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
+  RequestDescriptor,
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
@@ -95,6 +98,7 @@ export type ExecuteConfig = {|
   +source: RelayObservable<GraphQLResponse>,
   +treatMissingFieldsAsNull: boolean,
   +updater?: ?SelectorStoreUpdater,
+  +log: LogFunction,
 |};
 
 export type ActiveState = 'active' | 'inactive';
@@ -137,6 +141,8 @@ class Executor {
   _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
+  _log: LogFunction;
+  _executeId: number;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationExecutions: Map<string, ActiveState>;
@@ -183,12 +189,15 @@ class Executor {
     source,
     treatMissingFieldsAsNull,
     updater,
+    log,
   }: ExecuteConfig): void {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
+    this._log = log;
+    this._executeId = generateID();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationExecutions = operationExecutions;
@@ -225,7 +234,16 @@ class Executor {
           sink.error(error);
         }
       },
-      start: subscription => this._start(id, subscription),
+      start: subscription => {
+        this._start(id, subscription);
+        this._log({
+          name: 'execute.start',
+          executeId: this._executeId,
+          params: this._operation.request.node.params,
+          variables: this._operation.request.variables,
+          cacheConfig: this._operation.request.cacheConfig ?? {},
+        });
+      },
     });
 
     if (optimisticConfig != null) {
@@ -328,12 +346,21 @@ class Executor {
     if (this._subscriptions.size === 0) {
       this.cancel();
       this._sink.complete();
+      this._log({
+        name: 'execute.complete',
+        executeId: this._executeId,
+      });
     }
   }
 
   _error(error: Error): void {
     this.cancel();
     this._sink.error(error);
+    this._log({
+      name: 'execute.error',
+      executeId: this._executeId,
+      error,
+    });
   }
 
   _start(id: number, subscription: Subscription): void {
@@ -344,8 +371,16 @@ class Executor {
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
     this._schedule(() => {
-      this._handleNext(response);
-      this._maybeCompleteSubscriptionOperationTracking();
+      const [duration] = withDuration(() => {
+        this._handleNext(response);
+        this._maybeCompleteSubscriptionOperationTracking();
+      });
+      this._log({
+        name: 'execute.next',
+        executeId: this._executeId,
+        response,
+        duration,
+      });
     });
   }
 
@@ -875,16 +910,23 @@ class Executor {
                 .then(resolve, reject);
             }),
           )
-            .map((operation: ?NormalizationRootNode) => {
-              if (operation != null) {
+            .map((loadedNode: ?NormalizationRootNode) => {
+              if (loadedNode != null) {
+                const operation = getOperation(loadedNode);
                 this._schedule(() => {
-                  this._handleFollowupPayload(
-                    followupPayload,
-                    getOperation(operation),
-                  );
-                  // OK: always have to run after an async module import resolves
-                  const updatedOwners = this._runPublishQueue();
-                  this._updateOperationTracker(updatedOwners);
+                  const [duration] = withDuration(() => {
+                    this._handleFollowupPayload(followupPayload, operation);
+                    // OK: always have to run after an async module import resolves
+                    const updatedOwners = this._runPublishQueue();
+                    this._updateOperationTracker(updatedOwners);
+                  });
+
+                  this._log({
+                    name: 'execute.async.module',
+                    executeId: this._executeId,
+                    operationName: operation.name,
+                    duration,
+                  });
                 });
               }
             })

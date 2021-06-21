@@ -25,6 +25,7 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
+const withDuration = require('../util/withDuration');
 
 const {generateClientID, generateUniqueClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
@@ -1555,22 +1556,6 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
-}
-
-const isPerformanceNowAvailable =
-  global.performance != null && typeof global.performance.now === 'function';
-
-function currentTimestamp(): number {
-  if (isPerformanceNowAvailable) {
-    return global.performance.now();
-  }
-  return Date.now();
-}
-
-function withDuration<T>(cb: () => T): [number, T] {
-  const startTime = currentTimestamp();
-  const result = cb();
-  return [currentTimestamp() - startTime, result];
 }
 
 module.exports = {

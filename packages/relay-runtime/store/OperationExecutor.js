@@ -35,45 +35,22 @@ const {
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
-  GraphQLResponse,
-  GraphQLSingularResponse,
-  GraphQLResponseWithData,
-  ReactFlightServerTree,
+  GraphQLResponse, GraphQLResponseWithData,
+  ReactFlightServerTree
 } from '../network/RelayNetworkTypes';
-import type {Sink, Subscription} from '../network/RelayObservable';
+import type { Sink } from '../network/RelayObservable';
 import type {
-  DeferPlaceholder,
-  RequestDescriptor,
-  HandleFieldPayload,
-  IncrementalDataPlaceholder,
-  LogFunction,
-  ModuleImportPayload,
-  NormalizationSelector,
+  LogFunction, NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
-  OperationTracker,
-  OptimisticResponseConfig,
-  OptimisticUpdate,
-  PublishQueue,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
-  ReactFlightClientResponse,
-  Record,
-  RelayResponsePayload,
-  SelectorStoreUpdater,
-  Store,
-  StreamPlaceholder,
+  OperationTracker, OptimisticUpdate,
+  PublishQueue, ReactFlightClientResponse, ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler, RelayResponsePayload
 } from '../store/RelayStoreTypes';
 import type {
-  NormalizationLinkedField,
-  NormalizationOperation,
-  NormalizationRootNode,
-  NormalizationSelectableNode,
-  NormalizationSplitOperation,
+  NormalizationRootNode
 } from '../util/NormalizationNode';
-import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
-import type {GetDataID} from './RelayResponseNormalizer';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type { GetDataID, NormalizationOptions } from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
@@ -254,7 +231,6 @@ class Executor {
     if (this._state === 'completed') {
       return;
     }
-    this._state = 'completed';
     this._operationExecutions.delete(this._operation.request.identifier);
 
     if (this._subscriptions.size !== 0) {
@@ -1558,7 +1534,7 @@ function validateOptimisticResponsePayload(
 }
 
 const isPerformanceNowAvailable =
-  global.performance != null && typeof global.performance.now === 'function';
+  global !== null && global.performance != null && typeof global.performance.now === 'function';
 
 function currentTimestamp(): number {
   if (isPerformanceNowAvailable) {

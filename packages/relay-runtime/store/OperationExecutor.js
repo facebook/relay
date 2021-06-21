@@ -25,7 +25,6 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
-const withDuration = require('../util/withDuration');
 
 const {generateClientID, generateUniqueClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
@@ -36,45 +35,22 @@ const {
 const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 
 import type {
-  GraphQLResponse,
-  GraphQLSingularResponse,
-  GraphQLResponseWithData,
-  ReactFlightServerTree,
+  GraphQLResponse, GraphQLResponseWithData,
+  ReactFlightServerTree
 } from '../network/RelayNetworkTypes';
-import type {Sink, Subscription} from '../network/RelayObservable';
+import type { Sink } from '../network/RelayObservable';
 import type {
-  DeferPlaceholder,
-  RequestDescriptor,
-  HandleFieldPayload,
-  IncrementalDataPlaceholder,
-  LogFunction,
-  ModuleImportPayload,
-  NormalizationSelector,
+  LogFunction, NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
-  OperationTracker,
-  OptimisticResponseConfig,
-  OptimisticUpdate,
-  PublishQueue,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
-  ReactFlightClientResponse,
-  Record,
-  RelayResponsePayload,
-  SelectorStoreUpdater,
-  Store,
-  StreamPlaceholder,
+  OperationTracker, OptimisticUpdate,
+  PublishQueue, ReactFlightClientResponse, ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler, RelayResponsePayload
 } from '../store/RelayStoreTypes';
 import type {
-  NormalizationLinkedField,
-  NormalizationOperation,
-  NormalizationRootNode,
-  NormalizationSelectableNode,
-  NormalizationSplitOperation,
+  NormalizationRootNode
 } from '../util/NormalizationNode';
-import type {DataID, Variables, Disposable} from '../util/RelayRuntimeTypes';
-import type {GetDataID} from './RelayResponseNormalizer';
-import type {NormalizationOptions} from './RelayResponseNormalizer';
+import type { GetDataID, NormalizationOptions } from './RelayResponseNormalizer';
 
 export type ExecuteConfig = {|
   +getDataID: GetDataID,
@@ -255,7 +231,6 @@ class Executor {
     if (this._state === 'completed') {
       return;
     }
-    this._state = 'completed';
     this._operationExecutions.delete(this._operation.request.identifier);
 
     if (this._subscriptions.size !== 0) {
@@ -949,16 +924,13 @@ class Executor {
               const publishModuleImportPayload = () => {
                 try {
                   const operation = getOperation(loadedNode);
-                  const shouldScheduleAsyncStoreUpdate =
-                    this._pendingModulePayloadsCount > 1 &&
-                    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
                   const [duration] = withDuration(() => {
                     this._handleModuleImportPayload(
                       moduleImportPayload,
                       operation,
                     );
                     // OK: always have to run after an async module import resolves
-                    if (shouldScheduleAsyncStoreUpdate) {
+                    if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
                       this._scheduleAsyncStoreUpdate(sink.complete);
                     } else {
                       const updatedOwners = this._publishQueue.run();
@@ -971,7 +943,7 @@ class Executor {
                     operationName: operation.name,
                     duration,
                   });
-                  if (!shouldScheduleAsyncStoreUpdate) {
+                  if (!RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
                     sink.complete();
                   }
                 } catch (error) {
@@ -1559,6 +1531,22 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
+}
+
+const isPerformanceNowAvailable =
+  global !== null && global.performance != null && typeof global.performance.now === 'function';
+
+function currentTimestamp(): number {
+  if (isPerformanceNowAvailable) {
+    return global.performance.now();
+  }
+  return Date.now();
+}
+
+function withDuration<T>(cb: () => T): [number, T] {
+  const startTime = currentTimestamp();
+  const result = cb();
+  return [currentTimestamp() - startTime, result];
 }
 
 module.exports = {

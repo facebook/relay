@@ -294,17 +294,6 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             ..
         } = fragment;
 
-        if !variable_definitions.is_empty() && !self.no_inline_feature.is_fully_enabled() {
-            // arguments disallowed
-            self.errors.push(Diagnostic::error(
-                format!(
-                    "Invalid usage of @no_inline on fragment '{}' with arguments: fragment arguments are not yet supported",
-                    fragment.name.item,
-                ),
-                directive.name.location,
-            ));
-        }
-
         for variable in &mut variable_definitions {
             variable.name.item = format_local_variable(fragment.name.item, variable.name.item);
         }

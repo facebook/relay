@@ -13,7 +13,7 @@
 'use strict';
 
 const isPerformanceNowAvailable =
-  global.performance != null && typeof global.performance.now === 'function';
+  global?.performance != null && typeof global.performance.now === 'function';
 
 function currentTimestamp(): number {
   if (isPerformanceNowAvailable) {

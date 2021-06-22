@@ -25,6 +25,7 @@ const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
+const withDuration = require('../util/withDuration');
 
 const {generateClientID, generateUniqueClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
@@ -948,13 +949,16 @@ class Executor {
               const publishModuleImportPayload = () => {
                 try {
                   const operation = getOperation(loadedNode);
+                  const shouldScheduleAsyncStoreUpdate =
+                    this._pendingModulePayloadsCount > 1 &&
+                    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
                   const [duration] = withDuration(() => {
                     this._handleModuleImportPayload(
                       moduleImportPayload,
                       operation,
                     );
                     // OK: always have to run after an async module import resolves
-                    if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+                    if (shouldScheduleAsyncStoreUpdate) {
                       this._scheduleAsyncStoreUpdate(sink.complete);
                     } else {
                       const updatedOwners = this._publishQueue.run();
@@ -967,7 +971,7 @@ class Executor {
                     operationName: operation.name,
                     duration,
                   });
-                  if (!RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+                  if (!shouldScheduleAsyncStoreUpdate) {
                     sink.complete();
                   }
                 } catch (error) {
@@ -1555,22 +1559,6 @@ function validateOptimisticResponsePayload(
         '@stream, and @stream_connection).',
     );
   }
-}
-
-const isPerformanceNowAvailable =
-  global?.performance != null && typeof global.performance.now === 'function';
-
-function currentTimestamp(): number {
-  if (isPerformanceNowAvailable) {
-    return global.performance.now();
-  }
-  return Date.now();
-}
-
-function withDuration<T>(cb: () => T): [number, T] {
-  const startTime = currentTimestamp();
-  const result = cb();
-  return [currentTimestamp() - startTime, result];
 }
 
 module.exports = {

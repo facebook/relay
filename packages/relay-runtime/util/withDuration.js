@@ -13,11 +13,12 @@
 'use strict';
 
 const isPerformanceNowAvailable =
-  global?.performance != null && typeof global.performance.now === 'function';
+  typeof window !== 'undefined' &&
+  typeof window?.performance?.now === 'function';
 
 function currentTimestamp(): number {
   if (isPerformanceNowAvailable) {
-    return global.performance.now();
+    return window.performance.now();
   }
   return Date.now();
 }

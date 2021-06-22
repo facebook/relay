@@ -507,19 +507,12 @@ describe('executeSubscrption() with @match', () => {
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllImmediates();
-    // The subscription affecting the query should still be in flight
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).not.toBe(null);
 
-    jest.runAllTimers();
     expect(complete).toBeCalledTimes(1);
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
-
     // The subscription affecting the query should no longer be in flight
+    // because async batching isn't on with one active query
     expect(
       environment
         .getOperationTracker()

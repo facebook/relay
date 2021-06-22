@@ -949,13 +949,16 @@ class Executor {
               const publishModuleImportPayload = () => {
                 try {
                   const operation = getOperation(loadedNode);
+                  const shouldScheduleAsyncStoreUpdate =
+                    this._pendingModulePayloadsCount > 1 &&
+                    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
                   const [duration] = withDuration(() => {
                     this._handleModuleImportPayload(
                       moduleImportPayload,
                       operation,
                     );
                     // OK: always have to run after an async module import resolves
-                    if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+                    if (shouldScheduleAsyncStoreUpdate) {
                       this._scheduleAsyncStoreUpdate(sink.complete);
                     } else {
                       const updatedOwners = this._publishQueue.run();
@@ -968,7 +971,7 @@ class Executor {
                     operationName: operation.name,
                     duration,
                   });
-                  if (!RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+                  if (!shouldScheduleAsyncStoreUpdate) {
                     sink.complete();
                   }
                 } catch (error) {

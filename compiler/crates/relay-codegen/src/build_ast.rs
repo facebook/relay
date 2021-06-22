@@ -1173,19 +1173,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         //   abstractKey: replace the Fragment w the Discriminator
                         // - The inline fragment contains other selections: return all the selections
                         //   minus any Discriminators w the same key
-                        let type_discriminator_index =
-                            inline_frag.selections.iter().position(|selection| {
-                                if let Selection::ScalarField(selection) = selection {
-                                    selection
-                                        .directives
-                                        .named(*TYPE_DISCRIMINATOR_DIRECTIVE_NAME)
-                                        .is_some()
-                                } else {
-                                    false
-                                }
-                            });
+                        let has_type_discriminator = inline_frag
+                            .selections
+                            .iter()
+                            .any(is_type_discriminator_selection);
 
-                        if let Some(type_discriminator_index) = type_discriminator_index {
+                        if has_type_discriminator {
                             if inline_frag.selections.len() == 1 {
                                 return self.build_type_discriminator(
                                     if let Selection::ScalarField(field) =
@@ -1197,18 +1190,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                                     },
                                 );
                             } else {
-                                let selections = self.build_selections(
-                                    inline_frag
-                                        .selections
-                                        .iter()
-                                        .take(type_discriminator_index)
-                                        .chain(
-                                            inline_frag
-                                                .selections
-                                                .iter()
-                                                .skip(type_discriminator_index + 1),
-                                        ),
-                                );
+                                let selections =
+                                    self.build_selections(inline_frag.selections.iter().filter(
+                                        |selection| !is_type_discriminator_selection(selection),
+                                    ));
                                 return Primitive::Key(self.object(vec![
                                     ObjectEntry {
                                         key: CODEGEN_CONSTANTS.kind,
@@ -1835,6 +1820,17 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 ]))
             }
         }
+    }
+}
+
+fn is_type_discriminator_selection(selection: &Selection) -> bool {
+    if let Selection::ScalarField(selection) = selection {
+        selection
+            .directives
+            .named(*TYPE_DISCRIMINATOR_DIRECTIVE_NAME)
+            .is_some()
+    } else {
+        false
     }
 }
 

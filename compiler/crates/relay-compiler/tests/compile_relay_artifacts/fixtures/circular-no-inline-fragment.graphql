@@ -9,31 +9,9 @@ query circularNoInlineFragmentQuery {
 
 fragment circularNoInlineFragment_feedback on Feedback @no_inline
   @argumentDefinitions(
-    includeNestedComments: {type: "Boolean!", defaultValue: true}
+    includeNext: {type: "Boolean!", defaultValue: true}
   ) {
-  comments {
-    edges {
-      node {
-        ...circularNoInlineFragment_comment
-          @arguments(includeNestedComments: $includeNestedComments)
-      }
-    }
-  }
-}
-
-
-fragment circularNoInlineFragment_comment on Comment
-  @no_inline
-  @argumentDefinitions(
-    includeNestedComments: {type: "Boolean!", defaultValue: true}
-    __false: {type: "Boolean!", defaultValue: false}
-  ) {
-  author {
-    name
-  }
   feedback {
-    ...circularNoInlineFragment_feedback
-      @include(if: $includeNestedComments)
-      @arguments(includeNestedComments: $__false)
+    ...circularNoInlineFragment_feedback @include(if: $includeNext) @arguments(includeNext: false)
   }
 }

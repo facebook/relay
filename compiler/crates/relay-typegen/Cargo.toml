@@ -12,7 +12,7 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
-itertools = "0.8"
+itertools = "0.10.1"
 lazy_static = "1.0"
 relay-codegen = { path = "../relay-codegen" }
 relay-transforms = { path = "../relay-transforms" }

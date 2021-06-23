@@ -501,7 +501,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(operation.request),
+            .getPendingOperationsAffectingOwner(operation.request),
         ).not.toBe(null);
         expect(complete).toBeCalledTimes(0);
         // Publish to store
@@ -510,20 +510,20 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(operation.request),
+            .getPendingOperationsAffectingOwner(operation.request),
         ).toBe(null);
       } else {
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(operation.request),
+            .getPendingOperationsAffectingOwner(operation.request),
         ).not.toBe(null);
         jest.runAllImmediates();
         expect(complete).toBeCalledTimes(1);
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(operation.request),
+            .getPendingOperationsAffectingOwner(operation.request),
         ).toBe(null);
       }
     });

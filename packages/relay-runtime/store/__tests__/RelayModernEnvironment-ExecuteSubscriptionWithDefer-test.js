@@ -194,9 +194,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
       });
 
@@ -258,9 +256,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -314,9 +310,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
 
         dataSource.complete();
@@ -331,9 +325,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -370,9 +362,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -411,9 +401,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
     });

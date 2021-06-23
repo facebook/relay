@@ -258,9 +258,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -353,9 +351,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
       });
 
@@ -436,9 +432,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
       });
 
@@ -482,9 +476,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
 
         expect(operationLoader.load).toBeCalledTimes(1);
@@ -502,9 +494,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 
@@ -551,9 +541,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).not.toBe(null);
 
         expect(complete).toBeCalledTimes(0);
@@ -569,9 +557,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(
           environment
             .getOperationTracker()
-            .getPromiseForPendingOperationsAffectingOwner(
-              queryOperation.request,
-            ),
+            .getPendingOperationsAffectingOwner(queryOperation.request),
         ).toBe(null);
       });
 

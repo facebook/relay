@@ -282,7 +282,7 @@ class SelectorResolver {
         getPromiseForActiveRequest(this._environment, this._selector.owner) ??
         this._environment
           .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+          .getPendingOperationsAffectingOwner(this._selector.owner);
       if (promise != null) {
         if (this._rootIsQueryRenderer) {
           warning(

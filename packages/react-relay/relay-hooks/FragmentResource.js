@@ -116,15 +116,6 @@ function getFragmentResult(
   };
 }
 
-function getPromiseForPendingOperationAffectingOwner(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): Promise<void> | null {
-  return environment
-    .getOperationTracker()
-    .getPromiseForPendingOperationsAffectingOwner(request);
-}
-
 class FragmentResourceImpl {
   _environment: IEnvironment;
   _cache: FragmentResourceCache;
@@ -494,13 +485,29 @@ class FragmentResourceImpl {
     fragmentOwner: RequestDescriptor,
   ): Promise<void> | null {
     const environment = this._environment;
-    const networkPromise =
-      getPromiseForActiveRequest(environment, fragmentOwner) ??
-      getPromiseForPendingOperationAffectingOwner(environment, fragmentOwner);
+    let networkPromise = getPromiseForActiveRequest(environment, fragmentOwner);
+    let pendingOperationName;
+
+    if (networkPromise != null) {
+      pendingOperationName = fragmentOwner.node.params.name;
+    } else {
+      const result = environment
+        .getOperationTracker()
+        .getPendingOperationsAffectingOwner(fragmentOwner);
+      const pendingOperations = result?.pendingOperations;
+      networkPromise = result?.promise ?? null;
+      pendingOperationName =
+        pendingOperations?.map(op => op.node.params.name).join(',') ?? null;
+    }
 
     if (!networkPromise) {
       return null;
     }
+
+    if (pendingOperationName == null || pendingOperationName.length === 0) {
+      pendingOperationName = 'Unknown pending operation';
+    }
+
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
@@ -513,12 +520,11 @@ class FragmentResourceImpl {
       });
     this._cache.set(cacheKey, promise);
 
-    const queryName = fragmentOwner.node.params.name;
     const fragmentName = fragmentNode.name;
     const promiseDisplayName =
-      queryName === fragmentName
-        ? `Relay(${queryName})`
-        : `Relay(${queryName}:${fragmentName})`;
+      pendingOperationName === fragmentName
+        ? `Relay(${pendingOperationName})`
+        : `Relay(${pendingOperationName}:${fragmentName})`;
     // $FlowExpectedError[prop-missing] Expando to annotate Promises.
     promise.displayName = promiseDisplayName;
     return promise;

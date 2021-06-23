@@ -23,7 +23,13 @@ const {
 const {ROOT_ID} = require('./RelayStoreUtils');
 
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
-import type {CacheConfig, DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  DataID,
+  Variables,
+  VariablesOf,
+  OperationType,
+} from '../util/RelayRuntimeTypes';
 import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 
 /**
@@ -32,9 +38,9 @@ import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
  * are filtered to exclude variables that do not match defined arguments on the
  * operation, and default values are populated for null values.
  */
-function createOperationDescriptor(
+function createOperationDescriptor<TQuery: OperationType>(
   request: ConcreteRequest,
-  variables: Variables,
+  variables: VariablesOf<TQuery>,
   cacheConfig?: ?CacheConfig,
   dataID?: DataID = ROOT_ID,
 ): OperationDescriptor {

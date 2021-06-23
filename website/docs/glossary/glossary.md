@@ -644,9 +644,13 @@ A directive that allows you to turn off data masking.
 
 See the documentation.
 
+<FbInternalOnly>
+
 ## @relay_early_flush
 
-TODO
+Used for a WWW static resource delivery optimization.
+
+</FbInternalOnly>
 
 ## Relay Classic
 

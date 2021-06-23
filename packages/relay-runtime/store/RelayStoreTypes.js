@@ -472,7 +472,7 @@ export type LogEvent =
       +isPromiseCached: boolean,
       +operation: OperationDescriptor,
       +queryAvailability: ?OperationAvailability,
-      +renderPolicy: string,
+      +renderPolicy: RenderPolicy,
     |}
   | {|
       +name: 'queryresource.fetch',
@@ -485,7 +485,7 @@ export type LogEvent =
       // FetchPolicy from Relay Hooks
       +fetchPolicy: string,
       // RenderPolicy from Relay Hooks
-      +renderPolicy: string,
+      +renderPolicy: RenderPolicy,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
     |}

@@ -252,7 +252,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
       });
       let nextOuterRendererASnapshot;
       // The store is notified once with the batching on
-      if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+      if (RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN != null) {
         expect(outerRendererACallback).toBeCalledTimes(1);
         nextOuterRendererASnapshot = outerRendererACallback.mock.calls[0][0];
       } else {
@@ -380,7 +380,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
       expect(next).toBeCalledTimes(0);
       let nextOuterRendererASnapshot;
       let nextOuterRendererBSnapshot;
-      if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+      if (RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN != null) {
         expect(outerRendererACallback).toBeCalledTimes(1);
         expect(outerRendererBCallback).toBeCalledTimes(1);
         nextOuterRendererASnapshot = outerRendererACallback.mock.calls[0][0];
@@ -495,7 +495,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 
       resolveFragments[0](markdownRendererNormalizationFragment);
       resolveFragments[1](plaintextRendererNormalizationFragment);
-      if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+      if (RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN != null) {
         // Resolve fragments but not publish
         jest.runAllImmediates();
         expect(
@@ -593,7 +593,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 
       resolveFragments[0](markdownRendererNormalizationFragment);
       resolveFragments[1](plaintextRendererNormalizationFragment);
-      if (RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES) {
+      if (RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN != null) {
         jest.runAllImmediates();
         subscription.unsubscribe();
         jest.runAllTimers();
@@ -607,9 +607,14 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
 }
 
 runWithFeatureFlags(flags => {
-  flags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = false;
+  flags.BATCH_ASYNC_MODULE_UPDATES_FN = null;
 });
 
 runWithFeatureFlags(flags => {
-  flags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = true;
+  flags.BATCH_ASYNC_MODULE_UPDATES_FN = task => {
+    const handle = setTimeout(task, 0);
+    return {
+      dispose: () => clearTimeout(handle),
+    };
+  };
 });

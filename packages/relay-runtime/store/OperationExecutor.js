@@ -161,7 +161,7 @@ class Executor {
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
   _retainDisposable: ?Disposable;
-  _asyncStoreUpdateHandle: ?TimeoutID;
+  _asyncStoreUpdateDisposable: ?Disposable;
   _completeFns: Array<() => void>;
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
@@ -272,9 +272,9 @@ class Executor {
       this._publishQueue.run();
     }
     this._incrementalResults.clear();
-    if (this._asyncStoreUpdateHandle != null) {
-      clearTimeout(this._asyncStoreUpdateHandle);
-      this._asyncStoreUpdateHandle = null;
+    if (this._asyncStoreUpdateDisposable != null) {
+      this._asyncStoreUpdateDisposable.dispose();
+      this._asyncStoreUpdateDisposable = null;
     }
     this._completeFns = [];
     this._completeOperationTracker();
@@ -949,9 +949,11 @@ class Executor {
               const publishModuleImportPayload = () => {
                 try {
                   const operation = getOperation(loadedNode);
+                  const batchAsyncModuleUpdatesFN =
+                    RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
                   const shouldScheduleAsyncStoreUpdate =
-                    this._pendingModulePayloadsCount > 1 &&
-                    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
+                    batchAsyncModuleUpdatesFN != null &&
+                    this._pendingModulePayloadsCount > 1;
                   const [duration] = withDuration(() => {
                     this._handleModuleImportPayload(
                       moduleImportPayload,
@@ -959,7 +961,11 @@ class Executor {
                     );
                     // OK: always have to run after an async module import resolves
                     if (shouldScheduleAsyncStoreUpdate) {
-                      this._scheduleAsyncStoreUpdate(sink.complete);
+                      this._scheduleAsyncStoreUpdate(
+                        // $FlowFixMe[incompatible-call] `shouldScheduleAsyncStoreUpdate` check should cover `null` case
+                        batchAsyncModuleUpdatesFN,
+                        sink.complete,
+                      );
                     } else {
                       const updatedOwners = this._publishQueue.run();
                       this._updateOperationTracker(updatedOwners);
@@ -1456,20 +1462,23 @@ class Executor {
     };
   }
 
-  _scheduleAsyncStoreUpdate(completeFn: () => void): void {
+  _scheduleAsyncStoreUpdate(
+    scheduleFn: (() => void) => Disposable,
+    completeFn: () => void,
+  ): void {
     this._completeFns.push(completeFn);
-    if (this._asyncStoreUpdateHandle != null) {
+    if (this._asyncStoreUpdateDisposable != null) {
       return;
     }
-    this._asyncStoreUpdateHandle = setTimeout(() => {
+    this._asyncStoreUpdateDisposable = scheduleFn(() => {
+      this._asyncStoreUpdateDisposable = null;
       const updatedOwners = this._publishQueue.run();
       this._updateOperationTracker(updatedOwners);
-      this._asyncStoreUpdateHandle = null;
       for (const complete of this._completeFns) {
         complete();
       }
       this._completeFns = [];
-    }, 0);
+    });
   }
 
   _updateOperationTracker(

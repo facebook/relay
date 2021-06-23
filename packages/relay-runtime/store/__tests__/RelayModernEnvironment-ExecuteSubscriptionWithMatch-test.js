@@ -456,8 +456,13 @@ describe('executeSubscrption() with @match', () => {
   });
 
   it('calls complete() only after match payloads are processed (root network completes first, with batching on)', () => {
-    const prevFlagAsync = RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
-    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = true;
+    const prevFlagAsync = RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
+    RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = task => {
+      const handle = setTimeout(task, 0);
+      return {
+        dispose: () => clearTimeout(handle),
+      };
+    };
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -519,7 +524,7 @@ describe('executeSubscrption() with @match', () => {
         .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
 
-    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = prevFlagAsync;
+    RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = prevFlagAsync;
   });
 
   it('calls complete() only after match payloads are processed (root network completes last)', () => {

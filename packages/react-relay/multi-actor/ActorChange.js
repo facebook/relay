@@ -37,12 +37,17 @@ function ActorChange<TFragmentRef>(
   const actorEnvironment = useRelayActorEnvironment(
     props.actorChangePoint.__viewer,
   );
+  const getEnvironmentForActor = React.useCallback(
+    (actorIdentifier: ActorIdentifier) => {
+      return actorEnvironment.multiActorEnvironment.forActor(actorIdentifier);
+    },
+    [actorEnvironment],
+  );
+
   return (
     <RelayEnvironmentProvider
       environment={actorEnvironment}
-      getEnvironmentForActor={actorIdentifier => {
-        return actorEnvironment.multiActorEnvironment.forActor(actorIdentifier);
-      }}>
+      getEnvironmentForActor={getEnvironmentForActor}>
       {props.children(
         props.actorChangePoint.__fragmentRef,
         props.actorChangePoint.__viewer,

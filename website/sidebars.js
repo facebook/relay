@@ -197,6 +197,7 @@ module.exports = {
             'debugging/fb/network-logger',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
+            'debugging/fb/debugging-suspense',
             'debugging/fb/debugging-phps',
             'debugging/fb/vscode-extension',
             'debugging/fb/debugging-faq',

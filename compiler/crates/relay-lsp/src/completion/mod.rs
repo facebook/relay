@@ -319,7 +319,7 @@ impl CompletionRequestBuilder {
                         }
                         self.build_request_from_directives(
                             directives,
-                            DirectiveLocation::Scalar,
+                            DirectiveLocation::Field,
                             position_span,
                             type_path,
                             None,

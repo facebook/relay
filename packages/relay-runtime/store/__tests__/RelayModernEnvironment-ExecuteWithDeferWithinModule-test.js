@@ -134,7 +134,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         userNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql');
         graphql`
-          fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User {
+          fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User
+            @no_inline {
             ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment
               @defer(label: "UserFragment")
           }

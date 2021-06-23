@@ -38,7 +38,15 @@ import type {
 
 export type FragmentResource = FragmentResourceImpl;
 
-type FragmentResourceCache = Cache<Promise<mixed> | FragmentResult>;
+type FragmentResourceCache = Cache<
+  | {|
+      kind: 'pending',
+      pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+      promise: Promise<mixed>,
+      result: FragmentResult,
+    |}
+  | {|kind: 'done', result: FragmentResult|},
+>;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
@@ -48,11 +56,10 @@ interface IMap<K, V> {
 
 type SeenRecords = $PropertyType<Snapshot, 'seenRecords'>;
 type SnapshotWithoutSeenRecords = $ReadOnly<{|
-  ...$Diff<Snapshot, {|seenRecords: SeenRecords, isMissingData: boolean|}>,
+  ...$Diff<Snapshot, {|seenRecords: SeenRecords|}>,
   seenRecords?: SeenRecords,
-  isMissingData?: boolean,
 |}>;
-type SingularOrPluralSnapshot =
+type SingularOrPluralSnapshotWithoutSeenRecords =
   | SnapshotWithoutSeenRecords
   | $ReadOnlyArray<SnapshotWithoutSeenRecords>;
 type SingularOrPluarlStoreSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
@@ -60,7 +67,8 @@ type SingularOrPluarlStoreSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
 opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
-  snapshot: SingularOrPluralSnapshot | null,
+  isMissingData: boolean,
+  snapshot: SingularOrPluralSnapshotWithoutSeenRecords | null,
   storeEpoch: number | null,
 |};
 
@@ -72,7 +80,9 @@ const CACHE_CAPACITY = 1000000;
 // this is frozen so that users don't accidentally push data into the array
 const CONSTANT_READONLY_EMPTY_ARRAY = Object.freeze([]);
 
-function isMissingData(snapshot: SingularOrPluralSnapshot) {
+function isMissingData(
+  snapshot: SingularOrPluralSnapshotWithoutSeenRecords,
+): boolean {
   if (Array.isArray(snapshot)) {
     return snapshot.some(s => s.isMissingData);
   }
@@ -81,7 +91,7 @@ function isMissingData(snapshot: SingularOrPluralSnapshot) {
 
 function getFragmentResult(
   cacheKey: string,
-  snapshot: SingularOrPluralSnapshot,
+  snapshot: SingularOrPluralSnapshotWithoutSeenRecords,
   storeEpoch: number | null,
 ): FragmentResult {
   if (Array.isArray(snapshot)) {
@@ -92,11 +102,13 @@ function getFragmentResult(
         'reduce-snapshot-size'
           ? snapshot.map(s => ({
               data: s.data,
+              isMissingData: s.isMissingData,
               selector: s.selector,
               missingRequiredFields: s.missingRequiredFields,
             }))
           : snapshot,
       data: snapshot.map(s => s.data),
+      isMissingData: isMissingData(snapshot),
       storeEpoch,
     };
   }
@@ -107,22 +119,15 @@ function getFragmentResult(
       'reduce-snapshot-size'
         ? {
             data: snapshot.data,
+            isMissingData: snapshot.isMissingData,
             selector: snapshot.selector,
             missingRequiredFields: snapshot.missingRequiredFields,
           }
         : snapshot,
     data: snapshot.data,
+    isMissingData: isMissingData(snapshot),
     storeEpoch,
   };
-}
-
-function getPromiseForPendingOperationAffectingOwner(
-  environment: IEnvironment,
-  request: RequestDescriptor,
-): Promise<void> | null {
-  return environment
-    .getOperationTracker()
-    .getPromiseForPendingOperationsAffectingOwner(request);
 }
 
 class FragmentResourceImpl {
@@ -175,6 +180,7 @@ class FragmentResourceImpl {
       return {
         cacheKey: fragmentIdentifier,
         data: null,
+        isMissingData: false,
         snapshot: null,
         storeEpoch: null,
       };
@@ -202,6 +208,7 @@ class FragmentResourceImpl {
         return {
           cacheKey: fragmentIdentifier,
           data: CONSTANT_READONLY_EMPTY_ARRAY,
+          isMissingData: false,
           snapshot: CONSTANT_READONLY_EMPTY_ARRAY,
           storeEpoch,
         };
@@ -213,12 +220,23 @@ class FragmentResourceImpl {
     // 1. Check if there's a cached value for this fragment
     const cachedValue = this._cache.get(fragmentIdentifier);
     if (cachedValue != null) {
-      if (isPromise(cachedValue)) {
-        throw cachedValue;
+      if (cachedValue.kind === 'pending' && isPromise(cachedValue.promise)) {
+        environment.__log({
+          name: 'fragmentresource.suspend',
+          data: cachedValue.result.data,
+          fragment: fragmentNode,
+          isMissingData: cachedValue.result.isMissingData,
+          isPromiseCached: true,
+          pendingOperations: cachedValue.pendingOperations,
+        });
+        throw cachedValue.promise;
       }
-      if (cachedValue.snapshot) {
-        this._reportMissingRequiredFieldsInSnapshot(cachedValue.snapshot);
-        return cachedValue;
+
+      if (cachedValue.kind === 'done' && cachedValue.result.snapshot) {
+        this._reportMissingRequiredFieldsInSnapshot(
+          cachedValue.result.snapshot,
+        );
+        return cachedValue.result;
       }
     }
 
@@ -250,20 +268,18 @@ class FragmentResourceImpl {
         ? fragmentSelector.selectors.map(s => environment.lookup(s))
         : environment.lookup(fragmentSelector);
 
-    const fragmentOwner =
-      fragmentSelector.kind === 'PluralReaderSelector'
-        ? fragmentSelector.selectors[0].owner
-        : fragmentSelector.owner;
-
-    if (!isMissingData(snapshot)) {
+    const fragmentResult = getFragmentResult(
+      fragmentIdentifier,
+      snapshot,
+      storeEpoch,
+    );
+    if (!fragmentResult.isMissingData) {
       this._reportMissingRequiredFieldsInSnapshot(snapshot);
 
-      const fragmentResult = getFragmentResult(
-        fragmentIdentifier,
-        snapshot,
-        storeEpoch,
-      );
-      this._cache.set(fragmentIdentifier, fragmentResult);
+      this._cache.set(fragmentIdentifier, {
+        kind: 'done',
+        result: fragmentResult,
+      });
       return fragmentResult;
     }
 
@@ -272,20 +288,35 @@ class FragmentResourceImpl {
     // that may affect the parent's query data, such as a mutation
     // or subscription. If a promise exists, cache the promise and use it
     // to suspend.
-    const networkPromise = this._getAndSavePromiseForFragmentRequestInFlight(
+    const fragmentOwner =
+      fragmentSelector.kind === 'PluralReaderSelector'
+        ? fragmentSelector.selectors[0].owner
+        : fragmentSelector.owner;
+    const networkPromiseResult = this._getAndSavePromiseForFragmentRequestInFlight(
       fragmentIdentifier,
       fragmentNode,
       fragmentOwner,
+      fragmentResult,
     );
-    if (networkPromise != null) {
-      throw networkPromise;
+    if (networkPromiseResult != null) {
+      environment.__log({
+        name: 'fragmentresource.suspend',
+        data: fragmentResult.data,
+        fragment: fragmentNode,
+        isPromiseCached: false,
+        isMissingData: fragmentResult.isMissingData,
+        pendingOperations: networkPromiseResult.pendingOperations,
+      });
+      throw networkPromiseResult.promise;
     }
 
     this._reportMissingRequiredFieldsInSnapshot(snapshot);
     return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }
 
-  _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
+  _reportMissingRequiredFieldsInSnapshot(
+    snapshot: SingularOrPluralSnapshotWithoutSeenRecords,
+  ) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
         if (s.missingRequiredFields != null) {
@@ -381,10 +412,10 @@ class FragmentResourceImpl {
             RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch'
               ? environment.getStore().getEpoch()
               : null;
-          this._cache.set(
-            cacheKey,
-            getFragmentResult(cacheKey, latestSnapshot, storeEpoch),
-          );
+          this._cache.set(cacheKey, {
+            kind: 'done',
+            result: getFragmentResult(cacheKey, latestSnapshot, storeEpoch),
+          });
           callback();
         }),
       );
@@ -452,10 +483,10 @@ class FragmentResourceImpl {
       // Only update the cache when the data is changed to avoid
       // returning different `data` instances
       if (didMissUpdates) {
-        this._cache.set(
-          cacheKey,
-          getFragmentResult(cacheKey, currentSnapshots, storeEpoch),
-        );
+        this._cache.set(cacheKey, {
+          kind: 'done',
+          result: getFragmentResult(cacheKey, currentSnapshots, storeEpoch),
+        });
       }
       return [didMissUpdates, currentSnapshots];
     }
@@ -471,10 +502,10 @@ class FragmentResourceImpl {
       missingRequiredFields: currentSnapshot.missingRequiredFields,
     };
     if (updatedData !== renderData) {
-      this._cache.set(
-        cacheKey,
-        getFragmentResult(cacheKey, updatedCurrentSnapshot, storeEpoch),
-      );
+      this._cache.set(cacheKey, {
+        kind: 'done',
+        result: getFragmentResult(cacheKey, updatedCurrentSnapshot, storeEpoch),
+      });
     }
     return [updatedData !== renderData, updatedCurrentSnapshot];
   }
@@ -492,15 +523,30 @@ class FragmentResourceImpl {
     cacheKey: string,
     fragmentNode: ReaderFragment,
     fragmentOwner: RequestDescriptor,
-  ): Promise<void> | null {
+    fragmentResult: FragmentResult,
+  ): {|
+    promise: Promise<void>,
+    pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+  |} | null {
     const environment = this._environment;
-    const networkPromise =
-      getPromiseForActiveRequest(environment, fragmentOwner) ??
-      getPromiseForPendingOperationAffectingOwner(environment, fragmentOwner);
+    let pendingOperations: $ReadOnlyArray<RequestDescriptor> = [];
+    let networkPromise = getPromiseForActiveRequest(environment, fragmentOwner);
+
+    if (networkPromise != null) {
+      pendingOperations = [fragmentOwner];
+    } else {
+      const result = environment
+        .getOperationTracker()
+        .getPendingOperationsAffectingOwner(fragmentOwner);
+
+      pendingOperations = result?.pendingOperations ?? [];
+      networkPromise = result?.promise ?? null;
+    }
 
     if (!networkPromise) {
       return null;
     }
+
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
@@ -511,17 +557,26 @@ class FragmentResourceImpl {
       .catch((error: Error) => {
         this._cache.delete(cacheKey);
       });
-    this._cache.set(cacheKey, promise);
+    this._cache.set(cacheKey, {
+      kind: 'pending',
+      pendingOperations,
+      promise,
+      result: fragmentResult,
+    });
 
-    const queryName = fragmentOwner.node.params.name;
+    let pendingOperationName =
+      pendingOperations?.map(op => op.node.params.name).join(',') ?? null;
+    if (pendingOperationName == null || pendingOperationName.length === 0) {
+      pendingOperationName = 'Unknown pending operation';
+    }
     const fragmentName = fragmentNode.name;
     const promiseDisplayName =
-      queryName === fragmentName
-        ? `Relay(${queryName})`
-        : `Relay(${queryName}:${fragmentName})`;
+      pendingOperationName === fragmentName
+        ? `Relay(${pendingOperationName})`
+        : `Relay(${pendingOperationName}:${fragmentName})`;
     // $FlowExpectedError[prop-missing] Expando to annotate Promises.
     promise.displayName = promiseDisplayName;
-    return promise;
+    return {promise, pendingOperations};
   }
 
   _updatePluralSnapshot(
@@ -537,7 +592,7 @@ class FragmentResourceImpl {
       return;
     }
 
-    const currentSnapshot = currentFragmentResult?.snapshot;
+    const currentSnapshot = currentFragmentResult?.result?.snapshot;
     if (currentSnapshot && !Array.isArray(currentSnapshot)) {
       reportInvalidCachedData(latestSnapshot.selector.node.name);
       return;
@@ -547,10 +602,10 @@ class FragmentResourceImpl {
       ? [...currentSnapshot]
       : [...baseSnapshots];
     nextSnapshots[idx] = latestSnapshot;
-    this._cache.set(
-      cacheKey,
-      getFragmentResult(cacheKey, nextSnapshots, storeEpoch),
-    );
+    this._cache.set(cacheKey, {
+      kind: 'done',
+      result: getFragmentResult(cacheKey, nextSnapshots, storeEpoch),
+    });
   }
 }
 

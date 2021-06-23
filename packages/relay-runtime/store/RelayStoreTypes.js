@@ -459,6 +459,22 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
 
 export type LogEvent =
   | {|
+      +name: 'fragmentresource.suspend',
+      +data: mixed,
+      +fragment: ReaderFragment,
+      +isMissingData: boolean,
+      +isPromiseCached: boolean,
+      +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    |}
+  | {|
+      +name: 'queryresource.suspend',
+      +fetchPolicy: string,
+      +isPromiseCached: boolean,
+      +operation: OperationDescriptor,
+      +queryAvailability: ?OperationAvailability,
+      +renderPolicy: RenderPolicy,
+    |}
+  | {|
       +name: 'queryresource.fetch',
       // ID of this query resource request and will be the same
       // if there is an associated queryresource.retain event.
@@ -469,7 +485,7 @@ export type LogEvent =
       // FetchPolicy from Relay Hooks
       +fetchPolicy: string,
       // RenderPolicy from Relay Hooks
-      +renderPolicy: string,
+      +renderPolicy: RenderPolicy,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
     |}

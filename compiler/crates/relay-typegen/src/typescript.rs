@@ -81,11 +81,12 @@ impl Writer for TypeScriptPrinter {
         )
     }
 
-    fn write_any_type_definition(&mut self, name: StringKey) -> Result {
-        writeln!(&mut self.result, "type {} = any;", name)
+    // In TypeScript, we don't need to import "any" fragment types, these are unused.
+    fn write_any_type_definition(&mut self, _name: StringKey) -> Result {
+        Ok(())
     }
 
-    // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
+    // In TypeScript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
     fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
         Ok(())
     }

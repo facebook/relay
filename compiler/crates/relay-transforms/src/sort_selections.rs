@@ -10,7 +10,7 @@ use graphql_ir::{
     FragmentDefinition, OperationDefinition, Program, Selection, Transformed, TransformedValue,
     Transformer,
 };
-use std::collections::HashMap;
+use std::{cmp::Ordering, collections::HashMap};
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
 /// Sorts selections in the fragments and queries (and their selections)
@@ -35,7 +35,7 @@ impl<'s> SortSelectionsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for SortSelectionsTransform<'s> {
+impl Transformer for SortSelectionsTransform<'_> {
     const NAME: &'static str = "SortSelectionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -47,19 +47,7 @@ impl<'s> Transformer for SortSelectionsTransform<'s> {
         let mut next_selections = self
             .transform_list(selections, Self::transform_selection)
             .replace_or_else(|| selections.to_vec());
-        next_selections.sort_unstable_by(|a, b| match (a, b) {
-            (Selection::ScalarField(a), Selection::ScalarField(b)) => a
-                .alias_or_name(&self.program.schema)
-                .cmp(&b.alias_or_name(&self.program.schema))
-                .then_with(|| a.arguments.cmp(&b.arguments))
-                .then_with(|| a.directives.cmp(&b.directives)),
-            (Selection::LinkedField(a), Selection::LinkedField(b)) => a
-                .alias_or_name(&self.program.schema)
-                .cmp(&b.alias_or_name(&self.program.schema))
-                .then_with(|| a.arguments.cmp(&b.arguments))
-                .then_with(|| a.directives.cmp(&b.directives)),
-            _ => a.cmp(b),
-        });
+        next_selections.sort_unstable_by(|a, b| self.compare_selections(a, b));
         TransformedValue::Replace(next_selections)
     }
 
@@ -69,8 +57,8 @@ impl<'s> Transformer for SortSelectionsTransform<'s> {
     ) -> Transformed<FragmentDefinition> {
         let mut variable_definitions = fragment.variable_definitions.clone();
         let mut used_global_variables = fragment.used_global_variables.clone();
-        variable_definitions.sort_unstable();
-        used_global_variables.sort_unstable();
+        variable_definitions.sort_unstable_by_key(|var| var.name.item);
+        used_global_variables.sort_unstable_by_key(|var| var.name.item);
 
         let selections = self.transform_selections(&fragment.selections);
         Transformed::Replace(FragmentDefinition {
@@ -125,5 +113,70 @@ impl<'s> Transformer for SortSelectionsTransform<'s> {
             Selection::ScalarField(_) => Transformed::Keep,
             Selection::FragmentSpread(_) => Transformed::Keep,
         }
+    }
+}
+
+impl SortSelectionsTransform<'_> {
+    fn compare_selections(&self, a: &Selection, b: &Selection) -> Ordering {
+        match (a, b) {
+            (Selection::ScalarField(a), Selection::ScalarField(b)) => a
+                .alias_or_name(&self.program.schema)
+                .cmp(&b.alias_or_name(&self.program.schema)),
+            (Selection::LinkedField(a), Selection::LinkedField(b)) => a
+                .alias_or_name(&self.program.schema)
+                .cmp(&b.alias_or_name(&self.program.schema)),
+            (Selection::FragmentSpread(a), Selection::FragmentSpread(b)) => {
+                a.fragment.item.cmp(&b.fragment.item)
+            }
+            (Selection::InlineFragment(a), Selection::InlineFragment(b)) => {
+                a.type_condition.cmp(&b.type_condition)
+            }
+            (Selection::Condition(a), Selection::Condition(b)) => a
+                .passing_value
+                .cmp(&b.passing_value)
+                .then_with(|| {
+                    use graphql_ir::ConditionValue::{Constant, Variable};
+                    match (&a.value, &b.value) {
+                        (Constant(a), Constant(b)) => a.cmp(b),
+                        (Variable(a), Variable(b)) => a.name.item.cmp(&b.name.item),
+                        (Constant(_), Variable(_)) => Ordering::Less,
+                        (Variable(_), Constant(_)) => Ordering::Greater,
+                    }
+                })
+                .then_with(|| {
+                    let length = a.selections.len().min(b.selections.len());
+                    let a_selections = &a.selections[..length];
+                    let b_selections = &b.selections[..length];
+                    for i in 0..length {
+                        match self.compare_selections(&a_selections[i], &b_selections[i]) {
+                            Ordering::Equal => {}
+                            other => return other,
+                        }
+                    }
+                    a_selections.len().cmp(&b_selections.len())
+                }),
+            _ => {
+                let a_ordering = selection_kind_ordering(a);
+                let b_ordering = selection_kind_ordering(b);
+                assert!(
+                    a_ordering != b_ordering,
+                    "expected different ordering, got {} == {}",
+                    a_ordering,
+                    b_ordering
+                );
+                a_ordering.cmp(&b_ordering)
+            }
+        }
+    }
+}
+
+/// Assigns an order to different variants of Selection.
+fn selection_kind_ordering(selection: &Selection) -> u8 {
+    match selection {
+        Selection::FragmentSpread(_) => 1,
+        Selection::InlineFragment(_) => 2,
+        Selection::LinkedField(_) => 3,
+        Selection::ScalarField(_) => 4,
+        Selection::Condition(_) => 5,
     }
 }

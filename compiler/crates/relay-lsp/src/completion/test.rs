@@ -203,6 +203,42 @@ fn directive() {
 }
 
 #[test]
+fn directive_on_scalar_field() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+        fragment Test on User {
+            profile_picture {
+                uri @|
+            }
+        }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "prependEdge",
+            "deleteRecord",
+            "appendNode",
+            "deleteEdge",
+            "__clientField",
+            "appendEdge",
+            "required",
+            "stream_connection",
+            "match",
+            "customDirective",
+            "prependNode",
+            "fixme_fat_interface",
+            "stream",
+            "include",
+            "connection",
+            "skip",
+            "fb_actor_change",
+        ],
+    );
+}
+
+#[test]
 fn empty_argument_list() {
     let items = parse_and_resolve_completion_items(
         r#"

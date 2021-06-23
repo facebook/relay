@@ -467,6 +467,14 @@ export type LogEvent =
       +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
     |}
   | {|
+      +name: 'queryresource.suspend',
+      +fetchPolicy: string,
+      +isPromiseCached: boolean,
+      +operation: OperationDescriptor,
+      +queryAvailability: ?OperationAvailability,
+      +renderPolicy: string,
+    |}
+  | {|
       +name: 'queryresource.fetch',
       // ID of this query resource request and will be the same
       // if there is an associated queryresource.retain event.

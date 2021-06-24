@@ -145,7 +145,7 @@ class RelayModernEnvironment implements IEnvironment {
         : 'full';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
-    this._network = wrapNetworkWithLogObserver(this.__log, config.network);
+    this._network = wrapNetworkWithLogObserver(this, config.network);
     this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
@@ -158,7 +158,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._isServer = config.isServer ?? false;
 
     (this: any).__setNet = newNet =>
-      (this._network = wrapNetworkWithLogObserver(this.__log, newNet));
+      (this._network = wrapNetworkWithLogObserver(this, newNet));
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');

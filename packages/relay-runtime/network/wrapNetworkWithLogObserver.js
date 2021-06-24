@@ -14,7 +14,8 @@
 
 const generateID = require('../util/generateID');
 
-import type {LogFunction} from '../store/RelayStoreTypes';
+import type ActorSpecificEnvironment from '../multi-actor-environment/ActorSpecificEnvironment';
+import type RelayModernEnvironment from '../store/RelayModernEnvironment';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -28,9 +29,12 @@ import type RelayObservable from './RelayObservable';
  * Wraps the network with logging to ensure that network requests are
  * always logged. Relying on each network callsite to be wrapped is
  * untenable and will eventually lead to holes in the logging.
+ * NOTE: This function takes an environment instance, because Relay
+ * devtools will mutate the `env.__log` method, and the devtools rely
+ * on it to receive network events.
  */
 function wrapNetworkWithLogObserver(
-  log: LogFunction,
+  env: RelayModernEnvironment | ActorSpecificEnvironment,
   network: INetwork,
 ): INetwork {
   return {
@@ -43,7 +47,7 @@ function wrapNetworkWithLogObserver(
       const networkRequestId = generateID();
       const logObserver = {
         start: subscription => {
-          log({
+          env.__log({
             name: 'network.start',
             networkRequestId,
             params,
@@ -52,34 +56,34 @@ function wrapNetworkWithLogObserver(
           });
         },
         next: response => {
-          log({
+          env.__log({
             name: 'network.next',
             networkRequestId,
             response,
           });
         },
         error: error => {
-          log({
+          env.__log({
             name: 'network.error',
             networkRequestId,
             error,
           });
         },
         complete: () => {
-          log({
+          env.__log({
             name: 'network.complete',
             networkRequestId,
           });
         },
         unsubscribe: () => {
-          log({
+          env.__log({
             name: 'network.unsubscribe',
             networkRequestId,
           });
         },
       };
       const logRequestInfo = info => {
-        log({
+        env.__log({
           name: 'network.info',
           networkRequestId,
           info,

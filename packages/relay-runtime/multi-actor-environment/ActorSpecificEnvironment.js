@@ -78,7 +78,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     this.requiredFieldLogger = config.requiredFieldLogger;
     this._operationTracker = new RelayOperationTracker();
     this._store = config.store;
-    this._network = wrapNetworkWithLogObserver(this.__log, config.network);
+    this._network = wrapNetworkWithLogObserver(this, config.network);
     this._publishQueue = new RelayPublishQueue(
       config.store,
       config.handlerProvider,

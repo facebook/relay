@@ -26,6 +26,7 @@ const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
 const generateID = require('../util/generateID');
 const invariant = require('invariant');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {
@@ -144,7 +145,7 @@ class RelayModernEnvironment implements IEnvironment {
         : 'full';
     this._operationLoader = operationLoader;
     this._operationExecutions = new Map();
-    this._network = this.__wrapNetworkWithLogObserver(config.network);
+    this._network = wrapNetworkWithLogObserver(this.__log, config.network);
     this._getDataID = config.getDataID ?? defaultGetDataID;
     this._publishQueue = new RelayPublishQueue(
       config.store,
@@ -157,7 +158,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._isServer = config.isServer ?? false;
 
     (this: any).__setNet = newNet =>
-      (this._network = this.__wrapNetworkWithLogObserver(newNet));
+      (this._network = wrapNetworkWithLogObserver(this.__log, newNet));
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');
@@ -455,73 +456,6 @@ class RelayModernEnvironment implements IEnvironment {
       });
       return () => executor.cancel();
     });
-  }
-
-  /**
-   * Wraps the network with logging to ensure that network requests are
-   * always logged. Relying on each network callsite to be wrapped is
-   * untenable and will eventually lead to holes in the logging.
-   */
-  __wrapNetworkWithLogObserver(network: INetwork): INetwork {
-    const that = this;
-    return {
-      execute(
-        params: RequestParameters,
-        variables: Variables,
-        cacheConfig: CacheConfig,
-        uploadables?: ?UploadableMap,
-      ): RelayObservable<GraphQLResponse> {
-        const networkRequestId = generateID();
-        const log = that.__log;
-        const logObserver = {
-          start: subscription => {
-            log({
-              name: 'network.start',
-              networkRequestId,
-              params,
-              variables,
-              cacheConfig,
-            });
-          },
-          next: response => {
-            log({
-              name: 'network.next',
-              networkRequestId,
-              response,
-            });
-          },
-          error: error => {
-            log({
-              name: 'network.error',
-              networkRequestId,
-              error,
-            });
-          },
-          complete: () => {
-            log({
-              name: 'network.complete',
-              networkRequestId,
-            });
-          },
-          unsubscribe: () => {
-            log({
-              name: 'network.unsubscribe',
-              networkRequestId,
-            });
-          },
-        };
-        const logRequestInfo = info => {
-          log({
-            name: 'network.info',
-            networkRequestId,
-            info,
-          });
-        };
-        return network
-          .execute(params, variables, cacheConfig, uploadables, logRequestInfo)
-          .do(logObserver);
-      },
-    };
   }
 }
 

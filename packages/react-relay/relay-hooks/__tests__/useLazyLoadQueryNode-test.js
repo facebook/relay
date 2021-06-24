@@ -900,6 +900,18 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
+          name: 'queryresource.suspend',
+          fetchPolicy: 'network-only',
+          isPromiseCached: false,
+          operation: {
+            request: {
+              variables: variables,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
+        },
+        {
           name: 'network.next',
           networkRequestId: 100000,
         },
@@ -1021,6 +1033,18 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
+          name: 'queryresource.suspend',
+          fetchPolicy: 'network-only',
+          isPromiseCached: false,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
+        },
+        {
           // execution for variables two starts
           name: 'execute.start',
           executeId: 100004,
@@ -1043,6 +1067,30 @@ describe('useLazyLoadQueryNode', () => {
               variables: variablesTwo,
             },
           },
+        },
+        {
+          name: 'queryresource.suspend',
+          fetchPolicy: 'network-only',
+          isPromiseCached: false,
+          operation: {
+            request: {
+              variables: variablesTwo,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
+        },
+        {
+          name: 'queryresource.suspend',
+          fetchPolicy: 'network-only',
+          isPromiseCached: true,
+          operation: {
+            request: {
+              variables: variablesOne,
+            },
+          },
+          queryAvailability: {status: 'missing'},
+          renderPolicy: 'partial',
         },
         // fetch event for variables one is skipped
         // since it's already cached and reused

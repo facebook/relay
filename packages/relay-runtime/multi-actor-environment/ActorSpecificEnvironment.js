@@ -16,6 +16,7 @@ const RelayPublishQueue = require('../store/RelayPublishQueue');
 
 const defaultGetDataID = require('../store/defaultGetDataID');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
@@ -77,7 +78,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     this.requiredFieldLogger = config.requiredFieldLogger;
     this._operationTracker = new RelayOperationTracker();
     this._store = config.store;
-    this._network = config.network;
+    this._network = wrapNetworkWithLogObserver(this.__log, config.network);
     this._publishQueue = new RelayPublishQueue(
       config.store,
       config.handlerProvider,

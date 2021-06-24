@@ -12,6 +12,8 @@
 
 'use strict';
 
+import type {Disposable} from '../util/RelayRuntimeTypes';
+
 type FeatureFlags = {|
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
@@ -30,7 +32,7 @@ type FeatureFlags = {|
     | 'disabled'
     | 'epoch'
     | 'reduce-snapshot-size',
-  ENABLE_BATCHED_ASYNC_MODULE_UPDATES: boolean,
+  BATCH_ASYNC_MODULE_UPDATES_FN: ?(() => void) => Disposable,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -48,7 +50,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: false,
   ENABLE_NOTIFY_SUBSCRIPTION: false,
   ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION: 'disabled',
-  ENABLE_BATCHED_ASYNC_MODULE_UPDATES: false,
+  BATCH_ASYNC_MODULE_UPDATES_FN: null,
 };
 
 module.exports = RelayFeatureFlags;

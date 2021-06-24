@@ -33,6 +33,7 @@ import type {
   IEnvironment,
   Observable,
   Observer,
+  OperationAvailability,
   OperationDescriptor,
   ReaderFragment,
   RenderPolicy,
@@ -47,6 +48,7 @@ type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +id: number,
   +cacheIdentifier: string,
+  +operationAvailability: ?OperationAvailability,
   // The number of received payloads for the operation.
   // We want to differentiate the initial graphql response for the operation
   // from the incremental responses, so later we can choose how to handle errors
@@ -123,6 +125,7 @@ let nextID = 200000;
 function createCacheEntry(
   cacheIdentifier: string,
   operation: OperationDescriptor,
+  operationAvailability: ?OperationAvailability,
   value: Error | Promise<void> | QueryResult,
   networkSubscription: ?Subscription,
   onDispose: QueryResourceCacheEntry => void,
@@ -161,6 +164,7 @@ function createCacheEntry(
     cacheIdentifier,
     id: nextID++,
     processedPayloadsCount: 0,
+    operationAvailability,
     getValue() {
       return currentValue;
     },
@@ -323,6 +327,7 @@ class QueryResourceImpl {
     // it's available
     let cacheEntry = this._cache.get(cacheIdentifier);
     let temporaryRetainDisposable: ?Disposable = null;
+    const entryWasCached = cacheEntry != null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
       // _fetchAndSaveQuery will update the cache with either a Promise or
@@ -360,7 +365,18 @@ class QueryResourceImpl {
     temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
-    if (isPromise(cachedValue) || cachedValue instanceof Error) {
+    if (isPromise(cachedValue)) {
+      environment.__log({
+        name: 'queryresource.suspend',
+        fetchPolicy,
+        isPromiseCached: entryWasCached,
+        operation: operation,
+        queryAvailability: cacheEntry.operationAvailability,
+        renderPolicy,
+      });
+      throw cachedValue;
+    }
+    if (cachedValue instanceof Error) {
       throw cachedValue;
     }
     return cachedValue;
@@ -377,6 +393,7 @@ class QueryResourceImpl {
     const cacheEntry = this._getOrCreateCacheEntry(
       cacheIdentifier,
       operation,
+      null,
       queryResult,
       null,
     );
@@ -427,6 +444,7 @@ class QueryResourceImpl {
   _getOrCreateCacheEntry(
     cacheIdentifier: string,
     operation: OperationDescriptor,
+    operationAvailability: ?OperationAvailability,
     value: Error | Promise<void> | QueryResult,
     networkSubscription: ?Subscription,
   ): QueryResourceCacheEntry {
@@ -435,6 +453,7 @@ class QueryResourceImpl {
       cacheEntry = createCacheEntry(
         cacheIdentifier,
         operation,
+        operationAvailability,
         value,
         networkSubscription,
         this._clearCacheEntry,
@@ -501,6 +520,7 @@ class QueryResourceImpl {
       const cacheEntry = createCacheEntry(
         cacheIdentifier,
         operation,
+        queryAvailability,
         queryResult,
         null,
         this._clearCacheEntry,
@@ -536,6 +556,7 @@ class QueryResourceImpl {
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
+            queryAvailability,
             queryResult,
             networkSubscription,
           );
@@ -553,6 +574,7 @@ class QueryResourceImpl {
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
+            queryAvailability,
             error,
             networkSubscription,
           );
@@ -609,6 +631,7 @@ class QueryResourceImpl {
         cacheEntry = createCacheEntry(
           cacheIdentifier,
           operation,
+          queryAvailability,
           networkPromise,
           networkSubscription,
           this._clearCacheEntry,

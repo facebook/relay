@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<96674ab22820237889f836d016c689e6>>
+ * @generated SignedSource<<76763eb10c6fd086bd5048eab027312c>>
  */
 
 mod compile_relay_artifacts;
@@ -661,6 +661,13 @@ fn prepend_node() {
     let input = include_str!("compile_relay_artifacts/fixtures/prepend-node.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/prepend-node.expected");
     test_fixture(transform_fixture, "prepend-node.graphql", "compile_relay_artifacts/fixtures/prepend-node.expected", input, expected);
+}
+
+#[test]
+fn query_with_and_without_module_directive() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-and-without-module-directive.expected");
+    test_fixture(transform_fixture, "query-with-and-without-module-directive.graphql", "compile_relay_artifacts/fixtures/query-with-and-without-module-directive.expected", input, expected);
 }
 
 #[test]

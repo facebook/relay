@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::get_normalization_operation_name;
 use crate::{defer_stream::DEFER_STREAM_CONSTANTS, FeatureFlag};
 use crate::{feature_flags::FeatureFlags, no_inline::attach_no_inline_directives_to_fragments};
+use crate::{
+    inline_data_fragment::INLINE_DATA_CONSTANTS, no_inline::validate_required_no_inline_directive,
+};
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{
@@ -705,6 +707,12 @@ impl Transformer for MatchTransform<'_, '_> {
         if self.no_inline_fragments.is_empty() {
             next_program
         } else {
+            if let Err(errors) =
+                validate_required_no_inline_directive(&self.no_inline_fragments, program)
+            {
+                self.errors.extend(errors);
+                return next_program;
+            }
             let mut next_program = next_program.replace_or_else(|| program.clone());
             attach_no_inline_directives_to_fragments(
                 &mut self.no_inline_fragments,

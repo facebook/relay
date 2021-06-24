@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::NamedItem;
-use common::WithLocation;
+use crate::{ValidationMessage, MATCH_CONSTANTS, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME};
+use common::{Diagnostic, WithLocation};
+use common::{DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
-use graphql_ir::{Argument, ConstantValue, Directive, Program, Value};
+use graphql_ir::{Argument, ConstantValue, Directive, FragmentSpread, Program, Validator, Value};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use std::sync::Arc;
@@ -69,6 +70,18 @@ pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
     }
 }
 
+/// If `@no_inline` is added to a fragment by @module or @relay_client_component
+/// transform, and the fragment is also used without these directives, manually
+/// adding `@no_inline` is required. Because in watch mode, if the path with @module
+/// or @relay_client_component isn't changed, `@no_inline` won't get added.
+pub fn validate_required_no_inline_directive(
+    no_inline_fragments: &FnvHashMap<StringKey, Vec<StringKey>>,
+    program: &Program,
+) -> DiagnosticsResult<()> {
+    let mut validator = RequiredNoInlineValidator::new(no_inline_fragments, program);
+    validator.validate_program(program)
+}
+
 fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
     Argument {
         name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
@@ -78,5 +91,62 @@ fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
                 .map(ConstantValue::String)
                 .collect(),
         ))),
+    }
+}
+
+struct RequiredNoInlineValidator<'f, 'p> {
+    no_inline_fragments: &'f FnvHashMap<StringKey, Vec<StringKey>>,
+    program: &'p Program,
+}
+
+impl<'f, 'p> RequiredNoInlineValidator<'f, 'p> {
+    fn new(
+        no_inline_fragments: &'f FnvHashMap<StringKey, Vec<StringKey>>,
+        program: &'p Program,
+    ) -> Self {
+        Self {
+            no_inline_fragments,
+            program,
+        }
+    }
+}
+
+impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
+    const NAME: &'static str = "RequiredNoInlineValidator";
+    const VALIDATE_ARGUMENTS: bool = false;
+    const VALIDATE_DIRECTIVES: bool = false;
+
+    fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
+        if !self.no_inline_fragments.contains_key(&spread.fragment.item) {
+            return Ok(());
+        }
+        let fragment = self.program.fragment(spread.fragment.item).unwrap();
+        let has_no_inline = fragment
+            .directives
+            .named(*NO_INLINE_DIRECTIVE_NAME)
+            .is_some();
+        if has_no_inline {
+            return Ok(());
+        }
+        // If the fragment spread isn't used for @module or @relay_client_component
+        // then explicit @no_inline is required.
+        if spread.directives.is_empty()
+            || !spread.directives.iter().any(|directive| {
+                directive.name.item == MATCH_CONSTANTS.module_directive_name
+                    || directive.name.item == *RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME
+            })
+        {
+            Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RequiredExplicitNoInlineDirective {
+                        fragment_name: spread.fragment.item,
+                    },
+                    spread.fragment.location,
+                )
+                .annotate("fragment definition", fragment.name.location),
+            ])
+        } else {
+            Ok(())
+        }
     }
 }

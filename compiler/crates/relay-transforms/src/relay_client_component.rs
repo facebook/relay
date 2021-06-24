@@ -7,7 +7,8 @@
 
 use super::ValidationMessage;
 use crate::{
-    match_::SplitOperationMetadata, no_inline::attach_no_inline_directives_to_fragments,
+    match_::SplitOperationMetadata,
+    no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
     FeatureFlag,
 };
 use crate::{
@@ -35,7 +36,8 @@ lazy_static! {
         "__RelayClientComponentMetadata".intern();
     pub static ref RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY: StringKey =
         "__RelayClientComponentMetadataSplitOperation".intern();
-    static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey = "relay_client_component".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey =
+        "relay_client_component".intern();
     static ref STRING_TYPE: StringKey = "String".intern();
     static ref ID_FIELD_NAME: StringKey = "id".intern();
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
@@ -73,6 +75,7 @@ pub fn relay_client_component(
         .replace_or_else(|| program.clone());
 
     if !transform.no_inline_fragments.is_empty() {
+        validate_required_no_inline_directive(&transform.no_inline_fragments, program)?;
         attach_no_inline_directives_to_fragments(
             &mut transform.no_inline_fragments,
             &mut next_program,

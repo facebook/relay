@@ -103,4 +103,9 @@ pub enum ValidationMessage {
         field_name: StringKey,
         actor_change_field_type: StringKey,
     },
+
+    #[error(
+        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+    )]
+    RequiredExplicitNoInlineDirective { fragment_name: StringKey },
 }

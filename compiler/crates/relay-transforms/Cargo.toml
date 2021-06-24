@@ -104,7 +104,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
-itertools = "0.8"
+itertools = "0.10.1"
 lazy_static = "1.0"
 parking_lot = "0.10.2"
 schema = { path = "../schema" }

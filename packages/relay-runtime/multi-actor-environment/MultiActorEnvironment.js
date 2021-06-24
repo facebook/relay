@@ -424,6 +424,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
+        log: this._logFn,
       });
       return () => executor.cancel();
     });

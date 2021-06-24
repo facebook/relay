@@ -20,12 +20,15 @@ const RelayObservable = require('../network/RelayObservable');
 const RelayRecordSource = require('../store/RelayRecordSource');
 const RelayResponseNormalizer = require('../store/RelayResponseNormalizer');
 
+const generateID = require('../util/generateID');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 const stableCopy = require('../util/stableCopy');
 const warning = require('warning');
+const withDuration = require('../util/withDuration');
 
 const {generateClientID, generateUniqueClientID} = require('../store/ClientID');
+const {getLocalVariables} = require('../store/RelayConcreteVariables');
 const {
   createNormalizationSelector,
   createReaderSelector,
@@ -40,17 +43,18 @@ import type {
   GraphQLResponse,
   GraphQLSingularResponse,
   GraphQLResponseWithData,
+  ReactFlightServerTree,
 } from '../network/RelayNetworkTypes';
 import type {Sink, Subscription} from '../network/RelayObservable';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {NormalizationOptions} from '../store/RelayResponseNormalizer';
 import type {
   DeferPlaceholder,
-  RequestDescriptor,
+  FollowupPayload,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
+  LogFunction,
   ModuleImportPayload,
-  FollowupPayload,
   NormalizationSelector,
   OperationDescriptor,
   OperationLoader,
@@ -58,10 +62,12 @@ import type {
   OptimisticResponseConfig,
   OptimisticUpdate,
   PublishQueue,
+  ReactFlightClientResponse,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
   Record,
   RelayResponsePayload,
+  RequestDescriptor,
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
@@ -95,6 +101,7 @@ export type ExecuteConfig = {|
   +source: RelayObservable<GraphQLResponse>,
   +treatMissingFieldsAsNull: boolean,
   +updater?: ?SelectorStoreUpdater,
+  +log: LogFunction,
 |};
 
 export type ActiveState = 'active' | 'inactive';
@@ -137,6 +144,8 @@ class Executor {
   _treatMissingFieldsAsNull: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
+  _log: LogFunction;
+  _executeId: number;
   _nextSubscriptionId: number;
   _operation: OperationDescriptor;
   _operationExecutions: Map<string, ActiveState>;
@@ -159,6 +168,8 @@ class Executor {
   +_getStore: (actorIdentifier: ActorIdentifier) => Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
+  _asyncStoreUpdateDisposable: ?Disposable;
+  _completeFns: Array<() => void>;
   +_retainDisposables: Map<ActorIdentifier, Disposable>;
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
@@ -183,12 +194,15 @@ class Executor {
     source,
     treatMissingFieldsAsNull,
     updater,
+    log,
   }: ExecuteConfig): void {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
+    this._log = log;
+    this._executeId = generateID();
     this._nextSubscriptionId = 0;
     this._operation = operation;
     this._operationExecutions = operationExecutions;
@@ -225,7 +239,16 @@ class Executor {
           sink.error(error);
         }
       },
-      start: subscription => this._start(id, subscription),
+      start: subscription => {
+        this._start(id, subscription);
+        this._log({
+          name: 'execute.start',
+          executeId: this._executeId,
+          params: this._operation.request.node.params,
+          variables: this._operation.request.variables,
+          cacheConfig: this._operation.request.cacheConfig ?? {},
+        });
+      },
     });
 
     if (optimisticConfig != null) {
@@ -262,9 +285,34 @@ class Executor {
       this._runPublishQueue();
     }
     this._incrementalResults.clear();
+    if (this._asyncStoreUpdateDisposable != null) {
+      this._asyncStoreUpdateDisposable.dispose();
+      this._asyncStoreUpdateDisposable = null;
+    }
+    this._completeFns = [];
     this._completeOperationTracker();
     this._disposeRetainedData();
   }
+
+  _deserializeReactFlightPayloadWithLogging = (
+    tree: ReactFlightServerTree,
+  ): ReactFlightClientResponse => {
+    const reactFlightPayloadDeserializer = this._reactFlightPayloadDeserializer;
+    invariant(
+      typeof reactFlightPayloadDeserializer === 'function',
+      'MultiActorOperationExecutor: Expected reactFlightPayloadDeserializer to be available when calling _deserializeReactFlightPayloadWithLogging.',
+    );
+    const [duration, result] = withDuration(() => {
+      return reactFlightPayloadDeserializer(tree);
+    });
+    this._log({
+      name: 'execute.flight.payload_deserialize',
+      executeId: this._executeId,
+      operationName: this._operation.request.node.params.name,
+      duration,
+    });
+    return result;
+  };
 
   _updateActiveState(): void {
     let activeState;
@@ -328,12 +376,21 @@ class Executor {
     if (this._subscriptions.size === 0) {
       this.cancel();
       this._sink.complete();
+      this._log({
+        name: 'execute.complete',
+        executeId: this._executeId,
+      });
     }
   }
 
   _error(error: Error): void {
     this.cancel();
     this._sink.error(error);
+    this._log({
+      name: 'execute.error',
+      executeId: this._executeId,
+      error,
+    });
   }
 
   _start(id: number, subscription: Subscription): void {
@@ -344,8 +401,16 @@ class Executor {
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
     this._schedule(() => {
-      this._handleNext(response);
-      this._maybeCompleteSubscriptionOperationTracking();
+      const [duration] = withDuration(() => {
+        this._handleNext(response);
+        this._maybeCompleteSubscriptionOperationTracking();
+      });
+      this._log({
+        name: 'execute.next',
+        executeId: this._executeId,
+        response,
+        duration,
+      });
     });
   }
 
@@ -542,7 +607,10 @@ class Executor {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightPayloadDeserializer:
+            this._reactFlightPayloadDeserializer != null
+              ? this._deserializeReactFlightPayloadWithLogging
+              : null,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
@@ -623,10 +691,23 @@ class Executor {
     followupPayload: FollowupPayload,
     normalizationNode: NormalizationSelectableNode,
   ) {
+    let variables;
+    if (
+      normalizationNode.kind === 'SplitOperation' &&
+      followupPayload.kind === 'ModuleImportPayload'
+    ) {
+      variables = getLocalVariables(
+        followupPayload.variables,
+        normalizationNode.argumentDefinitions,
+        followupPayload.args,
+      );
+    } else {
+      variables = followupPayload.variables;
+    }
     const selector = createNormalizationSelector(
       normalizationNode,
       followupPayload.dataID,
-      followupPayload.variables,
+      variables,
     );
     return normalizeResponse(
       {data: followupPayload.data},
@@ -636,7 +717,10 @@ class Executor {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: followupPayload.path,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightPayloadDeserializer:
+          this._reactFlightPayloadDeserializer != null
+            ? this._deserializeReactFlightPayloadWithLogging
+            : null,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -718,7 +802,10 @@ class Executor {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
           path: [],
-          reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+          reactFlightPayloadDeserializer:
+            this._reactFlightPayloadDeserializer != null
+              ? this._deserializeReactFlightPayloadWithLogging
+              : null,
           reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -868,37 +955,84 @@ class Executor {
           // Observable.from(operationLoader.load()) wouldn't catch synchronous
           // errors thrown by the load function, which is user-defined. Guard
           // against that with Observable.from(new Promise(<work>)).
-          RelayObservable.from(
+          const networkObservable = RelayObservable.from(
             new Promise((resolve, reject) => {
               operationLoader
                 .load(followupPayload.operationReference)
                 .then(resolve, reject);
             }),
-          )
-            .map((operation: ?NormalizationRootNode) => {
-              if (operation != null) {
-                this._schedule(() => {
-                  this._handleFollowupPayload(
-                    followupPayload,
-                    getOperation(operation),
-                  );
-                  // OK: always have to run after an async module import resolves
-                  const updatedOwners = this._runPublishQueue();
-                  this._updateOperationTracker(updatedOwners);
-                });
-              }
-            })
-            .subscribe({
-              complete: () => {
-                this._complete(id);
-                decrementPendingCount();
+          );
+          RelayObservable.create(sink => {
+            let cancellationToken;
+            const subscription = networkObservable.subscribe({
+              next: (loadedNode: ?NormalizationRootNode) => {
+                if (loadedNode != null) {
+                  const publishModuleImportPayload = () => {
+                    try {
+                      const operation = getOperation(loadedNode);
+                      const batchAsyncModuleUpdatesFN =
+                        RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
+                      const shouldScheduleAsyncStoreUpdate =
+                        batchAsyncModuleUpdatesFN != null &&
+                        this._pendingModulePayloadsCount > 1;
+                      const [duration] = withDuration(() => {
+                        this._handleFollowupPayload(followupPayload, operation);
+                        // OK: always have to run after an async module import resolves
+                        if (shouldScheduleAsyncStoreUpdate) {
+                          this._scheduleAsyncStoreUpdate(
+                            // $FlowFixMe[incompatible-call] `shouldScheduleAsyncStoreUpdate` check should cover `null` case
+                            batchAsyncModuleUpdatesFN,
+                            sink.complete,
+                          );
+                        } else {
+                          const updatedOwners = this._runPublishQueue();
+                          this._updateOperationTracker(updatedOwners);
+                        }
+                      });
+                      this._log({
+                        name: 'execute.async.module',
+                        executeId: this._executeId,
+                        operationName: operation.name,
+                        duration,
+                      });
+                      if (!shouldScheduleAsyncStoreUpdate) {
+                        sink.complete();
+                      }
+                    } catch (error) {
+                      sink.error(error);
+                    }
+                  };
+                  const scheduler = this._scheduler;
+                  if (scheduler == null) {
+                    publishModuleImportPayload();
+                  } else {
+                    cancellationToken = scheduler.schedule(
+                      publishModuleImportPayload,
+                    );
+                  }
+                } else {
+                  sink.complete();
+                }
               },
-              error: error => {
-                this._error(error);
-                decrementPendingCount();
-              },
-              start: subscription => this._start(id, subscription),
+              error: sink.error,
             });
+            return () => {
+              subscription.unsubscribe();
+              if (this._scheduler != null && cancellationToken != null) {
+                this._scheduler.cancel(cancellationToken);
+              }
+            };
+          }).subscribe({
+            complete: () => {
+              this._complete(id);
+              decrementPendingCount();
+            },
+            error: error => {
+              this._error(error);
+              decrementPendingCount();
+            },
+            start: subscription => this._start(id, subscription),
+          });
         }
         break;
       case 'ActorPayload':
@@ -1146,7 +1280,10 @@ class Executor {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
         path: placeholder.path,
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+        reactFlightPayloadDeserializer:
+          this._reactFlightPayloadDeserializer != null
+            ? this._deserializeReactFlightPayloadWithLogging
+            : null,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1379,7 +1516,10 @@ class Executor {
       actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
       path: [...normalizationPath, responseKey, String(itemIndex)],
-      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      reactFlightPayloadDeserializer:
+        this._reactFlightPayloadDeserializer != null
+          ? this._deserializeReactFlightPayloadWithLogging
+          : null,
       reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1392,6 +1532,25 @@ class Executor {
       relayPayload,
       storageKey,
     };
+  }
+
+  _scheduleAsyncStoreUpdate(
+    scheduleFn: (() => void) => Disposable,
+    completeFn: () => void,
+  ): void {
+    this._completeFns.push(completeFn);
+    if (this._asyncStoreUpdateDisposable != null) {
+      return;
+    }
+    this._asyncStoreUpdateDisposable = scheduleFn(() => {
+      this._asyncStoreUpdateDisposable = null;
+      const updatedOwners = this._runPublishQueue();
+      this._updateOperationTracker(updatedOwners);
+      for (const complete of this._completeFns) {
+        complete();
+      }
+      this._completeFns = [];
+    });
   }
 
   _updateOperationTracker(

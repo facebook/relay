@@ -278,11 +278,11 @@ class SelectorResolver {
       // This should eventually go away with something like @optional, where we only
       // suspend at specific boundaries depending on whether the boundary
       // can be fulfilled or not.
-      const promise =
+      const promise: void | Promise<void> =
         getPromiseForActiveRequest(this._environment, this._selector.owner) ??
         this._environment
           .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(this._selector.owner);
+          .getPendingOperationsAffectingOwner(this._selector.owner)?.promise;
       if (promise != null) {
         if (this._rootIsQueryRenderer) {
           warning(

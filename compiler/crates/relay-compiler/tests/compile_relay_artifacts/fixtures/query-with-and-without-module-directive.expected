@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query queryWithAndWithoutModuleDirective_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...queryWithAndWithoutModuleDirective_NameRendererFragment
+  }
+}
+
+fragment queryWithAndWithoutModuleDirective_NameRendererFragment on User {
+  id
+  nameRenderer {
+    ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+  without_module: nameRenderer {
+    ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+  }
+}
+
+fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ The 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name'.
+
+  query-with-and-without-module-directive.graphql:15:8
+   14 │   without_module: nameRenderer {
+   15 │     ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   16 │   }
+
+  ℹ︎ fragment definition
+
+  query-with-and-without-module-directive.graphql:19:10
+   18 │ 
+   19 │ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   20 │   markdown

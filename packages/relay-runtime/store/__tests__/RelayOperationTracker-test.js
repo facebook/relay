@@ -71,25 +71,25 @@ describe('RelayOperationTracker', () => {
   });
 
   it('should not have any pending operations affecting owners', () => {
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-    ).toBe(null);
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation2),
-    ).toBe(null);
+    expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
+      null,
+    );
+    expect(tracker.getPendingOperationsAffectingOwner(QueryOperation2)).toBe(
+      null,
+    );
   });
 
   it('should update fragment owners affected by operation', () => {
     tracker.update(MutationOperation1, new Set([QueryOperation1]));
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
     ).toBeInstanceOf(Promise);
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation2),
-    ).toBe(null);
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(MutationOperation1),
-    ).toBe(null);
+    expect(tracker.getPendingOperationsAffectingOwner(QueryOperation2)).toBe(
+      null,
+    );
+    expect(tracker.getPendingOperationsAffectingOwner(MutationOperation1)).toBe(
+      null,
+    );
   });
 
   it('should remove pending operation when it is completed', () => {
@@ -98,119 +98,160 @@ describe('RelayOperationTracker', () => {
       new Set([QueryOperation1, QueryOperation2]),
     );
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
     ).toBeInstanceOf(Promise);
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation2),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation2)?.promise,
     ).toBeInstanceOf(Promise);
     tracker.complete(MutationOperation1);
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-    ).toBe(null);
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation2),
-    ).toBe(null);
+    expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
+      null,
+    );
+    expect(tracker.getPendingOperationsAffectingOwner(QueryOperation2)).toBe(
+      null,
+    );
   });
 
   it('should remove pending operation when it is completed when multiple operations affect the same owner', () => {
     tracker.update(MutationOperation1, new Set([QueryOperation1]));
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
     ).toBeInstanceOf(Promise);
     tracker.update(MutationOperation2, new Set([QueryOperation1]));
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
     ).toBeInstanceOf(Promise);
     tracker.complete(MutationOperation1);
     expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
+      tracker.getPendingOperationsAffectingOwner(QueryOperation1)?.promise,
     ).toBeInstanceOf(Promise);
     tracker.complete(MutationOperation2);
-    expect(
-      tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-    ).toBe(null);
+    expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
+      null,
+    );
   });
 
-  describe('getPromiseForPendingOperationsAffectingOwner', () => {
+  describe('getPendingOperationsAffectingOwner', () => {
     it('should return null if there are no pending operations affecting owner', () => {
-      expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-      ).toBe(null);
+      expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
+        null,
+      );
     });
 
     it("should return a promise for operation that's been affected operation", () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+      const result = tracker.getPendingOperationsAffectingOwner(
         QueryOperation1,
       );
-      expect(promise).toBeInstanceOf(Promise);
+      invariant(result != null, 'Expected to find operations for owner.');
+      expect(result.promise).toBeInstanceOf(Promise);
+      expect(result.pendingOperations).toMatchObject([
+        {
+          identifier: MutationOperation1.identifier,
+        },
+      ]);
     });
 
     it('should return the same promise for an operation if called multiple times', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+      const result = tracker.getPendingOperationsAffectingOwner(
         QueryOperation1,
       );
-      expect(promise).toBeInstanceOf(Promise);
+      invariant(result != null, 'Expected to find operations for owner.');
+      expect(result.promise).toBeInstanceOf(Promise);
+      expect(result.pendingOperations).toMatchObject([
+        {
+          identifier: MutationOperation1.identifier,
+        },
+      ]);
 
-      const promise2 = tracker.getPromiseForPendingOperationsAffectingOwner(
+      const result2 = tracker.getPendingOperationsAffectingOwner(
         QueryOperation1,
       );
-      expect(promise2).toBe(promise);
+      invariant(result2 !== null, 'Expected to find operations for owner.');
+      expect(result2.promise).toBe(result.promise);
+      expect(result2.pendingOperations).toMatchObject([
+        {
+          identifier: MutationOperation1.identifier,
+        },
+      ]);
     });
 
     it('should resolve promise when pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+      const result = tracker.getPendingOperationsAffectingOwner(
         QueryOperation1,
       );
-      invariant(promise !== null, 'Expected promise to be defined');
+      invariant(result != null, 'Expected to find operations for owner.');
       const callback = jest.fn();
-      promise.then(callback);
+      result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.complete(MutationOperation1);
       jest.runAllTimers();
       expect(callback).toBeCalled();
-      expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-      ).toBe(null);
+      expect(tracker.getPendingOperationsAffectingOwner(QueryOperation1)).toBe(
+        null,
+      );
     });
 
     it('should resolve promise when new operation affected the owner', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+      const result = tracker.getPendingOperationsAffectingOwner(
         QueryOperation1,
       );
-      invariant(promise !== null, 'Expected promise to be defined');
+      invariant(result != null, 'Expected to find operations for owner.');
       const callback = jest.fn();
-      promise.then(callback);
+      result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
       jest.runAllTimers();
       expect(callback).toBeCalled();
       // There is one more operation that is affecting the owner
-      expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-      ).toBeInstanceOf(Promise);
+      const updatedResult = tracker.getPendingOperationsAffectingOwner(
+        QueryOperation1,
+      );
+      invariant(
+        updatedResult != null,
+        'Expected to find operations for owner.',
+      );
+      expect(updatedResult.promise).toBeInstanceOf(Promise);
+      expect(updatedResult.pendingOperations).toMatchObject([
+        {
+          identifier: MutationOperation1.identifier,
+        },
+        {
+          identifier: MutationOperation2.identifier,
+        },
+      ]);
     });
 
     it('should resolve promise when one of the pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
-      const promise = tracker.getPromiseForPendingOperationsAffectingOwner(
+      const result = tracker.getPendingOperationsAffectingOwner(
         QueryOperation1,
       );
-      invariant(promise !== null, 'Expected promise to be defined');
+      invariant(result != null, 'Expected to find operations for owner.');
       const callback = jest.fn();
-      promise.then(callback);
+      result.promise.then(callback);
       expect(callback).not.toBeCalled();
       tracker.complete(MutationOperation1);
       jest.runAllTimers();
       expect(callback).toBeCalled();
       // But there still operations that may affect the owner
-      expect(
-        tracker.getPromiseForPendingOperationsAffectingOwner(QueryOperation1),
-      ).toBeInstanceOf(Promise);
+      const updatedResult = tracker.getPendingOperationsAffectingOwner(
+        QueryOperation1,
+      );
+      invariant(
+        updatedResult != null,
+        'Expected to find operations for owner.',
+      );
+      expect(updatedResult.promise).toBeInstanceOf(Promise);
+      expect(updatedResult.pendingOperations).toMatchObject([
+        {
+          identifier: MutationOperation2.identifier,
+        },
+      ]);
     });
   });
 });

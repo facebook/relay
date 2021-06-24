@@ -301,7 +301,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
   });
 
@@ -388,7 +388,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -433,7 +433,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -451,13 +451,18 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
   it('calls complete() only after match payloads are processed (root network completes first, with batching on)', () => {
-    const prevFlagAsync = RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES;
-    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = true;
+    const prevFlagAsync = RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
+    RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = task => {
+      const handle = setTimeout(task, 0);
+      return {
+        dispose: () => clearTimeout(handle),
+      };
+    };
     environment.execute({operation}).subscribe(callbacks);
     const payload = {
       data: {
@@ -498,7 +503,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -507,26 +512,19 @@ describe('executeSubscrption() with @match', () => {
     );
     resolveFragment(markdownRendererNormalizationFragment);
     jest.runAllImmediates();
-    // The subscription affecting the query should still be in flight
-    expect(
-      environment
-        .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
-    ).not.toBe(null);
 
-    jest.runAllTimers();
     expect(complete).toBeCalledTimes(1);
     expect(error).toBeCalledTimes(0);
     expect(next).toBeCalledTimes(1);
-
     // The subscription affecting the query should no longer be in flight
+    // because async batching isn't on with one active query
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
 
-    RelayFeatureFlags.ENABLE_BATCHED_ASYNC_MODULE_UPDATES = prevFlagAsync;
+    RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN = prevFlagAsync;
   });
 
   it('calls complete() only after match payloads are processed (root network completes last)', () => {
@@ -565,7 +563,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -584,7 +582,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
 
     dataSource.complete();
@@ -596,7 +594,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -636,7 +634,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     const err = new Error('Oops');
@@ -653,7 +651,7 @@ describe('executeSubscrption() with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -752,7 +750,7 @@ describe('executeSubscrption() with @match', () => {
       expect(
         environment
           .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+          .getPendingOperationsAffectingOwner(queryOperation.request),
       ).not.toBe(null);
 
       expect(operationLoader.load).toBeCalledTimes(1);
@@ -766,7 +764,7 @@ describe('executeSubscrption() with @match', () => {
       expect(
         environment
           .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+          .getPendingOperationsAffectingOwner(queryOperation.request),
       ).not.toBe(null);
       expect(complete).toBeCalledTimes(0);
       expect(error).toBeCalledTimes(0);
@@ -780,7 +778,7 @@ describe('executeSubscrption() with @match', () => {
       expect(
         environment
           .getOperationTracker()
-          .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+          .getPendingOperationsAffectingOwner(queryOperation.request),
       ).toBe(null);
     });
   });

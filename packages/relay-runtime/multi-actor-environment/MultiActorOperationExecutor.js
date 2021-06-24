@@ -168,6 +168,8 @@ class Executor {
   +_getStore: (actorIdentifier: ActorIdentifier) => Store;
   _subscriptions: Map<number, Subscription>;
   _updater: ?SelectorStoreUpdater;
+  _asyncStoreUpdateDisposable: ?Disposable;
+  _completeFns: Array<() => void>;
   +_retainDisposables: Map<ActorIdentifier, Disposable>;
   +_isClientPayload: boolean;
   +_isSubscriptionOperation: boolean;
@@ -283,6 +285,11 @@ class Executor {
       this._runPublishQueue();
     }
     this._incrementalResults.clear();
+    if (this._asyncStoreUpdateDisposable != null) {
+      this._asyncStoreUpdateDisposable.dispose();
+      this._asyncStoreUpdateDisposable = null;
+    }
+    this._completeFns = [];
     this._completeOperationTracker();
     this._disposeRetainedData();
   }
@@ -948,44 +955,84 @@ class Executor {
           // Observable.from(operationLoader.load()) wouldn't catch synchronous
           // errors thrown by the load function, which is user-defined. Guard
           // against that with Observable.from(new Promise(<work>)).
-          RelayObservable.from(
+          const networkObservable = RelayObservable.from(
             new Promise((resolve, reject) => {
               operationLoader
                 .load(followupPayload.operationReference)
                 .then(resolve, reject);
             }),
-          )
-            .map((loadedNode: ?NormalizationRootNode) => {
-              if (loadedNode != null) {
-                const operation = getOperation(loadedNode);
-                this._schedule(() => {
-                  const [duration] = withDuration(() => {
-                    this._handleFollowupPayload(followupPayload, operation);
-                    // OK: always have to run after an async module import resolves
-                    const updatedOwners = this._runPublishQueue();
-                    this._updateOperationTracker(updatedOwners);
-                  });
-
-                  this._log({
-                    name: 'execute.async.module',
-                    executeId: this._executeId,
-                    operationName: operation.name,
-                    duration,
-                  });
-                });
-              }
-            })
-            .subscribe({
-              complete: () => {
-                this._complete(id);
-                decrementPendingCount();
+          );
+          RelayObservable.create(sink => {
+            let cancellationToken;
+            const subscription = networkObservable.subscribe({
+              next: (loadedNode: ?NormalizationRootNode) => {
+                if (loadedNode != null) {
+                  const publishModuleImportPayload = () => {
+                    try {
+                      const operation = getOperation(loadedNode);
+                      const batchAsyncModuleUpdatesFN =
+                        RelayFeatureFlags.BATCH_ASYNC_MODULE_UPDATES_FN;
+                      const shouldScheduleAsyncStoreUpdate =
+                        batchAsyncModuleUpdatesFN != null &&
+                        this._pendingModulePayloadsCount > 1;
+                      const [duration] = withDuration(() => {
+                        this._handleFollowupPayload(followupPayload, operation);
+                        // OK: always have to run after an async module import resolves
+                        if (shouldScheduleAsyncStoreUpdate) {
+                          this._scheduleAsyncStoreUpdate(
+                            // $FlowFixMe[incompatible-call] `shouldScheduleAsyncStoreUpdate` check should cover `null` case
+                            batchAsyncModuleUpdatesFN,
+                            sink.complete,
+                          );
+                        } else {
+                          const updatedOwners = this._runPublishQueue();
+                          this._updateOperationTracker(updatedOwners);
+                        }
+                      });
+                      this._log({
+                        name: 'execute.async.module',
+                        executeId: this._executeId,
+                        operationName: operation.name,
+                        duration,
+                      });
+                      if (!shouldScheduleAsyncStoreUpdate) {
+                        sink.complete();
+                      }
+                    } catch (error) {
+                      sink.error(error);
+                    }
+                  };
+                  const scheduler = this._scheduler;
+                  if (scheduler == null) {
+                    publishModuleImportPayload();
+                  } else {
+                    cancellationToken = scheduler.schedule(
+                      publishModuleImportPayload,
+                    );
+                  }
+                } else {
+                  sink.complete();
+                }
               },
-              error: error => {
-                this._error(error);
-                decrementPendingCount();
-              },
-              start: subscription => this._start(id, subscription),
+              error: sink.error,
             });
+            return () => {
+              subscription.unsubscribe();
+              if (this._scheduler != null && cancellationToken != null) {
+                this._scheduler.cancel(cancellationToken);
+              }
+            };
+          }).subscribe({
+            complete: () => {
+              this._complete(id);
+              decrementPendingCount();
+            },
+            error: error => {
+              this._error(error);
+              decrementPendingCount();
+            },
+            start: subscription => this._start(id, subscription),
+          });
         }
         break;
       case 'ActorPayload':
@@ -1485,6 +1532,25 @@ class Executor {
       relayPayload,
       storageKey,
     };
+  }
+
+  _scheduleAsyncStoreUpdate(
+    scheduleFn: (() => void) => Disposable,
+    completeFn: () => void,
+  ): void {
+    this._completeFns.push(completeFn);
+    if (this._asyncStoreUpdateDisposable != null) {
+      return;
+    }
+    this._asyncStoreUpdateDisposable = scheduleFn(() => {
+      this._asyncStoreUpdateDisposable = null;
+      const updatedOwners = this._runPublishQueue();
+      this._updateOperationTracker(updatedOwners);
+      for (const complete of this._completeFns) {
+        complete();
+      }
+      this._completeFns = [];
+    });
   }
 
   _updateOperationTracker(

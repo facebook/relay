@@ -23,7 +23,6 @@ const RelayRecordSource = require('./RelayRecordSource');
 
 const defaultGetDataID = require('./defaultGetDataID');
 const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
-const generateID = require('../util/generateID');
 const invariant = require('invariant');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
@@ -33,15 +32,8 @@ import type {
   GraphQLResponse,
   INetwork,
   PayloadData,
-  UploadableMap,
 } from '../network/RelayNetworkTypes';
-import type {RequestParameters} from '../util/RelayConcreteNode';
-import type {
-  CacheConfig,
-  Disposable,
-  RenderPolicy,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActiveState, TaskScheduler} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {

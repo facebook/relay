@@ -1139,21 +1139,26 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // will mount, and React double invoke effects will be triggered,
         // simulating what would happen if the component was hidden and re-shown:
 
-        // The effect cleanup will execute, so we assert that
-        // the query is disposed and the request is cancelled
+        // The effect cleanup will execute, so we assert that the query is
+        // disposed. The network request is not canceled because it is not
+        // a live query.
         expect(release).toHaveBeenCalledTimes(1);
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain, and
-        // re-suspend:
+        // a re-render is triggered along with another retain:
 
         // Since executeWithSource is called during render, it will
-        // be called twice here, and we verify the request is in flight.
-        expectToHaveFetched(environment, queryWithDefer, {count: 2});
+        // still be called once even though we don't make a network request
+        // again.
+        expectToHaveFetched(environment, queryWithDefer, {count: 1});
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
-        expect(instance.toJSON()).toEqual(['Fallback']);
+        // Since the request is not canceled when the component is hidden,
+        // it's still underway when the component is shown again; therefore
+        // the component sees the initial part even though it's network-only,
+        // and doesn't re-suspend.
+        expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
 
         // Assert render state of component
         expect(renderLogs).toEqual([
@@ -1165,6 +1170,10 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           // Note that render doesn't happen in between:
           'cleanup: Alice 1',
           'commit: Alice 1',
+
+          // Assert final re-render triggered by query.
+          // It does not trigger a commit since the name didn't change.
+          'render: Alice 1',
         ]);
 
         // Resolve response for second request
@@ -1274,17 +1283,15 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         // The effect cleanup will execute, so we assert that
         // the query is disposed and the request is cancelled
         expect(release).toHaveBeenCalledTimes(1);
-        expect(cancelNetworkRequest).toHaveBeenCalledTimes(1);
+        expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
         // The effect setup will re-execute, so we assert that
-        // a re-render is triggered to refetch, re-retain, and
-        // re-suspend:
+        // a re-render is triggered along with another retain:
 
-        // We refetch in this case since the query wasn't fully cached
-        // after receiving only the first payload.
         // Since executeWithSource is called during render, it will
-        // be called twice here, and we verify the request is in flight.
-        expectToHaveFetched(environment, queryWithDefer, {count: 2});
+        // still be called once even though we don't make a network request
+        // again.
+        expectToHaveFetched(environment, queryWithDefer, {count: 1});
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toHaveBeenCalledTimes(2);
         expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);

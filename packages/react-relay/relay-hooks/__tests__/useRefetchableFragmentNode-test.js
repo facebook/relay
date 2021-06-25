@@ -2984,7 +2984,7 @@ describe('useRefetchableFragmentNode', () => {
         unsubscribe.mockClear();
       });
 
-      it('disposes ongoing request if environment changes', () => {
+      it('does not cancel ongoing request if environment changes', () => {
         renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3033,12 +3033,11 @@ describe('useRefetchableFragmentNode', () => {
           setEnvironment(newEnvironment);
         });
 
-        // Assert request was cancelled
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
+        // Assert request is not cancelled, since useQueryLoader does not
+        // cancel network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: false,
+          inFlight: true,
           requestCount: 1,
           gqlRefetchQuery,
           refetchVariables,
@@ -3054,7 +3053,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
-      it('disposes ongoing request if fragment ref changes', () => {
+      it('does not cancel ongoing request if fragment ref changes', () => {
         renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3108,12 +3107,11 @@ describe('useRefetchableFragmentNode', () => {
           setOwner(newQuery);
         });
 
-        // Assert request was cancelled
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
+        // Assert request is not cancelled, since useQueryLoader does not
+        // cancel network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: false,
+          inFlight: true,
           requestCount: 1,
           gqlRefetchQuery,
           refetchVariables,
@@ -3131,7 +3129,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
-      it('disposes of ongoing request on unmount when refetch suspends', () => {
+      it('does not cancel ongoing request on unmount when refetch suspends', () => {
         const renderer = renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3158,17 +3156,12 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was cancelled
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
       });
 
-      it('disposes of ongoing request on unmount when refetch does not suspend', () => {
+      it('does not cancel ongoing request on unmount when refetch does not suspend', () => {
         const renderer = renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3206,14 +3199,9 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was cancelled
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
       });
 
       it('disposes ongoing request if it is manually disposed when refetch suspends', () => {
@@ -3310,16 +3298,9 @@ describe('useRefetchableFragmentNode', () => {
           jest.runAllImmediates();
         });
 
-        // Assert request was cancelled.
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
 
         // Assert that when the refetch is disposed we reset to rendering the
         // original data before the refetch

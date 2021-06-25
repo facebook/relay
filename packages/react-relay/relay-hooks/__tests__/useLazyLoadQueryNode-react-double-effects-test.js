@@ -470,9 +470,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
       // The effect setup will re-execute, so we assert that
-      // a re-render is triggered to refetch, re-retain, and
-      // re-suspend:
-      expectToHaveFetched(environment, queryWithDefer);
+      // a re-render is triggered along with another retain.
+      // We don't re-fetch because the existing request wasn't
+      // cancelled when the component was unmounted, and is still ongoing.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.execute).toBeCalledTimes(0);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       // Since the request is not canceled when the component is hidden,
@@ -653,9 +655,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(release).toHaveBeenCalledTimes(1);
       expect(cancelNetworkRequest).toHaveBeenCalledTimes(0);
 
-      // a re-render is triggered and re-retains. We don't re-fetch because the
-      // existing request wasn't canceled when the component was unmounted,
-      // and so is still ongoing.
+      // The effect setup will re-execute, so we assert that
+      // a re-render is triggered along with another retain.
+      // We don't re-fetch because the existing request wasn't
+      // cancelled when the component was unmounted, and is still ongoing.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      expect(environment.execute).toBeCalledTimes(0);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
       // $FlowFixMe[incompatible-use]

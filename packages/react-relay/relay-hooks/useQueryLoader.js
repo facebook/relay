@@ -18,6 +18,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 
 const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
 const {useCallback, useEffect, useRef, useState} = require('react');
+const {getRequest} = require('relay-runtime');
 
 import type {
   PreloadableConcreteRequest,
@@ -53,6 +54,16 @@ type NullQueryReference = {|
   kind: 'NullQueryReference',
 |};
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
+
+function requestIsLiveQuery<TQuery: OperationType>(
+  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+): boolean {
+  if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
+    return (preloadableRequest: $FlowFixMe).params.metadata.live !== undefined;
+  }
+  const request = getRequest(preloadableRequest);
+  return request.params.metadata.live !== undefined;
+}
 
 function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
@@ -209,24 +220,35 @@ function useQueryLoader<TQuery: OperationType>(
 
         undisposedQueryReferences.delete(undisposedQueryReference);
         if (undisposedQueryReference.kind !== 'NullQueryReference') {
-          undisposedQueryReference.dispose &&
-            undisposedQueryReference.dispose();
+          if (requestIsLiveQuery(preloadableRequest)) {
+            undisposedQueryReference.dispose &&
+              undisposedQueryReference.dispose();
+          } else {
+            undisposedQueryReference.releaseQuery &&
+              undisposedQueryReference.releaseQuery();
+          }
         }
       }
     }
-  }, [queryReference, isMountedRef, queryLoaderCallback]);
+  }, [queryReference, isMountedRef, queryLoaderCallback, preloadableRequest]);
 
   useEffect(() => {
     return function disposeAllRemainingQueryReferences() {
       // undisposedQueryReferences.current is never reassigned
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
-        if (unhandledStateChange.kind !== 'NullQueryReference') {
-          unhandledStateChange.dispose && unhandledStateChange.dispose();
+      for (const undisposedQueryReference of undisposedQueryReferencesRef.current) {
+        if (undisposedQueryReference.kind !== 'NullQueryReference') {
+          if (requestIsLiveQuery(preloadableRequest)) {
+            undisposedQueryReference.dispose &&
+              undisposedQueryReference.dispose();
+          } else {
+            undisposedQueryReference.releaseQuery &&
+              undisposedQueryReference.releaseQuery();
+          }
         }
       }
     };
-  }, []);
+  }, [preloadableRequest]);
 
   return [
     queryReference.kind === 'NullQueryReference' ? null : queryReference,

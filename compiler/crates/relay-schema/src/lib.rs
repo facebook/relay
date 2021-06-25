@@ -12,18 +12,11 @@
 #![deny(clippy::all)]
 
 use common::DiagnosticsResult;
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use interner::intern;
 use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
 use std::iter::once;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
-
-lazy_static! {
-    static ref DEFER_DIRECTIVE: StringKey = "defer".intern();
-    static ref STREAM_DIRECTIVE: StringKey = "stream".intern();
-    static ref LABEL_ARG: StringKey = "label".intern();
-}
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
@@ -36,11 +29,11 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 
     // Remove label arg from @defer and @stream directives since the compiler
     // adds these arguments.
-    for directive_name in &[*DEFER_DIRECTIVE, *STREAM_DIRECTIVE] {
+    for directive_name in &[intern!("defer"), intern!("stream")] {
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {
-                if arg.name == *LABEL_ARG {
+                if arg.name == intern!("label") {
                     if let TypeReference::NonNull(of) = &arg.type_ {
                         arg.type_ = *of.clone()
                     };

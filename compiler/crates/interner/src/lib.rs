@@ -19,3 +19,8 @@ mod types;
 pub use bytes::{BytesKey, StringKey};
 pub use generic::InternTable;
 pub use types::{Intern, InternKey, RawInternKey};
+
+/// Re-exported values to be used by the `intern!` macro.
+pub mod reexport {
+    pub use once_cell::sync::Lazy;
+}

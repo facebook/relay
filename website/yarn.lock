@@ -8823,7 +8823,7 @@ prism-react-renderer@^1.1.1:
   resolved "https://registry.yarnpkg.com/prism-react-renderer/-/prism-react-renderer-1.2.1.tgz#392460acf63540960e5e3caa699d851264e99b89"
   integrity sha512-w23ch4f75V1Tnz8DajsYKvY5lF7H1+WvzvLUcF0paFxkTHSp42RS0H5CttdN2Q8RR3DRGZ9v5xD/h3n8C8kGmg==
 
-prismjs@>=1.16.0, prismjs@^1.22.0, prismjs@^1.23.0, prismjs@~1.23.0:
+prismjs@^1.22.0, prismjs@^1.23.0, prismjs@~1.23.0:
   version "1.23.0"
   resolved "https://registry.yarnpkg.com/prismjs/-/prismjs-1.23.0.tgz#d3b3967f7d72440690497652a9d40ff046067f33"
   integrity sha512-c29LVsqOaLbBHuIbsTxaKENh1N2EQBOHaWv7gkHN4dgRbxSREqDnDbtFJYdpPauS4YCplMSNCABQ6Eeor69bAA==
@@ -10295,13 +10295,12 @@ spdy@^4.0.2:
     select-hose "^2.0.0"
     spdy-transport "^3.0.0"
 
-spec-md@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/spec-md/-/spec-md-1.1.1.tgz#76fe54df83b5a09948becafb43d40a2db1f99cde"
-  integrity sha512-1Lvbd6kXSAsIEXo/TRCl7rSrS2DHos9HMNnTVj+DIuprgeT1Tlqiu+nHTZSlrtmqVZLQsgOinS4BgbeyLCic0g==
+spec-md@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/spec-md/-/spec-md-3.0.2.tgz#5c16744cd62e494b024b749a789a745f18afe713"
+  integrity sha512-UP5FZWwWrNuMBowubdPUgC4oKhBJCYUGdCMh4GR1KGuSLL4Hzo0fNI/jKGiLaKMxzO9EzAD9sTAZWRfTaBA/+g==
   dependencies:
-    prismjs ">=1.16.0"
-    terser "^4.1.2"
+    prismjs "^1.23.0"
 
 split-string@^3.0.1, split-string@^3.0.2:
   version "3.1.0"
@@ -10685,7 +10684,7 @@ terser-webpack-plugin@^5.1.1:
     source-map "^0.6.1"
     terser "^5.7.0"
 
-terser@^4.1.2, terser@^4.6.3:
+terser@^4.6.3:
   version "4.8.0"
   resolved "https://registry.yarnpkg.com/terser/-/terser-4.8.0.tgz#63056343d7c70bb29f3af665865a46fe03a0df17"
   integrity sha512-EAPipTNeWsb/3wLPeup1tVPaXfIaU68xMnVdPafIL1TV05OhASArYyIfFvnvJCNrR2NIOvDVNNTFRa+Re2MWyw==

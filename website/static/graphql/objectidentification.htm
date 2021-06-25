@@ -2,871 +2,12 @@
 <!-- Built with spec-md https://spec-md.com -->
 <html>
 <head><meta charset="utf-8">
-<title>GraphQL Global Object Identification Specification</title>
-<style>body {
-  color: #333333;
-  font: 13pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  margin: 6rem auto 3rem;
-  max-width: 780px;
-}
-
-/* Selections */
-
-.outdated-selection-link,
-.selection-link {
-  position: absolute;
-  display: block;
-  color: #fff;
-  background: #cacee0;
-  border-radius: 4px;
-  font-size: 36px;
-  height: 23px;
-  line-height: 48px;
-  text-align: center;
-  text-decoration: none;
-  width: 25px;
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-}
-
-.outdated-selection-link:hover,
-.selection-link:hover {
-  text-decoration: none;
-}
-
-.outdated-selection-link:before,
-.selection-link:before {
-  border: 5px solid transparent;
-  border-left-color: #cacee0;
-  border-right: 0;
-  content: '';
-  height: 0;
-  margin-top: -5px;
-  margin-right: -5px;
-  position: absolute;
-  right: 1px;
-  top: 50%;
-  width: 0;
-}
-
-.selection-link:hover {
-  background: #3b5998;
-}
-
-.selection-link:hover:before {
-  border-left-color: #3b5998;
-}
-
-.outdated-selection-link {
-  background: #f0babe;
-  font-size: 21px;
-  font-weight: 800;
-  line-height: 27px;
-}
-
-.outdated-selection-link:before {
-  border-left-color: #f0babe;
-}
-
-.outdated-selection-link:hover:after {
-  content: "This selection content has changed since this link was created.";
-  font: 9pt/11pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  position: absolute;
-  display: block;
-  white-space: nowrap;
-  padding: 2px 5px 1px;
-  top: -20px;
-  background: black;
-  color: white;
-}
-
-/* Links */
-
-a {
-  color: #3B5998;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-
-/* Section headers */
-
-h1, h2, h3, h4, h5, h6, h7, h8 {
-  font-weight: bold;
-  margin: 3em 0 1em;
-  position: relative;
-}
-
-h1 {
-  font-size: 1.5em;
-  margin: 6em 0 3em;
-}
-
-h2 {
-  font-size: 1.5em;
-  margin-top: 5em;
-}
-
-h3, h4 {
-  font-size: 1.25em;
-}
-
-h5, h6 {
-  font-size: 1em;
-}
-
-section.subsec > h6 {
-  margin-top: 2em;
-}
-
-section.subsec > h6 > a {
-  color: #333333;
-}
-
-section .spec-secid {
-  margin-right: 1ex;
-  position: absolute;
-  right: 100%;
-  text-align: right;
-  white-space: nowrap;
-}
-
-footer {
-  font-size: 75%;
-  opacity: 0.5;
-  text-align: center;
-  margin-top: 12rem;
-}
-
-
-/* Table of contents */
-
-.spec-toc {
-  margin: 1rem 0 3rem;
-}
-
-.spec-toc .title {
-  content: 'Contents';
-  display: block;
-  font-weight: bold;
-  margin: 5em 0 1em;
-}
-
-.spec-toc .spec-secid {
-  margin-right: 1ex;
-}
-
-.spec-toc ol {
-  list-style: none;
-  padding-left: 0;
-}
-
-.spec-toc ol ol {
-  list-style: none;
-  padding-left: 2ex;
-}
-
-.spec-toc li {
-  position: relative;
-  padding: 5px 0 0 30px;
-  margin: -5px 0 0 -30px;
-}
-
-.spec-toc a {
-  color: #333333;
-}
-
-.spec-toc a:hover {
-  text-decoration: none;
-}
-
-.spec-toc a .spec-secid {
-  color: #3B5998;
-}
-
-.spec-toc a:hover .spec-secid {
-  text-decoration: underline;
-}
-
-.spec-toc .toggle {
-  display: none;
-}
-
-.spec-toc .toggle + label {
-  cursor: pointer;
-  left: 10px;
-  opacity: 1;
-  padding: 3px 5px 3px 6px;
-  position: absolute;
-  top: 8px;
-  transform: rotate(0deg);
-  transition: all 0.18s ease-in-out;
-}
-
-.spec-toc .toggle + label:after {
-  border-color: transparent transparent transparent #bbc;
-  border-style: solid;
-  border-width: 6px 0 6px 7px;
-  content: ' ';
-  display: block;
-  height: 0;
-  width: 0;
-}
-
-.spec-toc .toggle:checked + label {
-  transform: rotate(90deg);
-}
-
-.spec-toc li:not(:hover) > .toggle:checked + label {
-  opacity: 0;
-}
-
-.spec-toc .toggle:not(:checked) ~ ol {
-  max-height: 0;
-  overflow: hidden;
-}
-
-
-/* Sidebar */
-
-.spec-sidebar-toggle {
-  display: none;
-}
-
-.spec-sidebar-toggle + label {
-  position: fixed;
-  right: 0;
-  top: 0;
-  padding: 10px 15px;
-  font-size: 30px;
-  color: rgba(0,0,0,0.7);
-  z-index: 2;
-  cursor: pointer;
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-}
-
-.spec-sidebar {
-  display: none;
-  position: fixed;
-  right: 0;
-  top: 0;
-  width: 320px;
-  font-size: 80%;
-  overflow-y: scroll;
-  height: 100%;
-  padding: 0 0 5rem 30px;
-  box-sizing: border-box;
-  background: #f0f0f0;
-}
-
-.spec-sidebar {
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-}
-
-.spec-sidebar-toggle:checked ~ .spec-sidebar {
-  display: block;
-  box-shadow:
-    -1px 0 rgba(0,0,0,0.12),
-    -4px 0 8px -2px rgba(0,0,0,0.05);
-}
-
-.spec-sidebar .viewing > a:after {
-  color: #8b9;
-  content: '\2022';
-  margin-left: 1ex;
-}
-
-@media (min-width: 1240px) {
-  .spec-sidebar-toggle + label {
-    display: none;
-  }
-
-  .spec-sidebar {
-    display: block;
-    box-shadow:
-      inset 1px 0 rgba(0,0,0,0.05),
-      inset 4px 0 8px -2px rgba(0,0,0,0.08) !important;
-  }
-
-  body {
-    padding-right: 300px;
-  }
-}
-
-
-/* Notes */
-
-.spec-note {
-  background: #FEFEF3;
-  border-left: solid 4px #F4E925;
-  margin: 1em -1em;
-  min-width: 416px;
-  padding: 1ex 1em 1ex calc(1em - 4px);
-  width: -moz-fit-content;
-  width: -webkit-fit-content;
-  width: fit-content;
-}
-
-.spec-note > a:first-child {
-  color: #6C6613;
-  display: block;
-  font: italic 11pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  opacity: 0.6;
-  user-select: none;
-}
-
-
-/* Todos */
-
-.spec-todo {
-  color: #666666;
-  margin: 1em 0 1em 5em;
-  min-height: 1em;
-}
-
-.spec-todo::before {
-  content: 'todo';
-  display: block;
-  float: left;
-  margin-left: -5em;
-  text-transform: uppercase;
-}
-
-/* Index table */
-
-.spec-index ol {
-  list-style-type: none;
-  margin: 0 0 0 2rem;
-  padding: 0;
-  column-width: 210px;
-  column-gap: 2rem;
-}
-
-.spec-index ol li {
-  width: min-content;
-}
-
-/* Code */
-
-code {
-  background: #FAFAFA;
-  font-family: Consolas, Monaco, monospace;
-  font-size: 85%;
-  font-weight: inherit;
-  margin: -2px -1px;
-  padding: 3px 3px;
-  white-space: pre;
-}
-
-pre code {
-  background: none;
-  font-weight: inherit;
-  margin: 0;
-  padding: 0;
-}
-
-pre {
-  background: #FAFAFA;
-  border-left: solid 4px #E9E9E9;
-  margin: 1em -1em;
-  min-width: 40ch;
-  padding: 1ex 1em 1ex calc(1em - 4px);
-  width: -moz-fit-content;
-  width: -webkit-fit-content;
-  width: fit-content;
-}
-
-.spec-example {
-  background: #FAFAFF;
-  border-left: solid 4px #BBBBFF;
-}
-
-.spec-counter-example {
-  background: #FFFAFA;
-  border-left: solid 4px #FFBBBB;
-}
-
-.spec-example > a,
-.spec-counter-example > a {
-  display: block;
-  font: italic 11pt/18pt Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  opacity: 0.6;
-  user-select: none;
-}
-
-.spec-counter-example > a {
-  color: #98593b;
-}
-
-
-/* Tables */
-
-table {
-  border-collapse: collapse;
-}
-
-th {
-  background-color: #F9F9F9;
-}
-
-td, th {
-  border: 1px solid #D0D0D0;
-  padding: 0.4em;
-  vertical-align: baseline;
-}
-
-
-/* Edits */
-
-ins {
-  background-color: rgba(0, 200, 30, 0.08);
-  text-decoration: none;
-}
-
-del {
-  background-color: rgba(200, 0, 0, 0.08);
-}
-
-.spec-added, .spec-removed {
-  border-left: 4px solid;
-  margin-left: -18px;
-  padding-left: 14px;
-}
-
-.spec-added {
-  border-color: #396;
-}
-
-.spec-removed {
-  border-color: #933;
-  text-decoration: line-through;
-}
-
-
-/* Values */
-
-.spec-keyword {
-  font-weight: bold;
-}
-
-.spec-string {
-  font-family: Consolas, Monaco, monospace;
-  font-size: 85%;
-  white-space: pre;
-}
-
-var {
-  font-style: italic;
-}
-
-*[data-name] {
-  transition: 0.15s background ease-out;
-  border-radius: 2px;
-  padding: 0 3px;
-  margin: 0 -3px;
-}
-
-
-/* Grammar semantics, algorithms and calls */
-
-.spec-semantic,
-.spec-algo {
-  margin: 1rem 0 1rem 2rem;
-}
-
-.spec-semantic > .spec-rhs {
-  display: inline-block;
-  margin-left: 1ex;
-}
-
-.spec-semantic > .spec-nt::after,
-.spec-algo > .spec-call:first-child::after {
-  content: ':';
-  font-style: normal;
-  font-weight: bold;
-  margin-left: 1ex;
-}
-
-.spec-semantic ol, .spec-semantic ol ol ol ol,
-.spec-algo ol, .spec-algo ol ol ol ol {
-  list-style-type: decimal;
-}
-
-.spec-semantic ol ol, .spec-semantic ol ol ol ol ol,
-.spec-algo ol ol, .spec-algo ol ol ol ol ol {
-  list-style-type: lower-alpha;
-}
-
-.spec-semantic ol ol ol, .spec-semantic ol ol ol ol ol ol,
-.spec-algo ol ol ol, .spec-algo ol ol ol ol ol ol {
-  list-style-type: lower-roman;
-}
-
-.spec-call > a {
-  color: inherit;
-}
-
-
-/* Grammar productions */
-
-.spec-production {
-  margin: 1rem 0 1rem 2rem;
-}
-
-.spec-production > .spec-nt::after {
-  content: ':';
-  font-style: normal;
-  font-weight: bold;
-  margin: 0 1ex;
-}
-
-.spec-semantic.d2 > .spec-nt::after,
-.spec-production.d2 > .spec-nt::after {
-  content: '::';
-}
-
-.spec-semantic.d3 > .spec-nt::after,
-.spec-production.d3 > .spec-nt::after {
-  content: ':::';
-}
-
-.spec-rhs {
-  margin-left: 2rem;
-}
-
-.spec-oneof {
-  display: inline;
-}
-
-.spec-oneof::before {
-  content: 'one of';
-  font-style: normal;
-  font-weight: bold;
-}
-
-.spec-oneof > table {
-  margin-left: 2rem;
-}
-
-.spec-oneof .spec-rhs {
-  border: none;
-  margin: 0;
-  padding: 0 0.5em;
-  vertical-align: baseline;
-}
-
-.spec-rhs .spec-constrained:not(:first-child),
-.spec-rhs .spec-quantified:not(:first-child),
-.spec-rhs .spec-nt:not(:first-child),
-.spec-rhs .spec-t:not(:first-child),
-.spec-rhs .spec-rx:not(:first-child),
-.spec-rhs .spec-prose:not(:first-child),
-.spec-rhs .spec-empty:not(:first-child),
-.spec-rhs .spec-lookahead:not(:first-child) {
-  margin-left: 1ex;
-}
-
-.spec-condition {
-  font-size: 85%;
-}
-
-.spec-condition::before {
-  content: '[if '
-}
-
-.spec-condition.not::before {
-  content: '[if not '
-}
-
-.spec-condition::after {
-  content: ']'
-}
-
-.spec-empty,
-.spec-prose {
-  color: #666666;
-}
-
-.spec-nt {
-  font-style: italic;
-}
-
-.spec-nt > a {
-  color: inherit;
-}
-
-.spec-quantifiers,
-.spec-params {
-  font-size: 65%;
-  font-style: normal;
-  vertical-align: sub;
-}
-
-.spec-quantifier.list {
-  color: #3348D3;
-}
-
-.spec-quantifier.optional {
-  color: #83238E;
-}
-
-.spec-params,
-.spec-condition {
-  color: #1C7758;
-}
-
-.spec-params::before {
-  content: '[';
-}
-
-.spec-params::after {
-  content: ']';
-}
-
-.spec-quantifier:not(:last-child)::after,
-.spec-param:not(:last-child)::after {
-  color: #666666;
-  content: ', ';
-}
-
-.spec-param.conditional::before {
-  content: '?';
-}
-
-.spec-param.negated::before {
-  content: '!';
-}
-
-.spec-t, .spec-rx {
-  color: #333333;
-  font-family: monospace;
-  font-weight: bold;
-}
-
-.spec-butnot::before {
-  color: #666666;
-  content: 'but not';
-  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  font-weight: normal;
-  margin-right: 1ex;
-}
-
-.spec-butnot > *:not(:first-child)::before {
-  color: #666666;
-  content: 'or';
-  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  font-weight: normal;
-  margin-right: 1ex;
-}
-
-.spec-rhs .spec-oneof::before,
-.spec-rhs .spec-butnot::before {
-  margin-left: 1ex;
-}
-
-.spec-lookahead > * {
-  margin: 0 !important;
-}
-
-.spec-lookahead > *:not(:first-child)::before {
-  color: #666666;
-  content: ', ';
-  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  font-style: normal;
-  font-weight: normal;
-}
-
-.spec-lookahead::before {
-  color: #666666;
-  content: '[lookahead = ';
-  font-family: Cambria, "Palatino Linotype", Palatino, "Liberation Serif", serif;
-  font-style: normal;
-  font-weight: normal;
-}
-
-.spec-lookahead.not::before {
-  content: '[lookahead \2260  ';
-}
-
-.spec-lookahead.set::before {
-  content: '[lookahead \2208  {';
-  margin-right: 0;
-}
-
-.spec-lookahead.set.not::before {
-  content: '[lookahead \2209  {';
-}
-
-.spec-lookahead.ntset::before {
-  content: '[lookahead \2208  ';
-  margin-right: 0;
-}
-
-.spec-lookahead.ntset.not::before {
-  content: '[lookahead \2209  ';
-}
-
-.spec-lookahead::after {
-  color: #666666;
-  content: ']';
-}
-
-.spec-lookahead.set::after {
-  content: '}]';
-}
-</style>
-<style>/* Copied from node_modules/prismjs/themes/prism.css */
-/**
- * prism.js default theme for JavaScript, CSS and HTML
- * Based on dabblet (http://dabblet.com)
- * @author Lea Verou
- */
-
-code[class*="language-"],
-pre[class*="language-"] {
-	color: black;
-	background: none;
-	text-shadow: 0 1px white;
-	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
-	text-align: left;
-	white-space: pre;
-	word-spacing: normal;
-	word-break: normal;
-	word-wrap: normal;
-	line-height: 1.5;
-
-	-moz-tab-size: 4;
-	-o-tab-size: 4;
-	tab-size: 4;
-
-	-webkit-hyphens: none;
-	-moz-hyphens: none;
-	-ms-hyphens: none;
-	hyphens: none;
-}
-
-pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection,
-code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection {
-	text-shadow: none;
-	background: #b3d4fc;
-}
-
-pre[class*="language-"]::selection, pre[class*="language-"] ::selection,
-code[class*="language-"]::selection, code[class*="language-"] ::selection {
-	text-shadow: none;
-	background: #b3d4fc;
-}
-
-@media print {
-	code[class*="language-"],
-	pre[class*="language-"] {
-		text-shadow: none;
-	}
-}
-
-/* Code blocks */
-pre[class*="language-"] {
-	padding: 1em;
-	margin: .5em 0;
-	overflow: auto;
-}
-
-:not(pre) > code[class*="language-"],
-pre[class*="language-"] {
-	background: #f5f2f0;
-}
-
-/* Inline code */
-:not(pre) > code[class*="language-"] {
-	padding: .1em;
-	border-radius: .3em;
-	white-space: normal;
-}
-
-.token.comment,
-.token.prolog,
-.token.doctype,
-.token.cdata {
-	color: slategray;
-}
-
-.token.punctuation {
-	color: #999;
-}
-
-.namespace {
-	opacity: .7;
-}
-
-.token.property,
-.token.tag,
-.token.boolean,
-.token.number,
-.token.constant,
-.token.symbol,
-.token.deleted {
-	color: #905;
-}
-
-.token.selector,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin,
-.token.inserted {
-	color: #690;
-}
-
-.token.operator,
-.token.entity,
-.token.url,
-.language-css .token.string,
-.style .token.string {
-	color: #a67f59;
-	background: hsla(0, 0%, 100%, .5);
-}
-
-.token.atrule,
-.token.attr-value,
-.token.keyword {
-	color: #07a;
-}
-
-.token.function {
-	color: #DD4A68;
-}
-
-.token.regex,
-.token.important,
-.token.variable {
-	color: #e90;
-}
-
-.token.important,
-.token.bold {
-	font-weight: bold;
-}
-.token.italic {
-	font-style: italic;
-}
-
-.token.entity {
-	cursor: help;
-}
-</style>
-<script>(function(){var e,t=document.getElementsByTagName("style")[0].sheet;function n(){e&&(t.deleteRule(e),e=void 0)}document.documentElement.addEventListener("mouseover",(function(a){var u,d=a.target.attributes["data-name"];d&&(u=d.value,n(),e=t.insertRule('*[data-name="'+u+'"] { background: #FBF8D0; }',t.cssRules.length))})),document.documentElement.addEventListener("mouseout",n);})()</script>
-<script>(function(){var e,n,t,o,r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";function a(e){c(new URL(e.target.href))}function i(){c(window.location)}function c(e){var n=e.hash.match(/^#sel-([A-Za-z0-9-_]+)$/);if(n){o=n[1];var a=(t=function(e){for(var n=new Array(64),t=0;t<64;t++)n[r.charCodeAt(t)]=t;var o=0,a=m(),i=m(),c=m(),d=w(),l=i.pop(),f=u(a.concat(i)),h=c.pop(),g=u(a.concat(c)),v=document.createRange();return v.setStart(f,l),v.setEnd(g,h),v.isOutdated=void 0!==d&&d!==s(v.toString()),v;function w(){for(var t=0,r=0;o<e.length;){var a=n[e.charCodeAt(o++)];if(t|=(31&a)<<r,r+=5,a<32)return t}}function m(){var e=w();if(null!=e){for(var n=new Array(e),t=0;t<e;t++)n[t]=w();return n}}}(o)).getBoundingClientRect(),i=Math.max(20,Math.floor(.4*(window.innerHeight-a.height)));window.scrollTo(0,window.scrollY+a.y-i);var c=document.getSelection();c.empty(),c.addRange(t),d()}}function d(){n||(n=document.getElementsByTagName("article")[0]),e||(e=document.createElement("a"),document.body.appendChild(e)),e.href="#sel-"+o,e.onclick=a,e.className=t.isOutdated?"outdated-selection-link":"selection-link",e.innerText=t.isOutdated?"!":"‟";var r=n.getBoundingClientRect().x,i=t.getBoundingClientRect().y;e.style.left=Math.floor(r+window.scrollX-37)+"px",e.style.top=Math.floor(i+window.scrollY-3)+"px"}function l(e){for(var n=[];e!=document.body;){var t=e.parentNode;n.push(Array.prototype.indexOf.call(t.childNodes,e)),e=t}return n.reverse()}function u(e){for(var n=document.body,t=0;t<e.length&&n;t++)n=n.childNodes[e[t]];return n}function s(e){for(var n=2166136261,t=0;t<e.length;++t)n^=e.charCodeAt(t),n+=(n<<1)+(n<<4)+(n<<7)+(n<<8)+(n<<24);return 32767&(n>>15^n)}document.addEventListener("selectionchange",(function(n){var a=document.getSelection();if(a.isCollapsed)e&&(e.parentNode.removeChild(e),e=null);else{var i=a.getRangeAt(0);t&&0===i.compareBoundaryPoints(Range.START_TO_START,t)&&0===i.compareBoundaryPoints(Range.END_TO_END,t)||(o=function(e){var n="",t=l(e.startContainer),o=l(e.endContainer),a=function(e,n){var t=0;for(;t<e.length&&t<n.length&&e[t]===n[t];)t++;return e.slice(0,t)}(t,o);return c(a),c(t.slice(a.length).concat(e.startOffset)),c(o.slice(a.length).concat(e.endOffset)),i(s(e.toString())),n;function i(e){do{n+=r[31&e|(e>31?32:0)],e>>=5}while(e>0)}function c(e){i(e.length);for(var n=0;n<e.length;n++)i(e[n])}}(t=i),d())}})),window.addEventListener("resize",d),window.addEventListener("hashchange",i),window.addEventListener("load",i);})()</script>
+<meta name="viewport" content="width=device-width, initial-scale=1"><title>GraphQL Global Object Identification Specification</title>
+<style>/** * prism.js default theme for JavaScript, CSS and HTML * Based on dabblet (http://dabblet.com) * @author Lea Verou */ code[class*="language-"], pre[class*="language-"] { 	color: black; 	background: none; 	text-shadow: 0 1px white; 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace; 	font-size: 1em; 	text-align: left; 	white-space: pre; 	word-spacing: normal; 	word-break: normal; 	word-wrap: normal; 	line-height: 1.5; 	-moz-tab-size: 4; 	-o-tab-size: 4; 	tab-size: 4; 	-webkit-hyphens: none; 	-moz-hyphens: none; 	-ms-hyphens: none; 	hyphens: none; } pre[class*="language-"]::-moz-selection, pre[class*="language-"] ::-moz-selection, code[class*="language-"]::-moz-selection, code[class*="language-"] ::-moz-selection { 	text-shadow: none; 	background: #b3d4fc; } pre[class*="language-"]::selection, pre[class*="language-"] ::selection, code[class*="language-"]::selection, code[class*="language-"] ::selection { 	text-shadow: none; 	background: #b3d4fc; } @media print { 	code[class*="language-"], 	pre[class*="language-"] { 		text-shadow: none; 	} } /* Code blocks */ pre[class*="language-"] { 	padding: 1em; 	margin: .5em 0; 	overflow: auto; } :not(pre) > code[class*="language-"], pre[class*="language-"] { 	background: #f5f2f0; } /* Inline code */ :not(pre) > code[class*="language-"] { 	padding: .1em; 	border-radius: .3em; 	white-space: normal; } .token.comment, .token.prolog, .token.doctype, .token.cdata { 	color: slategray; } .token.punctuation { 	color: #999; } .token.namespace { 	opacity: .7; } .token.property, .token.tag, .token.boolean, .token.number, .token.constant, .token.symbol, .token.deleted { 	color: #905; } .token.selector, .token.attr-name, .token.string, .token.char, .token.builtin, .token.inserted { 	color: #690; } .token.operator, .token.entity, .token.url, .language-css .token.string, .style .token.string { 	color: #9a6e3a; 	/* This background color was intended by the author of this theme. */ 	background: hsla(0, 0%, 100%, .5); } .token.atrule, .token.attr-value, .token.keyword { 	color: #07a; } .token.function, .token.class-name { 	color: #DD4A68; } .token.regex, .token.important, .token.variable { 	color: #e90; } .token.important, .token.bold { 	font-weight: bold; } .token.italic { 	font-style: italic; } .token.entity { 	cursor: help; }</style>
+<style>:root{color:#333;font-family:Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;font-size:15px;line-height:1.5;--mono-font-size: 13px;--indent: 1rem;--list-indent: 1.5rem;--dfn-indent: 0rem}@media (min-width: 720px){:root{font-size:17px;--mono-font-size: 15px;--indent: 2rem;--list-indent: 2rem;--dfn-indent: 2rem}}body{margin:3rem 0 3rem}article{margin:0 1rem}@media (min-width: 720px){body{margin:6rem auto 3rem;max-width:800px;padding-left:75px;padding-right:clamp(0px,calc((100vw - 800px) * .25),75px)}}.source-link{display:none}@media screen and (min-width: 720px){.source-link{display:block;position:absolute;width:18px;fill:#ccc;opacity:.3}.source-link:hover{opacity:1}}.outdated-selection-link,.selection-link{position:absolute;display:block;color:#fff;--selection-background-color: #cacee0;background:var(--selection-background-color);border-radius:4px;font-size:36px;height:23px;line-height:48px;text-align:center;text-decoration:none;width:25px;user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}.outdated-selection-link:hover,.selection-link:hover{text-decoration:none}.outdated-selection-link:before,.selection-link:before{border:5px solid transparent;content:"";height:0;margin-top:-5px;margin-right:-5px;position:absolute;right:1px;top:50%;width:0}@media (max-width: 719px){.outdated-selection-link:before,.selection-link:before{border-bottom-color:var(--selection-background-color);border-top:0;right:50%;top:1px}}@media (min-width: 720px){.outdated-selection-link:before,.selection-link:before{border-left-color:var(--selection-background-color);border-right:0;right:1px;top:50%}}.selection-link:hover{--selection-background-color: #3b5998}.outdated-selection-link{--selection-background-color: #f0babe;font-size:21px;font-weight:800;line-height:27px}.outdated-selection-link:hover:after{content:"This selection content has changed since this link was created.";font:9pt/11pt Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;position:absolute;display:block;white-space:nowrap;padding:2px 5px 1px;top:-20px;background:black;color:#fff}a{color:#3b5998;text-decoration:none}a:hover{text-decoration:underline}img{max-width:100%}dl{margin:1rem 0 1rem var(--dfn-indent)}dd{margin:.25em 0 .5em var(--indent)}dd+dd{margin-top:1rem}dfn,.spec-ref{font-style:italic}dfn>a,.spec-ref>a{color:inherit}h1,h2,h3,h4,h5,h6{font-weight:bold;margin:3em 0 1em;position:relative}@media (min-width: 720px){header>h1{margin:6em 0 3em}}h1{font-size:1.5em;margin-top:5em}h2,h3{font-size:1.25em}h4,h5,h6{font-size:1em}section{padding-top:1rem;margin-top:-1rem}section.subsec>h6{margin-top:2em}section.subsec>h6>a{color:#333}section .spec-secid{margin-right:1ex}@media (min-width: 720px){section .spec-secid{position:absolute;right:100%;text-align:right;white-space:nowrap}}footer{font-size:75%;opacity:.5;text-align:center;margin-top:12rem}.spec-toc{margin:1rem 0 3rem}.spec-toc .title{content:"Contents";display:block;font-weight:bold;margin:5em 0 1em}.spec-toc .spec-secid{margin-right:1ex}.spec-toc ol{list-style:none;padding-left:0;margin-top:0;margin-bottom:0}.spec-toc ol ol{list-style:none;padding-left:2ex;margin-bottom:.25em}.spec-toc li{position:relative;padding:5px 0 0 30px;margin:-5px 0 0 -30px}.spec-toc a{color:#333}.spec-toc a:hover{text-decoration:none}.spec-toc a .spec-secid{color:#3b5998}.spec-toc a:hover .spec-secid{text-decoration:underline}.spec-toc .toggle{display:none}.spec-toc .toggle+label{cursor:pointer;left:6px;opacity:1;padding:5px 6px 5px 7px;position:absolute;top:6px;transform:rotate(0deg);transition:all .18s ease-in-out}.spec-toc .toggle+label:after{border-color:transparent transparent transparent #bbc;border-style:solid;border-width:6px 0 6px 7px;content:" ";display:block;height:0;width:0}@media (pointer: fine){.spec-toc .toggle+label{left:10px;padding:3px 5px 3px 6px;top:8px}}.spec-toc .toggle:checked+label{transform:rotate(90deg)}@media (hover: hover){.spec-toc li:not(:hover)>.toggle:checked+label{opacity:0}}.spec-toc .toggle:not(:checked)~ol{max-height:0;overflow:hidden;margin:0}.spec-sidebar-toggle{display:none}.spec-sidebar-toggle+label>.spec-sidebar-button{position:fixed;right:0;top:0;padding:10px 15px;font-size:30px;color:#000000b3;z-index:2;cursor:pointer;user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}.spec-sidebar-toggle:checked+label:after{content:"";position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0}.spec-sidebar{display:none;position:fixed;right:0;top:0;width:min(320px,calc(100vw - 48px));font-size:14px;line-height:1.75;overflow-y:scroll;height:100%;padding:0 0 5rem 30px;box-sizing:border-box;background:#f0f0f0;box-shadow:inset 1px 0 rgba(0,0,0,.05),-4px 0 8px -2px rgba(0,0,0,.04);overscroll-behavior:contain}.spec-sidebar{user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none}.spec-sidebar-toggle:checked~.spec-sidebar{display:block}.spec-sidebar .viewing>a:after{color:#8b9;content:"\2022";margin-left:1ex}@media (min-width: 1220px){.spec-sidebar-toggle+label{display:none}.spec-sidebar{display:block;box-shadow:inset 1px 0 rgba(0,0,0,.05),inset 4px 0 8px -2px rgba(0,0,0,.08)!important}body{padding-right:345px}}.spec-note{background:#FEFEF3;border-left:solid 4px #F4E925;margin:1rem -1rem;min-width:70vw;padding:8px 1rem 12px calc(1rem - 4px);width:-moz-fit-content;width:-webkit-fit-content;width:fit-content}@media (min-width: 720px){.spec-note{min-width:416px}}.spec-note>a:first-child{color:#6c6613;display:block;font:italic 11pt/18pt Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;opacity:.6;user-select:none}.spec-todo{color:#666;margin:1em 0 1em 5em;min-height:1em}.spec-todo::before{content:"todo";display:block;float:left;margin-left:-5em;text-transform:uppercase}.spec-index ol{list-style-type:none;margin:0 0 0 var(--indent);padding:0;column-width:210px;column-gap:var(--indent)}.spec-index ol li{width:min-content;white-space:nowrap}pre,code{font-family:Consolas,Monaco,"Andale Mono","Ubuntu Mono",monospace;font-size:var(--mono-font-size);font-weight:inherit}code{background:rgba(0,0,0,.03);margin:-2px -1px;padding:3px 3px;white-space:pre-wrap}pre>code{background:none;font-weight:inherit;margin:0;padding:0;white-space:pre}pre{background:#FAFAFA;border-left:solid 4px #E9E9E9;margin:1rem -1rem;min-width:70vw;padding:12px 1rem 12px calc(1rem - 4px);width:-moz-fit-content;width:-webkit-fit-content;width:fit-content;max-width:calc(100vw - 2rem);overflow-y:scroll}@media (min-width: 720px){pre{min-width:40ch}}.spec-example{background:#FAFAFF;border-left:solid 4px #BBBBFF;padding-top:8px}.spec-counter-example{background:#FFFAFA;border-left:solid 4px #FFBBBB;padding-top:8px}.spec-example>a,.spec-counter-example>a{display:block;font:italic 11pt/18pt Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;opacity:.6;user-select:none}.spec-counter-example>a{color:#98593b}table{border-collapse:collapse}th{background-color:#f9f9f9}td,th{border:1px solid #D0D0D0;padding:.4em;vertical-align:baseline}ol,ul{padding-left:var(--list-indent)}li>ol,li>ul{margin-top:.25em;margin-bottom:.5em}li+li{margin-top:.25em}li.task{list-style-type:none;position:relative}li.task>input:first-child{margin-left:0;position:absolute;transform:translateX(calc(-100% - 1ch))}ins{background-color:#00c81e14;text-decoration:none}del{background-color:#c8000014}.spec-added,.spec-removed{border-left:4px solid;margin-left:-18px;padding-left:14px}.spec-added{border-color:#396}.spec-removed{border-color:#933;text-decoration:line-through}.spec-keyword{font-weight:bold}.spec-string{font-family:Consolas,Monaco,monospace;font-size:85%;white-space:pre}var{font-style:italic}*[data-name]{transition:.15s background ease-out;border-radius:2px;padding:0 3px;margin:0 -3px}.spec-semantic,.spec-algo{margin:1rem 0 1rem var(--dfn-indent)}.spec-semantic>.spec-nt::after,.spec-algo>.spec-call:first-child::after{content:":";font-style:normal;font-weight:bold;margin-left:1ex}.spec-semantic ol,.spec-semantic ol ol ol ol,.spec-algo ol,.spec-algo ol ol ol ol{list-style-type:decimal}.spec-semantic ol ol,.spec-semantic ol ol ol ol ol,.spec-algo ol ol,.spec-algo ol ol ol ol ol{list-style-type:lower-alpha}.spec-semantic ol ol ol,.spec-semantic ol ol ol ol ol ol,.spec-algo ol ol ol,.spec-algo ol ol ol ol ol ol{list-style-type:lower-roman}.spec-call>a{color:inherit}.spec-production{margin:1rem 0 1rem var(--dfn-indent)}.spec-production>.spec-nt::after{content:":";font-style:normal;font-weight:bold;margin:0 1ex}.spec-semantic.d2>.spec-nt::after,.spec-production.d2>.spec-nt::after{content:"::"}.spec-semantic.d3>.spec-nt::after,.spec-production.d3>.spec-nt::after{content:":::"}.spec-production>.spec-rhs{line-height:1.1;margin:.25em 0 .5em calc(2 * var(--indent));text-indent:calc(-1 * var(--indent))}.spec-semantic>.spec-rhs{display:inline-block;text-indent:calc(-1 * var(--indent));margin-left:calc(1ex + var(--indent))}.spec-rhs>*{text-indent:0}.spec-oneof{display:inline}.spec-oneof::before{content:"one of";font-style:normal;font-weight:bold}.spec-oneof-grid{max-width:calc(100vw - 2rem);overflow:scroll;margin:-1ex -1rem;padding:1ex 1rem}.spec-oneof-grid>table{margin-left:var(--indent)}.spec-oneof .spec-rhs{border:none;margin:0;padding:0 0 0 1rem;vertical-align:baseline;white-space:pre}.spec-oneof .spec-rhs:first-child{padding:0}.spec-rhs .spec-constrained:not(:first-child),.spec-rhs .spec-quantified:not(:first-child),.spec-rhs .spec-nt:not(:first-child),.spec-rhs .spec-t:not(:first-child),.spec-rhs .spec-rx:not(:first-child),.spec-rhs .spec-prose:not(:first-child),.spec-rhs .spec-empty:not(:first-child),.spec-rhs .spec-lookahead:not(:first-child){margin-left:1ex;display:inline-block}.spec-condition{font-size:85%}.spec-condition::before{content:"[if "}.spec-condition.not::before{content:"[if not "}.spec-condition::after{content:"]"}.spec-empty,.spec-prose{color:#666}.spec-nt{font-style:italic}.spec-nt>a{color:inherit}.spec-quantifiers,.spec-params{font-size:65%;font-style:normal;vertical-align:sub}.spec-quantifier.list{color:#3348d3}.spec-quantifier.optional{color:#83238e}.spec-params,.spec-condition{color:#1c7758}.spec-params::before{content:"["}.spec-params::after{content:"]"}.spec-quantifier:not(:last-child)::after,.spec-param:not(:last-child)::after{color:#666;content:", "}.spec-param.conditional::before{content:"?"}.spec-param.negated::before{content:"!"}.spec-t,.spec-rx{color:#333;font-family:monospace;font-weight:bold}.spec-butnot::before{color:#666;content:"but not";font-family:Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;font-weight:normal;margin-right:1ex}.spec-butnot>*:not(:first-child)::before{color:#666;content:"or";font-family:Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;font-weight:normal;margin-right:1ex}.spec-rhs .spec-oneof::before,.spec-rhs .spec-butnot::before{margin-left:1ex}.spec-lookahead>*{margin:0!important}.spec-lookahead>*:not(:first-child)::before{color:#666;content:", ";font-family:Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;font-style:normal;font-weight:normal}.spec-lookahead::before{color:#666;content:"[lookahead = ";font-family:Cambria,"Palatino Linotype",Palatino,"Liberation Serif",serif;font-style:normal;font-weight:normal}.spec-lookahead.not::before{content:"[lookahead \2260  "}.spec-lookahead.set::before{content:"[lookahead \2208  {";margin-right:0}.spec-lookahead.set.not::before{content:"[lookahead \2209  {"}.spec-lookahead.ntset::before{content:"[lookahead \2208  ";margin-right:0}.spec-lookahead.ntset.not::before{content:"[lookahead \2209  "}.spec-lookahead::after{color:#666;content:"]"}.spec-lookahead.set::after{content:"}]"}.token.atrule,.token.attr-value,.token.keyword,.token.property,.token.selector,.token.attr-name,.token.builtin,.token.entity,.token.url,.token.inserted{color:#1b1994b0;background:none}.token.tag,.token.boolean,.token.number,.token.string,.token.char,.token.constant,.token.symbol,.token.regex,.token.important,.token.variable,.token.function,.token.class-name,.token.deleted{color:#a20764bd}.token.comment,.token.prolog,.token.doctype,.token.cdata,.token.description{color:inherit;opacity:.3}.token.punctuation{color:inherit;opacity:.5}.token.operator,.token.namespace{color:inherit;opacity:.7}</style>
+<script>(function(){var r,a=[];document.addEventListener("readystatechange",function(){document.readyState==="interactive"&&u()});function u(){var n=document.querySelector('label[for="spec-sidebar-toggle"]');n.addEventListener("scroll",o),n.addEventListener("touchmove",o);function o(d){d.preventDefault()}for(var t=document.getElementsByTagName("section"),e=0;e<t.length;e++)t[e].getAttribute("secid")&&a.push(t[e]);var i=window.scrollY,c=!1;window.addEventListener("scroll",function(d){i=window.scrollY,c||(c=!0,window.requestAnimationFrame(function(){s(i),c=!1}))})}function s(n){for(var o=n+document.documentElement.clientHeight/4,t,e=a.length-1;e>=0;e--)if(a[e].offsetTop<o){t=a[e];break}var i=t&&t.getAttribute("secid");i!==r&&(r&&l(r,!1),i&&l(i,!0),r=i)}function l(n,o){document.getElementById("_sidebar_"+n).className=o?"viewing":"";for(var t=n.split(".");t.length;){var e=document.getElementById("_toggle_"+t.join("."));e&&(e.checked=o),t.pop()}}s(window.scrollY);})();</script>
+<script>(function(){var n=document.getElementsByTagName("style")[0].sheet,e;function u(){e&&(n.deleteRule(e),e=void 0)}function d(t){u(),e=n.insertRule('*[data-name="'+t+'"] { background: rgba(230,215,0,0.12); }',n.cssRules.length)}document.documentElement.addEventListener("mouseover",function(t){var a=t.target.attributes["data-name"];a&&d(a.value)});document.documentElement.addEventListener("mouseout",u);})();</script>
+<script>(function(){var R="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_",o,p,r,g;document.addEventListener("selectionchange",E);window.addEventListener("resize",C);window.addEventListener("hashchange",x);window.addEventListener("load",x);function S(n){y(new URL(n.target.href))}function x(){y(window.location)}function y(n){var e=n.hash.match(/^#sel-([A-Za-z0-9-_]+)$/);if(!!e){g=e[1],r=k(g);var t=r.getBoundingClientRect(),d=Math.max(20,Math.floor((window.innerHeight-t.height)*.4));window.scrollTo(0,window.scrollY+t.y-d);var c=document.getSelection();c.empty(),c.addRange(r),C()}}function E(n){var e=document.getSelection();if(e.isCollapsed)o&&(o.parentNode.removeChild(o),o=null);else{var t=e.getRangeAt(0);(!r||t.compareBoundaryPoints(Range.START_TO_START,r)!==0||t.compareBoundaryPoints(Range.END_TO_END,r)!==0)&&(r=t,g=B(r),C())}}function C(){if(!!r){p||(p=document.getElementsByTagName("article")[0]),o||(o=document.createElement("a"),document.body.appendChild(o)),o.href="#sel-"+g,o.onclick=S,o.className=r.isOutdated?"outdated-selection-link":"selection-link",o.innerText=r.isOutdated?"!":"\u201F";var n=window.innerWidth<720,e=r.getBoundingClientRect();if(n)o.style.left=Math.floor(e.x+e.width/2+window.scrollX-13)+"px",o.style.top=Math.floor(e.bottom+window.scrollY+10)+"px";else{var t=p.getBoundingClientRect().x;o.style.left=Math.floor(t+window.scrollX-37)+"px",o.style.top=Math.floor(e.y+window.scrollY-3)+"px"}}}function B(n){var e="",t=N(n.startContainer),d=N(n.endContainer),c=M(t,d);return l(c),l(t.slice(c.length).concat(n.startOffset)),l(d.slice(c.length).concat(n.endOffset)),i(L(n.toString())),e;function i(a){do e+=R[a&31|(a>31?32:0)],a>>=5;while(a>0)}function l(a){i(a.length);for(var h=0;h<a.length;h++)i(a[h])}}function k(n){for(var e=new Array(64),t=0;t<64;t++)e[R.charCodeAt(t)]=t;var d=0,c=m(),i=m(),l=m(),a=w(),h=i.pop(),P=O(c.concat(i)),T=l.pop(),A=O(c.concat(l)),u=document.createRange();return u.setStart(P,h),u.setEnd(A,T),u.isOutdated=a!==void 0&&a!==L(u.toString()),u;function w(){for(var s=0,v=0;d<n.length;){var f=e[n.charCodeAt(d++)];if(s|=(f&31)<<v,v+=5,f<32)return s}}function m(){var s=w();if(s!=null){for(var v=new Array(s),f=0;f<s;f++)v[f]=w();return v}}}function N(n){for(var e=[];n!=document.body;){var t=n.parentNode;e.push(Array.prototype.indexOf.call(t.childNodes,n)),n=t}return e.reverse()}function O(n){for(var e=document.body,t=0;t<n.length&&e;t++)e=e.childNodes[n[t]];return e}function M(n,e){for(var t=0;t<n.length&&t<e.length&&n[t]===e[t];)t++;return n.slice(0,t)}function L(n){for(var e=2166136261,t=0;t<n.length;++t)e^=n.charCodeAt(t),e+=(e<<1)+(e<<4)+(e<<7)+(e<<8)+(e<<24);return(e>>15^e)&32767}})();</script>
 </head>
 <body><article>
 <header>
@@ -875,7 +16,7 @@ pre[class*="language-"] {
 <p>To provide options for GraphQL clients to elegantly handle for caching and data refetching GraphQL servers need to expose object identifiers in a standardized way. In the query, the schema should provide a standard mechanism for asking for an object by ID. In the response, the schema provides a standard way of providing these IDs.</p>
 <p>We refer to objects with identifiers as &ldquo;nodes&rdquo;.</p>
 <p>An example of both of those is the following query:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="graphql"><code><span class="token punctuation">{</span>
   node<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"4"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
     <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
@@ -893,22 +34,16 @@ pre[class*="language-"] {
 <div class="title">Contents</div>
 <ol>
 <li><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li>
-<li><a href="#sec-Node-Interface"><span class="spec-secid">2</span>Node Interface</a>
-<input hidden class="toggle" type="checkbox" checked id="_toggle_2" /><label for="_toggle_2"></label>
-<ol>
+<li><a href="#sec-Node-Interface"><span class="spec-secid">2</span>Node Interface</a><ol>
 <li><a href="#sec-Node-Interface.Introspection"><span class="spec-secid">2.1</span>Introspection</a></li>
 </ol>
 </li>
-<li><a href="#sec-Node-root-field"><span class="spec-secid">3</span>Node root field</a>
-<input hidden class="toggle" type="checkbox" checked id="_toggle_3" /><label for="_toggle_3"></label>
-<ol>
+<li><a href="#sec-Node-root-field"><span class="spec-secid">3</span>Node root field</a><ol>
 <li><a href="#sec-Node-root-field.Introspection"><span class="spec-secid">3.1</span>Introspection</a></li>
 </ol>
 </li>
 <li><a href="#sec-Field-stability"><span class="spec-secid">4</span>Field stability</a></li>
-<li><a href="#sec-Plural-identifying-root-fields"><span class="spec-secid">5</span>Plural identifying root fields</a>
-<input hidden class="toggle" type="checkbox" checked id="_toggle_5" /><label for="_toggle_5"></label>
-<ol>
+<li><a href="#sec-Plural-identifying-root-fields"><span class="spec-secid">5</span>Plural identifying root fields</a><ol>
 <li><a href="#sec-Fields"><span class="spec-secid">5.1</span>Fields</a></li>
 </ol>
 </li>
@@ -916,7 +51,7 @@ pre[class*="language-"] {
 </nav>
 </header>
 <section id="sec-Reserved-Types" secid="1">
-<h2><span class="spec-secid" title="link to this section"><a href="#sec-Reserved-Types">1</a></span>Reserved Types</h2>
+<h1><span class="spec-secid" title="link to this section"><a href="#sec-Reserved-Types">1</a></span>Reserved Types</h1>
 <p>A GraphQL server compatible with this spec must reserve certain types and type names to support the consistent object identification model. In particular, this spec creates guidelines for the following types:</p>
 <ul>
 <li>An interface named <code>Node</code>.</li>
@@ -924,13 +59,13 @@ pre[class*="language-"] {
 </ul>
 </section>
 <section id="sec-Node-Interface" secid="2">
-<h2><span class="spec-secid" title="link to this section"><a href="#sec-Node-Interface">2</a></span>Node Interface</h2>
-<p>The server must provide an interface called <code>Node</code>. That interface must include exactly one field, called <code>id</code> that returns a non&#8208;null <code>ID</code>.</p>
+<h1><span class="spec-secid" title="link to this section"><a href="#sec-Node-Interface">2</a></span>Node Interface</h1>
+<p>The server must provide an interface called <code>Node</code>. That interface must include exactly one field, called <code>id</code> that returns a non-null <code>ID</code>.</p>
 <p>This <code>id</code> should be a globally unique identifier for this object, and given just this <code>id</code>, the server should be able to refetch the object.</p>
 <section id="sec-Node-Interface.Introspection" secid="2.1">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Node-Interface.Introspection">2.1</a></span>Introspection</h3>
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Node-Interface.Introspection">2.1</a></span>Introspection</h2>
 <p>A server that correctly implements the above interface will accept the following introspection query, and return the provided response:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="graphql"><code><span class="token punctuation">{</span>
   __type<span class="token punctuation">(</span><span class="token attr-name">name</span><span class="token punctuation">:</span> <span class="token string">"Node"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     name
     kind
@@ -948,7 +83,7 @@ pre[class*="language-"] {
 <span class="token punctuation">}</span>
 </code></pre>
 <p>yields</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="json"><code><span class="token punctuation">{</span>
   <span class="token property">"__type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Node"</span><span class="token punctuation">,</span>
     <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"INTERFACE"</span><span class="token punctuation">,</span>
@@ -970,14 +105,14 @@ pre[class*="language-"] {
 </section>
 </section>
 <section id="sec-Node-root-field" secid="3">
-<h2><span class="spec-secid" title="link to this section"><a href="#sec-Node-root-field">3</a></span>Node root field</h2>
-<p>The server must provide a root field called <code>node</code> that returns the <code>Node</code> interface. This root field must take exactly one argument, a non&#8208;null ID named <code>id</code>.</p>
+<h1><span class="spec-secid" title="link to this section"><a href="#sec-Node-root-field">3</a></span>Node root field</h1>
+<p>The server must provide a root field called <code>node</code> that returns the <code>Node</code> interface. This root field must take exactly one argument, a non-null ID named <code>id</code>.</p>
 <p>If a query returns an object that implements <code>Node</code>, then this root field should refetch the identical object when value returned by the server in the <code>Node</code>&lsquo;s <code>id</code> field is passed as the <code>id</code> parameter to the <code>node</code> root field.</p>
 <p>The server must make a best effort to fetch this data, but it may not always be possible; for example, the server may return a <code>User</code> with a valid <code>id</code>, but when the request is made to refetch that user with the <code>node</code> root field, the user&rsquo;s database may be unavailable, or the user may have deleted their account. In this case, the result of querying this field should be <code>null</code>.</p>
 <section id="sec-Node-root-field.Introspection" secid="3.1">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Node-root-field.Introspection">3.1</a></span>Introspection</h3>
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Node-root-field.Introspection">3.1</a></span>Introspection</h2>
 <p>A server that correctly implements the above requirement will accept the following introspection query, and return a response that contains the provided response.</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="graphql"><code><span class="token punctuation">{</span>
   __schema <span class="token punctuation">{</span>
     queryType <span class="token punctuation">{</span>
       fields <span class="token punctuation">{</span>
@@ -1002,7 +137,7 @@ pre[class*="language-"] {
 <span class="token punctuation">}</span>
 </code></pre>
 <p>yields</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="json"><code><span class="token punctuation">{</span>
   <span class="token property">"__schema"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"queryType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
       <span class="token property">"fields"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
@@ -1034,7 +169,7 @@ pre[class*="language-"] {
 </section>
 </section>
 <section id="sec-Field-stability" secid="4">
-<h2><span class="spec-secid" title="link to this section"><a href="#sec-Field-stability">4</a></span>Field stability</h2>
+<h1><span class="spec-secid" title="link to this section"><a href="#sec-Field-stability">4</a></span>Field stability</h1>
 <p>If two objects appear in a query, both implementing <code>Node</code> with identical IDs, then the two objects must be equal.</p>
 <p>For the purposes of this definition, object equality is defined as follows:</p>
 <ul>
@@ -1046,7 +181,7 @@ pre[class*="language-"] {
 </li>
 </ul>
 <p>For example:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="graphql"><code><span class="token punctuation">{</span>
   <span class="token attr-name">fourNode</span><span class="token punctuation">:</span> node<span class="token punctuation">(</span><span class="token attr-name">id</span><span class="token punctuation">:</span> <span class="token string">"4"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
     <span class="token operator">...</span> <span class="token keyword">on</span> <span class="token class-name">User</span> <span class="token punctuation">{</span>
@@ -1070,7 +205,7 @@ pre[class*="language-"] {
 <span class="token punctuation">}</span>
 </code></pre>
 <p>might return:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="json"><code><span class="token punctuation">{</span>
   <span class="token property">"fourNode"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
     <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Mark Zuckerberg"</span><span class="token punctuation">,</span>
@@ -1092,30 +227,30 @@ pre[class*="language-"] {
 <p>Because <code>fourNode.id</code> and <code>fiveNode.userWithIdOneLess.id</code> are the same, we are guaranteed by the conditions above that <code>fourNode.name</code> must be the same as <code>fiveNode.userWithIdOneLess.name</code>, and indeed it is.</p>
 </section>
 <section id="sec-Plural-identifying-root-fields" secid="5">
-<h2><span class="spec-secid" title="link to this section"><a href="#sec-Plural-identifying-root-fields">5</a></span>Plural identifying root fields</h2>
+<h1><span class="spec-secid" title="link to this section"><a href="#sec-Plural-identifying-root-fields">5</a></span>Plural identifying root fields</h1>
 <p>Imagine a root field named <code>username</code>, that takes a user&rsquo;s username and returns the corresponding user:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="graphql"><code><span class="token punctuation">{</span>
   username<span class="token punctuation">(</span><span class="token attr-name">username</span><span class="token punctuation">:</span> <span class="token string">"zuck"</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>might return:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="json"><code><span class="token punctuation">{</span>
   <span class="token property">"username"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
     <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>Clearly, we can link up the object in the response, the user with ID 4, with the request, identifying the object with username &ldquo;zuck&rdquo;. Now imagine a root field named <code>usernames</code>, that takes a list of usernames and returns a list of objects:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="graphql"><code><span class="token punctuation">{</span>
   usernames<span class="token punctuation">(</span><span class="token attr-name">usernames</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"zuck"</span><span class="token punctuation">,</span> <span class="token string">"moskov"</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     id
   <span class="token punctuation">}</span>
 <span class="token punctuation">}</span>
 </code></pre>
 <p>might return:</p>
-<pre><code><span class="token punctuation">{</span>
+<pre data-language="json"><code><span class="token punctuation">{</span>
   <span class="token property">"usernames"</span><span class="token operator">:</span> <span class="token punctuation">[</span>
     <span class="token punctuation">{</span>
       <span class="token property">"id"</span><span class="token operator">:</span> <span class="token string">"4"</span><span class="token punctuation">,</span>
@@ -1128,47 +263,46 @@ pre[class*="language-"] {
 </code></pre>
 <p>For clients to be able to link the usernames to the responses, it needs to know that the array in the response will be the same size as the array passed as an argument, and that the order in the response will match the order in the argument. We call these <em>plural identifying root fields</em>, and their requirements are described below.</p>
 <section id="sec-Fields" secid="5.1">
-<h3><span class="spec-secid" title="link to this section"><a href="#sec-Fields">5.1</a></span>Fields</h3>
-<p>A server compliant with this spec may expose root fields that accept a list of input arguments, and returns a list of responses. For spec&#8208;compliant clients to use these fields, these fields must be <em>plural identifying root fields</em>, and obey the following requirements.</p>
-<div id="note-da65e" class="spec-note">
-<a href="#note-da65e">Note</a>
-Spec&#8208;compliant servers may expose root fields that are not <em>plural identifying root fields</em>; the spec&#8208;compliant client will just be unable to use those fields as root fields in its queries.</div>
-<p><em>Plural identifying root fields</em> must have a single argument. The type of that argument must be a non&#8208;null list of non&#8208;nulls. In our <code>usernames</code> example, the field would take a single argument named <code>usernames</code>, whose type (using our type system shorthand) would be <code>[String!]!</code>.</p>
-<p>The return type of a <em>plural identifying root field</em> must be a list, or a non&#8208;null wrapper around a list. The list must wrap the <code>Node</code> interface, an object that implements the <code>Node</code> interface, or a non&#8208;null wrapper around those types.</p>
+<h2><span class="spec-secid" title="link to this section"><a href="#sec-Fields">5.1</a></span>Fields</h2>
+<p>A server compliant with this spec may expose root fields that accept a list of input arguments, and returns a list of responses. For spec-compliant clients to use these fields, these fields must be <em>plural identifying root fields</em>, and obey the following requirements.</p>
+<div id="note-62f10" class="spec-note">
+<a href="#note-62f10">Note</a>
+Spec-compliant servers may expose root fields that are not <em>plural identifying root fields</em>; the spec-compliant client will just be unable to use those fields as root fields in its queries.</div>
+<p><em>Plural identifying root fields</em> must have a single argument. The type of that argument must be a non-null list of non-nulls. In our <code>usernames</code> example, the field would take a single argument named <code>usernames</code>, whose type (using our type system shorthand) would be <code>[String!]!</code>.</p>
+<p>The return type of a <em>plural identifying root field</em> must be a list, or a non-null wrapper around a list. The list must wrap the <code>Node</code> interface, an object that implements the <code>Node</code> interface, or a non-null wrapper around those types.</p>
 <p>Whenever the <em>plural identifying root field</em> is used, the length of the list in the response must be the same as the length of the list in the arguments. Each item in the response must correspond to its item in the input; more formally, if passing the root field an input list <code>Lin</code> resulted in output value <code>Lout</code>, then for an arbitrary permutation <code>P</code>, passing the root field <code>P(Lin)</code> must result in output value <code>P(Lout)</code>.</p>
-<p>Because of this, servers are advised to not have the response type wrap a non&#8208;null wrapper, because if it is unable to fetch the object for a given entry in the input, it still must provide a value in the output for that input entry; <code>null</code> is a useful value for doing so. </p>
+<p>Because of this, servers are advised to not have the response type wrap a non-null wrapper, because if it is unable to fetch the object for a given entry in the input, it still must provide a value in the output for that input entry; <code>null</code> is a useful value for doing so. </p>
 </section>
 </section>
 </article>
 <footer>
 Written in <a href="https://spec-md.com" target="_blank">Spec Markdown</a>.</footer>
-<input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden>&#x2630;</label>
+<input hidden class="spec-sidebar-toggle" type="checkbox" id="spec-sidebar-toggle" aria-hidden /><label for="spec-sidebar-toggle" aria-hidden><div class="spec-sidebar-button">&#x2630;</div></label>
 <div class="spec-sidebar" aria-hidden>
 <div class="spec-toc">
 <div class="title"><a href="#">GraphQL Global Object Identification Specification</a></div>
 <ol><li id="_sidebar_1"><a href="#sec-Reserved-Types"><span class="spec-secid">1</span>Reserved Types</a></li>
 <li id="_sidebar_2"><a href="#sec-Node-Interface"><span class="spec-secid">2</span>Node Interface</a>
-<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_2" /><label for="_sidebar_toggle_2"></label>
+<input hidden class="toggle" type="checkbox" id="_toggle_2" /><label for="_toggle_2"></label>
 <ol>
 <li id="_sidebar_2.1"><a href="#sec-Node-Interface.Introspection"><span class="spec-secid">2.1</span>Introspection</a></li>
 </ol>
 </li>
 <li id="_sidebar_3"><a href="#sec-Node-root-field"><span class="spec-secid">3</span>Node root field</a>
-<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_3" /><label for="_sidebar_toggle_3"></label>
+<input hidden class="toggle" type="checkbox" id="_toggle_3" /><label for="_toggle_3"></label>
 <ol>
 <li id="_sidebar_3.1"><a href="#sec-Node-root-field.Introspection"><span class="spec-secid">3.1</span>Introspection</a></li>
 </ol>
 </li>
 <li id="_sidebar_4"><a href="#sec-Field-stability"><span class="spec-secid">4</span>Field stability</a></li>
 <li id="_sidebar_5"><a href="#sec-Plural-identifying-root-fields"><span class="spec-secid">5</span>Plural identifying root fields</a>
-<input hidden class="toggle" type="checkbox" id="_sidebar_toggle_5" /><label for="_sidebar_toggle_5"></label>
+<input hidden class="toggle" type="checkbox" id="_toggle_5" /><label for="_toggle_5"></label>
 <ol>
 <li id="_sidebar_5.1"><a href="#sec-Fields"><span class="spec-secid">5.1</span>Fields</a></li>
 </ol>
 </li>
 </ol>
 </div>
-<script>(function(){for(var e,t=[],n=document.getElementsByTagName("section"),o=0;o<n.length;o++)n[o].getAttribute("secid")&&t.push(n[o]);var i=window.scrollY,r=!1;function c(n){for(var o,i=n+document.documentElement.clientHeight/4,r=t.length-1;r>=0;r--)if(t[r].offsetTop<i){o=t[r];break}var c=o&&o.getAttribute("secid");c!==e&&(e&&d(e,!1),c&&d(c,!0),e=c)}function d(e,t){document.getElementById("_sidebar_"+e).className=t?"viewing":"";for(var n=e.split(".");n.length;){var o=document.getElementById("_sidebar_toggle_"+n.join("."));o&&(o.checked=t),n.pop()}}window.addEventListener("scroll",(function(e){i=window.scrollY,r||(r=!0,window.requestAnimationFrame((function(){c(i),r=!1})))})),c(window.scrollY);})()</script>
 </div>
 </body>
 </html>

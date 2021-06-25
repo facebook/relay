@@ -900,7 +900,7 @@ describe('useLazyLoadQueryNode', () => {
           profilerContext: expect.objectContaining({}),
         },
         {
-          name: 'queryresource.suspend',
+          name: 'suspense.query',
           fetchPolicy: 'network-only',
           isPromiseCached: false,
           operation: {
@@ -1033,7 +1033,7 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
-          name: 'queryresource.suspend',
+          name: 'suspense.query',
           fetchPolicy: 'network-only',
           isPromiseCached: false,
           operation: {
@@ -1069,7 +1069,7 @@ describe('useLazyLoadQueryNode', () => {
           },
         },
         {
-          name: 'queryresource.suspend',
+          name: 'suspense.query',
           fetchPolicy: 'network-only',
           isPromiseCached: false,
           operation: {
@@ -1081,7 +1081,7 @@ describe('useLazyLoadQueryNode', () => {
           renderPolicy: 'partial',
         },
         {
-          name: 'queryresource.suspend',
+          name: 'suspense.query',
           fetchPolicy: 'network-only',
           isPromiseCached: true,
           operation: {

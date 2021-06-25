@@ -15,12 +15,12 @@
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
 const areEqual = require('areEqual');
+const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const warning = require('warning');
 
-const {getPromiseForActiveRequest} = require('../query/fetchQueryInternal');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -278,11 +278,12 @@ class SelectorResolver {
       // This should eventually go away with something like @optional, where we only
       // suspend at specific boundaries depending on whether the boundary
       // can be fulfilled or not.
-      const promise: void | Promise<void> =
-        getPromiseForActiveRequest(this._environment, this._selector.owner) ??
-        this._environment
-          .getOperationTracker()
-          .getPendingOperationsAffectingOwner(this._selector.owner)?.promise;
+      const pendingOperationsResult = getPendingOperationsForFragment(
+        this._environment,
+        this._selector.node,
+        this._selector.owner,
+      );
+      const promise: void | Promise<void> = pendingOperationsResult?.promise;
       if (promise != null) {
         if (this._rootIsQueryRenderer) {
           warning(
@@ -293,6 +294,8 @@ class SelectorResolver {
             this._selector.node.name,
           );
         } else {
+          const pendingOperations =
+            pendingOperationsResult?.pendingOperations ?? [];
           warning(
             false,
             'Relay: Relay Container for fragment `%s` suspended. When using ' +
@@ -300,6 +303,15 @@ class SelectorResolver {
               'of a Relay Container.',
             this._selector.node.name,
           );
+          this._environment.__log({
+            name: 'suspense.fragment',
+            data: this._data,
+            fragment: this._selector.node,
+            isRelayHooks: false,
+            isMissingData: this._isMissingData,
+            isPromiseCached: false,
+            pendingOperations: pendingOperations,
+          });
           throw promise;
         }
       }

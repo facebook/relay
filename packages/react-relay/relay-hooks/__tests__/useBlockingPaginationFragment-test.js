@@ -32,6 +32,7 @@ const {
   graphql,
   getRequest,
   getFragment,
+  __internal: {fetchQuery},
 } = require('relay-runtime');
 
 const {createMockEnvironment} = require('relay-test-utils');
@@ -132,7 +133,6 @@ describe('useBlockingPaginationFragment', () => {
 
   beforeEach(() => {
     // Set up mocks
-    jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
     renderSpy = jest.fn();
@@ -664,12 +664,6 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      jest
-        .spyOn(
-          require('relay-runtime').__internal,
-          'getPromiseForActiveRequest',
-        )
-        .mockImplementationOnce(() => Promise.resolve());
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
@@ -683,6 +677,9 @@ describe('useBlockingPaginationFragment', () => {
           id: '4',
         },
       });
+
+      // Make sure query is in flight
+      fetchQuery(environment, missingDataQuery).subscribe({});
 
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');

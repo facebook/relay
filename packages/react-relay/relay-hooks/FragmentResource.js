@@ -18,8 +18,8 @@ const LRUCache = require('./LRUCache');
 const invariant = require('invariant');
 
 const {
-  __internal: {getPromiseForActiveRequest},
   getFragmentIdentifier,
+  getPendingOperationsForFragment,
   getSelector,
   isPromise,
   recycleNodesInto,
@@ -222,9 +222,10 @@ class FragmentResourceImpl {
     if (cachedValue != null) {
       if (cachedValue.kind === 'pending' && isPromise(cachedValue.promise)) {
         environment.__log({
-          name: 'fragmentresource.suspend',
+          name: 'suspense.fragment',
           data: cachedValue.result.data,
           fragment: fragmentNode,
+          isRelayHooks: true,
           isMissingData: cachedValue.result.isMissingData,
           isPromiseCached: true,
           pendingOperations: cachedValue.pendingOperations,
@@ -298,11 +299,15 @@ class FragmentResourceImpl {
       fragmentOwner,
       fragmentResult,
     );
-    if (networkPromiseResult != null) {
+    if (
+      networkPromiseResult != null &&
+      isPromise(networkPromiseResult.promise)
+    ) {
       environment.__log({
-        name: 'fragmentresource.suspend',
+        name: 'suspense.fragment',
         data: fragmentResult.data,
         fragment: fragmentNode,
+        isRelayHooks: true,
         isPromiseCached: false,
         isMissingData: fragmentResult.isMissingData,
         pendingOperations: networkPromiseResult.pendingOperations,
@@ -528,28 +533,20 @@ class FragmentResourceImpl {
     promise: Promise<void>,
     pendingOperations: $ReadOnlyArray<RequestDescriptor>,
   |} | null {
-    const environment = this._environment;
-    let pendingOperations: $ReadOnlyArray<RequestDescriptor> = [];
-    let networkPromise = getPromiseForActiveRequest(environment, fragmentOwner);
-
-    if (networkPromise != null) {
-      pendingOperations = [fragmentOwner];
-    } else {
-      const result = environment
-        .getOperationTracker()
-        .getPendingOperationsAffectingOwner(fragmentOwner);
-
-      pendingOperations = result?.pendingOperations ?? [];
-      networkPromise = result?.promise ?? null;
-    }
-
-    if (!networkPromise) {
+    const pendingOperationsResult = getPendingOperationsForFragment(
+      this._environment,
+      fragmentNode,
+      fragmentOwner,
+    );
+    if (pendingOperationsResult == null) {
       return null;
     }
 
     // When the Promise for the request resolves, we need to make sure to
     // update the cache with the latest data available in the store before
     // resolving the Promise
+    const networkPromise = pendingOperationsResult.promise;
+    const pendingOperations = pendingOperationsResult.pendingOperations;
     const promise = networkPromise
       .then(() => {
         this._cache.delete(cacheKey);
@@ -557,25 +554,14 @@ class FragmentResourceImpl {
       .catch((error: Error) => {
         this._cache.delete(cacheKey);
       });
+    // $FlowExpectedError[prop-missing] Expando to annotate Promises.
+    promise.displayName = networkPromise.displayName;
     this._cache.set(cacheKey, {
       kind: 'pending',
       pendingOperations,
       promise,
       result: fragmentResult,
     });
-
-    let pendingOperationName =
-      pendingOperations?.map(op => op.node.params.name).join(',') ?? null;
-    if (pendingOperationName == null || pendingOperationName.length === 0) {
-      pendingOperationName = 'Unknown pending operation';
-    }
-    const fragmentName = fragmentNode.name;
-    const promiseDisplayName =
-      pendingOperationName === fragmentName
-        ? `Relay(${pendingOperationName})`
-        : `Relay(${pendingOperationName}:${fragmentName})`;
-    // $FlowExpectedError[prop-missing] Expando to annotate Promises.
-    promise.displayName = promiseDisplayName;
     return {promise, pendingOperations};
   }
 

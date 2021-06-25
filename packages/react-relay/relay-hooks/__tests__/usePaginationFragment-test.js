@@ -33,6 +33,7 @@ const {
   getRequest,
   getFragment,
   createOperationDescriptor,
+  __internal: {fetchQuery},
 } = require('relay-runtime');
 
 describe('usePaginationFragment', () => {
@@ -170,7 +171,6 @@ describe('usePaginationFragment', () => {
 
   beforeEach(() => {
     // Set up mocks
-    jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
     renderSpy = jest.fn();
@@ -570,14 +570,6 @@ describe('usePaginationFragment', () => {
   });
 
   describe('initial render', () => {
-    let getPromiseForActiveRequestSpy;
-    beforeEach(() => {
-      getPromiseForActiveRequestSpy = jest.spyOn(
-        require('relay-runtime').__internal,
-        'getPromiseForActiveRequest',
-      );
-    });
-
     // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
     it('should throw error if fragment is plural', () => {
@@ -753,15 +745,13 @@ describe('usePaginationFragment', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      getPromiseForActiveRequestSpy.mockImplementationOnce(() =>
-        Promise.resolve(),
-      );
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
       );
+
       // Commit a payload with name and profile_picture are missing
       environment.commitPayload(missingDataQuery, {
         node: {
@@ -769,6 +759,10 @@ describe('usePaginationFragment', () => {
           id: '4',
         },
       });
+
+      // Make sure query is in flight
+      fetchQuery(environment, missingDataQuery).subscribe({});
+
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');
     });

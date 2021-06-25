@@ -27,6 +27,7 @@ const {
   graphql,
   getRequest,
   getFragment,
+  __internal: {fetchQuery},
 } = require('relay-runtime');
 
 const {createMockEnvironment} = require('relay-test-utils');
@@ -126,7 +127,6 @@ function createFragmentRef(id, owner) {
 
 beforeEach(() => {
   // Set up mocks
-  jest.resetModules();
   jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
   jest.mock('warning');
   jest.mock('scheduler', () => {
@@ -1056,9 +1056,6 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
 it('should throw a promise if if data is missing for fragment and request is in flight', () => {
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-  jest
-    .spyOn(require('relay-runtime').__internal, 'getPromiseForActiveRequest')
-    .mockImplementationOnce(() => Promise.resolve());
 
   const missingDataVariables = {...singularVariables, id: '4'};
   const missingDataQuery = createOperationDescriptor(
@@ -1072,6 +1069,9 @@ it('should throw a promise if if data is missing for fragment and request is in 
       id: '4',
     },
   });
+
+  // Make sure query is in flight
+  fetchQuery(environment, missingDataQuery).subscribe({});
 
   const renderer = renderSingularFragment({owner: missingDataQuery});
   expect(renderer.toJSON()).toEqual('Singular Fallback');

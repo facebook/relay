@@ -52,6 +52,7 @@ const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
 const getPaginationMetadata = require('./util/getPaginationMetadata');
 const getPaginationVariables = require('./util/getPaginationVariables');
+const getPendingOperationsForFragment = require('./util/getPendingOperationsForFragment');
 const getRefetchMetadata = require('./util/getRefetchMetadata');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
@@ -341,6 +342,7 @@ module.exports = {
   getRefetchMetadata: getRefetchMetadata,
   getPaginationMetadata: getPaginationMetadata,
   getPaginationVariables: getPaginationVariables,
+  getPendingOperationsForFragment: getPendingOperationsForFragment,
   getValueAtPath: getValueAtPath,
   __internal: {
     OperationTracker: RelayOperationTracker,

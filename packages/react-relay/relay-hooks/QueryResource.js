@@ -367,7 +367,7 @@ class QueryResourceImpl {
     const cachedValue = cacheEntry.getValue();
     if (isPromise(cachedValue)) {
       environment.__log({
-        name: 'queryresource.suspend',
+        name: 'suspense.query',
         fetchPolicy,
         isPromiseCached: entryWasCached,
         operation: operation,

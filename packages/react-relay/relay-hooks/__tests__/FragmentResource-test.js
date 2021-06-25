@@ -13,21 +13,9 @@
 
 'use strict';
 
-jest.mock('relay-runtime', () => {
-  const originalRuntime = jest.requireActual('relay-runtime');
-  const originalInternal = originalRuntime.__internal;
-  return {
-    ...originalRuntime,
-    __internal: {
-      ...originalInternal,
-      getPromiseForActiveRequest: jest.fn(),
-    },
-  };
-});
-
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForActiveRequest},
+  __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
   graphql,
@@ -119,10 +107,6 @@ function runTest(setFlag, label) {
           name: 'Mark',
         },
       });
-    });
-
-    afterEach(() => {
-      (getPromiseForActiveRequest: any).mockReset();
     });
 
     describe('read', () => {
@@ -429,7 +413,8 @@ function runTest(setFlag, label) {
       });
 
       it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-        (getPromiseForActiveRequest: any).mockReturnValue(Promise.resolve());
+        fetchQuery(environment, queryMissingData).subscribe({});
+
         const fragmentNode = getFragment(UserFragmentMissing);
         const fragmentRef = {
           __id: '4',
@@ -471,12 +456,8 @@ function runTest(setFlag, label) {
       });
 
       it('should not cache or throw an error if network request for parent query errored', () => {
-        let reject = (e: Error) => {};
-        (getPromiseForActiveRequest: any).mockReturnValueOnce(
-          new Promise((_, r) => {
-            reject = r;
-          }),
-        );
+        fetchQuery(environment, queryMissingData).subscribe({error: () => {}});
+
         const fragmentNode = getFragment(UserFragmentMissing);
         const fragmentRef = {
           __id: '4',
@@ -502,7 +483,7 @@ function runTest(setFlag, label) {
         expect(thrown).not.toBe(null);
 
         // Make the network request error
-        reject(new Error('Network Error'));
+        environment.mock.reject(queryMissingData, new Error('Network Error'));
         jest.runAllImmediates();
 
         // Try reading a fragment a second time after the parent query errored
@@ -559,9 +540,8 @@ function runTest(setFlag, label) {
       });
 
       it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-        (getPromiseForActiveRequest: any).mockReturnValueOnce(
-          Promise.resolve(),
-        );
+        fetchQuery(environment, queryMissingData).subscribe({});
+
         const fragmentNodes = {
           user: getFragment(UserFragmentMissing),
         };

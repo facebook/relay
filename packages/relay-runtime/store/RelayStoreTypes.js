@@ -459,15 +459,16 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
 
 export type LogEvent =
   | {|
-      +name: 'fragmentresource.suspend',
+      +name: 'suspense.fragment',
       +data: mixed,
       +fragment: ReaderFragment,
+      +isRelayHooks: boolean,
       +isMissingData: boolean,
       +isPromiseCached: boolean,
       +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
     |}
   | {|
-      +name: 'queryresource.suspend',
+      +name: 'suspense.query',
       +fetchPolicy: string,
       +isPromiseCached: boolean,
       +operation: OperationDescriptor,

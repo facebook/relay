@@ -437,6 +437,11 @@ module.exports = {
         src: 'img/relay.svg',
       },
     },
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/dracula'),
+      defaultLanguage: 'javascript',
+    },
     algolia: {
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',

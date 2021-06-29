@@ -53,4 +53,9 @@ pub struct TypegenConfig {
     /// { "Url": "String" }
     #[serde(default)]
     pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
+
+    /// Require all GraphQL scalar types mapping to be defined, will throw
+    /// if a GraphQL scalar type doesn't have a JS type
+    #[serde(default)]
+    pub require_custom_scalar_types: bool,
 }

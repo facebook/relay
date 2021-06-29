@@ -272,7 +272,7 @@ When you provide these functions, this is roughly what happens during the mutati
 -   Relay will then automatically update the fields under the record corresponding to the ids in the response payload.
 -   If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
 
-Here's a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
+Here's a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L36):
 
 ```javascript
 // AddTodoMutation.js
@@ -306,7 +306,7 @@ function sharedUpdater(store, user, newEdge) {
   const conn = ConnectionHandler.getConnection(
     userProxy,
     'TodoList_todos', // This is the connection identifier, defined here
-    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L76
+    // https://github.com/relayjs/relay-examples/blob/main/todo/js/components/TodoList.js#L76
   );
 
   // Insert the new todo into the Todo List connection

@@ -34,7 +34,7 @@ pub struct Parser<'a> {
 }
 
 /// Parser for the *executable* subset of the GraphQL specification:
-/// https://github.com/graphql/graphql-spec/blob/master/spec/Appendix%20B%20--%20Grammar%20Summary.md
+/// https://github.com/graphql/graphql-spec/blob/main/spec/Appendix%20B%20--%20Grammar%20Summary.md
 impl<'a> Parser<'a> {
     pub fn new(
         source: &'a str,

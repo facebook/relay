@@ -11,7 +11,7 @@
 
 const versions = require('./versions.json');
 
-const {fbContent, isInternal} = require('internaldocs-fb-helpers');
+const { fbContent, isInternal } = require('internaldocs-fb-helpers');
 
 module.exports = {
   title: 'Relay',
@@ -206,7 +206,7 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl: 'https://github.com/facebook/relay/edit/master/website/',
+          editUrl: 'https://github.com/facebook/relay/tree/main/website',
 
           path: './docs/',
 
@@ -246,7 +246,7 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects: function(toPath) {
+        createRedirects: function (toPath) {
           if (toPath.startsWith('/docs/')) {
             const docPath = toPath.substring(6);
             const fromPaths = ['/docs/en/' + docPath];

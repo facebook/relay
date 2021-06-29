@@ -11,8 +11,8 @@
     "rename-version": "docusaurus-rename-version",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
-    "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b master",
-    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b master",
+    "crowdin-upload": "crowdin-cli --config ../crowdin.yaml upload sources --auto-update -b main",
+    "crowdin-download": "crowdin-cli --config ../crowdin.yaml download -b main",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus"

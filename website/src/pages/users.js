@@ -15,7 +15,7 @@ import * as React from 'react';
 /* eslint-enable lint/no-value-import */
 
 const Users = () => {
-  const {siteConfig} = useDocusaurusContext();
+  const { siteConfig } = useDocusaurusContext();
   const showcase = siteConfig.customFields.users.map(user => {
     return (
       <a href={user.infoLink} key={user.caption}>
@@ -34,7 +34,7 @@ const Users = () => {
           </div>
           <div className="logos">{showcase}</div>
           <p>Are you using this project?</p>
-          <a href="https://github.com/facebook/relay/edit/master/website/docusaurus.config.js">
+          <a href="https://github.com/facebook/relay/edit/main/website/docusaurus.config.js">
             Add your project
           </a>
         </div>

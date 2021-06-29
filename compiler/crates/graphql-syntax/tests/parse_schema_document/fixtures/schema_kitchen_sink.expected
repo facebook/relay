@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# source: https://github.com/graphql/graphql-js/blob/master/src/__fixtures__/schema-kitchen-sink.graphql
+# source: https://github.com/graphql/graphql-js/blob/main/src/__fixtures__/schema-kitchen-sink.graphql
 
 """This is a description of the schema as a whole."""
 schema {

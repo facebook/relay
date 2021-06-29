@@ -16,7 +16,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     '@babel/plugin-transform-flow-strip-types',
     [
       '@babel/plugin-transform-runtime',
-      {version: require('@babel/runtime/package.json').version},
+      { version: require('@babel/runtime/package.json').version },
     ],
     '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-proposal-optional-catch-binding',
@@ -43,12 +43,12 @@ const RELEASE_COMMIT_SHA = process.env.RELEASE_COMMIT_SHA;
 if (RELEASE_COMMIT_SHA && RELEASE_COMMIT_SHA.length !== 40) {
   throw new Error(
     'If the RELEASE_COMMIT_SHA env variable is set, it should be set to the ' +
-      '40 character git commit hash.',
+    '40 character git commit hash.',
   );
 }
 
 const VERSION = RELEASE_COMMIT_SHA
-  ? `0.0.0-master-${RELEASE_COMMIT_SHA.substr(0, 8)}`
+  ? `0.0.0-main-${RELEASE_COMMIT_SHA.substr(0, 8)}`
   : process.env.npm_package_version;
 
 const SCRIPT_HASHBANG = '#!/usr/bin/env node\n';
@@ -66,7 +66,7 @@ const PRODUCTION_HEADER = `/**
  */
 `;
 
-const buildDist = function(filename, opts, isProduction) {
+const buildDist = function (filename, opts, isProduction) {
   const webpackOpts = {
     externals: [/^[-/a-zA-Z0-9]+$/, /^@babel\/.+$/],
     target: opts.target,
@@ -97,7 +97,7 @@ const buildDist = function(filename, opts, isProduction) {
       minimize: true,
     };
   }
-  return webpackStream(webpackOpts, webpack, function(err, stats) {
+  return webpackStream(webpackOpts, webpack, function (err, stats) {
     if (err) {
       throw new gulpUtil.PluginError('webpack', err);
     }
@@ -275,7 +275,7 @@ const flowDefs = gulp.parallel(
           .src(['**/*.js', '!**/__tests__/**/*.js', '!**/__mocks__/**/*.js'], {
             cwd: PACKAGES + '/' + build.package,
           })
-          .pipe(rename({extname: '.js.flow'}))
+          .pipe(rename({ extname: '.js.flow' }))
           .pipe(gulp.dest(path.join(DIST, build.package)));
       },
   ),
@@ -319,7 +319,7 @@ const exportsFiles = gulp.series(
             fs.writeFileSync(
               path.join(DIST, build.package, exportName + '.js'),
               PRODUCTION_HEADER +
-                `\nmodule.exports = require('./lib/${build.exports[exportName]}');\n`,
+              `\nmodule.exports = require('./lib/${build.exports[exportName]}');\n`,
             ),
           );
           done();
@@ -380,7 +380,7 @@ const bundlesMin = gulp.series(bundlesMinTasks);
 const clean = () => del(DIST);
 const dist = gulp.series(exportsFiles, bins, bundles, bundlesMin);
 const watch = gulp.series(dist, () =>
-  gulp.watch(INCLUDE_GLOBS, {cwd: PACKAGES}, dist),
+  gulp.watch(INCLUDE_GLOBS, { cwd: PACKAGES }, dist),
 );
 
 const experimentalCompiler = gulp.parallel(
@@ -407,9 +407,9 @@ const experimentalCompiler = gulp.parallel(
 
 /**
  * Updates the package.json files `/dist/` with a version to release to npm under
- * the master tag.
+ * the main tag.
  */
-const setMasterVersion = async () => {
+const setMainVersion = async () => {
   if (!RELEASE_COMMIT_SHA) {
     throw new Error('Expected the RELEASE_COMMIT_SHA env variable to be set.');
   }
@@ -444,10 +444,10 @@ const cleanbuild = gulp.series(clean, dist);
 exports.clean = clean;
 exports.dist = dist;
 exports.watch = watch;
-exports.masterrelease = gulp.series(
+exports.mainrelease = gulp.series(
   cleanbuild,
   experimentalCompiler,
-  setMasterVersion,
+  setMainVersion,
 );
 exports.cleanbuild = cleanbuild;
 exports.default = cleanbuild;

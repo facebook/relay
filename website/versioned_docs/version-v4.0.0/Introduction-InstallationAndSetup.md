@@ -43,7 +43,7 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
 
 For example:
 

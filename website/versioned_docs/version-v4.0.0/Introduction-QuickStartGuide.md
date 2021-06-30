@@ -21,11 +21,11 @@ Table of Contents:
 
 Before starting, make sure to check out our [Prerequisites](./prerequisites) and [Installation and Setup](./installation-and-setup) guides. As mentioned in the prerequisites, we need to make sure that we've set up a GraphQL server and schema.
 
-Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/master/todo), which already has a [server](https://github.com/relayjs/relay-examples/blob/master/todo/server.js) and [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql) available for us to use:
+Fortunately, we are going to be using this [example todo list app](https://github.com/relayjs/relay-examples/tree/main/todo), which already has a [server](https://github.com/relayjs/relay-examples/blob/main/todo/server.js) and [schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql) available for us to use:
 
 ```graphql
 # From schema.graphql
-# https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql
+# https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql
 
 type Query {
   viewer: User
@@ -88,7 +88,7 @@ Usually we'd want a single environment in our app, so you could export this envi
 
 Now that we've configured our Relay Environment, we can start fetching queries and rendering data on the screen. The entry point to render data from a GraphQL query is the [`QueryRenderer`](./query-renderer) component provided by `react-relay`.
 
-To start, let's assume we just want to render the user id on the screen. From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L66), we know that we can get the current `User` via the `viewer` field, so let's write a sample query to fetch the current user id:
+To start, let's assume we just want to render the user id on the screen. From our [schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L66), we know that we can get the current `User` via the `viewer` field, so let's write a sample query to fetch the current user id:
 
 ```graphql
 query UserQuery {
@@ -148,7 +148,7 @@ For more details on `QueryRenderer`, check out the [docs](./query-renderer).
 
 ## Using Query Variables
 
-Let's assume for a moment that in our app we want to be able to view data for different users, so we're going to somehow need to query users by id. From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L69), we know we can query nodes given an id, so let's write a parameterized query to get a user by id:
+Let's assume for a moment that in our app we want to be able to view data for different users, so we're going to somehow need to query users by id. From our [schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L69), we know we can query nodes given an id, so let's write a parameterized query to get a user by id:
 
 ```graphql
 query UserQuery($userID: ID!) {
@@ -247,7 +247,7 @@ export default class Todo extends React.Component<Props> {
 }
 ```
 
-From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
+From our [schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L107), we know that we can query this data on the `Todo` type. However, we don't want to have to send a separate query for each todo item; that would defeat the purpose of using GraphQL over a traditional REST API. We could manually query for these fields directly in our `QueryRenderer` query, but that would hurt re-usability: what if we want to query the same set of fields as part of a different query? Additionally, we wouldn't know which component needs the data we're querying, which is a problem Relay directly tries to address.
 
 Instead, we can define a reusable [Fragment](http://graphql.org/learn/queries/#fragments), which allows us to define a set of fields on a type and reuse them within our queries wherever we need to:
 
@@ -440,7 +440,7 @@ Check out our docs for [Fragment Containers](./fragment-container) for more deta
 
 Now that we know how to query for and render data, let's move on to changing our data. We know that to change any data in our server, we need to use GraphQL [Mutations](http://graphql.org/learn/queries/#mutations).
 
-From our [schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L35), we know that we have some mutations available to us, so let's start by writing a mutation to change the `complete` status of a given todo item (i.e. mark or unmark it as done):
+From our [schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L35), we know that we have some mutations available to us, so let's start by writing a mutation to change the `complete` status of a given todo item (i.e. mark or unmark it as done):
 
 ```graphql
 mutation ChangeTodoStatusMutation($input: ChangeTodoStatusInput!) {
@@ -453,7 +453,7 @@ mutation ChangeTodoStatusMutation($input: ChangeTodoStatusInput!) {
 }
 ```
 
-This mutation allows us to query back some data as a [result of the mutation](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L18), so we're going to query for the updated `complete` status on the todo item.
+This mutation allows us to query back some data as a [result of the mutation](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L18), so we're going to query for the updated `complete` status on the todo item.
 
 In order to execute this mutation in Relay, we're going to write a new mutation using Relay's `commitMutation` api:
 

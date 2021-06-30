@@ -9,7 +9,7 @@ original_id: api-reference
 
 For a usage guide, see: [**A Guided Tour of Relay**](a-guided-tour-of-relay).
 
-For a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
+For a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/main/issue-tracker).
 
 ### Benefits
 

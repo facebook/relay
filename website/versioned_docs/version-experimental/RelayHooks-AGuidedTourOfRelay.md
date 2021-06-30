@@ -10,7 +10,7 @@ In this guide, we're going to go over how to use Relay to build out some of the 
 
 ## Example App
 
-To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/master/issue-tracker).
+To see a full example using Relay Hooks and our integration with [Suspense for Data Fetching](https://reactjs.org/docs/concurrent-mode-suspense.html), check out: [relay-examples/issue-tracker](https://github.com/relayjs/relay-examples/tree/main/issue-tracker).
 
 ## Setup and Workflow
 
@@ -56,7 +56,7 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+If you need to configure `babel-plugin-relay` further, you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
 
 ### Relay Compiler
 
@@ -1341,7 +1341,7 @@ const store = new Store(source, {gcScheduler});
 ```
 
 -   By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
--   You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
+-   You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/main/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
 ###### GC Release Buffer Size
 

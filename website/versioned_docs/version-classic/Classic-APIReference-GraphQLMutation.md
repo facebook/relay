@@ -271,4 +271,4 @@ Rolls back an optimistic mutation.
 
 ## See also
 
-A number of more detailed usage examples can be found [in the test suite](https://github.com/facebook/relay/blob/master/packages/react-relay/classic/mutation/__tests__/RelayGraphQLMutation-test.js).
+A number of more detailed usage examples can be found [in the test suite](https://github.com/facebook/relay/blob/main/packages/react-relay/classic/mutation/__tests__/RelayGraphQLMutation-test.js).

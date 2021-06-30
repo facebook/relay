@@ -99,10 +99,10 @@ jobs:
           name: ${{ matrix.target.artifact-name }}
           path: compiler/target/release/${{ matrix.target.build-name }}
 
-  master-release:
-    name: Publish master tag to npm
+  main-release:
+    name: Publish main tag to npm
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
     needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
     steps:
       - uses: actions/checkout@v1
@@ -127,12 +127,12 @@ jobs:
         run: |
           chmod +x linux-x64/relay
           chmod +x macos-x64/relay
-      - name: Build master version
-        run:  RELEASE_COMMIT_SHA=${{github.sha}} yarn gulp masterrelease
+      - name: Build main version
+        run:  RELEASE_COMMIT_SHA=${{github.sha}} yarn gulp mainrelease
       - name: Publish to npm
         run: |
           for pkg in dist/*; do
-            npm publish "$pkg" --tag master
+            npm publish "$pkg" --tag main
           done
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

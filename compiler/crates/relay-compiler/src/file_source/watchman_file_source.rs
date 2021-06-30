@@ -376,6 +376,8 @@ impl WatchmanFileSourceSubscription {
 
 /// Base revision in this case is a common ancestor of two revisions:
 /// `master` and current commit hash or `.`
+///
+/// TODO: Make this dynamic on the default branch name.
 fn get_base_revision(commit_hash: Option<String>) -> String {
     let output = Command::new("hg")
         .arg("log".to_string())

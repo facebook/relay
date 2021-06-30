@@ -37,9 +37,11 @@ error () {
   exit 1
 }
 
-# Check if master is checked out
-if [ "$GITBRANCHNAME" != "master" ]; then
-  confirm "Git not on ${B}master${X} but ${B}${GITBRANCHNAME}${X}."
+# Check if main is checked out
+if [ "$GITBRANCHNAME" == "master" ]; then
+  error "Your branch is on ${B}master${X}${R}, this branch got renamed to ${B}main${X}${R}, please update your local branch."
+elif [ "$GITBRANCHNAME" != "main" ]; then
+  confirm "Git not on ${B}main${X} but ${B}${GITBRANCHNAME}${X}."
 fi
 
 # Check if branch is synced with remote

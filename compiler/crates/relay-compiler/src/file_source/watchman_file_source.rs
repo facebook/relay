@@ -431,10 +431,7 @@ fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filte
                             if file.name.extension().is_some()
                                 && file.name.extension().unwrap() == extension_filter
                             {
-                                Some(format!(
-                                    "name: {:?}, hash: {:?}, exists: {}",
-                                    *file.name, *file.hash, *file.exists
-                                ))
+                                Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
                             } else {
                                 None
                             }

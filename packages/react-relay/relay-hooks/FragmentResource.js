@@ -24,7 +24,6 @@ const {
   isPromise,
   recycleNodesInto,
   reportMissingRequiredFields,
-  RelayFeatureFlags,
 } = require('relay-runtime');
 
 import type {Cache} from './LRUCache';
@@ -54,22 +53,14 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-type SeenRecords = $PropertyType<Snapshot, 'seenRecords'>;
-type SnapshotWithoutSeenRecords = $ReadOnly<{|
-  ...$Diff<Snapshot, {|seenRecords: SeenRecords|}>,
-  seenRecords?: SeenRecords,
-|}>;
-type SingularOrPluralSnapshotWithoutSeenRecords =
-  | SnapshotWithoutSeenRecords
-  | $ReadOnlyArray<SnapshotWithoutSeenRecords>;
-type SingularOrPluarlStoreSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
 
 opaque type FragmentResult: {data: mixed, ...} = {|
   cacheKey: string,
   data: mixed,
   isMissingData: boolean,
-  snapshot: SingularOrPluralSnapshotWithoutSeenRecords | null,
-  storeEpoch: number | null,
+  snapshot: SingularOrPluralSnapshot | null,
+  storeEpoch: number,
 |};
 
 // TODO: Fix to not rely on LRU. If the number of active fragments exceeds this
@@ -80,9 +71,7 @@ const CACHE_CAPACITY = 1000000;
 // this is frozen so that users don't accidentally push data into the array
 const CONSTANT_READONLY_EMPTY_ARRAY = Object.freeze([]);
 
-function isMissingData(
-  snapshot: SingularOrPluralSnapshotWithoutSeenRecords,
-): boolean {
+function isMissingData(snapshot: SingularOrPluralSnapshot): boolean {
   if (Array.isArray(snapshot)) {
     return snapshot.some(s => s.isMissingData);
   }
@@ -91,22 +80,13 @@ function isMissingData(
 
 function getFragmentResult(
   cacheKey: string,
-  snapshot: SingularOrPluralSnapshotWithoutSeenRecords,
-  storeEpoch: number | null,
+  snapshot: SingularOrPluralSnapshot,
+  storeEpoch: number,
 ): FragmentResult {
   if (Array.isArray(snapshot)) {
     return {
       cacheKey,
-      snapshot:
-        RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION ===
-        'reduce-snapshot-size'
-          ? snapshot.map(s => ({
-              data: s.data,
-              isMissingData: s.isMissingData,
-              selector: s.selector,
-              missingRequiredFields: s.missingRequiredFields,
-            }))
-          : snapshot,
+      snapshot,
       data: snapshot.map(s => s.data),
       isMissingData: isMissingData(snapshot),
       storeEpoch,
@@ -114,16 +94,7 @@ function getFragmentResult(
   }
   return {
     cacheKey,
-    snapshot:
-      RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION ===
-      'reduce-snapshot-size'
-        ? {
-            data: snapshot.data,
-            isMissingData: snapshot.isMissingData,
-            selector: snapshot.selector,
-            missingRequiredFields: snapshot.missingRequiredFields,
-          }
-        : snapshot,
+    snapshot,
     data: snapshot.data,
     isMissingData: isMissingData(snapshot),
     storeEpoch,
@@ -182,14 +153,11 @@ class FragmentResourceImpl {
         data: null,
         isMissingData: false,
         snapshot: null,
-        storeEpoch: null,
+        storeEpoch: 0,
       };
     }
 
-    const storeEpoch =
-      RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch'
-        ? environment.getStore().getEpoch()
-        : null;
+    const storeEpoch = environment.getStore().getEpoch();
 
     // If fragmentRef is plural, ensure that it is an array.
     // If it's empty, return the empty array directly before doing any more work.
@@ -319,9 +287,7 @@ class FragmentResourceImpl {
     return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }
 
-  _reportMissingRequiredFieldsInSnapshot(
-    snapshot: SingularOrPluralSnapshotWithoutSeenRecords,
-  ) {
+  _reportMissingRequiredFieldsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
         if (s.missingRequiredFields != null) {
@@ -389,11 +355,7 @@ class FragmentResourceImpl {
       currentSnapshot.forEach((snapshot, idx) => {
         dataSubscriptions.push(
           environment.subscribe(snapshot, latestSnapshot => {
-            const storeEpoch =
-              RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION ===
-              'epoch'
-                ? environment.getStore().getEpoch()
-                : null;
+            const storeEpoch = environment.getStore().getEpoch();
             this._updatePluralSnapshot(
               cacheKey,
               currentSnapshot,
@@ -413,10 +375,7 @@ class FragmentResourceImpl {
       );
       dataSubscriptions.push(
         environment.subscribe(currentSnapshot, latestSnapshot => {
-          const storeEpoch =
-            RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch'
-              ? environment.getStore().getEpoch()
-              : null;
+          const storeEpoch = environment.getStore().getEpoch();
           this._cache.set(cacheKey, {
             kind: 'done',
             result: getFragmentResult(cacheKey, latestSnapshot, storeEpoch),
@@ -452,7 +411,7 @@ class FragmentResourceImpl {
 
   checkMissedUpdates(
     fragmentResult: FragmentResult,
-  ): [boolean, SingularOrPluarlStoreSnapshot | null] {
+  ): [boolean, SingularOrPluralSnapshot | null] {
     const environment = this._environment;
     const renderedSnapshot = fragmentResult.snapshot;
     if (!renderedSnapshot) {
@@ -461,12 +420,9 @@ class FragmentResourceImpl {
 
     let storeEpoch = null;
     // Bail out if the store hasn't been written since last read
-    if (RelayFeatureFlags.ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION === 'epoch') {
-      storeEpoch = environment.getStore().getEpoch();
-      if (fragmentResult.storeEpoch === storeEpoch) {
-        // $FlowFixMe In current feature flag path, the snapshot is expected to contain full data
-        return [false, fragmentResult.snapshot];
-      }
+    storeEpoch = environment.getStore().getEpoch();
+    if (fragmentResult.storeEpoch === storeEpoch) {
+      return [false, fragmentResult.snapshot];
     }
 
     const {cacheKey} = fragmentResult;
@@ -570,7 +526,7 @@ class FragmentResourceImpl {
     baseSnapshots: $ReadOnlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
-    storeEpoch: number | null,
+    storeEpoch: number,
   ): void {
     const currentFragmentResult = this._cache.get(cacheKey);
     if (isPromise(currentFragmentResult)) {

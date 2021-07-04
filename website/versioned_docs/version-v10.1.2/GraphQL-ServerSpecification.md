@@ -35,7 +35,7 @@ It is also assumed that the reader is already familiar with [Star Wars](https://
 
 ## Schema
 
-The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js [`printSchema`](https://github.com/graphql/graphql-js/blob/master/src/utilities/printSchema.js).
+The schema described below will be used to demonstrate the functionality that a GraphQL server used by Relay should implement. The two core types are a faction and a ship in the Star Wars universe, where a faction has many ships associated with it. The schema below is the output of the GraphQL.js [`printSchema`](https://github.com/graphql/graphql-js/blob/main/src/utilities/printSchema.js).
 
 ```
 
@@ -536,4 +536,4 @@ and we'll get this result:
 
 <p>This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the <a href={useBaseUrl('graphql/connections.htm')}>Relay cursor connection</a> model, the <a href="https://graphql.org/learn/global-object-identification/">GraphQL global object identification</a> model are all available.</p>
 
-To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes, connections, and mutations; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.
+To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes, connections, and mutations; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/main/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.

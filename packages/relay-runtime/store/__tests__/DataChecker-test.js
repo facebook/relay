@@ -21,6 +21,9 @@ const RelayRecordSource = require('../RelayRecordSource');
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+} = require('../../multi-actor-environment/ActorIdentifier');
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
@@ -31,7 +34,7 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 // TODO:
 // You may see some of the "__FlowFixMe__" in the calls to `createNormalizationSelector`.
 // This is because in this test we're relying on similarities between Reader and Normalization nodes during runtime.
-// This is not correct, and Flow is reporting these errors correctly. We need to prioritze fixing this.
+// This is not correct, and Flow is reporting these errors correctly. We need to prioritize fixing this.
 
 describe('check()', () => {
   let Query;
@@ -122,8 +125,9 @@ describe('check()', () => {
     const source = RelayRecordSource.create(sampleData);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
         id: '1',
         size: 32,
@@ -196,8 +200,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((BarFragment: $FlowFixMe), '1', {
         size: 32,
       }),
@@ -243,8 +248,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
@@ -287,8 +293,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
@@ -332,8 +339,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
@@ -387,8 +395,9 @@ describe('check()', () => {
     `;
 
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -444,8 +453,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -502,8 +512,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -555,8 +566,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -608,8 +620,9 @@ describe('check()', () => {
     `;
 
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -720,8 +733,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -783,8 +797,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -832,8 +847,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -891,8 +907,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -940,8 +957,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -987,8 +1005,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1024,8 +1043,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1060,8 +1080,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1173,8 +1194,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1234,8 +1256,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1281,8 +1304,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1338,8 +1362,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1385,8 +1410,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1430,8 +1456,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1486,8 +1513,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1521,8 +1549,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1582,8 +1611,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1623,8 +1653,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1647,8 +1678,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(sampleData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
           id: '1',
           size: 32,
@@ -1690,8 +1722,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
@@ -1731,8 +1764,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
@@ -1773,8 +1807,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [
           {
@@ -1878,8 +1913,9 @@ describe('check()', () => {
           return handleReturnValue;
         });
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             {
@@ -2029,8 +2065,9 @@ describe('check()', () => {
           return handleReturnValue;
         });
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             {
@@ -2094,8 +2131,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [
           {
@@ -2192,8 +2230,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
@@ -2226,8 +2265,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2262,8 +2302,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2290,8 +2331,9 @@ describe('check()', () => {
         });
 
         const nextStatus = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2339,8 +2381,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2375,8 +2418,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2403,8 +2447,9 @@ describe('check()', () => {
         });
 
         const nextStatus = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2462,8 +2507,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2513,8 +2559,9 @@ describe('check()', () => {
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         (TestFragment: $FlowFixMe),
         'client:root',
@@ -2563,8 +2610,9 @@ describe('check()', () => {
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         (TestFragment: $FlowFixMe),
         'client:root',
@@ -2621,8 +2669,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           (TestFragment: $FlowFixMe),
           'client:root',
@@ -2670,8 +2719,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           (TestFragment: $FlowFixMe),
           'client:root',
@@ -2725,8 +2775,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           (TestFragment: $FlowFixMe),
           'client:root',
@@ -2839,8 +2890,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -2887,8 +2939,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -2931,8 +2984,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -2975,8 +3029,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -3018,8 +3073,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,

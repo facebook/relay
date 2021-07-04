@@ -453,6 +453,6 @@ Complete details on how the server should behave are available in the [GraphQL C
 
 This concludes the overview of the GraphQL Server Specifications. For the detailed requirements of a Relay-compliant GraphQL server, a more formal description of the [Relay cursor connection](/graphql/connections.htm) model, the [GraphQL global object identification](https://graphql.org/learn/global-object-identification/) model are all available.
 
-To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes and connections; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/master/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.
+To see code implementing the specification, the [GraphQL.js Relay library](https://github.com/graphql/graphql-relay-js) provides helper functions for creating nodes and connections; that repository's [`__tests__`](https://github.com/graphql/graphql-relay-js/tree/main/src/__tests__) folder contains an implementation of the above example as integration tests for the repository.
 
 <DocsRating />

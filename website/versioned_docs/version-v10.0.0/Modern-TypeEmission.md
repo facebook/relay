@@ -356,4 +356,4 @@ If you are looking to create your own language plugin, refer to the `relay-compi
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
 
-[plugin-interface]: https://github.com/facebook/relay/blob/master/packages/relay-compiler/language/RelayLanguagePluginInterface.js
+[plugin-interface]: https://github.com/facebook/relay/blob/main/packages/relay-compiler/language/RelayLanguagePluginInterface.js

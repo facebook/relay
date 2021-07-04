@@ -34,7 +34,7 @@ const Users = () => {
           </div>
           <div className="logos">{showcase}</div>
           <p>Are you using this project?</p>
-          <a href="https://github.com/facebook/relay/edit/master/website/docusaurus.config.js">
+          <a href="https://github.com/facebook/relay/edit/main/website/docusaurus.config.js">
             Add your project
           </a>
         </div>

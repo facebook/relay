@@ -28,10 +28,6 @@ type FeatureFlags = {|
   ENABLE_LOAD_QUERY_REQUEST_DEDUPING: boolean,
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: boolean,
   ENABLE_NOTIFY_SUBSCRIPTION: boolean,
-  ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION:
-    | 'disabled'
-    | 'epoch'
-    | 'reduce-snapshot-size',
   BATCH_ASYNC_MODULE_UPDATES_FN: ?(() => void) => Disposable,
 |};
 
@@ -49,7 +45,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_LOAD_QUERY_REQUEST_DEDUPING: true,
   ENABLE_DO_NOT_WRAP_LIVE_QUERY: false,
   ENABLE_NOTIFY_SUBSCRIPTION: false,
-  ENABLE_FRAGMENT_RESOURCE_OPTIMIZATION: 'disabled',
   BATCH_ASYNC_MODULE_UPDATES_FN: null,
 };
 

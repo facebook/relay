@@ -12,6 +12,5 @@ query_result_type! {
     pub struct WatchmanFile {
         pub name: NameField,
         pub exists: ExistsField,
-        pub hash: ContentSha1HexField,
     }
 }

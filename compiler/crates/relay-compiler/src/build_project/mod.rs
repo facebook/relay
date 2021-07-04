@@ -28,10 +28,7 @@ use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{
-    sync::{par_iter, ParallelIterator},
-    PerfLogEvent, PerfLogger,
-};
+use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
@@ -41,6 +38,7 @@ use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
+use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
 use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
@@ -480,22 +478,24 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
 ) -> Result<(), BuildProjectFailure> {
-    par_iter(artifacts).try_for_each_init(
+    artifacts.par_chunks(8192).try_for_each_init(
         || Printer::with_dedupe(project_config.js_module_format),
-        |mut printer, artifact| {
-            if should_stop_updating_artifacts() {
-                return Err(BuildProjectFailure::Cancelled);
-            }
-            let path = config.root_dir.join(&artifact.path);
-            let content = artifact.content.as_bytes(
-                config,
-                project_config,
-                &mut printer,
-                schema,
-                artifact.source_file,
-            );
-            if config.artifact_writer.should_write(&path, &content)? {
-                config.artifact_writer.write(path, content)?;
+        |mut printer, artifacts| {
+            for artifact in artifacts {
+                if should_stop_updating_artifacts() {
+                    return Err(BuildProjectFailure::Cancelled);
+                }
+                let path = config.root_dir.join(&artifact.path);
+                let content = artifact.content.as_bytes(
+                    config,
+                    project_config,
+                    &mut printer,
+                    schema,
+                    artifact.source_file,
+                );
+                if config.artifact_writer.should_write(&path, &content)? {
+                    config.artifact_writer.write(path, content)?;
+                }
             }
             Ok(())
         },

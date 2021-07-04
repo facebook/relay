@@ -16,12 +16,11 @@
 const createPrintRequireModuleDependency = require('../createPrintRequireModuleDependency');
 
 describe('createPrintRequireModuleDependency', () => {
-  it('outputs the correct dependency path', () => {
-    const extension = 'js';
+  it('outputs the correct dependency path without the extension', () => {
     const moduleName = 'module';
-    const printModuleDependency = createPrintRequireModuleDependency(extension);
+    const printModuleDependency = createPrintRequireModuleDependency();
     const moduleDependency = printModuleDependency(moduleName);
 
-    expect(moduleDependency).toEqual(`require('./${moduleName}.${extension}')`);
+    expect(moduleDependency).toEqual(`require('./${moduleName}')`);
   });
 });

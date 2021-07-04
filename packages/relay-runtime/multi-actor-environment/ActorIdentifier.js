@@ -16,6 +16,9 @@
  */
 export opaque type ActorIdentifier = string;
 
+const INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE: ActorIdentifier =
+  'INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE';
+
 module.exports = {
   getActorIdentifier(actorID: string): ActorIdentifier {
     return (actorID: ActorIdentifier);
@@ -24,4 +27,5 @@ module.exports = {
   getDefaultActorIdentifier(): ActorIdentifier {
     throw new Error('Not Implemented');
   },
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
 };

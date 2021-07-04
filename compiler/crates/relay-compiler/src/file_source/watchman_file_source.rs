@@ -376,6 +376,8 @@ impl WatchmanFileSourceSubscription {
 
 /// Base revision in this case is a common ancestor of two revisions:
 /// `master` and current commit hash or `.`
+///
+/// TODO: Make this dynamic on the default branch name.
 fn get_base_revision(commit_hash: Option<String>) -> String {
     let output = Command::new("hg")
         .arg("log".to_string())
@@ -431,10 +433,7 @@ fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filte
                             if file.name.extension().is_some()
                                 && file.name.extension().unwrap() == extension_filter
                             {
-                                Some(format!(
-                                    "name: {:?}, hash: {:?}, exists: {}",
-                                    *file.name, *file.hash, *file.exists
-                                ))
+                                Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
                             } else {
                                 None
                             }

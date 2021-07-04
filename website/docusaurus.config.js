@@ -206,7 +206,7 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl: 'https://github.com/facebook/relay/edit/master/website/',
+          editUrl: 'https://github.com/facebook/relay/tree/main/website',
 
           path: './docs/',
 

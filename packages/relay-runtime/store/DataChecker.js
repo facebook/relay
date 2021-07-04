@@ -31,6 +31,7 @@ const {getLocalVariables} = require('./RelayConcreteVariables');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const {generateTypeID} = require('./TypeID');
 
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   NormalizationField,
   NormalizationFlightField,
@@ -92,8 +93,9 @@ const {
  * If all records are present, returns `true`, otherwise `false`.
  */
 function check(
-  source: RecordSource,
-  target: MutableRecordSource,
+  getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
+  getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
+  defaultActorIdentifier: ActorIdentifier,
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
@@ -102,8 +104,9 @@ function check(
 ): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
-    source,
-    target,
+    getSourceForActor,
+    getTargetForActor,
+    defaultActorIdentifier,
     variables,
     handlers,
     operationLoader,
@@ -127,26 +130,55 @@ class DataChecker {
   _source: RecordSource;
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
+  +_getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource;
+  +_getTargetForActor: (
+    actorIdentifier: ActorIdentifier,
+  ) => MutableRecordSource;
+  +_getDataID: GetDataID;
 
   constructor(
-    source: RecordSource,
-    target: MutableRecordSource,
+    getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
+    getTargetForActor: (
+      actorIdentifier: ActorIdentifier,
+    ) => MutableRecordSource,
+    defaultActorIdentifier: ActorIdentifier,
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
   ) {
-    const mutator = new RelayRecordSourceMutator(source, target);
+    this._getSourceForActor = getSourceForActor;
+    this._getTargetForActor = getTargetForActor;
+    this._getDataID = getDataID;
+    this._source = getSourceForActor(defaultActorIdentifier);
+    const [mutator, recordSourceProxy] = this._getMutatorAndRecordProxyForActor(
+      defaultActorIdentifier,
+    );
     this._mostRecentlyInvalidatedAt = null;
     this._handlers = handlers;
     this._mutator = mutator;
     this._operationLoader = operationLoader ?? null;
-    this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
+    this._recordSourceProxy = recordSourceProxy;
     this._recordWasMissing = false;
-    this._source = source;
     this._variables = variables;
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+  }
+
+  _getMutatorAndRecordProxyForActor(
+    actorIdentifier: ActorIdentifier,
+  ): [RelayRecordSourceMutator, RelayRecordSourceProxy] {
+    const target = this._getTargetForActor(actorIdentifier);
+
+    const mutator = new RelayRecordSourceMutator(
+      this._getSourceForActor(actorIdentifier),
+      target,
+    );
+    const recordSourceProxy = new RelayRecordSourceProxy(
+      mutator,
+      this._getDataID,
+    );
+    return [mutator, recordSourceProxy];
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {

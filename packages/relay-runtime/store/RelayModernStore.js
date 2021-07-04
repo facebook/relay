@@ -28,9 +28,13 @@ const defaultGetDataID = require('./defaultGetDataID');
 const invariant = require('invariant');
 const resolveImmediate = require('../util/resolveImmediate');
 
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+} = require('../multi-actor-environment/ActorIdentifier');
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 const {RecordResolverCache} = require('./ResolverCache');
 
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -63,6 +67,16 @@ type InvalidationSubscription = {|
 |};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
+
+function assertInternalActorIndentifier(
+  actorIdentifier: ActorIdentifier,
+): void {
+  invariant(
+    actorIdentifier === INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+    'Expected to use only internal version of the `actorIdentifier`. "%s" was provided.',
+    actorIdentifier,
+  );
+}
 
 /**
  * @public
@@ -186,7 +200,7 @@ class RelayModernStore implements Store {
     // Check if store has been globally invalidated
     if (globalInvalidationEpoch != null) {
       // If so, check if the operation we're checking was last written
-      // before or after invalidation occured.
+      // before or after invalidation occurred.
       if (
         operationLastWrittenAt == null ||
         operationLastWrittenAt <= globalInvalidationEpoch
@@ -202,8 +216,15 @@ class RelayModernStore implements Store {
     const target = options?.target ?? source;
     const handlers = options?.handlers ?? [];
     const operationAvailability = DataChecker.check(
-      source,
-      target,
+      actorIdentifier => {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      },
+      actorIdentifier => {
+        assertInternalActorIndentifier(actorIdentifier);
+        return target;
+      },
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       selector,
       handlers,
       this._operationLoader,

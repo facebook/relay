@@ -1095,6 +1095,12 @@ impl<'a> TypeGenerator<'a> {
         {
             AST::RawType(custom_scalar)
         } else {
+            if self.typegen_config.require_custom_scalar_types {
+                panic!(
+                    "Expected the JS type for '{}' to be defined, please update 'customScalarTypes' in your compiler config.",
+                    scalar_name
+                );
+            }
             AST::Any
         }
     }

@@ -118,7 +118,7 @@ export default function Home() {
 
 Unlike `useLazyLoadQuery`, using [`useQueryLoader`](../../api-reference/use-query-loader/) in combination with [`usePreloadedQuery`](../../api-reference/use-preloaded-query/) will start fetching the data *ahead* of render, following the "render-as-you-fetch" pattern. This means that the data fetch will start sooner, and potentially speed up the time it takes to show content to users.
 
-To make best use of this pattern, query loading is usually integrated at the router level, or other parts of your UI infra. To see a full example, see our [`issue-tracker`](https://github.com/relayjs/relay-examples/blob/master/issue-tracker/src/routes.js) example app.
+To make best use of this pattern, query loading is usually integrated at the router level, or other parts of your UI infra. To see a full example, see our [`issue-tracker`](https://github.com/relayjs/relay-examples/blob/main/issue-tracker/src/routes.js) example app.
 
 
 To convert a `QueryRenderer` to `useQueryLoader`, you need to take the following steps:

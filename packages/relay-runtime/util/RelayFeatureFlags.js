@@ -30,6 +30,7 @@ type FeatureFlags = {|
   ENABLE_NOTIFY_SUBSCRIPTION: boolean,
   BATCH_ASYNC_MODULE_UPDATES_FN: ?(() => void) => Disposable,
   ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT: boolean,
+  ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -48,6 +49,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_NOTIFY_SUBSCRIPTION: false,
   BATCH_ASYNC_MODULE_UPDATES_FN: null,
   ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT: false,
+  ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT: false,
 };
 
 module.exports = RelayFeatureFlags;

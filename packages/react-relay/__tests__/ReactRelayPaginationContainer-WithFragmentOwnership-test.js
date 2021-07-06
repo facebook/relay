@@ -368,7 +368,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(9);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       loadMore(1, jest.fn());
@@ -448,10 +447,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       ]);
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(2);
-      TestChildComponent.mock.calls.forEach((call, idx) => {
-        const user = call[0].user;
-        expect(user).toEqual({id: `node:${idx + 1}`});
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
+        id: 'node:2',
       });
     });
 
@@ -570,7 +568,6 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
     });
 
     it('renders with the results of the new variables on success', () => {
-      expect.assertions(8);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn());
@@ -647,8 +644,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+      expect(TestChildComponent.mock.calls.length).toBe(2);
+      expect(TestChildComponent.mock.calls[1][0].user).toEqual({
         id: 'node:2',
       });
     });
@@ -997,12 +994,8 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
       });
 
       // Assert child containers are correctly rendered
-      expect(TestChildComponent.mock.calls.length).toBe(3);
-      expect(TestChildComponent.mock.calls[1][0].user).toEqual({
-        id: 'node:7',
-        name: 'user:7',
-      });
-      expect(TestChildComponent.mock.calls[2][0].user).toEqual({
+      expect(TestChildComponent.mock.calls.length).toBe(1);
+      expect(TestChildComponent.mock.calls[0][0].user).toEqual({
         id: 'node:8',
         name: 'user:8',
       });

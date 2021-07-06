@@ -18,6 +18,7 @@ const areEqual = require('areEqual');
 const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
 const invariant = require('invariant');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
+const recycleNodesInto = require('../util/recycleNodesInto');
 const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const warning = require('warning');
 
@@ -349,7 +350,7 @@ class SelectorResolver {
     }
     this.dispose();
     const snapshot = this._environment.lookup(selector);
-    this._data = snapshot.data;
+    this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._selector = selector;

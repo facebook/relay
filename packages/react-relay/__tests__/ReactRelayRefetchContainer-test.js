@@ -88,6 +88,9 @@ describe('ReactRelayRefetchContainer', () => {
     }
   }
   beforeEach(() => {
+    jest.mock('scheduler', () => {
+      return jest.requireActual('scheduler/unstable_mock');
+    });
     environment = createMockEnvironment();
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerTestUserFragment on User
@@ -1067,5 +1070,134 @@ describe('ReactRelayRefetchContainer', () => {
     );
 
     expect(renderer.toJSON()).toMatchSnapshot();
+  });
+
+  describe('concurrent mode', () => {
+    function assertYieldsWereCleared(_scheduler) {
+      const actualYields = _scheduler.unstable_clearYields();
+      if (actualYields.length !== 0) {
+        throw new Error(
+          'Log of yielded values is not empty. ' +
+            'Call expect(Scheduler).toHaveYielded(...) first.',
+        );
+      }
+    }
+
+    function expectSchedulerToFlushAndYield(expectedYields) {
+      ReactTestRenderer.act(() => {
+        const Scheduler = require('scheduler');
+        assertYieldsWereCleared(Scheduler);
+        Scheduler.unstable_flushAllWithoutAsserting();
+        const actualYields = Scheduler.unstable_clearYields();
+        expect(actualYields).toEqual(expectedYields);
+      });
+    }
+
+    function expectSchedulerToFlushAndYieldThrough(expectedYields) {
+      ReactTestRenderer.act(() => {
+        const Scheduler = require('scheduler');
+        assertYieldsWereCleared(Scheduler);
+        Scheduler.unstable_flushNumberOfYields(expectedYields.length);
+        const actualYields = Scheduler.unstable_clearYields();
+        expect(actualYields).toEqual(expectedYields);
+      });
+    }
+
+    it('upon commit, it should pick up changes in data that happened before comitting', () => {
+      const Scheduler = require('scheduler');
+      const YieldChild = props => {
+        Scheduler.unstable_yieldValue(props.children);
+        return props.children;
+      };
+      const YieldyUserComponent = ({user, relay}) => {
+        render({user, relay});
+        return (
+          <>
+            <YieldChild>Hey user,</YieldChild>
+            <YieldChild>{user?.name ?? 'no name'}</YieldChild>
+            <YieldChild>with id {user?.id ?? 'no id'}!</YieldChild>
+          </>
+        );
+      };
+
+      // Assert initial render
+      const TestYieldyContainer = ReactRelayRefetchContainer.createContainer(
+        YieldyUserComponent,
+        {
+          user: UserFragment,
+        },
+      );
+
+      const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
+        .data.node;
+
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestYieldyContainer user={userPointer} />
+          </ContextSetter>,
+          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          {
+            unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
+          },
+        );
+        // Flush some of the changes, but don't commit
+        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Zuck']);
+
+        // In Concurrent mode component gets rendered even if not committed
+        // so we reset our mock here
+        render.mockClear();
+
+        // Trigger an update while render is in progress
+        environment.commitPayload(ownerUser1, {
+          node: {
+            __typename: 'User',
+            id: '4',
+            // Update name
+            name: 'Zuck mid-render update',
+          },
+        });
+
+        // Assert the component renders the updated data
+        expectSchedulerToFlushAndYield([
+          ['with id ', '4', '!'],
+          'Hey user,',
+          'Zuck mid-render update',
+          ['with id ', '4', '!'],
+        ]);
+        expect(render.mock.calls.length).toBe(1);
+        expect(render.mock.calls[0][0]).toMatchObject({
+          user: {
+            id: '4',
+            name: 'Zuck mid-render update',
+          },
+        });
+        render.mockClear();
+
+        // Update latest rendered data
+        environment.commitPayload(ownerUser1, {
+          node: {
+            __typename: 'User',
+            id: '4',
+            // Update name
+            name: 'Zuck latest update',
+          },
+        });
+        expectSchedulerToFlushAndYield([
+          'Hey user,',
+          'Zuck latest update',
+          ['with id ', '4', '!'],
+        ]);
+        expect(render.mock.calls.length).toBe(1);
+        expect(render.mock.calls[0][0]).toMatchObject({
+          user: {
+            id: '4',
+            name: 'Zuck latest update',
+          },
+        });
+        render.mockClear();
+      });
+    });
   });
 });

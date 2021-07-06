@@ -1197,6 +1197,95 @@ it('should subscribe for updates even if there is missing data', () => {
   ]);
 });
 
+it('upon commit, it should pick up changes in data that happened before comitting', () => {
+  const Scheduler = require('scheduler');
+  const YieldChild = props => {
+    Scheduler.unstable_yieldValue(props.children);
+    return props.children;
+  };
+  const YieldyUserComponent = ({user}) => {
+    return (
+      <>
+        <YieldChild>Hey user,</YieldChild>
+        <YieldChild>{user.profile_picture?.uri ?? 'no uri'}</YieldChild>
+        <YieldChild>with id {user.id}!</YieldChild>
+      </>
+    );
+  };
+
+  // Assert initial render
+  SingularRenderer = YieldyUserComponent;
+  TestRenderer.act(() => {
+    renderSingularFragment({isConcurrent: true});
+    // Flush some of the changes, but don't commit
+    expectSchedulerToFlushAndYieldThrough(['Hey user,', 'no uri']);
+
+    // In Concurrent mode component gets rendered even if not committed
+    // so we reset our mock here
+    resetRenderMock();
+
+    // Trigger an update while render is in progress
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+        // Update profile_picture value
+        profile_picture: {
+          uri: 'uri16',
+        },
+      },
+    });
+
+    // Assert the component renders the updated data
+    expectSchedulerToFlushAndYield([
+      ['with id ', '1', '!'],
+      'Hey user,',
+      'uri16',
+      ['with id ', '1', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: 'uri16',
+          },
+          ...createFragmentRef('1', singularQuery),
+        },
+      },
+    ]);
+    // Update latest rendered data
+    environment.commitPayload(singularQuery, {
+      node: {
+        __typename: 'User',
+        id: '1',
+        // Update name
+        name: 'Alice latest update',
+      },
+    });
+    expectSchedulerToFlushAndYield([
+      'Hey user,',
+      'uri16',
+      ['with id ', '1', '!'],
+    ]);
+    assertFragmentResults([
+      {
+        data: {
+          id: '1',
+          // Assert name is updated
+          name: 'Alice latest update',
+          profile_picture: {
+            uri: 'uri16',
+          },
+          ...createFragmentRef('1', singularQuery),
+        },
+      },
+    ]);
+  });
+});
+
 it('should subscribe for updates to plural fragments even if there is missing data', () => {
   // This prevents console.error output in the test, which is expected
   jest.spyOn(console, 'error').mockImplementationOnce(() => {});

@@ -22,8 +22,12 @@ const {
 } = require('relay-runtime');
 const {
   createMockEnvironment,
+  disallowWarnings,
+  expectToWarn,
   unwrapContainer,
 } = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;
@@ -77,8 +81,6 @@ describe('ReactRelayFragmentContainer', () => {
   }
 
   beforeEach(() => {
-    jest.resetModules();
-
     environment = createMockEnvironment();
     UserQuery = graphql`
       query ReactRelayFragmentContainerTestUserQuery($id: ID!) {
@@ -133,12 +135,17 @@ describe('ReactRelayFragmentContainer', () => {
       id: '4',
       condGlobal: false,
     });
-    environment.commitPayload(ownerUser1, {
-      node: {
-        id: '4',
-        __typename: 'User',
+    expectToWarn(
+      'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      () => {
+        environment.commitPayload(ownerUser1, {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        });
       },
-    });
+    );
     ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
     environment.commitPayload(ownerUser2, {
       node: {
@@ -184,10 +191,15 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('passes non-fragment props to the component', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer bar={1} foo="foo" />
-      </ContextSetter>,
+    expectToWarn(
+      'createFragmentSpecResolver: Expected prop `user` to be supplied to `Relay(TestComponent)`, but got `undefined`. Pass an explicit `null` if this is intentional.',
+      () => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer bar={1} foo="foo" />
+          </ContextSetter>,
+        );
+      },
     );
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({

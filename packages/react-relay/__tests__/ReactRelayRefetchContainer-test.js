@@ -24,8 +24,12 @@ const {
 } = require('relay-runtime');
 const {
   createMockEnvironment,
+  disallowWarnings,
+  expectToWarn,
   unwrapContainer,
 } = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('ReactRelayRefetchContainer', () => {
   let TestComponent;
@@ -84,8 +88,6 @@ describe('ReactRelayRefetchContainer', () => {
     }
   }
   beforeEach(() => {
-    jest.resetModules();
-
     environment = createMockEnvironment();
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerTestUserFragment on User
@@ -146,12 +148,17 @@ describe('ReactRelayRefetchContainer', () => {
       id: '4',
       condGlobal: false,
     });
-    environment.commitPayload(ownerUser1, {
-      node: {
-        id: '4',
-        __typename: 'User',
+    expectToWarn(
+      'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      () => {
+        environment.commitPayload(ownerUser1, {
+          node: {
+            id: '4',
+            __typename: 'User',
+          },
+        });
       },
-    });
+    );
     ownerUser2 = createOperationDescriptor(UserQuery, {id: '842472'});
     environment.commitPayload(ownerUser2, {
       node: {
@@ -180,10 +187,15 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('passes non-fragment props to the component', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer bar={1} foo="foo" />
-      </ContextSetter>,
+    expectToWarn(
+      'createFragmentSpecResolver: Expected prop `user` to be supplied to `Relay(TestComponent)`, but got `undefined`. Pass an explicit `null` if this is intentional.',
+      () => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer bar={1} foo="foo" />
+          </ContextSetter>,
+        );
+      },
     );
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -428,14 +440,19 @@ describe('ReactRelayRefetchContainer', () => {
     const fetchedVariables = {id: '4'};
     refetch(refetchVariables, null, jest.fn());
     expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(true);
-    environment.mock.resolve(UserQuery, {
-      data: {
-        node: {
-          id: '4',
-          __typename: 'User',
-        },
+    expectToWarn(
+      'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      () => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+            },
+          },
+        });
       },
-    });
+    );
     render.mockClear();
     environment.subscribe.mockClear();
 
@@ -648,14 +665,19 @@ describe('ReactRelayRefetchContainer', () => {
       expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
         true,
       );
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.resolve(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
     });
 
     it('reads data from the store without sending a network request when data is available in store and using store-or-network', () => {
@@ -683,14 +705,19 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, callback);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.resolve(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
       expect(callback.mock.calls.length).toBe(1);
       expect(callback).toBeCalledWith(undefined);
     });
@@ -702,25 +729,35 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, callback);
-      environment.mock.nextValue(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.nextValue(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
       expect(callback.mock.calls.length).toBe(1);
       expect(callback).toBeCalledWith(undefined);
 
-      environment.mock.nextValue(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.nextValue(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
       expect(callback.mock.calls.length).toBe(2);
       expect(callback).toBeCalledWith(undefined);
 
@@ -853,14 +890,19 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.resolve(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       instance.getInstance().setProps({user: userPointer});
@@ -875,14 +917,20 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.resolve(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
       instance.getInstance().setProps({user: userPointer});
@@ -897,14 +945,19 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       refetch(variables, null, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-          },
+      expectToWarn(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        () => {
+          environment.mock.resolve(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
+            },
+          });
         },
-      });
+      );
       instance.unmount();
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
@@ -983,7 +1036,12 @@ describe('ReactRelayRefetchContainer', () => {
       );
       jest.runOnlyPendingTimers();
       const callback = jest.fn();
-      refetch({}, null, callback);
+      expectToWarn(
+        'ReactRelayRefetchContainer: Unexpected call of `refetch` on unmounted container `Relay(TestComponent)`. It looks like some instances of your container still trying to refetch the data but they already unmounted. Please make sure you clear all timers, intervals, async calls, etc that may trigger `refetch`.',
+        () => {
+          refetch({}, null, callback);
+        },
+      );
       expect(callback).not.toBeCalled();
     });
   });

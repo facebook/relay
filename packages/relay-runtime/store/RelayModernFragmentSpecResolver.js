@@ -74,6 +74,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _rootIsQueryRenderer: boolean;
   _data: Object;
   _fragments: FragmentMap;
+  _inputProps: Props;
   _props: Props;
   _resolvers: Resolvers;
   _stale: boolean;
@@ -89,6 +90,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._context = context;
     this._data = {};
     this._fragments = fragments;
+    this._inputProps = props;
     this._props = {};
     this._resolvers = {};
     this._stale = false;
@@ -139,11 +141,15 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
 
   setCallback(callback: () => void): void {
     this._callback = callback;
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      this.setProps(this._inputProps);
+    }
   }
 
   setProps(props: Props): void {
-    const ownedSelectors = getSelectorsFromObject(this._fragments, props);
     this._props = {};
+    this._inputProps = props;
+    const ownedSelectors = getSelectorsFromObject(this._fragments, props);
 
     for (const key in ownedSelectors) {
       if (ownedSelectors.hasOwnProperty(key)) {
@@ -160,6 +166,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               this._context.environment,
               this._rootIsQueryRenderer,
               ownedSelector,
+              this._callback != null,
               this._onChange,
             );
           } else {
@@ -176,6 +183,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
               this._context.environment,
               this._rootIsQueryRenderer,
               ownedSelector,
+              this._callback != null,
               this._onChange,
             );
           } else {
@@ -232,6 +240,7 @@ class SelectorResolver {
     environment: IEnvironment,
     rootIsQueryRenderer: boolean,
     selector: SingularReaderSelector,
+    subscribeOnConstruction: boolean,
     callback: () => void,
   ) {
     const snapshot = environment.lookup(selector);
@@ -242,7 +251,13 @@ class SelectorResolver {
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
-    this._subscription = environment.subscribe(snapshot, this._onChange);
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      if (subscribeOnConstruction) {
+        this._subscription = environment.subscribe(snapshot, this._onChange);
+      }
+    } else {
+      this._subscription = environment.subscribe(snapshot, this._onChange);
+    }
   }
 
   dispose(): void {
@@ -387,11 +402,13 @@ class SelectorListResolver {
   _resolvers: Array<SelectorResolver>;
   _rootIsQueryRenderer: boolean;
   _stale: boolean;
+  _subscribeOnConstruction: boolean;
 
   constructor(
     environment: IEnvironment,
     rootIsQueryRenderer: boolean,
     selector: PluralReaderSelector,
+    subscribeOnConstruction: boolean,
     callback: () => void,
   ) {
     this._callback = callback;
@@ -400,6 +417,7 @@ class SelectorListResolver {
     this._resolvers = [];
     this._stale = true;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
+    this._subscribeOnConstruction = subscribeOnConstruction;
 
     this.setSelector(selector);
   }
@@ -445,6 +463,7 @@ class SelectorListResolver {
           this._environment,
           this._rootIsQueryRenderer,
           selectors[ii],
+          this._subscribeOnConstruction,
           this._onChange,
         );
       }

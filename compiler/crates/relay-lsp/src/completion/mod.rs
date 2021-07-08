@@ -617,6 +617,7 @@ fn completion_items_for_request(
                     }
                 };
                 Some(resolve_completion_items_for_argument_value(
+                    schema,
                     argument_type,
                     &source_program,
                     executable_name,
@@ -743,11 +744,12 @@ fn resolve_completion_items_for_inline_fragment_type(
 }
 
 fn resolve_completion_items_for_argument_value(
+    schema: &SDLSchema,
     type_: &TypeReference,
     source_program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {
-    match executable_name {
+    let mut completion_items = match executable_name {
         ExecutableName::Fragment(name) => {
             if let Some(fragment) = source_program.fragment(name) {
                 fragment
@@ -777,7 +779,21 @@ fn resolve_completion_items_for_argument_value(
                 vec![]
             }
         }
+    };
+
+    if !type_.is_list() {
+        if let Type::Enum(id) = type_.inner() {
+            let enum_ = schema.enum_(id);
+            completion_items.extend(
+                enum_
+                    .values
+                    .iter()
+                    .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
+            )
+        }
     }
+
+    completion_items
 }
 
 fn resolve_completion_items_from_fields<T: TypeWithFields>(

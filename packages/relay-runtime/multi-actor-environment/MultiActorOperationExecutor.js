@@ -227,6 +227,7 @@ class Executor {
     this._shouldProcessClientComponents = shouldProcessClientComponents;
     this._retainDisposables = new Map();
     this._seenActors = new Set();
+    this._completeFns = [];
 
     const id = this._nextSubscriptionId++;
     source.subscribe({

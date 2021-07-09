@@ -23,6 +23,7 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {check} = require('../DataChecker');
@@ -3086,6 +3087,174 @@ describe('check()', () => {
         ),
         [],
         operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('ActorChange', () => {
+    beforeEach(() => {
+      Query = getRequest(graphql`
+        query DataCheckerTest10Query {
+          viewer {
+            newsFeed {
+              edges {
+                node @fb_actor_change {
+                  ...DataCheckerTest20Fragment
+                }
+              }
+            }
+          }
+        }
+      `);
+      graphql`
+        fragment DataCheckerTest20Fragment on FeedUnit {
+          id
+          message {
+            text
+          }
+        }
+      `;
+    });
+
+    it('should be able to handle multi-actor stores', () => {
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          newsFeed: {__ref: 'client:root:viewer:newsFeed'},
+        },
+        'client:root:viewer:newsFeed': {
+          __id: 'client:root:viewer:newsFeed',
+          __typename: 'NewsFeedConnection',
+          edges: {
+            __refs: ['client:root:viewer:newsFeed:edges:0'],
+          },
+        },
+        'client:root:viewer:newsFeed:edges:0': {
+          __id: 'client:root:viewer:newsFeed:edges:0',
+          __typename: 'NewsFeedEdge',
+          node: {__ref: '1', __actorIdentifier: 'actor:1234'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'FeedUnit',
+          id: 1,
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create({
+              '1': {
+                __id: '1',
+                __typename: 'FeedUnit',
+                id: 1,
+                actor_key: 'actor:1234',
+                message: {__ref: '1:message'},
+              },
+              '1:message': {
+                __id: '1:message',
+                __typename: 'Text',
+                text: 'Hello, Antonio',
+              },
+            });
+          }
+          return source;
+        },
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create();
+          }
+          return target;
+        },
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('should report missing data in multi-actor stores', () => {
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          newsFeed: {__ref: 'client:root:viewer:newsFeed'},
+        },
+        'client:root:viewer:newsFeed': {
+          __id: 'client:root:viewer:newsFeed',
+          __typename: 'NewsFeedConnection',
+          edges: {
+            __refs: ['client:root:viewer:newsFeed:edges:0'],
+          },
+        },
+        'client:root:viewer:newsFeed:edges:0': {
+          __id: 'client:root:viewer:newsFeed:edges:0',
+          __typename: 'NewsFeedEdge',
+          node: {__ref: '1', __actorIdentifier: 'actor:1234'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'FeedUnit',
+          id: 1,
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create({
+              '1': {
+                __id: '1',
+                __typename: 'FeedUnit',
+                id: 1,
+                actor_key: 'actor:1234',
+                message: {__ref: '1:message'},
+              },
+              '1:message': {
+                __id: '1:message',
+                __typename: 'Text',
+                // text: 'Hello, Antonio', --> this field is missing now
+              },
+            });
+          }
+          return source;
+        },
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create();
+          }
+          return target;
+        },
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        [],
+        null,
         defaultGetDataID,
       );
       expect(status).toEqual({

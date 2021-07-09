@@ -135,6 +135,10 @@ class DataChecker {
     actorIdentifier: ActorIdentifier,
   ) => MutableRecordSource;
   +_getDataID: GetDataID;
+  +_mutatorRecordSourceProxyCache: Map<
+    ActorIdentifier,
+    [RelayRecordSourceMutator, RelayRecordSourceProxy],
+  >;
 
   constructor(
     getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
@@ -152,6 +156,7 @@ class DataChecker {
     this._getTargetForActor = getTargetForActor;
     this._getDataID = getDataID;
     this._source = getSourceForActor(defaultActorIdentifier);
+    this._mutatorRecordSourceProxyCache = new Map();
     const [mutator, recordSourceProxy] = this._getMutatorAndRecordProxyForActor(
       defaultActorIdentifier,
     );
@@ -168,17 +173,22 @@ class DataChecker {
   _getMutatorAndRecordProxyForActor(
     actorIdentifier: ActorIdentifier,
   ): [RelayRecordSourceMutator, RelayRecordSourceProxy] {
-    const target = this._getTargetForActor(actorIdentifier);
+    let tuple = this._mutatorRecordSourceProxyCache.get(actorIdentifier);
+    if (tuple == null) {
+      const target = this._getTargetForActor(actorIdentifier);
 
-    const mutator = new RelayRecordSourceMutator(
-      this._getSourceForActor(actorIdentifier),
-      target,
-    );
-    const recordSourceProxy = new RelayRecordSourceProxy(
-      mutator,
-      this._getDataID,
-    );
-    return [mutator, recordSourceProxy];
+      const mutator = new RelayRecordSourceMutator(
+        this._getSourceForActor(actorIdentifier),
+        target,
+      );
+      const recordSourceProxy = new RelayRecordSourceProxy(
+        mutator,
+        this._getDataID,
+      );
+      tuple = [mutator, recordSourceProxy];
+      this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);
+    }
+    return tuple;
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
@@ -346,8 +356,7 @@ class DataChecker {
           }
           break;
         case ACTOR_CHANGE:
-          // TODO: T89695242: Support multi-actor record sources in DataChecker.js
-          this._checkLink(selection.linkedField, dataID);
+          this._checkActorChange(selection.linkedField, dataID);
           break;
         case CONDITION:
           const conditionValue = Boolean(
@@ -571,6 +580,39 @@ class DataChecker {
           this._traverse(field, linkedID);
         }
       });
+    }
+  }
+
+  _checkActorChange(field: NormalizationLinkedField, dataID: DataID): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const record = this._source.get(dataID);
+    const tuple =
+      record != null
+        ? RelayModernRecord.getActorLinkedRecordID(record, storageKey)
+        : record;
+
+    if (tuple == null) {
+      if (tuple === undefined) {
+        this._handleMissing();
+      }
+    } else {
+      const [actorIdentifier, linkedID] = tuple;
+      const prevSource = this._source;
+      const prevMutator = this._mutator;
+      const prevRecordSourceProxy = this._recordSourceProxy;
+
+      const [
+        mutator,
+        recordSourceProxy,
+      ] = this._getMutatorAndRecordProxyForActor(actorIdentifier);
+
+      this._source = this._getSourceForActor(actorIdentifier);
+      this._mutator = mutator;
+      this._recordSourceProxy = recordSourceProxy;
+      this._traverse(field, linkedID);
+      this._source = prevSource;
+      this._mutator = prevMutator;
+      this._recordSourceProxy = prevRecordSourceProxy;
     }
   }
 

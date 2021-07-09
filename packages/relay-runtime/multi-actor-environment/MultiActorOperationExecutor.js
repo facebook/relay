@@ -543,6 +543,27 @@ class Executor {
     // with the initial payload followed by some early-to-resolve incremental
     // payloads (although, can that even happen?)
     if (hasNonIncrementalResponses) {
+      // For subscriptions, to avoid every new payload from overwriting existing
+      // data from previous payloads, assign a unique rootID for every new
+      // non-incremental payload.
+      if (this._isSubscriptionOperation) {
+        const nextID = generateUniqueClientID();
+        this._operation = {
+          request: this._operation.request,
+          fragment: createReaderSelector(
+            this._operation.fragment.node,
+            nextID,
+            this._operation.fragment.variables,
+            this._operation.fragment.owner,
+          ),
+          root: createNormalizationSelector(
+            this._operation.root.node,
+            nextID,
+            this._operation.root.variables,
+          ),
+        };
+      }
+
       const payloadFollowups = this._processResponses(nonIncrementalResponses);
       this._processPayloadFollowups(payloadFollowups);
     }
@@ -905,21 +926,6 @@ class Executor {
     ) {
       this._completeOperationTracker();
     }
-    const nextID = generateUniqueClientID();
-    this._operation = {
-      request: this._operation.request,
-      fragment: createReaderSelector(
-        this._operation.fragment.node,
-        nextID,
-        this._operation.fragment.variables,
-        this._operation.fragment.owner,
-      ),
-      root: createNormalizationSelector(
-        this._operation.root.node,
-        nextID,
-        this._operation.root.variables,
-      ),
-    };
   }
 
   /**

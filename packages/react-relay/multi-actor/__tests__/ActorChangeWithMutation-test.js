@@ -238,7 +238,7 @@ describe('ActorChange', () => {
         },
       },
     });
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
     // Both, main actor
     expect(renderViewerActorName).toBeCalledWith('Antonio Banderas');
     // and new actor rendering the same object with the same ID

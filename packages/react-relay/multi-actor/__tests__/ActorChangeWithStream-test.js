@@ -212,7 +212,7 @@ describe('ActorChange with @defer', () => {
     });
     expect(testRenderer.toJSON()).toEqual('Loading...');
 
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
 
     expect(testRenderer.toJSON()).toMatchSnapshot(
       'Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester.',

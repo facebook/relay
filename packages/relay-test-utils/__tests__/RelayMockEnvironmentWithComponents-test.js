@@ -992,6 +992,10 @@ describe('ReactRelayTestMocker with Containers', () => {
         expect(testComponentTree).toMatchSnapshot();
       });
 
+      ReactTestRenderer.act(() => {
+        jest.runAllTimers();
+      });
+
       const reaction = testComponentTree.root.find(
         node => node.props.testID === 'reaction',
       );

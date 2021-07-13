@@ -15,6 +15,7 @@ const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactTestRenderer = require('react-test-renderer');
 
+const {act: internalAct} = require('../jest-react');
 const {
   createReaderSelector,
   createOperationDescriptor,
@@ -639,23 +640,19 @@ describe('ReactRelayFragmentContainer', () => {
     }
 
     function expectSchedulerToFlushAndYield(expectedYields) {
-      ReactTestRenderer.act(() => {
-        const Scheduler = require('scheduler');
-        assertYieldsWereCleared(Scheduler);
-        Scheduler.unstable_flushAllWithoutAsserting();
-        const actualYields = Scheduler.unstable_clearYields();
-        expect(actualYields).toEqual(expectedYields);
-      });
+      const Scheduler = require('scheduler');
+      assertYieldsWereCleared(Scheduler);
+      Scheduler.unstable_flushAllWithoutAsserting();
+      const actualYields = Scheduler.unstable_clearYields();
+      expect(actualYields).toEqual(expectedYields);
     }
 
     function expectSchedulerToFlushAndYieldThrough(expectedYields) {
-      ReactTestRenderer.act(() => {
-        const Scheduler = require('scheduler');
-        assertYieldsWereCleared(Scheduler);
-        Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-        const actualYields = Scheduler.unstable_clearYields();
-        expect(actualYields).toEqual(expectedYields);
-      });
+      const Scheduler = require('scheduler');
+      assertYieldsWereCleared(Scheduler);
+      Scheduler.unstable_flushNumberOfYields(expectedYields.length);
+      const actualYields = Scheduler.unstable_clearYields();
+      expect(actualYields).toEqual(expectedYields);
     }
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
@@ -686,7 +683,7 @@ describe('ReactRelayFragmentContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
 
-      ReactTestRenderer.act(() => {
+      internalAct(() => {
         ReactTestRenderer.create(
           <ContextSetter environment={environment}>
             <TestYieldyContainer user={userPointer} />

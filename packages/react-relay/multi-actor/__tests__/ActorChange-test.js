@@ -240,9 +240,10 @@ describe('ActorChange', () => {
         <MainComponent />
       </ComponentWrapper>,
     );
+
     expect(testRenderer.toJSON()).toEqual('Loading...');
 
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
 
     const testInstance = testRenderer.root;
     // Default Viewer data
@@ -339,7 +340,7 @@ describe('ActorChange', () => {
         <MainComponent />
       </ComponentWrapper>,
     );
-    ReactTestRenderer.act(jest.runAllTimers);
+    jest.runAllTimers();
     // Loading data should be for default actor
     expect(fetchFnForActor).toBeCalledTimes(1);
     expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:1234');

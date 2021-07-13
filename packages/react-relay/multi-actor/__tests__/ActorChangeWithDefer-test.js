@@ -226,7 +226,7 @@ describe('ActorChange with @defer', () => {
     });
     expect(testRenderer.toJSON()).toEqual('Loading...');
 
-    ReactTestRenderer.act(jest.runAllTimers);
+    ReactTestRenderer.act(jest.runAllImmediates);
 
     expect(testRenderer.toJSON()).toMatchSnapshot(
       'should render 2 actor cards, and empty deferred message boxes.',

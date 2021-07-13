@@ -24,10 +24,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {ActorChangeWithStreamTestFragment$key} from './__generated__/ActorChangeWithStreamTestFragment.graphql';
 import type {ActorChangeWithStreamTestQuery} from './__generated__/ActorChangeWithStreamTestQuery.graphql';
@@ -127,7 +124,7 @@ function ActorChangeComponent(
 
 disallowWarnings();
 
-describe('ActorChange with @defer', () => {
+describe('ActorChange with @stream', () => {
   let environment;
   let multiActorEnvironment;
   let fetchFnForActor;

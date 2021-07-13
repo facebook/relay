@@ -278,9 +278,8 @@ class Executor {
     const optimisticUpdates = this._optimisticUpdates;
     if (optimisticUpdates !== null) {
       this._optimisticUpdates = null;
-      this._seenActors.add(this._actorIdentifier);
       optimisticUpdates.forEach(update =>
-        this._getPublishQueue(this._actorIdentifier).revertUpdate(update),
+        this._getPublishQueueAndSaveActor().revertUpdate(update),
       );
       // OK: run revert on cancel
       this._runPublishQueue();
@@ -660,9 +659,8 @@ class Executor {
       });
     }
     this._optimisticUpdates = optimisticUpdates;
-    this._seenActors.add(this._actorIdentifier);
     optimisticUpdates.forEach(update =>
-      this._getPublishQueue(this._actorIdentifier).applyUpdate(update),
+      this._getPublishQueueAndSaveActor().applyUpdate(update),
     );
     // OK: only called on construction and when receiving an optimistic payload from network,
     // which doesn't fall-through to the regular next() handling
@@ -783,9 +781,8 @@ class Executor {
           operation,
           moduleImportPayload,
         );
-        this._seenActors.add(this._actorIdentifier);
         moduleImportOptimisticUpdates.forEach(update =>
-          this._getPublishQueue(this._actorIdentifier).applyUpdate(update),
+          this._getPublishQueueAndSaveActor().applyUpdate(update),
         );
         if (this._optimisticUpdates == null) {
           warning(
@@ -807,7 +804,7 @@ class Executor {
   ): $ReadOnlyArray<RelayResponsePayload> {
     if (this._optimisticUpdates !== null) {
       this._optimisticUpdates.forEach(update => {
-        this._getPublishQueue(this._actorIdentifier).revertUpdate(update);
+        this._getPublishQueueAndSaveActor().revertUpdate(update);
       });
       this._optimisticUpdates = null;
     }
@@ -833,8 +830,7 @@ class Executor {
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
       );
-      this._seenActors.add(this._actorIdentifier);
-      this._getPublishQueue(this._actorIdentifier).commitPayload(
+      this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         relayPayload,
         this._updater,
@@ -1080,8 +1076,7 @@ class Executor {
       followupPayload,
       normalizationNode,
     );
-    this._seenActors.add(this._actorIdentifier);
-    this._getPublishQueue(this._actorIdentifier).commitPayload(
+    this._getPublishQueueAndSaveActor().commitPayload(
       this._operation,
       relayPayload,
     );
@@ -1296,8 +1291,7 @@ class Executor {
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
     );
-    this._seenActors.add(this._actorIdentifier);
-    this._getPublishQueue(this._actorIdentifier).commitPayload(
+    this._getPublishQueueAndSaveActor().commitPayload(
       this._operation,
       relayPayload,
     );
@@ -1321,7 +1315,7 @@ class Executor {
         source: RelayRecordSource.create(),
         isFinal: response.extensions?.is_final === true,
       };
-      this._getPublishQueue(this._actorIdentifier).commitPayload(
+      this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         handleFieldsRelayPayload,
       );
@@ -1367,8 +1361,7 @@ class Executor {
     // Publish the new item and update the parent record to set
     // field[index] = item *if* the parent record hasn't been concurrently
     // modified.
-    this._seenActors.add(this._actorIdentifier);
-    this._getPublishQueue(this._actorIdentifier).commitPayload(
+    this._getPublishQueueAndSaveActor().commitPayload(
       this._operation,
       relayPayload,
       store => {
@@ -1412,7 +1405,7 @@ class Executor {
         source: RelayRecordSource.create(),
         isFinal: false,
       };
-      this._getPublishQueue(this._actorIdentifier).commitPayload(
+      this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
         handleFieldsRelayPayload,
       );
@@ -1575,20 +1568,32 @@ class Executor {
     this._operationTracker.complete(this._operation.request);
   }
 
+  _getPublishQueueAndSaveActor(): PublishQueue {
+    this._seenActors.add(this._actorIdentifier);
+    return this._getPublishQueue(this._actorIdentifier);
+  }
+
+  _getActorsToVisit(): $ReadOnlySet<ActorIdentifier> {
+    if (this._seenActors.size === 0) {
+      return new Set([this._actorIdentifier]);
+    } else {
+      return this._seenActors;
+    }
+  }
+
   _runPublishQueue(
     operation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
-    const updatedOwners = [];
-    for (const actorIdentifier of this._seenActors) {
-      updatedOwners.push(
-        ...this._getPublishQueue(actorIdentifier).run(operation),
-      );
+    const updatedOwners = new Set();
+    for (const actorIdentifier of this._getActorsToVisit()) {
+      const owners = this._getPublishQueue(actorIdentifier).run(operation);
+      owners.forEach(owner => updatedOwners.add(owner));
     }
-    return updatedOwners;
+    return Array.from(updatedOwners);
   }
 
   _retainData() {
-    for (const actorIdentifier of this._seenActors) {
+    for (const actorIdentifier of this._getActorsToVisit()) {
       if (!this._retainDisposables.has(actorIdentifier)) {
         this._retainDisposables.set(
           actorIdentifier,
@@ -1599,7 +1604,7 @@ class Executor {
   }
 
   _disposeRetainedData() {
-    for (const actorIdentifier of this._seenActors) {
+    for (const actorIdentifier of this._getActorsToVisit()) {
       const disposable = this._retainDisposables.get(actorIdentifier);
       if (disposable) {
         disposable.dispose();

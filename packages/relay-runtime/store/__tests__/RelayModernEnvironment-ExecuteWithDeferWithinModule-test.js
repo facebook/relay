@@ -280,59 +280,38 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userCallback.mockClear();
         actorCallback.mockClear();
 
-        if (environmentType === 'RelayModernEnvironment') {
-          expectToWarn(
-            'RelayPublishQueue.run was called, but the call would have been a noop.',
-            () => {
-              dataSource.next({
-                data: {
-                  id: '1',
-                  __typename: 'User',
-                  name: 'Alice',
-                },
-                label:
-                  'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
-                path: ['node'],
-              });
-            },
-          );
-          expectToWarn(
-            'RelayPublishQueue.run was called, but the call would have been a noop.',
-            () => {
-              dataSource.next({
-                data: {
-                  id: '2',
-                  __typename: 'User',
-                  name: 'Bob',
-                },
-                label:
-                  'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
-                path: ['viewer', 'actor'],
-              });
-            },
-          );
-        } else {
-          dataSource.next({
-            data: {
-              id: '1',
-              __typename: 'User',
-              name: 'Alice',
-            },
-            label:
-              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
-            path: ['node'],
-          });
-          dataSource.next({
-            data: {
-              id: '2',
-              __typename: 'User',
-              name: 'Bob',
-            },
-            label:
-              'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
-            path: ['viewer', 'actor'],
-          });
-        }
+        expectToWarn(
+          'RelayPublishQueue.run was called, but the call would have been a noop.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '1',
+                __typename: 'User',
+                name: 'Alice',
+              },
+              label:
+                'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
+              path: ['node'],
+            });
+          },
+        );
+
+        expectToWarn(
+          'RelayPublishQueue.run was called, but the call would have been a noop.',
+          () => {
+            dataSource.next({
+              data: {
+                id: '2',
+                __typename: 'User',
+                name: 'Bob',
+              },
+              label:
+                'RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment',
+              path: ['viewer', 'actor'],
+            });
+          },
+        );
+
         expect(userCallback).toBeCalledTimes(0);
         expect(actorCallback).toBeCalledTimes(0);
         expect(complete).toBeCalledTimes(0);
@@ -562,23 +541,19 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           expect(tasks.size).toBe(2);
 
-          if (environmentType === 'RelayModernEnvironment') {
-            expectToWarn(
-              'RelayPublishQueue.run was called, but the call would have been a noop.',
-              () => {
-                runTask();
-              },
-            );
-            expectToWarn(
-              'RelayPublishQueue.run was called, but the call would have been a noop.',
-              () => {
-                runTask();
-              },
-            );
-          } else {
-            runTask();
-            runTask();
-          }
+          expectToWarn(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+            () => {
+              runTask();
+            },
+          );
+          expectToWarn(
+            'RelayPublishQueue.run was called, but the call would have been a noop.',
+            () => {
+              runTask();
+            },
+          );
+
           expect(userCallback).toBeCalledTimes(0);
           expect(actorCallback).toBeCalledTimes(0);
           expect(complete).toBeCalledTimes(0);

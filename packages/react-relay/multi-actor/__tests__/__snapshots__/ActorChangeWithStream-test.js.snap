@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ActorChange with @defer should render a fragment for actor: Finally, Anatoli is joining the second scene. 1`] = `
+exports[`ActorChange with @stream should render a fragment for actor: Finally, Anatoli is joining the second scene. 1`] = `
 <div>
   <div
     className="actor"
@@ -45,7 +45,7 @@ exports[`ActorChange with @defer should render a fragment for actor: Finally, An
 </div>
 `;
 
-exports[`ActorChange with @defer should render a fragment for actor: Julianne should join Antonio in the first list. 1`] = `
+exports[`ActorChange with @stream should render a fragment for actor: Julianne should join Antonio in the first list. 1`] = `
 <div>
   <div
     className="actor"
@@ -87,7 +87,7 @@ exports[`ActorChange with @defer should render a fragment for actor: Julianne sh
 </div>
 `;
 
-exports[`ActorChange with @defer should render a fragment for actor: Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester. 1`] = `
+exports[`ActorChange with @stream should render a fragment for actor: Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester. 1`] = `
 <div>
   <div
     className="actor"

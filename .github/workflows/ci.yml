@@ -82,6 +82,9 @@ jobs:
           - os: macos-latest
             build-name: relay
             artifact-name: relay-compiler-macos-x64
+          - os: windows-latest
+            build-name: relay.exe
+            artifact-name: relay-compiler-win-x64.exe
     runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v2
@@ -122,6 +125,11 @@ jobs:
         with:
           name: relay-compiler-macos-x64
           path: artifacts/macos-x64
+      - name: Download artifact relay-compiler-win-x64.exe
+        uses: actions/download-artifact@v2
+        with:
+          name: relay-compiler-win-x64.exe
+          path: artifacts/win-x64.exe
       - name: Mark binaries as executable
         working-directory: artifacts
         run: |

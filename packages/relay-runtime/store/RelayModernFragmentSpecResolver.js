@@ -91,11 +91,14 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._context = context;
     this._data = {};
     this._fragments = fragments;
-    this._inputProps = props;
     this._props = {};
     this._resolvers = {};
     this._stale = false;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
+    this._inputProps =
+      RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true
+        ? props
+        : {};
 
     this.setProps(props);
   }
@@ -148,8 +151,10 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   }
 
   setProps(props: Props): void {
+    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+      this._inputProps = props;
+    }
     this._props = {};
-    this._inputProps = props;
     const ownedSelectors = getSelectorsFromObject(this._fragments, props);
 
     for (const key in ownedSelectors) {

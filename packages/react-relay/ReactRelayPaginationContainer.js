@@ -444,13 +444,24 @@ function createContainerWithFragments<
       ) {
         this._cleanup();
         // Child containers rely on context.relay being mutated (for gDSFP).
-        this._resolver = createFragmentSpecResolver(
-          relayContext,
-          containerName,
-          fragments,
-          nextProps,
-          rootIsQueryRenderer,
-        );
+        if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+          this._resolver = createFragmentSpecResolver(
+            relayContext,
+            containerName,
+            fragments,
+            nextProps,
+            rootIsQueryRenderer,
+          );
+        } else {
+          this._resolver = createFragmentSpecResolver(
+            relayContext,
+            containerName,
+            fragments,
+            nextProps,
+            rootIsQueryRenderer,
+            this._handleFragmentDataUpdate,
+          );
+        }
         this.setState(prevState => ({
           prevContext: relayContext,
           contextForChildren: relayContext,

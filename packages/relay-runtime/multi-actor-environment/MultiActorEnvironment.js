@@ -30,6 +30,7 @@ import type {
   ExecuteMutationConfig,
   LogFunction,
   MissingFieldHandler,
+  MutableRecordSource,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
@@ -156,7 +157,18 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       this._missingFieldHandlers == null ||
       this._missingFieldHandlers.length === 0
     ) {
-      return actorEnvironment.getStore().check(operation);
+      return actorEnvironment.getStore().check(operation, {
+        handlers: [],
+        defaultActorIdentifier: actorEnvironment.actorIdentifier,
+        getSourceForActor: actorIdentifier => {
+          return this.forActor(actorIdentifier)
+            .getStore()
+            .getSource();
+        },
+        getTargetForActor: () => {
+          return RelayRecordSource.create();
+        },
+      });
     }
     return this._checkSelectorAndHandleMissingFields(
       actorEnvironment,
@@ -170,16 +182,36 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     operation: OperationDescriptor,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): OperationAvailability {
-    const target = RelayRecordSource.create();
-    const result = actorEnvironment
-      .getStore()
-      .check(operation, {target, handlers});
-    if (target.size() > 0) {
-      this._scheduleUpdates(() => {
-        actorEnvironment.getPublishQueue().commitSource(target);
-        actorEnvironment.getPublishQueue().run();
-      });
+    const targets: Map<ActorIdentifier, MutableRecordSource> = new Map([
+      [actorEnvironment.actorIdentifier, RelayRecordSource.create()],
+    ]);
+    const result = actorEnvironment.getStore().check(operation, {
+      handlers,
+      defaultActorIdentifier: actorEnvironment.actorIdentifier,
+      getSourceForActor: actorIdentifier => {
+        return this.forActor(actorIdentifier)
+          .getStore()
+          .getSource();
+      },
+      getTargetForActor: actorIdentifier => {
+        let target = targets.get(actorIdentifier);
+        if (target == null) {
+          target = RelayRecordSource.create();
+          targets.set(actorIdentifier, target);
+        }
+        return target;
+      },
+    });
+    for (const [actorIdentifier, target] of targets) {
+      if (target.size() > 0) {
+        this._scheduleUpdates(() => {
+          const publishQueue = this.forActor(actorIdentifier).getPublishQueue();
+          publishQueue.commitSource(target);
+          publishQueue.run();
+        });
+      }
     }
+
     return result;
   }
 

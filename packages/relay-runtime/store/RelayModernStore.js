@@ -30,6 +30,7 @@ const resolveImmediate = require('../util/resolveImmediate');
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 const {RecordResolverCache} = require('./ResolverCache');
@@ -67,16 +68,6 @@ type InvalidationSubscription = {|
 |};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
-
-function assertInternalActorIndentifier(
-  actorIdentifier: ActorIdentifier,
-): void {
-  invariant(
-    actorIdentifier === INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-    'Expected to use only internal version of the `actorIdentifier`. "%s" was provided.',
-    actorIdentifier,
-  );
-}
 
 /**
  * @public
@@ -213,18 +204,24 @@ class RelayModernStore implements Store {
       }
     }
 
-    const target = options?.target ?? source;
     const handlers = options?.handlers ?? [];
-    const operationAvailability = DataChecker.check(
-      actorIdentifier => {
+    const getSourceForActor =
+      options?.getSourceForActor ??
+      (actorIdentifier => {
         assertInternalActorIndentifier(actorIdentifier);
         return source;
-      },
-      actorIdentifier => {
+      });
+    const getTargetForActor =
+      options?.getTargetForActor ??
+      (actorIdentifier => {
         assertInternalActorIndentifier(actorIdentifier);
-        return target;
-      },
-      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        return source;
+      });
+
+    const operationAvailability = DataChecker.check(
+      getSourceForActor,
+      getTargetForActor,
+      options?.defaultActorIdentifier ?? INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       selector,
       handlers,
       this._operationLoader,

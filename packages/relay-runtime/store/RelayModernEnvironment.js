@@ -27,7 +27,13 @@ const invariant = require('invariant');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   GraphQLResponse,
   INetwork,
@@ -289,7 +295,19 @@ class RelayModernEnvironment implements IEnvironment {
     handlers: $ReadOnlyArray<MissingFieldHandler>,
   ): OperationAvailability {
     const target = RelayRecordSource.create();
-    const result = this._store.check(operation, {target, handlers});
+    const source = this._store.getSource();
+    const result = this._store.check(operation, {
+      handlers,
+      defaultActorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      getSourceForActor(actorIdentifier: ActorIdentifier) {
+        assertInternalActorIndentifier(actorIdentifier);
+        return source;
+      },
+      getTargetForActor(actorIdentifier: ActorIdentifier) {
+        assertInternalActorIndentifier(actorIdentifier);
+        return target;
+      },
+    });
     if (target.size() > 0) {
       this._scheduleUpdates(() => {
         this._publishQueue.commitSource(target);
@@ -384,7 +402,7 @@ class RelayModernEnvironment implements IEnvironment {
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
    * provided Query or Subscription operation responses, the result of which is
-   * then normalized and comitted to the publish queue.
+   * then normalized and committed to the publish queue.
    *
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to:

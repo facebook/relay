@@ -122,5 +122,89 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
     });
+
+    if (environmentType === 'MultiActorEnvironment') {
+      describe('ActorChange in MultiActorEnvironment', () => {
+        let Query;
+        beforeEach(() => {
+          Query = getRequest(graphql`
+            query RelayModernEnvironmentCheckTestQuery {
+              viewer {
+                newsFeed {
+                  edges {
+                    node @fb_actor_change {
+                      ...RelayModernEnvironmentCheckTestFragment
+                    }
+                  }
+                }
+              }
+            }
+          `);
+          graphql`
+            fragment RelayModernEnvironmentCheckTestFragment on FeedUnit {
+              id
+              message {
+                text
+              }
+            }
+          `;
+        });
+
+        it('should check in multiple environments', () => {
+          operationDescriptor = createOperationDescriptor(Query, {});
+          environment.commitPayload(operationDescriptor, {
+            viewer: {
+              newsFeed: {
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedUnit',
+                      actor_key: 'actor:5678',
+                      id: 'id-1',
+                      message: {
+                        text: 'Hello, Antonio',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+          expect(environment.check(operationDescriptor)).toEqual({
+            status: 'available',
+            fetchTime: null,
+          });
+        });
+
+        it('should report missing data in multiple environments', () => {
+          operationDescriptor = createOperationDescriptor(Query, {});
+
+          environment.commitPayload(operationDescriptor, {
+            viewer: {
+              newsFeed: {
+                edges: [
+                  {
+                    node: {
+                      __typename: 'FeedUnit',
+                      actor_key: 'actor:5678',
+                      id: 'id-1',
+                      message: {
+                        text: 'Hello, Antonio',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          });
+          const parentQueryDescriptor = createOperationDescriptor(ParentQuery, {
+            size: 64,
+          });
+          expect(environment.check(parentQueryDescriptor)).toEqual({
+            status: 'missing',
+          });
+        });
+      });
+    }
   },
 );

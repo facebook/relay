@@ -224,8 +224,10 @@ export interface MutableRecordSource extends RecordSource {
 }
 
 export type CheckOptions = {|
-  target: MutableRecordSource,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
+  defaultActorIdentifier: ActorIdentifier,
+  getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
+  getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
 |};
 
 export type OperationAvailability =

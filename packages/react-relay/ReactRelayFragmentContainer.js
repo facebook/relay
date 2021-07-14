@@ -227,7 +227,7 @@ function createContainerWithFragments<
 
       // Event listeners are only safe to add during the commit phase,
       // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
+      resolver.setCallback(this.props, this._handleFragmentDataUpdate);
 
       // External values could change between render and commit.
       // Check for this case, even though it requires an extra store read.

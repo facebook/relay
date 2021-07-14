@@ -198,7 +198,7 @@ export interface FragmentSpecResolver {
    * Subscribe to resolver updates.
    * Overrides existing callback (if one has been specified).
    */
-  setCallback(callback: () => void): void;
+  setCallback(props: Props, callback: () => void): void;
 }
 
 /**

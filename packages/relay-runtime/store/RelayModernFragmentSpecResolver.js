@@ -75,7 +75,6 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
   _rootIsQueryRenderer: boolean;
   _data: Object;
   _fragments: FragmentMap;
-  _inputProps: Props;
   _props: Props;
   _resolvers: Resolvers;
   _stale: boolean;
@@ -95,10 +94,6 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     this._resolvers = {};
     this._stale = false;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
-    this._inputProps =
-      RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true
-        ? props
-        : {};
 
     this.setProps(props);
   }
@@ -143,17 +138,14 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
     return this._data;
   }
 
-  setCallback(callback: () => void): void {
+  setCallback(props: Props, callback: () => void): void {
     this._callback = callback;
     if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-      this.setProps(this._inputProps);
+      this.setProps(props);
     }
   }
 
   setProps(props: Props): void {
-    if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
-      this._inputProps = props;
-    }
     this._props = {};
     const ownedSelectors = getSelectorsFromObject(this._fragments, props);
 
@@ -331,7 +323,7 @@ class SelectorResolver {
             isRelayHooks: false,
             isMissingData: this._isMissingData,
             isPromiseCached: false,
-            pendingOperations: pendingOperations,
+            pendingOperations,
           });
           throw promise;
         }

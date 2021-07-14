@@ -56,8 +56,7 @@ jobs:
     name: Rust Tests (${{ matrix.os }})
     strategy:
       matrix:
-        ## TODO: Windows is currently failing in watchman dependency
-        os: [ubuntu-latest, macos-latest] # windows-latest
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2

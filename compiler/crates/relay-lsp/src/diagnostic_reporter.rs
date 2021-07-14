@@ -240,6 +240,7 @@ mod tests {
     use common::{Diagnostic, Location, SourceLocationKey, Span};
     use interner::Intern;
     use relay_compiler::SourceReader;
+    use std::env;
     use std::path::PathBuf;
 
     struct MockSourceReader(String);
@@ -252,7 +253,8 @@ mod tests {
 
     #[test]
     fn report_diagnostic_test() {
-        let root_dir = PathBuf::from("/tmp");
+        let root_dir =
+            env::current_dir().expect("expect to be able to get the current working directory");
         let (sender, _) = crossbeam::channel::unbounded();
         let mut reporter = DiagnosticReporter::new(root_dir, sender);
         reporter.set_source_reader(Box::new(MockSourceReader("Content".to_string())));

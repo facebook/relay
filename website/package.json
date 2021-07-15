@@ -24,9 +24,11 @@
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
     "docusaurus-plugin-internaldocs-fb": "^0.8.5",
+    "monaco-editor": "^0.24.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-syntax-highlighter": "15.3.1",
+    "relay-compiler-playground": "0.0.2",
     "spec-md": "^3.0.2"
   },
   "devDependencies": {

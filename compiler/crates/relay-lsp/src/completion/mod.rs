@@ -33,6 +33,7 @@ use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
+use schema_documentation::SchemaDocumentation;
 use std::iter::once;
 
 lazy_static! {
@@ -515,6 +516,7 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
+    schema_documentation: &SchemaDocumentation,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -540,14 +542,22 @@ fn completion_items_for_request(
         } => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
-                let items =
-                    resolve_completion_items_from_fields(interface, schema, existing_linked_field);
+                let items = resolve_completion_items_from_fields(
+                    interface,
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                );
                 Some(items)
             }
             Type::Object(object_id) => {
                 let object = schema.object(object_id);
-                let items =
-                    resolve_completion_items_from_fields(object, schema, existing_linked_field);
+                let items = resolve_completion_items_from_fields(
+                    object,
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                );
                 Some(items)
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
@@ -799,6 +809,7 @@ fn resolve_completion_items_for_argument_value(
 fn resolve_completion_items_from_fields<T: TypeWithFields>(
     type_: &T,
     schema: &SDLSchema,
+    schema_documentation: &SchemaDocumentation,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -848,17 +859,24 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 (None, None)
             };
 
-            let documentation = field.description.map(|desc| {
-                Documentation::MarkupContent(MarkupContent {
-                    kind: MarkupKind::Markdown,
-                    value: desc.to_string(),
-                })
-            });
+            let type_description = schema_documentation
+                .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
+
+            let field_description = schema_documentation
+                .get_field_description(type_.name().lookup(), field.name.lookup())
+                .or(field.description.map(|desc| desc.lookup()));
+
+            let documentation = make_markdown_table_documentation(
+                field.name.lookup(),
+                &schema.get_type_string(&field.type_),
+                field_description.unwrap_or(""),
+                type_description.unwrap_or(""),
+            );
             CompletionItem {
                 label: name,
                 kind: None,
                 detail: deprecated_reason,
-                documentation,
+                documentation: Some(documentation),
                 deprecated: Some(deprecated_directive.is_some()),
                 preselect: None,
                 sort_text: None,
@@ -1019,6 +1037,9 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
                     position_span,
                     project_name,
                     schema,
+                    &state
+                        .extra_data_provider
+                        .get_schema_documentation(project_name.lookup()),
                     state.get_source_programs_ref(),
                 )
                 .unwrap_or_else(Vec::new);
@@ -1042,12 +1063,37 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
+    schema_documentation: &SchemaDocumentation,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);
     completion_request.and_then(|completion_request| {
-        completion_items_for_request(completion_request, schema, source_programs)
+        completion_items_for_request(
+            completion_request,
+            schema,
+            schema_documentation,
+            source_programs,
+        )
+    })
+}
+
+fn make_markdown_table_documentation(
+    field_name: &str,
+    type_name: &str,
+    field_description: &str,
+    type_description: &str,
+) -> Documentation {
+    Documentation::MarkupContent(MarkupContent {
+        kind: MarkupKind::Markdown,
+        value: [
+            format!("| **Field: {}** |", field_name),
+            "| :--- |".to_string(),
+            format!("| {} |", field_description),
+            format!("| **Type: {}** |", type_name),
+            format!("| {} |", type_description),
+        ]
+        .join("\n"),
     })
 }
 

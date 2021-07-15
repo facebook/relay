@@ -9,6 +9,7 @@ use std::{collections::HashMap, collections::HashSet, sync::Arc};
 
 use crate::server::SourcePrograms;
 
+use super::make_markdown_table_documentation;
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
 use dashmap::DashMap;
@@ -16,8 +17,9 @@ use fnv::FnvBuildHasher;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::Intern;
-use lsp_types::{CompletionItem, Documentation, MarkupContent, MarkupKind};
+use lsp_types::{CompletionItem, Documentation};
 use relay_test_schema::get_test_schema;
+use schema_documentation::SchemaDocumentation;
 
 fn parse_and_resolve_completion_items(
     source: &str,
@@ -41,6 +43,7 @@ fn parse_and_resolve_completion_items(
         position_span,
         "test_project".intern(),
         &get_test_schema(),
+        &SchemaDocumentation::default(),
         &source_programs
             .unwrap_or_else(|| Arc::new(DashMap::with_hasher(FnvBuildHasher::default()))),
     )
@@ -431,13 +434,6 @@ fn empty_directive() {
     );
 }
 
-fn make_markdown_documentation(value: &str) -> Documentation {
-    Documentation::MarkupContent(MarkupContent {
-        kind: MarkupKind::Markdown,
-        value: value.to_string(),
-    })
-}
-
 #[test]
 fn field_documentation() {
     let items = parse_and_resolve_completion_items(
@@ -457,24 +453,44 @@ fn field_documentation() {
         .map(|item| (item.label, item.documentation))
         .collect::<HashMap<String, Option<Documentation>>>();
 
-    let mut expected: HashMap<String, Option<Documentation>> = HashMap::default();
-
-    expected.insert(
-        "uri".to_string(),
-        Some(make_markdown_documentation(
+    assert_eq!(docs.len(), 4);
+    assert_eq!(
+        *docs.get("uri").unwrap(),
+        Some(make_markdown_table_documentation(
+            "uri",
+            "String",
             "URI where the image can be found",
-        )),
+            "",
+        ))
     );
 
-    expected.insert(
-        "width".to_string(),
-        Some(make_markdown_documentation("Width in pixels")),
+    assert_eq!(
+        *docs.get("width").unwrap(),
+        Some(make_markdown_table_documentation(
+            "width",
+            "Int",
+            "Width in pixels",
+            "",
+        ))
     );
-    expected.insert(
-        "height".to_string(),
-        Some(make_markdown_documentation("Height in pixels")),
-    );
-    expected.insert("test_enums".to_string(), None);
 
-    assert_eq!(docs, expected);
+    assert_eq!(
+        *docs.get("height").unwrap(),
+        Some(make_markdown_table_documentation(
+            "height",
+            "Int",
+            "Height in pixels",
+            "",
+        ))
+    );
+
+    assert_eq!(
+        *docs.get("test_enums").unwrap(),
+        Some(make_markdown_table_documentation(
+            "test_enums",
+            "TestEnums",
+            "",
+            "",
+        ))
+    );
 }

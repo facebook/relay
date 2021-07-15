@@ -391,10 +391,10 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
             name: Some(self.bldr.create_string(&value.name.lookup())),
-            value: match &value.default_value {
-                Some(default_value) => Some(self.serialize_const_value(default_value)),
-                _ => None,
-            },
+            value: value
+                .default_value
+                .as_ref()
+                .map(|default_value| self.serialize_const_value(default_value)),
             type_: Some(self.serialize_type_reference(&value.type_)),
         };
         schema_flatbuffer::Argument::create(&mut self.bldr, &args)

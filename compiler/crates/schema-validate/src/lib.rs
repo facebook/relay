@@ -408,11 +408,7 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if interface_field
-                    .arguments
-                    .iter()
-                    .find(|arg| arg.name == object_argument.name)
-                    .is_none()
+                if !interface_field.arguments.contains(object_argument.name)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(

@@ -131,7 +131,7 @@ impl<'fb> FlatBufferSchema<'fb> {
                 }
                 Ordering::Equal => {
                     let directive = self.directives.get(mid).value()?;
-                    return Some(self.parse_directive(directive)?);
+                    return self.parse_directive(directive);
                 }
                 Ordering::Greater => {
                     end = mid - 1;

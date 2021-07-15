@@ -2024,10 +2024,16 @@ fn clean_block_string_literal(source: &str) -> String {
         })
         .collect::<VecDeque<String>>();
 
-    while formatted_lines.front().map_or(false, line_is_whitespace) {
+    while formatted_lines
+        .front()
+        .map_or(false, |line| line_is_whitespace(&line))
+    {
         formatted_lines.pop_front();
     }
-    while formatted_lines.back().map_or(false, line_is_whitespace) {
+    while formatted_lines
+        .back()
+        .map_or(false, |line| line_is_whitespace(&line))
+    {
         formatted_lines.pop_back();
     }
 
@@ -2048,7 +2054,7 @@ fn get_common_indent(source: &str) -> usize {
     common_indent.unwrap_or(0)
 }
 
-fn line_is_whitespace(line: &String) -> bool {
+fn line_is_whitespace(line: &str) -> bool {
     !line.contains(is_not_whitespace)
 }
 

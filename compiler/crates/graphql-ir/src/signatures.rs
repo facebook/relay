@@ -54,21 +54,19 @@ pub fn build_signatures(
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
     let mut errors = Vec::new();
-    for signature in signatures {
-        if let Some(signature) = signature {
-            let previous_signature = seen_signatures.get(&signature.name.item);
-            if let Some(previous_signature) = previous_signature {
-                errors.push(
-                    Diagnostic::error(
-                        ValidationMessage::DuplicateDefinition(signature.name.item),
-                        previous_signature.name.location,
-                    )
-                    .annotate("also defined here", signature.name.location),
-                );
-                continue;
-            }
-            seen_signatures.insert(signature.name.item, signature);
+    for signature in signatures.into_iter().flatten() {
+        let previous_signature = seen_signatures.get(&signature.name.item);
+        if let Some(previous_signature) = previous_signature {
+            errors.push(
+                Diagnostic::error(
+                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    previous_signature.name.location,
+                )
+                .annotate("also defined here", signature.name.location),
+            );
+            continue;
         }
+        seen_signatures.insert(signature.name.item, signature);
     }
     if errors.is_empty() {
         Ok(seen_signatures)

@@ -46,16 +46,11 @@ class Help extends React.Component {
       {
         content: (
           <span>
-            Many developers and users idle on Slack in the{' '}
-            <a href="https://graphql.slack.com/messages/relay">#relay</a>{' '}
-            channel of{' '}
-            <a href="https://graphql-slack.herokuapp.com/">
-              the GraphQL Slack community
-            </a>
-            .
+            Many developers and users idle in the #relay channel of the{' '}
+            <a href="https://discord.gg/Kb3SFkUeQt">GraphQL Discord server</a>.
           </span>
         ),
-        title: 'Slack',
+        title: 'Discord',
       },
       {
         content: (

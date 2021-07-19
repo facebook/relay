@@ -817,7 +817,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .iter()
         .map(|field_id| {
             let field = schema.field(*field_id);
-            let name = field.name.to_string();
+            let field_name = field.name.to_string();
             let deprecated_directive = field.directives.named(*DEPRECATED_DIRECTIVE);
             let deprecated_reason = if let Some(deprecated_directive) = deprecated_directive {
                 if let Some(ConstantValue::String(reason)) =
@@ -837,11 +837,11 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 args.is_empty(), // don't insert arguments
             ) {
                 (true, true) => None,
-                (true, false) => Some(format!("{}({})", name, args.join(", "))),
-                (false, true) => Some(format!("{} {{\n\t$1\n}}", name)),
+                (true, false) => Some(format!("{}({})", field_name, args.join(", "))),
+                (false, true) => Some(format!("{} {{\n\t$1\n}}", field_name)),
                 (false, false) => Some(format!(
                     "{}({}) {{\n\t${}\n}}",
-                    name,
+                    field_name,
                     args.join(", "),
                     args.len() + 1
                 )),
@@ -871,8 +871,9 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 field_description.unwrap_or(""),
                 type_description.unwrap_or(""),
             );
+
             CompletionItem {
-                label: name,
+                label: field_name,
                 kind: None,
                 detail: deprecated_reason,
                 documentation: Some(documentation),

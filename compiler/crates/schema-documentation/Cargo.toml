@@ -5,3 +5,7 @@ version = "0.0.0"
 authors = ["Facebook"]
 edition = "2018"
 license = "MIT"
+
+[dependencies]
+interner = { path = "../interner" }
+schema = { path = "../schema" }

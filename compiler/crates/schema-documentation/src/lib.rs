@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod sdl_schema_impl;
+
 use std::sync::Arc;
 
 pub trait SchemaDocumentationLoader<T: SchemaDocumentation> {

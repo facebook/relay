@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -40,6 +40,10 @@ pub struct FieldDescription {
 pub struct ArgDescription {
     name: String,
     description: Option<String>,
+}
+
+pub trait SchemaDocumentationLoader {
+    fn get_schema_documentation(&self, schema_name: &str) -> Arc<SchemaDocumentation>;
 }
 
 pub struct SchemaDocumentation {

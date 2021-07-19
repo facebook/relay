@@ -108,7 +108,7 @@ pub(crate) fn on_references<
     state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <References as Request>::Params,
 ) -> LSPRuntimeResult<<References as Request>::Result> {
-    let node_resolution_info = state.resolve_node(params.text_document_position)?;
+    let node_resolution_info = state.resolve_node(&params.text_document_position)?;
     let references_response = get_references_response(
         node_resolution_info,
         state.get_source_programs_ref(),

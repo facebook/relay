@@ -314,7 +314,7 @@ fn build_node_resolution_info_from_selections(
 /// Return a `NodeResolutionInfo` for this request if the request occurred
 /// within a GraphQL document.
 pub fn get_node_resolution_info(
-    text_document_position: TextDocumentPositionParams,
+    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,

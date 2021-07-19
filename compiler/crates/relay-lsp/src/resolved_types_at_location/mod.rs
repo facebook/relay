@@ -64,7 +64,8 @@ pub(crate) fn on_get_resolved_types_at_location<
     state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <ResolvedTypesAtLocation as Request>::Params,
 ) -> LSPRuntimeResult<<ResolvedTypesAtLocation as Request>::Result> {
-    if let Ok(node_resolution_info) = state.resolve_node(params.to_text_document_position_params()?)
+    if let Ok(node_resolution_info) =
+        state.resolve_node(&params.to_text_document_position_params()?)
     {
         if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {
             // If type_path is empty, type_path.resolve_current_field() will panic.

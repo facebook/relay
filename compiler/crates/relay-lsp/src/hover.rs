@@ -297,7 +297,7 @@ pub(crate) fn on_hover<
     state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
-    let node_resolution_info = state.resolve_node(params.text_document_position_params)?;
+    let node_resolution_info = state.resolve_node(&params.text_document_position_params)?;
 
     log::debug!("Hovering over {:?}", node_resolution_info);
     if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {

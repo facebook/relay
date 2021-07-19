@@ -183,10 +183,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn resolve_node(
         &self,
-        params: TextDocumentPositionParams,
+        text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<NodeResolutionInfo> {
         get_node_resolution_info(
-            params,
+            text_document_position,
             &self.synced_graphql_documents,
             &self.file_categorizer,
             &self.root_dir,

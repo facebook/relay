@@ -30,6 +30,7 @@ use lsp_types::{
 };
 use relay_transforms::{RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME};
 use schema::{SDLSchema, Schema, Type};
+use schema_documentation::SchemaDocumentation;
 use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
@@ -228,8 +229,11 @@ fn get_relay_resolver_location(
     })
 }
 
-pub(crate) fn on_goto_definition<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_goto_definition<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
     let (document, position_span, project_name) =
@@ -281,8 +285,11 @@ impl Request for GetSourceLocationOfTypeDefinition {
     const METHOD: &'static str = "$/getSourceLocationOfTypeDefinition";
 }
 
-pub(crate) fn on_get_source_location_of_type_definition<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_get_source_location_of_type_definition<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <GetSourceLocationOfTypeDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
     let field_definition_source_info = state

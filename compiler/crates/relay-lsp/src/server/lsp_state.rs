@@ -34,7 +34,7 @@ use relay_compiler::{
     FileCategorizer,
 };
 use schema::SDLSchema;
-use schema_documentation::{FBSchemaDocumentation, SchemaDocumentationLoader};
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
 
@@ -52,7 +52,7 @@ pub enum ProjectStatus {
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
-pub struct LSPState<TPerfLogger: PerfLogger + 'static> {
+pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation> {
     config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
@@ -60,24 +60,28 @@ pub struct LSPState<TPerfLogger: PerfLogger + 'static> {
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     pub file_categorizer: FileCategorizer,
     pub schemas: Schemas,
-    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     source_programs: SourcePrograms,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
     notify_sender: Arc<Notify>,
     project_status: ProjectStatusMap,
-    pub js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
+    pub js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 }
 
-impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
+    LSPState<TPerfLogger, TSchemaDocumentation>
+{
     /// Private constructor
     fn new(
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
-        js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
+        schema_documentation_loader: Option<
+            Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
+        >,
+        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
         sender: Sender<Message>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -111,8 +115,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
-        schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
-        js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
+        schema_documentation_loader: Option<
+            Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
+        >,
+        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
     ) -> Self {
@@ -314,10 +320,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         self.perf_logger.clone()
     }
 
-    pub fn get_schema_documentation(
-        &self,
-        schema_name: &str,
-    ) -> Option<Arc<FBSchemaDocumentation>> {
+    pub fn get_schema_documentation(&self, schema_name: &str) -> Option<Arc<TSchemaDocumentation>> {
         self.schema_documentation_loader
             .as_ref()
             .map(|loader| loader.get_schema_documentation(schema_name))

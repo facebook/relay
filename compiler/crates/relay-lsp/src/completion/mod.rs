@@ -12,6 +12,7 @@ use crate::{
     node_resolution_info::{TypePath, TypePathItem},
     server::LSPState,
     server::SourcePrograms,
+    SchemaDocumentation,
 };
 use common::{NamedItem, PerfLogger, Span};
 
@@ -33,7 +34,6 @@ use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
-use schema_documentation::FBSchemaDocumentation;
 use std::{iter::once, sync::Arc};
 
 lazy_static! {
@@ -513,10 +513,10 @@ impl CompletionRequestBuilder {
     }
 }
 
-fn completion_items_for_request(
+fn completion_items_for_request<TSchemaDocumentation: SchemaDocumentation>(
     request: CompletionRequest,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<FBSchemaDocumentation>>,
+    schema_documentation: &Option<Arc<TSchemaDocumentation>>,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -806,10 +806,13 @@ fn resolve_completion_items_for_argument_value(
     completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields>(
+fn resolve_completion_items_from_fields<
+    TSchemaDocumentation: SchemaDocumentation,
+    T: TypeWithFields,
+>(
     type_: &T,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<FBSchemaDocumentation>>,
+    schema_documentation: &Option<Arc<TSchemaDocumentation>>,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -1033,8 +1036,11 @@ fn create_arguments_snippets<T: ArgumentLike>(
     args
 }
 
-pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_completion<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
     match state.extract_executable_document_from_text(&params.text_document_position, 0) {
@@ -1064,12 +1070,12 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
     }
 }
 
-fn resolve_completion_items(
+fn resolve_completion_items<TSchemaDocumentation: SchemaDocumentation>(
     document: ExecutableDocument,
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<FBSchemaDocumentation>>,
+    schema_documentation: &Option<Arc<TSchemaDocumentation>>,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)

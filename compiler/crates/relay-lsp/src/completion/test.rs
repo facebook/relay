@@ -19,6 +19,10 @@ use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::Intern;
 use lsp_types::{CompletionItem, Documentation};
 use relay_test_schema::get_test_schema;
+use schema_documentation::SchemaDocumentation;
+
+struct TestSchemaDocumentation {}
+impl SchemaDocumentation for TestSchemaDocumentation {}
 
 fn parse_and_resolve_completion_items(
     source: &str,
@@ -37,7 +41,7 @@ fn parse_and_resolve_completion_items(
         end: pos as u32,
     };
 
-    resolve_completion_items(
+    resolve_completion_items::<TestSchemaDocumentation>(
         document,
         position_span,
         "test_project".intern(),

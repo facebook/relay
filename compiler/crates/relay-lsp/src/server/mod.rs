@@ -55,7 +55,7 @@ use lsp_types::{
     CodeActionProviderCapability,
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
-use schema_documentation::SchemaDocumentationLoader;
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
@@ -94,15 +94,15 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 }
 
 /// Run the main server loop
-pub async fn run<TPerfLogger: PerfLogger + 'static>(
+pub async fn run<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     connection: Connection,
     mut config: Config,
     extension_config: ExtensionConfig,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
-    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
-    js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
+    js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -156,8 +156,8 @@ where
     }
 }
 
-fn handle_request<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     request: lsp_server::Request,
     sender: &Sender<Message>,
     perf_logger: &Arc<TPerfLogger>,
@@ -169,9 +169,12 @@ fn handle_request<TPerfLogger: PerfLogger + 'static>(
     sender.send(Message::Response(get_response(request)))
 }
 
-fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
+fn dispatch_request<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
     request: lsp_server::Request,
-    lsp_state: &mut LSPState<TPerfLogger>,
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
 ) -> ServerResponse {
     let get_response = || -> Result<_, ServerResponse> {
         let request = LSPRequestDispatch::new(request, lsp_state)
@@ -237,8 +240,11 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
     }
 }
 
-fn handle_notification<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+fn handle_notification<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     notification: Notification,
     perf_logger: &Arc<TPerfLogger>,
 ) {
@@ -272,9 +278,12 @@ fn handle_notification<TPerfLogger: PerfLogger + 'static>(
     perf_logger.complete_event(lsp_notification_event);
 }
 
-fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
+fn dispatch_notification<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
     notification: lsp_server::Notification,
-    lsp_state: &mut LSPState<TPerfLogger>,
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
 ) -> Result<(), Option<LSPRuntimeError>> {
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?

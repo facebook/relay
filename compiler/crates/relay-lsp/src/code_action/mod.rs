@@ -17,6 +17,7 @@ use lsp_types::{
     request::CodeActionRequest, request::Request, CodeAction, CodeActionOrCommand, Position, Range,
     TextDocumentPositionParams, TextEdit, Url, WorkspaceEdit,
 };
+use schema_documentation::SchemaDocumentation;
 use std::collections::{HashMap, HashSet};
 
 use crate::{
@@ -27,8 +28,11 @@ use crate::{
     server::LSPState,
 };
 
-pub(crate) fn on_code_action<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_code_action<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
     let uri = params.text_document.uri.clone();

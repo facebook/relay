@@ -8,6 +8,7 @@
 use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState};
 use common::PerfLogger;
 use lsp_types::request::Request;
+use schema_documentation::SchemaDocumentation;
 use serde::{Deserialize, Serialize};
 
 pub(crate) enum SearchSchemaItems {}
@@ -31,8 +32,11 @@ impl Request for SearchSchemaItems {
     const METHOD: &'static str = "relay/searchSchemaItems";
 }
 
-pub(crate) fn on_search_schema_items<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_search_schema_items<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: SearchSchemaItemsParams,
 ) -> LSPRuntimeResult<<SearchSchemaItems as Request>::Result> {
     let items = vec![];

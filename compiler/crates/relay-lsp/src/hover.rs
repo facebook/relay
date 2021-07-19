@@ -10,15 +10,15 @@ use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{NodeKind, NodeResolutionInfo},
-    server::LSPState,
+    server::{LSPState, SourcePrograms},
+    LSPExtraDataProvider,
 };
-use crate::{server::SourcePrograms, LSPExtraDataProvider};
 use common::PerfLogger;
 use graphql_ir::Value;
 use graphql_text_printer::print_value;
 use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
-use schema_documentation::FBSchemaDocumentation;
+use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 use std::sync::Arc;
 
@@ -68,10 +68,10 @@ DEPRECATED version of `@arguments` directive.
     content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
 }
 
-fn get_hover_response_contents(
+fn get_hover_response_contents<TSchemaDocumentation: SchemaDocumentation>(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
-    schema_documentation: Option<Arc<FBSchemaDocumentation>>,
+    schema_documentation: Option<Arc<TSchemaDocumentation>>,
     source_programs: &SourcePrograms,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
@@ -299,8 +299,11 @@ and then include them in queries where you need to.
     }
 }
 
-pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_hover<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
     let node_resolution_info = state.resolve_node(params.text_document_position_params)?;

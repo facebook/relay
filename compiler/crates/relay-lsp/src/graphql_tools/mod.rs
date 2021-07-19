@@ -19,6 +19,7 @@ use lsp_types::{request::Request, Url};
 use relay_compiler::config::{Config, ProjectConfig};
 use relay_transforms::{apply_transforms, Programs};
 use schema::SDLSchema;
+use schema_documentation::SchemaDocumentation;
 
 use crate::{
     lsp_runtime_error::LSPRuntimeResult,
@@ -201,8 +202,8 @@ fn build_operation_ir_with_fragments(
     }
 }
 
-fn get_query_text<TPerfLogger: PerfLogger + 'static>(
-    state: &LSPState<TPerfLogger>,
+fn get_query_text<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     original_text: String,
     project_config: &ProjectConfig,
     schema: Arc<SDLSchema>,
@@ -244,8 +245,11 @@ fn get_query_text<TPerfLogger: PerfLogger + 'static>(
     Ok(query_text)
 }
 
-pub(crate) fn on_graphql_execute_query<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_graphql_execute_query<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
     let project_name = if let Some(url) = &params.get_url() {

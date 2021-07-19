@@ -41,7 +41,7 @@ use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
 use relay_compiler::config::Config;
-use schema_documentation::SchemaDocumentationLoader;
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 pub use server::{LSPState, Schemas};
 use std::sync::Arc;
 pub use utils::position_to_offset;
@@ -49,13 +49,13 @@ pub use utils::position_to_offset;
 #[macro_use]
 extern crate assert_matches;
 
-pub async fn start_language_server<TPerfLogger>(
+pub async fn start_language_server<TPerfLogger, TSchemaDocumentation: SchemaDocumentation>(
     config: Config,
     extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
-    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
-    js_language_server: Option<Box<dyn JSLanguageServer<TPerfLogger>>>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
+    js_language_server: Option<Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,

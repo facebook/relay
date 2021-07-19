@@ -7,6 +7,7 @@
 
 use common::PerfLogger;
 use lsp_types::request::Request;
+use schema_documentation::SchemaDocumentation;
 
 use crate::{LSPRuntimeResult, LSPState};
 
@@ -19,8 +20,11 @@ impl Request for HeartbeatRequest {
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_heartbeat<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_heartbeat<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <HeartbeatRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HeartbeatRequest as Request>::Result> {
     Ok("Connected.".to_string())

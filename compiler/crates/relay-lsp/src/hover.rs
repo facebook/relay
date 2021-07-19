@@ -116,9 +116,7 @@ fn get_hover_response_contents(
             let mut hover_contents: Vec<MarkedString> =
                 vec![MarkedString::String(format!("Field: **{}**", field.name))];
 
-            if let Some(schema_description) = field.description {
-                hover_contents.push(MarkedString::String(schema_description.to_string()));
-            } else if let Some(field_description) =
+            if let Some(field_description) =
                 schema_documentation.get_field_description(&parent_type_name, field.name.lookup())
             {
                 hover_contents.push(MarkedString::String(field_description.to_string()));

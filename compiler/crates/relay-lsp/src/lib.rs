@@ -41,6 +41,7 @@ use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
 use relay_compiler::config::Config;
+use schema_documentation::SchemaDocumentationLoader;
 pub use server::{LSPState, Schemas};
 use std::sync::Arc;
 pub use utils::position_to_offset;
@@ -53,6 +54,7 @@ pub async fn start_language_server<TPerfLogger>(
     extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
     js_language_server: Option<Box<dyn JSLanguageServer<TPerfLogger>>>,
 ) -> LSPProcessResult<()>
 where
@@ -69,6 +71,7 @@ where
         params,
         perf_logger,
         extra_data_provider,
+        schema_documentation_loader,
         js_language_server.unwrap_or_else(|| Box::new(NoopJSLanguageServer::default())),
     )
     .await?;

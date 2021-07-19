@@ -160,7 +160,6 @@ fn resolve_field<'a>(
         return Ok(response);
     }
 
-
     let parent_name = source_program.schema.get_type_name(parent_type);
 
     let provider_response = extra_data_provider.resolve_field_definition(
@@ -307,7 +306,6 @@ mod test {
     use interner::Intern;
     use lsp_types::{GotoDefinitionResponse, Location};
     use relay_test_schema::get_test_schema_with_extensions;
-    use schema_documentation::SchemaDocumentation;
 
     use crate::{
         resolution_path::ResolvePosition, server::SourcePrograms, FieldDefinitionSourceInfo,
@@ -330,13 +328,6 @@ mod test {
             _field_name: Option<String>,
         ) -> Result<FieldDefinitionSourceInfo, String> {
             Err("Not implemented".to_string())
-        }
-
-        fn get_schema_documentation(
-            &self,
-            _schema_name: &str,
-        ) -> Arc<schema_documentation::SchemaDocumentation> {
-            Arc::new(SchemaDocumentation::default())
         }
     }
 
@@ -383,7 +374,6 @@ mod test {
         let root_dir = PathBuf::from("/config/root/");
         let extra_data_provider = DummyExtraDataProvider {};
 
-
         let goto_definition_response = get_goto_definition_response(
             resolved,
             project_name,
@@ -396,8 +386,6 @@ mod test {
             Ok(GotoDefinitionResponse::Scalar(Location { uri, .. })) => uri.path().to_string(),
             _ => panic!("Invalid go to definition response."),
         };
-
-
 
         assert_eq!(uri, "/config/root/path/to/resolver.js");
     }

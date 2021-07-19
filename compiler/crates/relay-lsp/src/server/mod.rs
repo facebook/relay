@@ -55,6 +55,7 @@ use lsp_types::{
     CodeActionProviderCapability,
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
+use schema_documentation::SchemaDocumentationLoader;
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
@@ -100,6 +101,7 @@ pub async fn run<TPerfLogger: PerfLogger + 'static>(
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
     js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
 ) -> LSPProcessResult<()>
 where
@@ -128,6 +130,7 @@ where
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
+        schema_documentation_loader,
         js_resource,
         &extension_config,
         connection.sender.clone(),

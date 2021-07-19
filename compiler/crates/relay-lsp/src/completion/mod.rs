@@ -34,7 +34,7 @@ use schema::{
     TypeReference, TypeWithFields,
 };
 use schema_documentation::SchemaDocumentation;
-use std::iter::once;
+use std::{iter::once, sync::Arc};
 
 lazy_static! {
     static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
@@ -516,7 +516,7 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    schema_documentation: &SchemaDocumentation,
+    schema_documentation: &Option<Arc<SchemaDocumentation>>,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -809,7 +809,7 @@ fn resolve_completion_items_for_argument_value(
 fn resolve_completion_items_from_fields<T: TypeWithFields>(
     type_: &T,
     schema: &SDLSchema,
-    schema_documentation: &SchemaDocumentation,
+    schema_documentation: &Option<Arc<SchemaDocumentation>>,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -860,11 +860,19 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             };
 
             let type_description = schema_documentation
-                .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
+                .as_ref()
+                .and_then(|schema_documentation| {
+                    schema_documentation
+                        .get_type_description(schema.get_type_name(field.type_.inner()).lookup())
+                });
 
             let field_description = schema_documentation
-                .get_field_description(type_.name().lookup(), field.name.lookup())
-                .or(field.description.map(|desc| desc.lookup()));
+                .as_ref()
+                .and_then(|schema_documentation| {
+                    schema_documentation
+                        .get_field_description(type_.name().lookup(), field.name.lookup())
+                })
+                .or_else(|| field.description.map(|desc| desc.lookup()));
 
             let documentation = make_markdown_table_documentation(
                 field.name.lookup(),
@@ -1037,9 +1045,7 @@ pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
                     position_span,
                     project_name,
                     schema,
-                    &state
-                        .extra_data_provider
-                        .get_schema_documentation(project_name.lookup()),
+                    &state.get_schema_documentation(project_name.lookup()),
                     state.get_source_programs_ref(),
                 )
                 .unwrap_or_else(Vec::new);
@@ -1063,7 +1069,7 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    schema_documentation: &SchemaDocumentation,
+    schema_documentation: &Option<Arc<SchemaDocumentation>>,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)

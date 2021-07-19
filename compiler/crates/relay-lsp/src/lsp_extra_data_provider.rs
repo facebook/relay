@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use schema_documentation::SchemaDocumentation;
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 
 #[derive(Deserialize, Serialize)]
 pub struct FieldDefinitionSourceInfo {
@@ -25,5 +23,4 @@ pub trait LSPExtraDataProvider {
         parent_type: String,
         field_name: Option<String>,
     ) -> Result<FieldDefinitionSourceInfo, String>;
-    fn get_schema_documentation(&self, schema_name: &str) -> Arc<SchemaDocumentation>;
 }

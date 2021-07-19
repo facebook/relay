@@ -34,6 +34,7 @@ use relay_compiler::{
     FileCategorizer,
 };
 use schema::SDLSchema;
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
 
@@ -59,6 +60,7 @@ pub struct LSPState<TPerfLogger: PerfLogger + 'static> {
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     pub file_categorizer: FileCategorizer,
     pub schemas: Schemas,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
     source_programs: SourcePrograms,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
@@ -74,6 +76,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
         js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
         sender: Sender<Message>,
     ) -> Self {
@@ -94,6 +97,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
+            schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
             js_resource,
@@ -107,6 +111,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader>>,
         js_resource: Box<dyn JSLanguageServer<TPerfLogger>>,
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
@@ -116,6 +121,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             config,
             perf_logger,
             extra_data_provider,
+            schema_documentation_loader,
             js_resource,
             sender.clone(),
         );
@@ -290,8 +296,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     fn preload_documentation(&self) {
         for project_config in self.config.enabled_projects() {
-            self.extra_data_provider
-                .get_schema_documentation(&project_config.name.to_string());
+            self.get_schema_documentation(&project_config.name.to_string());
         }
     }
 
@@ -307,6 +312,12 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub fn get_logger(&self) -> Arc<TPerfLogger> {
         self.perf_logger.clone()
+    }
+
+    pub fn get_schema_documentation(&self, schema_name: &str) -> Option<Arc<SchemaDocumentation>> {
+        self.schema_documentation_loader
+            .as_ref()
+            .map(|loader| loader.get_schema_documentation(schema_name))
     }
 }
 

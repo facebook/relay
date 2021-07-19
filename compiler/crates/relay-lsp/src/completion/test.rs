@@ -19,7 +19,6 @@ use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::Intern;
 use lsp_types::{CompletionItem, Documentation};
 use relay_test_schema::get_test_schema;
-use schema_documentation::SchemaDocumentation;
 
 fn parse_and_resolve_completion_items(
     source: &str,
@@ -43,7 +42,7 @@ fn parse_and_resolve_completion_items(
         position_span,
         "test_project".intern(),
         &get_test_schema(),
-        &SchemaDocumentation::default(),
+        &None,
         &source_programs
             .unwrap_or_else(|| Arc::new(DashMap::with_hasher(FnvBuildHasher::default()))),
     )

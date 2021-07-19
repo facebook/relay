@@ -5,22 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::LSPState,
-};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState};
 use common::PerfLogger;
-use interner::Intern;
 use lsp_types::request::Request;
-use schema::Schema;
-use schema_documentation::TypeDescription;
 use serde::{Deserialize, Serialize};
 
 pub(crate) enum SearchSchemaItems {}
 
 #[derive(Deserialize, Serialize)]
 pub(crate) struct SchemaSearchItemsResponse {
-    pub items: Vec<TypeDescription>,
+    pub items: Vec<()>,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -38,42 +32,10 @@ impl Request for SearchSchemaItems {
 }
 
 pub(crate) fn on_search_schema_items<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
-    params: SearchSchemaItemsParams,
+    _state: &mut LSPState<TPerfLogger>,
+    _params: SearchSchemaItemsParams,
 ) -> LSPRuntimeResult<<SearchSchemaItems as Request>::Result> {
-    let filter = params.filter.map(|f| f.to_lowercase());
-
-    let schema_name: &str = &params.schema_name;
-    let schema = state
-        .schemas
-        .get(&schema_name.intern())
-        .ok_or(LSPRuntimeError::ExpectedError)?;
-
-    let items = state
-        .extra_data_provider
-        .get_schema_documentation(&params.schema_name)
-        .types
-        .iter()
-        .filter(|(key, _)| {
-            let key: &str = key;
-            schema.get_type(key.intern()).is_some()
-        })
-        .filter(|(_, type_description)| {
-            if let Some(filter) = filter.as_ref() {
-                type_description.name.to_lowercase().contains(filter)
-                    || type_description
-                        .description
-                        .as_ref()
-                        .map_or(false, |d| d.to_lowercase().contains(filter))
-            } else {
-                true
-            }
-        })
-        .map(|(_key, value)| value)
-        .skip(params.skip.unwrap_or(0))
-        .take(params.take.unwrap_or(1_000))
-        .cloned()
-        .collect();
+    let items = vec![];
 
     Ok(SchemaSearchItemsResponse { items })
 }

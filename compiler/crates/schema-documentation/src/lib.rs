@@ -43,7 +43,7 @@ pub struct ArgDescription {
 }
 
 pub struct SchemaDocumentation {
-    pub types: HashMap<String, TypeDescription>,
+    types: HashMap<String, TypeDescription>,
 }
 
 impl Default for SchemaDocumentation {

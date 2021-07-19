@@ -34,7 +34,7 @@ use relay_compiler::{
     FileCategorizer,
 };
 use schema::SDLSchema;
-use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+use schema_documentation::{FBSchemaDocumentation, SchemaDocumentationLoader};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
 
@@ -314,7 +314,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         self.perf_logger.clone()
     }
 
-    pub fn get_schema_documentation(&self, schema_name: &str) -> Option<Arc<SchemaDocumentation>> {
+    pub fn get_schema_documentation(
+        &self,
+        schema_name: &str,
+    ) -> Option<Arc<FBSchemaDocumentation>> {
         self.schema_documentation_loader
             .as_ref()
             .map(|loader| loader.get_schema_documentation(schema_name))

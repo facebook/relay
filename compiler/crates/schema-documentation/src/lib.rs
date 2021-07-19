@@ -43,14 +43,14 @@ pub struct ArgDescription {
 }
 
 pub trait SchemaDocumentationLoader {
-    fn get_schema_documentation(&self, schema_name: &str) -> Arc<SchemaDocumentation>;
+    fn get_schema_documentation(&self, schema_name: &str) -> Arc<FBSchemaDocumentation>;
 }
 
-pub struct SchemaDocumentation {
+pub struct FBSchemaDocumentation {
     types: HashMap<String, TypeDescription>,
 }
 
-impl Default for SchemaDocumentation {
+impl Default for FBSchemaDocumentation {
     fn default() -> Self {
         Self {
             types: Default::default(),
@@ -58,7 +58,7 @@ impl Default for SchemaDocumentation {
     }
 }
 
-impl From<SchemaDocumentationJsonSource> for SchemaDocumentation {
+impl From<SchemaDocumentationJsonSource> for FBSchemaDocumentation {
     fn from(source: SchemaDocumentationJsonSource) -> Self {
         let mut type_name = HashMap::default();
         for type_ in source.types {
@@ -66,11 +66,11 @@ impl From<SchemaDocumentationJsonSource> for SchemaDocumentation {
             type_name.insert(key, type_);
         }
 
-        SchemaDocumentation { types: type_name }
+        FBSchemaDocumentation { types: type_name }
     }
 }
 
-impl SchemaDocumentation {
+impl FBSchemaDocumentation {
     fn get_field(&self, type_name: &str, field_name: &str) -> Option<&FieldDescription> {
         let type_ = self.types.get(type_name)?;
         for field in type_.fields.as_ref()? {
@@ -123,11 +123,11 @@ impl SchemaDocumentation {
 
 #[cfg(test)]
 mod tests {
-    use super::SchemaDocumentation;
+    use super::FBSchemaDocumentation;
     use super::SchemaDocumentationJsonSource;
     use serde_json::{json, Value};
 
-    fn create_docs() -> SchemaDocumentation {
+    fn create_docs() -> FBSchemaDocumentation {
         let source_value: Value = json!({
             "types": [
                 {
@@ -170,7 +170,7 @@ mod tests {
             ],
         });
         let source = SchemaDocumentationJsonSource::create_from_json_value(source_value).unwrap();
-        SchemaDocumentation::from(source)
+        FBSchemaDocumentation::from(source)
     }
 
     #[test]

@@ -18,7 +18,7 @@ use graphql_ir::Value;
 use graphql_text_printer::print_value;
 use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
-use schema_documentation::SchemaDocumentation;
+use schema_documentation::FBSchemaDocumentation;
 use schema_print::print_directive;
 use std::sync::Arc;
 
@@ -71,7 +71,7 @@ DEPRECATED version of `@arguments` directive.
 fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
-    schema_documentation: Option<Arc<SchemaDocumentation>>,
+    schema_documentation: Option<Arc<FBSchemaDocumentation>>,
     source_programs: &SourcePrograms,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {

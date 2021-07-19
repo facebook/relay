@@ -33,7 +33,7 @@ use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
-use schema_documentation::SchemaDocumentation;
+use schema_documentation::FBSchemaDocumentation;
 use std::{iter::once, sync::Arc};
 
 lazy_static! {
@@ -516,7 +516,7 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<SchemaDocumentation>>,
+    schema_documentation: &Option<Arc<FBSchemaDocumentation>>,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -809,7 +809,7 @@ fn resolve_completion_items_for_argument_value(
 fn resolve_completion_items_from_fields<T: TypeWithFields>(
     type_: &T,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<SchemaDocumentation>>,
+    schema_documentation: &Option<Arc<FBSchemaDocumentation>>,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -1069,7 +1069,7 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<SchemaDocumentation>>,
+    schema_documentation: &Option<Arc<FBSchemaDocumentation>>,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)

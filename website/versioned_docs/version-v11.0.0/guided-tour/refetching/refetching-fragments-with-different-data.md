@@ -70,7 +70,7 @@ function CommentBody(props: Props) {
 Let's distill what's happening in this example:
 
 * `useRefetchableFragment` behaves similarly to [`useFragment`](../../../api-reference/use-fragment/) (see the [Fragments](../../rendering/fragments/) section), but with a few additions:
-    * It expects a fragment that is annotated with the `@refetchable` directive. Note that `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a [`@fetchable`](https://fb.workplace.com/groups/graphql.fyi/permalink/1539541276187011/) type.
+    * It expects a fragment that is annotated with the `@refetchable` directive. Note that `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type.
 * It returns a `refetch` function, which is already  Flow typed to expect the query variables that the generated query expects.
 * It takes two Flow type parameters: the type of the generated query (in our case  `CommentBodyRefetchQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 * We're calling the `refetch` function with 2 main inputs:

@@ -61,6 +61,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -68,6 +69,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -86,6 +88,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -106,6 +109,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -126,6 +130,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -133,6 +138,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -153,6 +159,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -175,6 +182,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -216,6 +224,7 @@ Text Schema:Schema {
                     Scalar(5),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -237,6 +246,7 @@ Text Schema:Schema {
                     Scalar(5),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -327,6 +337,7 @@ Text Schema:Schema {
                     InputObject(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -455,6 +466,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -488,6 +500,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  interfaces: [
@@ -532,6 +545,7 @@ Text Schema:Schema {
             },
         ],
         interfaces: [],
+        description: None,
     },
 ]
  objects: [
@@ -544,6 +558,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "User",
@@ -575,6 +590,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
     Object {
         name: "MailingAddress",
@@ -586,6 +602,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "XIGStory",
@@ -643,6 +660,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  scalars: [
@@ -650,26 +668,31 @@ Text Schema:Schema {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
@@ -705,6 +728,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  unions: [
@@ -746,6 +770,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  }
@@ -761,6 +786,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -768,6 +794,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -786,6 +813,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -806,6 +834,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -826,6 +855,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -833,6 +863,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -853,6 +884,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -875,6 +907,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -941,6 +974,7 @@ fields: [
                     Scalar(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -962,6 +996,7 @@ fields: [
                     Scalar(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -1039,6 +1074,7 @@ fields: [
                     InputObject(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -1102,6 +1138,7 @@ input_objects: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -1135,6 +1172,7 @@ input_objects: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 interfaces: [
@@ -1179,6 +1217,7 @@ interfaces: [
             },
         ],
         interfaces: [],
+        description: None,
     },
 ]
 objects: [
@@ -1192,6 +1231,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "Query",
@@ -1202,6 +1242,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "User",
@@ -1233,6 +1274,7 @@ objects: [
                 ],
             },
         ],
+        description: None,
     },
     Object {
         name: "XIGStory",
@@ -1290,6 +1332,7 @@ objects: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 scalars: [
@@ -1297,11 +1340,13 @@ scalars: [
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
@@ -1337,16 +1382,19 @@ scalars: [
                 ],
             },
         ],
+        description: None,
     },
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
 unions: [
@@ -1388,6 +1436,7 @@ unions: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 }

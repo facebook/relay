@@ -933,6 +933,7 @@ impl InMemorySchema {
                     is_extension,
                     interfaces,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
@@ -963,6 +964,7 @@ impl InMemorySchema {
                     fields,
                     directives,
                     interfaces,
+                    description: None,
                 });
             }
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
@@ -980,6 +982,7 @@ impl InMemorySchema {
                     is_extension,
                     members,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
@@ -993,6 +996,7 @@ impl InMemorySchema {
                     name: name.value,
                     fields,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
@@ -1018,6 +1022,7 @@ impl InMemorySchema {
                     is_extension,
                     values,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
@@ -1029,6 +1034,7 @@ impl InMemorySchema {
                     name: name.value,
                     is_extension,
                     directives,
+                    description: None,
                 })
             }
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
@@ -1216,6 +1222,7 @@ impl InMemorySchema {
                         name: arg_def.name.value,
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
+                        description: None,
                     })
                 })
                 .collect();

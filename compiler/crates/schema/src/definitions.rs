@@ -247,6 +247,7 @@ pub struct Scalar {
     pub name: StringKey,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -256,6 +257,7 @@ pub struct Object {
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -263,6 +265,7 @@ pub struct InputObject {
     pub name: StringKey,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -271,6 +274,7 @@ pub struct Enum {
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -279,6 +283,7 @@ pub struct Union {
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -289,6 +294,7 @@ pub struct Interface {
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,
     pub interfaces: Vec<InterfaceID>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -311,6 +317,7 @@ pub struct Argument {
     pub name: StringKey,
     pub type_: TypeReference,
     pub default_value: Option<ConstantValue>,
+    pub description: Option<StringKey>,
 }
 
 impl Named for Argument {

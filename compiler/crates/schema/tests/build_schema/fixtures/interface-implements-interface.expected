@@ -45,6 +45,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -67,6 +68,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -271,6 +273,7 @@ Text Schema:Schema {
         ],
         directives: [],
         interfaces: [],
+        description: None,
     },
     Interface {
         name: "Node",
@@ -283,6 +286,7 @@ Text Schema:Schema {
         interfaces: [
             InterfaceID(0),
         ],
+        description: None,
     },
     Interface {
         name: "Resource",
@@ -297,6 +301,7 @@ Text Schema:Schema {
         interfaces: [
             InterfaceID(1),
         ],
+        description: None,
     },
     Interface {
         name: "Image",
@@ -312,6 +317,7 @@ Text Schema:Schema {
             InterfaceID(2),
             InterfaceID(1),
         ],
+        description: None,
     },
 ]
  objects: [
@@ -323,6 +329,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
 ]
  scalars: [
@@ -330,26 +337,31 @@ Text Schema:Schema {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
  unions: []
@@ -368,6 +380,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -390,6 +403,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -543,6 +557,7 @@ interfaces: [
         ],
         directives: [],
         interfaces: [],
+        description: None,
     },
     Interface {
         name: "Image",
@@ -558,6 +573,7 @@ interfaces: [
             InterfaceID(2),
             InterfaceID(3),
         ],
+        description: None,
     },
     Interface {
         name: "Node",
@@ -570,6 +586,7 @@ interfaces: [
         interfaces: [
             InterfaceID(0),
         ],
+        description: None,
     },
     Interface {
         name: "Resource",
@@ -584,6 +601,7 @@ interfaces: [
         interfaces: [
             InterfaceID(3),
         ],
+        description: None,
     },
 ]
 objects: [
@@ -595,6 +613,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
 ]
 scalars: [
@@ -602,26 +621,31 @@ scalars: [
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
 unions: []

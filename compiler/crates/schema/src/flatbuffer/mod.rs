@@ -202,6 +202,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             name: scalar.name()?.to_string().intern(),
             is_extension: scalar.is_extension(),
             directives: self.parse_directive_values(scalar.directives()?)?,
+            description: None,
         };
         Some(parsed_scalar)
     }
@@ -212,6 +213,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             name: input_object.name()?.to_string().intern(),
             fields: self.parse_arguments(input_object.fields()?)?,
             directives: self.parse_directive_values(input_object.directives()?)?,
+            description: None,
         };
         Some(parsed_input_object)
     }
@@ -223,6 +225,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             is_extension: enum_.is_extension(),
             values: self.parse_enum_values(enum_.values()?)?,
             directives: self.parse_directive_values(enum_.directives()?)?,
+            description: None,
         };
         Some(parsed_enum)
     }
@@ -236,6 +239,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             fields: object.fields()?.iter().map(FieldID).collect(),
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),
             directives: self.parse_directive_values(object.directives()?)?,
+            description: None,
         };
         Some(parsed_object)
     }
@@ -251,6 +255,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             fields: wrap_ids(interface.fields(), FieldID),
             directives: self.parse_directive_values(interface.directives()?)?,
             interfaces: wrap_ids(interface.interfaces(), InterfaceID),
+            description: None,
         };
         Some(parsed_interface)
     }
@@ -262,6 +267,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             is_extension: union.is_extension(),
             members: wrap_ids(union.members(), ObjectID),
             directives: self.parse_directive_values(union.directives()?)?,
+            description: None,
         };
         Some(parsed_union)
     }
@@ -317,6 +323,7 @@ impl<'fb> FlatBufferSchema<'fb> {
                 _ => None,
             },
             type_: self.parse_type_reference(argument.type_()?)?,
+            description: None,
         })
     }
 

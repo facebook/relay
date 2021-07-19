@@ -20,7 +20,6 @@ use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
-use std::sync::Arc;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -68,10 +67,10 @@ DEPRECATED version of `@arguments` directive.
     content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
 }
 
-fn get_hover_response_contents<TSchemaDocumentation: SchemaDocumentation>(
+fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
-    schema_documentation: Option<Arc<TSchemaDocumentation>>,
+    schema_documentation: impl SchemaDocumentation,
     source_programs: &SourcePrograms,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
@@ -120,19 +119,14 @@ fn get_hover_response_contents<TSchemaDocumentation: SchemaDocumentation>(
             if let Some(schema_description) = field.description {
                 hover_contents.push(MarkedString::String(schema_description.to_string()));
             } else if let Some(field_description) =
-                schema_documentation.as_ref().and_then(|documentation| {
-                    documentation.get_field_description(&parent_type_name, field.name.lookup())
-                })
+                schema_documentation.get_field_description(&parent_type_name, field.name.lookup())
             {
                 hover_contents.push(MarkedString::String(field_description.to_string()));
             }
 
             hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name)));
 
-            if let Some(type_description) = schema_documentation
-                .as_ref()
-                .and_then(|documentation| documentation.get_type_description(&type_name))
-            {
+            if let Some(type_description) = schema_documentation.get_type_description(&type_name) {
                 hover_contents.push(MarkedString::String(type_description.to_string()));
             }
 
@@ -151,15 +145,12 @@ fn get_hover_response_contents<TSchemaDocumentation: SchemaDocumentation>(
                         } else {
                             "".to_string()
                         },
-                        if let Some(description) =
-                            schema_documentation
-                                .as_ref()
-                                .and_then(|documentation| documentation
-                                    .get_field_argument_description(
-                                        &parent_type_name,
-                                        field.name.lookup(),
-                                        arg.name.lookup(),
-                                    ))
+                        if let Some(description) = schema_documentation
+                            .get_field_argument_description(
+                                &parent_type_name,
+                                field.name.lookup(),
+                                arg.name.lookup(),
+                            )
                         {
                             description.to_string()
                         } else {

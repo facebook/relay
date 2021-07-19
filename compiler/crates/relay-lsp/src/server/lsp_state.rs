@@ -24,7 +24,7 @@ use graphql_ir::{
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
@@ -34,7 +34,9 @@ use relay_compiler::{
     FileCategorizer,
 };
 use schema::SDLSchema;
-use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+use schema_documentation::{
+    CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
+};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
 
@@ -320,10 +322,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.perf_logger.clone()
     }
 
-    pub fn get_schema_documentation(&self, schema_name: &str) -> Option<Arc<TSchemaDocumentation>> {
-        self.schema_documentation_loader
+    pub fn get_schema_documentation(&self, schema_name: &str) -> impl SchemaDocumentation {
+        let primary = self
+            .schemas
+            .get(&schema_name.intern())
+            .map(|x| Arc::clone(x.value()));
+        let secondary = self
+            .schema_documentation_loader
             .as_ref()
-            .map(|loader| loader.get_schema_documentation(schema_name))
+            .map(|loader| loader.get_schema_documentation(schema_name));
+
+        CombinedSchemaDocumentation::new(primary, secondary)
     }
 }
 

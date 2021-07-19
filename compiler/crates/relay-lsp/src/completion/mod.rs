@@ -34,7 +34,7 @@ use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
 };
-use std::{iter::once, sync::Arc};
+use std::iter::once;
 
 lazy_static! {
     static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
@@ -513,10 +513,10 @@ impl CompletionRequestBuilder {
     }
 }
 
-fn completion_items_for_request<TSchemaDocumentation: SchemaDocumentation>(
+fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<TSchemaDocumentation>>,
+    schema_documentation: impl SchemaDocumentation,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -806,13 +806,10 @@ fn resolve_completion_items_for_argument_value(
     completion_items
 }
 
-fn resolve_completion_items_from_fields<
-    TSchemaDocumentation: SchemaDocumentation,
-    T: TypeWithFields,
->(
+fn resolve_completion_items_from_fields<T: TypeWithFields>(
     type_: &T,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<TSchemaDocumentation>>,
+    schema_documentation: impl SchemaDocumentation,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -863,19 +860,10 @@ fn resolve_completion_items_from_fields<
             };
 
             let type_description = schema_documentation
-                .as_ref()
-                .and_then(|schema_documentation| {
-                    schema_documentation
-                        .get_type_description(schema.get_type_name(field.type_.inner()).lookup())
-                });
+                .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
 
             let field_description = schema_documentation
-                .as_ref()
-                .and_then(|schema_documentation| {
-                    schema_documentation
-                        .get_field_description(type_.name().lookup(), field.name.lookup())
-                })
-                .or_else(|| field.description.map(|desc| desc.lookup()));
+                .get_field_description(type_.name().lookup(), field.name.lookup());
 
             let documentation = make_markdown_table_documentation(
                 field.name.lookup(),
@@ -1051,7 +1039,7 @@ pub(crate) fn on_completion<
                     position_span,
                     project_name,
                     schema,
-                    &state.get_schema_documentation(project_name.lookup()),
+                    state.get_schema_documentation(project_name.lookup()),
                     state.get_source_programs_ref(),
                 )
                 .unwrap_or_else(Vec::new);
@@ -1070,12 +1058,12 @@ pub(crate) fn on_completion<
     }
 }
 
-fn resolve_completion_items<TSchemaDocumentation: SchemaDocumentation>(
+fn resolve_completion_items(
     document: ExecutableDocument,
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
-    schema_documentation: &Option<Arc<TSchemaDocumentation>>,
+    schema_documentation: impl SchemaDocumentation,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)

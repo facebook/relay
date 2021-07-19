@@ -206,7 +206,11 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl: 'https://github.com/facebook/relay/tree/main/website',
+          editUrl: fbContent({
+            internal:
+              'https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website/',
+            external: 'https://github.com/facebook/relay/tree/main/website',
+          }),
 
           path: './docs/',
 

@@ -140,6 +140,13 @@ const options = {
     type: 'boolean',
     default: false,
   },
+  config: {
+    describe: 'Path to relay config',
+    type: 'string',
+    array: false,
+    default: './relay.config.js',
+    config: true,
+  },
 };
 
 // Parse CLI args
@@ -151,17 +158,7 @@ let yargs = _yargs
   .options(options)
   .strict();
 
-// Load external config
-const config = RelayConfig && RelayConfig.loadConfig();
-if (config) {
-  // Apply externally loaded config through the yargs API so that we can leverage yargs' defaults and have them show up
-  // in the help banner. We add it conditionally otherwise yargs would add new option `--config` which is confusing for
-  // Relay users (it's not Relay Config file).
-  yargs = yargs.config(config);
-}
-
 const argv: Config = (yargs.help().argv: $FlowFixMe);
-
 // Start the application
 main(argv).catch(error => {
   console.error(String(error.stack || error));

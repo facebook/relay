@@ -36,25 +36,25 @@ pub fn print_schema_definition(schema: &SDLSchema) -> String {
     }
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_schema_definition(schema, &mut result).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 pub fn print_directives(schema: &SDLSchema) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_directives(schema, &mut result).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 pub fn print_directive(schema: &SDLSchema, directive: &Directive) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_directive(schema, &mut result, directive).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 pub fn print_types(schema: &SDLSchema) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_types(schema, &mut result).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 /// Returns a sharded GraphQL SDLSchema
@@ -109,7 +109,7 @@ pub fn print_types_directives_as_shards(
 pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_type(schema, &mut result, type_).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 fn write_schema_definition(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
@@ -501,19 +501,9 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 }
 
 fn is_schema_of_common_name(schema: &SDLSchema) -> bool {
-    match schema.query_type() {
-        Some(_) => {}
-        None => return false,
-    };
-    match schema.mutation_type() {
-        Some(_) => {}
-        None => return false,
-    };
-    match schema.subscription_type() {
-        Some(_) => {}
-        None => return false,
-    };
-    true
+    schema.query_type().is_some()
+        && schema.mutation_type().is_some()
+        && schema.subscription_type().is_some()
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {

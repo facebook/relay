@@ -42,6 +42,7 @@ const SkipUnreachableNodeTransform = require('../transforms/SkipUnreachableNodeT
 const SkipUnusedVariablesTransform = require('../transforms/SkipUnusedVariablesTransform');
 const SplitModuleImportTransform = require('../transforms/SplitModuleImportTransform');
 const TestOperationTransform = require('../transforms/TestOperationTransform');
+const CacheDirectiveTransform = require('../transforms/CacheDirectiveTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
 const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequiredArgumentsTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
@@ -59,6 +60,7 @@ const relaySchemaExtensions: $ReadOnlyArray<string> = [
   RelayDirectiveTransform.SCHEMA_EXTENSION,
   RelayFlowGenerator.SCHEMA_EXTENSION,
   TestOperationTransform.SCHEMA_EXTENSION,
+  CacheDirectiveTransform.SCHEMA_EXTENSION,
   ValidateUnusedVariablesTransform.SCHEMA_EXTENSION,
 ];
 
@@ -110,6 +112,7 @@ const relayCodegenTransforms: $ReadOnlyArray<IRTransform> = [
   FlattenTransform.transformWithOptions({isForCodegen: true}),
   SkipRedundantNodesTransform.transform,
   TestOperationTransform.transform,
+  CacheDirectiveTransform.transform,
 ];
 
 // Transforms applied before printing the query sent to the server.

@@ -135,9 +135,10 @@ ExecutableDocument {
 Errors:
 ✖︎ Expected a colon (':')
 
-  argument-name-only-2.graphql:4:1
+  argument-name-only-2.graphql:3:6
     2 │   photo(
-    3 │     s
+    3 │     s 
+      │      ^
     4 │     size: $size
       │ ^^^^
     5 │   )

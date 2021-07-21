@@ -128,13 +128,7 @@ pub fn transform_program(
         program,
         base_fragment_names,
         &config.connection_interface,
-        Arc::new(
-            project_config
-                .feature_flags
-                .as_ref()
-                .cloned()
-                .unwrap_or_else(|| config.feature_flags.clone()),
-        ),
+        Arc::clone(&project_config.feature_flags),
         perf_logger,
         Some(print_stats),
     )

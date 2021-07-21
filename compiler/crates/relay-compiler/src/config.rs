@@ -31,6 +31,7 @@ use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::fmt;
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 use structopt::StructOpt;
 use watchman_client::pdu::ScmAwareClockData;
 
@@ -73,7 +74,6 @@ pub struct Config {
     pub repersist_operations: bool,
 
     pub connection_interface: ConnectionInterface,
-    pub feature_flags: FeatureFlags,
 
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
@@ -153,7 +153,7 @@ impl From<CliConfig> for Config {
             persist: None,
             variable_names_comment: false,
             extra: Default::default(),
-            feature_flags: None,
+            feature_flags: Default::default(),
             filename_for_artifact: None,
             skip_types_for_artifact: None,
             rollout: Default::default(),
@@ -187,7 +187,6 @@ impl From<CliConfig> for Config {
             saved_state_loader: None,
             saved_state_version: "MISSING".to_string(),
             connection_interface: ConnectionInterface::default(),
-            feature_flags: FeatureFlags::default(),
             operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
@@ -245,8 +244,12 @@ impl Config {
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
 
-        let projects = config_file
-            .projects
+        let ConfigFile {
+            feature_flags: config_file_feature_flags,
+            projects,
+            ..
+        } = config_file;
+        let projects = projects
             .into_iter()
             .map(|(project_name, config_file_project)| {
                 let schema_location =
@@ -293,7 +296,11 @@ impl Config {
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
-                    feature_flags: config_file_project.feature_flags,
+                    feature_flags: Arc::new(
+                        config_file_project
+                            .feature_flags
+                            .unwrap_or_else(|| config_file_feature_flags.clone()),
+                    ),
                     filename_for_artifact: None,
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
@@ -326,7 +333,6 @@ impl Config {
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),
             connection_interface: config_file.connection_interface,
-            feature_flags: config_file.feature_flags,
             operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
@@ -476,7 +482,6 @@ impl fmt::Debug for Config {
             saved_state_config,
             saved_state_loader,
             connection_interface,
-            feature_flags,
             saved_state_version,
             operation_persister,
             post_artifacts_write,
@@ -512,7 +517,6 @@ impl fmt::Debug for Config {
                 &option_fn_to_string(saved_state_loader),
             )
             .field("connection_interface", connection_interface)
-            .field("feature_flags", feature_flags)
             .field("saved_state_version", saved_state_version)
             .field(
                 "post_artifacts_write",
@@ -536,7 +540,7 @@ pub struct ProjectConfig {
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
     pub extra: Option<FnvIndexMap<String, String>>,
-    pub feature_flags: Option<FeatureFlags>,
+    pub feature_flags: Arc<FeatureFlags>,
     pub filename_for_artifact:
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,

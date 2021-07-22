@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::{DiagnosticDisplay, WithDiagnosticData};
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};
 use schema::{Type, TypeReference};
@@ -23,12 +24,6 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
     #[error("Expected type '{0:?}")]
     ExpectedType(TypeReference),
-    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
-    UnknownField {
-        type_: StringKey,
-        field: StringKey,
-        suggestions: Vec<StringKey>,
-    },
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {
         field_name: StringKey,
@@ -733,6 +728,31 @@ pub enum ValidationMessage {
         "The `raw_response_type` argument should be set to `true` for the @no_inline fragment `{fragment_name}` used in the query with @raw_response_type."
     )]
     RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub enum ValidationMessageWithData {
+    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownField {
+        type_: StringKey,
+        field: StringKey,
+        suggestions: Vec<StringKey>,
+    },
+}
+
+impl WithDiagnosticData for ValidationMessageWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            ValidationMessageWithData::UnknownField { suggestions, .. } => suggestions
+                .iter()
+                .map(|suggestion| into_box(*suggestion))
+                .collect::<_>(),
+        }
+    }
+}
+
+fn into_box(item: StringKey) -> Box<dyn DiagnosticDisplay> {
+    Box::new(item)
 }
 
 /// Given [ A, B, C ] return ' Did you mean A, B, or C?'.

@@ -6,7 +6,7 @@
  */
 
 use crate::{
-    diagnostic_reporter::DiagnosticReporter,
+    diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
     js_language_server::JSLanguageServer,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
@@ -27,7 +27,7 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
+use lsp_types::{Diagnostic, DiagnosticSeverity, Range, TextDocumentPositionParams, Url};
 use relay_compiler::{
     compiler::Compiler,
     config::{Config, ProjectConfig},
@@ -334,6 +334,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         CombinedSchemaDocumentation::new(primary, secondary)
     }
+
+    /// Given a Range return first available diagnostic message for it
+    pub(crate) fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+        self.diagnostic_reporter
+            .get_diagnostics_for_range(url, range)
+    }
 }
 
 fn convert_diagnostic(
@@ -342,6 +348,7 @@ fn convert_diagnostic(
 ) -> Diagnostic {
     Diagnostic {
         code: None,
+        data: get_diagnostics_data(&diagnostic),
         message: diagnostic.message().to_string(),
         range: diagnostic.location().span().to_range(
             &graphql_source.text,

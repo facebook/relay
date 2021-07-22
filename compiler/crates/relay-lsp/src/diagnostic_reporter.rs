@@ -19,6 +19,7 @@ use relay_compiler::{
     errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
 };
+use serde_json::Value;
 use std::path::PathBuf;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
@@ -157,7 +158,7 @@ impl DiagnosticReporter {
 
     fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
         let message = diagnostic.message().to_string();
-
+        let data = get_diagnostics_data(diagnostic);
         let location = diagnostic.location();
 
         let url = match url_from_location(location, &self.root_dir) {
@@ -188,6 +189,7 @@ impl DiagnosticReporter {
 
         let diagnostic = Diagnostic {
             code: None,
+            data,
             message,
             range,
             related_information: None,
@@ -231,6 +233,47 @@ impl DiagnosticReporter {
         let url = Url::from_directory_path(&self.root_dir)
             .expect("print_generic_error: Could not convert self.root_dir to Url");
         self.add_diagnostic(url, diagnostic);
+    }
+
+    pub fn get_diagnostics_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+        let diagnostic_set = self.active_diagnostics.get(url)?;
+        diagnostic_set
+            .quick_diagnostics
+            .iter()
+            .find(|item| is_sub_range(range, item.range))
+            .or_else(|| {
+                diagnostic_set
+                    .regular_diagnostics
+                    .iter()
+                    .find(|item| is_sub_range(range, item.range))
+            })
+            .cloned()
+    }
+}
+
+/// Checks if `inner` range is withing the `outer` range.
+/// First, we need to make sure that the start character of the outer range
+/// is before (or the same) character of the inner range.
+/// Then we need to make sure that end character of the outer range is after
+/// (or the same) as the end character of the inner range, or outer line
+/// is more than inner end line.
+fn is_sub_range(inner: Range, outer: Range) -> bool {
+    return (outer.start.character <= inner.start.character
+        && outer.start.line <= inner.start.line)
+        && (outer.end.character >= inner.end.character || outer.end.line > inner.end.line);
+}
+
+pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
+    let diagnostic_data = diagnostic.get_data();
+    if !diagnostic_data.is_empty() {
+        Some(Value::Array(
+            diagnostic_data
+                .iter()
+                .map(|item| Value::String(item.to_string()))
+                .collect(),
+        ))
+    } else {
+        None
     }
 }
 

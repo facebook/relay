@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::ValidationMessage;
+use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::*;
 use crate::signatures::{build_signatures, FragmentSignature, FragmentSignatures};
 use crate::{constants::ARGUMENT_DEFINITION, GraphQLSuggestions};
@@ -846,8 +846,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                return Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UnknownField {
                         type_: self.schema.get_type_name(parent_type.inner()),
                         field: field.name.value,
                         suggestions: self
@@ -917,8 +917,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                return Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UnknownField {
                         type_: self.schema.get_type_name(parent_type.inner()),
                         field: field.name.value,
                         suggestions: self
@@ -1423,7 +1423,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     })
                 }
                 None => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                    ValidationMessageWithData::UnknownField {
                         type_: type_definition.name,
                         field: x.name.value,
                         suggestions: self.suggestions.field_name_suggestion(
@@ -1556,7 +1556,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                     })
                 }
                 None => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownField {
+                    ValidationMessageWithData::UnknownField {
                         type_: type_definition.name,
                         field: x.name.value,
                         suggestions: self.suggestions.field_name_suggestion(

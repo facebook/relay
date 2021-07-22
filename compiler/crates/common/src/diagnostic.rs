@@ -71,6 +71,22 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             related_information: Vec::new(),
+            data: Vec::new(),
+        }))
+    }
+
+    /// Creates a new error Diagnostic with additional data that
+    /// can be used in IDE code actions
+    pub fn error_with_data<T: 'static + DiagnosticDisplay + WithDiagnosticData>(
+        message: T,
+        location: Location,
+    ) -> Self {
+        let data = message.get_data();
+        Self(Box::new(DiagnosticData {
+            message: Box::new(message),
+            location,
+            related_information: Vec::new(),
+            data,
         }))
     }
 
@@ -95,6 +111,10 @@ impl Diagnostic {
 
     pub fn location(&self) -> Location {
         self.0.location
+    }
+
+    pub fn get_data(&self) -> &[impl DiagnosticDisplay] {
+        &self.0.data
     }
 
     /// Override the location. This should only be used for exceptional situations.
@@ -162,6 +182,11 @@ struct DiagnosticData {
     /// Related diagnostic information, such as other definitions in the case of
     /// a duplicate definition error.
     related_information: Vec<DiagnosticRelatedInformation>,
+
+    /// A list with data that can be passed to the code actions
+    /// `data` is used in the LSP protocol:
+    /// @see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#diagnostic
+    data: Vec<Box<dyn DiagnosticDisplay>>,
 }
 
 /// Secondary locations attached to a diagnostic.
@@ -172,6 +197,10 @@ pub struct DiagnosticRelatedInformation {
 
     /// The location of this related diagnostic information.
     pub location: Location,
+}
+
+pub trait WithDiagnosticData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>>;
 }
 
 /// Trait for diagnostic messages to allow structs that capture

@@ -35,6 +35,11 @@ pub struct FeatureFlags {
 
     #[serde(default)]
     pub actor_change_support: FeatureFlag,
+
+    /// Enable generation of text artifacts used to generate full query strings
+    /// later.
+    #[serde(default)]
+    pub text_artifacts: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

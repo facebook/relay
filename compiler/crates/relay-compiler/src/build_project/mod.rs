@@ -32,6 +32,7 @@ use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
+    GenerateFragmentTextArtifactFn, GenerateOperationTextArtifactFn,
 };
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
@@ -246,7 +247,12 @@ pub fn build_project(
 
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes));
+    let artifacts = generate_artifacts(
+        config,
+        project_config,
+        &programs,
+        Arc::clone(&source_hashes),
+    );
     log_event.stop(artifacts_timer);
 
     log_event.number(

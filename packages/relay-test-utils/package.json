@@ -9,7 +9,11 @@
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
-  "repository": "facebook/relay",
+  "repository":  {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/relay-test-utils"
+  },
   "dependencies": {
     "@babel/runtime": "^7.0.0",
     "fbjs": "^3.0.0",

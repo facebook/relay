@@ -67,6 +67,7 @@ function writeRelayGeneratedFile(
     params: RequestParameters,
   ) => void,
   languagePlugin: ?PluginInterface,
+  includePersistedQueryTextInDev: boolean,
 ): Promise<?GeneratedNode> {
   let generatedNode: GeneratedNode = _generatedNode;
   // Copy to const so Flow can refine.
@@ -86,6 +87,8 @@ function writeRelayGeneratedFile(
       : null;
 
   const typeName = getConcreteType(generatedNode);
+
+  const nodeDevOnlyProperties = {};
 
   let docText;
   if (generatedNode.kind === RelayConcreteNode.REQUEST) {
@@ -139,6 +142,10 @@ function writeRelayGeneratedFile(
           operationKind: generatedNode.params.operationKind,
           text: null,
         };
+
+        if (includePersistedQueryTextInDev) {
+          nodeDevOnlyProperties.params = {text: docText};
+        }
       } else {
         nextRequestParams = {
           cacheID: md5(docText),
@@ -189,6 +196,7 @@ function writeRelayGeneratedFile(
       sourceHash,
       // $FlowFixMe[incompatible-call]
       node: generatedNode,
+      nodeDevOnlyProperties,
       schema,
     });
     codegenDir.writeFile(filename, moduleText, shouldRepersist);

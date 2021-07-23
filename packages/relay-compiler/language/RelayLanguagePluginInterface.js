@@ -190,6 +190,12 @@ export type FormatModule = ({|
   node: GeneratedNode,
 
   /**
+   * Properties that should be merged into the node object but only in
+   * development.
+   */
+  nodeDevOnlyProperties: {...},
+
+  /**
    * GraphQL Schema Interface
    */
   schema: Schema,

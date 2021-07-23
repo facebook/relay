@@ -140,6 +140,12 @@ const options = {
     type: 'boolean',
     default: false,
   },
+  includePersistedQueryTextInDev: {
+    describe:
+      'Include persisted query text in the generated files in development.',
+    type: 'boolean',
+    default: false,
+  },
 };
 
 // Parse CLI args
@@ -163,7 +169,7 @@ if (config) {
 const argv: Config = (yargs.help().argv: $FlowFixMe);
 
 // Start the application
-main(argv).catch(error => {
+main(argv).catch((error) => {
   console.error(String(error.stack || error));
   process.exit(1);
 });

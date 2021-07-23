@@ -36,4 +36,29 @@ describe('InlineFragmentsTransform', () => {
         .join('\n');
     },
   );
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/inline-fragments-transform`,
+    text => {
+      const {definitions} = parseGraphQLText(TestSchema, text);
+      return new CompilerContext(TestSchema)
+        .addAll(definitions)
+        .applyTransforms([InlineFragmentsTransform.transformWithOptions({includeFragments: true})])
+        .documents()
+        .map(doc => IRPrinter.print(TestSchema, doc))
+        .join('\n');
+    },
+  );
+  generateTestsFromFixtures(
+    `${__dirname}/fixtures/inline-fragments-transform`,
+    text => {
+      const {definitions} = parseGraphQLText(TestSchema, text);
+      return new CompilerContext(TestSchema)
+        .addAll(definitions)
+        .applyTransforms([InlineFragmentsTransform.transformWithOptions({includeFragments: false})])
+        .documents()
+        .map(doc => IRPrinter.print(TestSchema, doc))
+        .join('\n');
+    },
+  );
 });
+

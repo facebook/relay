@@ -16,8 +16,6 @@ use thiserror::Error;
 pub enum ValidationMessage {
     #[error("Duplicate definitions for '{0}'")]
     DuplicateDefinition(StringKey),
-    #[error("Unknown type '{0}'")]
-    UnknownType(StringKey),
     #[error("Undefined fragment '{0}'")]
     UndefinedFragment(StringKey),
     #[error("Expected an object, interface, or union, found '{0:?}'")]
@@ -727,6 +725,11 @@ pub enum ValidationMessage {
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessageWithData {
+    #[error("Unknown type '{type_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
+    UnknownType {
+        type_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
     #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
     UnknownField {
         type_: StringKey,
@@ -743,7 +746,8 @@ pub enum ValidationMessageWithData {
 impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
-            ValidationMessageWithData::UnknownField { suggestions, .. } => suggestions
+            ValidationMessageWithData::UnknownType { suggestions, .. }
+            | ValidationMessageWithData::UnknownField { suggestions, .. } => suggestions
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),

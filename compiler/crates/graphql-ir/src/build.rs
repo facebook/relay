@@ -426,15 +426,7 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         definition: &graphql_syntax::VariableDefinition,
     ) -> DiagnosticsResult<VariableDefinition> {
-        let type_ = self.build_type_annotation(&definition.type_)?;
-        if !type_.inner().is_input_type() {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ExpectedVariablesToHaveInputType(
-                    self.schema.get_type_name(type_.inner()),
-                ),
-                self.location.with_span(definition.span),
-            )]);
-        }
+        let type_ = self.build_type_annotation_for_input(&definition.type_)?;
         let default_value = match &definition.default_value {
             Some(default_value) => Some(self.build_constant_value(
                 &default_value.value,
@@ -461,28 +453,54 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
-        self.build_type_annotation_inner(annotation)
+        self.build_type_annotation_inner(annotation, false)
+    }
+
+    fn build_type_annotation_for_input(
+        &mut self,
+        annotation: &graphql_syntax::TypeAnnotation,
+    ) -> DiagnosticsResult<TypeReference> {
+        self.build_type_annotation_inner(annotation, true)
     }
 
     fn build_type_annotation_inner(
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
+        is_for_input: bool,
     ) -> DiagnosticsResult<TypeReference> {
         match annotation {
             graphql_syntax::TypeAnnotation::Named(name) => match self.schema.get_type(name.value) {
-                Some(type_) => Ok(TypeReference::Named(type_)),
-                None => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownType(name.value),
+                Some(type_) => {
+                    if is_for_input && !type_.is_input_type() {
+                        Err(vec![Diagnostic::error(
+                            ValidationMessage::ExpectedVariablesToHaveInputType(
+                                self.schema.get_type_name(type_),
+                            ),
+                            self.location.with_span(name.span),
+                        )])
+                    } else {
+                        Ok(TypeReference::Named(type_))
+                    }
+                }
+                None => Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UnknownType {
+                        type_name: name.value,
+                        suggestions: if is_for_input {
+                            self.suggestions.input_type_suggestions(name.value)
+                        } else {
+                            self.suggestions.output_type_suggestions(name.value)
+                        },
+                    },
                     self.location.with_span(name.span),
                 )]),
             },
             graphql_syntax::TypeAnnotation::NonNull(non_null) => {
-                let inner = self.build_type_annotation_inner(&non_null.type_)?;
+                let inner = self.build_type_annotation_inner(&non_null.type_, is_for_input)?;
                 Ok(TypeReference::NonNull(Box::new(inner)))
             }
             graphql_syntax::TypeAnnotation::List(list) => {
                 // TODO: Nested lists is allowed to support existing query variables definitions
-                let inner = self.build_type_annotation_inner(&list.type_)?;
+                let inner = self.build_type_annotation_inner(&list.type_, is_for_input)?;
                 Ok(TypeReference::List(Box::new(inner)))
             }
         }
@@ -782,8 +800,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
                         }
                     },
                     None => {
-                        return Err(vec![Diagnostic::error(
-                            ValidationMessage::UnknownType(type_name),
+                        return Err(vec![Diagnostic::error_with_data(
+                            ValidationMessageWithData::UnknownType {
+                                type_name,
+                                suggestions: self.suggestions.output_type_suggestions(type_name),
+                            },
                             self.location.with_span(span),
                         )]);
                     }

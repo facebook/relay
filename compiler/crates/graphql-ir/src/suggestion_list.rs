@@ -97,6 +97,54 @@ impl<'schema> GraphQLSuggestions<'schema> {
         Self { schema }
     }
 
+    pub fn input_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        let input_types = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if type_.is_input_type() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &input_types, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
+    pub fn output_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        let type_names = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if !type_.is_input_object() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
+    pub fn composite_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        let type_names = self
+            .schema
+            .get_type_map()
+            .filter_map(|(type_name, type_)| {
+                if type_.is_composite_type() {
+                    Some(*type_name)
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<StringKey>>();
+
+        suggestion_list(input, &type_names, GraphQLSuggestions::MAX_SUGGESTIONS)
+    }
+
     pub fn field_name_suggestion(&self, type_: Option<Type>, input: StringKey) -> Vec<StringKey> {
         let field_names: Vec<StringKey> = match type_ {
             Some(Type::Object(object_id)) => self
@@ -219,6 +267,18 @@ mod tests {
                 5
             ),
             vec!["ax".intern(), "ay".intern(), "az".intern()]
+        );
+    }
+
+    #[test]
+    fn test_suggestions_with_user() {
+        assert_eq!(
+            suggestion_list(
+                "Users".intern(),
+                &["User".intern(), "Query".intern(), "Mutation".intern()],
+                5
+            ),
+            vec!["User".intern(), "Query".intern()]
         );
     }
 }

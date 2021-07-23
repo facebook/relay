@@ -46,6 +46,7 @@ const parseGraphQL = Profiler.instrument(GraphQL.parse, 'GraphQL.parse');
 
 module.exports = (
   tagFinder: GraphQLTagFinder,
+  generateModuleName: (filePath: string) => string,
   getFileFilter?: GetFileFilter,
 ): SourceModuleParser => {
   const memoizedTagFinder = memoizedFind.bind(null, tagFinder);
@@ -80,18 +81,20 @@ module.exports = (
 
     const astDefinitions = [];
     const sources = [];
-    memoizedTagFinder(text, baseDir, file).forEach(template => {
-      const source = new GraphQL.Source(template, file.relPath);
-      const ast = parseGraphQL(source);
-      invariant(
-        ast.definitions.length,
-        'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
-          'definition (fragment, mutation, query, subscription), got `%s`.',
-        template,
-      );
-      sources.push(source.body);
-      astDefinitions.push(...ast.definitions);
-    });
+    memoizedTagFinder(generateModuleName, text, baseDir, file).forEach(
+      template => {
+        const source = new GraphQL.Source(template, file.relPath);
+        const ast = parseGraphQL(source);
+        invariant(
+          ast.definitions.length,
+          'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
+            'definition (fragment, mutation, query, subscription), got `%s`.',
+          template,
+        );
+        sources.push(source.body);
+        astDefinitions.push(...ast.definitions);
+      },
+    );
 
     return {
       document: {

@@ -14,7 +14,6 @@
 
 const RelayCompilerCache = require('../util/RelayCompilerCache');
 
-const getModuleName = require('../util/getModuleName');
 const graphql = require('graphql');
 const path = require('path');
 const util = require('util');
@@ -29,6 +28,7 @@ const cache = new RelayCompilerCache('RelayFindGraphQLTags', 'v1');
 
 function memoizedFind(
   tagFinder: GraphQLTagFinder,
+  generateModuleName: (filePath: string) => string,
   text: string,
   baseDir: string,
   file: File,
@@ -40,17 +40,24 @@ function memoizedFind(
   );
   return cache.getOrCompute(
     file.hash,
-    find.bind(null, tagFinder, text, path.join(baseDir, file.relPath)),
+    find.bind(
+      null,
+      tagFinder,
+      generateModuleName,
+      text,
+      path.join(baseDir, file.relPath),
+    ),
   );
 }
 
 function find(
   tagFinder: GraphQLTagFinder,
+  generateModuleName: (filePath: string) => string,
   text: string,
   absPath: string,
 ): $ReadOnlyArray<string> {
   const tags = tagFinder(text, absPath);
-  const moduleName = getModuleName(absPath);
+  const moduleName = generateModuleName(absPath);
   tags.forEach(tag => validateTemplate(tag, moduleName, absPath));
   return tags.map(tag => tag.template);
 }

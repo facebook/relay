@@ -29,11 +29,6 @@ pub enum ValidationMessage {
         field_name: StringKey,
         type_name: StringKey,
     },
-    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
-    ExpectedSelectionsOnObjectField {
-        field_name: StringKey,
-        type_name: StringKey,
-    },
     #[error("Unknown argument '{0}'")]
     UnknownArgument(StringKey),
     #[error("Unknown directive '{0}'")]
@@ -738,6 +733,11 @@ pub enum ValidationMessageWithData {
         field: StringKey,
         suggestions: Vec<StringKey>,
     },
+    #[error("Expected selections on field `{field_name}` of type `{type_name}`")]
+    ExpectedSelectionsOnObjectField {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -747,6 +747,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),
+            ValidationMessageWithData::ExpectedSelectionsOnObjectField { field_name, .. } => {
+                vec![Box::new(format!("{} {{ }}", field_name))]
+            }
         }
     }
 }

@@ -932,8 +932,8 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         let field_definition = self.schema.field(field_id);
         if !field_definition.type_.inner().is_scalar() && !field_definition.type_.inner().is_enum()
         {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ExpectedSelectionsOnObjectField {
+            return Err(vec![Diagnostic::error_with_data(
+                ValidationMessageWithData::ExpectedSelectionsOnObjectField {
                     type_name: self.schema.get_type_name(parent_type.inner()),
                     field_name,
                 },

@@ -38,7 +38,7 @@ function createRelayContext(react: React): React$Context<RelayContext | null> {
   }
   invariant(
     react === firstReact,
-    '[createRelayContext]: You passing a different instance of React',
+    '[createRelayContext]: You are passing a different instance of React',
     react.version,
   );
   return relayContext;

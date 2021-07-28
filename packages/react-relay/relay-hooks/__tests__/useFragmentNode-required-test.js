@@ -101,6 +101,7 @@ beforeEach(() => {
         useFragmentNodeRequiredTestUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: singularQuery.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
 
     useFragmentNode(gqlSingularFragment, userRef);

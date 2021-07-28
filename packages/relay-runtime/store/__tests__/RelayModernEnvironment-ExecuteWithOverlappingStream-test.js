@@ -172,6 +172,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
     const deferSelector = nullthrows(
@@ -233,6 +234,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 
@@ -258,6 +260,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 
@@ -369,6 +372,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 
@@ -433,6 +437,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 

@@ -374,7 +374,7 @@ class DataChecker {
             if (typeName === selection.type) {
               this._traverseSelections(selection.selections, dataID);
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             // Abstract refinement: check data depending on whether the type
             // conforms to the interface/union or not:
             // - Type known to _not_ implement the interface: don't check the selections.
@@ -400,10 +400,6 @@ class DataChecker {
               // missing so don't bother reading the fragment
               this._handleMissing();
             } // else false: known to not implement the interface
-          } else {
-            // legacy behavior for abstract refinements: always check even
-            // if the type doesn't conform
-            this._traverseSelections(selection.selections, dataID);
           }
           break;
         }
@@ -455,25 +451,23 @@ class DataChecker {
           this._recordWasMissing = recordWasMissing;
           break;
         case TYPE_DISCRIMINATOR:
-          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const {abstractKey} = selection;
-            const recordType = this._mutator.getType(dataID);
-            invariant(
-              recordType != null,
-              'DataChecker: Expected record `%s` to have a known type',
-              dataID,
-            );
-            const typeID = generateTypeID(recordType);
-            const implementsInterface = this._mutator.getValue(
-              typeID,
-              abstractKey,
-            );
-            if (implementsInterface == null) {
-              // unsure if the type implements the interface: data is
-              // missing
-              this._handleMissing();
-            } // else: if it does or doesn't implement, we don't need to check or skip anything else
-          }
+          const {abstractKey} = selection;
+          const recordType = this._mutator.getType(dataID);
+          invariant(
+            recordType != null,
+            'DataChecker: Expected record `%s` to have a known type',
+            dataID,
+          );
+          const typeID = generateTypeID(recordType);
+          const implementsInterface = this._mutator.getValue(
+            typeID,
+            abstractKey,
+          );
+          if (implementsInterface == null) {
+            // unsure if the type implements the interface: data is
+            // missing
+            this._handleMissing();
+          } // else: if it does or doesn't implement, we don't need to check or skip anything else
           break;
         case FLIGHT_FIELD:
           if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {

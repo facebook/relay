@@ -2530,55 +2530,6 @@ describe('check()', () => {
     });
   });
 
-  it('returns true when a non-Node record is "missing" an id', () => {
-    const TestFragment = graphql`
-      fragment DataCheckerTest15Fragment on Query {
-        maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not present
-          ... on Node {
-            id
-          }
-          ... on NonNodeNoID {
-            name
-          }
-        }
-      }
-    `;
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: 'Query',
-        maybeNodeInterface: {__ref: 'client:root:maybeNodeInterface'},
-      },
-      'client:root:maybeNodeInterface': {
-        __id: 'client:root:maybeNodeInterface',
-        __typename: 'NonNodeNoID',
-        __isNode: false,
-        name: 'Alice',
-      },
-    };
-    const source = RelayRecordSource.create(data);
-    const target = RelayRecordSource.create();
-    const status = check(
-      () => source,
-      () => target,
-      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-      createNormalizationSelector(
-        (TestFragment: $FlowFixMe),
-        'client:root',
-        {},
-      ),
-      [],
-      null,
-      defaultGetDataID,
-    );
-    expect(status).toEqual({
-      status: 'available',
-      mostRecentlyInvalidatedAt: null,
-    });
-    expect(target.size()).toBe(0);
-  });
-
   it('returns false when a Node record is missing an id', () => {
     const TestFragment = graphql`
       fragment DataCheckerTest16Fragment on Query {
@@ -2630,14 +2581,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  describe('with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-    });
-
+  describe('precise type refinement', () => {
     it('returns `missing` when a Node record is missing an id', () => {
       const TestFragment = graphql`
         fragment DataCheckerTest17Fragment on Query {
@@ -2653,6 +2597,7 @@ describe('check()', () => {
         }
       `;
 
+      const typeID = generateTypeID('User');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2662,9 +2607,13 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'User',
-          __isNode: true,
           name: 'Alice',
           // no `id` value
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          __isNode: true,
         },
       };
       const source = RelayRecordSource.create(data);
@@ -2703,6 +2652,7 @@ describe('check()', () => {
         }
       `;
 
+      const typeID = generateTypeID('User');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2712,9 +2662,13 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'User',
-          // __isNode: true, // dont know if it implements Node or not
           name: 'Alice',
           id: '1',
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          // __isNode: true, // dont know if it implements Node or not
         },
       };
       const source = RelayRecordSource.create(data);
@@ -3157,6 +3111,7 @@ describe('check()', () => {
       const status = check(
         actorId => {
           if (actorId === getActorIdentifier('actor:1234')) {
+            const typeID = generateTypeID('FeedUnit');
             return RelayRecordSource.create({
               '1': {
                 __id: '1',
@@ -3169,6 +3124,11 @@ describe('check()', () => {
                 __id: '1:message',
                 __typename: 'Text',
                 text: 'Hello, Antonio',
+              },
+              [typeID]: {
+                __id: typeID,
+                __typename: TYPE_SCHEMA_TYPE,
+                __isFeedUnit: true,
               },
             });
           }

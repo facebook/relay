@@ -120,6 +120,7 @@ describe('useRefetchableFragmentNode', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -274,6 +275,7 @@ describe('useRefetchableFragmentNode', () => {
             [fragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [owner, fragment.name],
       );

@@ -376,6 +376,8 @@ describe('requestSubscription-test', () => {
           __id: expect.any(String),
           __fragments: {requestSubscriptionTestExtraFragment: {}},
           __fragmentOwner: expect.any(Object),
+          // TODO T96653810: Correctly detect reading from root of mutation/subscription
+          __isWithinUnmatchedTypeRefinement: true, // should be false
         },
       },
     });
@@ -415,6 +417,7 @@ describe('requestSubscription-test', () => {
           __id: expect.any(String),
           __fragments: {requestSubscriptionTestExtraFragment: {}},
           __fragmentOwner: expect.any(Object),
+          __isWithinUnmatchedTypeRefinement: true,
         },
       },
     });

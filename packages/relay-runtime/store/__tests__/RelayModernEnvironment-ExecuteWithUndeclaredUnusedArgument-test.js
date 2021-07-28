@@ -112,6 +112,7 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(snapshot.data).toEqual({
       node: {
         __fragmentOwner: operation.request,
+        __isWithinUnmatchedTypeRefinement: false,
 
         __fragments: {
           RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile: {},
@@ -130,6 +131,7 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(fragmentSnapshot.data).toEqual({
       __id: '4',
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
         RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper: {
@@ -150,6 +152,7 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(innerSnapshot.data).toEqual({
       __id: '4',
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
         RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto: {

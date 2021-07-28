@@ -195,6 +195,7 @@ describe('execute() a query with @match', () => {
             RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name: {},
           },
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },

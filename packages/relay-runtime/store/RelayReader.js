@@ -142,7 +142,18 @@ class RelayReader {
     // match, then no data is expected to be present.
     if (isDataExpectedToBePresent && abstractKey == null && record != null) {
       const recordType = RelayModernRecord.getType(record);
-      if (recordType !== node.type && dataID !== ROOT_ID) {
+      if (
+        recordType !== node.type &&
+        // The root record type is a special `__Root` type and may not match the
+        // type on the ast, so ignore type mismatches at the root.
+        // We currently detect whether we're at the root by checking against ROOT_ID,
+        // but this does not work for mutations/subscriptions which generate unique
+        // root ids. This is acceptable in practice as we don't read data for mutations/
+        // subscriptions in a situation where we would use isMissingData to decide whether
+        // to suspend or not.
+        // TODO T96653810: Correctly detect reading from root of mutation/subscription
+        dataID !== ROOT_ID
+      ) {
         isDataExpectedToBePresent = false;
       }
     }
@@ -151,12 +162,7 @@ class RelayReader {
     // then data is only expected to be present if the record type is known to
     // implement the interface. If we aren't sure whether the record implements
     // the interface, that itself constitutes "expected" data being missing.
-    if (
-      isDataExpectedToBePresent &&
-      abstractKey != null &&
-      record != null &&
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT
-    ) {
+    if (isDataExpectedToBePresent && abstractKey != null && record != null) {
       const recordType = RelayModernRecord.getType(record);
       const typeID = generateTypeID(recordType);
       const typeRecord = this._recordSource.get(typeID);
@@ -312,7 +318,7 @@ class RelayReader {
                 return false;
               }
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             // Similar to the logic in read(): data is only expected to be present
             // if the record is known to conform to the interface. If we don't know
             // whether the type conforms or not, that constitutes missing data.
@@ -342,10 +348,6 @@ class RelayReader {
               // Don't know if the type implements the interface or not
               this._isMissingData = true;
             }
-          } else {
-            // legacy behavior for abstract refinements: always read even
-            // if the type doesn't conform and don't reset isMissingData
-            this._traverseSelections(selection.selections, record, data);
           }
           break;
         }
@@ -758,12 +760,9 @@ class RelayReader {
       ? getArgumentValues(fragmentSpread.args, this._variables)
       : {};
     data[FRAGMENT_OWNER_KEY] = this._owner;
-
-    if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-      data[
-        IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
-      ] = this._isWithinUnmatchedTypeRefinement;
-    }
+    data[
+      IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+    ] = this._isWithinUnmatchedTypeRefinement;
   }
 
   _createInlineDataOrResolverFragmentPointer(

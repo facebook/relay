@@ -67,7 +67,7 @@ describe('execute() a query with @stream with handler', () => {
       }
     `);
     actorFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on Actor {
+      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }

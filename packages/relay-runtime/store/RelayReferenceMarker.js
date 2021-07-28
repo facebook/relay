@@ -163,12 +163,10 @@ class RelayReferenceMarker {
             if (typeName != null && typeName === selection.type) {
               this._traverseSelections(selection.selections, record);
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
             this._references.add(typeID);
-            this._traverseSelections(selection.selections, record);
-          } else {
             this._traverseSelections(selection.selections, record);
           }
           break;
@@ -211,11 +209,9 @@ class RelayReferenceMarker {
         case SCALAR_HANDLE:
           break;
         case TYPE_DISCRIMINATOR: {
-          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            this._references.add(typeID);
-          }
+          const typeName = RelayModernRecord.getType(record);
+          const typeID = generateTypeID(typeName);
+          this._references.add(typeID);
           break;
         }
         case MODULE_IMPORT:

@@ -77,6 +77,7 @@ describe('useRefetchableFragment', () => {
         useRefetchableFragmentTestNestedUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -143,6 +144,7 @@ describe('useRefetchableFragment', () => {
             [gqlFragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: query.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [],
       );

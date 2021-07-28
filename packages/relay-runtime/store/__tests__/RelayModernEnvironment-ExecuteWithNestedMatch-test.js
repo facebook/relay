@@ -212,6 +212,7 @@ describe('execute() a query with nested @match', () => {
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -315,6 +316,7 @@ describe('execute() a query with nested @match', () => {
       user: {
         innerRenderer: {
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
 
           __fragments: {

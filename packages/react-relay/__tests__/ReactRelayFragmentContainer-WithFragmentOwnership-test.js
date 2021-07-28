@@ -180,6 +180,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Subscribes for updates
@@ -193,6 +194,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
       isMissingData: false,
@@ -233,6 +235,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       seenRecords: {},
       isMissingData: false,
@@ -255,6 +258,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -290,6 +294,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser2.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
 
@@ -304,6 +309,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser2.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
       isMissingData: false,
@@ -351,6 +357,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Container subscribes for updates on new props
@@ -364,6 +371,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
           ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
       isMissingData: false,

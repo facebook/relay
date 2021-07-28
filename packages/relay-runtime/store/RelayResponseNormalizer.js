@@ -244,7 +244,7 @@ class RelayResponseNormalizer {
             if (typeName === selection.type) {
               this._traverseSelections(selection, record, data);
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             const implementsInterface = data.hasOwnProperty(abstractKey);
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
@@ -261,36 +261,24 @@ class RelayResponseNormalizer {
             if (implementsInterface) {
               this._traverseSelections(selection, record, data);
             }
-          } else {
-            // legacy behavior for abstract refinements: always normalize even
-            // if the type doesn't conform, but track if the type matches or not
-            // for determining whether response fields are expected to be present
-            const implementsInterface = data.hasOwnProperty(abstractKey);
-            const parentIsUnmatchedAbstractType = this._isUnmatchedAbstractType;
-            this._isUnmatchedAbstractType =
-              this._isUnmatchedAbstractType || !implementsInterface;
-            this._traverseSelections(selection, record, data);
-            this._isUnmatchedAbstractType = parentIsUnmatchedAbstractType;
           }
           break;
         }
         case TYPE_DISCRIMINATOR: {
-          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const {abstractKey} = selection;
-            const implementsInterface = data.hasOwnProperty(abstractKey);
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            let typeRecord = this._recordSource.get(typeID);
-            if (typeRecord == null) {
-              typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
-              this._recordSource.set(typeID, typeRecord);
-            }
-            RelayModernRecord.setValue(
-              typeRecord,
-              abstractKey,
-              implementsInterface,
-            );
+          const {abstractKey} = selection;
+          const implementsInterface = data.hasOwnProperty(abstractKey);
+          const typeName = RelayModernRecord.getType(record);
+          const typeID = generateTypeID(typeName);
+          let typeRecord = this._recordSource.get(typeID);
+          if (typeRecord == null) {
+            typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+            this._recordSource.set(typeID, typeRecord);
           }
+          RelayModernRecord.setValue(
+            typeRecord,
+            abstractKey,
+            implementsInterface,
+          );
           break;
         }
         case LINKED_HANDLE:

@@ -140,6 +140,7 @@ describe('execute() with @relay_client_component', () => {
               [ClientFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 
@@ -216,6 +217,7 @@ describe('execute() with @relay_client_component', () => {
               [ClientFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 
@@ -277,6 +279,7 @@ describe('execute() with @relay_client_component', () => {
               [ClientFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 

@@ -130,13 +130,6 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     abstractOperation = createOperationDescriptor(AbstractQuery, {});
   });
 
-  beforeEach(() => {
-    RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-  });
-
   // Commit the given payload, immediately running GC to prune any data
   // that wouldn't be retained by the query
   // eslint-disable-next-line no-shadow

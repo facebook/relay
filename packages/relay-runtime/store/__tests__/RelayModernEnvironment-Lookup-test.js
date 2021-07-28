@@ -80,6 +80,7 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: operation.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -97,6 +98,7 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // $FlowFixMe[incompatible-use]

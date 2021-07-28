@@ -97,13 +97,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       let callbacks;
 
       beforeEach(() => {
-        RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-      });
-      afterEach(() => {
-        RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-      });
-
-      beforeEach(() => {
         fetch = jest.fn((_query, _variables, _cacheConfig) =>
           RelayObservable.create(sink => {
             subject = sink;

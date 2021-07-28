@@ -83,7 +83,7 @@ describe('execute() a query with nested @stream', () => {
     `);
 
     actorFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on Actor {
+      fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }

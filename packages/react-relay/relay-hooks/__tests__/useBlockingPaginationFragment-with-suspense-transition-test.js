@@ -183,6 +183,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 

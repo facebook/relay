@@ -858,6 +858,7 @@ describe('RelayPublishQueue', () => {
             __id: '4',
             __fragments: {RelayPublishQueueTest1Fragment: {}},
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
             name: 'Zuck',
           },
           nodes: [{name: 'Zuck'}],

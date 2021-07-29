@@ -15,7 +15,7 @@ name = "relay_compiler_compile_relay_artifacts_test"
 path = "tests/compile_relay_artifacts_test.rs"
 
 [dependencies]
-async-trait = "0.1.45"
+async-trait = "0.1.51"
 bincode = "1.3.3"
 common = { path = "../common" }
 dependency-analyzer = { path = "../dependency-analyzer" }

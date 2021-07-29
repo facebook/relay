@@ -197,7 +197,7 @@ fn get_hover_response_contents(
                         let default_value = match var.default_value.clone() {
                             Some(default_value) => format!(
                                 ", default_value = {}",
-                                print_value(schema, &Value::Constant(default_value))
+                                print_value(schema, &Value::Constant(default_value.item))
                             ),
                             None => "".to_string(),
                         };

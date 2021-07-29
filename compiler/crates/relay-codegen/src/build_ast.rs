@@ -1288,7 +1288,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .iter()
             .map(|def| {
                 let default_value = if let Some(const_val) = &def.default_value {
-                    self.build_constant_value(&const_val)
+                    self.build_constant_value(&const_val.item)
                 } else {
                     Primitive::Null
                 };
@@ -1326,7 +1326,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.default_value,
                     value: if let Some(const_val) = &def.default_value {
-                        self.build_constant_value(&const_val)
+                        self.build_constant_value(&const_val.item)
                     } else {
                         Primitive::Null
                     },

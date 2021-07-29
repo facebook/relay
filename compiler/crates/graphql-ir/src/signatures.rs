@@ -321,8 +321,19 @@ fn get_default_value(
     location: Location,
     default_arg: Option<&graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
-) -> DiagnosticsResult<Option<ConstantValue>> {
+) -> DiagnosticsResult<Option<WithLocation<ConstantValue>>> {
     Ok(default_arg
-        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
+        .map(|x| {
+            let constant_value_span = x.value.span();
+            build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict).map(
+                |constant_value| {
+                    WithLocation::from_span(
+                        location.source_location(),
+                        constant_value_span,
+                        constant_value,
+                    )
+                },
+            )
+        })
         .transpose()?)
 }

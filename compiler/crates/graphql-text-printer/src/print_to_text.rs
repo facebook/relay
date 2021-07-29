@@ -402,7 +402,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     None => {}
                     Some(default_value) => {
                         write!(self.writer, " = ")?;
-                        self.print_constant_value(&default_value)?;
+                        self.print_constant_value(&default_value.item)?;
                     }
                 }
 
@@ -431,7 +431,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
                 if let Some(default_value) = &arg_def.default_value {
                     write!(self.writer, ", defaultValue: ")?;
-                    self.print_constant_value(&default_value)?;
+                    self.print_constant_value(&default_value.item)?;
                 }
                 write!(self.writer, "}}")?;
             }

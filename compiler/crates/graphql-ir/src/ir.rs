@@ -81,14 +81,14 @@ pub struct FragmentDefinition {
 pub struct VariableDefinition {
     pub name: WithLocation<StringKey>,
     pub type_: TypeReference,
-    pub default_value: Option<ConstantValue>,
+    pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
 }
 
 impl VariableDefinition {
     pub fn has_non_null_default_value(&self) -> bool {
         match &self.default_value {
-            Some(value) => value.is_non_null(),
+            Some(value) => value.item.is_non_null(),
             _ => false,
         }
     }

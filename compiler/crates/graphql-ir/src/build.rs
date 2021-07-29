@@ -428,11 +428,11 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
     ) -> DiagnosticsResult<VariableDefinition> {
         let type_ = self.build_type_annotation_for_input(&definition.type_)?;
         let default_value = match &definition.default_value {
-            Some(default_value) => Some(self.build_constant_value(
-                &default_value.value,
-                &type_,
-                ValidationLevel::Strict,
-            )?),
+            Some(default_value) => Some(WithLocation::from_span(
+                self.location.source_location(),
+                default_value.span,
+                self.build_constant_value(&default_value.value, &type_, ValidationLevel::Strict)?,
+            )),
             None => None,
         };
         let directives = self.build_directives(

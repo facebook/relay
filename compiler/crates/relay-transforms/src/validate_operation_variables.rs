@@ -73,7 +73,11 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
                     ValidationMessage::NonNullableVariableHasDefaultValue {
                         variable_name: definition.name.item,
                     },
-                    definition.name.location,
+                    definition
+                        .default_value
+                        .as_ref()
+                        .map(|default_value| default_value.location)
+                        .unwrap_or(definition.name.location),
                 ));
                 continue;
             }

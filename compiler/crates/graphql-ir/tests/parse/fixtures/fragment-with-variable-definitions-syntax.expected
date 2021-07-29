@@ -49,13 +49,16 @@ fragment Foo($localId: ID!) on User {
                         ),
                     ),
                     default_value: Some(
-                        List(
-                            [
-                                Int(
-                                    100,
-                                ),
-                            ],
-                        ),
+                        WithLocation {
+                            location: fragment-with-variable-definitions-syntax.graphql:116:121,
+                            item: List(
+                                [
+                                    Int(
+                                        100,
+                                    ),
+                                ],
+                            ),
+                        },
                     ),
                     directives: [],
                 },

@@ -17,7 +17,7 @@ const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayModernStore = require('../RelayModernStore');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
-const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
+const RelayRecordSource = require('../RelayRecordSource');
 
 const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {
@@ -69,10 +69,9 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSourceMapImpl(data), 'Map'],
+  [data => new RelayRecordSource(data), 'Map'],
   [
-    data =>
-      RelayOptimisticRecordSource.create(new RelayRecordSourceMapImpl(data)),
+    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {

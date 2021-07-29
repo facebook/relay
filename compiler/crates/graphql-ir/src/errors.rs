@@ -87,6 +87,8 @@ pub enum ValidationMessage {
     ExpectedArgumentDefinitionToBeObject(),
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
     ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+    #[error("Non-nullable variable '{variable_name}' has a default value.")]
+    NonNullableVariableHasDefaultValue { variable_name: StringKey },
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
     )]

@@ -68,6 +68,16 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
         let schema = &self.program.schema;
         let mut has_unused_variable = false;
         for definition in &operation.variable_definitions {
+            if definition.type_.is_non_null() && definition.has_non_null_default_value() {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::NonNullableVariableHasDefaultValue {
+                        variable_name: definition.name.item,
+                    },
+                    definition.name.location,
+                ));
+                continue;
+            }
+
             if let Some(variable_usage) = variables.get(&definition.name.item) {
                 // The effective type of the variable when taking into account its default value:
                 // if there is a non-null default then the value's type is non-null.

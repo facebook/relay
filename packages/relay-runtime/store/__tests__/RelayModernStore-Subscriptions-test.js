@@ -64,14 +64,6 @@ function cloneEventWithSets(event) {
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
-  beforeEach(() => {
-    RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR = true;
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR = false;
-  });
-
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('notify/publish/subscribe', () => {
       let UserQuery;
@@ -111,7 +103,7 @@ function cloneEventWithSets(event) {
           gcReleaseBufferSize: 0,
         });
         UserFragment = getFragment(graphql`
-          fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment on User {
+          fragment RelayModernStoreSubscriptionsTest1Fragment on User {
             name
             profilePicture(size: $size) {
               uri
@@ -120,11 +112,9 @@ function cloneEventWithSets(event) {
           }
         `);
         UserQuery = getRequest(graphql`
-          query RelayModernStoreWithSubscriptionsUsingMapByIDTest1Query(
-            $size: [Int]
-          ) {
+          query RelayModernStoreSubscriptionsTest1Query($size: [Int]) {
             me {
-              ...RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment
+              ...RelayModernStoreSubscriptionsTest1Fragment
             }
           }
         `);
@@ -169,16 +159,14 @@ function cloneEventWithSets(event) {
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
         UserQuery = getRequest(graphql`
-          query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(
-            $size: [Int]!
-          ) {
+          query RelayModernStoreSubscriptionsTest2Query($size: [Int]!) {
             me {
-              ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment
+              ...RelayModernStoreSubscriptionsTest2Fragment
             }
           }
         `);
         UserFragment = getFragment(graphql`
-          fragment RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment on User {
+          fragment RelayModernStoreSubscriptionsTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri

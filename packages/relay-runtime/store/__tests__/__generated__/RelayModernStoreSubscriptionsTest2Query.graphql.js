@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5f8caf7ef38f9ea64511cb49bebe8b5b>>
+ * @generated SignedSource<<bcc245433604855d8ddb069b356fb4af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,18 +16,18 @@
 
 /*::
 import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment$ref = any;
-export type RelayModernStoreWithSubscriptionsUsingMapByIDTest2QueryVariables = {|
+type RelayModernStoreSubscriptionsTest2Fragment$ref = any;
+export type RelayModernStoreSubscriptionsTest2QueryVariables = {|
   size: $ReadOnlyArray<?number>,
 |};
-export type RelayModernStoreWithSubscriptionsUsingMapByIDTest2QueryResponse = {|
+export type RelayModernStoreSubscriptionsTest2QueryResponse = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment$ref,
+    +$fragmentRefs: RelayModernStoreSubscriptionsTest2Fragment$ref,
   |},
 |};
-export type RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query = {|
-  variables: RelayModernStoreWithSubscriptionsUsingMapByIDTest2QueryVariables,
-  response: RelayModernStoreWithSubscriptionsUsingMapByIDTest2QueryResponse,
+export type RelayModernStoreSubscriptionsTest2Query = {|
+  variables: RelayModernStoreSubscriptionsTest2QueryVariables,
+  response: RelayModernStoreSubscriptionsTest2QueryResponse,
 |};
 */
 
@@ -44,7 +44,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query",
+    "name": "RelayModernStoreSubscriptionsTest2Query",
     "selections": [
       {
         "alias": null,
@@ -57,7 +57,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment"
+            "name": "RelayModernStoreSubscriptionsTest2Fragment"
           }
         ],
         "storageKey": null
@@ -70,7 +70,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query",
+    "name": "RelayModernStoreSubscriptionsTest2Query",
     "selections": [
       {
         "alias": null,
@@ -131,18 +131,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a1a57e8184505ead7e4b82e175095c6b",
+    "cacheID": "0d3570609eba564b448f538065369b05",
     "id": null,
     "metadata": {},
-    "name": "RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query",
+    "name": "RelayModernStoreSubscriptionsTest2Query",
     "operationKind": "query",
-    "text": "query RelayModernStoreWithSubscriptionsUsingMapByIDTest2Query(\n  $size: [Int]!\n) {\n  me {\n    ...RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreWithSubscriptionsUsingMapByIDTest2Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
+    "text": "query RelayModernStoreSubscriptionsTest2Query(\n  $size: [Int]!\n) {\n  me {\n    ...RelayModernStoreSubscriptionsTest2Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreSubscriptionsTest2Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1c4935b37430426998bf1ef7d8dffb10";
+  (node/*: any*/).hash = "9db1348253b1c78ad303e60af98bc7d1";
 }
 
 module.exports = node;

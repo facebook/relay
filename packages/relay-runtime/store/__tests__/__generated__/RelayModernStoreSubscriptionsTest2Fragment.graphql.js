@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<25ab7b810b1337a818f2c4dfde57a3b8>>
+ * @generated SignedSource<<89b577980bc8220e8cf0536ced777404>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,20 +17,20 @@
 /*::
 import type { ReaderFragment } from 'relay-runtime';
 import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$ref: FragmentReference;
-declare export opaque type RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$fragmentType: RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$ref;
-export type RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment = {|
+declare export opaque type RelayModernStoreSubscriptionsTest2Fragment$ref: FragmentReference;
+declare export opaque type RelayModernStoreSubscriptionsTest2Fragment$fragmentType: RelayModernStoreSubscriptionsTest2Fragment$ref;
+export type RelayModernStoreSubscriptionsTest2Fragment = {|
   +name: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
   +emailAddresses: ?$ReadOnlyArray<?string>,
-  +$refType: RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$ref,
+  +$refType: RelayModernStoreSubscriptionsTest2Fragment$ref,
 |};
-export type RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$data = RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment;
-export type RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$key = {
-  +$data?: RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$data,
-  +$fragmentRefs: RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment$ref,
+export type RelayModernStoreSubscriptionsTest2Fragment$data = RelayModernStoreSubscriptionsTest2Fragment;
+export type RelayModernStoreSubscriptionsTest2Fragment$key = {
+  +$data?: RelayModernStoreSubscriptionsTest2Fragment$data,
+  +$fragmentRefs: RelayModernStoreSubscriptionsTest2Fragment$ref,
   ...
 };
 */
@@ -44,7 +44,7 @@ var node/*: ReaderFragment*/ = {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "RelayModernStoreWithSubscriptionsUsingMapByIDTest1Fragment",
+  "name": "RelayModernStoreSubscriptionsTest2Fragment",
   "selections": [
     {
       "alias": null,
@@ -90,7 +90,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "27ceb153f10066d821ae50a6a4df8d66";
+  (node/*: any*/).hash = "62772b04e13398db69cb01e0fffd5b96";
 }
 
 module.exports = node;

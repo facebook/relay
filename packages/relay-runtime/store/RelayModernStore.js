@@ -20,7 +20,6 @@ const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
-const RelayStoreSubscriptionsUsingMapByID = require('./RelayStoreSubscriptionsUsingMapByID');
 const RelayStoreUtils = require('./RelayStoreUtils');
 
 const deepFreeze = require('../util/deepFreeze');
@@ -155,13 +154,10 @@ class RelayModernStore implements Store {
     this._resolverCache = new RecordResolverCache(() =>
       this._getMutableRecordSource(),
     );
-    this._storeSubscriptions =
-      RelayFeatureFlags.ENABLE_STORE_SUBSCRIPTIONS_REFACTOR === true
-        ? new RelayStoreSubscriptionsUsingMapByID(
-            options?.log,
-            this._resolverCache,
-          )
-        : new RelayStoreSubscriptions(options?.log, this._resolverCache);
+    this._storeSubscriptions = new RelayStoreSubscriptions(
+      options?.log,
+      this._resolverCache,
+    );
     this._updatedRecordIDs = new Set();
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents;

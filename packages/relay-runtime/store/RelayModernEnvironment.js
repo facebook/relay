@@ -441,8 +441,11 @@ class RelayModernEnvironment implements IEnvironment {
     optimisticConfig: ?OptimisticResponseConfig,
     updater: ?SelectorStoreUpdater,
   |}): RelayObservable<GraphQLResponse> {
+    const publishQueue = this._publishQueue;
+    const store = this._store;
     return RelayObservable.create(sink => {
       const executor = OperationExecutor.execute({
+        actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,
         isClientPayload,
         log: this.__log,
@@ -451,7 +454,10 @@ class RelayModernEnvironment implements IEnvironment {
         operationLoader: this._operationLoader,
         operationTracker: this._operationTracker,
         optimisticConfig,
-        publishQueue: this._publishQueue,
+        getPublishQueue(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIndentifier(actorIdentifier);
+          return publishQueue;
+        },
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
         reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
@@ -460,7 +466,10 @@ class RelayModernEnvironment implements IEnvironment {
         // NOTE: Some product tests expect `Network.execute` to be called only
         //       when the Observable is executed.
         source: createSource(),
-        store: this._store,
+        getStore(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIndentifier(actorIdentifier);
+          return store;
+        },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
       });

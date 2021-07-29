@@ -12,7 +12,7 @@
 'use strict';
 
 const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
-const MultiActorOperationExecutor = require('./MultiActorOperationExecutor');
+const OperationExecutor = require('../store/OperationExecutor');
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayModernStore = require('../store/RelayModernStore');
 const RelayObservable = require('../network/RelayObservable');
@@ -431,7 +431,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     |},
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
-      const executor = MultiActorOperationExecutor.execute({
+      const executor = OperationExecutor.execute({
         actorIdentifier: actorEnvironment.actorIdentifier,
         getDataID: this._getDataID,
         isClientPayload,

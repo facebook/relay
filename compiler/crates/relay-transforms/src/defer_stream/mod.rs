@@ -18,6 +18,7 @@ use graphql_ir::{
 };
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
+use schema::Schema;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct DeferStreamConstants {
@@ -160,6 +161,16 @@ impl DeferStreamTransform<'_> {
         linked_field: &LinkedField,
         stream: &Directive,
     ) -> Result<Transformed<Selection>, Diagnostic> {
+        let schema_field = self.program.schema.field(linked_field.definition.item);
+        if !schema_field.type_.is_list() {
+            return Err(Diagnostic::error(
+                ValidationMessage::StreamFieldIsNotAList {
+                    field_name: schema_field.name,
+                },
+                stream.name.location,
+            ));
+        }
+
         let StreamDirective {
             if_arg,
             label_arg,

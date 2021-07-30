@@ -404,6 +404,9 @@ pub enum ValidationMessage {
     #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
     StreamInitialCountRequired,
 
+    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
+    StreamFieldIsNotAList { field_name: StringKey },
+
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
         variable_name: StringKey,

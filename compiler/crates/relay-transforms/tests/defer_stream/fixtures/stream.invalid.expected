@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment FeedbackFragment on Feedback {
+  id
+  actor @stream(initial_count: 1) {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'actor' is not of list type, therefore cannot use @stream directive.
+
+  stream.invalid.graphql:5:9
+    4 │   id
+    5 │   actor @stream(initial_count: 1) {
+      │         ^^^^^^^
+    6 │     name

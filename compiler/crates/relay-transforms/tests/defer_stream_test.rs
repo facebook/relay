@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fe688696cd2af5dcfdd2c8aedb108888>>
+ * @generated SignedSource<<bc71cac173d0c6e9142f0532e995f5c4>>
  */
 
 mod defer_stream;
@@ -157,4 +157,11 @@ fn query_with_stream() {
     let input = include_str!("defer_stream/fixtures/query-with-stream.graphql");
     let expected = include_str!("defer_stream/fixtures/query-with-stream.expected");
     test_fixture(transform_fixture, "query-with-stream.graphql", "defer_stream/fixtures/query-with-stream.expected", input, expected);
+}
+
+#[test]
+fn stream_invalid() {
+    let input = include_str!("defer_stream/fixtures/stream.invalid.graphql");
+    let expected = include_str!("defer_stream/fixtures/stream.invalid.expected");
+    test_fixture(transform_fixture, "stream.invalid.graphql", "defer_stream/fixtures/stream.invalid.expected", input, expected);
 }

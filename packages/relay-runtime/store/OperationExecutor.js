@@ -1597,13 +1597,10 @@ class Executor {
   }
 
   _disposeRetainedData() {
-    for (const actorIdentifier of this._getActorsToVisit()) {
-      const disposable = this._retainDisposables.get(actorIdentifier);
-      if (disposable) {
-        disposable.dispose();
-        this._retainDisposables.delete(actorIdentifier);
-      }
+    for (const disposable of this._retainDisposables.values()) {
+      disposable.dispose();
     }
+    this._retainDisposables.clear();
   }
 
   _expectOperationLoader(): OperationLoader {

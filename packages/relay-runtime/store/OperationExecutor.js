@@ -684,12 +684,16 @@ class Executor {
             }
             break;
           case 'ActorPayload':
-            throw new Error('_processOptimisticFollowups: Not Implemented.');
+            warning(
+              false,
+              'OperationExecutor: Unexpected optimistic ActorPayload. These updates are not supported.',
+            );
+            break;
           default:
             (followupPayload: empty);
             invariant(
               false,
-              'OperationExecutor: Unexpected followup kind `%s`.',
+              'OperationExecutor: Unexpected followup kind `%s`. when processing optimistic updates.',
               followupPayload.kind,
             );
         }

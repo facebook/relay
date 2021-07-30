@@ -20,11 +20,13 @@ mod persist_operations;
 mod source_control;
 mod validate;
 
+use self::log_program_stats::print_stats;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
+pub use artifact_content::QueryID;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
@@ -46,8 +48,6 @@ use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
 pub use validate::{validate, AdditionalValidations};
-
-use self::log_program_stats::print_stats;
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),

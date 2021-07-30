@@ -6,6 +6,7 @@
  */
 
 use crate::{
+    build_project::QueryID,
     config::Config,
     config::{OperationPersister, PersistConfig},
     errors::BuildProjectError,
@@ -49,7 +50,7 @@ pub async fn persist_operations(
                     extract_persist_id(&artifact_path, &text_hash)
                 };
                 if let Some(id) = extracted_persist_id {
-                    *id_and_text_hash = Some((id, text_hash));
+                    *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
                     None
                 } else {
                     let text = text.clone();
@@ -58,7 +59,7 @@ pub async fn persist_operations(
                             .persist_artifact(text, persist_config)
                             .await
                             .map(|id| {
-                                *id_and_text_hash = Some((id, text_hash));
+                                *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
                             })
                     })
                 }

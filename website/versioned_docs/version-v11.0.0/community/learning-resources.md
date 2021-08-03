@@ -13,6 +13,7 @@ import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
 These projects serve as an example of how to use Relay in real world applications.
 
 -   [github.com/relayjs/relay-examples](https://github.com/relayjs/relay-examples)
+-   [github.com/adeira/relay-example](https://github.com/adeira/relay-example)
 
 ## Guides and articles:
 

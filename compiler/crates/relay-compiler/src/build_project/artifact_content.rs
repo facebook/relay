@@ -9,6 +9,7 @@ use super::is_operation_preloadable;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
+use interner::StringKey;
 use relay_codegen::{build_request_params, Printer};
 use relay_transforms::{
     DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
@@ -21,6 +22,11 @@ use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
 use std::sync::Arc;
 
+pub enum QueryID {
+    Persisted { id: String, text_hash: String },
+    External(StringKey),
+}
+
 pub enum ArtifactContent {
     Operation {
         normalization_operation: Arc<OperationDefinition>,
@@ -28,7 +34,7 @@ pub enum ArtifactContent {
         typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
         text: String,
-        id_and_text_hash: Option<(String, String)>,
+        id_and_text_hash: Option<QueryID>,
     },
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
@@ -203,17 +209,18 @@ fn generate_operation(
     typegen_operation: &OperationDefinition,
     source_hash: String,
     text: &str,
-    id_and_text_hash: &Option<(String, String)>,
+    id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(&normalization_operation);
-    let operation_hash: Option<String> = if let Some((id, text_hash)) = id_and_text_hash {
-        request_parameters.id = Some(id.clone());
-        Some(text_hash.clone())
-    } else {
-        request_parameters.text = Some(text.into());
-        None
-    };
+    let operation_hash: Option<String> =
+        if let Some(QueryID::Persisted { id, text_hash }) = id_and_text_hash {
+            request_parameters.id = Some(id.clone());
+            Some(text_hash.clone())
+        } else {
+            request_parameters.text = Some(text.into());
+            None
+        };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
         variable_definitions: reader_operation.variable_definitions.clone(),

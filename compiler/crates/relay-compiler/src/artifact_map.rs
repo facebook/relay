@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{Artifact, ArtifactContent};
+use crate::build_project::{Artifact, ArtifactContent, QueryID};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
@@ -31,7 +31,10 @@ impl ArtifactMap {
             persisted_operation_id: match artifact.content {
                 ArtifactContent::Operation {
                     id_and_text_hash, ..
-                } => id_and_text_hash.map(|(id, _)| id),
+                } => match id_and_text_hash {
+                    Some(QueryID::Persisted { id, .. }) => Some(id),
+                    _ => None,
+                },
                 _ => None,
             },
         };

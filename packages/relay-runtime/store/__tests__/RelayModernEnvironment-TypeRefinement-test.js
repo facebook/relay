@@ -13,7 +13,6 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -34,7 +33,7 @@ const {
 
 disallowWarnings();
 
-describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
+describe('missing data detection', () => {
   let ParentQuery;
   let AbstractQuery;
   let ConcreteQuery;

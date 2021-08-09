@@ -1688,73 +1688,64 @@ describe('RelayReader', () => {
     });
   });
 
-  describe('feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-    });
-
-    it('does not record a dependency on type records for abstract type discriminators', () => {
-      const Query = graphql`
-        query RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery {
-          me {
-            ...RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment
+  it('does not record a dependency on type records for abstract type discriminators', () => {
+    const Query = graphql`
+      query RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsQuery {
+        me {
+          ...RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment
+        }
+      }
+    `;
+    const Fragment = graphql`
+      fragment RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment on Node {
+        actor {
+          ... on Entity {
+            url
           }
         }
-      `;
-      const Fragment = graphql`
-        fragment RelayReaderTestDoesNotRecordADependencyOnTypeRecordsForAbstractTypeDiscriminatorsFragment on Node {
-          actor {
-            ... on Entity {
-              url
-            }
-          }
-        }
-      `;
-      const userTypeID = generateTypeID('User');
-      const pageTypeID = generateTypeID('Page');
-      const data = {
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          actor: {__ref: '2'},
-        },
-        '2': {
-          __id: '2',
-          __typename: 'Page',
-          url: 'https://...',
-        },
-        [userTypeID]: {
-          __id: userTypeID,
-          __typename: TYPE_SCHEMA_TYPE,
-          __isNode: true,
-        },
-        [pageTypeID]: {
-          __id: pageTypeID,
-          __typename: TYPE_SCHEMA_TYPE,
-          // __isEntity: true, // intentionally missing to verify that type refinement feature is on
-        },
-      };
-      source = RelayRecordSource.create(data);
-      const owner = createOperationDescriptor(Query, {});
-      const snapshot = read(
-        source,
-        createReaderSelector(Fragment, '1', {}, owner.request),
-      );
-      expect(snapshot.data).toEqual({
-        actor: {
-          url: 'https://...',
-        },
-      });
-      expect(snapshot.isMissingData).toBe(true); // missing discriminator
-      // does *not* include userTypeID/pageTypeID
-      expect(Array.from(snapshot.seenRecords.values()).sort()).toEqual([
-        '1',
-        '2',
-      ]);
+      }
+    `;
+    const userTypeID = generateTypeID('User');
+    const pageTypeID = generateTypeID('Page');
+    const data = {
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        actor: {__ref: '2'},
+      },
+      '2': {
+        __id: '2',
+        __typename: 'Page',
+        url: 'https://...',
+      },
+      [userTypeID]: {
+        __id: userTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        __isNode: true,
+      },
+      [pageTypeID]: {
+        __id: pageTypeID,
+        __typename: TYPE_SCHEMA_TYPE,
+        // __isEntity: true, // intentionally missing to verify that type refinement feature is on
+      },
+    };
+    source = RelayRecordSource.create(data);
+    const owner = createOperationDescriptor(Query, {});
+    const snapshot = read(
+      source,
+      createReaderSelector(Fragment, '1', {}, owner.request),
+    );
+    expect(snapshot.data).toEqual({
+      actor: {
+        url: 'https://...',
+      },
     });
+    expect(snapshot.isMissingData).toBe(true); // missing discriminator
+    // does *not* include userTypeID/pageTypeID
+    expect(Array.from(snapshot.seenRecords.values()).sort()).toEqual([
+      '1',
+      '2',
+    ]);
   });
 
   describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {

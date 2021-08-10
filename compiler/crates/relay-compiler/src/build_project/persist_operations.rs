@@ -77,7 +77,9 @@ pub async fn persist_operations(
         .filter_map(Result::err)
         .collect::<Vec<_>>();
     if !errors.is_empty() {
-        return Err(BuildProjectError::PersistErrors { errors });
+        let error = BuildProjectError::PersistErrors { errors };
+        log_event.string("error", error.to_string());
+        return Err(error);
     }
     Ok(())
 }

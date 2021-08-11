@@ -191,7 +191,7 @@ fn apply_reader_transforms(
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });
-    log_event.time("flatten", || flatten(&mut program, true))?;
+    log_event.time("flatten", || flatten(&mut program, true, false))?;
     program = log_event.time("skip_redundant_nodes", || skip_redundant_nodes(&program));
     program = log_event.time("generate_data_driven_dependency_metadata", || {
         generate_data_driven_dependency_metadata(&program)
@@ -289,7 +289,7 @@ fn apply_normalization_transforms(
         print_stats("generate_typename", &program);
     }
 
-    log_event.time("flatten", || flatten(&mut program, true))?;
+    log_event.time("flatten", || flatten(&mut program, true, false))?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("flatten", &program);
     }
@@ -343,7 +343,7 @@ fn apply_operation_text_transforms(
     });
     program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("generate_typename", || generate_typename(&program, false));
-    log_event.time("flatten", || flatten(&mut program, false))?;
+    log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
         validate_operation_variables(&program)
     })?;
@@ -387,7 +387,7 @@ fn apply_typegen_transforms(
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(&program, feature_flags.enable_relay_resolver_transform)
     })?;
-    log_event.time("flatten", || flatten(&mut program, false))?;
+    log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
         transform_refetchable_fragment(&program, &base_fragment_names, true)
     })?;

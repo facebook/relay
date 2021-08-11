@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<76763eb10c6fd086bd5048eab027312c>>
+ * @generated SignedSource<<01342815c8fcaaf4a38fbad59e1f5bf3>>
  */
 
 mod compile_relay_artifacts;
@@ -255,6 +255,27 @@ fn complex_arguments_with_mutliple_variables() {
     let input = include_str!("compile_relay_artifacts/fixtures/complex-arguments-with-mutliple-variables.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/complex-arguments-with-mutliple-variables.expected");
     test_fixture(transform_fixture, "complex-arguments-with-mutliple-variables.graphql", "compile_relay_artifacts/fixtures/complex-arguments-with-mutliple-variables.expected", input, expected);
+}
+
+#[test]
+fn conflicting_selections_with_actor_change_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.expected");
+    test_fixture(transform_fixture, "conflicting-selections-with-actor-change.invalid.graphql", "compile_relay_artifacts/fixtures/conflicting-selections-with-actor-change.invalid.expected", input, expected);
+}
+
+#[test]
+fn conflicting_selections_with_defer_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-defer.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-defer.invalid.expected");
+    test_fixture(transform_fixture, "conflicting-selections-with-defer.invalid.graphql", "compile_relay_artifacts/fixtures/conflicting-selections-with-defer.invalid.expected", input, expected);
+}
+
+#[test]
+fn conflicting_selections_with_no_inline_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-no-inline.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/conflicting-selections-with-no-inline.invalid.expected");
+    test_fixture(transform_fixture, "conflicting-selections-with-no-inline.invalid.graphql", "compile_relay_artifacts/fixtures/conflicting-selections-with-no-inline.invalid.expected", input, expected);
 }
 
 #[test]
@@ -913,6 +934,13 @@ fn scalar_handle_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/scalar-handle-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/scalar-handle-field.expected");
     test_fixture(transform_fixture, "scalar-handle-field.graphql", "compile_relay_artifacts/fixtures/scalar-handle-field.expected", input, expected);
+}
+
+#[test]
+fn selections_on_interface() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selections-on-interface.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selections-on-interface.expected");
+    test_fixture(transform_fixture, "selections-on-interface.graphql", "compile_relay_artifacts/fixtures/selections-on-interface.expected", input, expected);
 }
 
 #[test]

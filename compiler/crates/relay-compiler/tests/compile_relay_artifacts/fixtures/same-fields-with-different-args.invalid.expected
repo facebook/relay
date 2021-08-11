@@ -19,7 +19,7 @@ fragment sameFieldsWithDifferentArgs_NestedFragment2 on User {
   firstName(if: false, unless: false)
 }
 ==================================== ERROR ====================================
-✖︎ Expected all fields on the same parent with the name or alias `firstName` to have the same argument values after appling fragment arguments. This field has the applied argument values: (if: false, unless: true)
+✖︎ Expected all fields on the same parent with the name or alias `firstName` to have the same argument values after applying fragment arguments. This field has the applied argument values: (if: false, unless: true)
 
   same-fields-with-different-args.invalid.graphql:14:3
    13 │ fragment sameFieldsWithDifferentArgs_NestedFragment on User {

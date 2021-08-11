@@ -1,0 +1,224 @@
+==================================== INPUT ====================================
+fragment selectionsOnInterfaceUserFragment on User {
+  firstName(if: true)
+}
+
+fragment selectionsOnInterfacePageFragment on Page {
+  firstName(if: false)
+}
+
+
+query selectionsOnInterfaceQuery($id: ID!) {
+  node(id: $id) {
+    ...selectionsOnInterfaceUserFragment
+    ...selectionsOnInterfacePageFragment
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionsOnInterfaceQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "selectionsOnInterfaceUserFragment"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "selectionsOnInterfacePageFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "selectionsOnInterfaceQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "if",
+                    "value": true
+                  }
+                ],
+                "kind": "ScalarField",
+                "name": "firstName",
+                "storageKey": "firstName(if:true)"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "if",
+                    "value": false
+                  }
+                ],
+                "kind": "ScalarField",
+                "name": "firstName",
+                "storageKey": "firstName(if:false)"
+              }
+            ],
+            "type": "Page",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionsOnInterfaceQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionsOnInterfaceQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...selectionsOnInterfaceUserFragment
+    ...selectionsOnInterfacePageFragment
+    id
+  }
+}
+
+fragment selectionsOnInterfacePageFragment on Page {
+  firstName(if: false)
+}
+
+fragment selectionsOnInterfaceUserFragment on User {
+  firstName(if: true)
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "selectionsOnInterfacePageFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "if",
+          "value": false
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": "firstName(if:false)"
+    }
+  ],
+  "type": "Page",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "selectionsOnInterfaceUserFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "if",
+          "value": true
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": "firstName(if:true)"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

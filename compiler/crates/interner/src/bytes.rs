@@ -68,13 +68,13 @@ pub struct StringKey(RawInternKey);
 
 impl Ord for StringKey {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.lookup().cmp(&other.lookup())
+        self.lookup().cmp(other.lookup())
     }
 }
 
 impl PartialOrd for StringKey {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.lookup().partial_cmp(&other.lookup())
+        self.lookup().partial_cmp(other.lookup())
     }
 }
 
@@ -156,7 +156,7 @@ impl BytesTable {
     }
 
     pub fn intern(&self, value: &[u8]) -> RawInternKey {
-        if let Some(prev) = self.data.read().get(&value) {
+        if let Some(prev) = self.data.read().get(value) {
             return prev;
         }
         let mut writer = self.data.write();
@@ -229,7 +229,7 @@ impl BytesTableData {
 
     pub fn intern(&mut self, value: &[u8]) -> RawInternKey {
         // If there's an existing value return it
-        if let Some(prev) = self.get(&value) {
+        if let Some(prev) = self.get(value) {
             return prev;
         }
 

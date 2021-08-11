@@ -44,9 +44,9 @@ pub async fn persist(
     let request_body = {
         let mut request_body = form_urlencoded::Serializer::new(String::new());
         for param in params {
-            request_body.append_pair(&param.0, &param.1);
+            request_body.append_pair(param.0, param.1);
         }
-        request_body.append_pair("text", &document);
+        request_body.append_pair("text", document);
         request_body.finish()
     };
 

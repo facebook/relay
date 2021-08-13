@@ -14,6 +14,7 @@ mod lsp_state_resources;
 use crate::{
     code_action::on_code_action,
     completion::on_completion,
+    explore_schema_for_type::{on_explore_schema_for_type, ExploreSchemaForType},
     goto_definition::{
         on_get_source_location_of_type_definition, on_goto_definition,
         GetSourceLocationOfTypeDefinition,
@@ -180,6 +181,7 @@ fn dispatch_request<
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
             .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
+            .on_request_sync::<ExploreSchemaForType>(on_explore_schema_for_type)?
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,
             )?

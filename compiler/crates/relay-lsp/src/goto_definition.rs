@@ -282,7 +282,7 @@ pub(crate) struct GetSourceLocationOfTypeDefinitionResult {
 impl Request for GetSourceLocationOfTypeDefinition {
     type Params = GetSourceLocationOfTypeDefinitionParams;
     type Result = GetSourceLocationOfTypeDefinitionResult;
-    const METHOD: &'static str = "$/getSourceLocationOfTypeDefinition";
+    const METHOD: &'static str = "relay/getSourceLocationOfTypeDefinition";
 }
 
 pub(crate) fn on_get_source_location_of_type_definition<

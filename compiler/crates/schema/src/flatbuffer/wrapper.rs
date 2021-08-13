@@ -318,6 +318,34 @@ impl Schema for SchemaWrapper {
     fn snapshot_print(&self) -> String {
         todo!()
     }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.map.iter().map(|ref_| *ref_.value()))
+    }
 }
 
 struct Cache<K: Hash + Eq, V: 'static> {

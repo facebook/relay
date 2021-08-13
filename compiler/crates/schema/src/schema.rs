@@ -176,6 +176,55 @@ impl Schema for SDLSchema {
             SDLSchema::InMemory(schema) => schema.snapshot_print(),
         }
     }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.input_objects(),
+            SDLSchema::InMemory(schema) => schema.input_objects(),
+        }
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.enums(),
+            SDLSchema::InMemory(schema) => schema.enums(),
+        }
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.scalars(),
+            SDLSchema::InMemory(schema) => schema.scalars(),
+        }
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.fields(),
+            SDLSchema::InMemory(schema) => schema.fields(),
+        }
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.objects(),
+            SDLSchema::InMemory(schema) => schema.objects(),
+        }
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.unions(),
+            SDLSchema::InMemory(schema) => schema.unions(),
+        }
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.interfaces(),
+            SDLSchema::InMemory(schema) => schema.interfaces(),
+        }
+    }
 }
 
 impl SDLSchema {

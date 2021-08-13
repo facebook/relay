@@ -253,6 +253,34 @@ impl Schema for InMemorySchema {
             unions,
         )
     }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.iter())
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.iter())
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.iter())
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.iter())
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.iter())
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.iter())
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.iter())
+    }
 }
 
 impl InMemorySchema {

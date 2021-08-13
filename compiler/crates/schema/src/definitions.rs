@@ -236,12 +236,6 @@ pub struct Directive {
     pub description: Option<StringKey>,
 }
 
-impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-}
-
 #[derive(Clone, Debug)]
 pub struct Scalar {
     pub name: StringKey,
@@ -320,34 +314,16 @@ pub struct Argument {
     pub description: Option<StringKey>,
 }
 
-impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstantValue,
 }
 
-impl Named for ArgumentValue {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,
-}
-
-impl Named for DirectiveValue {
-    fn name(&self) -> StringKey {
-        self.name
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -397,16 +373,11 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
-    fn name(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
     fn interfaces(&self) -> &Vec<InterfaceID>;
 }
 
 impl TypeWithFields for Interface {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
@@ -417,10 +388,6 @@ impl TypeWithFields for Interface {
 }
 
 impl TypeWithFields for Object {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
@@ -429,3 +396,25 @@ impl TypeWithFields for Object {
         &self.interfaces
     }
 }
+
+macro_rules! impl_named {
+    ($type_name:ident) => {
+        impl Named for $type_name {
+            fn name(&self) -> StringKey {
+                self.name
+            }
+        }
+    };
+}
+
+impl_named!(Object);
+impl_named!(Interface);
+impl_named!(Union);
+impl_named!(Scalar);
+impl_named!(Enum);
+impl_named!(InputObject);
+
+impl_named!(Argument);
+impl_named!(ArgumentValue);
+impl_named!(Directive);
+impl_named!(DirectiveValue);

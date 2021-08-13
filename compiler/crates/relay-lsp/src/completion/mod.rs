@@ -14,7 +14,7 @@ use crate::{
     server::SourcePrograms,
     SchemaDocumentation,
 };
-use common::{NamedItem, PerfLogger, Span};
+use common::{Named, NamedItem, PerfLogger, Span};
 
 use fnv::FnvHashSet;
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
@@ -806,7 +806,7 @@ fn resolve_completion_items_for_argument_value(
     completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields>(
+fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
     type_: &T,
     schema: &SDLSchema,
     schema_documentation: impl SchemaDocumentation,

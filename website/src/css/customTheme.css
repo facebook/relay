@@ -14,3 +14,24 @@
   --ifm-color-primary-darker: #CE5B00;
   --ifm-color-primary-darkest: #A94B00;
 }
+
+
+div[class^="announcementBar"] {
+  height: auto;
+}
+
+div[class^="announcementBarContent"] {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 8px 30px;
+}
+
+div[class^="announcementBarContent"] a {
+    text-decoration: underline;
+    display: inline-block;
+    color: var(--ifm-color-primary-lighter) !important;
+}
+
+div[class^="announcementBarContent"] a:hover {
+  color: #fff !important;
+}

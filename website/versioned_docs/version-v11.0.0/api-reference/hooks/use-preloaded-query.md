@@ -38,7 +38,7 @@ type Props = {
 
 function NameLoader(props) {
   const [queryReference, loadQuery] = useQueryLoader(
-    AppQuery
+    AppQuery,
     props.initialQueryRef, /* e.g. provided by router */
   );
 

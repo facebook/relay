@@ -1,0 +1,120 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictWithFragmentQuery {
+  me {
+    same_alias: name
+    ...selectionSetConflictWithFragmentFrag
+  }
+}
+fragment selectionSetConflictWithFragmentFrag on User {
+  same_alias: id
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictWithFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "selectionSetConflictWithFragmentFrag"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictWithFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictWithFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictWithFragmentQuery {
+  me {
+    same_alias: name
+    ...selectionSetConflictWithFragmentFrag
+    id
+  }
+}
+
+fragment selectionSetConflictWithFragmentFrag on User {
+  same_alias: id
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "selectionSetConflictWithFragmentFrag",
+  "selections": [
+    {
+      "alias": "same_alias",
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

@@ -1,0 +1,11 @@
+# TODO throw
+query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
+  me {
+    ... on User {
+      same_alias: id
+    }
+    ... on Actor {
+      same_alias: name
+    }
+  }
+}

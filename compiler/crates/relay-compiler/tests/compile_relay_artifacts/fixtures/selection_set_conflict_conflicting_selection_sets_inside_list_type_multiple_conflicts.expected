@@ -1,0 +1,135 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: showBeeper
+        same_alias: sortKey
+      }
+      edges {
+        same_alias: cursor
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": "same_alias",
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "showBeeper",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": "same_alias",
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "showBeeper",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: showBeeper
+      }
+    }
+  }
+}

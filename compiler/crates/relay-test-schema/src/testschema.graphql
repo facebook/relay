@@ -1036,7 +1036,7 @@ type User implements Named & Node & Actor & HasJsField & AllConcreteTypesImpleme
   storySearch(query: StorySearchInput): [Story]
   storyCommentSearch(query: StoryCommentSearchInput): [Comment]
   profilePicture(size: [Int], preset: PhotoSize): Image
-  profile_picture(scale: Float): Image
+  profile_picture(scale: Float, media_type: String): Image
   segments(first: Int): Segments
   screennames: [Screenname]
   subscribeStatus: String

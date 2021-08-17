@@ -1,0 +1,259 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictConflictingListAndNonListTypesOppositeOrderQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          ... on PhotoStory {
+            same_alias: actorCount
+          }
+          ... on Story {
+            same_alias: actors {
+              id
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictConflictingListAndNonListTypesOppositeOrderQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": "same_alias",
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "actorCount",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "PhotoStory",
+                        "abstractKey": null
+                      },
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": "same_alias",
+                            "args": null,
+                            "concreteType": null,
+                            "kind": "LinkedField",
+                            "name": "actors",
+                            "plural": true,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "Story",
+                        "abstractKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictConflictingListAndNonListTypesOppositeOrderQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": "same_alias",
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "actorCount",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "PhotoStory",
+                        "abstractKey": null
+                      },
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": "same_alias",
+                            "args": null,
+                            "concreteType": null,
+                            "kind": "LinkedField",
+                            "name": "actors",
+                            "plural": true,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              },
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "id",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "Story",
+                        "abstractKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictConflictingListAndNonListTypesOppositeOrderQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictConflictingListAndNonListTypesOppositeOrderQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          __typename
+          ... on PhotoStory {
+            same_alias: actorCount
+          }
+          ... on Story {
+            same_alias: actors {
+              __typename
+              id
+            }
+          }
+          id
+        }
+      }
+    }
+  }
+}

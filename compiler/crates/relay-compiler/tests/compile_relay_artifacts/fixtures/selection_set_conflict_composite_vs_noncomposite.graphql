@@ -1,0 +1,18 @@
+# TODO throw
+query selectionSetConflictCompositeVsNoncompositeQuery {
+
+  node(id: 42) {
+    ... on Page {
+      same_alias: id
+    }
+    ... on User {
+      same_alias: friends {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}

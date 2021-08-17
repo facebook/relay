@@ -1,0 +1,133 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictMultipleConflictsQuery {
+  me {
+    same_alias: id
+    same_alias: name
+    same_alias: profile_picture {
+      size: width
+    }
+    same_alias: profile_picture {
+      size: height
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictMultipleConflictsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "alias": "same_alias",
+            "args": null,
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": "size",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictMultipleConflictsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "alias": "same_alias",
+            "args": null,
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": "size",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictMultipleConflictsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictMultipleConflictsQuery {
+  me {
+    same_alias: id
+    same_alias: profile_picture {
+      size: width
+    }
+    id
+  }
+}

@@ -1,0 +1,9 @@
+# TODO throw
+query selectionSetConflictWithInlineFragmentQuery {
+  me {
+    same_alias: name
+    ... on User {
+      same_alias: id
+    }
+  }
+}

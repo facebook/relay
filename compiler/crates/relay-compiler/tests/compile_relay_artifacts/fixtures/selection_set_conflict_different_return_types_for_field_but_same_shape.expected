@@ -1,0 +1,276 @@
+==================================== INPUT ====================================
+query selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery {
+  viewer {
+    newsFeed {
+      edges{
+        node {
+          ... on PhotoStory {
+            body {
+              __typename
+            }
+          }
+          ... on Story {
+            body {
+              __typename
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Text",
+                            "kind": "LinkedField",
+                            "name": "body",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "PhotoStory",
+                        "abstractKey": null
+                      },
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Text",
+                            "kind": "LinkedField",
+                            "name": "body",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "Story",
+                        "abstractKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": null,
+                    "kind": "LinkedField",
+                    "name": "node",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "__typename",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Text",
+                            "kind": "LinkedField",
+                            "name": "body",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "PhotoStory",
+                        "abstractKey": null
+                      },
+                      {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "concreteType": "Text",
+                            "kind": "LinkedField",
+                            "name": "body",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "__typename",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "Story",
+                        "abstractKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          __typename
+          ... on PhotoStory {
+            body {
+              __typename
+            }
+          }
+          ... on Story {
+            body {
+              __typename
+            }
+          }
+          id
+        }
+      }
+    }
+  }
+}

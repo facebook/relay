@@ -1,0 +1,13 @@
+# TODO throw
+query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: sortKey
+      }
+      edges {
+        same_alias: cursor
+      }
+    }
+  }
+}

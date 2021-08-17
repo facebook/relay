@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictDifferentNameQuery {
+  me {
+    same_alias: name
+    same_alias: canViewerComment
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictDifferentNameQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictDifferentNameQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictDifferentNameQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictDifferentNameQuery {
+  me {
+    same_alias: name
+    id
+  }
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<01342815c8fcaaf4a38fbad59e1f5bf3>>
+ * @generated SignedSource<<a71e04a277d6cc73e8628da9244e60c4>>
  */
 
 mod compile_relay_artifacts;
@@ -934,6 +934,223 @@ fn scalar_handle_field() {
     let input = include_str!("compile_relay_artifacts/fixtures/scalar-handle-field.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/scalar-handle-field.expected");
     test_fixture(transform_fixture, "scalar-handle-field.graphql", "compile_relay_artifacts/fixtures/scalar-handle-field.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_added_argument() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_added_argument.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_added_argument.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_added_argument.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_added_argument.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_alias_covering_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_alias_covering_name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_alias_covering_name.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_alias_covering_name.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_alias_covering_name.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_composite_vs_noncomposite() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_composite_vs_noncomposite.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_composite_vs_noncomposite.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_composite_vs_noncomposite.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_composite_vs_noncomposite.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_conflicting_list_and_non_list_types() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_list_and_non_list_types.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_list_and_non_list_types.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_conflicting_list_and_non_list_types.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_list_and_non_list_types.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_conflicting_list_and_non_list_types_opposite_order() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_list_and_non_list_types_opposite_order.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_list_and_non_list_types_opposite_order.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_conflicting_list_and_non_list_types_opposite_order.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_list_and_non_list_types_opposite_order.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_conflicting_nullable_and_non_nullable_types() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_nullable_and_non_nullable_types.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_nullable_and_non_nullable_types.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_conflicting_selection_sets_inside_list_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_selection_sets_inside_list_type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_selection_sets_inside_list_type.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_conflicting_selection_sets_inside_list_type.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_selection_sets_inside_list_type.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_aliases() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_aliases.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_aliases.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_aliases.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_aliases.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_arguments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_arguments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_arguments.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_arguments.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_arguments.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_arguments_with_list() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_arguments_with_list.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_arguments_with_list.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_arguments_with_list.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_arguments_with_list.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_name.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_name.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_name.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_return_types_for_field_but_same_shape() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_return_types_for_field_but_same_shape.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_return_types_for_field_but_same_shape.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_return_types_for_field_but_same_shape.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_return_types_for_field_but_same_shape.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_types_with_conflict() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_with_conflict.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_with_conflict.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_types_with_conflict.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_types_with_conflict.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_types_with_conflict_different_shape() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_with_conflict_different_shape.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_with_conflict_different_shape.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_types_with_conflict_different_shape.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_types_with_conflict_different_shape.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_types_without_conflict() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_types_without_conflict.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_types_without_conflict_1() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_1.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_1.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_types_without_conflict_1.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_1.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_inconsistent_stream_usage_1() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_inconsistent_stream_usage_1.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_inconsistent_stream_usage_1.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_inconsistent_stream_usage_1.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_inconsistent_stream_usage_1.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_inconsistent_stream_usage_2() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_inconsistent_stream_usage_2.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_inconsistent_stream_usage_2.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_inconsistent_stream_usage_2.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_inconsistent_stream_usage_2.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_invalid_same_fragments_in_different_contexts() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_invalid_same_fragments_in_different_contexts.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_invalid_same_fragments_in_different_contexts.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_missing_argument() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_missing_argument.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_missing_argument.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_missing_argument.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_missing_argument.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_multiple_conflicts() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_multiple_conflicts.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_multiple_conflicts.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_multiple_conflicts.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_multiple_conflicts.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_multiple_conflicts_with_different_args() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_multiple_conflicts_with_different_args.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_multiple_conflicts_with_different_args.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_multiple_conflicts_with_different_args.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_multiple_conflicts_with_different_args.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_nested_conflict() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_nested_conflict.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_nested_conflict.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_nested_conflict.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_nested_conflict.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_stream_on_nodes_or_edges() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_stream_on_nodes_or_edges.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_valid_stream() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_valid_stream.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_valid_stream.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_valid_stream.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_valid_stream.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_with_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_with_fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_with_fragment.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_with_fragment.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_with_fragment.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_with_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_with_inline_fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_with_inline_fragment.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_with_inline_fragment.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_with_inline_fragment.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_with_nested_fragments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_with_nested_fragments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_with_nested_fragments.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_with_nested_fragments.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_with_nested_fragments.expected", input, expected);
 }
 
 #[test]

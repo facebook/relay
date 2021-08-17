@@ -1,0 +1,100 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
+  me {
+    ... on User {
+      same_alias: id
+    }
+    ... on Actor {
+      same_alias: name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isActor"
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
+  me {
+    same_alias: id
+    ... on Actor {
+      __isActor: __typename
+      same_alias: name
+    }
+    id
+  }
+}

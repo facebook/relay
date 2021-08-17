@@ -1,0 +1,7 @@
+# TODO to-throw
+query selectionSetConflictAliasCoveringNameQuery {
+  me {
+    name
+    name: canViewerComment
+  }
+}

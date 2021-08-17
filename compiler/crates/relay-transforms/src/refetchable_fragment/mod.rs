@@ -13,9 +13,10 @@ mod utils;
 mod viewer_query_generator;
 
 use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
+use crate::relay_directive::{PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
-use common::{Diagnostic, DiagnosticsResult, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
@@ -121,6 +122,7 @@ impl RefetchableFragment<'_> {
         if let Some(refetchable_directive) =
             RefetchableDirective::from_directives(&self.program.schema, &fragment.directives)?
         {
+            self.validate_sibling_directives(fragment)?;
             self.validate_refetch_name(fragment, &refetchable_directive)?;
 
             let variables_map = self.visitor.infer_fragment_variables(fragment);
@@ -151,6 +153,25 @@ impl RefetchableFragment<'_> {
             )])
         } else {
             Ok(None)
+        }
+    }
+
+    fn validate_sibling_directives(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> DiagnosticsResult<()> {
+        let relay_directive = fragment.directives.named(*RELAY_DIRECTIVE_NAME);
+        let plural_directive = relay_directive
+            .filter(|directive| directive.arguments.named(*PLURAL_ARG_NAME).is_some());
+        if let Some(directive) = plural_directive {
+            Err(vec![Diagnostic::error(
+                ValidationMessage::InvalidRefetchableFragmentWithRelayPlural {
+                    fragment_name: fragment.name.item,
+                },
+                directive.name.location,
+            )])
+        } else {
+            Ok(())
         }
     }
 

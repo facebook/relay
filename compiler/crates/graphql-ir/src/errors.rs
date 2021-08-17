@@ -483,6 +483,11 @@ pub enum ValidationMessage {
     RefetchableFragmentOnNodeWithExistingID { fragment_name: StringKey },
 
     #[error(
+        "Invalid use of @refetchable on fragment `{fragment_name}`, fragments cannot be annotated with both @refetchable and @relay(plural: true)."
+    )]
+    InvalidRefetchableFragmentWithRelayPlural { fragment_name: StringKey },
+
+    #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', check that your schema defines a `Node {{ id: ID }}` interface and has a `node(id: ID): Node` field on the query type (the id argument may also be non-null)."
     )]
     InvalidNodeSchemaForRefetchableFragmentOnNode { fragment_name: StringKey },

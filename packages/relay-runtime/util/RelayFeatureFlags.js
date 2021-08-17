@@ -17,6 +17,7 @@ import type {Disposable} from '../util/RelayRuntimeTypes';
 type FeatureFlags = {|
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
+  ENABLE_RELAY_CONTAINERS_SUSPENSE: boolean,
   ENABLE_REACT_FLIGHT_COMPONENT_FIELD: boolean,
   ENABLE_REQUIRED_DIRECTIVES: boolean | string,
   ENABLE_RELAY_RESOLVERS: boolean,
@@ -33,6 +34,7 @@ type FeatureFlags = {|
 const RelayFeatureFlags: FeatureFlags = {
   ENABLE_VARIABLE_CONNECTION_KEY: false,
   ENABLE_PARTIAL_RENDERING_DEFAULT: true,
+  ENABLE_RELAY_CONTAINERS_SUSPENSE: true,
   ENABLE_REACT_FLIGHT_COMPONENT_FIELD: false,
   ENABLE_REQUIRED_DIRECTIVES: false,
   ENABLE_RELAY_RESOLVERS: false,

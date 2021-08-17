@@ -811,6 +811,14 @@ describe('RelayModernFragmentSpecResolver', () => {
   });
 
   describe('suspense compatibility', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE = true;
+    });
+
+    afterEach(() => {
+      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE = false;
+    });
+
     describe('when data is missing and query is in progress', () => {
       beforeEach(() => {
         jest.mock('warning');

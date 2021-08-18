@@ -44,6 +44,7 @@ use lsp_server::Connection;
 use relay_compiler::config::Config;
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 pub use server::LSPNotificationDispatch;
+pub use server::LSPRequestDispatch;
 pub use server::{LSPState, Schemas};
 use std::sync::Arc;
 pub use utils::position_to_offset;

@@ -45,7 +45,7 @@ use common::{PerfLogEvent, PerfLogger};
 use crossbeam::channel::{SendError, Sender};
 use log::debug;
 pub use lsp_notification_dispatch::LSPNotificationDispatch;
-use lsp_request_dispatch::LSPRequestDispatch;
+pub use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
     notification::{

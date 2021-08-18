@@ -47,6 +47,13 @@ impl Schema for SDLSchema {
         }
     }
 
+    fn strongid_field(&self) -> FieldID {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.strongid_field(),
+            SDLSchema::InMemory(schema) => schema.strongid_field(),
+        }
+    }
+
     fn typename_field(&self) -> FieldID {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.typename_field(),

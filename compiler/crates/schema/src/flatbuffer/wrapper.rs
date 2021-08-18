@@ -33,9 +33,11 @@ struct OwnedFlatBufferSchema {
 const CLIENTID_FIELD_ID: FieldID = FieldID(10_000_000);
 const TYPENAME_FIELD_ID: FieldID = FieldID(10_000_001);
 const FETCH_TOKEN_FIELD_ID: FieldID = FieldID(10_000_002);
+const STRONGID_FIELD_ID: FieldID = FieldID(10_000_003);
 
 pub struct SchemaWrapper {
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
     unchecked_argument_type_sentinel: Option<TypeReference>,
@@ -71,6 +73,7 @@ impl SchemaWrapper {
 
         let mut result = Self {
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             unchecked_argument_type_sentinel: None,
@@ -99,6 +102,17 @@ impl SchemaWrapper {
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
             name: result.clientid_field_name,
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                result.get_type("ID".intern()).unwrap(),
+            ))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+        });
+        result.fields.get(STRONGID_FIELD_ID, || Field {
+            name: result.strongid_field_name,
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
@@ -162,6 +176,10 @@ impl Schema for SchemaWrapper {
 
     fn clientid_field(&self) -> FieldID {
         CLIENTID_FIELD_ID
+    }
+
+    fn strongid_field(&self) -> FieldID {
+        STRONGID_FIELD_ID
     }
 
     fn typename_field(&self) -> FieldID {
@@ -281,6 +299,9 @@ impl Schema for SchemaWrapper {
             }
             if name == self.clientid_field_name {
                 return Some(CLIENTID_FIELD_ID);
+            }
+            if name == self.strongid_field_name {
+                return Some(STRONGID_FIELD_ID);
             }
         }
 

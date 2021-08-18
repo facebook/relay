@@ -26,10 +26,12 @@ pub struct InMemorySchema {
     type_map: TypeMap,
 
     clientid_field: FieldID,
+    strongid_field: FieldID,
     typename_field: FieldID,
     fetch_token_field: FieldID,
 
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
 
@@ -64,6 +66,10 @@ impl Schema for InMemorySchema {
 
     fn clientid_field(&self) -> FieldID {
         self.clientid_field
+    }
+
+    fn strongid_field(&self) -> FieldID {
+        self.strongid_field
     }
 
     fn typename_field(&self) -> FieldID {
@@ -158,6 +164,9 @@ impl Schema for InMemorySchema {
             if name == self.clientid_field_name {
                 return Some(self.clientid_field);
             }
+            if name == self.strongid_field_name {
+                return Some(self.strongid_field);
+            }
         }
 
         let fields = match parent_type {
@@ -202,9 +211,11 @@ impl Schema for InMemorySchema {
             subscription_type,
             directives,
             clientid_field: _clientid_field,
+            strongid_field: _strongid_field,
             typename_field: _typename_field,
             fetch_token_field: _fetch_token_field,
             clientid_field_name: _clientid_field_name,
+            strongid_field_name: _strongid_field_name,
             typename_field_name: _typename_field_name,
             fetch_token_field_name: _fetch_token_field_name,
             string_type: _string_type,
@@ -605,9 +616,11 @@ impl InMemorySchema {
             subscription_type: None,
             type_map: HashMap::new(),
             clientid_field: FieldID(0),
+            strongid_field: FieldID(0),
             typename_field: FieldID(0),
             fetch_token_field: FieldID(0),
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             string_type: None,
@@ -717,9 +730,11 @@ impl InMemorySchema {
             subscription_type: None,
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
+            strongid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
             fetch_token_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             string_type: Some(string_type),
@@ -777,6 +792,7 @@ impl InMemorySchema {
         self.load_default_typename_field();
         self.load_default_fetch_token_field();
         self.load_default_clientid_field();
+        self.load_default_strongid_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription
@@ -841,6 +857,21 @@ impl InMemorySchema {
         self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         self.fields.push(Field {
             name: self.clientid_field_name,
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+        });
+    }
+
+    fn load_default_strongid_field(&mut self) {
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
+        let strongid_field_id = self.fields.len();
+        self.strongid_field = FieldID(strongid_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: self.strongid_field_name,
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),

@@ -18,6 +18,8 @@ pub trait Schema {
 
     fn clientid_field(&self) -> FieldID;
 
+    fn strongid_field(&self) -> FieldID;
+
     fn typename_field(&self) -> FieldID;
 
     fn fetch_token_field(&self) -> FieldID;

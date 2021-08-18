@@ -265,10 +265,8 @@ Text Schema:Schema {
         name: "strong_id__",
         is_extension: true,
         arguments: [],
-        type_: NonNull(
-            Named(
-                Scalar(4),
-            ),
+        type_: Named(
+            Scalar(4),
         ),
         directives: [],
         parent_type: None,

@@ -874,7 +874,7 @@ impl InMemorySchema {
             name: self.strongid_field_name,
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
+            type_: TypeReference::Named(id_type),
             directives: Vec::new(),
             parent_type: None,
             description: None,

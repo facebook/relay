@@ -115,9 +115,7 @@ impl SchemaWrapper {
             name: result.strongid_field_name,
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
-                result.get_type("ID".intern()).unwrap(),
-            ))),
+            type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
             directives: Vec::new(),
             parent_type: None,
             description: None,

@@ -44,7 +44,7 @@ use crate::{
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::channel::{SendError, Sender};
 use log::debug;
-use lsp_notification_dispatch::LSPNotificationDispatch;
+pub use lsp_notification_dispatch::LSPNotificationDispatch;
 use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{

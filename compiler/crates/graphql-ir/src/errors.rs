@@ -394,7 +394,7 @@ pub enum ValidationMessage {
         directive_name: StringKey,
     },
     #[error(
-        "Invalid use of @defer on an inline fragment, @defer is only supported on fragment spreads."
+        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
     )]
     InvalidDeferOnInlineFragment,
 

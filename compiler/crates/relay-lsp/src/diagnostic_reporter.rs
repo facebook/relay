@@ -6,13 +6,15 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::lsp::publish_diagnostic;
+use crate::lsp_process_error::LSPProcessResult;
 use common::{Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::channel::Sender;
-use dashmap::mapref::entry::Entry;
-use dashmap::DashMap;
-use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url};
+use dashmap::{mapref::entry::Entry, DashMap};
+use lsp_server::{Message, Notification as ServerNotification};
+use lsp_types::{
+    notification::{Notification, PublishDiagnostics},
+    Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url,
+};
 use relay_compiler::{
     errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
@@ -323,4 +325,18 @@ mod tests {
         reporter.report_diagnostic(&Diagnostic::error("-", Location::generated()));
         assert_eq!(reporter.active_diagnostics.len(), 0);
     }
+}
+
+/// Publish diagnostics to the client
+fn publish_diagnostic(
+    diagnostic_params: PublishDiagnosticsParams,
+    sender: &Sender<Message>,
+) -> LSPProcessResult<()> {
+    let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
+    sender
+        .send(Message::Notification(notif))
+        .unwrap_or_else(|_| {
+            // TODO(brandondail) log here
+        });
+    Ok(())
 }

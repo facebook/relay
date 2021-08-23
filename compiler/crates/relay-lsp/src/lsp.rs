@@ -9,13 +9,12 @@
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
 
-use crate::lsp_process_error::LSPProcessResult;
 use crossbeam::channel::{SendError, Sender};
 use lsp_server::{Message, Notification as ServerNotification, Request as ServerRequest};
 use lsp_types::{
-    notification::{Notification, PublishDiagnostics, ShowMessage},
+    notification::{Notification, ShowMessage},
     request::Request,
-    MessageActionItem, MessageType, PublishDiagnosticsParams, ShowMessageParams,
+    MessageActionItem, MessageType, ShowMessageParams,
 };
 use serde::{Deserialize, Serialize};
 
@@ -116,18 +115,4 @@ pub fn show_info_message(
     );
 
     sender.send(Message::Notification(notif))
-}
-
-/// Publish diagnostics to the client
-pub fn publish_diagnostic(
-    diagnostic_params: PublishDiagnosticsParams,
-    sender: &Sender<Message>,
-) -> LSPProcessResult<()> {
-    let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    sender
-        .send(Message::Notification(notif))
-        .unwrap_or_else(|_| {
-            // TODO(brandondail) log here
-        });
-    Ok(())
 }

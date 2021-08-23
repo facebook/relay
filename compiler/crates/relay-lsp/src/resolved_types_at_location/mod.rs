@@ -41,11 +41,13 @@ impl ResolvedTypesAtLocationParams {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct ResolvedTypesAtLocationResponse {
     pub path_and_schema_name: Option<PathAndSchemaName>,
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct PathAndSchemaName {
     pub path: Vec<String>,
     pub schema_name: String,

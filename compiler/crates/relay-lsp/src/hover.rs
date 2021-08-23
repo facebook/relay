@@ -110,21 +110,27 @@ fn get_hover_response_contents(
                 .type_path
                 .resolve_current_field(schema)?;
 
-            let type_name = schema.get_type_string(&field.type_);
-            let parent_type_name = schema.get_type_name(parent_type).to_string();
+            let rendered_type_string = schema.get_type_string(&field.type_);
+            let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
+            let parent_type_name = schema.get_type_name(parent_type).lookup();
 
             let mut hover_contents: Vec<MarkedString> =
                 vec![MarkedString::String(format!("Field: **{}**", field.name))];
 
             if let Some(field_description) =
-                schema_documentation.get_field_description(&parent_type_name, field.name.lookup())
+                schema_documentation.get_field_description(parent_type_name, field.name.lookup())
             {
                 hover_contents.push(MarkedString::String(field_description.to_string()));
             }
 
-            hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name)));
+            hover_contents.push(MarkedString::String(format!(
+                "Type: **{}**",
+                rendered_type_string
+            )));
 
-            if let Some(type_description) = schema_documentation.get_type_description(&type_name) {
+            if let Some(type_description) =
+                schema_documentation.get_type_description(field_type_name)
+            {
                 hover_contents.push(MarkedString::String(type_description.to_string()));
             }
 
@@ -145,7 +151,7 @@ fn get_hover_response_contents(
                         },
                         if let Some(description) = schema_documentation
                             .get_field_argument_description(
-                                &parent_type_name,
+                                parent_type_name,
                                 field.name.lookup(),
                                 arg.name.lookup(),
                             )

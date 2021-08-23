@@ -2,6 +2,14 @@
 id: load-query
 title: loadQuery
 slug: /api-reference/load-query/
+description: API reference for loadQuery, which imperatively fetches data for a query, retains that query and returns a query reference
+keywords:
+  - preload
+  - fetch
+  - query
+  - render-as-you-fetch
+  - retain
+  - query reference
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

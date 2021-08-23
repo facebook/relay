@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c93ea346e1507a766e7eb9cff217c052>>
+ * @generated SignedSource<<56eb8f21af02108400987fe269455734>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -165,18 +165,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a5eee973050277e0d986f63810a1944e",
+    "cacheID": "e90c997e2e6f815b4e094ae8ea605c18",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest15Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest15Query(\n  $scale: Int = 1\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest15Fragment_3I1js\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest15Fragment_3I1js on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n    width\n    height\n  }\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest15Query(\n  $scale: Float = 1\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest15Fragment_3I1js\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest15Fragment_3I1js on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n    width\n    height\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bfd1bfaf1f491cb1f659a5c6f31d44de";
+  (node/*: any*/).hash = "bc6005fc100a31baef4ea752b4292268";
 }
 
 module.exports = node;

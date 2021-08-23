@@ -87,7 +87,7 @@ export type NormalizationInlineFragment = {|
 
 export type NormalizationFragmentSpread = {|
   +kind: 'FragmentSpread',
-  +fragment: NormalizationNode,
+  +fragment: NormalizationSplitOperation,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
 |};
 
@@ -102,7 +102,13 @@ export type NormalizationLinkedField = {|
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 
+export type NormalizationActorChange = {|
+  +kind: 'ActorChange',
+  +linkedField: NormalizationLinkedField,
+|};
+
 export type NormalizationModuleImport = {|
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
@@ -155,6 +161,7 @@ export type NormalizationFlightField = {|
 |};
 
 export type NormalizationClientComponent = {|
+  +args?: ?$ReadOnlyArray<NormalizationArgument>,
   +kind: 'ClientComponent',
   +fragment: NormalizationNode,
 |};
@@ -176,9 +183,11 @@ export type NormalizationSelection =
   | NormalizationInlineFragment
   | NormalizationModuleImport
   | NormalizationStream
+  | NormalizationActorChange
   | NormalizationTypeDiscriminator;
 
 export type NormalizationSplitOperation = {|
+  +argumentDefinitions?: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +kind: 'SplitOperation',
   +name: string,
   +metadata: ?{+[key: string]: mixed, ...},

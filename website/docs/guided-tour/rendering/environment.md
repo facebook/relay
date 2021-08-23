@@ -2,6 +2,11 @@
 id: environment
 title: Environment
 slug: /guided-tour/rendering/environment/
+description: Relay guide to the environment
+keywords:
+- environment
+- RelayEnvironmentProvider
+- useRelayEnvironment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -5,21 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::DependencyMap;
+
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use fnv::FnvHashSet;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentSpread, Program, ScalarField, Selection,
-    Transformed, Transformer, Value,
+    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition,
+    Program, ScalarField, Selection, Transformed, Transformer, Value, Visitor,
 };
 use graphql_syntax::ConstantValue as SyntaxConstantValue;
 use interner::Intern;
 use interner::StringKey;
 use lazy_static::lazy_static;
-use schema::{ArgumentValue, Field, Schema};
-use std::sync::Arc;
+use schema::{ArgumentValue, Field, SDLSchema, Schema};
+use std::{mem, sync::Arc};
 
-pub fn relay_resolvers(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientResolverTransform::new(program);
+pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
+    let mut transform = ClientResolverTransform::new(program, enabled);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -43,14 +46,16 @@ lazy_static! {
 }
 
 struct ClientResolverTransform<'program> {
+    enabled: bool,
     program: &'program Program,
     errors: Vec<Diagnostic>,
 }
 
 impl<'program> ClientResolverTransform<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, enabled: bool) -> Self {
         Self {
             program,
+            enabled,
             errors: Default::default(),
         }
     }
@@ -65,6 +70,13 @@ impl Transformer for ClientResolverTransform<'_> {
         let field_type = self.program.schema.field(field.definition.item);
         match get_resolver_info(field_type, field.definition.location) {
             Some(info) => {
+                if !self.enabled {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::RelayResolversDisabled {},
+                        field.alias_or_name_location(),
+                    ));
+                    return Transformed::Keep;
+                }
                 match info {
                     Ok((fragment_name, import_path)) => {
                         if let Some(directive) = field.directives.first() {
@@ -92,11 +104,11 @@ impl Transformer for ClientResolverTransform<'_> {
                             // as well as any attached directives.
                             //
                             // While this would work well for the rest of our
-                            // compiler, we would need an addititonal transform
+                            // compiler, we would need an additional transform
                             // to convert the linked field to an inline fragment
                             // for the actual persisted query.
                             //
-                            // For now we'll use a fragment spread an dissallow
+                            // For now we'll use a fragment spread an disallow
                             // directives on Relay Resolver fields.
                             Selection::FragmentSpread(Arc::new(FragmentSpread {
                                 fragment: WithLocation::generated(fragment_name),
@@ -110,8 +122,8 @@ impl Transformer for ClientResolverTransform<'_> {
                             })),
                         )
                     }
-                    Err(diagostics) => {
-                        for diagnostic in diagostics {
+                    Err(diagnostics) => {
+                        for diagnostic in diagnostics {
                             self.errors.push(diagnostic);
                         }
                         Transformed::Keep
@@ -213,5 +225,84 @@ fn get_metadata_directive(
     Directive {
         name: WithLocation::generated(*RELAY_RESOLVER_METADATA_DIRECTIVE_NAME),
         arguments,
+    }
+}
+
+pub fn find_resolver_dependencies(dependencies: &mut DependencyMap, program: &Program) {
+    let mut finder = ResolverFieldFinder::new(dependencies, &program.schema);
+    finder.visit_program(program);
+}
+
+pub struct ResolverFieldFinder<'a> {
+    dependencies: &'a mut DependencyMap,
+    schema: &'a SDLSchema,
+    seen_resolver_fragments: FnvHashSet<StringKey>,
+}
+
+impl<'a> ResolverFieldFinder<'a> {
+    pub fn new(dependencies: &'a mut DependencyMap, schema: &'a SDLSchema) -> Self {
+        Self {
+            dependencies,
+            schema,
+            seen_resolver_fragments: Default::default(),
+        }
+    }
+
+    fn record_definition_dependencies(&mut self, name: StringKey) {
+        if self.seen_resolver_fragments.is_empty() {
+            self.dependencies.remove(&name);
+        } else {
+            self.dependencies
+                .insert(name, mem::take(&mut self.seen_resolver_fragments));
+        }
+    }
+}
+
+impl<'a> Visitor for ResolverFieldFinder<'a> {
+    const NAME: &'static str = "ResolverFieldFinder";
+
+    const VISIT_ARGUMENTS: bool = false;
+
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
+        assert!(
+            self.seen_resolver_fragments.is_empty(),
+            "should have been cleared by record_definition_dependencies"
+        );
+        self.default_visit_fragment(fragment);
+        self.record_definition_dependencies(fragment.name.item);
+    }
+
+    fn visit_operation(&mut self, operation: &OperationDefinition) {
+        assert!(
+            self.seen_resolver_fragments.is_empty(),
+            "should have been cleared by record_definition_dependencies"
+        );
+        self.default_visit_operation(operation);
+        self.record_definition_dependencies(operation.name.item);
+    }
+
+    // For now, all Resolver fields are scalar.
+    fn visit_scalar_field(&mut self, field: &ScalarField) {
+        let field_type = self.schema.field(field.definition.item);
+
+        // Find the backing resolver fragment, if any. Ignore any malformed resolver field definitions.
+        let maybe_fragment_name = field_type
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .and_then(|resolver_directive| {
+                resolver_directive
+                    .arguments
+                    .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
+            })
+            .and_then(|arg| match &arg.value {
+                SyntaxConstantValue::String(string_node) => Some(string_node.value),
+                _ => None,
+            });
+
+        if let Some(fragment_name) = maybe_fragment_name {
+            self.seen_resolver_fragments.insert(fragment_name);
+        }
     }
 }

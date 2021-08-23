@@ -119,8 +119,8 @@ where
         let key = K::from_raw(RawInternKey::new(unsafe {
             NonZeroU32::new_unchecked((self.items.len() + 1) as u32)
         }));
-        self.items.push(&dest_ptr);
-        self.table.insert(&dest_ptr, key.clone());
+        self.items.push(dest_ptr);
+        self.table.insert(dest_ptr, key.clone());
         self.buffer = Some(remaining);
         key
     }

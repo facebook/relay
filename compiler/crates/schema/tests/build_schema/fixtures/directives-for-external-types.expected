@@ -61,6 +61,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -68,6 +69,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -75,6 +77,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "fetchable",
@@ -85,6 +88,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -92,6 +96,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "include",
@@ -104,6 +109,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -113,6 +119,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "ref_type",
@@ -123,6 +130,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -130,6 +138,7 @@ Text Schema:Schema {
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -137,6 +146,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -149,6 +159,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -158,6 +169,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "source",
@@ -170,6 +182,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -182,6 +195,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
  type_map: {
@@ -210,6 +224,7 @@ Text Schema:Schema {
                     Scalar(5),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -219,6 +234,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "fetch__XIGStory",
@@ -230,6 +246,7 @@ Text Schema:Schema {
                     Scalar(5),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -239,6 +256,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -251,6 +269,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -263,6 +282,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "story",
@@ -305,6 +325,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "default_mailing_address",
@@ -316,6 +337,7 @@ Text Schema:Schema {
                     InputObject(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -325,6 +347,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -337,6 +360,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "is_default",
@@ -349,6 +373,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "label",
@@ -361,6 +386,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -373,6 +399,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -385,6 +412,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
         name: "__typename",
@@ -397,6 +425,7 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
         name: "__token",
@@ -409,6 +438,7 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
         name: "__id",
@@ -421,6 +451,18 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
+    },
+    Field {
+        name: "strong_id__",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(5),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
     },
 ]
  input_objects: [
@@ -435,6 +477,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -468,6 +511,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  interfaces: [
@@ -512,6 +556,7 @@ Text Schema:Schema {
             },
         ],
         interfaces: [],
+        description: None,
     },
 ]
  objects: [
@@ -524,6 +569,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "User",
@@ -555,6 +601,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
     Object {
         name: "MailingAddress",
@@ -566,6 +613,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "XIGStory",
@@ -623,6 +671,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  scalars: [
@@ -630,26 +679,31 @@ Text Schema:Schema {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
@@ -685,6 +739,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  unions: [
@@ -726,6 +781,7 @@ Text Schema:Schema {
                 ],
             },
         ],
+        description: None,
     },
 ]
  }
@@ -741,6 +797,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -748,6 +805,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -755,6 +813,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "fetchable",
@@ -765,6 +824,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -772,6 +832,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "include",
@@ -784,6 +845,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -793,6 +855,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "ref_type",
@@ -803,6 +866,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
             Argument {
                 name: "name",
@@ -810,6 +874,7 @@ directives: [
                     Scalar(2),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -817,6 +882,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -829,6 +895,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -838,6 +905,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "source",
@@ -850,6 +918,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -862,6 +931,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
 enums: []
@@ -877,6 +947,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "is_default",
@@ -889,6 +960,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "label",
@@ -901,6 +973,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "fetch__User",
@@ -912,6 +985,7 @@ fields: [
                     Scalar(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -921,6 +995,7 @@ fields: [
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "fetch__XIGStory",
@@ -932,6 +1007,7 @@ fields: [
                     Scalar(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -941,6 +1017,7 @@ fields: [
         parent_type: Some(
             Object(1),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -953,6 +1030,7 @@ fields: [
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "story",
@@ -995,6 +1073,7 @@ fields: [
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "default_mailing_address",
@@ -1006,6 +1085,7 @@ fields: [
                     InputObject(0),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         type_: Named(
@@ -1015,6 +1095,7 @@ fields: [
         parent_type: Some(
             Object(2),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -1027,6 +1108,7 @@ fields: [
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -1039,6 +1121,7 @@ fields: [
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -1051,6 +1134,7 @@ fields: [
         parent_type: Some(
             Object(3),
         ),
+        description: None,
     },
 ]
 input_objects: [
@@ -1065,6 +1149,7 @@ input_objects: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         directives: [
@@ -1098,6 +1183,7 @@ input_objects: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 interfaces: [
@@ -1142,6 +1228,7 @@ interfaces: [
             },
         ],
         interfaces: [],
+        description: None,
     },
 ]
 objects: [
@@ -1155,6 +1242,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "Query",
@@ -1165,6 +1253,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
     Object {
         name: "User",
@@ -1196,6 +1285,7 @@ objects: [
                 ],
             },
         ],
+        description: None,
     },
     Object {
         name: "XIGStory",
@@ -1253,6 +1343,7 @@ objects: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 scalars: [
@@ -1260,11 +1351,13 @@ scalars: [
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
@@ -1300,16 +1393,19 @@ scalars: [
                 ],
             },
         ],
+        description: None,
     },
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
 unions: [
@@ -1351,6 +1447,7 @@ unions: [
                 ],
             },
         ],
+        description: None,
     },
 ]
 }

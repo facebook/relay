@@ -26,10 +26,12 @@ pub struct InMemorySchema {
     type_map: TypeMap,
 
     clientid_field: FieldID,
+    strongid_field: FieldID,
     typename_field: FieldID,
     fetch_token_field: FieldID,
 
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
 
@@ -64,6 +66,10 @@ impl Schema for InMemorySchema {
 
     fn clientid_field(&self) -> FieldID {
         self.clientid_field
+    }
+
+    fn strongid_field(&self) -> FieldID {
+        self.strongid_field
     }
 
     fn typename_field(&self) -> FieldID {
@@ -158,6 +164,9 @@ impl Schema for InMemorySchema {
             if name == self.clientid_field_name {
                 return Some(self.clientid_field);
             }
+            if name == self.strongid_field_name {
+                return Some(self.strongid_field);
+            }
         }
 
         let fields = match parent_type {
@@ -202,9 +211,11 @@ impl Schema for InMemorySchema {
             subscription_type,
             directives,
             clientid_field: _clientid_field,
+            strongid_field: _strongid_field,
             typename_field: _typename_field,
             fetch_token_field: _fetch_token_field,
             clientid_field_name: _clientid_field_name,
+            strongid_field_name: _strongid_field_name,
             typename_field_name: _typename_field_name,
             fetch_token_field_name: _fetch_token_field_name,
             string_type: _string_type,
@@ -252,6 +263,34 @@ impl Schema for InMemorySchema {
             scalars,
             unions,
         )
+    }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.iter())
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.iter())
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.iter())
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.iter())
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.iter())
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.iter())
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.iter())
     }
 }
 
@@ -577,9 +616,11 @@ impl InMemorySchema {
             subscription_type: None,
             type_map: HashMap::new(),
             clientid_field: FieldID(0),
+            strongid_field: FieldID(0),
             typename_field: FieldID(0),
             fetch_token_field: FieldID(0),
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             string_type: None,
@@ -689,9 +730,11 @@ impl InMemorySchema {
             subscription_type: None,
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
+            strongid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
             fetch_token_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             string_type: Some(string_type),
@@ -749,6 +792,7 @@ impl InMemorySchema {
         self.load_default_typename_field();
         self.load_default_fetch_token_field();
         self.load_default_clientid_field();
+        self.load_default_strongid_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription
@@ -788,6 +832,7 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
     }
 
@@ -802,6 +847,7 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
     }
 
@@ -816,6 +862,22 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
+        });
+    }
+
+    fn load_default_strongid_field(&mut self) {
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
+        let strongid_field_id = self.fields.len();
+        self.strongid_field = FieldID(strongid_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: self.strongid_field_name,
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::Named(id_type),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
         });
     }
 
@@ -879,6 +941,7 @@ impl InMemorySchema {
                 arguments,
                 repeatable,
                 locations,
+                description,
             }) => {
                 if self.directives.contains_key(&name.value) {
                     let str_name = name.value.lookup();
@@ -898,6 +961,7 @@ impl InMemorySchema {
                         locations: locations.clone(),
                         repeatable: *repeatable,
                         is_extension,
+                        description: description.as_ref().map(|node| node.value),
                     },
                 );
             }
@@ -928,6 +992,7 @@ impl InMemorySchema {
                     is_extension,
                     interfaces,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
@@ -958,6 +1023,7 @@ impl InMemorySchema {
                     fields,
                     directives,
                     interfaces,
+                    description: None,
                 });
             }
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
@@ -975,6 +1041,7 @@ impl InMemorySchema {
                     is_extension,
                     members,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
@@ -988,6 +1055,7 @@ impl InMemorySchema {
                     name: name.value,
                     fields,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
@@ -1013,6 +1081,7 @@ impl InMemorySchema {
                     is_extension,
                     values,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
@@ -1024,6 +1093,7 @@ impl InMemorySchema {
                     name: name.value,
                     is_extension,
                     directives,
+                    description: None,
                 })
             }
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
@@ -1149,6 +1219,7 @@ impl InMemorySchema {
                     let arguments = self.build_arguments(&field_def.arguments)?;
                     let type_ = self.build_type_reference(&field_def.type_)?;
                     let directives = self.build_directive_values(&field_def.directives);
+                    let description = field_def.description.as_ref().map(|desc| desc.value);
                     Ok(self.build_field(Field {
                         name: field_def.name.value,
                         is_extension: false,
@@ -1156,6 +1227,7 @@ impl InMemorySchema {
                         type_,
                         directives,
                         parent_type,
+                        description,
                     }))
                 })
                 .collect()
@@ -1179,6 +1251,7 @@ impl InMemorySchema {
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_)?;
+                let description = field_def.description.as_ref().map(|desc| desc.value);
                 field_ids.push(self.build_field(Field {
                     name: field_def.name.value,
                     is_extension: true,
@@ -1186,6 +1259,7 @@ impl InMemorySchema {
                     type_,
                     directives,
                     parent_type,
+                    description,
                 }));
             }
             Ok(field_ids)
@@ -1207,6 +1281,7 @@ impl InMemorySchema {
                         name: arg_def.name.value,
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
+                        description: None,
                     })
                 })
                 .collect();

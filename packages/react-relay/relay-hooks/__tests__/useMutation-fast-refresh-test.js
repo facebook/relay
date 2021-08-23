@@ -110,6 +110,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(isInFlightFn).toBeCalledWith(true);
 
     isInFlightFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
     expect(isInFlightFn).toBeCalledTimes(1);

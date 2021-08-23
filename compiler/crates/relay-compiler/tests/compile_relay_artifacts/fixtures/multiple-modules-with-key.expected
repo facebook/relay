@@ -114,6 +114,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
                         "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -145,6 +146,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery",
                         "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -225,6 +227,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery_nameRenderer",
                         "fragmentName": "multipleModulesWithKey_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -263,6 +266,7 @@ fragment multipleModulesWithKey_MarkdownUserNameRenderer_name on MarkdownUserNam
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "multipleModulesWithKey_MatchQuery",
                         "fragmentName": "multipleModulesWithKey_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",

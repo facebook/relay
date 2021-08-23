@@ -47,11 +47,13 @@ function maskTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitFragment(fragment: Fragment, state: State): Fragment {
+  // $FlowFixMe[incompatible-use]
   const result = this.traverse(fragment, state);
   if (state.reachableArguments.length === 0) {
     return result;
   }
   const joinedArgumentDefinitions = joinArgumentDefinitions(
+    // $FlowFixMe[incompatible-use]
     this.getContext().getSchema(),
     fragment,
     state.reachableArguments,
@@ -76,6 +78,7 @@ function visitFragmentSpread(
       'arguments. Use the `ApplyFragmentArgumentTransform` before flattening',
     fragmentSpread.name,
   );
+  // $FlowFixMe[incompatible-use]
   const context = this.getContext();
   const fragment: Fragment = context.getFragment(fragmentSpread.name);
   const result: InlineFragment = {
@@ -111,6 +114,7 @@ function visitFragmentSpread(
   for (const argDef of fragment.argumentDefinitions) {
     state.reachableArguments.push(argDef);
   }
+  // $FlowFixMe[incompatible-use]
   return this.traverse(result, state);
 }
 

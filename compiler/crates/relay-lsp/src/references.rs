@@ -22,6 +22,7 @@ use lsp_types::{
     request::{References, Request},
     Range,
 };
+use schema_documentation::SchemaDocumentation;
 use std::path::PathBuf;
 
 fn get_references_response(
@@ -100,11 +101,14 @@ impl Visitor for ReferenceFinder {
     }
 }
 
-pub(crate) fn on_references<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_references<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <References as Request>::Params,
 ) -> LSPRuntimeResult<<References as Request>::Result> {
-    let node_resolution_info = state.resolve_node(params.text_document_position)?;
+    let node_resolution_info = state.resolve_node(&params.text_document_position)?;
     let references_response = get_references_response(
         node_resolution_info,
         state.get_source_programs_ref(),

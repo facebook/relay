@@ -2,6 +2,9 @@
 id: commit-mutation
 title: commitMutation
 slug: /api-reference/commit-mutation/
+description: API reference for commitMutation, which imperatively executes a mutation
+keywords:
+  - mutation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

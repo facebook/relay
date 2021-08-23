@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<29d04a9a612ca04d9d27a57d565d16aa>>
+ * @generated SignedSource<<78491300d5fd09d58bd8f7afa1355dad>>
  */
 
 mod relay_resolvers;
@@ -38,6 +38,13 @@ fn missing_import_path_invalid() {
     let input = include_str!("relay_resolvers/fixtures/missing-import-path.invalid.graphql");
     let expected = include_str!("relay_resolvers/fixtures/missing-import-path.invalid.expected");
     test_fixture(transform_fixture, "missing-import-path.invalid.graphql", "relay_resolvers/fixtures/missing-import-path.invalid.expected", input, expected);
+}
+
+#[test]
+fn multiple_relay_resolvers() {
+    let input = include_str!("relay_resolvers/fixtures/multiple-relay-resolvers.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/multiple-relay-resolvers.expected");
+    test_fixture(transform_fixture, "multiple-relay-resolvers.graphql", "relay_resolvers/fixtures/multiple-relay-resolvers.expected", input, expected);
 }
 
 #[test]

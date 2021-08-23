@@ -2,6 +2,13 @@
 id: inconsistent-typename-error
 title: Inconsistent Typename Error
 slug: /debugging/inconsistent-typename-error/
+description: Debugging inconsistent typename errors in Relay
+keywords:
+- debugging
+- troubleshooting
+- inconsistent typename
+- RelayResponseNormalizer
+- globally unique id
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

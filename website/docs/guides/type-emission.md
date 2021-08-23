@@ -2,6 +2,9 @@
 id: type-emission
 title: Type Emission
 slug: /guides/type-emission/
+description: Relay guide to type emission
+keywords:
+- type emission
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -396,21 +399,17 @@ An important caveat to note is that by default strict fragment reference type-in
 To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, like so:
 
 ```shell
-
 $ relay-compiler --artifactDirectory ./src/__generated__ […]
-
 ```
 
 …and additionally inform the babel plugin in your `.babelrc` config where to look for the artifacts:
 
 ```json
-
 {
   "plugins": [
     ["relay", { "artifactDirectory": "./src/__generated__" }]
   ]
 }
-
 ```
 
 It is recommended to alias this directory in your module resolution configuration such that you don’t need to specify relative paths in your source files. This is what is also done in the above examples, where artifacts are imported from a `__generated__` alias, rather than relative paths like `../../../../__generated__`.
@@ -430,29 +429,23 @@ At its simplest, we can consider Haste as a single directory that contains all m
 
 -   Flow: This is the default and builtin language plugin. You can explicitly enable it like so:
 
-    ```shell
-
-    $ relay-compiler --language javascript […]
-
-    ```
+```shell
+$ relay-compiler --language javascript […]
+```
 
 By default, Flow types are emitted inside of comments to avoid forcing your project to use Flow. Flow types inside of comments is perfectly valid Flow, however, some editors and IDEs (like WebStorm/IDEA) do not understand Flow unless it's in plain source code. In order to solve that, there's a language plugin maintained by the community that replicates the functionality of the default builtin plugin, but emits the Flow types as plain source and not inside comments. Installation and usage:
 
 ```shell
-
-  $ yarn add --dev relay-compiler-language-js-flow-uncommented
-  $ relay-compiler --language js-flow-uncommented […]
-
+$ yarn add --dev relay-compiler-language-js-flow-uncommented
+$ relay-compiler --language js-flow-uncommented […]
 ```
 
 -   [TypeScript](https://github.com/relay-tools/relay-compiler-language-typescript): This is a language plugin for the TypeScript language maintained by the community. Install and enable it like so:
 
-    ```shell
-
-    $ yarn add --dev relay-compiler-language-typescript @types/react-relay @types/relay-runtime
-    $ relay-compiler --language typescript […]
-
-    ```
+```shell
+$ yarn add --dev relay-compiler-language-typescript @types/react-relay @types/relay-runtime
+$ relay-compiler --language typescript […]
+```
 
 If you are looking to create your own language plugin, refer to the `relay-compiler` [language plugin interface][plugin-interface].
 
@@ -462,6 +455,6 @@ If you are looking to create your own language plugin, refer to the `relay-compi
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
 
-[plugin-interface]: https://github.com/facebook/relay/blob/master/packages/relay-compiler/language/RelayLanguagePluginInterface.js
+[plugin-interface]: https://github.com/facebook/relay/blob/main/packages/relay-compiler/language/RelayLanguagePluginInterface.js
 
 <DocsRating />

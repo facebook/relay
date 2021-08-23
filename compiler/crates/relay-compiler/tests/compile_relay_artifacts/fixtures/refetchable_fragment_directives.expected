@@ -1,0 +1,154 @@
+==================================== INPUT ====================================
+fragment refetchableFragmentDirectives on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["@live_query(polling_interval:10)"]
+) {
+  id
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "refetchableFragmentDirectivesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "refetchableFragmentDirectives"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "refetchableFragmentDirectivesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {
+      "live": {
+        "polling_interval": 10
+      }
+    },
+    "name": "refetchableFragmentDirectivesQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query refetchableFragmentDirectivesQuery(
+  $id: ID!
+) @live_query(polling_interval: 10) {
+  node(id: $id) {
+    __typename
+    ...refetchableFragmentDirectives
+    id
+  }
+}
+
+fragment refetchableFragmentDirectives on Node {
+  __isNode: __typename
+  id
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('refetchableFragmentDirectivesQuery.graphql'),
+      "identifierField": "id"
+    }
+  },
+  "name": "refetchableFragmentDirectives",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

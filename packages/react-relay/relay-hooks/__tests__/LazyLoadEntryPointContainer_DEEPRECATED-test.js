@@ -147,6 +147,7 @@ it('suspends while the query and component are pending', () => {
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
   expect(fetch).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
@@ -168,6 +169,7 @@ it('suspends while the component is loading', () => {
   );
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
@@ -191,6 +193,7 @@ it('suspends while the query is loading', () => {
   );
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(fetch).toBeCalledTimes(1);
 });
@@ -210,7 +213,9 @@ it('suspends then updates when the query and component load', () => {
   );
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 
   let receivedProps = null;
@@ -224,7 +229,9 @@ it('suspends then updates when the query and component load', () => {
   dataSource.next(response);
   dataSource.complete();
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(4);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
@@ -260,7 +267,9 @@ it('renders synchronously when the query and component are already loaded', () =
     </RelayEnvironmentProvider>,
   );
   expect(renderer.toJSON()).toEqual('Zuck');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
@@ -402,7 +411,9 @@ it('fetches and renders synchronously when the query data is cached, then update
   });
   invariant(renderer != null, 'should have been rendered');
   expect(renderer.toJSON()).toEqual('Zuck');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
@@ -470,7 +481,9 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   });
   invariant(renderer != null, 'should have been rendered');
   expect(renderer.toJSON()).toEqual('Zuck');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);

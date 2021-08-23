@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9afab5fa1b2726aafb993e5e1d779497>>
+ * @generated SignedSource<<b860f51f9070b2abea432e5508b90944>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -88,6 +88,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
               "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -101,6 +102,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
               "fragmentName": "FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -133,6 +135,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer",
               "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
               "fragmentPropName": "name",

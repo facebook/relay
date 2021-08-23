@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod heartbeat;
 mod lsp_notification_dispatch;
 mod lsp_request_dispatch;
 mod lsp_state;
@@ -13,8 +14,15 @@ mod lsp_state_resources;
 use crate::{
     code_action::on_code_action,
     completion::on_completion,
-    goto_definition::on_goto_definition,
+    explore_schema_for_type::{on_explore_schema_for_type, ExploreSchemaForType},
+    goto_definition::{
+        on_get_source_location_of_type_definition, on_goto_definition,
+        GetSourceLocationOfTypeDefinition,
+    },
+    graphql_tools::on_graphql_execute_query,
+    graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
+    js_language_server::JSLanguageServer,
     lsp::{
         set_initializing_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
         InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
@@ -23,34 +31,39 @@ use crate::{
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
+    resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
+    search_schema_items::{on_search_schema_items, SearchSchemaItems},
     shutdown::{on_exit, on_shutdown},
-    status_reporting::LSPStatusReporter,
-    status_reporting::StatusReportingArtifactWriter,
-    text_documents::on_did_save_text_document,
+    status_reporting::{LSPStatusReporter, StatusReportingArtifactWriter},
     text_documents::{
-        on_did_change_text_document, on_did_close_text_document, on_did_open_text_document,
+        on_cancel, on_did_change_text_document, on_did_close_text_document,
+        on_did_open_text_document, on_did_save_text_document,
     },
     ExtensionConfig,
 };
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::{SendError, Sender};
+use crossbeam::channel::{SendError, Sender};
 use log::debug;
-use lsp_notification_dispatch::LSPNotificationDispatch;
-use lsp_request_dispatch::LSPRequestDispatch;
+pub use lsp_notification_dispatch::LSPNotificationDispatch;
+pub use lsp_request_dispatch::LSPRequestDispatch;
 use lsp_server::{ErrorCode, Notification, ResponseError};
 use lsp_types::{
     notification::{
-        DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument, Exit,
+        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        DidSaveTextDocument, Exit,
     },
     request::{CodeActionRequest, Completion, References, Shutdown},
     CodeActionProviderCapability,
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
-pub(crate) use lsp_state::LSPState;
+pub use lsp_state::LSPState;
 pub use lsp_state::{Schemas, SourcePrograms};
+
+use heartbeat::{on_heartbeat, HeartbeatRequest};
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -65,11 +78,12 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
             work_done_progress_options: WorkDoneProgressOptions {
                 work_done_progress: None,
             },
+            ..Default::default()
         }),
 
-        hover_provider: Some(true),
-        definition_provider: Some(true),
-        references_provider: Some(true),
+        hover_provider: Some(lsp_types::HoverProviderCapability::Simple(true)),
+        definition_provider: Some(lsp_types::OneOf::Left(true)),
+        references_provider: Some(lsp_types::OneOf::Left(true)),
         code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
         ..Default::default()
     };
@@ -81,13 +95,15 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 }
 
 /// Run the main server loop
-pub async fn run<TPerfLogger: PerfLogger + 'static>(
+pub async fn run<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     connection: Connection,
     mut config: Config,
     extension_config: ExtensionConfig,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
+    js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -115,53 +131,68 @@ where
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
+        schema_documentation_loader,
+        js_resource,
         &extension_config,
         connection.sender.clone(),
     );
 
-    for msg in connection.receiver {
-        debug!("LSP message received {:?}", msg);
-        match msg {
-            Message::Request(req) => {
+    loop {
+        debug!("waiting for incoming messages...");
+        match connection.receiver.recv() {
+            Ok(Message::Request(req)) => {
                 handle_request(&mut lsp_state, req, &connection.sender, &perf_logger)
                     .map_err(LSPProcessError::from)?;
             }
-            Message::Notification(notification) => {
+            Ok(Message::Notification(notification)) => {
                 handle_notification(&mut lsp_state, notification, &perf_logger);
             }
-            _ => {
+            Ok(_) => {
                 // Ignore responses for now
+            }
+            Err(error) => {
+                panic!("Relay Language Server receiver error {:?}", error);
             }
         }
     }
-
-    Ok(())
 }
 
-fn handle_request<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     request: lsp_server::Request,
     sender: &Sender<Message>,
     perf_logger: &Arc<TPerfLogger>,
 ) -> Result<(), SendError<Message>> {
+    debug!("request received {:?}", request);
     let get_server_response_bound = |req| dispatch_request(req, lsp_state);
     let get_response = with_request_logging(perf_logger, get_server_response_bound);
 
     sender.send(Message::Response(get_response(request)))
 }
 
-fn dispatch_request<TPerfLogger: PerfLogger + 'static>(
+fn dispatch_request<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
     request: lsp_server::Request,
-    lsp_state: &mut LSPState<TPerfLogger>,
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
 ) -> ServerResponse {
     let get_response = || -> Result<_, ServerResponse> {
         let request = LSPRequestDispatch::new(request, lsp_state)
+            .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
+            .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
+            .on_request_sync::<ExploreSchemaForType>(on_explore_schema_for_type)?
+            .on_request_sync::<GetSourceLocationOfTypeDefinition>(
+                on_get_source_location_of_type_definition,
+            )?
             .on_request_sync::<HoverRequest>(on_hover)?
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?
             .on_request_sync::<Completion>(on_completion)?
             .on_request_sync::<CodeActionRequest>(on_code_action)?
             .on_request_sync::<Shutdown>(on_shutdown)?
+            .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
+            .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
             .request();
 
         // If we have gotten here, we have not handled the request
@@ -211,11 +242,15 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
     }
 }
 
-fn handle_notification<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+fn handle_notification<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     notification: Notification,
     perf_logger: &Arc<TPerfLogger>,
 ) {
+    debug!("notification received {:?}", notification);
     let lsp_notification_event = perf_logger.create_event("lsp_message");
     lsp_notification_event.string("lsp_method", notification.method.clone());
     lsp_notification_event.string("lsp_type", "notification".to_string());
@@ -245,15 +280,19 @@ fn handle_notification<TPerfLogger: PerfLogger + 'static>(
     perf_logger.complete_event(lsp_notification_event);
 }
 
-fn dispatch_notification<TPerfLogger: PerfLogger + 'static>(
+fn dispatch_notification<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
     notification: lsp_server::Notification,
-    lsp_state: &mut LSPState<TPerfLogger>,
+    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
 ) -> Result<(), Option<LSPRuntimeError>> {
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?
         .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?
         .on_notification_sync::<DidChangeTextDocument>(on_did_change_text_document)?
         .on_notification_sync::<DidSaveTextDocument>(on_did_save_text_document)?
+        .on_notification_sync::<Cancel>(on_cancel)?
         .on_notification_sync::<Exit>(on_exit)?
         .notification();
 

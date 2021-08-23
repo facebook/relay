@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use rayon::prelude::*;
+use common::sync::*;
+// use rayon::prelude::*;
 
 // Helpers for unwrapping multiple Results to aggregate all success values or all error values.
 
@@ -136,10 +137,10 @@ pub fn par_try_map<T: Sync + Send, E: Sync + Send, U: Sync + Send, I, F: Sync + 
     f: F,
 ) -> Result<Vec<T>, Vec<E>>
 where
-    I: IntoParallelIterator<Item = U>,
+    I: IntoParallelIterator<Item = U> + IntoIterator<Item = U>,
     F: Fn(U) -> Result<T, Vec<E>>,
 {
-    let results: Vec<Result<T, Vec<E>>> = items.into_par_iter().map(f).collect();
+    let results: Vec<Result<T, Vec<E>>> = par_iter(items).map(f).collect();
     let mut errors = Vec::new();
     let mut values = Vec::with_capacity(results.len());
     for result in results {

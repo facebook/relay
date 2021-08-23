@@ -10,7 +10,7 @@ fragment ClientFragment on User {
   name
 }
 ==================================== OUTPUT ===================================
-query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentSources: ["ClientFragment"]) {
+query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["QueryWithRelayClientComponent"]) {
   ...ClientFragment
 }
 

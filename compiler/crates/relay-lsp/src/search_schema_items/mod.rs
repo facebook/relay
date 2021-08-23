@@ -1,0 +1,175 @@
+/*
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+use crate::{
+    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
+    server::LSPState,
+};
+use common::{Named, PerfLogger};
+use interner::Intern;
+use lsp_types::request::Request;
+use schema::Schema;
+use schema_documentation::SchemaDocumentation;
+use serde::{Deserialize, Serialize};
+
+pub(crate) enum SearchSchemaItems {}
+
+#[derive(Deserialize, Serialize)]
+pub(crate) struct TypeDescription {
+    name: String,
+    description: Option<String>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub(crate) struct SchemaSearchItemsResponse {
+    pub items: Vec<TypeDescription>,
+}
+
+#[derive(Deserialize, Serialize)]
+pub(crate) struct SearchSchemaItemsParams {
+    pub filter: Option<String>,
+    pub schema_name: String,
+    pub take: Option<usize>,
+    pub skip: Option<usize>,
+}
+
+impl Request for SearchSchemaItems {
+    type Params = SearchSchemaItemsParams;
+    type Result = SchemaSearchItemsResponse;
+    const METHOD: &'static str = "relay/searchSchemaItems";
+}
+
+pub(crate) fn on_search_schema_items<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    params: SearchSchemaItemsParams,
+) -> LSPRuntimeResult<<SearchSchemaItems as Request>::Result> {
+    let filter = params.filter.map(|f| f.to_lowercase());
+    let schema_name: &str = &params.schema_name;
+    let schemas = state.get_schemas();
+    let schema = schemas
+        .get(&schema_name.intern())
+        .ok_or(LSPRuntimeError::ExpectedError)?;
+    let schema_documentation = state.get_schema_documentation(schema_name);
+
+    let objects = filter_and_transform_items(schema.objects(), &schema_documentation, &filter);
+    let interfaces =
+        filter_and_transform_items(schema.interfaces(), &schema_documentation, &filter);
+    let enums = filter_and_transform_items(schema.enums(), &schema_documentation, &filter);
+    let unions = filter_and_transform_items(schema.unions(), &schema_documentation, &filter);
+    let input_objects =
+        filter_and_transform_items(schema.input_objects(), &schema_documentation, &filter);
+    let scalars = filter_and_transform_items(schema.scalars(), &schema_documentation, &filter);
+
+    let items = objects
+        .chain(interfaces)
+        .chain(enums)
+        .chain(unions)
+        .chain(input_objects)
+        .chain(scalars)
+        .skip(*params.skip.as_ref().unwrap_or(&0))
+        .take(*params.take.as_ref().unwrap_or(&500))
+        .collect::<Vec<_>>();
+
+    Ok(SchemaSearchItemsResponse { items })
+}
+
+fn filter_and_transform_items<'a, T: Named + 'a>(
+    items: impl Iterator<Item = &'a T> + 'a,
+    schema_documentation: &'a impl SchemaDocumentation,
+    filter: &'a Option<String>,
+) -> impl Iterator<Item = TypeDescription> + 'a {
+    items.filter_map(move |obj| {
+        let name = obj.name().lookup();
+        let description = schema_documentation
+            .get_type_description(name)
+            .map(|s| s.to_string());
+
+        if should_include_named_item(name, &description, filter) {
+            Some(TypeDescription {
+                name: name.to_string(),
+                description,
+            })
+        } else {
+            None
+        }
+    })
+}
+
+fn should_include_named_item(
+    name: &str,
+    description: &Option<String>,
+    filter: &Option<String>,
+) -> bool {
+    if let Some(filter) = filter.as_ref() {
+        if name.to_lowercase().contains(filter) {
+            true
+        } else if let Some(description) = description {
+            description.to_lowercase().contains(filter)
+        } else {
+            false
+        }
+    } else {
+        true
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::search_schema_items::should_include_named_item;
+
+    #[test]
+    fn test_no_filter() {
+        assert_eq!(
+            should_include_named_item("Yohan Blake", &Some("London 2012".to_string()), &None),
+            true
+        );
+        assert_eq!(should_include_named_item("Usain Bolt", &None, &None), true);
+    }
+
+    #[test]
+    fn test_filter_matches_name() {
+        assert_eq!(
+            should_include_named_item("Michael Frater", &None, &Some("michael".to_string())),
+            true
+        );
+        assert_eq!(
+            should_include_named_item(
+                "Nesta Carter",
+                &Some("London 2012".to_string()),
+                &Some("nesta".to_string())
+            ),
+            true
+        );
+    }
+
+    #[test]
+    fn test_filter_matches_description() {
+        assert_eq!(
+            should_include_named_item(
+                "Tiana Bartoletta",
+                &Some("London 2012".to_string()),
+                &Some("london".to_string())
+            ),
+            true
+        );
+    }
+
+    #[test]
+    fn test_non_matching_filter() {
+        assert_eq!(
+            should_include_named_item(
+                "Allyson Felix",
+                &Some("London 2012".to_string()),
+                &Some("salt lake city".to_string())
+            ),
+            false
+        );
+    }
+}

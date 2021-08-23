@@ -50,8 +50,13 @@ const fetchQuery = require('./query/fetchQuery');
 const fetchQueryInternal = require('./query/fetchQueryInternal');
 const fetchQuery_DEPRECATED = require('./query/fetchQuery_DEPRECATED');
 const getFragmentIdentifier = require('./util/getFragmentIdentifier');
+const getPaginationMetadata = require('./util/getPaginationMetadata');
+const getPaginationVariables = require('./util/getPaginationVariables');
+const getPendingOperationsForFragment = require('./util/getPendingOperationsForFragment');
+const getRefetchMetadata = require('./util/getRefetchMetadata');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
+const getValueAtPath = require('./util/getValueAtPath');
 const isPromise = require('./util/isPromise');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
@@ -110,10 +115,11 @@ export type {
   Subscription,
 } from './network/RelayObservable';
 export type {GraphQLTaggedNode} from './query/GraphQLTag';
+export type {TaskScheduler} from './store/OperationExecutor';
 export type {EnvironmentConfig} from './store/RelayModernEnvironment';
-export type {TaskScheduler} from './store/RelayModernQueryExecutor';
 export type {RecordState} from './store/RelayRecordState';
 export type {
+  ExecuteMutationConfig,
   FragmentMap,
   FragmentReference,
   FragmentSpecResolver,
@@ -136,9 +142,9 @@ export type {
   PluralReaderSelector,
   Props,
   PublishQueue,
+  ReactFlightClientResponse,
   ReactFlightPayloadDeserializer,
   ReactFlightServerErrorHandler,
-  ReactFlightClientResponse,
   ReaderSelector,
   ReadOnlyRecordProxy,
   RecordProxy,
@@ -146,13 +152,18 @@ export type {
   RecordSourceSelectorProxy,
   RelayContext,
   RequestDescriptor,
+  RequiredFieldLogger,
   SelectorData,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
 } from './store/RelayStoreTypes';
-export type {GraphQLSubscriptionConfig} from './subscription/requestSubscription';
+export type {
+  DEPRECATED_GraphQLSubscriptionConfig,
+  GraphQLSubscriptionConfig,
+  SubscriptionParameters,
+} from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';
 export type {
   NormalizationArgument,
@@ -205,6 +216,7 @@ export type {
   VariablesOf,
 } from './util/RelayRuntimeTypes';
 export type {Local3DPayload} from './util/createPayloadFor3DField';
+export type {Direction} from './util/getPaginationVariables';
 export type {RequestIdentifier} from './util/getRequestIdentifier';
 
 // As early as possible, check for the existence of the JavaScript globals which
@@ -327,6 +339,11 @@ module.exports = {
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
   getFragmentIdentifier: getFragmentIdentifier,
+  getRefetchMetadata: getRefetchMetadata,
+  getPaginationMetadata: getPaginationMetadata,
+  getPaginationVariables: getPaginationVariables,
+  getPendingOperationsForFragment: getPendingOperationsForFragment,
+  getValueAtPath: getValueAtPath,
   __internal: {
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,

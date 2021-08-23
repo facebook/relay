@@ -1,0 +1,27 @@
+# expected-to-throw
+query validateGlobalVariablesSharedFragmentQuery($condition: Boolean) {
+  me {
+    # first visit a fragment that expects `$condition: Boolean`
+    ...validateGlobalVariablesSharedFragment_user
+    # then visit a fragment that expects `$condition: Boolean!` - so this *should* error
+    ...validateGlobalVariablesSharedFragment_nonNull
+  }
+  viewer {
+    actor {
+      # then visit the (already cached) fragment that expects `$condition: Boolean` -
+      # this shouldn't overwrite the more-specific type that we saw in the second fragment
+      ...validateGlobalVariablesSharedFragment_user
+    }
+  }
+}
+
+fragment validateGlobalVariablesSharedFragment_user on User {
+  firstName(if: $condition)
+}
+
+fragment validateGlobalVariablesSharedFragment_nonNull on User {
+  # ERROR: nullable values flows into non-nullable arg
+  ... @include(if: $condition) {
+    lastName
+  }
+}

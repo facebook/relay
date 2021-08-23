@@ -19,13 +19,13 @@ fragment TestFragment on User {
                     alias: None,
                     definition: WithLocation {
                         location: directive-generic.graphql:34:36,
-                        item: FieldID(460),
+                        item: FieldID(464),
                     },
                     arguments: [],
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: directive-generic.graphql:38:53,
+                                location: directive-generic.graphql:37:53,
                                 item: "customDirective",
                             },
                             arguments: [

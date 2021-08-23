@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b9308a67fc4c5875acc40c81854aa54d>>
+ * @generated SignedSource<<a4a836b2ef1cf8f5d042a2671f86bd77>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,25 +25,9 @@ var node/*: NormalizationSplitOperation*/ = {
   "name": "RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization",
   "selections": [
     {
-      "if": null,
-      "kind": "Defer",
-      "label": "RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$defer$UserFragment",
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "id",
-          "storageKey": null
-        },
-        {
-          "alias": null,
-          "args": null,
-          "kind": "ScalarField",
-          "name": "name",
-          "storageKey": null
-        }
-      ]
+      "args": null,
+      "fragment": require('./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql'),
+      "kind": "FragmentSpread"
     }
   ]
 };

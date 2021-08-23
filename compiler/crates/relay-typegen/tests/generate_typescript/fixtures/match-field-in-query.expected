@@ -23,45 +23,46 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
 export type NameRendererQueryVariables = {};
 export type NameRendererQueryResponse = {
   readonly me: {
     readonly nameRenderer: {
-      readonly __fragmentPropName?: string | null,
-      readonly __module_component?: string | null,
-      readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">,
-    } | null
-  } | null
+      readonly __fragmentPropName?: string | null;
+      readonly __module_component?: string | null;
+      readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name" | "MarkdownUserNameRenderer_name">;
+    } | null;
+  } | null;
 };
 export type NameRendererQuery = {
-  variables: NameRendererQueryVariables,
-  response: NameRendererQueryResponse,
+  variables: NameRendererQueryVariables;
+  response: NameRendererQueryResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type MarkdownUserNameRenderer_name = {
-  readonly markdown: string | null,
+  readonly markdown: string | null;
   readonly data: {
-    readonly markup: string | null
-  } | null,
-  readonly " $refType": FragmentRefs<"MarkdownUserNameRenderer_name">,
+    readonly markup: string | null;
+  } | null;
+  readonly " $refType": "MarkdownUserNameRenderer_name";
 };
 export type MarkdownUserNameRenderer_name$data = MarkdownUserNameRenderer_name;
 export type MarkdownUserNameRenderer_name$key = {
-  readonly " $data"?: MarkdownUserNameRenderer_name$data,
-  readonly " $fragmentRefs": FragmentRefs<"MarkdownUserNameRenderer_name">,
+  readonly " $data"?: MarkdownUserNameRenderer_name$data;
+  readonly " $fragmentRefs": FragmentRefs<"MarkdownUserNameRenderer_name">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type PlainUserNameRenderer_name = {
-  readonly plaintext: string | null,
+  readonly plaintext: string | null;
   readonly data: {
-    readonly text: string | null
-  } | null,
-  readonly " $refType": FragmentRefs<"PlainUserNameRenderer_name">,
+    readonly text: string | null;
+  } | null;
+  readonly " $refType": "PlainUserNameRenderer_name";
 };
 export type PlainUserNameRenderer_name$data = PlainUserNameRenderer_name;
 export type PlainUserNameRenderer_name$key = {
-  readonly " $data"?: PlainUserNameRenderer_name$data,
-  readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name">,
+  readonly " $data"?: PlainUserNameRenderer_name$data;
+  readonly " $fragmentRefs": FragmentRefs<"PlainUserNameRenderer_name">;
 };

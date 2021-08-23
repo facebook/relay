@@ -29,7 +29,6 @@ const {
   createOperationDescriptor,
   getDataIDsFromObject,
   getRequest,
-  getSelector,
   getVariablesFromObject,
   isScalarAndEqual,
 } = require('relay-runtime');
@@ -119,7 +118,7 @@ function createContainerWithFragments<
 
     componentDidMount() {
       this._isUnmounted = false;
-      this._subscribeToNewResolver();
+      this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
@@ -133,7 +132,9 @@ function createContainerWithFragments<
         this._queryFetcher && this._queryFetcher.dispose();
         this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
-        this._subscribeToNewResolver();
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      } else {
+        this._rerenderIfStoreHasChanged();
       }
     }
 
@@ -250,16 +251,26 @@ function createContainerWithFragments<
       return false;
     }
 
-    _subscribeToNewResolver() {
+    _rerenderIfStoreHasChanged() {
       const {data, resolver} = this.state;
-
-      // Event listeners are only safe to add during the commit phase,
-      // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
-
       // External values could change between render and commit.
       // Check for this case, even though it requires an extra store read.
       const maybeNewData = resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
+    }
+
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data, resolver} = this.state;
+      const maybeNewData = resolver.resolve();
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
       if (data !== maybeNewData) {
         this.setState({data: maybeNewData});
       }

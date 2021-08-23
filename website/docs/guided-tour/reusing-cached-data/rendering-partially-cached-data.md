@@ -2,6 +2,10 @@
 id: rendering-partially-cached-data
 title: Rendering Partially Cached Data
 slug: /guided-tour/reusing-cached-data/rendering-partially-cached-data/
+description: Relay guide to rendering partially cached data
+keywords:
+- partially cached data
+- renderPolicy
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -54,8 +58,7 @@ module.exports = UsernameComponent;
 
 And we have the following query component,  which queries for some data, and also includes the fragment above:
 
-```js
-
+```javascript
 /**
  * AppTabs.react.js
  *
@@ -158,7 +161,6 @@ function HomeTab() {
     </>
   );
 }
-
 ```
 
 <FbSuspensePlaceholder />

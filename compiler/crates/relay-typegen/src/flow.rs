@@ -45,13 +45,17 @@ impl Writer for FlowPrinter {
             AST::FragmentReference(fragments) => self.write_intersection(
                 fragments
                     .iter()
-                    .map(|fragment| AST::Identifier(format!("{}$ref", fragment).intern()))
+                    .map(|fragment| AST::FragmentReferenceType(*fragment))
                     .collect::<Vec<_>>()
                     .as_slice(),
             ),
+            AST::FragmentReferenceType(fragment) => {
+                write!(&mut self.result, "{}$ref", fragment)
+            }
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
+            AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
         }
     }
 
@@ -246,7 +250,18 @@ impl FlowPrinter {
     }
 
     fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
-        write!(&mut self.result, "$Call<typeof {}>", function_name)
+        write!(
+            &mut self.result,
+            "$Call<<R>((...empty[]) => R) => R, typeof {}>",
+            function_name
+        )
+    }
+
+    fn write_actor_change_point(&mut self, selections: &AST) -> Result {
+        write!(&mut self.result, "ActorChangePoint<")?;
+        self.write(selections)?;
+        write!(&mut self.result, ">")?;
+        Ok(())
     }
 }
 
@@ -473,8 +488,8 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
-            "$Call<typeof someFunc>".to_string()
+            print_type(&AST::FunctionReturnType("someFunc".intern(),)),
+            "$Call<<R>((...empty[]) => R) => R, typeof someFunc>".to_string()
         );
     }
 }

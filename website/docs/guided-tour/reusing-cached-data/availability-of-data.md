@@ -2,6 +2,9 @@
 id: availability-of-data
 title: Availability of Data
 slug: /guided-tour/reusing-cached-data/availability-of-data/
+description: Relay guide to the availability of data
+keywords:
+- availability
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

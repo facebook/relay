@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<271a506613e571118e84ef6be94fd5ff>>
+ * @generated SignedSource<<9f6008b0688c39932174fe19f3d7ba22>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,7 +34,7 @@ export type usePreloadedQueryTestQuery = {|
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
   {
-    "defaultValue": 4,
+    "defaultValue": null,
     "kind": "LocalArgument",
     "name": "id"
   }
@@ -120,18 +120,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "ec4fde0daf1bc5d07c87497956d2480e",
+    "cacheID": "4dd8607a7f08b0179a6f774a6d3b9675",
     "id": null,
     "metadata": {},
     "name": "usePreloadedQueryTestQuery",
     "operationKind": "query",
-    "text": "query usePreloadedQueryTestQuery(\n  $id: ID! = 4\n) {\n  node(id: $id) {\n    __typename\n    id\n    ... on User {\n      name\n    }\n  }\n}\n"
+    "text": "query usePreloadedQueryTestQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ... on User {\n      name\n    }\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "4eef64b03256d0ff4d0f606c37dc753c";
+  (node/*: any*/).hash = "7957e9c42a4dbad04f1c2fc97aed3bed";
 }
 
 module.exports = node;

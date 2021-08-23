@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fda29890ffb8e63413a3db4664e1a7d7>>
+ * @generated SignedSource<<180e9a8d090412e3dab743191afe27f1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,7 +34,7 @@ export type RelayMockEnvironmentTestQuery = {|
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = [
   {
-    "defaultValue": 4,
+    "defaultValue": null,
     "kind": "LocalArgument",
     "name": "id"
   }
@@ -120,18 +120,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e35e672493377cafbec7146d037d333c",
+    "cacheID": "7f8b121483014e37143a50d208645134",
     "id": null,
     "metadata": {},
     "name": "RelayMockEnvironmentTestQuery",
     "operationKind": "query",
-    "text": "query RelayMockEnvironmentTestQuery(\n  $id: ID! = 4\n) {\n  node(id: $id) {\n    __typename\n    id\n    ... on User {\n      name\n    }\n  }\n}\n"
+    "text": "query RelayMockEnvironmentTestQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ... on User {\n      name\n    }\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "82bd96c69629089809e0d9dbc00670c1";
+  (node/*: any*/).hash = "d2298e0d993f39aafb1b6decb48f93e5";
 }
 
 module.exports = node;

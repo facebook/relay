@@ -8,7 +8,6 @@
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
 use fnv::FnvHashMap;
 use interner::StringKey;
-use rayon::{iter::ParallelIterator, prelude::*};
 use schema::SDLSchema;
 use std::{collections::HashMap, sync::Arc};
 
@@ -16,8 +15,8 @@ use std::{collections::HashMap, sync::Arc};
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
-    operations: Vec<Arc<OperationDefinition>>,
+    pub fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    pub operations: Vec<Arc<OperationDefinition>>,
 }
 
 impl Program {
@@ -66,6 +65,10 @@ impl Program {
         self.fragments.get(&name)
     }
 
+    pub fn fragment_mut(&mut self, name: StringKey) -> Option<&mut Arc<FragmentDefinition>> {
+        self.fragments.get_mut(&name)
+    }
+
     /// Searches for an operation by name.
     ///
     /// NOTE: This is a linear search, we currently don't frequently search
@@ -84,28 +87,8 @@ impl Program {
         self.operations.iter()
     }
 
-    pub fn par_operations(&self) -> impl ParallelIterator<Item = &Arc<OperationDefinition>> {
-        self.operations.par_iter()
-    }
-
-    pub fn par_operations_mut(
-        &mut self,
-    ) -> impl ParallelIterator<Item = &mut Arc<OperationDefinition>> {
-        self.operations.par_iter_mut()
-    }
-
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
-    }
-
-    pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
-        self.fragments.par_iter().map(|(_, v)| v)
-    }
-
-    pub fn par_fragments_mut(
-        &mut self,
-    ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
-        self.fragments.par_iter_mut().map(|(_, v)| v)
     }
 
     pub fn document_count(&self) -> usize {

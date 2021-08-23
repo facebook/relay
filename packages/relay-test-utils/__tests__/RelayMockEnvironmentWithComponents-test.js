@@ -234,7 +234,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         query RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery(
           $id: ID = "<default>"
           $first: Int = 5
-          $cursor: String = ""
+          $cursor: ID = ""
         ) {
           user: node(id: $id) {
             id
@@ -829,7 +829,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       const ViewerQuery = graphql`
         query RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery
-        @relay_test_operation {
+          @relay_test_operation {
           viewer {
             actor {
               name @__clientField(handle: "hello")
@@ -990,6 +990,10 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should resolve subscription', () => {
       ReactTestRenderer.act(() => {
         expect(testComponentTree).toMatchSnapshot();
+      });
+
+      ReactTestRenderer.act(() => {
+        jest.runAllTimers();
       });
 
       const reaction = testComponentTree.root.find(

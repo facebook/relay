@@ -37,7 +37,7 @@ export type {
   MatchPointer,
 } from './relay-hooks/MatchContainer';
 export type {ProfilerContextType} from './relay-hooks/ProfilerContext';
-export type {Direction, LoadMoreFn} from './relay-hooks/useLoadMoreFunction';
+export type {LoadMoreFn} from './relay-hooks/useLoadMoreFunction';
 export type {UseMutationConfig} from './relay-hooks/useMutation';
 export type {UseQueryLoaderLoadQueryOptions} from './relay-hooks/useQueryLoader';
 export type {
@@ -48,6 +48,7 @@ export type {
 export type {
   DataID,
   DeclarativeMutationConfig,
+  Direction,
   Disposable,
   // RelayRuntime has two environment exports: one interface, one concrete.
   IEnvironment as Environment,

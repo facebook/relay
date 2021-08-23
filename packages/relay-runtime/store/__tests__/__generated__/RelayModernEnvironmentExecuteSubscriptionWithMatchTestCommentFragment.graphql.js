@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<317fb2fd9f787e8dbe59d9a540de3865>>
+ * @generated SignedSource<<021f1c3673f8765cc01fb6c6a3171932>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -92,6 +92,7 @@ var node/*: ReaderFragment*/ = {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment",
                   "fragmentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name",
                   "fragmentPropName": "name",
@@ -105,6 +106,7 @@ var node/*: ReaderFragment*/ = {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment",
                   "fragmentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name",
                   "fragmentPropName": "name",

@@ -1,0 +1,134 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: sortKey
+      }
+      edges {
+        same_alias: cursor
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": "same_alias",
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "sortKey",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Viewer",
+        "kind": "LinkedField",
+        "name": "viewer",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "NewsFeedConnection",
+            "kind": "LinkedField",
+            "name": "newsFeed",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "NewsFeedEdge",
+                "kind": "LinkedField",
+                "name": "edges",
+                "plural": true,
+                "selections": [
+                  {
+                    "alias": "same_alias",
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "sortKey",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
+  viewer {
+    newsFeed {
+      edges {
+        same_alias: sortKey
+      }
+    }
+  }
+}

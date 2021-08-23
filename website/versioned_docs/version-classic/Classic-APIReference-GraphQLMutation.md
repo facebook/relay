@@ -64,7 +64,6 @@ static create(
   variables: Object,
   environment: RelayEnvironmentInterface
 ): RelayGraphQLMutation;
-
 ```
 
 Convenience method that wraps the constructor, passing some default parameters and returning an instance.
@@ -93,7 +92,6 @@ const mutation = Relay.GraphQLMutation.create(
   variables,
   environment
 );
-
 ```
 
 Note: In most cases, it is possible to rely on the default singleton instance of the environment, which is exposed as `Relay.Store`.
@@ -112,7 +110,6 @@ static createWithFiles(
   files: FileMap,
   environment: RelayEnvironmentInterface
 ): RelayGraphQLMutation;
-
 ```
 
 #### Example
@@ -131,7 +128,6 @@ const mutation = Relay.GraphQLMutation.createWithFiles(
   files,
   environment
 );
-
 ```
 
 See also: [GraphQLMutation &gt; Constructor](#constructor)
@@ -150,7 +146,6 @@ constructor(
   callbacks: ?RelayMutationTransactionCommitCallbacks,
   collisionKey: ?string
 );
-
 ```
 
 This is the general constructor for creating `Relay.GraphQLMutation` instances with optional `files`, `callbacks` and `collisionKey` arguments.
@@ -179,7 +174,6 @@ const mutation = new Relay.GraphQLMutation(
   },
   collisionKey
 );
-
 ```
 
 See also: [Relay.Mutation::getCollisionKey()](./classic-api-reference-relay-mutation#getcollisionkey)
@@ -193,7 +187,6 @@ applyOptimistic(
   optimisticResponse: Object,
   configs: ?Array<RelayMutationConfig>
 ): RelayMutationTransaction;
-
 ```
 
 Call this to optimistically apply an update to the store.
@@ -229,7 +222,6 @@ const transaction = mutation.applyOptimistic(
   optimisticQuery,
   optimisticResponse,
 );
-
 ```
 
 See also: [Relay.Mutation::getConfigs()](./classic-api-reference-relay-mutation#getconfigs-abstract-method)
@@ -239,7 +231,6 @@ See also: [Relay.Mutation::getConfigs()](./classic-api-reference-relay-mutation#
 ```
 
 commit(configs: ?Array<RelayMutationConfig>): RelayMutationTransaction;
-
 ```
 
 Call this to send the mutation to the server.
@@ -265,7 +256,6 @@ const configs = [{
   },
 }];
 const transaction = mutation.commit(configs);
-
 ```
 
 See also: [Relay.Mutation::getConfigs()](./classic-api-reference-relay-mutation#getconfigs-abstract-method)
@@ -275,11 +265,10 @@ See also: [Relay.Mutation::getConfigs()](./classic-api-reference-relay-mutation#
 ```
 
 rollback(): void;
-
 ```
 
 Rolls back an optimistic mutation.
 
 ## See also
 
-A number of more detailed usage examples can be found [in the test suite](https://github.com/facebook/relay/blob/master/packages/react-relay/classic/mutation/__tests__/RelayGraphQLMutation-test.js).
+A number of more detailed usage examples can be found [in the test suite](https://github.com/facebook/relay/blob/main/packages/react-relay/classic/mutation/__tests__/RelayGraphQLMutation-test.js).

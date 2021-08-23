@@ -10,9 +10,9 @@ use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{NodeKind, NodeResolutionInfo},
-    server::LSPState,
+    server::{LSPState, SourcePrograms},
+    LSPExtraDataProvider,
 };
-use crate::{server::SourcePrograms, LSPExtraDataProvider};
 use common::PerfLogger;
 use graphql_ir::Value;
 use graphql_text_printer::print_value;
@@ -20,7 +20,6 @@ use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
-use std::sync::Arc;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -71,7 +70,7 @@ DEPRECATED version of `@arguments` directive.
 fn get_hover_response_contents(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
-    schema_documentation: &Arc<SchemaDocumentation>,
+    schema_documentation: impl SchemaDocumentation,
     source_programs: &SourcePrograms,
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
@@ -97,8 +96,13 @@ fn get_hover_response_contents(
                 );
                 Some(hover_content_wrapper(content))
             } else {
-                let directive_text = print_directive(schema, &schema_directive);
-                Some(hover_content_wrapper(directive_text))
+                let directive_definition = print_directive(schema, &schema_directive);
+                let markdown_definition = graphql_marked_string(directive_definition);
+                let mut hover_contents: Vec<MarkedString> = vec![markdown_definition];
+                if let Some(description) = schema_directive.description {
+                    hover_contents.push(MarkedString::String(description.to_string()));
+                }
+                Some(HoverContents::Array(hover_contents))
             }
         }
         NodeKind::FieldName => {
@@ -193,7 +197,7 @@ fn get_hover_response_contents(
                         let default_value = match var.default_value.clone() {
                             Some(default_value) => format!(
                                 ", default_value = {}",
-                                print_value(schema, &Value::Constant(default_value))
+                                print_value(schema, &Value::Constant(default_value.item))
                             ),
                             None => "".to_string(),
                         };
@@ -284,22 +288,24 @@ and then include them in queries where you need to.
     }
 }
 
-pub(crate) fn on_hover<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_hover<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
-    let node_resolution_info = state.resolve_node(params)?;
+    let node_resolution_info = state.resolve_node(&params.text_document_position_params)?;
 
     log::debug!("Hovering over {:?}", node_resolution_info);
     if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {
-        let schema_documentation = state
-            .extra_data_provider
-            .get_schema_documentation(node_resolution_info.project_name.to_string());
+        let schema_documentation =
+            state.get_schema_documentation(&node_resolution_info.project_name.to_string());
 
         let contents = get_hover_response_contents(
             node_resolution_info,
             &schema,
-            &schema_documentation,
+            schema_documentation,
             state.get_source_programs_ref(),
             state.extra_data_provider.as_ref(),
         )

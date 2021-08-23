@@ -9,8 +9,9 @@ use crate::build::{
     build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
 };
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::ValidationMessage;
+use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
+use crate::GraphQLSuggestions;
 use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
 use errors::{par_try_map, try2};
 use fnv::FnvHashMap;
@@ -34,7 +35,7 @@ pub type FragmentSignatures = FnvHashMap<StringKey, FragmentSignature>;
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Eq, PartialEq)]
 pub struct FragmentSignature {
     pub name: WithLocation<StringKey>,
     pub variable_definitions: Vec<VariableDefinition>,
@@ -45,30 +46,29 @@ pub fn build_signatures(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<FragmentSignatures> {
+    let suggestions = GraphQLSuggestions::new(schema);
     let mut seen_signatures: FnvHashMap<StringKey, FragmentSignature> =
         FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
-        graphql_syntax::ExecutableDefinition::Fragment(fragment) => {
-            Ok(Some(build_fragment_signature(schema, &fragment)?))
-        }
+        graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
+            build_fragment_signature(schema, &fragment, &suggestions)?,
+        )),
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
     let mut errors = Vec::new();
-    for signature in signatures {
-        if let Some(signature) = signature {
-            let previous_signature = seen_signatures.get(&signature.name.item);
-            if let Some(previous_signature) = previous_signature {
-                errors.push(
-                    Diagnostic::error(
-                        ValidationMessage::DuplicateDefinition(signature.name.item),
-                        previous_signature.name.location,
-                    )
-                    .annotate("also defined here", signature.name.location),
-                );
-                continue;
-            }
-            seen_signatures.insert(signature.name.item, signature);
+    for signature in signatures.into_iter().flatten() {
+        let previous_signature = seen_signatures.get(&signature.name.item);
+        if let Some(previous_signature) = previous_signature {
+            errors.push(
+                Diagnostic::error(
+                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    previous_signature.name.location,
+                )
+                .annotate("also defined here", signature.name.location),
+            );
+            continue;
         }
+        seen_signatures.insert(signature.name.item, signature);
     }
     if errors.is_empty() {
         Ok(seen_signatures)
@@ -80,6 +80,7 @@ pub fn build_signatures(
 fn build_fragment_signature(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
+    suggestions: &GraphQLSuggestions<'_>,
 ) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
@@ -93,8 +94,11 @@ fn build_fragment_signature(
             )
             .into()),
         },
-        None => Err(Diagnostic::error(
-            ValidationMessage::UnknownType(type_name),
+        None => Err(Diagnostic::error_with_data(
+            ValidationMessageWithData::UnknownType {
+                type_name,
+                suggestions: suggestions.composite_type_suggestions(type_name),
+            },
             fragment
                 .location
                 .with_span(fragment.type_condition.type_.span),
@@ -317,8 +321,19 @@ fn get_default_value(
     location: Location,
     default_arg: Option<&graphql_syntax::ConstantArgument>,
     type_: &TypeReference,
-) -> DiagnosticsResult<Option<ConstantValue>> {
+) -> DiagnosticsResult<Option<WithLocation<ConstantValue>>> {
     Ok(default_arg
-        .map(|x| build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict))
+        .map(|x| {
+            let constant_value_span = x.value.span();
+            build_constant_value(schema, &x.value, &type_, location, ValidationLevel::Strict).map(
+                |constant_value| {
+                    WithLocation::from_span(
+                        location.source_location(),
+                        constant_value_span,
+                        constant_value,
+                    )
+                },
+            )
+        })
         .transpose()?)
 }

@@ -16,8 +16,7 @@
 const React = require('react');
 const Scheduler = require('scheduler');
 
-import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 const {useMemo, useState} = React;
 const TestRenderer = require('react-test-renderer');
 
@@ -33,6 +32,7 @@ const {
   graphql,
   getRequest,
   getFragment,
+  __internal: {fetchQuery},
 } = require('relay-runtime');
 
 const {createMockEnvironment} = require('relay-test-utils');
@@ -128,12 +128,12 @@ describe('useBlockingPaginationFragment', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
   beforeEach(() => {
     // Set up mocks
-    jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
     renderSpy = jest.fn();
@@ -665,12 +665,6 @@ describe('useBlockingPaginationFragment', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      jest
-        .spyOn(
-          require('relay-runtime').__internal,
-          'getPromiseForActiveRequest',
-        )
-        .mockImplementationOnce(() => Promise.resolve());
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
@@ -685,6 +679,9 @@ describe('useBlockingPaginationFragment', () => {
         },
       });
 
+      // Make sure query is in flight
+      fetchQuery(environment, missingDataQuery).subscribe({});
+
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');
     });
@@ -697,6 +694,7 @@ describe('useBlockingPaginationFragment', () => {
       jest.resetModules();
 
       release = jest.fn();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
           dispose: release,
@@ -705,6 +703,7 @@ describe('useBlockingPaginationFragment', () => {
     });
 
     function expectRequestIsInFlight(expected) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
         environment.mock.isLoading(
@@ -769,6 +768,7 @@ describe('useBlockingPaginationFragment', () => {
             'Relay: Unexpected fetch on unmounted component',
           ),
         ).toEqual(true);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
       });
 
@@ -793,6 +793,7 @@ describe('useBlockingPaginationFragment', () => {
             'Relay: Unexpected fetch while using a null fragment ref',
           ),
         ).toEqual(true);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
       });
 
@@ -834,6 +835,7 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
 
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -849,6 +851,7 @@ describe('useBlockingPaginationFragment', () => {
         fetchQuery(environment, query).subscribe({});
 
         const callback = jest.fn();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         renderFragment();
 
@@ -862,6 +865,7 @@ describe('useBlockingPaginationFragment', () => {
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -938,6 +942,7 @@ describe('useBlockingPaginationFragment', () => {
           renderer.unmount();
         });
         expect(unsubscribe).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
         expect(callback).toBeCalledTimes(0);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1014,7 +1019,9 @@ describe('useBlockingPaginationFragment', () => {
           refetch({id: '4'});
         });
         expect(unsubscribe).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1); // loadMore
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(1); // refetch
         expect(callback).toBeCalledTimes(0);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1453,6 +1460,7 @@ describe('useBlockingPaginationFragment', () => {
         // Paginate a second time
         renderSpy.mockClear();
         callback.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
@@ -3578,6 +3586,7 @@ describe('useBlockingPaginationFragment', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
       function expectRefetchRequestIsInFlight(expected) {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
         );
@@ -3617,7 +3626,9 @@ describe('useBlockingPaginationFragment', () => {
 
         // Assert query is retained by loadQuery
         // and tentatively retained while component is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(
           expected.refetchQuery ?? paginationQuery,
         );
@@ -3731,7 +3742,9 @@ describe('useBlockingPaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -3843,7 +3856,9 @@ describe('useBlockingPaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -4017,7 +4032,9 @@ describe('useBlockingPaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -4129,10 +4146,13 @@ describe('useBlockingPaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         TestRenderer.act(() => {
           loadNext(1);

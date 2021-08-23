@@ -96,26 +96,32 @@ impl SourcePrinter {
                     currently_hightlighted = false;
                 }
 
-                let chr = match source
-                    .char_indices()
-                    .find(|(idx, _)| *idx == byte_index)
-                    .map(|(_, chr)| chr)
-                {
-                    Some('\n') => {
+                let chr = match source.char_indices().find(|(idx, _)| *idx == byte_index) {
+                    Some((chr_index, '\n')) => {
                         if PRINT_WHITESPACE {
                             '␤'
                         } else {
-                            continue;
+                            // This prints a white-space if the \n is the first character in the Span.
+                            if chr_index == start_char_index {
+                                ' '
+                            } else {
+                                continue;
+                            }
                         }
                     }
-                    Some('\r') => {
+                    Some((chr_index, '\r')) => {
                         if PRINT_WHITESPACE {
                             '␍'
                         } else {
-                            continue;
+                            // This prints a white-space if the \r is the first character in the Span.
+                            if chr_index == start_char_index {
+                                ' '
+                            } else {
+                                continue;
+                            }
                         }
                     }
-                    Some(c) => c,
+                    Some((_, c)) => c,
                     None => continue,
                 };
 

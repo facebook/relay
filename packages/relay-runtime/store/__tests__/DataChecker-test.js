@@ -21,6 +21,10 @@ const RelayRecordSource = require('../RelayRecordSource');
 const defaultGetDataID = require('../defaultGetDataID');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  getActorIdentifier,
+} = require('../../multi-actor-environment/ActorIdentifier');
 const {graphql, getRequest} = require('../../query/GraphQLTag');
 const {check} = require('../DataChecker');
 const {createNormalizationSelector} = require('../RelayModernSelector');
@@ -31,7 +35,7 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 // TODO:
 // You may see some of the "__FlowFixMe__" in the calls to `createNormalizationSelector`.
 // This is because in this test we're relying on similarities between Reader and Normalization nodes during runtime.
-// This is not correct, and Flow is reporting these errors correctly. We need to prioritze fixing this.
+// This is not correct, and Flow is reporting these errors correctly. We need to prioritize fixing this.
 
 describe('check()', () => {
   let Query;
@@ -122,8 +126,9 @@ describe('check()', () => {
     const source = RelayRecordSource.create(sampleData);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
         id: '1',
         size: 32,
@@ -178,7 +183,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const BarFragment = graphql`
       fragment DataCheckerTestFragment on User
-      @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 1) {
@@ -196,8 +201,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((BarFragment: $FlowFixMe), '1', {
         size: 32,
       }),
@@ -243,8 +249,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
@@ -287,8 +294,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
@@ -332,8 +340,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
       [],
       null,
@@ -387,8 +396,9 @@ describe('check()', () => {
     `;
 
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -444,8 +454,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -502,8 +513,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -555,8 +567,9 @@ describe('check()', () => {
       }
     `;
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -608,8 +621,9 @@ describe('check()', () => {
     `;
 
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         getRequest(ProfilePictureQuery).operation,
         'client:root',
@@ -720,8 +734,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -783,8 +798,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -832,8 +848,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -891,8 +908,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -940,8 +958,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -987,8 +1006,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1024,8 +1044,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1060,8 +1081,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1173,8 +1195,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1234,8 +1257,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1281,8 +1305,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1338,8 +1363,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1385,8 +1411,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1430,8 +1457,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(BarQuery).operation,
           'client:root',
@@ -1486,8 +1514,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1521,8 +1550,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1582,8 +1612,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1623,8 +1654,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(storeData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(Query).operation,
           'client:root',
@@ -1647,8 +1679,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(sampleData);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
           id: '1',
           size: 32,
@@ -1681,7 +1714,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest8Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1690,8 +1723,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
@@ -1722,7 +1756,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest9Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1731,8 +1765,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
@@ -1764,7 +1799,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest10Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1773,8 +1808,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [
           {
@@ -1878,8 +1914,9 @@ describe('check()', () => {
           return handleReturnValue;
         });
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             {
@@ -2029,8 +2066,9 @@ describe('check()', () => {
           return handleReturnValue;
         });
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
           [
             {
@@ -2085,7 +2123,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest13Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2094,8 +2132,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [
           {
@@ -2156,7 +2195,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest14Fragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           client_actor_field
@@ -2192,8 +2231,9 @@ describe('check()', () => {
         }
       `;
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
         [],
         null,
@@ -2226,8 +2266,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2262,8 +2303,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2290,8 +2332,9 @@ describe('check()', () => {
         });
 
         const nextStatus = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2339,8 +2382,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2375,8 +2419,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2403,8 +2448,9 @@ describe('check()', () => {
         });
 
         const nextStatus = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2462,8 +2508,9 @@ describe('check()', () => {
         });
 
         const status = check(
-          source,
-          target,
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
           createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
             id: '1',
             size: 32,
@@ -2481,54 +2528,6 @@ describe('check()', () => {
         expect(target.size()).toBe(0);
       });
     });
-  });
-
-  it('returns true when a non-Node record is "missing" an id', () => {
-    const TestFragment = graphql`
-      fragment DataCheckerTest15Fragment on Query {
-        maybeNodeInterface {
-          # This "... on Node { id }" selection would be generated if not present
-          ... on Node {
-            id
-          }
-          ... on NonNodeNoID {
-            name
-          }
-        }
-      }
-    `;
-    const data = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: 'Query',
-        maybeNodeInterface: {__ref: 'client:root:maybeNodeInterface'},
-      },
-      'client:root:maybeNodeInterface': {
-        __id: 'client:root:maybeNodeInterface',
-        __typename: 'NonNodeNoID',
-        __isNode: false,
-        name: 'Alice',
-      },
-    };
-    const source = RelayRecordSource.create(data);
-    const target = RelayRecordSource.create();
-    const status = check(
-      source,
-      target,
-      createNormalizationSelector(
-        (TestFragment: $FlowFixMe),
-        'client:root',
-        {},
-      ),
-      [],
-      null,
-      defaultGetDataID,
-    );
-    expect(status).toEqual({
-      status: 'available',
-      mostRecentlyInvalidatedAt: null,
-    });
-    expect(target.size()).toBe(0);
   });
 
   it('returns false when a Node record is missing an id', () => {
@@ -2563,8 +2562,9 @@ describe('check()', () => {
     const source = RelayRecordSource.create(data);
     const target = RelayRecordSource.create();
     const status = check(
-      source,
-      target,
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
         (TestFragment: $FlowFixMe),
         'client:root',
@@ -2581,14 +2581,7 @@ describe('check()', () => {
     expect(target.size()).toBe(0);
   });
 
-  describe('with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-    });
-
+  describe('precise type refinement', () => {
     it('returns `missing` when a Node record is missing an id', () => {
       const TestFragment = graphql`
         fragment DataCheckerTest17Fragment on Query {
@@ -2604,6 +2597,7 @@ describe('check()', () => {
         }
       `;
 
+      const typeID = generateTypeID('User');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2613,16 +2607,21 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'User',
-          __isNode: true,
           name: 'Alice',
           // no `id` value
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          __isNode: true,
         },
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           (TestFragment: $FlowFixMe),
           'client:root',
@@ -2653,6 +2652,7 @@ describe('check()', () => {
         }
       `;
 
+      const typeID = generateTypeID('User');
       const data = {
         'client:root': {
           __id: 'client:root',
@@ -2662,16 +2662,21 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'User',
-          // __isNode: true, // dont know if it implements Node or not
           name: 'Alice',
           id: '1',
+        },
+        [typeID]: {
+          __id: typeID,
+          __typename: TYPE_SCHEMA_TYPE,
+          // __isNode: true, // dont know if it implements Node or not
         },
       };
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           (TestFragment: $FlowFixMe),
           'client:root',
@@ -2725,8 +2730,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           (TestFragment: $FlowFixMe),
           'client:root',
@@ -2839,8 +2845,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -2887,8 +2894,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -2931,8 +2939,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -2975,8 +2984,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -3018,8 +3028,9 @@ describe('check()', () => {
       const source = RelayRecordSource.create(data);
       const target = RelayRecordSource.create();
       const status = check(
-        source,
-        target,
+        () => source,
+        () => target,
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
           getRequest(FlightQuery).operation,
           ROOT_ID,
@@ -3030,6 +3041,180 @@ describe('check()', () => {
         ),
         [],
         operationLoader,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'missing',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+  });
+
+  describe('ActorChange', () => {
+    beforeEach(() => {
+      Query = getRequest(graphql`
+        query DataCheckerTest10Query {
+          viewer {
+            newsFeed {
+              edges {
+                node @fb_actor_change {
+                  ...DataCheckerTest20Fragment
+                }
+              }
+            }
+          }
+        }
+      `);
+      graphql`
+        fragment DataCheckerTest20Fragment on FeedUnit {
+          id
+          message {
+            text
+          }
+        }
+      `;
+    });
+
+    it('should be able to handle multi-actor stores', () => {
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          newsFeed: {__ref: 'client:root:viewer:newsFeed'},
+        },
+        'client:root:viewer:newsFeed': {
+          __id: 'client:root:viewer:newsFeed',
+          __typename: 'NewsFeedConnection',
+          edges: {
+            __refs: ['client:root:viewer:newsFeed:edges:0'],
+          },
+        },
+        'client:root:viewer:newsFeed:edges:0': {
+          __id: 'client:root:viewer:newsFeed:edges:0',
+          __typename: 'NewsFeedEdge',
+          node: {__ref: '1', __actorIdentifier: 'actor:1234'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'FeedUnit',
+          id: 1,
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            const typeID = generateTypeID('FeedUnit');
+            return RelayRecordSource.create({
+              '1': {
+                __id: '1',
+                __typename: 'FeedUnit',
+                id: 1,
+                actor_key: 'actor:1234',
+                message: {__ref: '1:message'},
+              },
+              '1:message': {
+                __id: '1:message',
+                __typename: 'Text',
+                text: 'Hello, Antonio',
+              },
+              [typeID]: {
+                __id: typeID,
+                __typename: TYPE_SCHEMA_TYPE,
+                __isFeedUnit: true,
+              },
+            });
+          }
+          return source;
+        },
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create();
+          }
+          return target;
+        },
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        [],
+        null,
+        defaultGetDataID,
+      );
+      expect(status).toEqual({
+        status: 'available',
+        mostRecentlyInvalidatedAt: null,
+      });
+      expect(target.size()).toBe(0);
+    });
+
+    it('should report missing data in multi-actor stores', () => {
+      const data = {
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          viewer: {__ref: 'client:root:viewer'},
+        },
+        'client:root:viewer': {
+          __id: 'client:root:viewer',
+          __typename: 'Viewer',
+          newsFeed: {__ref: 'client:root:viewer:newsFeed'},
+        },
+        'client:root:viewer:newsFeed': {
+          __id: 'client:root:viewer:newsFeed',
+          __typename: 'NewsFeedConnection',
+          edges: {
+            __refs: ['client:root:viewer:newsFeed:edges:0'],
+          },
+        },
+        'client:root:viewer:newsFeed:edges:0': {
+          __id: 'client:root:viewer:newsFeed:edges:0',
+          __typename: 'NewsFeedEdge',
+          node: {__ref: '1', __actorIdentifier: 'actor:1234'},
+        },
+        '1': {
+          __id: '1',
+          __typename: 'FeedUnit',
+          id: 1,
+        },
+      };
+      const source = RelayRecordSource.create(data);
+      const target = RelayRecordSource.create();
+      const status = check(
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create({
+              '1': {
+                __id: '1',
+                __typename: 'FeedUnit',
+                id: 1,
+                actor_key: 'actor:1234',
+                message: {__ref: '1:message'},
+              },
+              '1:message': {
+                __id: '1:message',
+                __typename: 'Text',
+                // text: 'Hello, Antonio', --> this field is missing now
+              },
+            });
+          }
+          return source;
+        },
+        actorId => {
+          if (actorId === getActorIdentifier('actor:1234')) {
+            return RelayRecordSource.create();
+          }
+          return target;
+        },
+        INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        [],
+        null,
         defaultGetDataID,
       );
       expect(status).toEqual({

@@ -82,145 +82,145 @@ fragment TypenameAliases on Actor {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type TypenameAlias = {
-  readonly _typeAlias: "User",
-  readonly firstName: string | null,
-  readonly " $refType": FragmentRefs<"TypenameAlias">,
+  readonly _typeAlias: "User";
+  readonly firstName: string | null;
+  readonly " $refType": "TypenameAlias";
 } | {
-  readonly _typeAlias: "Page",
-  readonly username: string | null,
-  readonly " $refType": FragmentRefs<"TypenameAlias">,
+  readonly _typeAlias: "Page";
+  readonly username: string | null;
+  readonly " $refType": "TypenameAlias";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly _typeAlias: "%other",
-  readonly " $refType": FragmentRefs<"TypenameAlias">,
+  readonly _typeAlias: "%other";
+  readonly " $refType": "TypenameAlias";
 };
 export type TypenameAlias$data = TypenameAlias;
 export type TypenameAlias$key = {
-  readonly " $data"?: TypenameAlias$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameAlias">,
+  readonly " $data"?: TypenameAlias$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameAlias">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameAliases = {
-  readonly _typeAlias1: "User",
-  readonly _typeAlias2: "User",
-  readonly firstName: string | null,
-  readonly " $refType": FragmentRefs<"TypenameAliases">,
+  readonly _typeAlias1: "User";
+  readonly _typeAlias2: "User";
+  readonly firstName: string | null;
+  readonly " $refType": "TypenameAliases";
 } | {
-  readonly _typeAlias1: "Page",
-  readonly _typeAlias2: "Page",
-  readonly username: string | null,
-  readonly " $refType": FragmentRefs<"TypenameAliases">,
+  readonly _typeAlias1: "Page";
+  readonly _typeAlias2: "Page";
+  readonly username: string | null;
+  readonly " $refType": "TypenameAliases";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly _typeAlias1: "%other",
+  readonly _typeAlias1: "%other";
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly _typeAlias2: "%other",
-  readonly " $refType": FragmentRefs<"TypenameAliases">,
+  readonly _typeAlias2: "%other";
+  readonly " $refType": "TypenameAliases";
 };
 export type TypenameAliases$data = TypenameAliases;
 export type TypenameAliases$key = {
-  readonly " $data"?: TypenameAliases$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameAliases">,
+  readonly " $data"?: TypenameAliases$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameAliases">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameInside = {
-  readonly __typename: "User",
-  readonly firstName: string | null,
-  readonly " $refType": FragmentRefs<"TypenameInside">,
+  readonly __typename: "User";
+  readonly firstName: string | null;
+  readonly " $refType": "TypenameInside";
 } | {
-  readonly __typename: "Page",
-  readonly username: string | null,
-  readonly " $refType": FragmentRefs<"TypenameInside">,
+  readonly __typename: "Page";
+  readonly username: string | null;
+  readonly " $refType": "TypenameInside";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "%other",
-  readonly " $refType": FragmentRefs<"TypenameInside">,
+  readonly __typename: "%other";
+  readonly " $refType": "TypenameInside";
 };
 export type TypenameInside$data = TypenameInside;
 export type TypenameInside$key = {
-  readonly " $data"?: TypenameInside$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameInside">,
+  readonly " $data"?: TypenameInside$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameInside">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutside = {
-  readonly __typename: "User",
-  readonly firstName: string | null,
-  readonly " $refType": FragmentRefs<"TypenameOutside">,
+  readonly __typename: "User";
+  readonly firstName: string | null;
+  readonly " $refType": "TypenameOutside";
 } | {
-  readonly __typename: "Page",
-  readonly username: string | null,
-  readonly " $refType": FragmentRefs<"TypenameOutside">,
+  readonly __typename: "Page";
+  readonly username: string | null;
+  readonly " $refType": "TypenameOutside";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "%other",
-  readonly " $refType": FragmentRefs<"TypenameOutside">,
+  readonly __typename: "%other";
+  readonly " $refType": "TypenameOutside";
 };
 export type TypenameOutside$data = TypenameOutside;
 export type TypenameOutside$key = {
-  readonly " $data"?: TypenameOutside$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameOutside">,
+  readonly " $data"?: TypenameOutside$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameOutside">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOutsideWithAbstractType = {
-  readonly __typename: string,
-  readonly username?: string | null,
+  readonly __typename: string;
+  readonly username?: string | null;
   readonly address?: {
-    readonly city: string | null,
-    readonly country: string | null,
-    readonly street?: string | null,
-  } | null,
-  readonly firstName?: string | null,
-  readonly " $refType": FragmentRefs<"TypenameOutsideWithAbstractType">,
+    readonly city: string | null;
+    readonly country: string | null;
+    readonly street?: string | null;
+  } | null;
+  readonly firstName?: string | null;
+  readonly " $refType": "TypenameOutsideWithAbstractType";
 };
 export type TypenameOutsideWithAbstractType$data = TypenameOutsideWithAbstractType;
 export type TypenameOutsideWithAbstractType$key = {
-  readonly " $data"?: TypenameOutsideWithAbstractType$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameOutsideWithAbstractType">,
+  readonly " $data"?: TypenameOutsideWithAbstractType$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameOutsideWithAbstractType">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameWithCommonSelections = {
-  readonly __typename: string,
-  readonly name: string | null,
-  readonly firstName?: string | null,
-  readonly username?: string | null,
-  readonly " $refType": FragmentRefs<"TypenameWithCommonSelections">,
+  readonly __typename: string;
+  readonly name: string | null;
+  readonly firstName?: string | null;
+  readonly username?: string | null;
+  readonly " $refType": "TypenameWithCommonSelections";
 };
 export type TypenameWithCommonSelections$data = TypenameWithCommonSelections;
 export type TypenameWithCommonSelections$key = {
-  readonly " $data"?: TypenameWithCommonSelections$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameWithCommonSelections">,
+  readonly " $data"?: TypenameWithCommonSelections$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameWithCommonSelections">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameWithoutSpreads = {
-  readonly firstName: string | null,
-  readonly __typename: "User",
-  readonly " $refType": FragmentRefs<"TypenameWithoutSpreads">,
+  readonly firstName: string | null;
+  readonly __typename: "User";
+  readonly " $refType": "TypenameWithoutSpreads";
 };
 export type TypenameWithoutSpreads$data = TypenameWithoutSpreads;
 export type TypenameWithoutSpreads$key = {
-  readonly " $data"?: TypenameWithoutSpreads$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameWithoutSpreads">,
+  readonly " $data"?: TypenameWithoutSpreads$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameWithoutSpreads">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameWithoutSpreadsAbstractType = {
-  readonly __typename: string,
-  readonly id: string,
-  readonly " $refType": FragmentRefs<"TypenameWithoutSpreadsAbstractType">,
+  readonly __typename: string;
+  readonly id: string;
+  readonly " $refType": "TypenameWithoutSpreadsAbstractType";
 };
 export type TypenameWithoutSpreadsAbstractType$data = TypenameWithoutSpreadsAbstractType;
 export type TypenameWithoutSpreadsAbstractType$key = {
-  readonly " $data"?: TypenameWithoutSpreadsAbstractType$data,
-  readonly " $fragmentRefs": FragmentRefs<"TypenameWithoutSpreadsAbstractType">,
+  readonly " $data"?: TypenameWithoutSpreadsAbstractType$data;
+  readonly " $fragmentRefs": FragmentRefs<"TypenameWithoutSpreadsAbstractType">;
 };

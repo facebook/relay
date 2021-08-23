@@ -13,6 +13,7 @@
 
 mod applied_fragment_name;
 mod apply_fragment_arguments;
+mod apply_transforms;
 mod client_extensions;
 mod connections;
 mod declarative_connection;
@@ -35,6 +36,7 @@ mod no_inline;
 mod node_identifier;
 mod react_flight;
 mod refetchable_fragment;
+mod relay_actor_change;
 mod relay_client_component;
 mod relay_directive;
 mod relay_early_flush;
@@ -48,14 +50,15 @@ mod skip_null_arguments_transform;
 mod skip_redundant_nodes;
 mod skip_split_operation;
 mod skip_unreachable_node;
-mod skip_unused_variables;
 mod sort_selections;
 mod test_operation_metadata;
 mod transform_connections;
 mod unwrap_custom_directive_selection;
 mod util;
+mod validate_operation_variables;
 mod validations;
 
+use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 
@@ -63,9 +66,15 @@ lazy_static! {
     pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
 }
 
+/// Name of an executable operation
+type OperationName = StringKey;
+
+pub type DependencyMap = FnvHashMap<OperationName, FnvHashSet<OperationName>>;
+
 pub use crate::errors::ValidationMessage;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_fragment_arguments::apply_fragment_arguments;
+pub use apply_transforms::{apply_transforms, Programs};
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
@@ -75,7 +84,7 @@ pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{
     transform_defer_stream, DeferDirective, StreamDirective, DEFER_STREAM_CONSTANTS,
 };
-pub use feature_flags::{FeatureFlags, NoInlineFeature};
+pub use feature_flags::{FeatureFlag, FeatureFlags};
 pub use flatten::flatten;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
@@ -93,8 +102,8 @@ pub use inline_data_fragment::{inline_data_fragment, INLINE_DATA_CONSTANTS};
 pub use inline_fragments::inline_fragments;
 pub use mask::mask;
 pub use match_::{
-    split_module_import, transform_match, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
-    MATCH_CONSTANTS,
+    split_module_import, transform_match, transform_subscriptions, SplitOperationMetadata,
+    DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
@@ -106,15 +115,19 @@ pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
     RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
 };
+pub use relay_actor_change::{
+    relay_actor_change_transform, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+};
 pub use relay_client_component::{
-    relay_client_component, RELAY_CLIENT_COMPONENT_METADATA_KEY,
-    RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
+    relay_client_component, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME,
+    RELAY_CLIENT_COMPONENT_METADATA_KEY, RELAY_CLIENT_COMPONENT_METADATA_SPLIT_OPERATION_ARG_KEY,
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;
 pub use relay_early_flush::relay_early_flush;
 pub use relay_resolvers::{
-    relay_resolvers, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    find_resolver_dependencies, relay_resolvers, ResolverFieldFinder,
+    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
     RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
     RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
 };
@@ -129,7 +142,6 @@ pub use skip_null_arguments_transform::skip_null_arguments_transform;
 pub use skip_redundant_nodes::skip_redundant_nodes;
 pub use skip_split_operation::skip_split_operation;
 pub use skip_unreachable_node::skip_unreachable_node;
-pub use skip_unused_variables::skip_unused_variables;
 pub use sort_selections::sort_selections;
 pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;
@@ -138,4 +150,5 @@ pub use util::{
     extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
     remove_directive, PointerAddress,
 };
+pub use validate_operation_variables::validate_operation_variables;
 pub use validations::*;

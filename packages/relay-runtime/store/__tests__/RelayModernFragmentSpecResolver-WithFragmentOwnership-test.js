@@ -94,7 +94,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
     UserQuery = getRequest(graphql`
       query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $fetchSize: Boolean!
       ) {
         node(id: $id) {
@@ -226,6 +226,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
           },
           __fragmentOwner: zuckOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
         },
       });
     });
@@ -250,6 +251,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
           },
           __fragmentOwner: zuckOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
         },
       });
     });
@@ -276,6 +278,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
             RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
           },
           __fragmentOwner: zuckOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
         },
       });
     });
@@ -333,6 +336,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: zuckOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
       });
@@ -355,6 +359,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: beastOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
       });
@@ -381,6 +386,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: beastOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
       });
@@ -401,6 +407,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: beastOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
       });
@@ -469,6 +476,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
       });
@@ -501,6 +509,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
       });
@@ -557,6 +566,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: zuckOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         ],
       });
@@ -583,6 +593,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: zuckOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         ],
       });
@@ -607,6 +618,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: zuckOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
           {
             id: 'beast',
@@ -616,6 +628,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: beastOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         ],
       });
@@ -632,6 +645,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: zuckOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         ],
       });
@@ -662,6 +676,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
               RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
             },
             __fragmentOwner: zuckOperation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         ],
       });
@@ -723,6 +738,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: zuckOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -747,6 +763,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: beastOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -777,6 +794,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: beastOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -801,6 +819,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: beastOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -818,6 +837,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: zuckOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
             {
               id: 'beast',
@@ -827,6 +847,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: beastOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -849,6 +870,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: zuckOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
             {
               id: 'beast',
@@ -861,6 +883,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: beastOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -880,6 +903,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: zuckOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
             {
               id: 'beast',
@@ -889,6 +913,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: beastOperation.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -970,6 +995,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: owner.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });
@@ -1006,6 +1032,7 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
                 RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment: {},
               },
               __fragmentOwner: owner.request,
+              __isWithinUnmatchedTypeRefinement: false,
             },
           ],
         });

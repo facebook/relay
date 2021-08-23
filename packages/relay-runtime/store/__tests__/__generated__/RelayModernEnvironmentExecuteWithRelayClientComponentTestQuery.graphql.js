@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c0ef4f69afde63e628117360782fbeb2>>
+ * @generated SignedSource<<105dd25bb680e0a501a774f61d3f15bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -97,6 +97,7 @@ return {
             "storageKey": null
           },
           {
+            "args": null,
             "fragment": require('./RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment$normalization.graphql'),
             "kind": "ClientComponent"
           },

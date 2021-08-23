@@ -61,12 +61,14 @@ function stopVisit() {}
 // Only visits selections as an optimization to not look at arguments
 function visitLinkedField(node: LinkedField, state: State): void {
   for (const selection of node.selections) {
+    // $FlowFixMe[incompatible-use]
     this.visit(selection, state);
   }
 }
 
 function visitClientExtension(node: ClientExtension, state: State): void {
   for (const selection of node.selections) {
+    // $FlowFixMe[incompatible-use]
     this.visit(selection, {
       rootClientSelection: selection,
     });
@@ -92,6 +94,7 @@ function visitTransformedDirective(node: Defer | Stream, state: State): void {
         : null,
     );
   }
+  // $FlowFixMe[incompatible-use]
   this.traverse(node, state);
 }
 

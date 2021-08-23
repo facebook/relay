@@ -2,6 +2,9 @@
 id: staleness-of-data
 title: Staleness of Data
 slug: /guided-tour/reusing-cached-data/staleness-of-data/
+description: Relay guide to the staleness of data
+keywords:
+- staleness
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

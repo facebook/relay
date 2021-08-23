@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<142c8c27d28b04aa78d59fba07d84923>>
+ * @generated SignedSource<<036e42bc0ecdb335b13dc775c94f0aca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -253,18 +253,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "df5ed53cce4942028da0173f2e43e0a6",
+    "cacheID": "9a2f2bd50b5df1dcf7f7de0485fcfd87",
     "id": null,
     "metadata": {},
     "name": "RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery",
     "operationKind": "query",
-    "text": "query RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery(\n  $id: ID = \"<default>\"\n  $first: Int = 5\n  $cursor: String = \"\"\n) {\n  user: node(id: $id) {\n    __typename\n    id\n    name\n    ...RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment\n  }\n}\n\nfragment RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment on User {\n  id\n  friends(first: $first, after: $cursor) {\n    edges {\n      node {\n        id\n        name\n        profile_picture {\n          uri\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
+    "text": "query RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery(\n  $id: ID = \"<default>\"\n  $first: Int = 5\n  $cursor: ID = \"\"\n) {\n  user: node(id: $id) {\n    __typename\n    id\n    name\n    ...RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment\n  }\n}\n\nfragment RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment on User {\n  id\n  friends(first: $first, after: $cursor) {\n    edges {\n      node {\n        id\n        name\n        profile_picture {\n          uri\n        }\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "8df7edc1d293cce9c09f5b4f2bcda6ae";
+  (node/*: any*/).hash = "4ec459264098ec6a6d713fd7cd3c81c3";
 }
 
 module.exports = node;

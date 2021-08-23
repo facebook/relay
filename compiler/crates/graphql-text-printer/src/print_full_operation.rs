@@ -18,7 +18,7 @@ pub fn print_full_operation(program: &Program, operation: &OperationDefinition) 
     printer.print(operation)
 }
 
-struct OperationPrinter<'s> {
+pub struct OperationPrinter<'s> {
     fragment_result: FnvHashMap<StringKey, String>,
     reachable_fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
     program: &'s Program,

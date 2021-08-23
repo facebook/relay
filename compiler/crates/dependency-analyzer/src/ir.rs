@@ -9,6 +9,8 @@ use fnv::{FnvHashMap, FnvHashSet};
 
 use graphql_ir::*;
 use interner::StringKey;
+use relay_transforms::{DependencyMap, ResolverFieldFinder};
+use schema::SDLSchema;
 use std::collections::hash_map::Entry;
 use std::fmt;
 
@@ -27,26 +29,54 @@ impl fmt::Debug for Node {
     }
 }
 
+/// Find the set of executable definitions that are potentially impacted by the
+/// set of changed documents declared in `changed_names`. This is achieved by
+/// building a dependency graph where edges are either explicit fragment spreads,
+/// or "implicit dependencies" such as those created by Relay Resolvers.
+///
+/// New implicit dependencies are detected by walking the chaged documents,
+/// whereas preexisting implicit dependencies must be passed in as
+/// `implicit_dependencies`.
 pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
     base_definition_names: FnvHashSet<StringKey>,
-    reachable_names: FnvHashSet<StringKey>,
+    changed_names: FnvHashSet<StringKey>,
+    implicit_dependencies: &DependencyMap,
+    schema: &SDLSchema,
 ) -> Vec<ExecutableDefinition> {
-    if reachable_names.is_empty() {
+    if changed_names.is_empty() {
         return vec![];
     }
 
-    let trees = build_dependency_trees(definitions);
+    // For each executable definition, define a `Node` indicating its parents and children
+    // Note: There are situations where a name in `changed_names` may not appear
+    // in `definitions`, and thus would be missing from `dependency_graph`. This can arise
+    // if you change a file which contains a fragment which is present in the
+    // base project, but is not reachable from any of the project's own
+    // queries/mutations.
+    let mut dependency_graph = build_dependency_graph(definitions);
+
+    // Note: Keys found in `resolver_dependencies` should theoretically replace
+    // those found in `implicit_dependencies`, however that would require either
+    // getting a mutable copy of `implicit_dependencies` or copying it. For
+    // simplicity we just add both sets. This means we may mark a few extra
+    // definitions as reachable (false positives), but it's an edge case and
+    // the cost is minimal.
+    let resolver_dependencies =
+        find_resolver_dependencies(&changed_names, &dependency_graph, schema);
+
+    add_dependencies_to_graph(&mut dependency_graph, implicit_dependencies);
+    add_dependencies_to_graph(&mut dependency_graph, &resolver_dependencies);
 
     let mut visited = FnvHashSet::default();
     let mut filtered_definitions = FnvHashMap::default();
 
-    for key in reachable_names.into_iter() {
-        if trees.contains_key(&key) {
+    for key in changed_names.into_iter() {
+        if dependency_graph.contains_key(&key) {
             add_related_nodes(
                 &mut visited,
                 &mut filtered_definitions,
-                &trees,
+                &dependency_graph,
                 &base_definition_names,
                 key,
             );
@@ -59,9 +89,49 @@ pub fn get_reachable_ir(
         .collect()
 }
 
-// Build a set of dependency trees that nodes are "doubly linked"
-fn build_dependency_trees(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<StringKey, Node> {
-    let mut trees = FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
+fn find_resolver_dependencies(
+    reachable_names: &FnvHashSet<StringKey>,
+    dependency_graph: &FnvHashMap<StringKey, Node>,
+    schema: &SDLSchema,
+) -> DependencyMap {
+    let mut dependencies = Default::default();
+    let mut finder = ResolverFieldFinder::new(&mut dependencies, schema);
+    for name in reachable_names {
+        if let Some(node) = dependency_graph.get(&name) {
+            let def = match node.ir.as_ref() {
+                Some(definition) => definition,
+                None => panic!("Could not find defintion for {}.", name),
+            };
+
+            match def {
+                ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(&fragment),
+                ExecutableDefinition::Operation(operation) => finder.visit_operation(&operation),
+            }
+        }
+    }
+    dependencies
+}
+
+fn add_dependencies_to_graph(
+    dependency_graph: &mut FnvHashMap<StringKey, Node>,
+    dependencies: &DependencyMap,
+) {
+    for (parent, children) in dependencies.iter() {
+        if let Some(node) = dependency_graph.get_mut(parent) {
+            node.children.extend(children.iter());
+        };
+        for child in children.iter() {
+            if let Some(node) = dependency_graph.get_mut(child) {
+                node.parents.push(*parent);
+            };
+        }
+    }
+}
+
+// Build a dependency graph of that nodes are "doubly linked"
+fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<StringKey, Node> {
+    let mut dependency_graph =
+        FnvHashMap::with_capacity_and_hasher(definitions.len(), Default::default());
 
     for definition in definitions.into_iter() {
         let name = match &definition {
@@ -75,10 +145,10 @@ fn build_dependency_trees(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<
             ExecutableDefinition::Operation(operation) => &operation.selections,
             ExecutableDefinition::Fragment(fragment) => &fragment.selections,
         };
-        visit_selections(&mut trees, &selections, name, &mut children);
+        visit_selections(&mut dependency_graph, &selections, name, &mut children);
 
         // Insert or update the representation of the IR in the dependency tree
-        match trees.entry(name) {
+        match dependency_graph.entry(name) {
             // Add a new node for current IR to the dependency tree
             Entry::Vacant(entry) => {
                 entry.insert(Node {
@@ -102,13 +172,13 @@ fn build_dependency_trees(definitions: Vec<ExecutableDefinition>) -> FnvHashMap<
             }
         }
     }
-    trees
+    dependency_graph
 }
 
 // Visit the selections of current IR, set the `children` for the node representing the IR,
 // and the `parents` for nodes representing the children IR
 fn visit_selections(
-    trees: &mut FnvHashMap<StringKey, Node>,
+    dependency_graph: &mut FnvHashMap<StringKey, Node>,
     selections: &[Selection],
     parent_name: StringKey,
     children: &mut Vec<StringKey>,
@@ -117,9 +187,9 @@ fn visit_selections(
         match selection {
             Selection::FragmentSpread(node) => {
                 let key = node.fragment.item;
-                match trees.get_mut(&key) {
+                match dependency_graph.get_mut(&key) {
                     None => {
-                        trees.insert(
+                        dependency_graph.insert(
                             key,
                             Node {
                                 ir: None,
@@ -135,14 +205,14 @@ fn visit_selections(
                 children.push(key);
             }
             Selection::LinkedField(node) => {
-                visit_selections(trees, &node.selections, parent_name, children);
+                visit_selections(dependency_graph, &node.selections, parent_name, children);
             }
             Selection::InlineFragment(node) => {
-                visit_selections(trees, &node.selections, parent_name, children);
+                visit_selections(dependency_graph, &node.selections, parent_name, children);
             }
             Selection::ScalarField(_) => {}
             Selection::Condition(node) => {
-                visit_selections(trees, &node.selections, parent_name, children);
+                visit_selections(dependency_graph, &node.selections, parent_name, children);
             }
         }
     }
@@ -153,7 +223,7 @@ fn visit_selections(
 fn add_related_nodes(
     visited: &mut FnvHashSet<StringKey>,
     result: &mut FnvHashMap<StringKey, ExecutableDefinition>,
-    trees: &FnvHashMap<StringKey, Node>,
+    dependency_graph: &FnvHashMap<StringKey, Node>,
     base_definition_names: &FnvHashSet<StringKey>,
     key: StringKey,
 ) {
@@ -161,7 +231,7 @@ fn add_related_nodes(
         return;
     }
 
-    let parents = match trees.get(&key) {
+    let parents = match dependency_graph.get(&key) {
         None => {
             panic!("Fragment {:?} not found in IR.", key);
         }
@@ -169,11 +239,17 @@ fn add_related_nodes(
     };
     if parents.is_empty() {
         if !base_definition_names.contains(&key) {
-            add_descendants(result, trees, key);
+            add_descendants(result, dependency_graph, key);
         }
     } else {
         for parent in parents {
-            add_related_nodes(visited, result, trees, base_definition_names, *parent);
+            add_related_nodes(
+                visited,
+                result,
+                dependency_graph,
+                base_definition_names,
+                *parent,
+            );
         }
     }
 }
@@ -181,13 +257,13 @@ fn add_related_nodes(
 // Recursively add all descendants of current node into the `result`
 fn add_descendants(
     result: &mut FnvHashMap<StringKey, ExecutableDefinition>,
-    trees: &FnvHashMap<StringKey, Node>,
+    dependency_graph: &FnvHashMap<StringKey, Node>,
     key: StringKey,
 ) {
     if result.contains_key(&key) {
         return;
     }
-    match trees.get(&key) {
+    match dependency_graph.get(&key) {
         Some(Node {
             ir: Some(def),
             children,
@@ -195,7 +271,7 @@ fn add_descendants(
         }) => {
             result.insert(key, def.clone());
             for child in children {
-                add_descendants(result, trees, *child);
+                add_descendants(result, dependency_graph, *child);
             }
         }
         _ => {

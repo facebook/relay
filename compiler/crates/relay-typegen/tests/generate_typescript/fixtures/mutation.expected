@@ -16,33 +16,33 @@ mutation CommentCreateMutation(
 }
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
-  clientMutationId?: string | null,
-  feedbackId?: string | null,
-  feedback?: CommentfeedbackFeedback | null,
+  clientMutationId?: string | null;
+  feedbackId?: string | null;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutationVariables = {
-  input: CommentCreateInput,
-  first?: number | null,
-  orderBy?: ReadonlyArray<string> | null,
+  input: CommentCreateInput;
+  first?: number | null;
+  orderBy?: ReadonlyArray<string> | null;
 };
 export type CommentCreateMutationResponse = {
   readonly commentCreate: {
     readonly comment: {
-      readonly id: string,
-      readonly name: string | null,
+      readonly id: string;
+      readonly name: string | null;
       readonly friends: {
-        readonly count: number | null
-      } | null,
-    } | null
-  } | null
+        readonly count: number | null;
+      } | null;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
+  variables: CommentCreateMutationVariables;
+  response: CommentCreateMutationResponse;
 };

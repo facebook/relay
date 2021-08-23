@@ -33,9 +33,11 @@ struct OwnedFlatBufferSchema {
 const CLIENTID_FIELD_ID: FieldID = FieldID(10_000_000);
 const TYPENAME_FIELD_ID: FieldID = FieldID(10_000_001);
 const FETCH_TOKEN_FIELD_ID: FieldID = FieldID(10_000_002);
+const STRONGID_FIELD_ID: FieldID = FieldID(10_000_003);
 
 pub struct SchemaWrapper {
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
     unchecked_argument_type_sentinel: Option<TypeReference>,
@@ -71,6 +73,7 @@ impl SchemaWrapper {
 
         let mut result = Self {
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
             unchecked_argument_type_sentinel: None,
@@ -95,6 +98,7 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || Field {
             name: result.clientid_field_name,
@@ -105,6 +109,16 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
+        });
+        result.fields.get(STRONGID_FIELD_ID, || Field {
+            name: result.strongid_field_name,
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: result.fetch_token_field_name,
@@ -115,6 +129,7 @@ impl SchemaWrapper {
             ))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(
@@ -159,6 +174,10 @@ impl Schema for SchemaWrapper {
 
     fn clientid_field(&self) -> FieldID {
         CLIENTID_FIELD_ID
+    }
+
+    fn strongid_field(&self) -> FieldID {
+        STRONGID_FIELD_ID
     }
 
     fn typename_field(&self) -> FieldID {
@@ -279,6 +298,9 @@ impl Schema for SchemaWrapper {
             if name == self.clientid_field_name {
                 return Some(CLIENTID_FIELD_ID);
             }
+            if name == self.strongid_field_name {
+                return Some(STRONGID_FIELD_ID);
+            }
         }
 
         let fields = match parent_type {
@@ -314,6 +336,34 @@ impl Schema for SchemaWrapper {
 
     fn snapshot_print(&self) -> String {
         todo!()
+    }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.map.iter().map(|ref_| *ref_.value()))
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.map.iter().map(|ref_| *ref_.value()))
     }
 }
 

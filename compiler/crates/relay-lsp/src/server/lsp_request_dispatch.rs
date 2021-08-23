@@ -13,7 +13,7 @@ use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
 };
 
-pub(crate) struct LSPRequestDispatch<'state, TState> {
+pub struct LSPRequestDispatch<'state, TState> {
     request: lsp_server::Request,
     state: &'state mut TState,
 }
@@ -48,7 +48,7 @@ impl<'state, TState> LSPRequestDispatch<'state, TState> {
                 }
                 Err(error) => {
                     return Err(convert_to_lsp_response(
-                        ServerRequestId::from("default-relay-lsp-id".to_string()),
+                        ServerRequestId::from("default-lsp-id".to_string()),
                         Err(error),
                     ));
                 }

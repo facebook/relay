@@ -1,0 +1,14 @@
+query selectionSetConflictDifferentTypesWithoutConflictInTypelessInlineFragmentsQuery {
+  me {
+    ... on User {
+      ... @include(if: true) {
+        same_alias: lastName
+      }
+    }
+    ... on Actor {
+      ... @skip(if: false) {
+        same_alias: name
+      }
+    }
+  }
+}

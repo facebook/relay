@@ -48,6 +48,7 @@ fragment moduleDeduping_frag on PlainUserNameRenderer {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "moduleDedupingQuery",
                     "fragmentName": "moduleDeduping_frag",
                     "fragmentPropName": "frag",
@@ -106,6 +107,7 @@ fragment moduleDeduping_frag on PlainUserNameRenderer {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "moduleDedupingQuery",
                     "fragmentName": "moduleDeduping_frag",
                     "fragmentPropName": "frag",

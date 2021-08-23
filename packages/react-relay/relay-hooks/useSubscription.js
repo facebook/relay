@@ -12,26 +12,37 @@
 
 'use strict';
 
-const React = require('react');
-
 const useRelayEnvironment = require('./useRelayEnvironment');
 
+const {useEffect} = require('react');
 const {requestSubscription} = require('relay-runtime');
 
-import type {GraphQLSubscriptionConfig} from 'relay-runtime';
+import type {
+  IEnvironment,
+  GraphQLSubscriptionConfig,
+  SubscriptionParameters,
+  Disposable,
+} from 'relay-runtime';
 
-function useSubscription<TSubscriptionPayload>(
-  config: GraphQLSubscriptionConfig<TSubscriptionPayload>,
-  requestSubscriptionFn?: typeof requestSubscription,
+type RequestSubscriptionFn<TSubscriptionParameters: SubscriptionParameters> = (
+  environment: IEnvironment,
+  config: GraphQLSubscriptionConfig<TSubscriptionParameters>,
+) => Disposable;
+
+function useSubscription<TSubscriptionParameters: SubscriptionParameters>(
+  config: GraphQLSubscriptionConfig<TSubscriptionParameters>,
+  requestSubscriptionFn?: RequestSubscriptionFn<TSubscriptionParameters>,
 ): void {
   // N.B. this will re-subscribe every render if config or requestSubscriptionFn
   // are not memoized.
   // Please do not pass an object defined in-line.
-  const actualRequestSubscription =
-    requestSubscriptionFn ?? requestSubscription;
+  const actualRequestSubscription: RequestSubscriptionFn<TSubscriptionParameters> =
+    requestSubscriptionFn ?? (requestSubscription: $FlowFixMe);
   const environment = useRelayEnvironment();
-  React.useEffect(() => {
-    const {dispose} = requestSubscription(environment, config);
+  useEffect(() => {
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    const {dispose} = actualRequestSubscription(environment, config);
+    // $FlowFixMe[incompatible-call]
     return dispose;
   }, [environment, config, actualRequestSubscription]);
 }

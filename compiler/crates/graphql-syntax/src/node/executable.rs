@@ -30,13 +30,7 @@ impl ExecutableDefinition {
 
     pub fn name(&self) -> Option<StringKey> {
         match self {
-            ExecutableDefinition::Operation(node) => {
-                if let Some(name) = &node.name {
-                    Some(name.value)
-                } else {
-                    None
-                }
-            }
+            ExecutableDefinition::Operation(node) => node.name.as_ref().map(|name| name.value),
             ExecutableDefinition::Fragment(node) => Some(node.name.value),
         }
     }

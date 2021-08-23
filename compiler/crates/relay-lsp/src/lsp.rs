@@ -10,7 +10,7 @@
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
 
 use crate::lsp_process_error::LSPProcessResult;
-use crossbeam::{crossbeam_channel::Sender, SendError};
+use crossbeam::channel::{SendError, Sender};
 pub use lsp_server::{Connection, Message};
 pub use lsp_server::{
     Notification as ServerNotification, ProtocolError, Request as ServerRequest,

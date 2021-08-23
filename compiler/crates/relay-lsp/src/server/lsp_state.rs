@@ -6,7 +6,8 @@
  */
 
 use crate::{
-    diagnostic_reporter::DiagnosticReporter,
+    diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
+    js_language_server::JSLanguageServer,
     lsp_runtime_error::LSPRuntimeResult,
     node_resolution_info::{get_node_resolution_info, NodeResolutionInfo},
     utils::extract_project_name_from_url,
@@ -14,7 +15,7 @@ use crate::{
 };
 use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
-use crossbeam::Sender;
+use crossbeam::channel::Sender;
 use dashmap::{mapref::entry::Entry, DashMap};
 use fnv::FnvBuildHasher;
 use graphql_ir::{
@@ -23,12 +24,19 @@ use graphql_ir::{
 use graphql_syntax::{
     parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
 };
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticSeverity, TextDocumentPositionParams, Url};
-use relay_compiler::{compiler::Compiler, config::Config, FileCategorizer};
+use lsp_types::{Diagnostic, DiagnosticSeverity, Range, TextDocumentPositionParams, Url};
+use relay_compiler::{
+    compiler::Compiler,
+    config::{Config, ProjectConfig},
+    FileCategorizer,
+};
 use schema::SDLSchema;
+use schema_documentation::{
+    CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
+};
 use std::{collections::HashMap, path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
 
@@ -46,7 +54,7 @@ pub enum ProjectStatus {
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
 /// handlers. Such as schema, programs, extra_data_providers, etc...
-pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
+pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation> {
     config: Arc<Config>,
     compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
@@ -54,20 +62,28 @@ pub(crate) struct LSPState<TPerfLogger: PerfLogger + 'static> {
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
     file_categorizer: FileCategorizer,
     schemas: Schemas,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     source_programs: SourcePrograms,
     synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
     notify_sender: Arc<Notify>,
     project_status: ProjectStatusMap,
+    pub js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
 }
 
-impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
+impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>
+    LSPState<TPerfLogger, TSchemaDocumentation>
+{
     /// Private constructor
     fn new(
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        schema_documentation_loader: Option<
+            Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
+        >,
+        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
         sender: Sender<Message>,
     ) -> Self {
         let file_categorizer = FileCategorizer::from_config(&config);
@@ -87,8 +103,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
             root_dir_str: root_dir.to_string_lossy().to_string(),
             root_dir: root_dir.clone(),
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
+            schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             synced_graphql_documents: Default::default(),
+            js_resource,
         }
     }
 
@@ -99,11 +117,22 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         config: Arc<Config>,
         perf_logger: Arc<TPerfLogger>,
         extra_data_provider: Box<dyn LSPExtraDataProvider>,
+        schema_documentation_loader: Option<
+            Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
+        >,
+        js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
         extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
     ) -> Self {
         debug!("Creating lsp_state...");
-        let mut lsp_state = Self::new(config, perf_logger, extra_data_provider, sender.clone());
+        let mut lsp_state = Self::new(
+            config,
+            perf_logger,
+            extra_data_provider,
+            schema_documentation_loader,
+            js_resource,
+            sender.clone(),
+        );
 
         // Preload schema documentation - this will warm-up schema documentation cache in the LSP Extra Data providers
         lsp_state.preload_documentation();
@@ -144,7 +173,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         lsp_state
     }
 
-    pub(crate) fn get_schemas(&self) -> Schemas {
+    pub fn get_schemas(&self) -> Schemas {
         self.schemas.clone()
     }
 
@@ -154,10 +183,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn resolve_node(
         &self,
-        params: TextDocumentPositionParams,
+        text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<NodeResolutionInfo> {
         get_node_resolution_info(
-            params,
+            text_document_position,
             &self.synced_graphql_documents,
             &self.file_categorizer,
             &self.root_dir,
@@ -187,11 +216,11 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     pub(crate) fn extract_executable_document_from_text(
         &mut self,
-        position: TextDocumentPositionParams,
+        position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
         extract_executable_document_from_text(
-            position,
+            &position,
             &self.synced_graphql_documents,
             &self.file_categorizer,
             &self.root_dir,
@@ -204,8 +233,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         url: Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()> {
-        let project_name =
-            extract_project_name_from_url(&self.file_categorizer, &url, &self.root_dir)?;
+        let project_name = self.extract_project_name_from_url(&url)?;
 
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
             e.insert(ProjectStatus::Activated);
@@ -215,6 +243,10 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
         self.validate_synced_sources(url.clone(), project_name, &sources);
         self.insert_synced_sources(url, sources);
         Ok(())
+    }
+
+    pub fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
+        extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
 
     fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {
@@ -249,6 +281,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
                         allow_undefined_fragment_spreads: true,
                         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
                         relay_mode: true,
+                        default_anonymous_operation_name: None,
                     },
                 ) {
                     diagnostics.extend(
@@ -271,9 +304,41 @@ impl<TPerfLogger: PerfLogger + 'static> LSPState<TPerfLogger> {
 
     fn preload_documentation(&self) {
         for project_config in self.config.enabled_projects() {
-            self.extra_data_provider
-                .get_schema_documentation(project_config.name.to_string());
+            self.get_schema_documentation(&project_config.name.to_string());
         }
+    }
+
+    pub fn get_project_config_ref(&self, project_name: StringKey) -> Option<&ProjectConfig> {
+        self.config
+            .enabled_projects()
+            .find(|project_config| project_config.name == project_name)
+    }
+
+    pub fn get_config(&self) -> Arc<Config> {
+        self.config.clone()
+    }
+
+    pub fn get_logger(&self) -> Arc<TPerfLogger> {
+        self.perf_logger.clone()
+    }
+
+    pub fn get_schema_documentation(&self, schema_name: &str) -> impl SchemaDocumentation {
+        let primary = self
+            .schemas
+            .get(&schema_name.intern())
+            .map(|x| Arc::clone(x.value()));
+        let secondary = self
+            .schema_documentation_loader
+            .as_ref()
+            .map(|loader| loader.get_schema_documentation(schema_name));
+
+        CombinedSchemaDocumentation::new(primary, secondary)
+    }
+
+    /// Given a Range return first available diagnostic message for it
+    pub(crate) fn get_diagnostic_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+        self.diagnostic_reporter
+            .get_diagnostics_for_range(url, range)
     }
 }
 
@@ -283,6 +348,7 @@ fn convert_diagnostic(
 ) -> Diagnostic {
     Diagnostic {
         code: None,
+        data: get_diagnostics_data(&diagnostic),
         message: diagnostic.message().to_string(),
         range: diagnostic.location().span().to_range(
             &graphql_source.text,
@@ -293,5 +359,6 @@ fn convert_diagnostic(
         severity: Some(DiagnosticSeverity::Error),
         source: None,
         tags: None,
+        ..Default::default()
     }
 }

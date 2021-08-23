@@ -101,3 +101,14 @@ pub fn parse_type(
     let parser = Parser::new(source, source_location, features);
     parser.parse_type()
 }
+
+/// Parses a GraphQL document that's restricted to type system definitions
+/// including schema definition, type definitions and type system extensions.
+pub fn parse_directive(
+    source: &str,
+    source_location: SourceLocationKey,
+) -> DiagnosticsResult<Directive> {
+    let features = ParserFeatures::default();
+    let parser = Parser::new(source, source_location, features);
+    parser.parse_directive()
+}

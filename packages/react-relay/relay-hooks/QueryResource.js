@@ -16,6 +16,7 @@
 const LRUCache = require('./LRUCache');
 
 const invariant = require('invariant');
+const warning = require('warning');
 
 const {isPromise} = require('relay-runtime');
 
@@ -32,6 +33,7 @@ import type {
   IEnvironment,
   Observable,
   Observer,
+  OperationAvailability,
   OperationDescriptor,
   ReaderFragment,
   RenderPolicy,
@@ -46,6 +48,12 @@ type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +id: number,
   +cacheIdentifier: string,
+  +operationAvailability: ?OperationAvailability,
+  // The number of received payloads for the operation.
+  // We want to differentiate the initial graphql response for the operation
+  // from the incremental responses, so later we can choose how to handle errors
+  // in the incremental payloads.
+  processedPayloadsCount: number,
   getRetainCount(): number,
   getNetworkSubscription(): ?Subscription,
   setNetworkSubscription(?Subscription): void,
@@ -53,6 +61,7 @@ type QueryResourceCacheEntry = {|
   setValue(Error | Promise<void> | QueryResult): void,
   temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
+  releaseTemporaryRetain(): void,
 |};
 opaque type QueryResult: {
   fragmentNode: ReaderFragment,
@@ -69,6 +78,10 @@ const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
   get(key: K): V | void;
   set(key: K, value: V): IMap<K, V>;
+}
+
+function operationIsLiveQuery(operation: OperationDescriptor): boolean {
+  return operation.request.node.params.metadata.live !== undefined;
 }
 
 function getQueryCacheIdentifier(
@@ -112,10 +125,13 @@ let nextID = 200000;
 function createCacheEntry(
   cacheIdentifier: string,
   operation: OperationDescriptor,
+  operationAvailability: ?OperationAvailability,
   value: Error | Promise<void> | QueryResult,
   networkSubscription: ?Subscription,
   onDispose: QueryResourceCacheEntry => void,
 ): QueryResourceCacheEntry {
+  const isLiveQuery = operationIsLiveQuery(operation);
+
   let currentValue: Error | Promise<void> | QueryResult = value;
   let retainCount = 0;
   let retainDisposable: ?Disposable = null;
@@ -147,6 +163,8 @@ function createCacheEntry(
   const cacheEntry = {
     cacheIdentifier,
     id: nextID++,
+    processedPayloadsCount: 0,
+    operationAvailability,
     getValue() {
       return currentValue;
     },
@@ -160,7 +178,7 @@ function createCacheEntry(
       return currentNetworkSubscription;
     },
     setNetworkSubscription(subscription: ?Subscription) {
-      if (currentNetworkSubscription != null) {
+      if (isLiveQuery && currentNetworkSubscription != null) {
         currentNetworkSubscription.unsubscribe();
       }
       currentNetworkSubscription = subscription;
@@ -188,7 +206,11 @@ function createCacheEntry(
         // Normally if this entry never commits, the request would've ended by the
         // time this timeout expires and the temporary retain is released. However,
         // we need to do this for live queries which remain open indefinitely.
-        if (retainCount <= 0 && currentNetworkSubscription != null) {
+        if (
+          isLiveQuery &&
+          retainCount <= 0 &&
+          currentNetworkSubscription != null
+        ) {
           currentNetworkSubscription.unsubscribe();
         }
       };
@@ -225,11 +247,21 @@ function createCacheEntry(
       return {
         dispose: () => {
           disposable.dispose();
-          if (retainCount <= 0 && currentNetworkSubscription != null) {
+          if (
+            isLiveQuery &&
+            retainCount <= 0 &&
+            currentNetworkSubscription != null
+          ) {
             currentNetworkSubscription.unsubscribe();
           }
         },
       };
+    },
+    releaseTemporaryRetain() {
+      if (releaseTemporaryRetain != null) {
+        releaseTemporaryRetain();
+        releaseTemporaryRetain = null;
+      }
     },
   };
 
@@ -295,6 +327,7 @@ class QueryResourceImpl {
     // it's available
     let cacheEntry = this._cache.get(cacheIdentifier);
     let temporaryRetainDisposable: ?Disposable = null;
+    const entryWasCached = cacheEntry != null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
       // _fetchAndSaveQuery will update the cache with either a Promise or
@@ -332,7 +365,18 @@ class QueryResourceImpl {
     temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
-    if (isPromise(cachedValue) || cachedValue instanceof Error) {
+    if (isPromise(cachedValue)) {
+      environment.__log({
+        name: 'suspense.query',
+        fetchPolicy,
+        isPromiseCached: entryWasCached,
+        operation: operation,
+        queryAvailability: cacheEntry.operationAvailability,
+        renderPolicy,
+      });
+      throw cachedValue;
+    }
+    if (cachedValue instanceof Error) {
       throw cachedValue;
     }
     return cachedValue;
@@ -349,6 +393,7 @@ class QueryResourceImpl {
     const cacheEntry = this._getOrCreateCacheEntry(
       cacheIdentifier,
       operation,
+      null,
       queryResult,
       null,
     );
@@ -364,6 +409,13 @@ class QueryResourceImpl {
         disposable.dispose();
       },
     };
+  }
+
+  releaseTemporaryRetain(queryResult: QueryResult) {
+    const cacheEntry = this._cache.get(queryResult.cacheIdentifier);
+    if (cacheEntry != null) {
+      cacheEntry.releaseTemporaryRetain();
+    }
   }
 
   TESTS_ONLY__getCacheEntry(
@@ -392,6 +444,7 @@ class QueryResourceImpl {
   _getOrCreateCacheEntry(
     cacheIdentifier: string,
     operation: OperationDescriptor,
+    operationAvailability: ?OperationAvailability,
     value: Error | Promise<void> | QueryResult,
     networkSubscription: ?Subscription,
   ): QueryResourceCacheEntry {
@@ -400,6 +453,7 @@ class QueryResourceImpl {
       cacheEntry = createCacheEntry(
         cacheIdentifier,
         operation,
+        operationAvailability,
         value,
         networkSubscription,
         this._clearCacheEntry,
@@ -466,6 +520,7 @@ class QueryResourceImpl {
       const cacheEntry = createCacheEntry(
         cacheIdentifier,
         operation,
+        queryAvailability,
         queryResult,
         null,
         this._clearCacheEntry,
@@ -483,32 +538,65 @@ class QueryResourceImpl {
           if (cacheEntry) {
             cacheEntry.setNetworkSubscription(networkSubscription);
           }
-
           const observerStart = observer?.start;
-          observerStart && observerStart(subscription);
+          if (observerStart) {
+            const subscriptionWithConditionalCancelation = {
+              ...subscription,
+              unsubscribe: () => {
+                // Only live queries should have their network requests canceled.
+                if (operationIsLiveQuery(operation)) {
+                  subscription.unsubscribe();
+                }
+              },
+            };
+            observerStart(subscriptionWithConditionalCancelation);
+          }
         },
         next: () => {
-          const snapshot = environment.lookup(operation.fragment);
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
+            queryAvailability,
             queryResult,
             networkSubscription,
           );
+          cacheEntry.processedPayloadsCount += 1;
           cacheEntry.setValue(queryResult);
           resolveNetworkPromise();
 
           const observerNext = observer?.next;
-          observerNext && observerNext(snapshot);
+          if (observerNext != null) {
+            const snapshot = environment.lookup(operation.fragment);
+            observerNext(snapshot);
+          }
         },
         error: error => {
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
+            queryAvailability,
             error,
             networkSubscription,
           );
-          cacheEntry.setValue(error);
+
+          // If, this is the first thing we receive for the query,
+          // before any other payload handled is error, we will cache and
+          // re-throw that error later.
+
+          // We will ignore errors for any incremental payloads we receive.
+          if (cacheEntry.processedPayloadsCount === 0) {
+            cacheEntry.setValue(error);
+          } else {
+            // TODO:T92030819 Remove this warning and actually throw the network error
+            // To complete this task we need to have a way of precisely tracking suspendable points
+            warning(
+              false,
+              'QueryResource: An incremental payload for query `%` returned an error: `%`:`%`.',
+              operation.fragment.node.name,
+              error.message,
+              error.stack,
+            );
+          }
           resolveNetworkPromise();
 
           networkSubscription = null;
@@ -543,6 +631,7 @@ class QueryResourceImpl {
         cacheEntry = createCacheEntry(
           cacheIdentifier,
           operation,
+          queryAvailability,
           networkPromise,
           networkSubscription,
           this._clearCacheEntry,

@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserFragmentWithScalarField on User {
+  name @fb_actor_change
+}
+
+fragment UserFragmentWithLinkedField on User {
+  author @fb_actor_change {
+    name
+  }
+}
+
+fragment UserFragmentWithLinkedFieldAndSpread on User {
+  author @fb_actor_change {
+    name
+    ...ForActorChange
+  }
+}
+
+fragment ForActorChange on User {
+  name
+}
+==================================== ERROR ====================================
+✖︎ Actor change directive (@as_actor) cannot be applied to scalar fields.
+
+  actor-change.invalid.graphql:3:3
+    2 │ fragment UserFragmentWithScalarField on User {
+    3 │   name @fb_actor_change
+      │   ^^^^
+    4 │ }
+
+
+✖︎ Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread.
+
+  actor-change.invalid.graphql:13:3
+   12 │ fragment UserFragmentWithLinkedFieldAndSpread on User {
+   13 │   author @fb_actor_change {
+      │   ^^^^^^
+   14 │     name
+
+
+✖︎ Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread.
+
+  actor-change.invalid.graphql:8:5
+    7 │   author @fb_actor_change {
+    8 │     name
+      │     ^^^^
+    9 │   }

@@ -2,6 +2,11 @@
 id: use-entrypoint-loader
 title: useEntryPointLoader
 slug: /api-reference/use-entrypoint-loader/
+description: API reference for useEntryPointLoader, a React hook used to load entrypoints in response to user events
+keywords:
+  - render-as-you-fetch
+  - entrypoint
+  - preload
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

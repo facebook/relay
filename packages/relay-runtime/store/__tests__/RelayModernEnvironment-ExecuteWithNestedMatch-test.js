@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -26,8 +27,11 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('execute() a query with nested @match', () => {
   let callbacks: {|
@@ -60,8 +64,6 @@ describe('execute() a query with nested @match', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
     plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql');
 
@@ -210,6 +212,7 @@ describe('execute() a query with nested @match', () => {
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -246,6 +249,7 @@ describe('execute() a query with nested @match', () => {
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -259,6 +263,7 @@ describe('execute() a query with nested @match', () => {
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalizationgraphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -311,6 +316,7 @@ describe('execute() a query with nested @match', () => {
       user: {
         innerRenderer: {
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
 
           __fragments: {
@@ -363,6 +369,7 @@ describe('execute() a query with nested @match', () => {
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -376,6 +383,7 @@ describe('execute() a query with nested @match', () => {
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -429,6 +437,7 @@ describe('execute() a query with nested @match', () => {
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -442,6 +451,7 @@ describe('execute() a query with nested @match', () => {
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -495,6 +505,7 @@ describe('execute() a query with nested @match', () => {
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -508,6 +519,7 @@ describe('execute() a query with nested @match', () => {
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },
@@ -624,6 +636,7 @@ describe('execute() a query with nested @match', () => {
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -637,6 +650,7 @@ describe('execute() a query with nested @match', () => {
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
                 plaintext: 'plaintext payload',
                 data: {
+                  id: 'data-2',
                   text: 'plaintext!',
                 },
               },

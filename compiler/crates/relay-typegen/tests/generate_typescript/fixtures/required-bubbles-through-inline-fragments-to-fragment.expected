@@ -10,17 +10,17 @@ fragment Foo on Node {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type Foo = {
-  readonly __typename: "User",
-  readonly name: string,
-  readonly " $refType": FragmentRefs<"Foo">,
+  readonly __typename: "User";
+  readonly name: string;
+  readonly " $refType": "Foo";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "%other",
-  readonly " $refType": FragmentRefs<"Foo">,
+  readonly __typename: "%other";
+  readonly " $refType": "Foo";
 } | null;
 export type Foo$data = Foo;
 export type Foo$key = {
-  readonly " $data"?: Foo$data,
-  readonly " $fragmentRefs": FragmentRefs<"Foo">,
+  readonly " $data"?: Foo$data;
+  readonly " $fragmentRefs": FragmentRefs<"Foo">;
 };

@@ -24,6 +24,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('lookup()', () => {
   let ParentQuery;
@@ -31,7 +34,6 @@ describe('lookup()', () => {
   let operation;
 
   beforeEach(() => {
-    jest.resetModules();
     ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentLookupTestParentQuery {
         me {
@@ -78,6 +80,7 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: operation.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -95,6 +98,7 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // $FlowFixMe[incompatible-use]

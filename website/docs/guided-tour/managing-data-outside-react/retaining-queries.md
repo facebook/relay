@@ -2,6 +2,13 @@
 id: retaining-queries
 title: Retaining Queries
 slug: /guided-tour/accessing-data-without-react/retaining-queries/
+description: Relay guide to retaining queries
+keywords:
+- retaining
+- query
+- environment
+- garbage collection
+- gc
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

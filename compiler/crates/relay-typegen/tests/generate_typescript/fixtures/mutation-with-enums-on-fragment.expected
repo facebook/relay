@@ -27,22 +27,23 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {
-  clientMutationId?: string | null,
-  feedbackId?: string | null,
-  feedback?: CommentfeedbackFeedback | null,
+  clientMutationId?: string | null;
+  feedbackId?: string | null;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutationVariables = {
-  input: CommentCreateInput,
-  first?: number | null,
-  orderBy?: ReadonlyArray<string> | null,
+  input: CommentCreateInput;
+  first?: number | null;
+  orderBy?: ReadonlyArray<string> | null;
 };
 export type CommentCreateMutationResponse = {
   readonly commentCreate: {
@@ -50,14 +51,14 @@ export type CommentCreateMutationResponse = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly id: string,
-            readonly __typename: string,
-            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
-          } | null
-        } | null> | null
-      } | null
-    } | null
-  } | null
+            readonly id: string;
+            readonly __typename: string;
+            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+          } | null;
+        } | null> | null;
+      } | null;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutationRawResponse = {
   readonly commentCreate: {
@@ -65,38 +66,38 @@ export type CommentCreateMutationRawResponse = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly id: string,
-            readonly __typename: "User",
-            readonly name: string | null,
-            readonly lastName: string | null,
+            readonly id: string;
+            readonly __typename: "User";
+            readonly name: string | null;
+            readonly lastName: string | null;
             readonly profilePicture2: {
-              readonly test_enums: TestEnums | null
-            } | null,
-          } | null
-        } | null> | null
-      } | null,
-      readonly id: string,
-    } | null
-  } | null
+              readonly test_enums: TestEnums | null;
+            } | null;
+          } | null;
+        } | null> | null;
+      } | null;
+      readonly id: string;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
-  rawResponse: CommentCreateMutationRawResponse,
+  variables: CommentCreateMutationVariables;
+  response: CommentCreateMutationResponse;
+  rawResponse: CommentCreateMutationRawResponse;
 };
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
-  readonly name: string | null,
-  readonly lastName: string | null,
+  readonly name: string | null;
+  readonly lastName: string | null;
   readonly profilePicture2: {
-    readonly test_enums: TestEnums | null
-  } | null,
-  readonly " $refType": FragmentRefs<"FriendFragment">,
+    readonly test_enums: TestEnums | null;
+  } | null;
+  readonly " $refType": "FriendFragment";
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
-  readonly " $data"?: FriendFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
+  readonly " $data"?: FriendFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
 };

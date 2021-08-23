@@ -14,7 +14,7 @@
 
 const IRTransformer = require('../core/IRTransformer');
 
-const areEqual = require('../util/areEqualOSS');
+const areEqualArgValues = require('../util/areEqualArgValues');
 const getIdentifierForSelection = require('../core/getIdentifierForSelection');
 
 const {createCompilerError, createUserError} = require('../core/CompilerError');
@@ -74,6 +74,7 @@ function flattenTransformImpl(
 
 function memoizedFlattenSelection(cache: Map<Node, Map<?TypeID, any>>) {
   return function flattenSelectionsFn<T: Node>(node: T, state: State): T {
+    // $FlowFixMe[incompatible-use]
     const context: CompilerContext = this.getContext();
     let nodeCache = cache.get(node);
     if (nodeCache == null) {
@@ -117,6 +118,7 @@ function memoizedFlattenSelection(cache: Map<Node, Map<?TypeID, any>>) {
       ? {...node, selections: Array.from(nextSelections.values())}
       : node;
     state.parentType = type;
+    // $FlowFixMe[incompatible-use]
     const deeplyFlattenedNode = this.traverse(flattenedNode, state);
     state.parentType = parentType;
     nodeCache.set(parentType, deeplyFlattenedNode);
@@ -415,7 +417,10 @@ function areEqualArgs(
         thisArg.value.kind === thatArg.value.kind &&
         (thisArg.value: any).variableName ===
           (thatArg.value: any).variableName &&
-        areEqual((thisArg.value: any).value, (thatArg.value: any).value)
+        areEqualArgValues(
+          (thisArg.value: any).value,
+          (thatArg.value: any).value,
+        )
       );
     })
   );

@@ -39,15 +39,17 @@ impl Writer for TypeScriptPrinter {
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
-            AST::ExactObject(props) => self.write_object(props, true),
-            AST::InexactObject(props) => self.write_object(props, false),
+            AST::ExactObject(props) => self.write_object(props),
+            AST::InexactObject(props) => self.write_object(props),
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
+            AST::FragmentReferenceType(fragment) => self.write_fragment_references_type(*fragment),
             AST::FunctionReturnType(function_name) => {
                 self.write_function_return_type(*function_name)
             }
+            AST::ActorChangePoint(_) => panic!("Not supported yet"),
         }
     }
 
@@ -79,17 +81,20 @@ impl Writer for TypeScriptPrinter {
         )
     }
 
-    fn write_any_type_definition(&mut self, name: StringKey) -> Result {
-        writeln!(&mut self.result, "type {} = any;", name)
+    // In TypeScript, we don't need to import "any" fragment types, these are unused.
+    fn write_any_type_definition(&mut self, _name: StringKey) -> Result {
+        Ok(())
     }
 
-    // In Typescript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
+    // In TypeScript, we don't export & import fragments. We just use the generic FragmentRefs type instead.
     fn write_import_fragment_type(&mut self, _types: &[StringKey], _from: StringKey) -> Result {
         Ok(())
     }
+
     fn write_export_fragment_type(&mut self, _old_name: StringKey, _new_name: StringKey) -> Result {
         Ok(())
     }
+
     fn write_export_fragment_types(
         &mut self,
         _old_fragment_type_name: StringKey,
@@ -152,7 +157,7 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_object(&mut self, props: &[Prop], exact: bool) -> Result {
+    fn write_object(&mut self, props: &[Prop]) -> Result {
         if props.is_empty() {
             write!(&mut self.result, "{{}}")?;
             return Ok(());
@@ -168,7 +173,6 @@ impl TypeScriptPrinter {
         writeln!(&mut self.result, "{{")?;
         self.indentation += 1;
 
-        let mut first = true;
         for prop in props {
             if prop.key == *SPREAD_KEY {
                 continue;
@@ -208,12 +212,7 @@ impl TypeScriptPrinter {
             }
             write!(&mut self.result, ": ")?;
             self.write(&prop.value)?;
-            if first && props.len() == 1 && exact {
-                writeln!(&mut self.result)?;
-            } else {
-                writeln!(&mut self.result, ",")?;
-            }
-            first = false;
+            writeln!(&mut self.result, ";")?;
         }
         self.indentation -= 1;
         self.write_indentation()?;
@@ -237,6 +236,10 @@ impl TypeScriptPrinter {
                 .collect(),
         ))?;
         write!(&mut self.result, ">")
+    }
+
+    fn write_fragment_references_type(&mut self, fragment: StringKey) -> Result {
+        self.write(&AST::StringLiteral(fragment))
     }
 
     fn write_function_return_type(&mut self, function_name: StringKey) -> Result {
@@ -310,7 +313,7 @@ mod tests {
                 value: AST::String,
             },])),
             r"{
-  single: string
+  single: string;
 }"
             .to_string()
         );
@@ -330,8 +333,8 @@ mod tests {
                 },
             ])),
             r"{
-  foo?: string,
-  readonly bar: number,
+  foo?: string;
+  readonly bar: number;
 }"
             .to_string()
         );
@@ -369,10 +372,10 @@ mod tests {
             ])),
             r"{
   foo?: {
-    nested_foo?: string,
-    readonly nested_foo2: number,
-  },
-  readonly bar: number,
+    nested_foo?: string;
+    readonly nested_foo2: number;
+  };
+  readonly bar: number;
 }"
             .to_string()
         );
@@ -393,7 +396,7 @@ mod tests {
                 value: AST::String,
             },])),
             r"{
-  single: string,
+  single: string;
 }"
             .to_string()
         );
@@ -414,8 +417,8 @@ mod tests {
                 }
             ])),
             r"{
-  foo: string,
-  readonly bar?: number,
+  foo: string;
+  readonly bar?: number;
 }"
             .to_string()
         );
@@ -433,7 +436,7 @@ mod tests {
             r#"{
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  with_comment: "%other"
+  with_comment: "%other";
 }"#
             .to_string()
         );
@@ -469,7 +472,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::FunctionReturnType("someFunc".intern())),
+            print_type(&AST::FunctionReturnType("someFunc".intern(),)),
             "ReturnType<typeof someFunc>".to_string()
         );
     }

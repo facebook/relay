@@ -233,12 +233,7 @@ pub struct Directive {
     pub locations: Vec<DirectiveLocation>,
     pub repeatable: bool,
     pub is_extension: bool,
-}
-
-impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name
-    }
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug)]
@@ -246,6 +241,7 @@ pub struct Scalar {
     pub name: StringKey,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -255,6 +251,7 @@ pub struct Object {
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -262,6 +259,7 @@ pub struct InputObject {
     pub name: StringKey,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -270,6 +268,7 @@ pub struct Enum {
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -278,6 +277,7 @@ pub struct Union {
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -288,6 +288,7 @@ pub struct Interface {
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,
     pub interfaces: Vec<InterfaceID>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -302,6 +303,7 @@ pub struct Field {
     /// __id, which are queryable on all types and therefore don't have
     /// a single parent type.
     pub parent_type: Option<Type>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -309,12 +311,7 @@ pub struct Argument {
     pub name: StringKey,
     pub type_: TypeReference,
     pub default_value: Option<ConstantValue>,
-}
-
-impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name
-    }
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -323,22 +320,10 @@ pub struct ArgumentValue {
     pub value: ConstantValue,
 }
 
-impl Named for ArgumentValue {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-}
-
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,
-}
-
-impl Named for DirectiveValue {
-    fn name(&self) -> StringKey {
-        self.name
-    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -388,16 +373,11 @@ impl IntoIterator for ArgumentDefinitions {
 }
 
 pub trait TypeWithFields {
-    fn name(&self) -> StringKey;
     fn fields(&self) -> &Vec<FieldID>;
     fn interfaces(&self) -> &Vec<InterfaceID>;
 }
 
 impl TypeWithFields for Interface {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
@@ -408,10 +388,6 @@ impl TypeWithFields for Interface {
 }
 
 impl TypeWithFields for Object {
-    fn name(&self) -> StringKey {
-        self.name
-    }
-
     fn fields(&self) -> &Vec<FieldID> {
         &self.fields
     }
@@ -420,3 +396,25 @@ impl TypeWithFields for Object {
         &self.interfaces
     }
 }
+
+macro_rules! impl_named {
+    ($type_name:ident) => {
+        impl Named for $type_name {
+            fn name(&self) -> StringKey {
+                self.name
+            }
+        }
+    };
+}
+
+impl_named!(Object);
+impl_named!(Interface);
+impl_named!(Union);
+impl_named!(Scalar);
+impl_named!(Enum);
+impl_named!(InputObject);
+
+impl_named!(Argument);
+impl_named!(ArgumentValue);
+impl_named!(Directive);
+impl_named!(DirectiveValue);

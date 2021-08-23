@@ -75,6 +75,10 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if fragment.directives.len() == 1
             && fragment.directives[0].name.item == MATCH_CONSTANTS.custom_module_directive_name
+            && fragment.directives[0]
+                .arguments
+                .named(MATCH_CONSTANTS.no_inline_arg)
+                .is_none()
         {
             let directive = &fragment.directives[0];
             let parent_type = fragment
@@ -88,7 +92,10 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 .item
                 .expect_string_literal();
 
-            // We do not need to to write normalization files for base fragments
+            // We do not need to to write normalization files for base fragments.
+            // This is because when we process the base project, the normalization fragment will
+            // be written, and we do not want to emit multiple normalization fragments with
+            // the same name. If we did, Haste would complain about a duplicate module definition.
             if self.base_fragment_names.contains(&name) {
                 return self.default_transform_inline_fragment(fragment);
             }
@@ -124,7 +131,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                     (
                         SplitOperationMetadata {
                             derived_from: name,
-                            parent_sources: Default::default(),
+                            parent_documents: Default::default(),
                             raw_response_type: false,
                         },
                         OperationDefinition {
@@ -142,7 +149,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 });
             created_split_operation
                 .0
-                .parent_sources
+                .parent_documents
                 .insert(source_document);
         }
         self.default_transform_inline_fragment(fragment)

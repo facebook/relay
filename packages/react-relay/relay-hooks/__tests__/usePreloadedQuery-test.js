@@ -36,7 +36,7 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 
 const query = getRequest(graphql`
-  query usePreloadedQueryTestQuery($id: ID! = 4) {
+  query usePreloadedQueryTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {

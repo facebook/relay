@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashSet, sync::Arc};
+use std::{collections::HashMap, collections::HashSet, sync::Arc};
 
 use crate::server::SourcePrograms;
 
+use super::make_markdown_table_documentation;
 use super::resolve_completion_items;
 use common::{SourceLocationKey, Span};
 use dashmap::DashMap;
@@ -16,7 +17,7 @@ use fnv::FnvBuildHasher;
 use graphql_ir::{build, Program};
 use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
 use interner::Intern;
-use lsp_types::CompletionItem;
+use lsp_types::{CompletionItem, Documentation};
 use relay_test_schema::get_test_schema;
 
 fn parse_and_resolve_completion_items(
@@ -41,6 +42,7 @@ fn parse_and_resolve_completion_items(
         position_span,
         "test_project".intern(),
         &get_test_schema(),
+        get_test_schema(),
         &source_programs
             .unwrap_or_else(|| Arc::new(DashMap::with_hasher(FnvBuildHasher::default()))),
     )
@@ -56,15 +58,26 @@ fn build_source_programs(source: &str) -> SourcePrograms {
 }
 
 fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
-    assert_eq!(items.len(), labels.len());
-    let mut current_labels = items
+    let mut completion_labels = items
         .into_iter()
         .map(|item| item.label)
         .collect::<HashSet<_>>();
+
+    assert_eq!(
+        completion_labels.len(),
+        labels.len(),
+        "Provided labels {:?} do not match completion items {:?}",
+        &completion_labels,
+        &labels
+    );
     for label in labels {
-        assert!(current_labels.remove(label));
+        assert!(
+            completion_labels.remove(label),
+            "Expected to have {} in the set",
+            label
+        );
     }
-    assert!(current_labels.is_empty());
+    assert!(completion_labels.is_empty());
 }
 
 #[test]
@@ -186,6 +199,43 @@ fn directive() {
             "include",
             "connection",
             "skip",
+            "fb_actor_change",
+        ],
+    );
+}
+
+#[test]
+fn directive_on_scalar_field() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+        fragment Test on User {
+            profile_picture {
+                uri @|
+            }
+        }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "prependEdge",
+            "deleteRecord",
+            "appendNode",
+            "deleteEdge",
+            "__clientField",
+            "appendEdge",
+            "required",
+            "stream_connection",
+            "match",
+            "customDirective",
+            "prependNode",
+            "fixme_fat_interface",
+            "stream",
+            "include",
+            "connection",
+            "skip",
+            "fb_actor_change",
         ],
     );
 }
@@ -378,6 +428,68 @@ fn empty_directive() {
             "include",
             "connection",
             "skip",
+            "fb_actor_change",
         ],
+    );
+}
+
+#[test]
+fn field_documentation() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on User {
+                profile_picture {
+                    uri|
+                }
+            }
+        "#,
+        None,
+    )
+    .unwrap();
+
+    let docs = items
+        .into_iter()
+        .map(|item| (item.label, item.documentation))
+        .collect::<HashMap<String, Option<Documentation>>>();
+
+    assert_eq!(docs.len(), 4);
+    assert_eq!(
+        *docs.get("uri").unwrap(),
+        Some(make_markdown_table_documentation(
+            "uri",
+            "String",
+            "URI where the image can be found",
+            "",
+        ))
+    );
+
+    assert_eq!(
+        *docs.get("width").unwrap(),
+        Some(make_markdown_table_documentation(
+            "width",
+            "Int",
+            "Width in pixels",
+            "",
+        ))
+    );
+
+    assert_eq!(
+        *docs.get("height").unwrap(),
+        Some(make_markdown_table_documentation(
+            "height",
+            "Int",
+            "Height in pixels",
+            "",
+        ))
+    );
+
+    assert_eq!(
+        *docs.get("test_enums").unwrap(),
+        Some(make_markdown_table_documentation(
+            "test_enums",
+            "TestEnums",
+            "",
+            "",
+        ))
     );
 }

@@ -2,6 +2,12 @@
 id: streaming-pagination
 title: Streaming Pagination
 slug: /guided-tour/list-data/streaming-pagination/
+description: Relay guide to streaming pagination
+keywords:
+- pagination
+- usePaginationFragment
+- connection
+- streaming
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

@@ -20,7 +20,13 @@ module.exports = {
   baseUrl: '/',
   organizationName: 'facebook',
   projectName: 'relay',
-  scripts: [],
+  scripts: [
+    {
+      src:
+        'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
+      defer: true,
+    },
+  ],
   favicon: 'img/favicon.png',
   customFields: {
     users: [
@@ -200,7 +206,11 @@ module.exports = {
             internal: false,
             external: true,
           }),
-          editUrl: 'https://github.com/facebook/relay/edit/master/website/',
+          editUrl: fbContent({
+            internal:
+              'https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/js/RKJSModules/Libraries/Relay/oss/__github__/website/',
+            external: 'https://github.com/facebook/relay/tree/main/website',
+          }),
 
           path: './docs/',
 
@@ -209,7 +219,15 @@ module.exports = {
             internal: 'current',
             external: versions[0],
           }),
-          onlyIncludeVersions: ['current', ...versions.slice(0, 2)],
+          onlyIncludeVersions: fbContent({
+            internal: ['current'],
+            external: [
+              'current',
+              ...versions.filter(
+                version => version !== 'experimental' && version !== 'classic',
+              ),
+            ],
+          }),
           versions: {
             current: {
               label: 'Next 🚧',
@@ -430,6 +448,11 @@ module.exports = {
       logo: {
         src: 'img/relay.svg',
       },
+    },
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/dracula'),
+      defaultLanguage: 'javascript',
     },
     algolia: {
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',

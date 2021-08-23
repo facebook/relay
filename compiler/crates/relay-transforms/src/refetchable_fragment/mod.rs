@@ -8,13 +8,15 @@
 mod fetchable_query_generator;
 mod node_query_generator;
 mod query_query_generator;
+mod refetchable_directive;
 mod utils;
 mod viewer_query_generator;
 
 use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
+use crate::relay_directive::{PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
 use crate::root_variables::{InferVariablesVisitor, VariableMap};
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
@@ -23,7 +25,6 @@ use graphql_ir::{
     VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use graphql_text_printer::print_value;
 use interner::StringKey;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
@@ -35,6 +36,8 @@ pub use utils::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, CONSTANTS,
 };
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
+
+use self::refetchable_directive::RefetchableDirective;
 
 /// This transform synthesizes "refetch" queries for fragments that
 /// are trivially refetchable. This is comprised of three main stages:
@@ -72,17 +75,23 @@ pub fn transform_refetchable_fragment(
 
     validate_map(program.fragments(), |fragment| {
         let operation_result = transformer.transform_refetch_fragment(fragment)?;
-        if let Some((refetch_query_name, operation_result)) = operation_result {
+        if let Some((refetchable_directive, operation_result)) = operation_result {
             next_program.insert_fragment(operation_result.fragment);
             if !base_fragment_names.contains(&fragment.name.item) {
+                let mut directives = refetchable_directive.directives;
+                directives.push(RefetchableDerivedFromMetadata::create_directive(
+                    fragment.name,
+                ));
+
                 next_program.insert_operation(Arc::new(OperationDefinition {
                     kind: OperationKind::Query,
-                    name: WithLocation::new(fragment.name.location, refetch_query_name),
+                    name: WithLocation::new(
+                        fragment.name.location,
+                        refetchable_directive.query_name.item,
+                    ),
                     type_: query_type,
                     variable_definitions: operation_result.variable_definitions,
-                    directives: vec![RefetchableDerivedFromMetadata::create_directive(
-                        fragment.name,
-                    )],
+                    directives,
                     selections: operation_result.selections,
                 }));
             }
@@ -109,36 +118,25 @@ impl RefetchableFragment<'_> {
     fn transform_refetch_fragment(
         &mut self,
         fragment: &Arc<FragmentDefinition>,
-    ) -> DiagnosticsResult<Option<(StringKey, RefetchRoot)>> {
-        if let Some((refetch_name, refetch_name_location)) =
-            self.get_refetch_query_name(fragment)?
+    ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
+        if let Some(refetchable_directive) =
+            RefetchableDirective::from_directives(&self.program.schema, &fragment.directives)?
         {
-            if let Some(existing_query) = self.program.operation(refetch_name) {
-                return Err(vec![
-                    Diagnostic::error(
-                        ValidationMessage::RefetchableQueryConflictWithQuery {
-                            query_name: refetch_name,
-                        },
-                        refetch_name_location,
-                    )
-                    .annotate(
-                        "an operation with that name is already defined here",
-                        existing_query.name.location,
-                    ),
-                ]);
-            }
+            self.validate_sibling_directives(fragment)?;
+            self.validate_refetch_name(fragment, &refetchable_directive)?;
+
             let variables_map = self.visitor.infer_fragment_variables(fragment);
             for generator in GENERATORS.iter() {
                 if let Some(refetch_root) = (generator.build_refetch_operation)(
                     &self.program.schema,
                     fragment,
-                    refetch_name,
+                    refetchable_directive.query_name.item,
                     &variables_map,
                 )? {
                     if !self.for_typegen {
                         self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
                     }
-                    return Ok(Some((refetch_name, refetch_root)));
+                    return Ok(Some((refetchable_directive, refetch_root)));
                 }
             }
             let mut descriptions = String::new();
@@ -158,57 +156,73 @@ impl RefetchableFragment<'_> {
         }
     }
 
-    fn get_refetch_query_name(
+    fn validate_sibling_directives(
         &mut self,
         fragment: &FragmentDefinition,
-    ) -> DiagnosticsResult<Option<(StringKey, Location)>> {
-        if let Some(directive) = fragment.directives.named(CONSTANTS.refetchable_name) {
-            if let Some(query_name_arg) = directive.arguments.named(CONSTANTS.query_name_arg) {
-                if let Some(query_name) = query_name_arg.value.item.get_string_literal() {
-                    if let Some(previous_fragment) = self
-                        .existing_refetch_operations
-                        .insert(query_name, fragment.name)
-                    {
-                        let (first_fragment, second_fragment) =
-                            if fragment.name.item > previous_fragment.item {
-                                (previous_fragment, fragment.name)
-                            } else {
-                                (fragment.name, previous_fragment)
-                            };
-                        Err(vec![
-                            Diagnostic::error(
-                                ValidationMessage::DuplicateRefetchableOperation {
-                                    query_name,
-                                    first_fragment_name: first_fragment.item,
-                                    second_fragment_name: second_fragment.item,
-                                },
-                                first_fragment.location,
-                            )
-                            .annotate("also defined here", second_fragment.location),
-                        ])
-                    } else {
-                        Ok(Some((query_name, query_name_arg.value.location)))
-                    }
-                } else {
-                    Err(vec![Diagnostic::error(
-                        ValidationMessage::ExpectQueryNameToBeString {
-                            query_name_value: print_value(
-                                &self.program.schema,
-                                &query_name_arg.value.item,
-                            ),
-                        },
-                        query_name_arg.name.location,
-                    )])
-                }
-            } else {
-                Err(vec![Diagnostic::error(
-                    ValidationMessage::QueryNameRequired,
-                    directive.name.location,
-                )])
-            }
+    ) -> DiagnosticsResult<()> {
+        let relay_directive = fragment.directives.named(*RELAY_DIRECTIVE_NAME);
+        let plural_directive = relay_directive
+            .filter(|directive| directive.arguments.named(*PLURAL_ARG_NAME).is_some());
+        if let Some(directive) = plural_directive {
+            Err(vec![Diagnostic::error(
+                ValidationMessage::InvalidRefetchableFragmentWithRelayPlural {
+                    fragment_name: fragment.name.item,
+                },
+                directive.name.location,
+            )])
         } else {
-            Ok(None)
+            Ok(())
         }
+    }
+
+    fn validate_refetch_name(
+        &mut self,
+        fragment: &FragmentDefinition,
+        refetchable_directive: &RefetchableDirective,
+    ) -> DiagnosticsResult<()> {
+        // check for conflict with other @refetchable names
+        if let Some(previous_fragment) = self
+            .existing_refetch_operations
+            .insert(refetchable_directive.query_name.item, fragment.name)
+        {
+            let (first_fragment, second_fragment) = if fragment.name.item > previous_fragment.item {
+                (previous_fragment, fragment.name)
+            } else {
+                (fragment.name, previous_fragment)
+            };
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::DuplicateRefetchableOperation {
+                        query_name: refetchable_directive.query_name.item,
+                        first_fragment_name: first_fragment.item,
+                        second_fragment_name: second_fragment.item,
+                    },
+                    first_fragment.location,
+                )
+                .annotate("also defined here", second_fragment.location),
+            ]);
+        }
+
+        // check for conflict with operations
+        if let Some(existing_query) = self
+            .program
+            .operation(refetchable_directive.query_name.item)
+        {
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RefetchableQueryConflictWithQuery {
+                        query_name: refetchable_directive.query_name.item,
+                    },
+                    refetchable_directive.query_name.location,
+                )
+                .annotate(
+                    "an operation with that name is already defined here",
+                    existing_query.name.location,
+                ),
+            ]);
+        }
+
+        Ok(())
     }
 
     /// Validate that any @connection usage is valid for refetching:

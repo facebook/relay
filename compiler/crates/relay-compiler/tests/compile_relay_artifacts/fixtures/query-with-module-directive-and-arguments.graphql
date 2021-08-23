@@ -1,0 +1,38 @@
+query queryWithModuleDirectiveAndArguments_NameRendererQuery($id: ID!, $cond: Boolean!) {
+  node(id: $id) {
+    ...queryWithModuleDirectiveAndArguments_NameRendererFragment @arguments(local_cond: false)
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_NameRendererFragment on User
+  @argumentDefinitions(
+    local_cond: {type: "Boolean!"}
+  ){
+  id
+  nameRenderer {
+    ...queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: $cond)
+    ...queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react") @arguments(cond: $local_cond)
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    cond: {type: "Boolean!"}
+  ) {
+  markdown
+  data @include(if: $cond) {
+    markup
+  }
+}
+
+fragment queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name on PlainUserNameRenderer
+  @argumentDefinitions(
+    cond: {type: "Boolean!"}
+  ) {
+  plaintext
+  data @include(if: $cond){
+    text
+  }
+}

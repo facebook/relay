@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<49e7bf065d1ec83729d35df3630fdb54>>
+ * @generated SignedSource<<6625eb7e8803db059cf524ba5fddb661>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -74,6 +74,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "DataCheckerTest4Fragment",
               "fragmentName": "DataCheckerTestPlainUserNameRenderer_nameFragment",
               "fragmentPropName": "nameFragment",
@@ -87,6 +88,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "DataCheckerTest4Fragment",
               "fragmentName": "DataCheckerTestMarkdownUserNameRenderer_nameFragment",
               "fragmentPropName": "nameFragment",

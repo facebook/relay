@@ -8,7 +8,6 @@
 //! This module is responsible to build a single project. It does not handle
 //! watch mode or other state.
 
-mod apply_transforms;
 mod artifact_content;
 pub mod artifact_writer;
 mod build_ir;
@@ -21,27 +20,30 @@ mod persist_operations;
 mod source_control;
 mod validate;
 
+use self::log_program_stats::print_stats;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName, SourceSetName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
-use crate::watchman::SourceControlUpdateStatus;
+use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
-pub use apply_transforms::apply_transforms;
-pub use apply_transforms::Programs;
+pub use artifact_content::QueryID;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{PerfLogEvent, PerfLogger};
+use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
+    GenerateFragmentTextArtifactFn, GenerateOperationTextArtifactFn,
 };
 use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
+use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
+use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
@@ -63,6 +65,7 @@ impl From<BuildProjectError> for BuildProjectFailure {
 /// their locations to provide information to go_to_definition, hover, etc.
 pub fn build_raw_program(
     project_config: &ProjectConfig,
+    implicit_dependencies: &DependencyMap,
     graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
@@ -74,8 +77,14 @@ pub fn build_raw_program(
         base_fragment_names,
         source_hashes,
     } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(project_config, &schema, graphql_asts, is_incremental_build)
-            .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        build_ir::build_ir(
+            project_config,
+            &implicit_dependencies,
+            &schema,
+            graphql_asts,
+            is_incremental_build,
+        )
+        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
     })?;
 
     // Turn the IR into a base Program.
@@ -120,14 +129,9 @@ pub fn transform_program(
         program,
         base_fragment_names,
         &config.connection_interface,
-        Arc::new(
-            project_config
-                .feature_flags
-                .as_ref()
-                .cloned()
-                .unwrap_or_else(|| config.feature_flags.clone()),
-        ),
+        Arc::clone(&project_config.feature_flags),
         perf_logger,
+        Some(print_stats),
     )
     .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
 
@@ -156,6 +160,7 @@ pub fn build_programs(
 
     let (program, base_fragment_names, source_hashes) = build_raw_program(
         project_config,
+        &compiler_state.implicit_dependencies.read().unwrap(),
         graphql_asts,
         schema,
         log_event,
@@ -167,8 +172,23 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    // Call validation rules that go beyond type checking.
-    validate_program(&config, &program, log_event)?;
+    let (validation_results, _) = rayon::join(
+        || {
+            // Call validation rules that go beyond type checking.
+            validate_program(&config, &program, log_event)
+        },
+        || {
+            find_resolver_dependencies(
+                &mut compiler_state
+                    .pending_implicit_dependencies
+                    .write()
+                    .unwrap(),
+                &program,
+            );
+        },
+    );
+
+    validation_results?;
 
     let programs = transform_program(
         config,
@@ -227,8 +247,12 @@ pub fn build_project(
 
     // Generate artifacts by collecting information from the `Programs`.
     let artifacts_timer = log_event.start("generate_artifacts_time");
-    let artifacts = generate_artifacts(project_config, &programs, Arc::clone(&source_hashes))
-        .map_err(BuildProjectFailure::Error)?;
+    let artifacts = generate_artifacts(
+        config,
+        project_config,
+        &programs,
+        Arc::clone(&source_hashes),
+    );
     log_event.stop(artifacts_timer);
 
     log_event.number(
@@ -321,29 +345,20 @@ pub async fn commit_project(
     let next_artifact_map = match Arc::as_ref(&artifact_map) {
         ArtifactMapKind::Unconnected(existing_artifacts) => {
             let mut existing_artifacts = existing_artifacts.clone();
-            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let write_artifacts_time = log_event.start("write_artifacts_time");
+            write_artifacts(
+                config,
+                project_config,
+                schema,
+                should_stop_updating_artifacts,
+                &artifacts,
+            )?;
             for artifact in &artifacts {
-                if should_stop_updating_artifacts() {
-                    break;
-                }
                 if !existing_artifacts.remove(&artifact.path) {
-                    info!(
-                        "[{}] NEW: {:?} -> {:?}",
-                        project_config.name, &artifact.source_definition_names, &artifact.path
+                    debug!(
+                        "[{}] new artifact {:?} from definitions {:?}",
+                        project_config.name, &artifact.path, &artifact.source_definition_names
                     );
-                }
-
-                let path = config.root_dir.join(&artifact.path);
-                let content = artifact.content.as_bytes(
-                    config,
-                    project_config,
-                    &mut printer,
-                    schema,
-                    artifact.source_file,
-                );
-                if config.artifact_writer.should_write(&path, &content)? {
-                    config.artifact_writer.write(path, content)?;
                 }
             }
             log_event.stop(write_artifacts_time);
@@ -359,28 +374,20 @@ pub async fn commit_project(
             ArtifactMap::from(artifacts)
         }
         ArtifactMapKind::Mapping(artifact_map) => {
-            let mut printer = Printer::with_dedupe(project_config.js_module_format);
             let mut artifact_map = artifact_map.clone();
             let mut current_paths_map = ArtifactMap::default();
             let write_artifacts_incremental_time =
                 log_event.start("write_artifacts_incremental_time");
 
             // Write or update artifacts
+            write_artifacts(
+                config,
+                project_config,
+                schema,
+                should_stop_updating_artifacts,
+                &artifacts,
+            )?;
             for artifact in artifacts {
-                if should_stop_updating_artifacts() {
-                    break;
-                }
-                let path = config.root_dir.join(&artifact.path);
-                let content = artifact.content.as_bytes(
-                    config,
-                    project_config,
-                    &mut printer,
-                    schema,
-                    artifact.source_file,
-                );
-                if config.artifact_writer.should_write(&path, &content)? {
-                    config.artifact_writer.write(path, content)?;
-                }
                 current_paths_map.insert(artifact);
             }
             log_event.stop(write_artifacts_incremental_time);
@@ -462,4 +469,36 @@ The compiler may produce outdated artifacts, but it will regenerate the correct 
     perf_logger.complete_event(log_event);
 
     Ok(next_artifact_map)
+}
+
+fn write_artifacts<F: Fn() -> bool + Sync + Send>(
+    config: &Config,
+    project_config: &ProjectConfig,
+    schema: &SDLSchema,
+    should_stop_updating_artifacts: F,
+    artifacts: &[Artifact],
+) -> Result<(), BuildProjectFailure> {
+    artifacts.par_chunks(8192).try_for_each_init(
+        || Printer::with_dedupe(project_config.js_module_format),
+        |mut printer, artifacts| {
+            for artifact in artifacts {
+                if should_stop_updating_artifacts() {
+                    return Err(BuildProjectFailure::Cancelled);
+                }
+                let path = config.root_dir.join(&artifact.path);
+                let content = artifact.content.as_bytes(
+                    config,
+                    project_config,
+                    &mut printer,
+                    schema,
+                    artifact.source_file,
+                );
+                if config.artifact_writer.should_write(&path, &content)? {
+                    config.artifact_writer.write(path, content)?;
+                }
+            }
+            Ok(())
+        },
+    )?;
+    Ok(())
 }

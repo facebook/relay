@@ -1,0 +1,118 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictNestedConflictQuery {
+  me {
+    profile_picture {
+      same_alias: width
+    }
+  }
+  me {
+    profile_picture {
+      same_alias: height
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictNestedConflictQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictNestedConflictQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "width",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictNestedConflictQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictNestedConflictQuery {
+  me {
+    profile_picture {
+      same_alias: width
+    }
+    id
+  }
+}

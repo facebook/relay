@@ -1,0 +1,151 @@
+==================================== INPUT ====================================
+subscription subscriptionTransformSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ...subscriptionTransform_CommentCreateResponsePayload
+  }
+}
+
+fragment subscriptionTransform_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "subscriptionTransformSubscription",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "CommentCreateResponsePayload",
+        "kind": "LinkedField",
+        "name": "commentCreateSubscribe",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "documentName": "subscriptionTransformSubscription__subscription",
+            "fragmentName": "subscriptionTransform_CommentCreateResponsePayload",
+            "fragmentPropName": "CommentCreateResponsePayload",
+            "kind": "ModuleImport"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Subscription",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Operation",
+    "name": "subscriptionTransformSubscription",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "CommentCreateResponsePayload",
+        "kind": "LinkedField",
+        "name": "commentCreateSubscribe",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "documentName": "subscriptionTransformSubscription__subscription",
+            "fragmentName": "subscriptionTransform_CommentCreateResponsePayload",
+            "fragmentPropName": "CommentCreateResponsePayload",
+            "kind": "ModuleImport"
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {
+      "subscriptionName": "commentCreateSubscribe"
+    },
+    "name": "subscriptionTransformSubscription",
+    "operationKind": "subscription",
+    "text": null
+  }
+}
+
+QUERY:
+
+subscription subscriptionTransformSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ...subscriptionTransform_CommentCreateResponsePayload
+    __module_operation_subscriptionTransformSubscription__subscription: js(module: "subscriptionTransform_CommentCreateResponsePayload$normalization.graphql")
+  }
+}
+
+fragment subscriptionTransform_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}
+
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "subscriptionTransform_CommentCreateResponsePayload$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "subscriptionTransform_CommentCreateResponsePayload",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ],
+  "type": "CommentCreateResponsePayload",
+  "abstractKey": null
+}

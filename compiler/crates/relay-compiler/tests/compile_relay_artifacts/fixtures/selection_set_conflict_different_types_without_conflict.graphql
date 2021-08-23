@@ -1,0 +1,10 @@
+query selectionSetConflictDifferentTypesWithoutConflictQuery {
+  me {
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Actor {
+      same_alias: name
+    }
+  }
+}

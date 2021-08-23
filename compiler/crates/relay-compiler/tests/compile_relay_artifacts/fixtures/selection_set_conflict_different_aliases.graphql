@@ -1,0 +1,10 @@
+query selectionSetConflictDifferentAliasesQuery {
+  me {
+    big: profile_picture(scale: 1.5) {
+      width
+    }
+    small: profile_picture(scale: 1.0) {
+      width
+    }
+  }
+}

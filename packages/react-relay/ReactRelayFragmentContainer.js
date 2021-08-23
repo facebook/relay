@@ -16,7 +16,6 @@ const React = require('react');
 
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
-const getRootVariablesForFragments = require('./getRootVariablesForFragments');
 
 const {getContainerName} = require('./ReactRelayContainerUtils');
 const {assertRelayContext} = require('./RelayContext');
@@ -149,17 +148,17 @@ function createContainerWithFragments<
     }
 
     componentDidMount() {
-      this._subscribeToNewResolver();
-      this._rerenderIfStoreHasChanged();
+      this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
     }
 
     componentDidUpdate(prevProps: ContainerProps, prevState: ContainerState) {
       if (this.state.resolver !== prevState.resolver) {
         prevState.resolver.dispose();
 
-        this._subscribeToNewResolver();
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      } else {
+        this._rerenderIfStoreHasChanged();
       }
-      this._rerenderIfStoreHasChanged();
     }
 
     componentWillUnmount() {
@@ -222,12 +221,19 @@ function createContainerWithFragments<
       }
     }
 
-    _subscribeToNewResolver() {
-      const {resolver} = this.state;
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data, resolver} = this.state;
+      const maybeNewData = resolver.resolve();
 
       // Event listeners are only safe to add during the commit phase,
       // So they won't leak if render is interrupted or errors.
-      resolver.setCallback(this._handleFragmentDataUpdate);
+      resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
     }
 
     render() {

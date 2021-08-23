@@ -16,7 +16,7 @@ use lsp_types::{
 
 #[cfg(test)]
 pub fn initialize(client: &Connection, params: &InitializeParams, request_id: u64) {
-    let request_id = RequestId::from(request_id);
+    let request_id = RequestId::from(request_id.to_string());
     let request = ServerRequest {
         id: request_id,
         method: Initialize::METHOD.to_string(),

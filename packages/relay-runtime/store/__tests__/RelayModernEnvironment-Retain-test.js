@@ -24,6 +24,9 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql, getRequest} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('retain()', () => {
   let ParentQuery;
@@ -31,7 +34,6 @@ describe('retain()', () => {
   let operation;
 
   beforeEach(() => {
-    jest.resetModules();
     graphql`
       fragment RelayModernEnvironmentRetainTestQueryChildFragment on User {
         id
@@ -83,6 +85,7 @@ describe('retain()', () => {
   });
 
   it('releases data when disposed', () => {
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.retain(operation);
     const selector = createReaderSelector(
       ParentQuery.fragment,

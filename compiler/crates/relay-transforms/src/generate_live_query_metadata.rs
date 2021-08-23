@@ -23,7 +23,7 @@ lazy_static! {
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transformer = GenerateLiveQueryMetadata::new(program);
+    let mut transformer = GenerateLiveQueryMetadata::default();
     let next_program = transformer
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -35,21 +35,12 @@ pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Prog
     }
 }
 
-struct GenerateLiveQueryMetadata<'s> {
-    pub program: &'s Program,
-    pub errors: Vec<Diagnostic>,
+#[derive(Default)]
+struct GenerateLiveQueryMetadata {
+    errors: Vec<Diagnostic>,
 }
 
-impl<'s> GenerateLiveQueryMetadata<'s> {
-    fn new(program: &'s Program) -> Self {
-        GenerateLiveQueryMetadata {
-            program,
-            errors: vec![],
-        }
-    }
-}
-
-impl<'s> Transformer for GenerateLiveQueryMetadata<'s> {
+impl Transformer for GenerateLiveQueryMetadata {
     const NAME: &'static str = "GenerateLiveQueryMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

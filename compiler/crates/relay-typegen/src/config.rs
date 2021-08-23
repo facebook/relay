@@ -9,7 +9,7 @@ use fnv::FnvHashMap;
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
     Flow,
@@ -54,8 +54,8 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub custom_scalar_types: FnvHashMap<StringKey, StringKey>,
 
-    /// Use haste style (global name) imports instead of common-js path based
-    /// style.
+    /// Require all GraphQL scalar types mapping to be defined, will throw
+    /// if a GraphQL scalar type doesn't have a JS type
     #[serde(default)]
-    pub haste: bool,
+    pub require_custom_scalar_types: bool,
 }

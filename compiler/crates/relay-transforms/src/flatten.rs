@@ -18,10 +18,10 @@ use interner::StringKey;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
+use common::sync::*;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
-use rayon::prelude::*;
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -37,16 +37,37 @@ type SeenInlineFragments =
 ///
 /// with the exception that it never flattens the inline fragment with relay
 /// directives (@defer, @__clientExtensions).
-pub fn flatten(program: &mut Program, is_for_codegen: bool) -> DiagnosticsResult<()> {
-    let transform = FlattenTransform::new(program, is_for_codegen);
+///
+/// `should_validate_fragment_spreads` - This flag indicates that we need to
+/// validate the fragment spreads selections, and if they can be
+/// flattened with other selections. This flag should be passed when
+/// we're generating query texts.
+pub fn flatten(
+    program: &mut Program,
+    is_for_codegen: bool,
+    should_validate_fragment_spreads: bool,
+) -> DiagnosticsResult<()> {
+    let mut fragment_for_validation = FnvHashMap::default();
+    if should_validate_fragment_spreads {
+        for (name, fragment) in &program.fragments {
+            fragment_for_validation.insert(*name, Arc::clone(fragment));
+        }
+    }
+
+    let transform = FlattenTransform::new(
+        Arc::clone(&program.schema),
+        fragment_for_validation,
+        is_for_codegen,
+        should_validate_fragment_spreads,
+    );
     let errors = Arc::new(Mutex::new(Vec::new()));
 
-    program.par_operations_mut().for_each(|operation| {
+    par_iter(&mut program.operations).for_each(|operation| {
         if let Err(err) = transform.transform_operation(operation) {
             errors.lock().extend(err.into_iter());
         }
     });
-    program.par_fragments_mut().for_each(|fragment| {
+    par_iter(&mut program.fragments).for_each(|(_, fragment)| {
         if let Err(err) = transform.transform_fragment(fragment) {
             errors.lock().extend(err.into_iter());
         }
@@ -60,17 +81,26 @@ pub fn flatten(program: &mut Program, is_for_codegen: bool) -> DiagnosticsResult
 }
 
 struct FlattenTransform {
+    fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
     schema: Arc<SDLSchema>,
     is_for_codegen: bool,
+    should_validate_fragment_spreads: bool,
     seen_linked_fields: SeenLinkedFields,
     seen_inline_fragments: SeenInlineFragments,
 }
 
 impl FlattenTransform {
-    fn new(program: &'_ Program, is_for_codegen: bool) -> Self {
+    fn new(
+        schema: Arc<SDLSchema>,
+        fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+        is_for_codegen: bool,
+        should_validate_fragment_spreads: bool,
+    ) -> Self {
         Self {
-            schema: Arc::clone(&program.schema),
+            schema,
+            fragments,
             is_for_codegen,
+            should_validate_fragment_spreads,
             seen_linked_fields: Default::default(),
             seen_inline_fragments: Default::default(),
         }
@@ -116,6 +146,18 @@ impl FlattenTransform {
                 next_selections.push(selection.clone());
             }
         }
+
+        let mut flattened_selections_for_check = Vec::with_capacity(selections.len());
+        self.can_flatten_selections(
+            &mut flattened_selections_for_check,
+            if has_changes {
+                &next_selections
+            } else {
+                selections
+            },
+            parent_type,
+        )?;
+
         let mut flattened_selections = Vec::with_capacity(selections.len());
         has_changes = self.flatten_selections(
             &mut flattened_selections,
@@ -125,7 +167,7 @@ impl FlattenTransform {
                 selections
             },
             parent_type,
-        )? || has_changes;
+        ) || has_changes;
 
         Ok(if has_changes {
             TransformedValue::Replace(flattened_selections)
@@ -240,7 +282,7 @@ impl FlattenTransform {
         flattened_selections: &mut Vec<Selection>,
         selections: &[Selection],
         parent_type: Type,
-    ) -> DiagnosticsResult<bool> {
+    ) -> bool {
         let mut has_changes = false;
         for selection in selections {
             if let Selection::InlineFragment(inline_fragment) = selection {
@@ -251,14 +293,14 @@ impl FlattenTransform {
                         flattened_selections,
                         &inline_fragment.selections,
                         parent_type,
-                    )?;
+                    );
                     continue;
                 }
             }
 
-            let flattened_selection = flattened_selections
-                .iter_mut()
-                .find(|sel| NodeIdentifier::are_equal(&self.schema, sel, selection));
+            let flattened_selection = flattened_selections.iter_mut().find(|sel| {
+                sel.ptr_eq(selection) || NodeIdentifier::are_equal(&self.schema, sel, selection)
+            });
 
             match flattened_selection {
                 None => {
@@ -266,16 +308,159 @@ impl FlattenTransform {
                 }
                 Some(flattened_selection) => {
                     has_changes = true;
+                    if flattened_selection.ptr_eq(selection) {
+                        continue;
+                    }
                     match flattened_selection {
                         Selection::InlineFragment(flattened_node) => {
-                            let type_condition =
-                                flattened_node.type_condition.unwrap_or(parent_type);
-
                             let node = match selection {
                                 Selection::InlineFragment(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected an InlineFragment."),
                             };
 
+                            let type_condition =
+                                flattened_node.type_condition.unwrap_or(parent_type);
+
+                            let flattened_node_mut = Arc::make_mut(flattened_node);
+                            self.flatten_selections(
+                                &mut flattened_node_mut.selections,
+                                &node.selections,
+                                type_condition,
+                            );
+                        }
+                        Selection::LinkedField(flattened_node) => {
+                            let node = match selection {
+                                Selection::LinkedField(node) => node,
+                                _ => unreachable!("FlattenTransform: Expected a LinkedField."),
+                            };
+                            let type_ = self
+                                .schema
+                                .field(flattened_node.definition.item)
+                                .type_
+                                .inner();
+                            let should_merge_handles = selection.directives().iter().any(|d| {
+                                CustomMetadataDirectives::is_handle_field_directive(d.name.item)
+                            });
+
+                            let flattened_node_mut = Arc::make_mut(flattened_node);
+                            if should_merge_handles {
+                                flattened_node_mut.directives = merge_handle_directives(
+                                    &flattened_node_mut.directives,
+                                    selection.directives(),
+                                )
+                            };
+                            self.flatten_selections(
+                                &mut flattened_node_mut.selections,
+                                &node.selections,
+                                type_,
+                            );
+                        }
+                        Selection::Condition(flattened_node) => {
+                            let node = match selection {
+                                Selection::Condition(node) => node,
+                                _ => unreachable!("FlattenTransform: Expected a Condition."),
+                            };
+
+                            let flattened_node_mut = Arc::make_mut(flattened_node);
+                            self.flatten_selections(
+                                &mut flattened_node_mut.selections,
+                                &node.selections,
+                                parent_type,
+                            );
+                        }
+                        Selection::ScalarField(flattened_node) => {
+                            let node = match selection {
+                                Selection::ScalarField(node) => node,
+                                _ => unreachable!("FlattenTransform: Expected a ScalarField."),
+                            };
+                            let should_merge_handles = node.directives.iter().any(|d| {
+                                CustomMetadataDirectives::is_handle_field_directive(d.name.item)
+                            });
+                            if should_merge_handles {
+                                let flattened_node_mut = Arc::make_mut(flattened_node);
+                                flattened_node_mut.directives = merge_handle_directives(
+                                    &flattened_node_mut.directives,
+                                    selection.directives(),
+                                );
+                            }
+                        }
+                        Selection::FragmentSpread(_) => {}
+                    };
+                }
+            }
+        }
+
+        has_changes
+    }
+
+    fn can_flatten_selections(
+        &self,
+        flattened_selections: &mut Vec<Selection>,
+        selections: &[Selection],
+        parent_type: Type,
+    ) -> DiagnosticsResult<()> {
+        for selection in selections {
+            if self.should_validate_fragment_spreads {
+                if let Selection::FragmentSpread(spread) = selection {
+                    let fragment_definition =
+                        self.fragments
+                            .get(&spread.fragment.item)
+                            .ok_or(Diagnostic::error(
+                                ValidationMessage::UndefinedFragment(spread.fragment.item),
+                                spread.fragment.location,
+                            ))?;
+                    if fragment_definition.type_condition == parent_type {
+                        self.can_flatten_selections(
+                            flattened_selections,
+                            &fragment_definition.selections,
+                            fragment_definition.type_condition,
+                        )?;
+                    }
+                    continue;
+                }
+            }
+
+
+            if let Selection::InlineFragment(inline_fragment) = selection {
+                // We will iterate through a selection of inline fragments
+                // (ignoring its directives) if this inline fragment doesn't
+                // have a type condition or type condition is the same as `parent_type`.
+                // The one exception for the latter case is @module directive.
+                // These are specially validated: they don't have conflicts in selections
+                // but may have conflicts in directive arguments.
+                if inline_fragment.type_condition.is_none()
+                    || (inline_fragment.type_condition == Some(parent_type)
+                        && inline_fragment
+                            .directives
+                            .named(MATCH_CONSTANTS.custom_module_directive_name)
+                            .is_none())
+                {
+                    self.can_flatten_selections(
+                        flattened_selections,
+                        &inline_fragment.selections,
+                        parent_type,
+                    )?;
+                    continue;
+                }
+            }
+
+            let flattened_selection = flattened_selections.iter_mut().find(|sel| {
+                sel.ptr_eq(selection) || NodeIdentifier::are_equal(&self.schema, sel, selection)
+            });
+            match flattened_selection {
+                None => {
+                    flattened_selections.push(selection.clone());
+                }
+                Some(flattened_selection) => {
+                    if flattened_selection.ptr_eq(selection) {
+                        continue;
+                    }
+                    match flattened_selection {
+                        Selection::InlineFragment(flattened_node) => {
+                            let node = match selection {
+                                Selection::InlineFragment(node) => node,
+                                _ => unreachable!("FlattenTransform: Expected an InlineFragment."),
+                            };
                             if let Some(flattened_module_directive) = flattened_node
                                 .directives
                                 .named(MATCH_CONSTANTS.custom_module_directive_name)
@@ -301,10 +486,11 @@ impl FlattenTransform {
                                     }
                                 }
                             }
-
-                            let flattened_node = Arc::make_mut(flattened_node);
-                            self.flatten_selections(
-                                &mut flattened_node.selections,
+                            let type_condition =
+                                flattened_node.type_condition.unwrap_or(parent_type);
+                            let flattened_node_mut = Arc::make_mut(flattened_node);
+                            self.can_flatten_selections(
+                                &mut flattened_node_mut.selections,
                                 &node.selections,
                                 type_condition,
                             )?;
@@ -331,33 +517,24 @@ impl FlattenTransform {
                                 .field(flattened_node.definition.item)
                                 .type_
                                 .inner();
-                            let should_merge_handles = selection.directives().iter().any(|d| {
-                                CustomMetadataDirectives::is_handle_field_directive(d.name.item)
-                            });
 
-                            let flattened_node = Arc::make_mut(flattened_node);
-                            if should_merge_handles {
-                                flattened_node.directives = merge_handle_directives(
-                                    &flattened_node.directives,
-                                    selection.directives(),
-                                )
-                            };
-                            self.flatten_selections(
-                                &mut flattened_node.selections,
+                            let flattened_node_mut = Arc::make_mut(flattened_node);
+                            self.can_flatten_selections(
+                                &mut flattened_node_mut.selections,
                                 &node.selections,
                                 type_,
                             )?;
                         }
                         Selection::Condition(flattened_node) => {
-                            let node_selections = match selection {
-                                Selection::Condition(node) => &node.selections,
+                            let node = match selection {
+                                Selection::Condition(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a Condition."),
                             };
 
-                            let flattened_node = Arc::make_mut(flattened_node);
-                            self.flatten_selections(
-                                &mut flattened_node.selections,
-                                &node_selections,
+                            let flattened_node_mut = Arc::make_mut(flattened_node);
+                            self.can_flatten_selections(
+                                &mut flattened_node_mut.selections,
+                                &node.selections,
                                 parent_type,
                             )?;
                         }
@@ -378,23 +555,14 @@ impl FlattenTransform {
                                     &node.arguments,
                                 )]);
                             }
-                            let should_merge_handles = node.directives.iter().any(|d| {
-                                CustomMetadataDirectives::is_handle_field_directive(d.name.item)
-                            });
-                            if should_merge_handles {
-                                let flattened_node = Arc::make_mut(flattened_node);
-                                flattened_node.directives = merge_handle_directives(
-                                    &flattened_node.directives,
-                                    selection.directives(),
-                                );
-                            }
                         }
                         Selection::FragmentSpread(_) => {}
                     };
                 }
             }
         }
-        Ok(has_changes)
+
+        Ok(())
     }
 
     fn create_conflicting_fields_error(
@@ -408,14 +576,22 @@ impl FlattenTransform {
         Diagnostic::error(
             ValidationMessage::InvalidSameFieldWithDifferentArguments {
                 field_name,
-                arguments_a: graphql_text_printer::print_arguments(&self.schema, &arguments_a),
+                arguments_a: graphql_text_printer::print_arguments(
+                    &self.schema,
+                    &arguments_a,
+                    graphql_text_printer::PrinterOptions::default(),
+                ),
             },
             location_a,
         )
         .annotate(
             format!(
                 "which conflicts with this field with applied argument values {}",
-                graphql_text_printer::print_arguments(&self.schema, &arguments_b),
+                graphql_text_printer::print_arguments(
+                    &self.schema,
+                    &arguments_b,
+                    graphql_text_printer::PrinterOptions::default()
+                ),
             ),
             location_b,
         )

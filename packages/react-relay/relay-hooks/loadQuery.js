@@ -298,6 +298,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       // store in the first place, so it couldn't have been cached.
       const networkObservable =
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
         // $FlowFixMe[incompatible-call]
         queryId,
@@ -326,6 +327,27 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   }
 
   let isDisposed = false;
+  let isReleased = false;
+  let isNetworkRequestCancelled = false;
+  const releaseQuery = () => {
+    if (isReleased) {
+      return;
+    }
+    retainReference && retainReference.dispose();
+    isReleased = true;
+  };
+  const cancelNetworkRequest = () => {
+    if (isNetworkRequestCancelled) {
+      return;
+    }
+    if (didExecuteNetworkSource) {
+      unsubscribeFromExecution && unsubscribeFromExecution();
+    } else {
+      unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
+    }
+    cancelOnLoadCallback && cancelOnLoadCallback();
+    isNetworkRequestCancelled = true;
+  };
   return {
     kind: 'PreloadedQuery',
     environment,
@@ -334,20 +356,17 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       if (isDisposed) {
         return;
       }
-      if (didExecuteNetworkSource) {
-        unsubscribeFromExecution && unsubscribeFromExecution();
-      } else {
-        unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
-      }
-      retainReference && retainReference.dispose();
-      cancelOnLoadCallback && cancelOnLoadCallback();
+      releaseQuery();
+      cancelNetworkRequest();
       isDisposed = true;
     },
+    releaseQuery,
+    cancelNetworkRequest,
     fetchKey,
     id: queryId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
-      return isDisposed;
+      return isDisposed || isReleased;
     },
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get networkError() {

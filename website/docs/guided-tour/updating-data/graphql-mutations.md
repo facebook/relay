@@ -2,6 +2,9 @@
 id: graphql-mutations
 title: GraphQL Mutations
 slug: /guided-tour/updating-data/graphql-mutations/
+description: Relay guide to GraphQl mutations
+keywords:
+- mutation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -212,6 +215,7 @@ module.exports = {commit: commitCommentCreateMutation};
 Let's distill this example:
 
 * `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*.
+    * `updater` takes a second *`payload`* argument, which is the mutation response object. This can be used to retrieve the payload data without interacting with the *`store`*.
 * In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/updating-connections/).
     * There is no need for an updater in this example — it would be a great place to use the `@appendEdge` directive instead!
 * Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.
@@ -471,6 +475,28 @@ The recommended approach when executing a mutation is to request *all* the relev
 However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine "blocking a user" or "leaving a group").
 
 For these types of mutations, it's often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation APIs documented in our [Staleness of Data section](../../reusing-cached-data/staleness-of-data/).
+
+<FbInternalOnly>
+
+## Handling errors
+
+GraphQL errors can largely be differentiated as:
+
+1. Operation (query/mutation/subscription) level errors, and
+2. Field level errors
+
+### Surfacing mutation level errors
+
+If you're surfacing an error in the mutation (eg the server rejects the entire mutation because it's invalid), as long as the error returned is considered a [`CRITICAL`](https://www.internalfb.com/code/www/[b5a08782893a]/flib/graphql/experimental/core/error/GraphQL2ErrorSeverity.php?lines=11) error, you can make use of the `onError` callback from useMutation to handle that error in whatever way you see fit for your use case.
+
+If you control the server resolver, the question you should ask is whether or not throwing a CRITICAL error is the correct behavior for the client. Note though that throwing a CRITICAL error means that Relay will no longer process the interaction, which may not always be what you want if you can still partially update your UI. For example, it's possible that the mutation errored, but still wrote some data to the database, in which case you might still want Relay to process the updated fields.
+
+In the non-CRITICAL case the mutation may have failed, but some data was successfully returned in the case of partial data and/or the error response if encoded in the schema. Relay will still process this data, update its store, as well as components relying on that data. That is not true for the case where you've returned a CRITICAL error.
+
+### Surfacing field level errors
+Field level errors from the server are generally recommended to be at the [`ERROR`](https://www.internalfb.com/code/www/[9120ab8aa8a5]/flib/graphql/experimental/core/error/GraphQL2ErrorSeverity.php?lines=17) level, because your UI should still be able to process the other fields that were successfully returned. If you want to explicitly handle the field level error, then we still recommend [modeling that](../../rendering/error-states/#accessing-errors-in-graphql-responses) in your schema.
+
+</FbInternalOnly>
 
 ## Mutation queueing
 

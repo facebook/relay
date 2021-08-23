@@ -79,8 +79,8 @@ fragment RelayMockPayloadGeneratorTest6Fragment on User {
 exports[`generate mock and verify arguments in the context 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest14Query(
-  $smallScale: Int = 1
-  $bigScale: Int = 100
+  $smallScale: Float = 1
+  $bigScale: Float = 100
 ) {
   node(id: "my-id") {
     __typename
@@ -121,7 +121,7 @@ fragment RelayMockPayloadGeneratorTest14Fragment on User {
 exports[`generate mock for fragment with @argumentsDefinition 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest15Query(
-  $scale: Int = 1
+  $scale: Float = 1
 ) {
   node(id: "my-id") {
     __typename
@@ -679,10 +679,10 @@ fragment RelayMockPayloadGeneratorTest1Fragment on Actor {
 exports[`generate mock with condition (and other complications) 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest4Query(
-  $showProfilePicture: Boolean
-  $hideBirthday: Boolean
-  $showBirthdayMonth: Boolean
-  $hideAuthorUsername: Boolean
+  $showProfilePicture: Boolean!
+  $hideBirthday: Boolean!
+  $showBirthdayMonth: Boolean!
+  $hideAuthorUsername: Boolean!
 ) {
   node(id: "my-id") {
     __typename
@@ -755,7 +755,7 @@ exports[`generate mock with connection 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest5Query(
   $first: Int
-  $skipUserInConnection: Boolean
+  $skipUserInConnection: Boolean!
 ) {
   node(id: "my-id") {
     __typename
@@ -836,7 +836,7 @@ fragment RelayMockPayloadGeneratorTest5Fragment on Page {
 exports[`generate mock with inline fragment 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest3Query(
-  $condition: Boolean
+  $condition: Boolean!
 ) {
   node(id: "my-id") {
     __typename

@@ -9,26 +9,26 @@ fragment FlowRefetchableFragment on Node
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type FlowRefetchableFragmentQueryVariables = {
-  id: string
+  id: string;
 };
 export type FlowRefetchableFragmentQueryResponse = {
   readonly node: {
-    readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">
-  } | null
+    readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">;
+  } | null;
 };
 export type FlowRefetchableFragmentQuery = {
-  variables: FlowRefetchableFragmentQueryVariables,
-  response: FlowRefetchableFragmentQueryResponse,
+  variables: FlowRefetchableFragmentQueryVariables;
+  response: FlowRefetchableFragmentQueryResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FlowRefetchableFragment = {
-  readonly id: string,
-  readonly name?: string | null,
-  readonly " $refType": FragmentRefs<"FlowRefetchableFragment">,
+  readonly id: string;
+  readonly name?: string | null;
+  readonly " $refType": "FlowRefetchableFragment";
 };
 export type FlowRefetchableFragment$data = FlowRefetchableFragment;
 export type FlowRefetchableFragment$key = {
-  readonly " $data"?: FlowRefetchableFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">,
+  readonly " $data"?: FlowRefetchableFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"FlowRefetchableFragment">;
 };

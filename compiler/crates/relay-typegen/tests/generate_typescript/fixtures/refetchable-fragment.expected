@@ -9,28 +9,28 @@ fragment RefetchableFragment on Node
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragmentQueryVariables = {
-  id: string
+  id: string;
 };
 export type RefetchableFragmentQueryResponse = {
   readonly node: {
-    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">
-  } | null
+    readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">;
+  } | null;
 };
 export type RefetchableFragmentQuery = {
-  variables: RefetchableFragmentQueryVariables,
-  response: RefetchableFragmentQueryResponse,
+  variables: RefetchableFragmentQueryVariables;
+  response: RefetchableFragmentQueryResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type RefetchableFragment = {
-  readonly id: string,
+  readonly id: string;
   readonly fragAndField: {
-    readonly uri: string | null
-  } | null,
-  readonly " $refType": FragmentRefs<"RefetchableFragment">,
+    readonly uri: string | null;
+  } | null;
+  readonly " $refType": "RefetchableFragment";
 };
 export type RefetchableFragment$data = RefetchableFragment;
 export type RefetchableFragment$key = {
-  readonly " $data"?: RefetchableFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">,
+  readonly " $data"?: RefetchableFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"RefetchableFragment">;
 };

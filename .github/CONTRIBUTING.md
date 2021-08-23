@@ -10,9 +10,9 @@ The code of conduct is described in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)
 
 Some of the core team will be working directly on GitHub. These changes will be public from the beginning. Other changesets will come via a bridge with Facebook's internal source control. This is a necessity as it allows engineers at Facebook outside of the core team to move fast and contribute from an environment they are comfortable in.
 
-### `master` is unsafe
+### `main` is unsafe
 
-We will do our best to keep `master` in good shape, with tests passing at all times. But in order to move fast, we will make API changes that your application might not be compatible with. We will do our best to communicate these changes and always version appropriately so you can lock into a specific version if need be.
+We will do our best to keep `main` in good shape, with tests passing at all times. But in order to move fast, we will make API changes that your application might not be compatible with. We will do our best to communicate these changes and always version appropriately so you can lock into a specific version if need be.
 
 ### Pull Requests
 
@@ -20,7 +20,7 @@ The core team will be monitoring for pull requests. When we get one, we'll run s
 
 *Before* submitting a pull request, please make sure the following is done:
 
-1. Fork the repo and create your branch from `master`.
+1. Fork the repo and create your branch from `main`.
 2. If you've added code that should be tested, add tests.
 3. If you've changed APIs, update the documentation.
 4. Ensure the test suite passes (`yarn test` or `npm test`).
@@ -42,7 +42,7 @@ Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe
 
 ## How to Get in Touch
 
-If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://facebook.github.io/relay/en/help.html).
+If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://relay.dev/help).
 
 ## Style Guide
 

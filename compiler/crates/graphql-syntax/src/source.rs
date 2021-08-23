@@ -35,7 +35,7 @@ impl GraphQLSource {
         // Zero-indexed character offset on the line
         let mut character = self.column_index;
         let mut chars = self.text.chars().peekable();
-        let start_position = Position::new(line as u64, character as u64);
+        let start_position = Position::new(line as u32, character as u32);
         while let Some(chr) = chars.next() {
             let is_newline = match chr {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
@@ -57,7 +57,7 @@ impl GraphQLSource {
                 character += 1;
             }
         }
-        let end_position = Position::new(line as u64, character as u64);
+        let end_position = Position::new(line as u32, character as u32);
         Range::new(start_position, end_position)
     }
 }

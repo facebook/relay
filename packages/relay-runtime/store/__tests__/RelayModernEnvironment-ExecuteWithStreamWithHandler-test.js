@@ -24,6 +24,9 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with @stream with handler', () => {
   let actorFragment;
@@ -43,10 +46,6 @@ describe('execute() a query with @stream with handler', () => {
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery(
         $id: ID!
@@ -68,7 +67,7 @@ describe('execute() a query with @stream with handler', () => {
       }
     `);
     actorFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on Actor {
+      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }

@@ -54,7 +54,6 @@ Gets a string representation of the GraphQL mutation.
 ```
 
 getVariables(): {[name: string]: mixed}
-
 ```
 
 Gets the variables used by the mutation. These variables should be serialized and send in the GraphQL request.
@@ -64,7 +63,6 @@ Gets the variables used by the mutation. These variables should be serialized an
 ```
 
 getFiles(): ?{[key: string]: File}
-
 ```
 
 Gets an optional map from name to File objects.

@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{convert::TryInto, path::PathBuf};
+use std::{
+    convert::TryInto,
+    path::{Path, PathBuf},
+};
 
 use common::{Location, SourceLocationKey};
 use lsp_types::Url;
@@ -14,14 +17,14 @@ use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
 pub fn to_lsp_location_of_graphql_literal(
     location: Location,
-    root_dir: &PathBuf,
+    root_dir: &Path,
 ) -> LSPRuntimeResult<lsp_types::Location> {
     Ok(to_contents_and_lsp_location_of_graphql_literal(location, root_dir)?.1)
 }
 
 pub fn to_contents_and_lsp_location_of_graphql_literal(
     location: Location,
-    root_dir: &PathBuf,
+    root_dir: &Path,
 ) -> LSPRuntimeResult<(String, lsp_types::Location)> {
     match location.source_location() {
         SourceLocationKey::Embedded { path, index } => {
@@ -76,12 +79,12 @@ fn read_file_and_get_range(
         source.text.to_string(),
         lsp_types::Range {
             start: lsp_types::Position {
-                line: source.line_index as u64,
-                character: source.column_index as u64,
+                line: source.line_index as u32,
+                character: source.column_index as u32,
             },
             end: lsp_types::Position {
-                line: (source.line_index + line_count) as u64,
-                character: last_line.len() as u64,
+                line: (source.line_index + line_count) as u32,
+                character: last_line.len() as u32,
             },
         },
     ))

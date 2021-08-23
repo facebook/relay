@@ -71,6 +71,7 @@ impl SchemaChange {
 
 lazy_static! {
     static ref ID_FIELD_KEY: StringKey = "id".intern();
+    static ref JS_FIELD_KEY: StringKey = "js".intern();
     static ref NODE_INTERFACE_KEY: StringKey = "Node".intern();
 }
 
@@ -114,8 +115,14 @@ fn is_field_changes_safe(
     if !removed.is_empty() {
         return false;
     }
-    // Addition of id fields is unsafe
-    if added.iter().any(|add| add.name == *ID_FIELD_KEY) {
+
+    // Special fields might change the compile output:
+    // - `id` added to an object makes the compiler select that field
+    // - `js` field added to a type might change 3D code generation
+    if added
+        .iter()
+        .any(|add| add.name == *ID_FIELD_KEY || add.name == *JS_FIELD_KEY)
+    {
         return false;
     }
 

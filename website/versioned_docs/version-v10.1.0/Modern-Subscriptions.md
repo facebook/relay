@@ -6,7 +6,6 @@ original_id: subscriptions
 Relay exposes the following APIs to create subscriptions.
 
 ```javascript
-
 import { requestSubscription } from 'react-relay';
 
 type Variables = {[name: string]: any};
@@ -28,7 +27,6 @@ requestSubscription(
     cacheConfig?: CacheConfig,
   },
 ) => Disposable;
-
 ```
 
 The function returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
@@ -55,7 +53,6 @@ appropriate when you are only changing the properties of existing records that
 can be identified by their `id`:
 
 ```javascript
-
 import {
   requestSubscription,
   graphql,
@@ -89,7 +86,6 @@ requestSubscription(
     onError: error => console.error(error),
   }
 );
-
 ```
 
 # Configure Network
@@ -97,7 +93,6 @@ requestSubscription(
 You will need to Configure your [Network](./network-layer) to handle subscriptions. The below example uses [subscriptions-transport-ws](https://github.com/apollographql/subscriptions-transport-ws):
 
 ```javascript
-
 import {
     ...
     Network,
@@ -134,7 +129,6 @@ Relay's in-memory cache when each subscription response is received. To do so,
 pass an `updater` function:
 
 ```javascript
-
 import { ConnectionHandler } from 'relay-runtime';
 
 requestSubscription(
@@ -160,5 +154,4 @@ requestSubscription(
     },
   },
 );
-
 ```

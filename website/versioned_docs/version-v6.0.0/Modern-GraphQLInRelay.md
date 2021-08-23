@@ -14,7 +14,6 @@ Table of Contents:
 The `graphql` template tag provided by Relay serves as the mechanism to write queries, fragments, mutations or subscriptions in the [GraphQL](http://graphql.org/learn/) language. For example:
 
 ```javascript
-
 import {graphql} from 'react-relay';
 
 graphql`
@@ -24,7 +23,6 @@ graphql`
     }
   }
 `;
-
 ```
 
 The result of using the `graphql` template tag is a `GraphQLTaggedNode`; a runtime representation of the GraphQL document which can be used to define [Query Renderers](./query-renderer), [Fragment Containers](./fragment-container), [Refetch Containers](./refetch-container), [Pagination Containers](./pagination-container), etc.
@@ -42,11 +40,9 @@ Relay uses directives to add additional information to GraphQL documents, which 
 `@arguments` is a directive used to pass arguments to a fragment that was defined using [`@argumentDefinitions`](#argumentdefinitions). For example:
 
 ```graphql
-
 query TodoListQuery($userID: ID) {
   ...TodoList_list @arguments(count: $count, userID: $userID) # Pass arguments here
 }
-
 ```
 
 See the [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragment) for more details.
@@ -56,7 +52,6 @@ See the [Fragment Container docs](./fragment-container#passing-arguments-to-a-fr
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment. For example:
 
 ```graphql
-
 fragment TodoList_list on TodoList @argumentDefinitions(
   count: {type: "Int", defaultValue: 10},  # Optional argument
   userID: {type: "ID"},                    # Required argument
@@ -66,7 +61,6 @@ fragment TodoList_list on TodoList @argumentDefinitions(
     ...TodoItem_item
   }
 }
-
 ```
 
 See the [Fragment Container docs](./fragment-container#passing-arguments-to-a-fragment) for more details.
@@ -80,7 +74,6 @@ When using the [Pagination Container](./pagination-container), Relay expects con
 When defining a fragment for use with a Fragment container, you can use the `@relay(plural: true)` directive to indicate that container expects the prop for that fragment to be a list of items instead of a single item. A query or parent that spreads a `@relay(plural: true)` fragment should do so within a plural field (ie a field backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For example:
 
 ```javascript
-
 // Plural fragment definition
 graphql`
 fragment TodoItems_items on TodoItem @relay(plural: true) {
@@ -95,7 +88,6 @@ fragment TodoApp_app on App {
     ...TodoItem_items
   }
 }
-
 ```
 
 ### `@inline`
@@ -107,7 +99,6 @@ Non-React functions can also take advantage of data masking. A fragment can be d
 In the example below, the function `processItemData` is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the `processItemData_item` fragment to ensure all of the correct item data is loaded for this function.
 
 ```javascript
-
 import {graphql, readInlineData} from 'react-relay';
 
 // non-React function called from React
@@ -127,11 +118,9 @@ function processItemData(itemRef) {
     creatorName: item.creator.name
   });
 }
-
 ```
 
 ```javascript
-
 // React Component
 function MyComponent({item}) {
   function handleClick() {
@@ -151,7 +140,6 @@ export default createFragmentContainer(MyComponent, {
     }
   `
 });
-
 ```
 
 ### `@relay(mask: Boolean)`
@@ -169,7 +157,6 @@ Keep in mind that it is typically considered an **anti-pattern** to create a sin
 In the example below, the `user` prop will include the data for `id` and `name` fields wherever `...Component_internUser` is included, instead of Relay's normal behavior to mask those fields:
 
 ```javascript
-
 graphql`
   fragment Component_internUser on InternUser @relay(mask: false) {
     id
@@ -197,7 +184,6 @@ export default createFragmentContainer(
     }
   `,
 );
-
 ```
 
 ## Relay Compiler
@@ -207,7 +193,6 @@ Relay uses the Relay Compiler to convert [`graphql`](#graphql) literals into gen
 A query like the following:
 
 ```javascript
-
 graphql`
   fragment MyComponent on Type {
     field
@@ -228,12 +213,10 @@ Relay Compiler supports the use of **persisted queries**, in which each version 
 
 Persisted queries can be enabled by instructing Relay Compiler to emit metadata about each query, mutation, and subscription into a JSON file. The generated file will contain a mapping of query identifiers to query text, which you can then save to your server. To enable persisted queries, use the `--persist-output` flag to the compiler:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output ./path/to/persisted-queries.json"
 }
-
 ```
 
 Relay Compiler will then create the id =&gt; query text mapping in the path you specify. You can then use this complete
@@ -250,7 +233,6 @@ See our relay-compiler section in our [Installation and Setup guide](./installat
 To use the Relay Compiler, you need either a .graphql or .json GraphQL schema file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
 
 ```graphql
-
 schema {
   query: Root
 }
@@ -268,7 +250,6 @@ type WordDefinition {
   text: String
   image: String
 }
-
 ```
 
 ### Source files
@@ -284,7 +265,6 @@ For example, given the two files:
 -   `src/Components/DictionaryComponent.js`
 
     ```javascript
-
     const DictionaryWordFragment = graphql`
       fragment DictionaryComponent_word on Word {
         id
@@ -306,7 +286,6 @@ For example, given the two files:
 -   `src/Queries/DictionaryQuery.js`
 
     ```javascript
-
     const DictionaryQuery = graphql`
       query DictionaryQuery {
         dictionary {
@@ -330,9 +309,7 @@ Typically you will not need to import your generated definitions. The [Relay Bab
 However the Relay Compiler also automatically generates [Flow](https://flow.org) types as [type comments](https://flow.org/en/docs/types/comments/). For example, you can import the generated Flow types like so:
 
 ```javascript
-
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
-
 ```
 
 ### Client schema extensions
@@ -342,7 +319,6 @@ The Relay Compiler fully supports client-side schema extensions, which allows yo
 For example, assuming the server schema `./schema.graphql`:
 
 ```graphql
-
 schema {
   query: Root
 }
@@ -350,28 +326,23 @@ schema {
 type Root {
   title: String!
 }
-
 ```
 
 We can create a `./src/clientSchema.graphql` and define a new type called `Setting`:
 
 ```graphql
-
 type Setting {
   name: String!
   active: Boolean!
 }
-
 ```
 
 We can then extend existing server types in the client schema `./src/clientSchema.graphql` with our new `Setting` type, like so:
 
 ```graphql
-
 extend type Root {
   settings: [Setting]
 }
-
 ```
 
 Any fields specified in the client schema, can be fetched from the [Relay Store](./relay-store), by selecting it in a query or fragment.
@@ -380,6 +351,6 @@ For more details, refer to the [Local state management section](./local-state-ma
 
 ### Advanced usage
 
-In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/master/packages/relay-compiler/index.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
+In addition to the bin script, the `relay-compiler` package also [exports library code](https://github.com/facebook/relay/blob/main/packages/relay-compiler/index.js) which you may use to create more complex configurations for the compiler, or to extend the compiler with your own custom output.
 
 If you find you need to do something unique (like generate types that conform to an older version of Flow, or to parse non-javascript source files), you can build your own version of the Compiler by swapping in your own `FileWriter` and `ASTCache`, or by adding on an additional `IRTransform`. Note, the internal APIs of the `RelayCompiler` are under constant iteration, so rolling your own version may lead to incompatibilities with future releases.

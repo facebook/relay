@@ -7,15 +7,18 @@
 
 use serde::{Deserialize, Serialize};
 
+/// Formatting style for generated files.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub enum JsModuleFormat {
+    /// Common JS style, e.g. `require('../path/MyModule')`
     CommonJS,
+    /// Facebook style, e.g. `require('MyModule')`
     Haste,
 }
 
 impl Default for JsModuleFormat {
     fn default() -> Self {
-        JsModuleFormat::Haste
+        JsModuleFormat::CommonJS
     }
 }

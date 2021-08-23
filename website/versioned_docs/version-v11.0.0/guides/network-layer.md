@@ -18,7 +18,6 @@ In order to know how to access your GraphQL server, Relay requires developers to
 Currently the easiest way to create a network layer is via a helper from the `relay-runtime` package:
 
 ```javascript
-
 import {
   Environment,
   Network,
@@ -60,7 +59,6 @@ const environment = new Environment({
 });
 
 export default environment;
-
 ```
 
 Note that this is a basic example to help you get started. This example could be extended with additional features such as request/response caching (enabled e.g. when `cacheConfig.force` is false) and uploading form data for mutations (the `uploadables` parameter).

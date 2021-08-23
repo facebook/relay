@@ -28,46 +28,51 @@ use indexmap::{map::Entry, IndexMap, IndexSet};
 use interner::{Intern, StringKey};
 use itertools::Itertools;
 use lazy_static::lazy_static;
+use relay_codegen::JsModuleFormat;
 use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
-    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, REQUIRED_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
+    REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
-use std::fmt::Result;
 use std::hash::Hash;
+use std::{fmt::Result, path::Path};
 use writer::{Prop, AST, SPREAD_KEY};
 
 lazy_static! {
-    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
-    static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
-    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
-    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
-    static ref VARIABLES: StringKey = "variables".intern();
-    static ref RESPONSE: StringKey = "response".intern();
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
-    pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
     pub(crate) static ref KEY_FRAGMENT_REFS: StringKey = "$fragmentRefs".intern();
-    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
-    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
-    static ref KEY_TYPENAME: StringKey = "__typename".intern();
-    static ref TYPE_ID: StringKey = "ID".intern();
-    static ref TYPE_STRING: StringKey = "String".intern();
-    static ref TYPE_FLOAT: StringKey = "Float".intern();
-    static ref TYPE_INT: StringKey = "Int".intern();
-    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    pub(crate) static ref KEY_REF_TYPE: StringKey = "$refType".intern();
+    static ref ACTOR_CHANGE_POINT: StringKey = "ActorChangePoint".intern();
+    static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
     static ref JS_FIELD_NAME: StringKey = "js".intern();
+    static ref KEY_RAW_RESPONSE: StringKey = "rawResponse".intern();
+    static ref KEY_TYPENAME: StringKey = "__typename".intern();
+    static ref LOCAL_3D_PAYLOAD: StringKey = "Local3DPayload".intern();
+    static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
+    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
+    static ref REACT_RELAY_MULTI_ACTOR: StringKey = "react-relay/multi-actor".intern();
+    static ref RELAY_RUNTIME: StringKey = "relay-runtime".intern();
+    static ref RESPONSE: StringKey = "response".intern();
+    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
+    static ref TYPE_FLOAT: StringKey = "Float".intern();
+    static ref TYPE_ID: StringKey = "ID".intern();
+    static ref TYPE_INT: StringKey = "Int".intern();
+    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref VARIABLES: StringKey = "variables".intern();
 }
 
 pub fn generate_fragment_type(
     fragment: &FragmentDefinition,
     schema: &SDLSchema,
+    js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, typegen_config);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
     generator.generate_fragment_type(fragment).unwrap();
     generator.into_string()
 }
@@ -76,9 +81,10 @@ pub fn generate_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
+    js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, typegen_config);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
     generator
         .generate_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -89,9 +95,10 @@ pub fn generate_split_operation_type(
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
+    js_module_format: JsModuleFormat,
     typegen_config: &TypegenConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(schema, typegen_config);
+    let mut generator = TypeGenerator::new(schema, js_module_format, typegen_config);
     generator
         .generate_split_operation_type(typegen_operation, normalization_operation)
         .unwrap();
@@ -118,12 +125,18 @@ struct TypeGenerator<'a> {
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
+    js_module_format: JsModuleFormat,
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
+    has_actor_change: bool,
 }
 impl<'a> TypeGenerator<'a> {
-    fn new(schema: &'a SDLSchema, typegen_config: &'a TypegenConfig) -> Self {
+    fn new(
+        schema: &'a SDLSchema,
+        js_module_format: JsModuleFormat,
+        typegen_config: &'a TypegenConfig,
+    ) -> Self {
         Self {
             schema,
             generated_fragments: Default::default(),
@@ -132,10 +145,12 @@ impl<'a> TypeGenerator<'a> {
             imported_resolvers: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
+            js_module_format,
             typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: Self::create_writer(typegen_config),
+            has_actor_change: false,
         }
     }
 
@@ -186,6 +201,14 @@ impl<'a> TypeGenerator<'a> {
             self.runtime_imports.fragment_reference = true;
         }
 
+        // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
+        if self.typegen_config.language == TypegenLanguage::TypeScript
+            && has_fragment_spread(typegen_operation)
+        {
+            self.runtime_imports.fragment_reference = true;
+        }
+
+        self.write_import_actor_change_point()?;
         self.write_runtime_imports()?;
         if let Some(refetchable_fragment_name) = refetchable_fragment_name {
             self.write_fragment_refs_for_refetchable(refetchable_fragment_name)?;
@@ -325,27 +348,31 @@ impl<'a> TypeGenerator<'a> {
         };
 
         self.runtime_imports.fragment_reference = true;
+        self.write_import_actor_change_point()?;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
         self.write_runtime_imports()?;
+        self.write_relay_resolver_imports()?;
 
         let refetchable_metadata = extract_refetch_metadata_from_directive(&node.directives);
         let old_fragment_type_name = format!("{}$ref", old_fragment_type_name).intern();
         if let Some(refetchable_metadata) = refetchable_metadata {
-            if self.typegen_config.haste {
-                // TODO(T22653277) support non-haste environments when importing
-                // fragments
-                self.writer.write_import_fragment_type(
-                    &[old_fragment_type_name, new_fragment_type_name],
-                    format!("{}.graphql", refetchable_metadata.operation_name).intern(),
-                )?;
-            } else {
-                self.writer
-                    .write_any_type_definition(old_fragment_type_name)?;
-                self.writer
-                    .write_any_type_definition(new_fragment_type_name)?;
+            match self.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    // TODO(T22653277) support non-haste environments when
+                    // importing fragments
+                    self.writer
+                        .write_any_type_definition(old_fragment_type_name)?;
+                    self.writer
+                        .write_any_type_definition(new_fragment_type_name)?;
+                }
+                JsModuleFormat::Haste => {
+                    self.writer.write_import_fragment_type(
+                        &[old_fragment_type_name, new_fragment_type_name],
+                        format!("{}.graphql", refetchable_metadata.operation_name).intern(),
+                    )?;
+                }
             }
-
             self.writer
                 .write_export_fragment_types(old_fragment_type_name, new_fragment_type_name)?;
         } else {
@@ -425,7 +452,6 @@ impl<'a> TypeGenerator<'a> {
             *RELAY_RESOLVER_METADATA_FIELD_NAME,
         );
 
-        // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
         let module_path = expect_string_literal_directive_argument_value(
             metadata_directive,
             *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
@@ -446,8 +472,15 @@ impl<'a> TypeGenerator<'a> {
         let local_resolver_name =
             to_camel_case(format!("{}_{}_resolver", parent_type, field_name)).intern();
 
+        // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
+        let haste_import_name = Path::new(&module_path.to_string())
+            .file_stem()
+            .unwrap()
+            .to_string_lossy()
+            .intern();
+
         self.imported_resolvers
-            .entry(module_path)
+            .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
         type_selections.push(TypeSelection {
@@ -510,19 +543,62 @@ impl<'a> TypeGenerator<'a> {
                 node_selections: None,
                 document_name: None,
             });
-            return;
-        }
-        let mut selections = self.visit_selections(&inline_fragment.selections);
-        if let Some(type_condition) = inline_fragment.type_condition {
-            for selection in &mut selections {
-                if type_condition.is_abstract_type() {
-                    selection.conditional = true;
-                } else {
-                    selection.concrete_type = Some(type_condition);
+        } else if inline_fragment
+            .directives
+            .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+            .is_some()
+        {
+            self.visit_actor_change(type_selections, &inline_fragment);
+        } else {
+            let mut selections = self.visit_selections(&inline_fragment.selections);
+            if let Some(type_condition) = inline_fragment.type_condition {
+                for selection in &mut selections {
+                    if type_condition.is_abstract_type() {
+                        selection.conditional = true;
+                    } else {
+                        selection.concrete_type = Some(type_condition);
+                    }
                 }
             }
+            type_selections.append(&mut selections);
         }
-        type_selections.append(&mut selections);
+    }
+
+    fn visit_actor_change(
+        &mut self,
+        type_selections: &mut Vec<TypeSelection>,
+        inline_fragment: &InlineFragment,
+    ) {
+        let linked_field = match &inline_fragment.selections[0] {
+            Selection::LinkedField(linked_field) => linked_field,
+            _ => {
+                panic!("Expect to have only linked field in the selection of the actor change")
+            }
+        };
+
+        self.has_actor_change = true;
+        let field = self.schema.field(linked_field.definition.item);
+        let schema_name = field.name;
+        let key = if let Some(alias) = linked_field.alias {
+            alias.item
+        } else {
+            schema_name
+        };
+
+        let linked_field_selections = self.visit_selections(&linked_field.selections);
+        type_selections.push(TypeSelection {
+            key,
+            schema_name: Some(schema_name),
+            node_type: None,
+            value: Some(AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
+                self.selections_to_babel(linked_field_selections.into_iter(), false, None),
+            ))))),
+            conditional: false,
+            concrete_type: None,
+            ref_: None,
+            node_selections: None,
+            document_name: None,
+        });
     }
 
     fn raw_response_visit_inline_fragment(
@@ -776,7 +852,7 @@ impl<'a> TypeGenerator<'a> {
                             key: *KEY_REF_TYPE,
                             optional: false,
                             read_only: true,
-                            value: AST::FragmentReference(vec![fragment_type_name]),
+                            value: AST::FragmentReferenceType(fragment_type_name),
                         });
                     }
                     if unmasked {
@@ -1019,6 +1095,12 @@ impl<'a> TypeGenerator<'a> {
         {
             AST::RawType(custom_scalar)
         } else {
+            if self.typegen_config.require_custom_scalar_types {
+                panic!(
+                    "Expected the JS type for '{}' to be defined, please update 'customScalarTypes' in your compiler config.",
+                    scalar_name
+                );
+            }
             AST::Any
         }
     }
@@ -1060,23 +1142,34 @@ impl<'a> TypeGenerator<'a> {
         for used_fragment in self.used_fragments.iter().sorted() {
             let fragment_type_name = get_old_fragment_type_name(*used_fragment);
             if !self.generated_fragments.contains(used_fragment) {
-                if self.typegen_config.haste {
-                    // TODO(T22653277) support non-haste environments when importing
-                    // fragments
-                    self.writer.write_import_fragment_type(
-                        &[fragment_type_name],
-                        format!("{}.graphql", used_fragment).intern(),
-                    )?;
-                // } else if (state.useSingleArtifactDirectory) {
-                //   imports.push(
-                //     importTypes([fragmentTypeName], './' + usedFragment + '.graphql'),
-                //   );
-                } else {
-                    self.writer.write_any_type_definition(fragment_type_name)?;
+                match self.js_module_format {
+                    JsModuleFormat::CommonJS => {
+                        // if useSingleArtifactDirectory {
+                        //   importTypes([fragmentTypeName], './' + usedFragment + '.graphql');
+                        // } else {
+                        self.writer.write_any_type_definition(fragment_type_name)?;
+                    }
+                    JsModuleFormat::Haste => {
+                        // TODO(T22653277) support non-haste environments when importing
+                        // fragments
+                        self.writer.write_import_fragment_type(
+                            &[fragment_type_name],
+                            format!("{}.graphql", used_fragment).intern(),
+                        )?;
+                    }
                 }
             }
         }
         Ok(())
+    }
+
+    fn write_import_actor_change_point(&mut self) -> Result {
+        if self.has_actor_change {
+            self.writer
+                .write_import_type(&[*ACTOR_CHANGE_POINT], *REACT_RELAY_MULTI_ACTOR)
+        } else {
+            Ok(())
+        }
     }
 
     fn write_relay_resolver_imports(&mut self) -> Result {
@@ -1092,14 +1185,17 @@ impl<'a> TypeGenerator<'a> {
         }
 
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
-            if self.typegen_config.haste {
-                self.writer.write_import_fragment_type(
-                    &[imported_raw_response_type],
-                    format!("{}.graphql", imported_raw_response_type).intern(),
-                )?;
-            } else {
-                self.writer
-                    .write_any_type_definition(imported_raw_response_type)?;
+            match self.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    self.writer
+                        .write_any_type_definition(imported_raw_response_type)?;
+                }
+                JsModuleFormat::Haste => {
+                    self.writer.write_import_fragment_type(
+                        &[imported_raw_response_type],
+                        format!("{}.graphql", imported_raw_response_type).intern(),
+                    )?;
+                }
             }
         }
 
@@ -1406,6 +1502,27 @@ fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
         .directives
         .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
         .is_some()
+}
+
+fn has_fragment_spread(operation: &OperationDefinition) -> bool {
+    let mut selections: Vec<&[Selection]> = vec![&operation.selections];
+    while let Some(selection) = selections.pop() {
+        for sel in selection.iter() {
+            match sel {
+                Selection::FragmentSpread(_) => {
+                    return true;
+                }
+                Selection::Condition(condition) => selections.push(&condition.selections),
+                Selection::LinkedField(linked_field) => selections.push(&linked_field.selections),
+                Selection::InlineFragment(inline_fragment) => {
+                    selections.push(&inline_fragment.selections)
+                }
+                Selection::ScalarField(_) => {}
+            }
+        }
+    }
+
+    false
 }
 
 fn apply_required_directive_nullability(

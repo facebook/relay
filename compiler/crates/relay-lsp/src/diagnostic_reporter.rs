@@ -11,7 +11,7 @@ use crate::lsp::{
     Url,
 };
 use common::{Diagnostic as CompilerDiagnostic, Location};
-use crossbeam::crossbeam_channel::Sender;
+use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use lsp_server::Message;
@@ -19,6 +19,7 @@ use relay_compiler::{
     errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
 };
+use serde_json::Value;
 use std::path::PathBuf;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
@@ -157,7 +158,7 @@ impl DiagnosticReporter {
 
     fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
         let message = diagnostic.message().to_string();
-
+        let data = get_diagnostics_data(diagnostic);
         let location = diagnostic.location();
 
         let url = match url_from_location(location, &self.root_dir) {
@@ -188,12 +189,14 @@ impl DiagnosticReporter {
 
         let diagnostic = Diagnostic {
             code: None,
+            data,
             message,
             range,
             related_information: None,
             severity: Some(DiagnosticSeverity::Error),
             source: None,
             tags: None,
+            ..Default::default()
         };
         self.add_diagnostic(url, diagnostic);
     }
@@ -225,10 +228,52 @@ impl DiagnosticReporter {
             severity: Some(DiagnosticSeverity::Error),
             source: None,
             tags: None,
+            ..Default::default()
         };
         let url = Url::from_directory_path(&self.root_dir)
             .expect("print_generic_error: Could not convert self.root_dir to Url");
         self.add_diagnostic(url, diagnostic);
+    }
+
+    pub fn get_diagnostics_for_range(&self, url: &Url, range: Range) -> Option<Diagnostic> {
+        let diagnostic_set = self.active_diagnostics.get(url)?;
+        diagnostic_set
+            .quick_diagnostics
+            .iter()
+            .find(|item| is_sub_range(range, item.range))
+            .or_else(|| {
+                diagnostic_set
+                    .regular_diagnostics
+                    .iter()
+                    .find(|item| is_sub_range(range, item.range))
+            })
+            .cloned()
+    }
+}
+
+/// Checks if `inner` range is withing the `outer` range.
+/// First, we need to make sure that the start character of the outer range
+/// is before (or the same) character of the inner range.
+/// Then we need to make sure that end character of the outer range is after
+/// (or the same) as the end character of the inner range, or outer line
+/// is more than inner end line.
+fn is_sub_range(inner: Range, outer: Range) -> bool {
+    return (outer.start.character <= inner.start.character
+        && outer.start.line <= inner.start.line)
+        && (outer.end.character >= inner.end.character || outer.end.line > inner.end.line);
+}
+
+pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
+    let diagnostic_data = diagnostic.get_data();
+    if !diagnostic_data.is_empty() {
+        Some(Value::Array(
+            diagnostic_data
+                .iter()
+                .map(|item| Value::String(item.to_string()))
+                .collect(),
+        ))
+    } else {
+        None
     }
 }
 
@@ -236,23 +281,24 @@ impl DiagnosticReporter {
 mod tests {
     use super::DiagnosticReporter;
     use common::{Diagnostic, Location, SourceLocationKey, Span};
-    use crossbeam::crossbeam_channel;
     use interner::Intern;
     use relay_compiler::SourceReader;
+    use std::env;
     use std::path::PathBuf;
 
     struct MockSourceReader(String);
 
     impl SourceReader for MockSourceReader {
-        fn read_to_string(&self, _path: &PathBuf) -> std::io::Result<String> {
+        fn read_file_to_string(&self, _path: &PathBuf) -> std::io::Result<String> {
             Ok(self.0.to_string())
         }
     }
 
     #[test]
     fn report_diagnostic_test() {
-        let root_dir = PathBuf::from("/tmp");
-        let (sender, _) = crossbeam_channel::unbounded();
+        let root_dir =
+            env::current_dir().expect("expect to be able to get the current working directory");
+        let (sender, _) = crossbeam::channel::unbounded();
         let mut reporter = DiagnosticReporter::new(root_dir, sender);
         reporter.set_source_reader(Box::new(MockSourceReader("Content".to_string())));
         let source_location = SourceLocationKey::Standalone {
@@ -271,7 +317,7 @@ mod tests {
     #[test]
     fn do_not_report_diagnostic_without_url_test() {
         let root_dir = PathBuf::from("/tmp");
-        let (sender, _) = crossbeam_channel::unbounded();
+        let (sender, _) = crossbeam::channel::unbounded();
 
         let mut reporter = DiagnosticReporter::new(root_dir, sender);
         reporter.set_source_reader(Box::new(MockSourceReader("".to_string())));

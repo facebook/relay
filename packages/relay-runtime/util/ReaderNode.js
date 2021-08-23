@@ -108,7 +108,10 @@ export type ReaderClientExtension = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField = ReaderScalarField | ReaderLinkedField;
+export type ReaderField =
+  | ReaderScalarField
+  | ReaderLinkedField
+  | ReaderRelayResolver;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -133,7 +136,17 @@ export type ReaderLinkedField = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+export type ReaderActorChange = {|
+  +kind: 'ActorChange',
+  +alias: ?string,
+  +name: string,
+  +storageKey: ?string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +fragmentSpread: ReaderFragmentSpread,
+|};
+
 export type ReaderModuleImport = {|
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
@@ -223,6 +236,7 @@ export type ReaderSelection =
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
+  | ReaderActorChange
   | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderInlineDataFragmentSpread

@@ -94,6 +94,7 @@ function visitScalarField(field: ScalarField): ScalarField {
     return field;
   }
 
+  // $FlowFixMe[incompatible-use]
   const schema = this.getContext().getSchema();
 
   if (!schema.isId(schema.getRawType(field.type))) {
@@ -126,6 +127,7 @@ function visitScalarField(field: ScalarField): ScalarField {
 }
 
 function visitLinkedField(field: LinkedField): LinkedField {
+  // $FlowFixMe[incompatible-use]
   const transformedField = this.traverse(field);
   const deleteDirective = transformedField.directives.find(
     directive => directive.name === DELETE_RECORD,
@@ -162,6 +164,7 @@ function visitLinkedField(field: LinkedField): LinkedField {
       [targetDirective.loc],
     );
   }
+  // $FlowFixMe[incompatible-use]
   const schema = this.getContext().getSchema();
   if (edgeDirective) {
     const fieldType = schema.getRawType(transformedField.type);

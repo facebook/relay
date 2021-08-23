@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c795f5e50d2997593145ca8ca8cc843>>
+ * @generated SignedSource<<c137f8f3b32d7355549241ad581b5be1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -45,12 +45,12 @@ var node/*: ReaderFragment*/ = {
       "storageKey": null
     }
   ],
-  "type": "Actor",
-  "abstractKey": "__isActor"
+  "type": "User",
+  "abstractKey": null
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "028d0d736b7bf6e919745eedfe435049";
+  (node/*: any*/).hash = "657ef41d464979f0bec9509df67c2ad4";
 }
 
 module.exports = node;

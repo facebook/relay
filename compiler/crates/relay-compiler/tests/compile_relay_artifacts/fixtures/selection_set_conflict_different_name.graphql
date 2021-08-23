@@ -1,0 +1,7 @@
+# TODO throw
+query selectionSetConflictDifferentNameQuery {
+  me {
+    same_alias: name
+    same_alias: canViewerComment
+  }
+}

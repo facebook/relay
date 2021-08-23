@@ -55,7 +55,7 @@ describe('RelayModernSelector', () => {
     UserQuery = getRequest(graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $cond: Boolean!
       ) {
         node(id: $id) {
@@ -75,7 +75,7 @@ describe('RelayModernSelector', () => {
     `);
     UsersFragment = getFragment(graphql`
       fragment RelayModernSelectorTestUsersFragment on User
-      @relay(plural: true) {
+        @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {
@@ -135,7 +135,7 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
           '`[{"__fragments":{"RelayModernSelectorTestUserFragment":{},"RelayModernSelectorTestUsersFragment":{}},"__id":"4","__fragmentOwner":' +
           JSON.stringify(operationDescriptor.request) +
-          '}]`.',
+          ',"__isWithinUnmatchedTypeRefinement":false}]`.',
       );
     });
 

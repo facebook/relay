@@ -40,6 +40,7 @@ describe('fetchQuery', () => {
   beforeEach(() => {
     retained = [];
     environment = createMockEnvironment();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation(obj => {
       const idx = retained.push(obj);
       return {

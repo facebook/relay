@@ -26,70 +26,70 @@ subscription TestSubscription($input: FeedbackLikeInput) {
 }
 ==================================== OUTPUT ===================================
 export type ExampleQueryVariables = {
-  id: string
+  id: string;
 };
 export type ExampleQueryResponse = {
   readonly node: {
-    readonly id: string
-  } | null
+    readonly id: string;
+  } | null;
 };
 export type ExampleQuery = {
-  variables: ExampleQueryVariables,
-  response: ExampleQueryResponse,
+  variables: ExampleQueryVariables;
+  response: ExampleQueryResponse;
 };
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {
-  clientMutationId?: string | null,
-  feedbackId?: string | null,
-  feedback?: CommentfeedbackFeedback | null,
+  clientMutationId?: string | null;
+  feedbackId?: string | null;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type TestMutationVariables = {
-  input: CommentCreateInput
+  input: CommentCreateInput;
 };
 export type TestMutationResponse = {
   readonly commentCreate: {
     readonly comment: {
-      readonly id: string
-    } | null
-  } | null
+      readonly id: string;
+    } | null;
+  } | null;
 };
 export type TestMutation = {
-  variables: TestMutationVariables,
-  response: TestMutationResponse,
+  variables: TestMutationVariables;
+  response: TestMutationResponse;
 };
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {
-  clientMutationId?: string | null,
-  feedbackId?: string | null,
+  clientMutationId?: string | null;
+  feedbackId?: string | null;
 };
 export type TestSubscriptionVariables = {
-  input?: FeedbackLikeInput | null
+  input?: FeedbackLikeInput | null;
 };
 export type TestSubscriptionResponse = {
   readonly feedbackLikeSubscribe: {
     readonly feedback: {
-      readonly id: string
-    } | null
-  } | null
+      readonly id: string;
+    } | null;
+  } | null;
 };
 export type TestSubscription = {
-  variables: TestSubscriptionVariables,
-  response: TestSubscriptionResponse,
+  variables: TestSubscriptionVariables;
+  response: TestSubscriptionResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type ExampleFragment = {
-  readonly id: string,
-  readonly " $refType": FragmentRefs<"ExampleFragment">,
+  readonly id: string;
+  readonly " $refType": "ExampleFragment";
 };
 export type ExampleFragment$data = ExampleFragment;
 export type ExampleFragment$key = {
-  readonly " $data"?: ExampleFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">,
+  readonly " $data"?: ExampleFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"ExampleFragment">;
 };

@@ -212,6 +212,7 @@ module.exports = {commit: commitCommentCreateMutation};
 Let's distill this example:
 
 * `updater` takes a *`store`* argument, which is an instance of a [`RecordSourceSelectorProxy`](../../../api-reference/store/);  this interface allows you to *imperatively* write and read data directly to and from the Relay store. This means that you have full control over how to update the store in response to the mutation response: you can *create entirely new records*, or *update or delete existing ones*.
+    * `updater` takes a second *`payload`* argument, which is the mutation response object. This can be used to retrieve the payload data without interacting with the *`store`*.
 * In our specific example, we're adding a new comment to our local store after it has successfully been added on the server. Specifically, we're adding a new item to a connection; for more details on the specifics of how that works, check out our section on [adding and removing items from a connection](../../list-data/updating-connections/).
     * There is no need for an updater in this example — it would be a great place to use the `@appendEdge` directive instead!
 * Note that the mutation response is a *root field* record that can be read from the `store`, specifically using the `store.getRootField` API. In our case, we're reading the `comment_create` root field, which is a root field in the mutation response.

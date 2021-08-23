@@ -18,6 +18,10 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
 
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
 describe('getStore()', () => {
   it('returns the store passed to the constructor', () => {
     const source = RelayRecordSource.create();

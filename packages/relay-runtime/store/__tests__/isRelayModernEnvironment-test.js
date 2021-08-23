@@ -16,6 +16,10 @@ const RelayRecordSource = require('../RelayRecordSource');
 
 const isRelayModernEnvironment = require('../isRelayModernEnvironment');
 
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
 describe('isRelayModernEnvironment()', () => {
   it('returns true for `RelayModernEnvironment` instances', () => {
     const source = RelayRecordSource.create();

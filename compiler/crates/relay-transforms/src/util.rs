@@ -14,6 +14,7 @@ use crate::react_flight::{
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
 };
 use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
+use crate::relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use crate::relay_client_component::RELAY_CLIENT_COMPONENT_METADATA_KEY;
 use crate::relay_resolvers::RELAY_RESOLVER_METADATA_DIRECTIVE_NAME;
 use crate::required_directive::{
@@ -87,7 +88,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 17] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 18] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         *CONNECTION_METADATA_DIRECTIVE_NAME,
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -105,6 +106,7 @@ lazy_static! {
         *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
         *RELAY_CLIENT_COMPONENT_METADATA_KEY,
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
+        *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
@@ -120,10 +122,11 @@ lazy_static! {
         *RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
         *RELAY_CLIENT_COMPONENT_METADATA_KEY,
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 4] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 5] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         MATCH_CONSTANTS.custom_module_directive_name,
         INLINE_DATA_CONSTANTS.internal_directive_name,
+        *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         "defer".intern(),
     ];
 }

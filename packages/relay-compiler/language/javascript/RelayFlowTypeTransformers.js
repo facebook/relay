@@ -38,7 +38,7 @@ function transformScalarType(
   type: TypeID,
   state: State,
   objectProps?: BabelNode_DEPRECATED,
-): mixed {
+): BabelNode_DEPRECATED {
   if (schema.isNonNull(type)) {
     return transformNonNullableScalarType(
       schema,
@@ -108,7 +108,7 @@ function transformGraphQLEnumType(
   schema: Schema,
   type: EnumTypeID,
   state: State,
-) {
+): BabelNode_DEPRECATED {
   state.usedEnums[schema.getTypeString(type)] = type;
   return t.genericTypeAnnotation(t.identifier(schema.getTypeString(type)));
 }
@@ -117,7 +117,7 @@ function transformInputType(
   schema: Schema,
   type: TypeID,
   state: State,
-): $FlowFixMe {
+): BabelNode_DEPRECATED {
   if (schema.isNonNull(type)) {
     return transformNonNullableInputType(
       schema,

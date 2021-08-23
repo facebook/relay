@@ -23,6 +23,10 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {graphql, getRequest} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
 describe('execute() multiple queries with overlapping @module-s', () => {
   let actorOperation;
   let actorOperationCallback;
@@ -39,7 +43,6 @@ describe('execute() multiple queries with overlapping @module-s', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
     actorQuery = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery(
         $id: ID!
@@ -187,6 +190,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -229,6 +233,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -274,6 +279,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -297,6 +303,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         node: {
           id: '1',
           __typename: 'User',
+          __isActor: true,
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
             // different component: s/User/Actor/
@@ -332,6 +339,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           },
 
           __fragmentOwner: actorOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownActorNameRenderer.react',
         },
       },

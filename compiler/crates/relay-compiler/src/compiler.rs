@@ -8,12 +8,12 @@
 use crate::build_project::{build_project, commit_project, BuildProjectFailure};
 use crate::config::Config;
 use crate::errors::{Error, Result};
+use crate::file_source::FileSource;
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
-use crate::watchman::FileSource;
 use crate::{
     compiler_state::{ArtifactMapKind, CompilerState},
-    watchman::FileSourceSubscriptionNextChange,
+    file_source::FileSourceSubscriptionNextChange,
 };
 use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;

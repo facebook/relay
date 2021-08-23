@@ -16,19 +16,21 @@ mod errors;
 mod ir;
 mod program;
 mod signatures;
+mod suggestion_list;
 mod transform;
 mod validator;
 mod visitor;
 
 pub use crate::errors::ValidationMessage;
 pub use build::{
-    build_ir_with_extra_features, build_ir_with_relay_options as build, BuilderOptions,
-    FragmentVariablesSemantic, DIRECTIVE_ARGUMENTS,
+    build_directive, build_ir_with_extra_features, build_ir_with_relay_options as build,
+    BuilderOptions, FragmentVariablesSemantic, DIRECTIVE_ARGUMENTS,
 };
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
 pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
+pub use suggestion_list::GraphQLSuggestions;
 pub use transform::{Transformed, TransformedMulti, TransformedValue, Transformer};
 pub use validator::Validator;
 pub use visitor::Visitor;

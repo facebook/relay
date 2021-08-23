@@ -16,7 +16,6 @@ In this example the emitted type-information would require the variables object 
 #### Flow
 
 ```javascript
-
 /**
  * export type ExampleQueryVariables = {|
  *   +artistID: string
@@ -44,7 +43,6 @@ const variables: ExampleQueryVariables = {
 #### TypeScript
 
 ```javascript
-
 /**
  * export type ExampleQueryVariables = {
  *   readonly artistID: string
@@ -79,7 +77,6 @@ In this example the emitted type-information describes the response data availab
 #### Flow
 
 ```javascript
-
 /**
  * export type ExampleQueryResponse = {|
  *   +artist: ?{|
@@ -110,7 +107,6 @@ import type { ExampleQueryResponse } from "__generated__/ExampleQuery.graphql"
 #### TypeScript
 
 ```javascript
-
 /**
  * export type ExampleQueryResponse = {
  *   readonly artist?: {
@@ -146,7 +142,6 @@ Similarly, in this example the emitted type-information describes the prop data 
 #### Flow
 
 ```javascript
-
 /**
  * export type ExampleFragment_artist = {|
  *   +name: string
@@ -172,7 +167,6 @@ export const ExampleFragment = createFragmentContainer(
 #### TypeScript
 
 ```javascript
-
 /**
  * export type ExampleFragment_artist = {
  *   readonly name: string
@@ -206,7 +200,6 @@ Consider a component that composes the above fragment container example. In this
 #### Flow
 
 ```javascript
-
 /**
  * import type { FragmentReference } from "relay-runtime";
  * declare export opaque type ExampleFragment_artist$ref: FragmentReference;
@@ -250,7 +243,6 @@ import type { ExampleQueryResponse } from "__generated__/ExampleQuery.graphql"
 #### TypeScript
 
 ```javascript
-
 /**
  * declare const _ExampleFragment_artist$ref: unique symbol;
  * export type ExampleFragment_artist$ref = typeof _ExampleFragment_artist$ref;
@@ -315,7 +307,6 @@ $ relay-compiler --artifactDirectory ./src/__generated__ […]
     ["relay", { "artifactDirectory": "./src/__generated__" }]
   ]
 }
-
 ```
 
 It is recommended to alias this directory in your module resolution configuration such that you don’t need to specify relative paths in your source files. This is what is also done in the above examples, where artifacts are imported from a `__generated__` alias, rather than relative paths like `../../../../__generated__`.
@@ -356,4 +347,4 @@ If you are looking to create your own language plugin, refer to the `relay-compi
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
 
-[plugin-interface]: https://github.com/facebook/relay/blob/master/packages/relay-compiler/language/RelayLanguagePluginInterface.js
+[plugin-interface]: https://github.com/facebook/relay/blob/main/packages/relay-compiler/language/RelayLanguagePluginInterface.js

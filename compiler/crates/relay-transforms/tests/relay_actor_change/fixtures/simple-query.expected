@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+query SimpleQuery {
+  node(id: "test-id") {
+    id
+    ... on User {
+      actor @fb_actor_change {
+        ...UserFragment
+      }
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}
+==================================== OUTPUT ===================================
+query SimpleQuery {
+  node(id: "test-id") {
+    id
+    ... on User {
+      ... @__fb_actor_change {
+        actor @fb_actor_change {
+          ...UserFragment
+          actor_key
+        }
+      }
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}

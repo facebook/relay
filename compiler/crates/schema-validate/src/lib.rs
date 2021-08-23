@@ -7,6 +7,7 @@
 
 mod errors;
 
+use common::Named;
 use errors::*;
 use fnv::{FnvHashMap, FnvHashSet};
 use interner::{Intern, StringKey};
@@ -303,7 +304,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields>(&self, type_: &T) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
@@ -322,7 +323,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields>(
+    fn validate_type_implements_interface<T: TypeWithFields + Named>(
         &self,
         type_: &T,
         interface: &Interface,
@@ -408,11 +409,7 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if interface_field
-                    .arguments
-                    .iter()
-                    .find(|arg| arg.name == object_argument.name)
-                    .is_none()
+                if !interface_field.arguments.contains(object_argument.name)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(

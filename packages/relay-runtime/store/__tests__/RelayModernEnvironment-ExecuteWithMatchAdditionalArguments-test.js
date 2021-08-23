@@ -26,8 +26,11 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('execute() a query with @match with additional arguments', () => {
   let callbacks: {|
@@ -59,8 +62,6 @@ describe('execute() a query with @match with additional arguments', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery(
         $id: ID!
@@ -196,6 +197,7 @@ describe('execute() a query with @match with additional arguments', () => {
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -232,6 +234,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -297,6 +300,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -379,6 +383,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -537,6 +542,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -576,6 +582,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },

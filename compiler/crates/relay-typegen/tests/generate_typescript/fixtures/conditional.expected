@@ -11,22 +11,22 @@ fragment NestedCondition on Node {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type ConditionField = {
-  readonly id?: string,
-  readonly " $refType": FragmentRefs<"ConditionField">,
+  readonly id?: string;
+  readonly " $refType": "ConditionField";
 };
 export type ConditionField$data = ConditionField;
 export type ConditionField$key = {
-  readonly " $data"?: ConditionField$data,
-  readonly " $fragmentRefs": FragmentRefs<"ConditionField">,
+  readonly " $data"?: ConditionField$data;
+  readonly " $fragmentRefs": FragmentRefs<"ConditionField">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type NestedCondition = {
-  readonly id?: string,
-  readonly " $refType": FragmentRefs<"NestedCondition">,
+  readonly id?: string;
+  readonly " $refType": "NestedCondition";
 };
 export type NestedCondition$data = NestedCondition;
 export type NestedCondition$key = {
-  readonly " $data"?: NestedCondition$data,
-  readonly " $fragmentRefs": FragmentRefs<"NestedCondition">,
+  readonly " $data"?: NestedCondition$data;
+  readonly " $fragmentRefs": FragmentRefs<"NestedCondition">;
 };

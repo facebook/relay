@@ -63,10 +63,15 @@ const Foo = createPaginationContainer(
   {
     viewer: graphql`
       fragment ReactRelayPaginationContainerFlowtest_viewer on Viewer {
-        all_friends(after: $cursor, first: $count) @connection {
-          edges {
-            node {
-              __typename
+        account_user {
+          friends(after: $cursor, first: $count)
+            @connection(
+              key: "ReactRelayPaginationContainerFlowtest_viewer__friends"
+            ) {
+            edges {
+              node {
+                __typename
+              }
             }
           }
         }
@@ -75,7 +80,7 @@ const Foo = createPaginationContainer(
   },
   {
     direction: 'forward',
-    getConnectionFromProps: props => props.viewer.all_friends,
+    getConnectionFromProps: props => props.viewer.account_user.friends,
     // $FlowFixMe[cannot-spread-interface]
     getFragmentVariables: (vars, totalCount) => ({
       ...vars,

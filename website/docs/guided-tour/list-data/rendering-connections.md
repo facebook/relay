@@ -2,6 +2,11 @@
 id: rendering-connections
 title: Rendering Connections
 slug: /guided-tour/list-data/rendering-connections/
+description: Relay guide to rendering connections
+keywords:
+- pagination
+- usePaginationFragment
+- connection
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

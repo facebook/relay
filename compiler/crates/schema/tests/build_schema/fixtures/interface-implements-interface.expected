@@ -45,6 +45,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -54,6 +55,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -66,6 +68,7 @@ Text Schema:Schema {
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -75,6 +78,7 @@ Text Schema:Schema {
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
  type_map: {
@@ -102,6 +106,7 @@ Text Schema:Schema {
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -116,6 +121,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -130,6 +136,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(1),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -144,6 +151,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(2),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -158,6 +166,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(2),
         ),
+        description: None,
     },
     Field {
         name: "url",
@@ -170,6 +179,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(2),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -184,6 +194,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(3),
         ),
+        description: None,
     },
     Field {
         name: "url",
@@ -196,6 +207,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(3),
         ),
+        description: None,
     },
     Field {
         name: "thumbnail",
@@ -208,6 +220,7 @@ Text Schema:Schema {
         parent_type: Some(
             Interface(3),
         ),
+        description: None,
     },
     Field {
         name: "__typename",
@@ -220,6 +233,7 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
         name: "__token",
@@ -232,6 +246,7 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
     },
     Field {
         name: "__id",
@@ -244,6 +259,18 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
+        description: None,
+    },
+    Field {
+        name: "strong_id__",
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
     },
 ]
  input_objects: []
@@ -257,6 +284,7 @@ Text Schema:Schema {
         ],
         directives: [],
         interfaces: [],
+        description: None,
     },
     Interface {
         name: "Node",
@@ -269,6 +297,7 @@ Text Schema:Schema {
         interfaces: [
             InterfaceID(0),
         ],
+        description: None,
     },
     Interface {
         name: "Resource",
@@ -283,6 +312,7 @@ Text Schema:Schema {
         interfaces: [
             InterfaceID(1),
         ],
+        description: None,
     },
     Interface {
         name: "Image",
@@ -298,6 +328,7 @@ Text Schema:Schema {
             InterfaceID(2),
             InterfaceID(1),
         ],
+        description: None,
     },
 ]
  objects: [
@@ -309,6 +340,7 @@ Text Schema:Schema {
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
 ]
  scalars: [
@@ -316,26 +348,31 @@ Text Schema:Schema {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
  unions: []
@@ -354,6 +391,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -363,6 +401,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
     Directive {
         name: "skip",
@@ -375,6 +414,7 @@ directives: [
                     ),
                 ),
                 default_value: None,
+                description: None,
             },
         ],
         locations: [
@@ -384,6 +424,7 @@ directives: [
         ],
         repeatable: false,
         is_extension: false,
+        description: None,
     },
 ]
 enums: []
@@ -401,6 +442,7 @@ fields: [
         parent_type: Some(
             Interface(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -415,6 +457,7 @@ fields: [
         parent_type: Some(
             Interface(1),
         ),
+        description: None,
     },
     Field {
         name: "url",
@@ -427,6 +470,7 @@ fields: [
         parent_type: Some(
             Interface(1),
         ),
+        description: None,
     },
     Field {
         name: "thumbnail",
@@ -439,6 +483,7 @@ fields: [
         parent_type: Some(
             Interface(1),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -453,6 +498,7 @@ fields: [
         parent_type: Some(
             Interface(3),
         ),
+        description: None,
     },
     Field {
         name: "node",
@@ -465,6 +511,7 @@ fields: [
         parent_type: Some(
             Object(0),
         ),
+        description: None,
     },
     Field {
         name: "id",
@@ -479,6 +526,7 @@ fields: [
         parent_type: Some(
             Interface(2),
         ),
+        description: None,
     },
     Field {
         name: "name",
@@ -493,6 +541,7 @@ fields: [
         parent_type: Some(
             Interface(2),
         ),
+        description: None,
     },
     Field {
         name: "url",
@@ -505,6 +554,7 @@ fields: [
         parent_type: Some(
             Interface(2),
         ),
+        description: None,
     },
 ]
 input_objects: []
@@ -518,6 +568,7 @@ interfaces: [
         ],
         directives: [],
         interfaces: [],
+        description: None,
     },
     Interface {
         name: "Image",
@@ -533,6 +584,7 @@ interfaces: [
             InterfaceID(2),
             InterfaceID(3),
         ],
+        description: None,
     },
     Interface {
         name: "Node",
@@ -545,6 +597,7 @@ interfaces: [
         interfaces: [
             InterfaceID(0),
         ],
+        description: None,
     },
     Interface {
         name: "Resource",
@@ -559,6 +612,7 @@ interfaces: [
         interfaces: [
             InterfaceID(3),
         ],
+        description: None,
     },
 ]
 objects: [
@@ -570,6 +624,7 @@ objects: [
         ],
         interfaces: [],
         directives: [],
+        description: None,
     },
 ]
 scalars: [
@@ -577,26 +632,31 @@ scalars: [
         name: "Boolean",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Float",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "ID",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "Int",
         is_extension: false,
         directives: [],
+        description: None,
     },
     Scalar {
         name: "String",
         is_extension: false,
         directives: [],
+        description: None,
     },
 ]
 unions: []

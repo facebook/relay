@@ -28,7 +28,9 @@ pub enum AST {
     Boolean,
     Any,
     FragmentReference(Vec<StringKey>),
+    FragmentReferenceType(StringKey),
     FunctionReturnType(StringKey),
+    ActorChangePoint(Box<AST>),
 }
 
 #[derive(Debug, Clone)]

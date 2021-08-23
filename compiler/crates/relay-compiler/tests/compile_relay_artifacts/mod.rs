@@ -15,10 +15,10 @@ use interner::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::{apply_transforms, validate};
+use relay_compiler::validate;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::{
-    ConnectionInterface, FeatureFlags, NoInlineFeature, DIRECTIVE_SPLIT_OPERATION,
+    apply_transforms, ConnectionInterface, FeatureFlag, FeatureFlags, DIRECTIVE_SPLIT_OPERATION,
 };
 use std::sync::Arc;
 
@@ -52,10 +52,12 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,
-        enable_required_transform_for_prefix: Some("".intern()),
-        no_inline: NoInlineFeature::Enabled,
+        enable_required_transform: true,
+        no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
         enable_3d_branch_arg_generation: true,
+        actor_change_support: FeatureFlag::Enabled,
+        text_artifacts: FeatureFlag::Disabled,
     };
 
     // TODO pass base fragment names
@@ -66,6 +68,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &connection_interface,
         Arc::new(feature_flags),
         Arc::new(ConsoleLogger),
+        None,
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

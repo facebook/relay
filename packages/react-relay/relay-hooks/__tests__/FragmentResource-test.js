@@ -13,21 +13,9 @@
 
 'use strict';
 
-jest.mock('relay-runtime', () => {
-  const originalRuntime = jest.requireActual('relay-runtime');
-  const originalInternal = originalRuntime.__internal;
-  return {
-    ...originalRuntime,
-    __internal: {
-      ...originalInternal,
-      getPromiseForActiveRequest: jest.fn(),
-    },
-  };
-});
-
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForActiveRequest},
+  __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
   graphql,
@@ -55,7 +43,6 @@ describe('FragmentResource', () => {
 
   beforeEach(() => {
     // jest.resetModules();
-
     ({createMockEnvironment} = require('relay-test-utils-internal'));
 
     environment = createMockEnvironment();
@@ -117,10 +104,6 @@ describe('FragmentResource', () => {
         name: 'Mark',
       },
     });
-  });
-
-  afterEach(() => {
-    (getPromiseForActiveRequest: any).mockReset();
   });
 
   describe('read', () => {
@@ -427,7 +410,8 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForActiveRequest: any).mockReturnValue(Promise.resolve());
+      fetchQuery(environment, queryMissingData).subscribe({});
+
       const fragmentNode = getFragment(UserFragmentMissing);
       const fragmentRef = {
         __id: '4',
@@ -461,12 +445,8 @@ describe('FragmentResource', () => {
     });
 
     it('should not cache or throw an error if network request for parent query errored', () => {
-      let reject = (e: Error) => {};
-      (getPromiseForActiveRequest: any).mockReturnValueOnce(
-        new Promise((_, r) => {
-          reject = r;
-        }),
-      );
+      fetchQuery(environment, queryMissingData).subscribe({error: () => {}});
+
       const fragmentNode = getFragment(UserFragmentMissing);
       const fragmentRef = {
         __id: '4',
@@ -488,7 +468,7 @@ describe('FragmentResource', () => {
       expect(thrown).not.toBe(null);
 
       // Make the network request error
-      reject(new Error('Network Error'));
+      environment.mock.reject(queryMissingData, new Error('Network Error'));
       jest.runAllImmediates();
 
       // Try reading a fragment a second time after the parent query errored
@@ -541,7 +521,8 @@ describe('FragmentResource', () => {
     });
 
     it('should throw and cache promise if reading missing data and network request for parent query is in flight', () => {
-      (getPromiseForActiveRequest: any).mockReturnValueOnce(Promise.resolve());
+      fetchQuery(environment, queryMissingData).subscribe({});
+
       const fragmentNodes = {
         user: getFragment(UserFragmentMissing),
       };
@@ -605,10 +586,13 @@ describe('FragmentResource', () => {
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
       // Update data
@@ -638,7 +622,9 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark Updated'});
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
@@ -654,6 +640,7 @@ describe('FragmentResource', () => {
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       // Update data once, before subscribe has been called
@@ -666,7 +653,9 @@ describe('FragmentResource', () => {
       });
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
       // Assert that callback was immediately called
@@ -713,7 +702,9 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark Updated 2'});
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
@@ -729,6 +720,7 @@ describe('FragmentResource', () => {
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       // Update data once, before subscribe has been called
@@ -741,7 +733,9 @@ describe('FragmentResource', () => {
       });
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
       // Assert that callback was immediately called
@@ -788,7 +782,9 @@ describe('FragmentResource', () => {
       expect(result.data).toEqual({id: '4', name: 'Mark'});
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
     });
 
@@ -798,13 +794,16 @@ describe('FragmentResource', () => {
         null,
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
     });
@@ -815,13 +814,16 @@ describe('FragmentResource', () => {
         [],
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribe(result, callback);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
 
       disposable.dispose();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(0);
       expect(callback).toBeCalledTimes(0);
     });
@@ -844,14 +846,19 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable1 = FragmentResource.subscribe(result, callback1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         const disposable2 = FragmentResource.subscribe(result, callback2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data once
@@ -877,7 +884,9 @@ describe('FragmentResource', () => {
 
         // Unsubscribe the second listener
         disposable2.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
 
         // Update data again
@@ -904,6 +913,7 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual({id: '4', name: 'Mark Update 2'});
 
         disposable1.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
       });
     });
@@ -925,10 +935,13 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data
@@ -952,7 +965,9 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual([{id: '4', name: 'Mark Updated'}]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -972,6 +987,7 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -984,7 +1000,9 @@ describe('FragmentResource', () => {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -1019,12 +1037,16 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual([{id: '4', name: 'Mark Updated 2'}]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
       it('correctly subscribes to a plural fragment with multiple records', () => {
-        queryPlural = createOperationDescriptor(UsersQuery, {ids: ['4', '5']});
+        queryPlural = createOperationDescriptor(UsersQuery, {
+          ids: ['4', '5'],
+        });
         environment.commitPayload(queryPlural, {
           nodes: [
             {
@@ -1062,10 +1084,13 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Update data
@@ -1092,12 +1117,16 @@ describe('FragmentResource', () => {
         ]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
       it('immediately notifies of data updates that were missed between calling `read` and `subscribe` when subscribing to multiple records', () => {
-        queryPlural = createOperationDescriptor(UsersQuery, {ids: ['4', '5']});
+        queryPlural = createOperationDescriptor(UsersQuery, {
+          ids: ['4', '5'],
+        });
         environment.commitPayload(queryPlural, {
           nodes: [
             {
@@ -1147,6 +1176,7 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -1166,7 +1196,9 @@ describe('FragmentResource', () => {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(3);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -1209,7 +1241,9 @@ describe('FragmentResource', () => {
         ]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(3);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
 
@@ -1240,6 +1274,7 @@ describe('FragmentResource', () => {
           fragmentRef,
           componentDisplayName,
         );
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
         // Update data once, before subscribe has been called
@@ -1252,7 +1287,9 @@ describe('FragmentResource', () => {
         });
 
         const disposable = FragmentResource.subscribe(result, callback);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(0);
 
         // Assert that callback was immediately called
@@ -1287,7 +1324,9 @@ describe('FragmentResource', () => {
         expect(result.data).toEqual([{id: '4', name: 'Mark'}]);
 
         disposable.dispose();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe).toBeCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.subscribe.mock.dispose).toBeCalledTimes(1);
       });
     });
@@ -1318,14 +1357,17 @@ describe('FragmentResource', () => {
         },
         componentDisplayName,
       );
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toHaveBeenCalledTimes(0);
 
       const disposable = FragmentResource.subscribeSpec(result, callback);
       expect(unsubscribe).toBeCalledTimes(0);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
 
       disposable.dispose();
       expect(unsubscribe).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.subscribe).toBeCalledTimes(1);
     });
 

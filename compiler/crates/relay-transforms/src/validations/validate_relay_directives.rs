@@ -26,7 +26,7 @@ enum ArgumentDefinition<'ir> {
     Local(&'ir VariableDefinition),
 }
 
-// This validtes both @relay(plural) and @relay(mask) usages
+// This validates both @relay(plural) and @relay(mask) usages
 struct RelayDirectiveValidation<'program> {
     program: &'program Program,
     // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)

@@ -22,6 +22,7 @@ const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOperation = require('../util/getOperation');
 const invariant = require('invariant');
 
+const {getLocalVariables} = require('./RelayConcreteVariables');
 const {generateTypeID} = require('./TypeID');
 
 import type {
@@ -42,6 +43,7 @@ import type {
 } from './RelayStoreTypes';
 
 const {
+  ACTOR_CHANGE,
   CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
@@ -136,6 +138,10 @@ class RelayReferenceMarker {
     selections.forEach(selection => {
       /* eslint-disable no-fallthrough */
       switch (selection.kind) {
+        case ACTOR_CHANGE:
+          // TODO: T89695151 Support multi-actor record sources in RelayReferenceMarker.js
+          this._traverseLink(selection.linkedField, record);
+          break;
         case LINKED_FIELD:
           if (selection.plural) {
             this._traversePluralLink(selection, record);
@@ -144,7 +150,9 @@ class RelayReferenceMarker {
           }
           break;
         case CONDITION:
-          const conditionValue = this._getVariableValue(selection.condition);
+          const conditionValue = Boolean(
+            this._getVariableValue(selection.condition),
+          );
           if (conditionValue === selection.passingValue) {
             this._traverseSelections(selection.selections, record);
           }
@@ -155,18 +163,22 @@ class RelayReferenceMarker {
             if (typeName != null && typeName === selection.type) {
               this._traverseSelections(selection.selections, record);
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
             this._references.add(typeID);
             this._traverseSelections(selection.selections, record);
-          } else {
-            this._traverseSelections(selection.selections, record);
           }
           break;
-        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
+          const prevVariables = this._variables;
+          this._variables = getLocalVariables(
+            this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
+          );
           this._traverseSelections(selection.fragment.selections, record);
+          this._variables = prevVariables;
           break;
         case LINKED_HANDLE:
           // The selections for a "handle" field are the same as those of the
@@ -197,11 +209,9 @@ class RelayReferenceMarker {
         case SCALAR_HANDLE:
           break;
         case TYPE_DISCRIMINATOR: {
-          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            this._references.add(typeID);
-          }
+          const typeName = RelayModernRecord.getType(record);
+          const typeID = generateTypeID(typeName);
+          this._references.add(typeID);
           break;
         }
         case MODULE_IMPORT:
@@ -253,8 +263,15 @@ class RelayReferenceMarker {
     }
     const normalizationRootNode = operationLoader.get(operationReference);
     if (normalizationRootNode != null) {
-      const selections = getOperation(normalizationRootNode).selections;
-      this._traverseSelections(selections, record);
+      const operation = getOperation(normalizationRootNode);
+      const prevVariables = this._variables;
+      this._variables = getLocalVariables(
+        this._variables,
+        operation.argumentDefinitions,
+        moduleImport.args,
+      );
+      this._traverseSelections(operation.selections, record);
+      this._variables = prevVariables;
     }
     // Otherwise, if the operation is not available, we assume that the data
     // cannot have been processed yet and therefore isn't in the store to

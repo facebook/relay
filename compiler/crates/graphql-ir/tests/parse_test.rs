@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2bc00c2b0194ce813522315e73cf18ba>>
+ * @generated SignedSource<<93d8b8cb92f7864bb6af641319f0f65d>>
  */
 
 mod parse;
@@ -531,8 +531,22 @@ fn undefined_type_invalid() {
 }
 
 #[test]
+fn unknown_field_invalid() {
+    let input = include_str!("parse/fixtures/unknown_field.invalid.graphql");
+    let expected = include_str!("parse/fixtures/unknown_field.invalid.expected");
+    test_fixture(transform_fixture, "unknown_field.invalid.graphql", "parse/fixtures/unknown_field.invalid.expected", input, expected);
+}
+
+#[test]
 fn unknown_fragment_type_invalid() {
     let input = include_str!("parse/fixtures/unknown-fragment-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/unknown-fragment-type.invalid.expected");
     test_fixture(transform_fixture, "unknown-fragment-type.invalid.graphql", "parse/fixtures/unknown-fragment-type.invalid.expected", input, expected);
+}
+
+#[test]
+fn unknown_fragment_type_suggestions_invalid() {
+    let input = include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.graphql");
+    let expected = include_str!("parse/fixtures/unknown-fragment-type-suggestions.invalid.expected");
+    test_fixture(transform_fixture, "unknown-fragment-type-suggestions.invalid.graphql", "parse/fixtures/unknown-fragment-type-suggestions.invalid.expected", input, expected);
 }

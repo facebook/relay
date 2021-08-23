@@ -1,0 +1,35 @@
+schema {
+  query: Query
+}
+
+type Query {
+  foo: Foo
+}
+
+type Foo {
+  "Single line field description"
+  line: String
+  """
+  Block field description
+  """
+  block: String
+  """
+  Multiline block field description which is so long
+  that it spans onto a second line.
+  """
+  multiline_block: String
+}
+
+extend type Foo {
+  "Single line extended field description"
+  extended_line: String
+  """
+  Block field description
+  """
+  extended_block: String
+  """
+  Multiline block field description which is so long
+  that it spans onto a second line.
+  """
+  extended_multiline_block: String
+}

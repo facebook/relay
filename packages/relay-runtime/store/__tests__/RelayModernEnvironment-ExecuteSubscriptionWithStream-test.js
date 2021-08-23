@@ -24,11 +24,14 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeSubscrption() with @stream', () => {
   let callbacks;
   let feedbackFragment;
-  let feedbackID;
+  const feedbackID = '1';
   let complete;
   let dataSource;
   let environment;
@@ -47,9 +50,6 @@ describe('executeSubscrption() with @stream', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
-    feedbackID = '1';
-
     subscription = getRequest(graphql`
       subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput!
@@ -174,7 +174,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
   });
 
@@ -232,7 +232,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).not.toBe(null);
 
     dataSource.next({
@@ -265,7 +265,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -316,7 +316,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
 
     dataSource.complete();
@@ -331,7 +331,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -369,7 +369,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 
@@ -409,7 +409,7 @@ describe('executeSubscrption() with @stream', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(queryOperation.request),
+        .getPendingOperationsAffectingOwner(queryOperation.request),
     ).toBe(null);
   });
 });

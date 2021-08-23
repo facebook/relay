@@ -23,7 +23,12 @@ directive @serverInlineDirective on INLINE_FRAGMENT"#,
     );
     let ir = build(&schema, &ast.definitions).unwrap();
     let mut context = Program::from_definitions(Arc::clone(&schema), ir);
-    flatten(&mut context, !fixture.content.contains("%for_printing%")).unwrap();
+    flatten(
+        &mut context,
+        !fixture.content.contains("%for_printing%"),
+        false,
+    )
+    .unwrap();
 
     let mut printed_queries = context
         .operations()

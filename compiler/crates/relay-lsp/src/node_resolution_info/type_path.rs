@@ -85,7 +85,7 @@ fn resolve_relative_type_for_current_item(
 }
 
 #[derive(Debug, Default)]
-pub struct TypePath(Vec<TypePathItem>);
+pub struct TypePath(pub Vec<TypePathItem>);
 
 impl From<Vec<TypePathItem>> for TypePath {
     fn from(type_path: Vec<TypePathItem>) -> TypePath {

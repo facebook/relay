@@ -31,9 +31,12 @@ fragment F2 on Query @argumentDefinitions(
                         Scalar(4),
                     ),
                     default_value: Some(
-                        String(
-                            "",
-                        ),
+                        WithLocation {
+                            location: fragment_with_arguments_defaulting.graphql:172:174,
+                            item: String(
+                                "",
+                            ),
+                        },
                     ),
                     directives: [],
                 },
@@ -153,7 +156,7 @@ fragment F2 on Query @argumentDefinitions(
                             alias: None,
                             definition: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:342:352,
-                                item: FieldID(515),
+                                item: FieldID(521),
                             },
                             arguments: [],
                             directives: [],

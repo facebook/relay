@@ -2,12 +2,17 @@
 id: fragments
 title: Fragments
 slug: /guided-tour/rendering/fragments/
+description: Relay guide to rendering fragments
+keywords:
+- useFragment
+- rendering
+- fragment
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-The main building block for declaring data dependencies for React Components in Relay are [GraphQL Fragments](https://graphql.github.io/learn/queries/#fragments). Fragments are reusable units in GraphQL that repesent a set of data to query from a GraphQL type exposed in the [schema](https://graphql.github.io/learn/schema/).
+The main building block for declaring data dependencies for React Components in Relay are [GraphQL Fragments](https://graphql.org/learn/queries/#fragments). Fragments are reusable units in GraphQL that repesent a set of data to query from a GraphQL type exposed in the [schema](https://graphql.org/learn/schema/).
 
 In practice, they are a selection of fields on a GraphQL Type:
 
@@ -334,7 +339,6 @@ function App({appQueryRef}) {
     </>
   );
 }
-
 ```
 
 Note that:

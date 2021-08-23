@@ -60,7 +60,6 @@ REACT_APP_GITHUB_AUTH_TOKEN=<TOKEN>
 Next let's update the home screen of our app to show the name of the Relay repository. We'll start with a common approach to fetching data in React, calling our fetch function after the component mounts (note: later we'll see some limitations of this approach and a better alternative that works with React Concurrent Mode and Suspense). First we'll create a helper function to load data from the server. Again, this example will use the GitHub API, but feel free to replace it with the appropriate URL and authentication mechanism for your own GraphQL server:
 
 ```javascript
-
 // your-app-name/src/fetchGraphQL.js
 async function fetchGraphQL(text, variables) {
   const REACT_APP_GITHUB_AUTH_TOKEN = process.env.REACT_APP_GITHUB_AUTH_TOKEN;
@@ -83,7 +82,6 @@ async function fetchGraphQL(text, variables) {
 }
 
 export default fetchGraphQL;
-
 ```
 
 ### 2.3: Fetching GraphQL From React
@@ -91,7 +89,6 @@ export default fetchGraphQL;
 Now we can use our `fetchGraphQL` function to fetch some data in our app. Open `src/App.js` and edit it as follows:
 
 ```javascript
-
 // your-app-name/src/App.js
 import React from 'react';
 import './App.css';
@@ -142,7 +139,6 @@ function App() {
 }
 
 export default App;
-
 ```
 
 ## Step 3: When To Use Relay
@@ -176,7 +172,7 @@ Next let's configure Relay compiler. We'll need a copy of the schema as a `.grap
 ```bash
 
 cd your-app-name
-curl https://raw.githubusercontent.com/relayjs/relay-examples/master/issue-tracker/schema/schema.graphql > schema.graphql
+curl https://raw.githubusercontent.com/relayjs/relay-examples/main/issue-tracker/schema/schema.graphql > schema.graphql
 
 ```
 
@@ -200,7 +196,6 @@ Now that we have a schema we can modify `package.json` to run the compiler first
   },
   ...
 }
-
 ```
 
 At this point, you should be able to run the following successfully:
@@ -219,7 +214,6 @@ If it works, your app will open at [localhost:3000](http://localhost:3000). Now 
 Now that the compiler is configured we can set up the runtime - we have to tell Relay how to connect to our GraphQL server. We'll reuse the `fetchGraphQL` utility we built above. Assuming you haven't modified it (or at least that it still takes `text` and `variables` as arguments), we can now define a Relay `Environment`. An `Environment` encapsulates how to talk to our server (a Relay `Network`) with a cache of data retrieved from that server. We'll create a new file, `src/RelayEnvironment.js` and add the following:
 
 ```javascript
-
 // your-app-name/src/RelayEnvironment.js
 import { Environment, Network, RecordSource, Store } from 'relay-runtime';
 import fetchGraphQL from './fetchGraphQL';
@@ -236,7 +230,6 @@ export default new Environment({
   network: Network.create(fetchRelay),
   store: new Store(new RecordSource()),
 });
-
 ```
 
 ## Step 5: Fetching a Query With Relay
@@ -244,7 +237,6 @@ export default new Environment({
 Now that Relay is installed and configured we can change `App.js` to use it instead. We'll prepare our data as the app starts, and wait for it to be ready in `<App>`. Replace the contents of `src/App.js` with the following:
 
 ```javascript
-
 import React from 'react';
 import './App.css';
 import fetchGraphQL from './fetchGraphQL';
@@ -276,8 +268,9 @@ const preloadedQuery = preloadQuery(RelayEnvironment, RepositoryNameQuery, {
 // Inner component that reads the preloaded query results via `usePreloadedQuery()`.
 // This works as follows:
 // - If the query has completed, it returns the results of the query.
-// - If the query is still pending, it "suspends" (indicates to React is isn't
-//   ready to render yet). This will show the nearest <Suspense> fallback.
+// - If the query is still pending, it "suspends" (indicates to React that the
+//   component isn't ready to render yet). This will show the nearest <Suspense>
+//   fallback.
 // - If the query failed, it throws the failure error. For simplicity we aren't
 //   handling the failure case here.
 function App(props) {
@@ -308,7 +301,6 @@ function AppRoot(props) {
 }
 
 export default AppRoot;
-
 ```
 
 Note that you'll have to restart the app - `yarn start` - so that Relay compiler can see the new query and generate code for it. See the [Relay Compiler setup docs](./installation-and-setup#set-up-relay-compiler) for how to run Relay Compiler in watch mode, to regenerate code as you modify queries.
@@ -319,4 +311,4 @@ At this point we have an app configured to use Relay. We recommend checking out 
 
 -   The [Guided Tour](./a-guided-tour-of-relay) describes how to implement many common use-cases.
 -   The [API Reference](./api-reference) has full details on the Relay Hooks APIs.
--   The [Example App](https://github.com/relayjs/relay-examples/tree/master/issue-tracker) is a more sophisticated version of what we've started building here. It includes routing integration and uses React Concurrent Mode and Suspense for smooth transitions between pages.
+-   The [Example App](https://github.com/relayjs/relay-examples/tree/main/issue-tracker) is a more sophisticated version of what we've started building here. It includes routing integration and uses React Concurrent Mode and Suspense for smooth transitions between pages.

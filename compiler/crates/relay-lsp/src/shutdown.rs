@@ -10,18 +10,25 @@ use lsp_types::{
     notification::{Exit, Notification},
     request::{Request, Shutdown},
 };
+use schema_documentation::SchemaDocumentation;
 
 use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState};
 
-pub(crate) fn on_shutdown<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_shutdown<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <Shutdown as Request>::Params,
 ) -> LSPRuntimeResult<<Shutdown as Request>::Result> {
     std::process::exit(0);
 }
 
-pub(crate) fn on_exit<TPerfLogger: PerfLogger + 'static>(
-    _state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_exit<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <Exit as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     std::process::exit(0);

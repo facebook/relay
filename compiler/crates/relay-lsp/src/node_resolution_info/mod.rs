@@ -314,13 +314,13 @@ fn build_node_resolution_info_from_selections(
 /// Return a `NodeResolutionInfo` for this request if the request occurred
 /// within a GraphQL document.
 pub fn get_node_resolution_info(
-    text_document_position: TextDocumentPositionParams,
+    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {
     let (document, position_span, project_name) = extract_executable_document_from_text(
-        text_document_position,
+        &text_document_position,
         graphql_source_cache,
         file_categorizer,
         root_dir,

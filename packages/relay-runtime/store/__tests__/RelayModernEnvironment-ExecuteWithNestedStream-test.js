@@ -25,6 +25,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with nested @stream', () => {
   let actorFragment;
@@ -45,10 +48,6 @@ describe('execute() a query with nested @stream', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery(
         $enableStream: Boolean!
@@ -84,7 +83,7 @@ describe('execute() a query with nested @stream', () => {
     `);
 
     actorFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on Actor {
+      fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }

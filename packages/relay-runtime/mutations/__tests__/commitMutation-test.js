@@ -14,6 +14,7 @@
 'use strict';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -144,6 +145,7 @@ describe('Configs: NODE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -287,6 +289,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -410,6 +413,7 @@ describe('Configs: RANGE_DELETE', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, {
       data: {
@@ -582,6 +586,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -649,6 +654,7 @@ describe('Configs: RANGE_ADD', () => {
         },
       },
     };
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
@@ -801,6 +807,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -865,6 +872,7 @@ describe('Configs: RANGE_ADD', () => {
     expect(callback.mock.calls.length).toBe(1);
     expect(optimisticUpdater).toBeCalled();
     callback.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, data);
     jest.runAllTimers();
@@ -943,6 +951,7 @@ describe('Configs: RANGE_ADD', () => {
 
     environment.subscribe(snapshot, callback);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     environment.mock.resolve(operation, serverResponse);
     jest.runAllTimers();
@@ -1084,6 +1093,55 @@ describe('Aliased mutation roots', () => {
       expect.anything(),
       expect.anything(),
     );
+  });
+});
+
+describe('Required mutation roots', () => {
+  let dataSource;
+  let environment;
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
+    const fetch = jest.fn((_query, _variables, _cacheConfig) => {
+      return RelayObservable.create(sink => {
+        dataSource = sink;
+      });
+    });
+    const source = RelayRecordSource.create({});
+    const store = new RelayModernStore(source);
+    environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(fetch),
+      store,
+    });
+  });
+  it('does not throw when accessing the root field', () => {
+    const mutation = getRequest(graphql`
+      mutation commitMutationTestRequiredRootFieldMutation(
+        $input: CommentDeleteInput
+      ) {
+        commentDelete(input: $input) @required(action: THROW) {
+          deletedCommentId
+        }
+      }
+    `);
+
+    let idInUpdater;
+    commitMutation(environment, {
+      mutation,
+      variables: {},
+      updater: updaterStore => {
+        const payload = updaterStore.getRootField('commentDelete');
+        idInUpdater = payload?.getValue('deletedCommentId');
+      },
+    });
+    dataSource.next({
+      data: {
+        commentDelete: {
+          deletedCommentId: '1',
+        },
+      },
+    });
+
+    expect(idInUpdater).toBe('1');
   });
 });
 

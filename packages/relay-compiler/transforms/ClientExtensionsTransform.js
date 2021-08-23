@@ -31,6 +31,7 @@ function clientExtensionTransform(context: CompilerContext): CompilerContext {
 }
 
 function traverseDefinition<T: Definition>(node: T): T {
+  // $FlowFixMe[incompatible-use]
   const compilerContext: CompilerContext = this.getContext();
 
   const schema = compilerContext.getSchema();

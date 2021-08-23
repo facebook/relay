@@ -13,6 +13,7 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -26,8 +27,11 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
+disallowWarnings();
 
 describe('execute() a query with @module', () => {
   let callbacks: {|
@@ -59,8 +63,6 @@ describe('execute() a query with @module', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithModuleTestUserQuery($id: ID!) {
         node(id: $id) {
@@ -193,6 +195,7 @@ describe('execute() a query with @module', () => {
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -229,6 +232,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -346,6 +350,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -385,6 +390,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },

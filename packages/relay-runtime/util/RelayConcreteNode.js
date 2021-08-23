@@ -67,6 +67,7 @@ export type GeneratedNode =
   | NormalizationSplitOperation;
 
 const RelayConcreteNode = {
+  ACTOR_CHANGE: 'ActorChange',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
   CLIENT_EXTENSION: 'ClientExtension',

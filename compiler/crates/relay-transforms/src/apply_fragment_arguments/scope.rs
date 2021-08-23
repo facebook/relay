@@ -52,7 +52,7 @@ impl Scope {
                 Some(arg_from_spread) => {
                     if arg_from_spread.value.item == Value::Constant(ConstantValue::Null()) {
                         if let Some(default_value) = &variable_definition.default_value {
-                            Value::Constant(default_value.clone())
+                            Value::Constant(default_value.item.clone())
                         } else {
                             arg_from_spread.value.item.clone()
                         }
@@ -62,7 +62,7 @@ impl Scope {
                 }
                 None => {
                     if let Some(default_value) = &variable_definition.default_value {
-                        Value::Constant(default_value.clone())
+                        Value::Constant(default_value.item.clone())
                     } else {
                         Value::Constant(ConstantValue::Null())
                     }
@@ -185,19 +185,19 @@ mod tests {
                 VariableDefinition {
                     name: with_test_location("defaultAndValuePassed".intern()),
                     type_: optional_int_type_reference(),
-                    default_value: Some(ConstantValue::Int(42)),
+                    default_value: Some(with_test_location(ConstantValue::Int(42))),
                     directives: vec![],
                 },
                 VariableDefinition {
                     name: with_test_location("defaultAndNothingPassed".intern()),
                     type_: optional_int_type_reference(),
-                    default_value: Some(ConstantValue::Int(42)),
+                    default_value: Some(with_test_location(ConstantValue::Int(42))),
                     directives: vec![],
                 },
                 VariableDefinition {
                     name: with_test_location("defaultAndNullPassed".intern()),
                     type_: optional_int_type_reference(),
-                    default_value: Some(ConstantValue::Int(42)),
+                    default_value: Some(with_test_location(ConstantValue::Int(42))),
                     directives: vec![],
                 },
             ],

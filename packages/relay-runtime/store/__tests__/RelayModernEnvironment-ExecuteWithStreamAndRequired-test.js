@@ -25,6 +25,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with @stream and @required', () => {
   let callbacks;
@@ -37,10 +40,6 @@ describe('execute() a query with @stream and @required', () => {
   let selector;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    // Note: This must come after `jest.resetModules()`.
     RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
 
     query = getRequest(graphql`

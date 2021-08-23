@@ -14,10 +14,8 @@ graphql`
     }
 `
 ==================================== OUTPUT ===================================
-[
-    GraphQLSource {
-        text: "\n    fragment Foo on ${type} {\n        __typename\n    }\n",
-        line_index: 9,
-        column_index: 8,
-    },
-]
+line: 9, column: 8, text: <
+    fragment Foo on ${type} {
+        __typename
+    }
+>

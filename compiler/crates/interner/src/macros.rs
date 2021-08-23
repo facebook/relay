@@ -5,6 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+/// Interns the passed string literal and memoizes the result in a static
+/// variable. This can be used in performance sensitive code.
+/// ```
+/// use interner::intern;
+/// assert_eq!(intern!("example").lookup(), "example");
+/// ```
+#[macro_export]
+macro_rules! intern {
+    ($value:literal) => {{
+        use $crate::{reexport::Lazy, Intern, StringKey};
+        static KEY: Lazy<StringKey> = Lazy::new(|| Intern::intern($value));
+        *KEY
+    }};
+    ($_:expr) => {
+        compile_error!("intern! macro can only be used with string literals.")
+    };
+}
+
 /// Macro to implement an interner for an arbitrary type.
 /// Given `intern!(<Foo> as <FooKey>);`, this macro will implement the
 /// `Intern` trait for `<Foo>`, interning it a generated `<FooKey>` wrapper
@@ -26,7 +44,7 @@
 /// ```
 ///
 #[macro_export]
-macro_rules! intern {
+macro_rules! make_intern {
     ($name:ident as $alias:ident) => {
         use crate::{Intern, InternKey, InternTable, RawInternKey};
         use lazy_static::lazy_static;

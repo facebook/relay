@@ -51,13 +51,7 @@ function getReactFlightClientResponse(
       'got %s.',
     record,
   );
-  const response: ?ReactFlightClientResponse = (record[
-    REACT_FLIGHT_TREE_STORAGE_KEY
-  ]: $FlowFixMe);
-  if (response != null) {
-    return response;
-  }
-  return null;
+  return (record[REACT_FLIGHT_TREE_STORAGE_KEY]: $FlowFixMe);
 }
 
 module.exports = {

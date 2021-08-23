@@ -9,5 +9,14 @@ use extract_graphql::parse_chunks;
 use fixture_tests::Fixture;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    Ok(format!("{:#?}", parse_chunks(fixture.content)))
+    Ok(parse_chunks(fixture.content)
+        .into_iter()
+        .map(|source| {
+            format!(
+                "line: {}, column: {}, text: <{}>",
+                source.line_index, source.column_index, source.text
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n"))
 }

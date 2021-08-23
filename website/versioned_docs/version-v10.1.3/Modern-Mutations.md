@@ -17,7 +17,6 @@ Table of Contents:
 Use `commitMutation` to create and execute mutations. `commitMutation` has the following signature:
 
 ```javascript
-
 commitMutation(
   environment: Environment,
   config: {
@@ -32,7 +31,6 @@ commitMutation(
     cacheConfig?: CacheConfig,
   },
 );
-
 ```
 
 ### Arguments
@@ -60,7 +58,6 @@ commitMutation(
 Example of a simple mutation:
 
 ```javascript
-
 import {commitMutation, graphql} from 'react-relay';
 
 const mutation = graphql`
@@ -92,7 +89,6 @@ function markNotificationAsRead(environment, storyID) {
     },
   );
 }
-
 ```
 
 ## Optimistic Updates
@@ -100,7 +96,6 @@ function markNotificationAsRead(environment, storyID) {
 To improve perceived responsiveness, you may wish to perform an "optimistic update", in which the client immediately updates to reflect the anticipated new value even before the response from the server has come back. The simplest way to do this is by providing an `optimisticResponse` and adding it to the `config` that we pass into `commitMutation`:
 
 ```javascript
-
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
     $storyID: ID!
@@ -129,7 +124,6 @@ commitMutation(
     variables,
   },
 );
-
 ```
 
 Another way to enable optimistic updates is via the `optimisticUpdater`, which can be used for more complicated update scenarios. Using `optimisticUpdater` is covered in the section [below](#using-updater-and-optimisticupdater).
@@ -151,7 +145,6 @@ Given a `deletedIDFieldName`, Relay will remove the node(s) from the store.
 #### Example
 
 ```javascript
-
 const mutation = graphql`
   mutation DestroyShipMutation($target: ID!) {
     destroyShip(target: $target) {
@@ -169,7 +162,6 @@ const configs = [{
   type: 'NODE_DELETE',
   deletedIDFieldName: 'destroyedShipId',
 }];
-
 ```
 
 ### RANGE_ADD
@@ -189,7 +181,6 @@ Given a parent, information about the connection, and the name of the newly crea
 #### Example
 
 ```javascript
-
 const mutation = graphql`
   mutation AddShipMutation($factionID: ID!, $name: String!) {
     addShip(factionID: $factionID, name: $name) {
@@ -220,7 +211,6 @@ function commit(environment, factionID, name) {
     }],
   });
 }
-
 ```
 
 ### RANGE_DELETE
@@ -242,7 +232,6 @@ from the connection but leave the associated record(s) in the store.
 #### Example
 
 ```javascript
-
 const mutation = graphql`
   mutation RemoveTagMutation($todoID: ID!, $tagID: ID!) {
     removeTag(todo: $todoID, tag: $tagID) {
@@ -269,7 +258,6 @@ function commit(environment, todoID, tagID) {
     }],
   });
 }
-
 ```
 
 ## Using updater and optimisticUpdater
@@ -284,10 +272,9 @@ When you provide these functions, this is roughly what happens during the mutati
 -   Relay will then automatically update the fields under the record corresponding to the ids in the response payload.
 -   If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
 
-Here's a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
+Here's a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L36):
 
 ```javascript
-
 // AddTodoMutation.js
 import {commitMutation, graphql} from 'react-relay';
 import {ConnectionHandler} from 'relay-runtime';
@@ -319,7 +306,7 @@ function sharedUpdater(store, user, newEdge) {
   const conn = ConnectionHandler.getConnection(
     userProxy,
     'TodoList_todos', // This is the connection identifier, defined here
-    // https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L76
+    // https://github.com/relayjs/relay-examples/blob/main/todo/js/components/TodoList.js#L76
   );
 
   // Insert the new todo into the Todo List connection
@@ -371,7 +358,6 @@ function commit(environment, text, user) {
     },
   });
 }
-
 ```
 
 For details on how to interact with the Relay Store, please refer to our Relay Store [docs](./relay-store).

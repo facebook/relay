@@ -9,7 +9,7 @@ use lsp_types::notification::Notification;
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
-pub(crate) struct LSPNotificationDispatch<'state, TState> {
+pub struct LSPNotificationDispatch<'state, TState> {
     notification: lsp_server::Notification,
     state: &'state mut TState,
 }

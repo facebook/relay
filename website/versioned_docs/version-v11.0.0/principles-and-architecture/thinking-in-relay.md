@@ -28,8 +28,7 @@ Let's dive deeper to understand how Relay achieves this feat.
 
 With Relay, the data requirements for a component are specified with <a href="../../guided-tour/rendering/fragments/">fragments</a>. Fragments are named snippets of GraphQL that specify which fields to select from an object of a particular type. Fragments are written within GraphQL literals. For example, the following declares a GraphQL literal containing a fragment which selects an author's name and photo url:
 
-```js
-
+```javascript
 // AuthorDetails.react.js
 const authorDetailsFragment = graphql`
   fragment AuthorDetails_author on Author {
@@ -39,19 +38,16 @@ const authorDetailsFragment = graphql`
     }
   }
 `;
-
 ```
 
 This data is then read out from the store by calling the `useFragment(...)` hook in a functional React component. The actual author from which to read this data is determined by the second parameter passed to `useFragment`. For example:
 
-```js
-
+```javascript
 // AuthorDetails.react.js
 export default function AuthorDetails(props) {
   const data = useFragment(authorDetailsFragment, props.author);
   // ...
 }
-
 ```
 
 This second parameter (`props.author`) is a fragment reference. Fragment references are obtained by **spreading** a fragment into another fragment or query. Fragments cannot be fetched directly. Instead, all fragments must ultimately be spread (either directly or transitively) into a query for the data to be fetched.
@@ -62,8 +58,7 @@ Let's take a look at one such query.
 
 In order to fetch that data, we might declare a query which spreads `AuthorDetails_author` as follows:
 
-```js
-
+```javascript
 // Story.react.js
 const storyQuery = graphql`
   query StoryQuery($storyID: ID!) {
@@ -75,13 +70,11 @@ const storyQuery = graphql`
     }
   }
 `;
-
 ```
 
 Now, we can fetch the query by calling `const data = useLazyLoadQuery(storyQuery, {storyID})`. At this point, `data.author` (if it is present; all fields are nullable by default) will be a fragment reference that we can pass to `AuthorDetails`. For example:
 
-```js
-
+```javascript
 // Story.react.js
 function Story(props) {
   const data = useLazyLoadQuery(storyQuery, props.storyId);
@@ -91,7 +84,6 @@ function Story(props) {
     {data?.story?.author && <AuthorDetails author={data.story.author} />}
   </>);
 }
-
 ```
 
 Note what has happened here. We made a single network request which contained the data required by *both* the `Story` component *and* the `AuthorDetails` component! When that data was available, the entire view could render in a single pass.

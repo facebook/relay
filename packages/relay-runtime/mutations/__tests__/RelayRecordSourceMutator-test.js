@@ -10,7 +10,7 @@
 
 'use strict';
 
-const RelayRecordSourceMapImpl = require('../../store/RelayRecordSourceMapImpl');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const RelayRecordSourceMutator = require('../../mutations/RelayRecordSourceMutator');
 const RelayRecordState = require('../../store/RelayRecordState');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
@@ -75,8 +75,8 @@ describe('RelayRecordSourceMutator', () => {
     backupData = {};
     sinkData = {};
     baseData = simpleClone(initialData);
-    baseSource = new RelayRecordSourceMapImpl(baseData);
-    sinkSource = new RelayRecordSourceMapImpl(sinkData);
+    baseSource = new RelayRecordSource(baseData);
+    sinkSource = new RelayRecordSource(sinkData);
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource, []);
   });
 

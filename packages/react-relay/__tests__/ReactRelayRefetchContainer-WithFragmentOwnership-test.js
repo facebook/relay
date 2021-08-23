@@ -107,7 +107,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
     UserQuery = graphql`
       query ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery(
         $id: ID!
-        $scale: Int!
+        $scale: Float!
       ) {
         node(id: $id) {
           ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment
@@ -227,6 +227,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           },
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -278,6 +279,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           },
         },
         __fragmentOwner: expectedOwner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 
@@ -303,6 +305,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           },
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(TestChildComponent.mock.calls.length).toBe(1);
       expect(TestChildComponent.mock.calls[0][0].user).toEqual({
@@ -360,6 +363,7 @@ describe('ReactRelayRefetchContainer with fragment ownerhsip', () => {
           },
         },
         __fragmentOwner: expectedOwner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       });
       expect(render.mock.calls[0][0].user.name).toBe(undefined);
 

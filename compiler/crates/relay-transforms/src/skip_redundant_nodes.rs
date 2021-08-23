@@ -9,13 +9,13 @@ use crate::node_identifier::NodeIdentifier;
 use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
 use crate::DEFER_STREAM_CONSTANTS;
 
+use common::sync::*;
 use common::NamedItem;
 use dashmap::DashMap;
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
     Selection, Transformed, TransformedValue,
 };
-use rayon::prelude::*;
 use schema::SDLSchema;
 use std::iter::Iterator;
 use std::sync::Arc;
@@ -397,19 +397,17 @@ impl<'s> SkipRedundantNodesTransform {
     }
 
     fn transform_program(&self, program: &Program) -> TransformedValue<Program> {
-        let operations: Vec<Arc<OperationDefinition>> = program
-            .par_operations()
-            .filter_map(|operation| match self.transform_operation(operation) {
+        let operations: Vec<Arc<OperationDefinition>> = par_iter(&program.operations)
+            .filter_map(|operation| match self.transform_operation(&operation) {
                 Transformed::Delete => None,
-                Transformed::Keep => Some(Arc::clone(operation)),
+                Transformed::Keep => Some(Arc::clone(&operation)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();
-        let fragments: Vec<Arc<FragmentDefinition>> = program
-            .par_fragments()
-            .filter_map(|fragment| match self.transform_fragment(fragment) {
+        let fragments: Vec<Arc<FragmentDefinition>> = par_iter(&program.fragments)
+            .filter_map(|(_, fragment)| match self.transform_fragment(&fragment) {
                 Transformed::Delete => None,
-                Transformed::Keep => Some(Arc::clone(fragment)),
+                Transformed::Keep => Some(Arc::clone(&fragment)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();

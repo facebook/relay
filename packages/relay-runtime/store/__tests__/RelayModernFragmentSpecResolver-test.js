@@ -79,7 +79,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     UserQuery = getRequest(graphql`
       query RelayModernFragmentSpecResolverTestQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $fetchSize: Boolean!
       ) {
         node(id: $id) {
@@ -113,9 +113,8 @@ describe('RelayModernFragmentSpecResolver', () => {
         name: 'Beast',
       },
     });
-    zuck = environment.lookup(zuckOperation.fragment, zuckOperation).data.node;
-    beast = environment.lookup(beastOperation.fragment, beastOperation).data
-      .node;
+    zuck = environment.lookup(zuckOperation.fragment).data.node;
+    beast = environment.lookup(beastOperation.fragment).data.node;
 
     variables = {
       fetchSize: false,
@@ -858,6 +857,110 @@ describe('RelayModernFragmentSpecResolver', () => {
           jest.fn(),
           false /* rootIsQueryRenderer */,
         );
+        let promise;
+        try {
+          resolver.resolve();
+        } catch (e) {
+          promise = e;
+        }
+        expect(promise).toBeDefined();
+        expect(promise.then).toBeDefined();
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain('suspended');
+      });
+    });
+
+    describe('when data is missing and operation that affects query is in progress', () => {
+      let AffectingQuery;
+      beforeEach(() => {
+        jest.mock('warning');
+
+        AffectingQuery = getRequest(graphql`
+          query RelayModernFragmentSpecResolverTestAffectingQuery(
+            $id: ID!
+            $size: [Int]
+            $fetchSize: Boolean!
+          ) {
+            node(id: $id) {
+              ...RelayModernFragmentSpecResolverTestQueryUserFragment
+              ...RelayModernFragmentSpecResolverTestQueryUsersFragment
+            }
+          }
+        `);
+        const affectingQueryOperation = createOperationDescriptor(
+          AffectingQuery,
+          {
+            fetchSize: false,
+            id: '4',
+            size: null,
+          },
+        );
+
+        fetchQuery(environment, affectingQueryOperation).subscribe({});
+      });
+
+      it('only warns but does not suspend if resolver is under a QueryRenderer root', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          true /* rootIsQueryRenderer */,
+        );
+
+        // Process a payload on the affecting query so we know it affects
+        // the current fragment
+        environment.mock.nextValue(AffectingQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Some value',
+            },
+          },
+        });
+        setName('4', undefined); // Keep this field missing
+        warning.mockClear();
+
+        expect(resolver.resolve()).toEqual({
+          user: {
+            id: '4',
+            name: undefined,
+          },
+        });
+        expect(warning).toHaveBeenCalledTimes(1);
+        expect(warning.mock.calls[0][1]).toContain(
+          'has missing data and would suspend',
+        );
+      });
+
+      it('warns and suspends if resolver is NOT under QueryRenderer root (i.e. root is a Relay Hooks query)', () => {
+        const warning = require('warning');
+        warning.mockClear();
+        const resolver = new RelayModernFragmentSpecResolver(
+          context,
+          {user: UserFragment},
+          {user: zuck},
+          jest.fn(),
+          false /* rootIsQueryRenderer */,
+        );
+
+        // Process a payload on the affecting query so we know it affects
+        // the current fragment
+        environment.mock.nextValue(AffectingQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Some value',
+            },
+          },
+        });
+        setName('4', undefined); // Keep this field missing
+        warning.mockClear();
+
         let promise;
         try {
           resolver.resolve();

@@ -13,11 +13,8 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 const {
   createOperationDescriptor,
-  Environment,
   getRequest,
   getRequestIdentifier,
   Observable,
@@ -81,10 +78,6 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
-  invariant(
-    environment instanceof Environment,
-    'preloadQuery(): Expected a RelayModernEnvironment',
-  );
   let _pendingQueries = pendingQueriesByEnvironment.get(environment);
   if (_pendingQueries == null) {
     _pendingQueries = new Map();
@@ -138,7 +131,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 }
 
 function preloadQueryDeduped<TQuery: OperationType>(
-  environment: Environment,
+  environment: IEnvironment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: VariablesOf<TQuery>,

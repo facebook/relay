@@ -8,27 +8,27 @@ mutation CommentCreateMutation($input: CommentCreateInput!) {
 }
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
-  clientMutationId?: string | null,
-  feedbackId?: string | null,
-  feedback?: CommentfeedbackFeedback | null,
+  clientMutationId?: string | null;
+  feedbackId?: string | null;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutationVariables = {
-  input: CommentCreateInput
+  input: CommentCreateInput;
 };
 export type CommentCreateMutationResponse = {
   readonly commentCreate: {
     readonly comment: {
-      readonly id: string
-    }
-  }
+      readonly id: string;
+    };
+  };
 } | null;
 export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
+  variables: CommentCreateMutationVariables;
+  response: CommentCreateMutationResponse;
 };

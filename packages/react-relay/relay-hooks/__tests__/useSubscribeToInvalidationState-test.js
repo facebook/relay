@@ -324,6 +324,7 @@ it('does not re-establish subscription id data ids change but array changes', ()
   });
 
   // Assert that we didn't re-subscribe
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(store.subscribeToInvalidationState).toHaveBeenCalledTimes(0);
 
   // Assert that invalidating data ids from initial subscriptions

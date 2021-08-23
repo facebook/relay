@@ -14,6 +14,7 @@
 'use strict';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -26,6 +27,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {VIEWER_ID} = require('../ViewerPattern');
+const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() fetches a @stream-ed @connection', () => {
   let callback;
@@ -45,10 +49,6 @@ describe('execute() fetches a @stream-ed @connection', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery(
         $enableStream: Boolean!
@@ -1143,42 +1143,52 @@ describe('execute() fetches a @stream-ed @connection', () => {
     variables = {enableStream: true, after: 'cursor-1'};
     operation = createOperationDescriptor(query, variables);
     environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        viewer: {
-          newsFeed: {
-            edges: [],
+    expectToWarn(
+      'Relay: Unexpected after cursor `cursor-1`, edges must be fetched from the end of the list (`null`).',
+      () => {
+        dataSource.next({
+          data: {
+            viewer: {
+              newsFeed: {
+                edges: [],
+              },
+            },
           },
-        },
+        });
       },
-    });
+    );
     jest.runAllTimers();
     next.mockClear();
     callback.mockClear();
 
-    // second edge is ignored
-    dataSource.next({
-      data: {
-        cursor: 'cursor-2',
-        node: {
-          __typename: 'Story',
-          id: '2',
-          feedback: {
-            id: 'feedback-2',
-            actors: [
-              {
-                id: 'actor-2',
-                __typename: 'User',
-                name: 'Bob',
+    expectToWarn(
+      'Relay: Unexpected after cursor `cursor-1`, edges must be fetched from the end of the list (`null`).',
+      () => {
+        // second edge is ignored
+        dataSource.next({
+          data: {
+            cursor: 'cursor-2',
+            node: {
+              __typename: 'Story',
+              id: '2',
+              feedback: {
+                id: 'feedback-2',
+                actors: [
+                  {
+                    id: 'actor-2',
+                    __typename: 'User',
+                    name: 'Bob',
+                  },
+                ],
               },
-            ],
+            },
           },
-        },
+          label:
+            'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
+          path: ['viewer', 'newsFeed', 'edges', 0],
+        });
       },
-      label:
-        'RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed',
-      path: ['viewer', 'newsFeed', 'edges', 0],
-    });
+    );
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(1);
     // connection not updated with new edge, the after cursor doesn't match
@@ -1192,72 +1202,53 @@ describe('execute() fetches a @stream-ed @connection', () => {
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    dataSource.next({
-      data: {
-        viewer: {
-          newsFeed: {
-            edges: [
-              {
-                cursor: 'cursor-1',
-                node: {
-                  __typename: 'Story',
-                  id: '1',
-                  feedback: {
-                    id: 'feedback-1',
-                    actors: [
-                      {
-                        id: 'actor-1',
-                        __typename: 'User',
-                        name: 'Alice',
+    expectToWarn(
+      'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery` contains @defer/@stream directives but was executed in non-streaming mode. See https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+      () => {
+        dataSource.next({
+          data: {
+            viewer: {
+              newsFeed: {
+                edges: [
+                  {
+                    cursor: 'cursor-1',
+                    node: {
+                      __typename: 'Story',
+                      id: '1',
+                      feedback: {
+                        id: 'feedback-1',
+                        actors: [
+                          {
+                            id: 'actor-1',
+                            __typename: 'User',
+                            name: 'Alice',
+                          },
+                        ],
                       },
-                    ],
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor-1',
+                  hasNextPage: true,
                 },
               },
-            ],
-            pageInfo: {
-              endCursor: 'cursor-1',
-              hasNextPage: true,
             },
           },
-        },
+          extensions: {
+            is_final: true,
+          },
+        });
       },
-      extensions: {
-        is_final: true,
-      },
-    });
+    );
     jest.runAllTimers();
 
     expect(error.mock.calls.map(call => call[0].stack)).toEqual([]);
     expect(next).toBeCalledTimes(1);
-    expect(callback).toBeCalledTimes(2);
     const snapshot = callback.mock.calls[0][0];
+    expect(callback).toBeCalledTimes(1);
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
-      newsFeed: {
-        edges: [
-          {
-            cursor: 'cursor-1',
-            node: {
-              __typename: 'Story',
-              id: '1',
-              feedback: {
-                id: 'feedback-1',
-                actors: [{id: 'actor-1', name: 'ALICE'}],
-              },
-            },
-          },
-        ],
-        pageInfo: {
-          endCursor: null, // not initially processed
-          hasNextPage: false, // not initially processed
-        },
-      },
-    });
-    expect(callback).toBeCalledTimes(2);
-    const snapshot2 = callback.mock.calls[1][0];
-    expect(snapshot2.isMissingData).toBe(false);
-    expect(snapshot2.data).toEqual({
       newsFeed: {
         edges: [
           {

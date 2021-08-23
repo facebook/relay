@@ -100,6 +100,7 @@ beforeEach(() => {
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
     networkUnsubscribe = jest.fn();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
@@ -116,6 +117,7 @@ beforeEach(() => {
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);
 
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
@@ -197,6 +199,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       expect(res2.source).toBeDefined();
       // Each query reference should retain the query even
       // if we made a single request.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
@@ -245,6 +248,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
       // When the query ast becomes available we each query reference
       // should retain the query even if we made a single request.
       PreloadableQueryRegistry.set(ID, query);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
     it('should dedupe operation execution if called multiple times', () => {
@@ -254,11 +258,13 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
       PreloadableQueryRegistry.set(ID, query);
       // We only process the network request once.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toBeCalledTimes(1);
       expect(res1.source).toBeDefined();
       expect(res2.source).toBeDefined();
       // Each query reference should retain the query even
       // if we made a single request.
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
@@ -417,11 +423,13 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // processing results (executeWithSource) since the query ast module
         // isn't available yet.
         expect(fetch).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(0);
 
         // Provide the query module ast
         PreloadableQueryRegistry.set(ID, query);
         // Assert that we are now able to start processing query results.
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(1);
 
         // Start second load of query
@@ -436,6 +444,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // processing execution, since they should be deduped with
         // the ones already in flight.
         expect(fetch).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(1);
 
         // Dispose of the initial query reference, like

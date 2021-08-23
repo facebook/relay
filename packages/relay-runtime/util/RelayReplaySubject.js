@@ -42,7 +42,7 @@ class RelayReplaySubject<T> {
   _events: Array<Event<T>> = [];
   _sinks: Set<Sink<T>> = new Set();
   _observable: RelayObservable<T>;
-  _subscription: ?Subscription = null;
+  _subscription: Array<Subscription> = [];
 
   constructor() {
     this._observable = RelayObservable.create(sink => {
@@ -116,15 +116,16 @@ class RelayReplaySubject<T> {
   }
 
   subscribe(observer: Observer<T> | Sink<T>): Subscription {
-    this._subscription = this._observable.subscribe(observer);
-    return this._subscription;
+    const subscription = this._observable.subscribe(observer);
+    this._subscription.push(subscription);
+    return subscription;
   }
 
   unsubscribe() {
-    if (this._subscription) {
-      this._subscription.unsubscribe();
-      this._subscription = null;
+    for (const subscription of this._subscription) {
+      subscription.unsubscribe();
     }
+    this._subscription = [];
   }
 
   getObserverCount(): number {

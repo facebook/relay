@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::Diagnostic;
 use fixture_tests::Fixture;
-use graphql_test_helpers::diagnostics_to_sorted_string;
+use graphql_cli::DiagnosticPrinter;
 use schema::{
     build_schema_from_flat_buffer, build_schema_with_extensions, serialize_as_flatbuffer,
     SDLSchema, Schema, Type,
@@ -88,4 +89,15 @@ unions: {:#?}
         schema.snapshot_print(),
         fb_schema_snapshot
     )
+}
+
+// NOTE: copied from graphql-test-helpers to avoid cyclic dependency breaking Rust Analyzer
+fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
+    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let mut printed = diagnostics
+        .iter()
+        .map(|diagnostic| printer.diagnostic_to_string(diagnostic))
+        .collect::<Vec<_>>();
+    printed.sort();
+    printed.join("\n\n")
 }

@@ -66,81 +66,81 @@ fragment SomeFragment on User {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragment = {
-  readonly id: string,
-  readonly name?: string | null,
+  readonly id: string;
+  readonly name?: string | null;
   readonly message?: {
-    readonly text: string | null
-  } | null,
-  readonly " $refType": FragmentRefs<"InlineFragment">,
+    readonly text: string | null;
+  } | null;
+  readonly " $refType": "InlineFragment";
 };
 export type InlineFragment$data = InlineFragment;
 export type InlineFragment$key = {
-  readonly " $data"?: InlineFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"InlineFragment">,
+  readonly " $data"?: InlineFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"InlineFragment">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentConditionalID = {
-  readonly id?: string,
-  readonly name?: string | null,
-  readonly " $refType": FragmentRefs<"InlineFragmentConditionalID">,
+  readonly id?: string;
+  readonly name?: string | null;
+  readonly " $refType": "InlineFragmentConditionalID";
 };
 export type InlineFragmentConditionalID$data = InlineFragmentConditionalID;
 export type InlineFragmentConditionalID$key = {
-  readonly " $data"?: InlineFragmentConditionalID$data,
-  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentConditionalID">,
+  readonly " $data"?: InlineFragmentConditionalID$data;
+  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentConditionalID">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentKitchenSink = {
   readonly actor: {
-    readonly id: string,
+    readonly id: string;
     readonly profilePicture: {
-      readonly uri: string | null,
-      readonly width?: number | null,
-      readonly height?: number | null,
-    } | null,
-    readonly name?: string | null,
-    readonly " $fragmentRefs": FragmentRefs<"SomeFragment">,
-  } | null,
-  readonly " $refType": FragmentRefs<"InlineFragmentKitchenSink">,
+      readonly uri: string | null;
+      readonly width?: number | null;
+      readonly height?: number | null;
+    } | null;
+    readonly name?: string | null;
+    readonly " $fragmentRefs": FragmentRefs<"SomeFragment">;
+  } | null;
+  readonly " $refType": "InlineFragmentKitchenSink";
 };
 export type InlineFragmentKitchenSink$data = InlineFragmentKitchenSink;
 export type InlineFragmentKitchenSink$key = {
-  readonly " $data"?: InlineFragmentKitchenSink$data,
-  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentKitchenSink">,
+  readonly " $data"?: InlineFragmentKitchenSink$data;
+  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentKitchenSink">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentWithOverlappingFields = {
   readonly hometown?: {
-    readonly id: string,
-    readonly name: string | null,
+    readonly id: string;
+    readonly name: string | null;
     readonly message?: {
-      readonly text: string | null
-    } | null,
-  } | null,
-  readonly name?: string | null,
-  readonly " $refType": FragmentRefs<"InlineFragmentWithOverlappingFields">,
+      readonly text: string | null;
+    } | null;
+  } | null;
+  readonly name?: string | null;
+  readonly " $refType": "InlineFragmentWithOverlappingFields";
 };
 export type InlineFragmentWithOverlappingFields$data = InlineFragmentWithOverlappingFields;
 export type InlineFragmentWithOverlappingFields$key = {
-  readonly " $data"?: InlineFragmentWithOverlappingFields$data,
-  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">,
+  readonly " $data"?: InlineFragmentWithOverlappingFields$data;
+  readonly " $fragmentRefs": FragmentRefs<"InlineFragmentWithOverlappingFields">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type SomeFragment = {
-  readonly __typename: "User",
-  readonly " $refType": FragmentRefs<"SomeFragment">,
+  readonly __typename: "User";
+  readonly " $refType": "SomeFragment";
 } | {
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
-  readonly __typename: "%other",
-  readonly " $refType": FragmentRefs<"SomeFragment">,
+  readonly __typename: "%other";
+  readonly " $refType": "SomeFragment";
 };
 export type SomeFragment$data = SomeFragment;
 export type SomeFragment$key = {
-  readonly " $data"?: SomeFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"SomeFragment">,
+  readonly " $data"?: SomeFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"SomeFragment">;
 };

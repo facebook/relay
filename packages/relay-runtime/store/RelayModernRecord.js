@@ -19,6 +19,7 @@ const warning = require('warning');
 
 const {isClientID} = require('./ClientID');
 const {
+  ACTOR_IDENTIFIER_KEY,
   ID_KEY,
   REF_KEY,
   REFS_KEY,
@@ -27,6 +28,7 @@ const {
   ROOT_ID,
 } = require('./RelayStoreUtils');
 
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type {Record} from './RelayStoreTypes';
 
@@ -384,6 +386,51 @@ function setLinkedRecordIDs(
   record[storageKey] = links;
 }
 
+/**
+ * @public
+ *
+ * Set the value of a field to a reference to another record in the actor specific store.
+ */
+function setActorLinkedRecordID(
+  record: Record,
+  storageKey: string,
+  actorIdentifier: ActorIdentifier,
+  linkedID: DataID,
+): void {
+  // See perf note above for why we aren't using computed property access.
+  const link = {};
+  link[REF_KEY] = linkedID;
+  link[ACTOR_IDENTIFIER_KEY] = actorIdentifier;
+  record[storageKey] = link;
+}
+
+/**
+ * @public
+ *
+ * Get link to a record and the actor identifier for the store.
+ */
+function getActorLinkedRecordID(
+  record: Record,
+  storageKey: string,
+): ?[ActorIdentifier, DataID] {
+  const link = record[storageKey];
+  if (link == null) {
+    return link;
+  }
+  invariant(
+    typeof link === 'object' &&
+      typeof link[REF_KEY] === 'string' &&
+      link[ACTOR_IDENTIFIER_KEY] != null,
+    'RelayModernRecord.getActorLinkedRecordID(): Expected `%s.%s` to be an actor specific linked ID, ' +
+      'was `%s`.',
+    record[ID_KEY],
+    storageKey,
+    JSON.stringify(link),
+  );
+
+  return [(link[ACTOR_IDENTIFIER_KEY]: any), (link[REF_KEY]: any)];
+}
+
 module.exports = {
   clone,
   copyFields,
@@ -400,4 +447,6 @@ module.exports = {
   setLinkedRecordID,
   setLinkedRecordIDs,
   update,
+  getActorLinkedRecordID,
+  setActorLinkedRecordID,
 };

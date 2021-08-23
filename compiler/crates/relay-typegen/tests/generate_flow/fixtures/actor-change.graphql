@@ -1,0 +1,14 @@
+fragment ActorFragment on User {
+  name
+  profilePicture {
+    uri
+    width
+    height
+  }
+}
+
+fragment ViewerFragment on Viewer {
+  actor @fb_actor_change {
+    ...ActorFragment
+  }
+}

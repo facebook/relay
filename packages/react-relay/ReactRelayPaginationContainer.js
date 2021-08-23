@@ -34,9 +34,9 @@ const {
   createOperationDescriptor,
   getDataIDsFromObject,
   getRequest,
-  getSelector,
   getVariablesFromObject,
   isScalarAndEqual,
+  RelayFeatureFlags,
 } = require('relay-runtime');
 
 import type {
@@ -65,6 +65,7 @@ type ContainerState = {
   relayProp: RelayPaginationProp,
   prevContext: RelayContext,
   contextForChildren: RelayContext,
+  resolverGeneration: number,
   ...
 };
 
@@ -365,19 +366,31 @@ function createContainerWithFragments<
       this._isARequestInFlight = false;
       this._refetchSubscription = null;
       this._refetchVariables = null;
-      this._resolver = createFragmentSpecResolver(
-        relayContext,
-        containerName,
-        fragments,
-        props,
-        rootIsQueryRenderer,
-        this._handleFragmentDataUpdate,
-      );
+
+      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+        this._resolver = createFragmentSpecResolver(
+          relayContext,
+          containerName,
+          fragments,
+          props,
+          rootIsQueryRenderer,
+        );
+      } else {
+        this._resolver = createFragmentSpecResolver(
+          relayContext,
+          containerName,
+          fragments,
+          props,
+          rootIsQueryRenderer,
+          this._handleFragmentDataUpdate,
+        );
+      }
       this.state = {
         data: this._resolver.resolve(),
         prevContext: relayContext,
         contextForChildren: relayContext,
         relayProp: this._buildRelayProp(relayContext),
+        resolverGeneration: 0,
       };
       this._isUnmounted = false;
       this._hasFetched = false;
@@ -385,6 +398,19 @@ function createContainerWithFragments<
 
     componentDidMount() {
       this._isUnmounted = false;
+      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+        this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+      }
+    }
+
+    componentDidUpdate(prevProps: Props, prevState: ContainerState) {
+      if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+        if (prevState.resolverGeneration !== this.state.resolverGeneration) {
+          this._subscribeToNewResolverAndRerenderIfStoreHasChanged();
+        } else {
+          this._rerenderIfStoreHasChanged();
+        }
+      }
     }
 
     /**
@@ -418,19 +444,30 @@ function createContainerWithFragments<
       ) {
         this._cleanup();
         // Child containers rely on context.relay being mutated (for gDSFP).
-        this._resolver = createFragmentSpecResolver(
-          relayContext,
-          containerName,
-          fragments,
-          nextProps,
-          rootIsQueryRenderer,
-          this._handleFragmentDataUpdate,
-        );
-        this.setState({
+        if (RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT === true) {
+          this._resolver = createFragmentSpecResolver(
+            relayContext,
+            containerName,
+            fragments,
+            nextProps,
+            rootIsQueryRenderer,
+          );
+        } else {
+          this._resolver = createFragmentSpecResolver(
+            relayContext,
+            containerName,
+            fragments,
+            nextProps,
+            rootIsQueryRenderer,
+            this._handleFragmentDataUpdate,
+          );
+        }
+        this.setState(prevState => ({
           prevContext: relayContext,
           contextForChildren: relayContext,
           relayProp: this._buildRelayProp(relayContext),
-        });
+          resolverGeneration: prevState.resolverGeneration + 1,
+        }));
       } else if (!this._hasFetched) {
         this._resolver.setProps(nextProps);
       }
@@ -449,7 +486,8 @@ function createContainerWithFragments<
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
-        nextState.relayProp !== this.state.relayProp
+        nextState.relayProp !== this.state.relayProp ||
+        nextState.resolverGeneration !== this.state.resolverGeneration
       ) {
         return true;
       }
@@ -485,6 +523,31 @@ function createContainerWithFragments<
         refetchConnection: this._refetchConnection,
         environment: relayContext.environment,
       };
+    }
+
+    _rerenderIfStoreHasChanged() {
+      const {data} = this.state;
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      const maybeNewData = this._resolver.resolve();
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
+    }
+
+    _subscribeToNewResolverAndRerenderIfStoreHasChanged() {
+      const {data} = this.state;
+      const maybeNewData = this._resolver.resolve();
+
+      // Event listeners are only safe to add during the commit phase,
+      // So they won't leak if render is interrupted or errors.
+      this._resolver.setCallback(this.props, this._handleFragmentDataUpdate);
+
+      // External values could change between render and commit.
+      // Check for this case, even though it requires an extra store read.
+      if (data !== maybeNewData) {
+        this.setState({data: maybeNewData});
+      }
     }
 
     /**

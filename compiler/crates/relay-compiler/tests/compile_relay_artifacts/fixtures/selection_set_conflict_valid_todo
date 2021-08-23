@@ -1,0 +1,18 @@
+query selectionSetConflictValidQuery {
+  me {
+    profile_picture(scale: 1.5, media_type: "image/jpeg") {
+      width @include(if: true)
+      height
+    }
+    profile_picture(media_type: "image/jpeg", scale: 1.5) {
+      uri
+      width @include(if: false)
+    }
+  }
+  nodes(ids: ["1", "2", "3"]) {
+    id
+  }
+  nodes(ids: ["1", "2", "3"]) {
+    id
+  }
+}

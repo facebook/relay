@@ -2,6 +2,12 @@
 id: introduction
 title: Introduction
 slug: /guided-tour/updating-data/
+description: Relay guide to updating data
+keywords:
+- updating
+- mutation
+- useMutation
+- commitMutation
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

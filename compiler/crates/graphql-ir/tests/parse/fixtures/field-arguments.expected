@@ -51,7 +51,7 @@ query TestQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: field-arguments.graphql:44:49,
-                                item: FieldID(29),
+                                item: FieldID(30),
                             },
                             arguments: [],
                             directives: [],
@@ -86,7 +86,7 @@ query TestQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: field-arguments.graphql:89:107,
-                                item: FieldID(513),
+                                item: FieldID(518),
                             },
                             arguments: [],
                             directives: [],
@@ -134,7 +134,7 @@ query TestQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: field-arguments.graphql:164:169,
-                                item: FieldID(57),
+                                item: FieldID(58),
                             },
                             arguments: [],
                             directives: [],

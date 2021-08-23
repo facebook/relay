@@ -78,10 +78,15 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {
-    const field = selector.node.selections.find(
+    let field = selector.node.selections.find(
       selection =>
-        selection.kind === 'LinkedField' && selection.name === fieldName,
+        (selection.kind === 'LinkedField' && selection.name === fieldName) ||
+        (selection.kind === 'RequiredField' &&
+          selection.field.name === fieldName),
     );
+    if (field && field.kind === 'RequiredField') {
+      field = field.field;
+    }
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +

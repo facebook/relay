@@ -167,7 +167,7 @@ Next let's configure Relay compiler. We'll need a copy of the schema as a `.grap
 
 ```bash
 cd your-app-name
-curl https://raw.githubusercontent.com/relayjs/relay-examples/master/issue-tracker/schema/schema.graphql > schema.graphql
+curl https://raw.githubusercontent.com/relayjs/relay-examples/main/issue-tracker/schema/schema.graphql > schema.graphql
 ```
 *Note:* On Windows, the `.graphql` file has to be explicitly saved with UTF-8 encoding, not the default UTF-16. See this [issue](https://github.com/prisma-labs/get-graphql-schema/issues/30) for more details.
 
@@ -258,8 +258,9 @@ const preloadedQuery = loadQuery(RelayEnvironment, RepositoryNameQuery, {
 // Inner component that reads the preloaded query results via `usePreloadedQuery()`.
 // This works as follows:
 // - If the query has completed, it returns the results of the query.
-// - If the query is still pending, it "suspends" (indicates to React is isn't
-//   ready to render yet). This will show the nearest <Suspense> fallback.
+// - If the query is still pending, it "suspends" (indicates to React that the
+//   component isn't ready to render yet). This will show the nearest <Suspense>
+//   fallback.
 // - If the query failed, it throws the failure error. For simplicity we aren't
 //   handling the failure case here.
 function App(props) {
@@ -300,7 +301,7 @@ At this point we have an app configured to use Relay. We recommend checking out 
 
 * The [Guided Tour](../../guided-tour/) describes how to implement many common use-cases.
 * The [API Reference](../../api-reference/use-fragment/) has full details on the Relay Hooks APIs.
-* The [Example App](https://github.com/relayjs/relay-examples/tree/master/issue-tracker) is a more sophisticated version of what we've started building here. It includes routing integration and uses React Concurrent Mode and Suspense for smooth transitions between pages.
+* The [Example App](https://github.com/relayjs/relay-examples/tree/main/issue-tracker) is a more sophisticated version of what we've started building here. It includes routing integration and uses React Concurrent Mode and Suspense for smooth transitions between pages.
 
 
 <DocsRating />

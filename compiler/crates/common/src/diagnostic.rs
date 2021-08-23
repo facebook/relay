@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::Location;
+use crate::{Location, SourceLocationKey};
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
@@ -18,12 +18,12 @@ pub struct WithDiagnostics<T> {
     pub errors: Vec<Diagnostic>,
 }
 
-impl<T> Into<Result<T, Vec<Diagnostic>>> for WithDiagnostics<T> {
-    fn into(self) -> Result<T, Vec<Diagnostic>> {
-        if self.errors.is_empty() {
-            Ok(self.item)
+impl<T> From<WithDiagnostics<T>> for Result<T, Vec<Diagnostic>> {
+    fn from(s: WithDiagnostics<T>) -> Result<T, Vec<Diagnostic>> {
+        if s.errors.is_empty() {
+            Ok(s.item)
         } else {
-            Err(self.errors)
+            Err(s.errors)
         }
     }
 }
@@ -71,6 +71,22 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             related_information: Vec::new(),
+            data: Vec::new(),
+        }))
+    }
+
+    /// Creates a new error Diagnostic with additional data that
+    /// can be used in IDE code actions
+    pub fn error_with_data<T: 'static + DiagnosticDisplay + WithDiagnosticData>(
+        message: T,
+        location: Location,
+    ) -> Self {
+        let data = message.get_data();
+        Self(Box::new(DiagnosticData {
+            message: Box::new(message),
+            location,
+            related_information: Vec::new(),
+            data,
         }))
     }
 
@@ -95,6 +111,20 @@ impl Diagnostic {
 
     pub fn location(&self) -> Location {
         self.0.location
+    }
+
+    pub fn get_data(&self) -> &[impl DiagnosticDisplay] {
+        &self.0.data
+    }
+
+    /// Override the location. This should only be used for exceptional situations.
+    /// Typically, diagnostics should be constructed with a correct location.
+    pub fn override_location(&mut self, location: Location) {
+        assert!(
+            self.0.location.source_location() == SourceLocationKey::Generated,
+            "Diagnostic::override_location can only be called when the location is generated."
+        );
+        self.0.location = location;
     }
 
     pub fn related_information(&self) -> &[DiagnosticRelatedInformation] {
@@ -152,6 +182,11 @@ struct DiagnosticData {
     /// Related diagnostic information, such as other definitions in the case of
     /// a duplicate definition error.
     related_information: Vec<DiagnosticRelatedInformation>,
+
+    /// A list with data that can be passed to the code actions
+    /// `data` is used in the LSP protocol:
+    /// @see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#diagnostic
+    data: Vec<Box<dyn DiagnosticDisplay>>,
 }
 
 /// Secondary locations attached to a diagnostic.
@@ -162,6 +197,10 @@ pub struct DiagnosticRelatedInformation {
 
     /// The location of this related diagnostic information.
     pub location: Location,
+}
+
+pub trait WithDiagnosticData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>>;
 }
 
 /// Trait for diagnostic messages to allow structs that capture

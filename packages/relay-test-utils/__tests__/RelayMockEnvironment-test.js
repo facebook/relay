@@ -27,7 +27,7 @@ const {
 } = require('relay-test-utils');
 
 const query = getRequest(graphql`
-  query RelayMockEnvironmentTestQuery($id: ID! = 4) {
+  query RelayMockEnvironmentTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {

@@ -51,6 +51,7 @@ function splitMatchTransform(context: CompilerContext): CompilerContext {
 }
 
 function visitLinkedField(field: LinkedField, state: State): LinkedField {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(field, {
     parentType: field.type,
     splitOperations: state.splitOperations,
@@ -61,6 +62,7 @@ function visitInlineFragment(
   fragment: InlineFragment,
   state: State,
 ): InlineFragment {
+  // $FlowFixMe[incompatible-use]
   return this.traverse(fragment, {
     parentType: fragment.typeCondition,
     splitOperations: state.splitOperations,
@@ -77,6 +79,7 @@ function visitModuleImport(node: ModuleImport, state: State): ModuleImport {
     createdSplitOperation.parentSources.add(node.sourceDocument);
     return node;
   }
+  // $FlowFixMe[incompatible-use]
   const transformedNode = this.traverse(node, state);
   const splitOperation: SplitOperation = {
     kind: 'SplitOperation',

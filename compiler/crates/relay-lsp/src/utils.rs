@@ -96,7 +96,7 @@ pub fn extract_project_name_from_url(
     })?;
 
     let project_name =
-        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path.into()) {
+        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path) {
             match source_set {
                 SourceSet::SourceSetName(source) => source,
                 SourceSet::SourceSetNames(sources) => sources[0],
@@ -113,7 +113,7 @@ pub fn extract_project_name_from_url(
 /// Return a parsed executable document for this LSP request, only if the request occurs
 /// within a GraphQL document.
 pub fn extract_executable_document_from_text(
-    text_document_position: TextDocumentPositionParams,
+    text_document_position: &TextDocumentPositionParams,
     graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
@@ -138,7 +138,7 @@ pub fn extract_executable_document_from_text(
     debug!("Successfully parsed the definitions for a target GraphQL source");
     // Map the position to a zero-length span, relative to this GraphQL source.
     let position_span =
-        position_to_span(position, &graphql_source, index_offset).ok_or_else(|| {
+        position_to_span(&position, &graphql_source, index_offset).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
         })?;
 
@@ -154,14 +154,24 @@ pub fn extract_executable_document_from_text(
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)
 /// this request came from
 pub(crate) fn position_to_span(
-    position: Position,
+    position: &Position,
     source: &GraphQLSource,
     index_offset: usize,
 ) -> Option<Span> {
-    let mut index_of_first_character_of_current_line = 0;
-    let mut line_index = source.line_index as u64;
+    position_to_offset(position, index_offset, source.line_index, &source.text)
+        .map(|offset| Span::new(offset, offset))
+}
 
-    let mut chars = source.text.chars().enumerate().peekable();
+pub fn position_to_offset(
+    position: &Position,
+    index_offset: usize,
+    line_index: usize,
+    text: &str,
+) -> Option<u32> {
+    let mut index_of_first_character_of_current_line = 0;
+    let mut line_index = line_index as u32;
+
+    let mut chars = text.chars().enumerate().peekable();
 
     while let Some((index, chr)) = chars.next() {
         let is_newline = match chr {
@@ -175,13 +185,13 @@ pub(crate) fn position_to_span(
         if is_newline {
             line_index += 1;
             // Add index_offset to account for different position index between hover and autocomplete
-            index_of_first_character_of_current_line = (index + index_offset) as u64;
+            index_of_first_character_of_current_line = index + index_offset;
         }
 
         if line_index == position.line {
             let start_offset =
-                (index_of_first_character_of_current_line + position.character) as u32;
-            return Some(Span::new(start_offset, start_offset));
+                (index_of_first_character_of_current_line + position.character as usize) as u32;
+            return Some(start_offset);
         }
     }
     None
@@ -189,13 +199,13 @@ pub(crate) fn position_to_span(
 
 #[derive(Debug)]
 pub(crate) struct SameLineOffset {
-    character_offset: u64,
+    character_offset: u32,
 }
 
 #[derive(Debug)]
 pub(crate) struct DifferentLineOffset {
-    line_offset: u64,
-    character: u64,
+    line_offset: u32,
+    character: u32,
 }
 
 /// Represents the offset from a given position to another position.
@@ -244,14 +254,14 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
     let mut start_position_offset = None;
     let mut end_position_offset = None;
     let Span { start, end } = span;
-    let span_start = start as u64;
-    let span_end = end as u64;
-    let mut characters_iterated: u64 = 0;
+    let span_start = start;
+    let span_end = end;
+    let mut characters_iterated = 0u32;
 
     // For each line, determine whether the start and end of the span
     // occur on that line.
     for (line_index, line) in text.lines().enumerate() {
-        let line_length = line.len() as u64;
+        let line_length = line.len() as u32;
         if start_position_offset.is_none() && characters_iterated + line_length >= span_start {
             start_position_offset = Some(if line_index == 0 {
                 PositionOffset::SameLineOffset(SameLineOffset {
@@ -259,7 +269,7 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
                 })
             } else {
                 PositionOffset::DifferentLineOffset(DifferentLineOffset {
-                    line_offset: line_index as u64,
+                    line_offset: line_index as u32,
                     character: span_start - characters_iterated,
                 })
             });
@@ -271,7 +281,7 @@ pub(crate) fn span_to_range_offset(span: Span, text: &str) -> Option<RangeOffset
                 })
             } else {
                 PositionOffset::DifferentLineOffset(DifferentLineOffset {
-                    line_offset: line_index as u64,
+                    line_offset: line_index as u32,
                     character: span_end - characters_iterated,
                 })
             });

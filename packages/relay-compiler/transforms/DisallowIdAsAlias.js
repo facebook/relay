@@ -28,6 +28,7 @@ function visitField<T: ScalarField | LinkedField>(field: T): T {
       [field.loc],
     );
   }
+  // $FlowFixMe[incompatible-use]
   return this.traverse(field);
 }
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c0445dc6601857783dd5f4aa630b20ce>>
+ * @generated SignedSource<<cd5baafb7919205730b7261705a1d640>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -127,6 +127,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "DataCheckerTest4Fragment",
                         "fragmentName": "DataCheckerTestPlainUserNameRenderer_nameFragment",
                         "fragmentPropName": "nameFragment",
@@ -140,6 +141,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "DataCheckerTest4Fragment",
                         "fragmentName": "DataCheckerTestMarkdownUserNameRenderer_nameFragment",
                         "fragmentPropName": "nameFragment",

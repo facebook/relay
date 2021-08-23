@@ -6,15 +6,17 @@
  */
 
 use crate::{
+    build_project::QueryID,
     config::Config,
     config::{OperationPersister, PersistConfig},
     errors::BuildProjectError,
     Artifact, ArtifactContent,
 };
-use common::PerfLogEvent;
+use common::{sync::ParallelIterator, PerfLogEvent};
 use lazy_static::lazy_static;
 use log::debug;
 use md5::{Digest, Md5};
+use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
 use std::{fs, path::PathBuf};
 
@@ -32,7 +34,7 @@ pub async fn persist_operations(
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
-        .iter_mut()
+        .par_iter_mut()
         .flat_map(|artifact| {
             if let ArtifactContent::Operation {
                 ref text,
@@ -48,7 +50,7 @@ pub async fn persist_operations(
                     extract_persist_id(&artifact_path, &text_hash)
                 };
                 if let Some(id) = extracted_persist_id {
-                    *id_and_text_hash = Some((id, text_hash));
+                    *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
                     None
                 } else {
                     let text = text.clone();
@@ -57,7 +59,7 @@ pub async fn persist_operations(
                             .persist_artifact(text, persist_config)
                             .await
                             .map(|id| {
-                                *id_and_text_hash = Some((id, text_hash));
+                                *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
                             })
                     })
                 }
@@ -75,7 +77,9 @@ pub async fn persist_operations(
         .filter_map(Result::err)
         .collect::<Vec<_>>();
     if !errors.is_empty() {
-        return Err(BuildProjectError::PersistErrors { errors });
+        let error = BuildProjectError::PersistErrors { errors };
+        log_event.string("error", error.to_string());
+        return Err(error);
     }
     Ok(())
 }

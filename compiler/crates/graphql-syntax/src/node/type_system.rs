@@ -6,7 +6,7 @@
  */
 
 use super::constant_directive::ConstantDirective;
-use super::constant_value::ConstantValue;
+use super::constant_value::{ConstantValue, StringNode};
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 use common::Span;
@@ -104,9 +104,15 @@ impl fmt::Display for TypeSystemDefinition {
                 arguments,
                 repeatable,
                 locations,
-            }) => {
-                write_directive_definition_helper(f, &name.value, &arguments, repeatable, locations)
-            }
+                description,
+            }) => write_directive_definition_helper(
+                f,
+                &name.value,
+                &arguments,
+                repeatable,
+                locations,
+                description,
+            ),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
                 directives,
@@ -292,6 +298,7 @@ pub struct DirectiveDefinition {
     pub arguments: Option<List<InputValueDefinition>>,
     pub repeatable: bool,
     pub locations: Vec<DirectiveLocation>,
+    pub description: Option<StringNode>,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -373,6 +380,7 @@ pub struct FieldDefinition {
     pub type_: TypeAnnotation,
     pub arguments: Option<List<InputValueDefinition>>,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
 }
 
 impl fmt::Display for FieldDefinition {
@@ -521,6 +529,7 @@ fn write_directive_definition_helper(
     arguments: &Option<List<InputValueDefinition>>,
     _repeatable: &bool,
     locations: &[DirectiveLocation],
+    _description: &Option<StringNode>,
 ) -> fmt::Result {
     write!(f, "directive @{}", name)?;
     if let Some(arguments) = arguments.as_ref() {

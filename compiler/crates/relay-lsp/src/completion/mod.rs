@@ -7,13 +7,14 @@
 
 //! Utilities for providing the completion language feature
 use crate::{
-    lsp::{CompletionItem, CompletionResponse},
+    lsp::{CompletionItem, CompletionResponse, Documentation, MarkupContent},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{TypePath, TypePathItem},
     server::LSPState,
     server::SourcePrograms,
+    SchemaDocumentation,
 };
-use common::{NamedItem, PerfLogger, Span};
+use common::{Named, NamedItem, PerfLogger, Span};
 
 use fnv::FnvHashSet;
 use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
@@ -25,7 +26,10 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use log::debug;
-use lsp_types::request::{Completion, Request};
+use lsp_types::{
+    request::{Completion, Request},
+    MarkupKind,
+};
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
     TypeReference, TypeWithFields,
@@ -316,7 +320,7 @@ impl CompletionRequestBuilder {
                         }
                         self.build_request_from_directives(
                             directives,
-                            DirectiveLocation::Scalar,
+                            DirectiveLocation::Field,
                             position_span,
                             type_path,
                             None,
@@ -512,6 +516,7 @@ impl CompletionRequestBuilder {
 fn completion_items_for_request(
     request: CompletionRequest,
     schema: &SDLSchema,
+    schema_documentation: impl SchemaDocumentation,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
@@ -537,14 +542,22 @@ fn completion_items_for_request(
         } => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
-                let items =
-                    resolve_completion_items_from_fields(interface, schema, existing_linked_field);
+                let items = resolve_completion_items_from_fields(
+                    interface,
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                );
                 Some(items)
             }
             Type::Object(object_id) => {
                 let object = schema.object(object_id);
-                let items =
-                    resolve_completion_items_from_fields(object, schema, existing_linked_field);
+                let items = resolve_completion_items_from_fields(
+                    object,
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                );
                 Some(items)
             }
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
@@ -614,6 +627,7 @@ fn completion_items_for_request(
                     }
                 };
                 Some(resolve_completion_items_for_argument_value(
+                    schema,
                     argument_type,
                     &source_program,
                     executable_name,
@@ -669,6 +683,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     )),
                     data: None,
                     tags: None,
+                    ..Default::default()
                 }
             }
         })
@@ -731,6 +746,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                 )),
                 data: None,
                 tags: None,
+                ..Default::default()
             }
         }
     })
@@ -738,11 +754,12 @@ fn resolve_completion_items_for_inline_fragment_type(
 }
 
 fn resolve_completion_items_for_argument_value(
+    schema: &SDLSchema,
     type_: &TypeReference,
     source_program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {
-    match executable_name {
+    let mut completion_items = match executable_name {
         ExecutableName::Fragment(name) => {
             if let Some(fragment) = source_program.fragment(name) {
                 fragment
@@ -772,12 +789,27 @@ fn resolve_completion_items_for_argument_value(
                 vec![]
             }
         }
+    };
+
+    if !type_.is_list() {
+        if let Type::Enum(id) = type_.inner() {
+            let enum_ = schema.enum_(id);
+            completion_items.extend(
+                enum_
+                    .values
+                    .iter()
+                    .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
+            )
+        }
     }
+
+    completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields>(
+fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
     type_: &T,
     schema: &SDLSchema,
+    schema_documentation: impl SchemaDocumentation,
     existing_linked_field: bool,
 ) -> Vec<CompletionItem> {
     type_
@@ -785,7 +817,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
         .iter()
         .map(|field_id| {
             let field = schema.field(*field_id);
-            let name = field.name.to_string();
+            let field_name = field.name.to_string();
             let deprecated_directive = field.directives.named(*DEPRECATED_DIRECTIVE);
             let deprecated_reason = if let Some(deprecated_directive) = deprecated_directive {
                 if let Some(ConstantValue::String(reason)) =
@@ -805,11 +837,11 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 args.is_empty(), // don't insert arguments
             ) {
                 (true, true) => None,
-                (true, false) => Some(format!("{}({})", name, args.join(", "))),
-                (false, true) => Some(format!("{} {{\n\t$1\n}}", name)),
+                (true, false) => Some(format!("{}({})", field_name, args.join(", "))),
+                (false, true) => Some(format!("{} {{\n\t$1\n}}", field_name)),
                 (false, false) => Some(format!(
                     "{}({}) {{\n\t${}\n}}",
-                    name,
+                    field_name,
                     args.join(", "),
                     args.len() + 1
                 )),
@@ -826,11 +858,25 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
             } else {
                 (None, None)
             };
+
+            let type_description = schema_documentation
+                .get_type_description(schema.get_type_name(field.type_.inner()).lookup());
+
+            let field_description = schema_documentation
+                .get_field_description(type_.name().lookup(), field.name.lookup());
+
+            let documentation = make_markdown_table_documentation(
+                field.name.lookup(),
+                &schema.get_type_string(&field.type_),
+                field_description.unwrap_or(""),
+                type_description.unwrap_or(""),
+            );
+
             CompletionItem {
-                label: name,
+                label: field_name,
                 kind: None,
                 detail: deprecated_reason,
-                documentation: None,
+                documentation: Some(documentation),
                 deprecated: Some(deprecated_directive.is_some()),
                 preselect: None,
                 sort_text: None,
@@ -842,6 +888,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields>(
                 command,
                 data: None,
                 tags: None,
+                ..Default::default()
             }
         })
         .collect()
@@ -889,6 +936,7 @@ fn resolve_completion_items_for_fragment_spread(
                         )),
                         data: None,
                         tags: None,
+                        ..Default::default()
                     }
                 });
             }
@@ -924,11 +972,18 @@ fn completion_item_from_directive(
         }
     };
 
+    let documentation = directive.description.map(|desc| {
+        Documentation::MarkupContent(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value: desc.to_string(),
+        })
+    });
+
     CompletionItem {
         label,
         kind: None,
         detail: None,
-        documentation: None,
+        documentation,
         deprecated: None,
         preselect: None,
         sort_text: None,
@@ -944,6 +999,7 @@ fn completion_item_from_directive(
         )),
         data: None,
         tags: None,
+        ..Default::default()
     }
 }
 
@@ -969,25 +1025,37 @@ fn create_arguments_snippets<T: ArgumentLike>(
     args
 }
 
-pub(crate) fn on_completion<TPerfLogger: PerfLogger + 'static>(
-    state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_completion<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation,
+>(
+    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
-    let (document, position_span, project_name) =
-        state.extract_executable_document_from_text(params.text_document_position, 0)?;
-
-    if let Some(schema) = &state.get_schemas().get(&project_name) {
-        let items = resolve_completion_items(
-            document,
-            position_span,
-            project_name,
-            schema,
-            state.get_source_programs_ref(),
-        )
-        .unwrap_or_else(Vec::new);
-        Ok(Some(CompletionResponse::Array(items)))
-    } else {
-        Err(LSPRuntimeError::ExpectedError)
+    match state.extract_executable_document_from_text(&params.text_document_position, 0) {
+        Ok((document, position_span, project_name)) => {
+            if let Some(schema) = &state.get_schemas().get(&project_name) {
+                let items = resolve_completion_items(
+                    document,
+                    position_span,
+                    project_name,
+                    schema,
+                    state.get_schema_documentation(project_name.lookup()),
+                    state.get_source_programs_ref(),
+                )
+                .unwrap_or_else(Vec::new);
+                Ok(Some(CompletionResponse::Array(items)))
+            } else {
+                Err(LSPRuntimeError::ExpectedError)
+            }
+        }
+        Err(graphql_err) => {
+            if let Ok(response) = state.js_resource.on_complete(&params, state) {
+                Ok(response)
+            } else {
+                Err(graphql_err)
+            }
+        }
     }
 }
 
@@ -996,12 +1064,37 @@ fn resolve_completion_items(
     position_span: Span,
     project_name: StringKey,
     schema: &SDLSchema,
+    schema_documentation: impl SchemaDocumentation,
     source_programs: &SourcePrograms,
 ) -> Option<Vec<CompletionItem>> {
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);
     completion_request.and_then(|completion_request| {
-        completion_items_for_request(completion_request, schema, source_programs)
+        completion_items_for_request(
+            completion_request,
+            schema,
+            schema_documentation,
+            source_programs,
+        )
+    })
+}
+
+fn make_markdown_table_documentation(
+    field_name: &str,
+    type_name: &str,
+    field_description: &str,
+    type_description: &str,
+) -> Documentation {
+    Documentation::MarkupContent(MarkupContent {
+        kind: MarkupKind::Markdown,
+        value: [
+            format!("| **Field: {}** |", field_name),
+            "| :--- |".to_string(),
+            format!("| {} |", field_description),
+            format!("| **Type: {}** |", type_name),
+            format!("| {} |", type_description),
+        ]
+        .join("\n"),
     })
 }
 

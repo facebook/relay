@@ -83,7 +83,12 @@ export type PreloadedQueryInner<
   TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {|
+  // Releases query data and cancels network request if still in flight
   +dispose: () => void,
+  // Releases query data
+  +releaseQuery: () => void,
+  // Cancels network request if still in flight
+  +cancelNetworkRequest: () => void,
   +environment: IEnvironment,
   +environmentProviderOptions: ?TEnvironmentProviderOptions,
   +fetchKey: string | number,
@@ -275,5 +280,5 @@ export type PreloadParamsOf<T> = $Call<
 >;
 
 export type IEnvironmentProvider<TOptions> = {|
-  getEnvironment(options: ?TOptions): IEnvironment,
+  getEnvironment: (options: ?TOptions) => IEnvironment,
 |};

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<88e4f70c7cddc83e027abd8a24cf0fa9>>
+ * @generated SignedSource<<6742d659e6ee5f724f9cb4e7474cd28f>>
  */
 
 mod refetchable_fragment;
@@ -115,6 +115,13 @@ fn fragment_with_args_on_viewer() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-viewer.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-viewer.expected");
     test_fixture(transform_fixture, "fragment-with-args-on-viewer.graphql", "refetchable_fragment/fixtures/fragment-with-args-on-viewer.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_relay_plural_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-relay-plural.invalid.graphql", "refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.expected", input, expected);
 }
 
 #[test]

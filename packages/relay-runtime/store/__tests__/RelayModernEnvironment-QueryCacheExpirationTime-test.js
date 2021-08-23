@@ -24,6 +24,9 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {graphql, getRequest} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('query cache expiration time', () => {
   let environment;
@@ -39,7 +42,6 @@ describe('query cache expiration time', () => {
     fetchTime = Date.now();
     jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-    jest.resetModules();
     ParentQuery = getRequest(graphql`
       query RelayModernEnvironmentQueryCacheExpirationTimeTestQuery {
         me {
@@ -75,6 +77,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const snapshot = environment.lookup(
         createReaderSelector(
@@ -120,6 +123,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const snapshot = environment.lookup(
         createReaderSelector(
@@ -160,6 +164,7 @@ describe('query cache expiration time', () => {
           name: 'Zuck',
         },
       });
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       const {dispose} = environment.retain(operationDescriptor);
       const originalFetchTime = fetchTime;
 

@@ -4,7 +4,7 @@
 
 We want to keep signal strong in the GitHub issue tracker – to make sure that it remains the best place to track issues that affect the development of Relay.
 
-If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://facebook.github.io/relay/en/help.html) instead.
+If you have a question on how to use Relay, please get in touch with community members through one of the channels listed [here](https://relay.dev/help) instead.
 
 ## Reporting issues with Relay
 

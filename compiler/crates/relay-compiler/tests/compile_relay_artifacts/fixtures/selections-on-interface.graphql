@@ -1,0 +1,16 @@
+
+fragment selectionsOnInterfaceUserFragment on User {
+  firstName(if: true)
+}
+
+fragment selectionsOnInterfacePageFragment on Page {
+  firstName(if: false)
+}
+
+
+query selectionsOnInterfaceQuery($id: ID!) {
+  node(id: $id) {
+    ...selectionsOnInterfaceUserFragment
+    ...selectionsOnInterfacePageFragment
+  }
+}

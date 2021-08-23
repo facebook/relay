@@ -169,6 +169,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
 
           // Flush some of the changes, but don't commit
@@ -238,6 +239,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
           const owner = createOperationDescriptor(TestQuery, variables);
 
@@ -256,6 +258,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -280,6 +283,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -323,6 +327,7 @@ describe('ReactRelayQueryRenderer', () => {
           }
           const renderer = ReactTestRenderer.create(<Example />, {
             unstable_isConcurrent: true,
+            unstable_concurrentUpdatesByDefault: true,
           });
           const owner = createOperationDescriptor(TestQuery, variables);
 
@@ -341,6 +346,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -365,6 +371,7 @@ describe('ReactRelayQueryRenderer', () => {
                 },
 
                 __fragmentOwner: owner.request,
+                __isWithinUnmatchedTypeRefinement: false,
                 __id: '4',
               },
             },
@@ -418,6 +425,7 @@ describe('ReactRelayQueryRenderer', () => {
               },
 
               __fragmentOwner: firstOwner.request,
+              __isWithinUnmatchedTypeRefinement: false,
               __id: '4',
             },
           },
@@ -477,6 +485,7 @@ describe('ReactRelayQueryRenderer', () => {
               },
 
               __fragmentOwner: thirdOwner.request,
+              __isWithinUnmatchedTypeRefinement: false,
               __id: '6',
             },
           },
@@ -553,6 +562,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -588,6 +598,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -764,6 +775,7 @@ describe('ReactRelayQueryRenderer', () => {
               ReactRelayQueryRendererTestFragment: {},
             },
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '<default>',
           },
         },
@@ -1119,6 +1131,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },
@@ -1177,6 +1190,7 @@ describe('ReactRelayQueryRenderer', () => {
 
                   __fragmentOwner: owner.request,
                   __id: '4',
+                  __isWithinUnmatchedTypeRefinement: false,
                 },
               },
               retry: expect.any(Function),
@@ -1196,6 +1210,7 @@ describe('ReactRelayQueryRenderer', () => {
                   },
 
                   __fragmentOwner: owner.request,
+                  __isWithinUnmatchedTypeRefinement: false,
                   __id: '4',
                 },
               },
@@ -1250,6 +1265,7 @@ describe('ReactRelayQueryRenderer', () => {
             },
 
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __id: '4',
           },
         },

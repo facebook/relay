@@ -31,21 +31,22 @@ fragment FeedbackFragment on Feedback {
   name
 }
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
 export type CommentCreateInput = {
-  clientMutationId?: string | null,
-  feedbackId?: string | null,
-  feedback?: CommentfeedbackFeedback | null,
+  clientMutationId?: string | null;
+  feedbackId?: string | null;
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentfeedbackFeedback = {
-  comment?: FeedbackcommentComment | null
+  comment?: FeedbackcommentComment | null;
 };
 export type FeedbackcommentComment = {
-  feedback?: CommentfeedbackFeedback | null
+  feedback?: CommentfeedbackFeedback | null;
 };
 export type CommentCreateMutationVariables = {
-  input: CommentCreateInput,
-  first?: number | null,
-  orderBy?: ReadonlyArray<string> | null,
+  input: CommentCreateInput;
+  first?: number | null;
+  orderBy?: ReadonlyArray<string> | null;
 };
 export type CommentCreateMutationResponse = {
   readonly commentCreate: {
@@ -53,13 +54,13 @@ export type CommentCreateMutationResponse = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly lastName: string | null,
-            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
-          } | null
-        } | null> | null
-      } | null
-    } | null
-  } | null
+            readonly lastName: string | null;
+            readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+          } | null;
+        } | null> | null;
+      } | null;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutationRawResponse = {
   readonly commentCreate: {
@@ -67,49 +68,49 @@ export type CommentCreateMutationRawResponse = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly lastName: string | null,
-            readonly name: string | null,
+            readonly lastName: string | null;
+            readonly name: string | null;
             readonly feedback: {
-              readonly id: string,
-              readonly name: string | null,
-            } | null,
-            readonly id: string,
-          } | null
-        } | null> | null
-      } | null,
-      readonly id: string,
-    } | null
-  } | null
+              readonly id: string;
+              readonly name: string | null;
+            } | null;
+            readonly id: string;
+          } | null;
+        } | null> | null;
+      } | null;
+      readonly id: string;
+    } | null;
+  } | null;
 };
 export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
-  rawResponse: CommentCreateMutationRawResponse,
+  variables: CommentCreateMutationVariables;
+  response: CommentCreateMutationResponse;
+  rawResponse: CommentCreateMutationRawResponse;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FeedbackFragment = {
-  readonly id: string,
-  readonly name: string | null,
-  readonly " $refType": FragmentRefs<"FeedbackFragment">,
+  readonly id: string;
+  readonly name: string | null;
+  readonly " $refType": "FeedbackFragment";
 };
 export type FeedbackFragment$data = FeedbackFragment;
 export type FeedbackFragment$key = {
-  readonly " $data"?: FeedbackFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">,
+  readonly " $data"?: FeedbackFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FriendFragment = {
-  readonly name: string | null,
-  readonly lastName: string | null,
+  readonly name: string | null;
+  readonly lastName: string | null;
   readonly feedback: {
-    readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">
-  } | null,
-  readonly " $refType": FragmentRefs<"FriendFragment">,
+    readonly " $fragmentRefs": FragmentRefs<"FeedbackFragment">;
+  } | null;
+  readonly " $refType": "FriendFragment";
 };
 export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
-  readonly " $data"?: FriendFragment$data,
-  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">,
+  readonly " $data"?: FriendFragment$data;
+  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
 };

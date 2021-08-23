@@ -21,4 +21,3 @@ const oops = [
     const graphBatchURI = `${url}/intern/api/graphqlbatch`;
 ];
 ==================================== OUTPUT ===================================
-[]

@@ -12,14 +12,14 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 indexmap = { version = "1.6", features = ["rayon", "serde-1"] }
 interner = { path = "../interner" }
-itertools = "0.8"
+itertools = "0.10.1"
 lazy_static = "1.0"
+relay-codegen = { path = "../relay-codegen" }
 relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
+serde = { version = "1.0.126", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-syntax = { path = "../graphql-syntax" }
-relay-compiler = { path = "../relay-compiler" }
 relay-test-schema = { path = "../relay-test-schema" }

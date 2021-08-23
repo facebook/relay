@@ -21,7 +21,6 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 ## Example
 
 ```javascript
-
 // Example.js
 import React from 'react';
 import { QueryRenderer, graphql } from 'react-relay';
@@ -53,5 +52,4 @@ class Example extends React.Component {
     );
   }
 }
-
 ```

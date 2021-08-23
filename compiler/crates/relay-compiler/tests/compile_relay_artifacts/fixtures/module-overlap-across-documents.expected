@@ -138,6 +138,7 @@ fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownU
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "moduleOverlapAcrossDocuments_BarNameRendererFragment",
                         "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -308,6 +309,7 @@ fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownU
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
                         "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
                         "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -321,6 +323,7 @@ fragment moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownU
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
                         "fragmentName": "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name",
                         "fragmentPropName": "PlainUserNameRenderer_name",
@@ -495,6 +498,7 @@ fragment moduleOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNam
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "moduleOverlapAcrossDocuments_BarNameRendererFragment",
               "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -537,6 +541,7 @@ fragment moduleOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNam
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
               "fragmentName": "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
               "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -550,6 +555,7 @@ fragment moduleOverlapAcrossDocuments_PlainUserNameRenderer_name on PlainUserNam
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "moduleOverlapAcrossDocuments_FooNameRendererFragment",
               "fragmentName": "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name",
               "fragmentPropName": "PlainUserNameRenderer_name",

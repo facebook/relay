@@ -44,8 +44,18 @@ function usePreloadedQuery<TQuery: OperationType>(
   useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
-  const {fetchKey, fetchPolicy, source, variables} = preloadedQuery;
-  const operation = useMemoOperationDescriptor(gqlQuery, variables);
+  const {
+    fetchKey,
+    fetchPolicy,
+    source,
+    variables,
+    networkCacheConfig,
+  } = preloadedQuery;
+  const operation = useMemoOperationDescriptor(
+    gqlQuery,
+    variables,
+    networkCacheConfig,
+  );
 
   let useLazyLoadQueryNodeParams;
   if (preloadedQuery.kind === 'PreloadedQuery_DEPRECATED') {

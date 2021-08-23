@@ -1,0 +1,11 @@
+# expected-to-throw
+
+fragment TestFragment on Query {
+  story @fb_actor_change {
+    ...StoryFragment
+  }
+}
+
+fragment StoryFragment on Story {
+  seenState
+}

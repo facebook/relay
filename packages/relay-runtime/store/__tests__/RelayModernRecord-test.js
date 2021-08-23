@@ -16,6 +16,10 @@ const RelayStoreUtils = require('../RelayStoreUtils');
 
 const deepFreeze = require('../../util/deepFreeze');
 
+const {
+  getActorIdentifier,
+} = require('../../multi-actor-environment/ActorIdentifier');
+
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
 
 describe('RelayModernRecord', () => {
@@ -395,6 +399,35 @@ describe('RelayModernRecord', () => {
       expect(() =>
         RelayModernRecord.setValue(record, TYPENAME_KEY, 'not-User'),
       ).not.toWarn();
+    });
+  });
+
+  describe('ActorChange Records', () => {
+    it('should set/get value for the multi actor record', () => {
+      const record = RelayModernRecord.create('1234', 'User');
+      const actorID = getActorIdentifier('actor-1234');
+      RelayModernRecord.setActorLinkedRecordID(
+        record,
+        'name',
+        getActorIdentifier('actor-1234'),
+        'Antonio',
+      );
+      expect(RelayModernRecord.getActorLinkedRecordID(record, 'name')).toEqual([
+        actorID,
+        'Antonio',
+      ]);
+    });
+
+    it('should throw if unable to get actorID for the record', () => {
+      const record = RelayModernRecord.create('1234', 'User');
+      RelayModernRecord.setLinkedRecordID(record, 'name', 'ref-1');
+
+      expect(() =>
+        RelayModernRecord.getActorLinkedRecordID(record, 'name'),
+      ).toThrowError(
+        'RelayModernRecord.getActorLinkedRecordID(): Expected `1234.name`' +
+          ' to be an actor specific linked ID, was `{"__ref":"ref-1"}`',
+      );
     });
   });
 });

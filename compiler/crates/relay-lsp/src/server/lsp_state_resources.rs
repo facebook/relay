@@ -8,7 +8,7 @@
 use std::sync::{Arc, RwLock};
 
 use common::{PerfLogEvent, PerfLogger};
-use crossbeam::Sender;
+use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use interner::StringKey;
@@ -337,6 +337,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
 
         let (base_program, base_fragment_names, _) = build_raw_program(
             project_config,
+            &compiler_state.implicit_dependencies.read().unwrap(),
             graphql_asts,
             schema,
             log_event,

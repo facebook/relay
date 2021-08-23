@@ -2,6 +2,11 @@
 id: entrypoint-container
 title: EntryPointContainer
 slug: /api-reference/entrypoint-container/
+description: API reference for EntryPointContainer, a React component used to render the root component of an entrypoint
+keywords:
+  - entrypoint
+  - container
+  - root
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

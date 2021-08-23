@@ -1,0 +1,15 @@
+# expected-to-throw
+query noInlineFragmentInRawResponseQueryQuery @raw_response_type {
+  me {
+    ...noInlineFragmentInRawResponseQuery_parent
+  }
+}
+
+fragment noInlineFragmentInRawResponseQuery_parent on User {
+  ...noInlineFragmentInRawResponseQuery_child
+}
+
+fragment noInlineFragmentInRawResponseQuery_child on User
+@no_inline {
+  name
+}

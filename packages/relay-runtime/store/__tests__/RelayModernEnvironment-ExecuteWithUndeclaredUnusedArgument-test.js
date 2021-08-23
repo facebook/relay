@@ -26,6 +26,9 @@ const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 // Regression test
 describe('query with undeclared, unused fragment argument', () => {
@@ -40,8 +43,6 @@ describe('query with undeclared, unused fragment argument', () => {
   let subject;
 
   beforeEach(() => {
-    jest.resetModules();
-
     query = getRequest(graphql`
       query RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestQueryWithUnusedFragmentArgumentDefinitionQuery(
         $id: ID!
@@ -111,6 +112,7 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(snapshot.data).toEqual({
       node: {
         __fragmentOwner: operation.request,
+        __isWithinUnmatchedTypeRefinement: false,
 
         __fragments: {
           RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile: {},
@@ -129,6 +131,7 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(fragmentSnapshot.data).toEqual({
       __id: '4',
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
         RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper: {
@@ -149,6 +152,7 @@ describe('query with undeclared, unused fragment argument', () => {
     expect(innerSnapshot.data).toEqual({
       __id: '4',
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
         RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto: {

@@ -2,6 +2,13 @@
 id: loading-states
 title: Loading States with Suspense
 slug: /guided-tour/rendering/loading-states/
+description: Relay guide to loading states
+keywords:
+- suspense
+- loading
+- glimmer
+- fallback
+- spinner
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

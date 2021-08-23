@@ -2,6 +2,11 @@
 id: use-lazy-load-query
 title: useLazyLoadQuery
 slug: /api-reference/use-lazy-load-query/
+description: API reference for useLazyLoadQuery, a React hook used to lazily fetch query data when a component renders
+keywords:
+  - lazy fetching
+  - query
+  - fetch
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

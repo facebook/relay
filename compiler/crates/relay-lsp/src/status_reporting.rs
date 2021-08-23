@@ -10,7 +10,7 @@ use crate::{
     diagnostic_reporter::DiagnosticReporter,
     lsp::{set_ready_status, update_in_progress_status},
 };
-use crossbeam::crossbeam_channel::Sender;
+use crossbeam::channel::Sender;
 use lsp_server::Message;
 use relay_compiler::{
     errors::{BuildProjectError, Result as CompilerResult},

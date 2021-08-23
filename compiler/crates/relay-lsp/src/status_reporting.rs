@@ -8,7 +8,7 @@
 //! Utilities for reporting errors to an LSP client
 use crate::{
     diagnostic_reporter::DiagnosticReporter,
-    lsp::{set_ready_status, update_in_progress_status},
+    status_updater::{set_ready_status, update_in_progress_status},
 };
 use crossbeam::channel::Sender;
 use lsp_server::Message;

@@ -27,9 +27,9 @@ use tokio::{sync::Notify, task, task::JoinHandle};
 
 use crate::{
     diagnostic_reporter::DiagnosticReporter,
-    lsp::set_ready_status,
-    lsp::update_in_progress_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
+    status_updater::set_ready_status,
+    status_updater::update_in_progress_status,
 };
 
 use super::lsp_state::{ProjectStatus, ProjectStatusMap, Schemas, SourcePrograms};

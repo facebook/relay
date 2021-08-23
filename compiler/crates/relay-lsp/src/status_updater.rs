@@ -19,27 +19,27 @@ use lsp_types::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
-pub enum ShowStatus {}
+enum ShowStatus {}
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ShowStatusParams {
+struct ShowStatusParams {
     #[serde(rename = "type")]
-    pub type_: MessageType,
+    type_: MessageType,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub progress: Option<Progress>,
+    progress: Option<Progress>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub uri: Option<String>,
+    uri: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub message: Option<String>,
+    message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub short_message: Option<String>,
+    short_message: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub actions: Option<Vec<MessageActionItem>>,
+    actions: Option<Vec<MessageActionItem>>,
 }
 
 #[derive(Debug, PartialEq, Clone, Deserialize, Serialize)]
-pub struct Progress {
+struct Progress {
     numerator: f32,
     denominator: Option<f32>,
 }
@@ -50,7 +50,7 @@ impl Request for ShowStatus {
     const METHOD: &'static str = "window/showStatus";
 }
 
-pub fn set_ready_status(sender: &Sender<Message>) {
+pub(crate) fn set_ready_status(sender: &Sender<Message>) {
     update_status(
         "Relay: ready",
         Some("The Relay extension is ready"),
@@ -59,7 +59,7 @@ pub fn set_ready_status(sender: &Sender<Message>) {
     );
 }
 
-pub fn set_initializing_status(sender: &Sender<Message>) {
+pub(crate) fn set_initializing_status(sender: &Sender<Message>) {
     update_in_progress_status(
         "Relay: initializing...",
         Some(
@@ -69,7 +69,7 @@ pub fn set_initializing_status(sender: &Sender<Message>) {
     );
 }
 
-pub fn update_in_progress_status(
+pub(crate) fn update_in_progress_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,
     sender: &Sender<Message>,
@@ -77,7 +77,7 @@ pub fn update_in_progress_status(
     update_status(short_message, message, MessageType::Warning, sender);
 }
 
-pub fn update_status(
+fn update_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,
     type_: MessageType,
@@ -102,7 +102,7 @@ pub fn update_status(
 
 /// Show a notification in the client
 #[allow(dead_code)]
-pub fn show_info_message(
+pub(crate) fn show_info_message(
     sender: &Sender<Message>,
     message: impl Into<String>,
 ) -> Result<(), SendError<Message>> {

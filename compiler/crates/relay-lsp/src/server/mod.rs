@@ -23,7 +23,6 @@ use crate::{
     graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
     js_language_server::JSLanguageServer,
-    lsp::set_initializing_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
@@ -31,6 +30,7 @@ use crate::{
     search_schema_items::{on_search_schema_items, SearchSchemaItems},
     shutdown::{on_exit, on_shutdown},
     status_reporting::{LSPStatusReporter, StatusReportingArtifactWriter},
+    status_updater::set_initializing_status,
     text_documents::{
         on_cancel, on_did_change_text_document, on_did_close_text_document,
         on_did_open_text_document, on_did_save_text_document,

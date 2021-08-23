@@ -23,7 +23,7 @@ use crate::{
     graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
     js_language_server::JSLanguageServer,
-    lsp::{set_initializing_status, GotoDefinition, HoverRequest},
+    lsp::set_initializing_status,
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
@@ -50,7 +50,7 @@ use lsp_types::{
         Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
         DidSaveTextDocument, Exit,
     },
-    request::{CodeActionRequest, Completion, References, Shutdown},
+    request::{CodeActionRequest, Completion, GotoDefinition, HoverRequest, References, Shutdown},
     CodeActionProviderCapability, CompletionOptions, InitializeParams, ServerCapabilities,
     TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };

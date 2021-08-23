@@ -19,15 +19,15 @@ use serde::{Deserialize, Serialize};
 pub(crate) enum SearchSchemaItems {}
 
 #[derive(Deserialize, Serialize)]
-pub(crate) struct TypeDescription {
+pub(crate) struct SchemaSearchItem {
     name: String,
     description: Option<String>,
 }
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct SchemaSearchItemsResponse {
-    pub items: Vec<TypeDescription>,
+pub(crate) struct SearchSchemaItemsResponse {
+    pub items: Vec<SchemaSearchItem>,
     pub has_more: bool,
 }
 
@@ -41,7 +41,7 @@ pub(crate) struct SearchSchemaItemsParams {
 
 impl Request for SearchSchemaItems {
     type Params = SearchSchemaItemsParams;
-    type Result = SchemaSearchItemsResponse;
+    type Result = SearchSchemaItemsResponse;
     const METHOD: &'static str = "relay/searchSchemaItems";
 }
 
@@ -85,14 +85,14 @@ pub(crate) fn on_search_schema_items<
 
     let items = items.into_iter().skip(skip).take(take).collect::<Vec<_>>();
 
-    Ok(SchemaSearchItemsResponse { items, has_more })
+    Ok(SearchSchemaItemsResponse { items, has_more })
 }
 
 fn filter_and_transform_items<'a, T: Named + 'a>(
     items: impl Iterator<Item = &'a T> + 'a,
     schema_documentation: &'a impl SchemaDocumentation,
     filter: &'a Option<String>,
-) -> impl Iterator<Item = TypeDescription> + 'a {
+) -> impl Iterator<Item = SchemaSearchItem> + 'a {
     items.filter_map(move |obj| {
         let name = obj.name().lookup();
         let description = schema_documentation
@@ -100,7 +100,7 @@ fn filter_and_transform_items<'a, T: Named + 'a>(
             .map(|s| s.to_string());
 
         if should_include_named_item(name, &description, filter) {
-            Some(TypeDescription {
+            Some(SchemaSearchItem {
                 name: name.to_string(),
                 description,
             })

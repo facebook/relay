@@ -7,7 +7,6 @@
 
 //! Utilities for providing the completion language feature
 use crate::{
-    lsp::{CompletionItem, CompletionResponse, Documentation, MarkupContent},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{TypePath, TypePathItem},
     server::LSPState,
@@ -28,7 +27,7 @@ use lazy_static::lazy_static;
 use log::debug;
 use lsp_types::{
     request::{Completion, Request},
-    MarkupKind,
+    CompletionItem, CompletionResponse, Documentation, InsertTextFormat, MarkupContent, MarkupKind,
 };
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
@@ -953,8 +952,6 @@ fn completion_item_from_directive(
     let SchemaDirective {
         name, arguments, ..
     } = directive;
-
-    use crate::lsp::InsertTextFormat;
 
     // Always use the name of the directive as the label
     let label = name.to_string();

@@ -9,7 +9,6 @@
 
 use crate::{
     location::to_lsp_location_of_graphql_literal,
-    lsp::GotoDefinitionResponse,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     resolution_path::utils::find_selection_parent_type,
     resolution_path::{
@@ -26,7 +25,7 @@ use graphql_syntax::ConstantValue;
 use interner::{Intern, StringKey};
 use lsp_types::{
     request::{GotoDefinition, Request},
-    Url,
+    GotoDefinitionResponse, Url,
 };
 use relay_transforms::{RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME};
 use schema::{SDLSchema, Schema, Type};

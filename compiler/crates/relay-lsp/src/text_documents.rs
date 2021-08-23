@@ -7,16 +7,15 @@
 
 //! Utilities related to LSP text document syncing
 
-use crate::{
-    lsp::{DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem},
-    lsp_runtime_error::LSPRuntimeResult,
-    server::LSPState,
-};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::LSPState};
 
 use common::PerfLogger;
-use lsp_types::notification::{
-    Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
-    Notification,
+use lsp_types::{
+    notification::{
+        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        DidSaveTextDocument, Notification,
+    },
+    DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
 };
 use schema_documentation::SchemaDocumentation;
 

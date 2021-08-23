@@ -8,7 +8,6 @@
 //! Utilities for providing the hover feature
 
 use crate::{
-    lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{NodeKind, NodeResolutionInfo},
     server::{LSPState, SourcePrograms},
@@ -17,7 +16,10 @@ use crate::{
 use common::PerfLogger;
 use graphql_ir::Value;
 use graphql_text_printer::print_value;
-use lsp_types::{request::HoverRequest, request::Request, Hover};
+use lsp_types::{
+    request::{HoverRequest, Request},
+    Hover, HoverContents, LanguageString, MarkedString,
+};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;

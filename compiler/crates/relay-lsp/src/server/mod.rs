@@ -23,11 +23,7 @@ use crate::{
     graphql_tools::GraphQLExecuteQuery,
     hover::on_hover,
     js_language_server::JSLanguageServer,
-    lsp::{
-        set_initializing_status, CompletionOptions, GotoDefinition, HoverRequest, InitializeParams,
-        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
-        WorkDoneProgressOptions,
-    },
+    lsp::{set_initializing_status, GotoDefinition, HoverRequest},
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeError,
     references::on_references,
@@ -55,15 +51,15 @@ use lsp_types::{
         DidSaveTextDocument, Exit,
     },
     request::{CodeActionRequest, Completion, References, Shutdown},
-    CodeActionProviderCapability,
+    CodeActionProviderCapability, CompletionOptions, InitializeParams, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
 };
 use relay_compiler::{config::Config, NoopArtifactWriter};
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
-pub use lsp_state::LSPState;
-pub use lsp_state::{Schemas, SourcePrograms};
+pub use lsp_state::{LSPState, Schemas, SourcePrograms};
 
 use heartbeat::{on_heartbeat, HeartbeatRequest};
 

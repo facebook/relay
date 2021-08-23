@@ -12,7 +12,8 @@
 use crate::lsp_process_error::LSPProcessResult;
 use crossbeam::channel::{SendError, Sender};
 use lsp_server::{Message, Notification as ServerNotification, Request as ServerRequest};
-pub use lsp_types::{notification::*, request::*, *};
+use lsp_types::notification::{Notification, PublishDiagnostics, ShowMessage};
+pub use lsp_types::{request::*, *};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]

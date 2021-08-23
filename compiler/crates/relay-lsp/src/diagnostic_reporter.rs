@@ -6,15 +6,13 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::lsp::{
-    publish_diagnostic, Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range,
-    Url,
-};
+use crate::lsp::publish_diagnostic;
 use common::{Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use lsp_server::Message;
+use lsp_types::{Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url};
 use relay_compiler::{
     errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,

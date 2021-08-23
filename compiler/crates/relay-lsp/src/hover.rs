@@ -6,6 +6,7 @@
  */
 
 //! Utilities for providing the hover feature
+
 use crate::{
     lsp::{HoverContents, LanguageString, MarkedString},
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
@@ -20,6 +21,7 @@ use lsp_types::{request::HoverRequest, request::Request, Hover};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
+use serde::Serialize;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -113,6 +115,7 @@ fn get_hover_response_contents(
             let rendered_type_string = schema.get_type_string(&field.type_);
             let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
             let parent_type_name = schema.get_type_name(parent_type).lookup();
+            let schema_name = node_resolution_info.project_name.lookup();
 
             let mut hover_contents: Vec<MarkedString> =
                 vec![MarkedString::String(format!("Field: **{}**", field.name))];
@@ -125,7 +128,14 @@ fn get_hover_response_contents(
 
             hover_contents.push(MarkedString::String(format!(
                 "Type: **{}**",
-                rendered_type_string
+                get_open_schema_explorer_command_link(
+                    &rendered_type_string,
+                    &GraphQLSchemaExplorerParams {
+                        path: vec![field_type_name],
+                        schema_name,
+                        filter: None,
+                    }
+                )
             )));
 
             if let Some(type_description) =
@@ -136,14 +146,22 @@ fn get_hover_response_contents(
 
             if !field.arguments.is_empty() {
                 hover_contents.push(MarkedString::String(
-                    "This field accepts following arguments".to_string(),
+                    "This field accepts these arguments".to_string(),
                 ));
 
                 for arg in field.arguments.iter() {
+                    let arg_type_name = schema.get_type_name(arg.type_.inner()).lookup();
                     hover_contents.push(MarkedString::from_markdown(format!(
-                        "`{}: {}{}`\n\n{}",
+                        "{}: **{}**{}\n\n{}",
                         arg.name,
-                        schema.get_type_string(&arg.type_),
+                        get_open_schema_explorer_command_link(
+                            &schema.get_type_string(&arg.type_),
+                            &GraphQLSchemaExplorerParams {
+                                path: vec![field_type_name, arg_type_name],
+                                schema_name,
+                                filter: None,
+                            }
+                        ),
                         if let Some(default_value) = &arg.default_value {
                             format!(" = {}", default_value)
                         } else {
@@ -163,6 +181,7 @@ fn get_hover_response_contents(
                     )));
                 }
             }
+
             Some(HoverContents::Array(hover_contents))
         }
         NodeKind::FieldArgument(field_name, argument_name) => {
@@ -325,4 +344,38 @@ pub(crate) fn on_hover<
     } else {
         Err(LSPRuntimeError::ExpectedError)
     }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct GraphQLSchemaExplorerParams<'a> {
+    path: Vec<&'a str>,
+
+    schema_name: &'a str,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filter: Option<&'a str>,
+}
+
+fn get_open_schema_explorer_command_link(
+    text: &str,
+    params: &GraphQLSchemaExplorerParams<'_>,
+) -> String {
+    format!(
+        "[{}](command:{})",
+        text,
+        get_open_schema_explorer_command(params)
+    )
+}
+
+fn get_open_schema_explorer_command(params: &GraphQLSchemaExplorerParams<'_>) -> String {
+    // see https://docs.rs/percent-encoding/2.1.0/percent_encoding/
+    use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+
+    const FRAGMENT: AsciiSet = CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
+
+    return format!(
+        "nuclide.relay-lsp.openSchemaExplorer?{}",
+        utf8_percent_encode(&serde_json::to_string(params).unwrap(), &FRAGMENT)
+    );
 }

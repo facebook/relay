@@ -25,8 +25,10 @@ pub(crate) struct TypeDescription {
 }
 
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub(crate) struct SchemaSearchItemsResponse {
     pub items: Vec<TypeDescription>,
+    pub has_more: bool,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -67,17 +69,23 @@ pub(crate) fn on_search_schema_items<
         filter_and_transform_items(schema.input_objects(), &schema_documentation, &filter);
     let scalars = filter_and_transform_items(schema.scalars(), &schema_documentation, &filter);
 
-    let items = objects
+    let mut items = objects
         .chain(interfaces)
         .chain(enums)
         .chain(unions)
         .chain(input_objects)
         .chain(scalars)
-        .skip(*params.skip.as_ref().unwrap_or(&0))
-        .take(*params.take.as_ref().unwrap_or(&500))
         .collect::<Vec<_>>();
 
-    Ok(SchemaSearchItemsResponse { items })
+    items.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+
+    let skip = *params.skip.as_ref().unwrap_or(&0);
+    let take = *params.take.as_ref().unwrap_or(&500);
+    let has_more = items.len() > skip + take;
+
+    let items = items.into_iter().skip(skip).take(take).collect::<Vec<_>>();
+
+    Ok(SchemaSearchItemsResponse { items, has_more })
 }
 
 fn filter_and_transform_items<'a, T: Named + 'a>(

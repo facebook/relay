@@ -11,11 +11,7 @@
 
 use crate::lsp_process_error::LSPProcessResult;
 use crossbeam::channel::{SendError, Sender};
-pub use lsp_server::{Connection, Message};
-pub use lsp_server::{
-    Notification as ServerNotification, ProtocolError, Request as ServerRequest,
-    RequestId as ServerRequestId, Response as ServerResponse,
-};
+use lsp_server::{Message, Notification as ServerNotification, Request as ServerRequest};
 pub use lsp_types::{notification::*, request::*, *};
 use serde::{Deserialize, Serialize};
 

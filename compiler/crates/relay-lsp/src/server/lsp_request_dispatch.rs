@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_server::{ErrorCode, RequestId, ResponseError};
+use lsp_server::{
+    ErrorCode, Request as ServerRequest, RequestId, RequestId as ServerRequestId,
+    Response as ServerResponse, ResponseError,
+};
 use lsp_types::request::Request;
 
-use crate::{
-    lsp::{ServerRequest, ServerRequestId, ServerResponse},
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-};
+use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 
 pub struct LSPRequestDispatch<'state, TState> {
     request: lsp_server::Request,

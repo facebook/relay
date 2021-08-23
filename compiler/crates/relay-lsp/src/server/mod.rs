@@ -24,9 +24,9 @@ use crate::{
     hover::on_hover,
     js_language_server::JSLanguageServer,
     lsp::{
-        set_initializing_status, CompletionOptions, Connection, GotoDefinition, HoverRequest,
-        InitializeParams, Message, ServerCapabilities, ServerResponse, TextDocumentSyncCapability,
-        TextDocumentSyncKind, WorkDoneProgressOptions,
+        set_initializing_status, CompletionOptions, GotoDefinition, HoverRequest, InitializeParams,
+        ServerCapabilities, TextDocumentSyncCapability, TextDocumentSyncKind,
+        WorkDoneProgressOptions,
     },
     lsp_process_error::{LSPProcessError, LSPProcessResult},
     lsp_runtime_error::LSPRuntimeError,
@@ -46,7 +46,9 @@ use crossbeam::channel::{SendError, Sender};
 use log::debug;
 pub use lsp_notification_dispatch::LSPNotificationDispatch;
 pub use lsp_request_dispatch::LSPRequestDispatch;
-use lsp_server::{ErrorCode, Notification, ResponseError};
+use lsp_server::{
+    Connection, ErrorCode, Message, Notification, Response as ServerResponse, ResponseError,
+};
 use lsp_types::{
     notification::{
         Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,

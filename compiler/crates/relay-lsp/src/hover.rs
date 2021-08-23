@@ -77,6 +77,7 @@ fn get_hover_response_contents(
     extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
+    let schema_name = node_resolution_info.project_name.lookup();
 
     match kind {
         NodeKind::Variable(type_name) => Some(hover_content_wrapper(type_name)),
@@ -115,7 +116,6 @@ fn get_hover_response_contents(
             let rendered_type_string = schema.get_type_string(&field.type_);
             let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
             let parent_type_name = schema.get_type_name(parent_type).lookup();
-            let schema_name = node_resolution_info.project_name.lookup();
 
             let mut hover_contents: Vec<MarkedString> =
                 vec![MarkedString::String(format!("Field: **{}**", field.name))];
@@ -196,9 +196,16 @@ fn get_hover_response_contents(
                 let content = format!(
                     "{}: {}",
                     argument_name,
-                    schema.get_type_string(&argument.type_)
+                    get_open_schema_explorer_command_link(
+                        &schema.get_type_string(&argument.type_),
+                        &GraphQLSchemaExplorerParams {
+                            path: vec![schema.get_type_name(argument.type_.inner()).lookup()],
+                            filter: None,
+                            schema_name,
+                        }
+                    )
                 );
-                Some(hover_content_wrapper(content))
+                Some(HoverContents::Scalar(MarkedString::from_markdown(content)))
             } else {
                 None
             }
@@ -208,33 +215,46 @@ fn get_hover_response_contents(
             if let Some(source_program) = source_programs.get(&project_name) {
                 let fragment = source_program.fragment(fragment_name)?;
                 let mut hover_contents: Vec<MarkedString> = vec![];
-                hover_contents.push(graphql_marked_string(format!(
-                    "fragment {} on {} {{ ... }}",
+                let fragment_type_name = schema.get_type_name(fragment.type_condition).lookup();
+                hover_contents.push(MarkedString::from_markdown(format!(
+                    "fragment {} on {}",
                     fragment.name.item,
-                    schema.get_type_name(fragment.type_condition),
+                    get_open_schema_explorer_command_link(
+                        fragment_type_name,
+                        &GraphQLSchemaExplorerParams {
+                            path: vec![fragment_type_name],
+                            filter: None,
+                            schema_name,
+                        }
+                    )
                 )));
 
                 if !fragment.variable_definitions.is_empty() {
                     let mut variables_string: Vec<String> =
-                        vec!["This fragment accepts following arguments:".to_string()];
-                    variables_string.push("```".to_string());
+                        vec!["This fragment accepts these arguments:".to_string()];
                     for var in &fragment.variable_definitions {
                         let default_value = match var.default_value.clone() {
                             Some(default_value) => format!(
-                                ", default_value = {}",
+                                ", with a default value of {}",
                                 print_value(schema, &Value::Constant(default_value.item))
                             ),
                             None => "".to_string(),
                         };
                         variables_string.push(format!(
-                            "- {}: {}{}",
+                            "* {}: {}{}",
                             var.name.item,
-                            schema.get_type_string(&var.type_),
+                            get_open_schema_explorer_command_link(
+                                &schema.get_type_string(&var.type_),
+                                &GraphQLSchemaExplorerParams {
+                                    path: vec![schema.get_type_name(var.type_.inner()).lookup()],
+                                    schema_name,
+                                    filter: None,
+                                }
+                            ),
                             default_value,
                         ));
                     }
-                    variables_string.push("```".to_string());
-                    hover_contents.push(MarkedString::String(variables_string.join("\n")))
+                    hover_contents.push(MarkedString::from_markdown(variables_string.join("\n")))
                 }
 
                 let fragment_name_details: Vec<&str> = fragment_name.lookup().split('_').collect();
@@ -287,16 +307,23 @@ For example:
             let type_ = node_resolution_info
                 .type_path
                 .resolve_current_type_reference(schema)?;
-            let title = graphql_marked_string(format!(
-                "fragment {} on {} {{ .. }}",
+            let title = MarkedString::from_markdown(format!(
+                "fragment {} on {}",
                 fragment.name.value,
-                schema.get_type_name(type_.inner())
+                get_open_schema_explorer_command_link(
+                    schema.get_type_name(type_.inner()).lookup(),
+                    &GraphQLSchemaExplorerParams {
+                        path: vec![schema.get_type_name(type_.inner()).lookup()],
+                        schema_name,
+                        filter: None
+                    }
+                )
             ));
 
             let hover_contents = vec![
                 title,
                 MarkedString::String(
-                    r#"Fragments let you construct sets of fields,
+                    r#"Fragments let you select fields,
 and then include them in queries where you need to.
 
 ---

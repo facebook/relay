@@ -53,7 +53,7 @@ impl Transformer for ClientEdgesTransform<'_> {
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let field_type = self.program.schema.field(field.definition.item);
         if !field_type.is_extension {
-            return Transformed::Keep;
+            return self.default_transform_linked_field(field);
         };
 
         // Eventually we will want to enable client edges on non-resolver client
@@ -63,7 +63,7 @@ impl Transformer for ClientEdgesTransform<'_> {
             .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
             .is_none()
         {
-            return Transformed::Keep;
+            return self.default_transform_linked_field(field);
         }
 
         let mut new_directives = field.directives.clone();
@@ -73,8 +73,13 @@ impl Transformer for ClientEdgesTransform<'_> {
             arguments: vec![],
         });
 
+        let new_selections = self
+            .transform_selections(&field.selections)
+            .replace_or_else(|| field.selections.clone());
+
         let new_field = LinkedField {
             directives: new_directives,
+            selections: new_selections,
             ..field.clone()
         };
 

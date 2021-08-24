@@ -16,7 +16,7 @@ pub struct FieldDefinitionSourceInfo {
 
 /// Interface for the LSP server to handle external data sources
 pub trait LSPExtraDataProvider {
-    fn fetch_query_stats(&self, search_token: String) -> Vec<String>;
+    fn fetch_query_stats(&self, search_token: &str) -> Vec<String>;
     fn resolve_field_definition(
         &self,
         project_name: String,

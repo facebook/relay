@@ -323,7 +323,7 @@ mod test {
     struct DummyExtraDataProvider {}
 
     impl LSPExtraDataProvider for DummyExtraDataProvider {
-        fn fetch_query_stats(&self, _search_token: String) -> Vec<String> {
+        fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
             Vec::new()
         }
 

@@ -266,10 +266,7 @@ class SelectorResolver {
   }
 
   resolve(): ?Object {
-    if (
-      RelayFeatureFlags.ENABLE_RELAY_CONTAINERS_SUSPENSE === true &&
-      this._isMissingData === true
-    ) {
+    if (this._isMissingData === true) {
       // NOTE: This branch exists to handle the case in which:
       // - A RelayModern container is rendered as a descendant of a Relay Hook
       //   root using a "partial" renderPolicy (this means that eargerly

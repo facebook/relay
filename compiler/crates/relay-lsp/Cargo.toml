@@ -18,7 +18,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 interner = { path = "../interner" }
 lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
-lsp-server = "0.5"
+lsp-server = "0.5.2"
 lsp-types = "0.89.0"
 percent-encoding = "2.1"
 rand = { version = "0.7", features = ["small_rng"] }

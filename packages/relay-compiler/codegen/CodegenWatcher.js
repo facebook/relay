@@ -213,26 +213,31 @@ function updateFiles(
     file.exists && fileMap.set(file.relPath, file);
   });
 
-  fileChanges.forEach(({name, exists, 'content.sha1hex': hash}) => {
-    let shouldRemove = !exists;
-    if (!shouldRemove) {
-      const file = {
-        exists: true,
-        relPath: name,
-        hash: hash || hashFile(path.join(baseDir, name)),
-      };
-      if (filter(file)) {
-        fileMap.set(name, file);
-      } else {
-        shouldRemove = true;
+  fileChanges
+    .filter(({name}) => {
+      const filePath = path.join(baseDir, name);
+      return fs.existsSync(filePath) && fs.lstatSync(filePath).isFile();
+    })
+    .forEach(({name, exists, 'content.sha1hex': hash}) => {
+      let shouldRemove = !exists;
+      if (!shouldRemove) {
+        const file = {
+          exists: true,
+          relPath: name,
+          hash: hash || hashFile(path.join(baseDir, name)),
+        };
+        if (filter(file)) {
+          fileMap.set(name, file);
+        } else {
+          shouldRemove = true;
+        }
       }
-    }
-    shouldRemove &&
-      fileMap.set(name, {
-        exists: false,
-        relPath: name,
-      });
-  });
+      shouldRemove &&
+        fileMap.set(name, {
+          exists: false,
+          relPath: name,
+        });
+    });
   return new Set(fileMap.values());
 }
 

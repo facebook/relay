@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a19d5cc95c9a755fd803573f433d1b1f>>
+ * @generated SignedSource<<1903fbba81a336e83f044b4885fc2730>>
  */
 
 mod client_edges;
@@ -17,6 +17,20 @@ fn client_edge() {
     let input = include_str!("client_edges/fixtures/client-edge.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge.expected");
     test_fixture(transform_fixture, "client-edge.graphql", "client_edges/fixtures/client-edge.expected", input, expected);
+}
+
+#[test]
+fn client_edge_within_non_client_edge() {
+    let input = include_str!("client_edges/fixtures/client-edge-within-non-client-edge.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-within-non-client-edge.expected");
+    test_fixture(transform_fixture, "client-edge-within-non-client-edge.graphql", "client_edges/fixtures/client-edge-within-non-client-edge.expected", input, expected);
+}
+
+#[test]
+fn nested_client_edges() {
+    let input = include_str!("client_edges/fixtures/nested-client-edges.graphql");
+    let expected = include_str!("client_edges/fixtures/nested-client-edges.expected");
+    test_fixture(transform_fixture, "nested-client-edges.graphql", "client_edges/fixtures/nested-client-edges.expected", input, expected);
 }
 
 #[test]

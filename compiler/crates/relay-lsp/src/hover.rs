@@ -288,7 +288,7 @@ For example:
         }
         NodeKind::OperationDefinition(operation) => {
             let search_token = if let Some(operation_name) = operation.name {
-                operation_name.value.lookup().to_string()
+                operation_name.value.lookup()
             } else {
                 return None;
             };

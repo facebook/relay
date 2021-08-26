@@ -24,6 +24,8 @@ pub trait Schema {
 
     fn fetch_token_field(&self) -> FieldID;
 
+    fn is_fulfilled_field(&self) -> FieldID;
+
     fn get_type(&self, type_name: StringKey) -> Option<Type>;
 
     fn get_directive(&self, name: StringKey) -> Option<&Directive>;

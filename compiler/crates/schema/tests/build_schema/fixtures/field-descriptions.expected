@@ -253,6 +253,30 @@ Text Schema:Schema {
         parent_type: None,
         description: None,
     },
+    Field {
+        name: "is_fulfilled__",
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
 ]
  input_objects: []
  interfaces: []

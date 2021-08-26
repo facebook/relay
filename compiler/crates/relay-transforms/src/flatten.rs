@@ -420,7 +420,6 @@ impl FlattenTransform {
                 }
             }
 
-
             if let Selection::InlineFragment(inline_fragment) = selection {
                 // We will iterate through a selection of inline fragments
                 // (ignoring its directives) if this inline fragment doesn't
@@ -657,7 +656,7 @@ mod ignoring_type_and_location {
     /// and values. Notably, this ignores the types of arguments and values,
     /// which may not always be inferred identically.
     pub fn arguments_equals(a: &[Argument], b: &[Argument]) -> bool {
-        slice_equals(a, b, |a, b| {
+        order_agnostic_slice_equals(a, b, |a, b| {
             a.name.location_agnostic_eq(&b.name) && value_equals(&a.value.item, &b.value.item)
         })
     }
@@ -669,6 +668,29 @@ mod ignoring_type_and_location {
             (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals),
             (Value::Object(a), Value::Object(b)) => arguments_equals(a, b),
             _ => false,
+        }
+    }
+
+    fn order_agnostic_slice_equals<T, F>(a: &[T], b: &[T], eq: F) -> bool
+    where
+        F: Fn(&T, &T) -> bool,
+    {
+        if a.len() != b.len() {
+            false
+        } else {
+            let len = a.len();
+            let mut matched = vec![false; len];
+            for l in a {
+                for i in 0..len {
+                    if !matched[i] {
+                        if eq(l, &b[i]) {
+                            matched[i] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            matched.into_iter().all(|v| v)
         }
     }
 

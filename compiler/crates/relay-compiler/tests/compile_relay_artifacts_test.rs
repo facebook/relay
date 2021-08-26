@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9f5e5653364eea46c4f0b36357aceaa1>>
+ * @generated SignedSource<<e7af31287eceddcb110dc43d9bd1b6bf>>
  */
 
 mod compile_relay_artifacts;
@@ -1130,6 +1130,13 @@ fn selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_an
     let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.expected");
     test_fixture(transform_fixture, "selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_stream_on_nodes_or_edges_without_defer_on_page_info_and_page_info_alias.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_valid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_valid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_valid.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_valid.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_valid.expected", input, expected);
 }
 
 #[test]

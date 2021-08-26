@@ -1,0 +1,152 @@
+==================================== INPUT ====================================
+# TODO throw
+query selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery {
+  me {
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1 on User {
+  ... @include(if: true) {
+    same_alias: id
+  }
+}
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2 on Actor {
+  ... @skip(if: false) {
+    same_alias: name
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": "same_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isActor"
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery {
+  me {
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1
+    ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2
+    id
+  }
+}
+
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1 on User {
+  same_alias: id
+}
+
+fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2 on Actor {
+  __isActor: __typename
+  same_alias: name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1",
+  "selections": [
+    {
+      "alias": "same_alias",
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2",
+  "selections": [
+    {
+      "alias": "same_alias",
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "Actor",
+  "abstractKey": "__isActor"
+}

@@ -108,4 +108,12 @@ pub enum ValidationMessage {
         "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective { fragment_name: StringKey },
+
+    #[error(
+        "After transforms, the operation `{name}` that would be sent to the server is empty. \
+        Relay is not setup to handle such queries. This is likely due to only querying for \
+        client extension fields or `@skip`/`@include` directives with constant values that \
+        remove all selections."
+    )]
+    EmptyOperationResult { name: StringKey },
 }

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::{no_inline::NO_INLINE_DIRECTIVE_NAME, ValidationMessage};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use graphql_ir::{
@@ -14,21 +14,9 @@ use graphql_ir::{
 };
 use interner::StringKey;
 use std::sync::Arc;
-use thiserror::Error;
 
 pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
-    let fragments = program
-        .fragments()
-        .filter_map(|fragment| {
-            if fragment.selections.is_empty() {
-                None
-            } else {
-                Some((fragment.name.item, (Arc::clone(fragment), None)))
-            }
-        })
-        .collect();
-
-    let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(fragments);
+    let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(program);
     let transformed = skip_unreachable_node_transform.transform_program(program);
     if skip_unreachable_node_transform.errors.is_empty() {
         Ok(transformed.replace_or_else(|| program.clone()))
@@ -37,23 +25,19 @@ pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-type VisitedFragments = FnvHashMap<
-    StringKey,
-    (
-        Arc<FragmentDefinition>,
-        Option<Transformed<FragmentDefinition>>,
-    ),
->;
+type VisitedFragments =
+    FnvHashMap<StringKey, (Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
 
-pub struct SkipUnreachableNodeTransform {
+pub struct SkipUnreachableNodeTransform<'s> {
     errors: Vec<Diagnostic>,
     visited_fragments: VisitedFragments,
+    program: &'s Program,
 }
 
-impl Transformer for SkipUnreachableNodeTransform {
+impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
     const NAME: &'static str = "SkipUnreachableNodeTransform";
-    const VISIT_ARGUMENTS: bool = true;
-    const VISIT_DIRECTIVES: bool = true;
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
 
     fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
         // Iterate over the operation ASTs. Whenever we encounter a FragmentSpread (by way of
@@ -93,16 +77,16 @@ impl Transformer for SkipUnreachableNodeTransform {
             }
         }
 
-        for fragment in self.visited_fragments.values() {
+        for (_, fragment) in self.visited_fragments.drain() {
             match fragment {
-                (_, None) | (_, Some(Transformed::Delete)) => {
+                (_, Transformed::Delete) => {
                     has_changes = true;
                 }
-                (fragment, Some(Transformed::Keep)) => {
-                    next_program.insert_fragment(Arc::clone(fragment));
+                (fragment, Transformed::Keep) => {
+                    next_program.insert_fragment(fragment);
                 }
-                (_, Some(Transformed::Replace(replacement))) => {
-                    next_program.insert_fragment(Arc::new(replacement.clone()));
+                (_, Transformed::Replace(replacement)) => {
+                    next_program.insert_fragment(Arc::new(replacement));
                     has_changes = true;
                 }
             }
@@ -156,38 +140,35 @@ impl Transformer for SkipUnreachableNodeTransform {
     }
 }
 
-impl SkipUnreachableNodeTransform {
-    pub fn new(visited_fragments: VisitedFragments) -> Self {
+impl<'s> SkipUnreachableNodeTransform<'s> {
+    pub fn new(program: &'s Program) -> Self {
         Self {
             errors: Vec::new(),
-            visited_fragments,
+            visited_fragments: Default::default(),
+            program,
         }
     }
 
+    // Visit the fragment definition and return true if it should be deleted
     fn should_delete_fragment_definition(&mut self, key: StringKey) -> bool {
-        let fragment = {
-            let (fragment, visited_opt) = if let Some(entry) = self.visited_fragments.get(&key) {
-                entry
-            } else {
-                return true;
-            };
+        if let Some((_, transformed)) = self.visited_fragments.get(&key) {
+            return matches!(transformed, Transformed::Delete);
+        }
+        if let Some(fragment) = self.program.fragment(key) {
+            self.visited_fragments
+                .insert(key, (Arc::clone(fragment), Transformed::Keep));
+            let transformed = self.transform_fragment(&fragment);
+            let should_delete = matches!(transformed, Transformed::Delete);
 
-            if let Some(visited) = visited_opt {
-                return matches!(visited, Transformed::Delete);
-            }
-            Arc::clone(fragment)
-        };
-
-        let transformed = self.transform_fragment(&fragment);
-        let should_delete = matches!(transformed, Transformed::Delete);
-
-        // N.B. we must call self.visited_fragments.get* twice, because we cannot have
-        // a reference to visited_opt and call transform_segment, which requires an
-        // exclusive reference to self.
-        let (_fragment, visited_opt) = self.visited_fragments.get_mut(&key).unwrap();
-        *visited_opt = Some(transformed);
-
-        should_delete
+            // N.B. we must call self.visited_fragments.get* twice, because we cannot have
+            // a reference to visited_opt and call transform_segment, which requires an
+            // exclusive reference to self.
+            let (_, visited_opt) = self.visited_fragments.get_mut(&key).unwrap();
+            *visited_opt = transformed;
+            should_delete
+        } else {
+            return true;
+        }
     }
 
     fn map_selection_multi(&mut self, selection: &Selection) -> TransformedMulti<Selection> {
@@ -232,15 +213,4 @@ impl SkipUnreachableNodeTransform {
             self.transform_condition(condition).into()
         }
     }
-}
-
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum ValidationMessage {
-    #[error(
-        "After transforms, the operation `{name}` that would be sent to the server is empty. \
-        Relay is not setup to handle such queries. This is likely due to only querying for \
-        client extension fields or `@skip`/`@include` directives with constant values that \
-        remove all selections."
-    )]
-    EmptyOperationResult { name: StringKey },
 }

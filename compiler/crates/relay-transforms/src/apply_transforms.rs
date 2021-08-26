@@ -188,6 +188,7 @@ fn apply_reader_transforms(
         handle_field_transform(&program)
     });
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
+    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, base_fragment_names)
     });

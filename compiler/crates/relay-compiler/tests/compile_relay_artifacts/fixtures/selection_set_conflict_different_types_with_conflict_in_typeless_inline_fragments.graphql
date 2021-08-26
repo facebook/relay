@@ -1,4 +1,4 @@
-# expected-to-throw
+# TODO throw
 query selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQuery {
   me {
     ...selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1
@@ -6,12 +6,12 @@ query selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsQue
   }
 }
 fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag1 on User {
-  ... @include(if: false) {
+  ... @include(if: true) {
     same_alias: id
   }
 }
 fragment selectionSetConflictDifferentTypesWithConflictInTypelessInlineFragmentsFrag2 on Actor {
-  ... @skip(if: true) {
+  ... @skip(if: false) {
     same_alias: name
   }
 }

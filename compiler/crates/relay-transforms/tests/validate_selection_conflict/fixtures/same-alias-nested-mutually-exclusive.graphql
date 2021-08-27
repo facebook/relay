@@ -1,4 +1,10 @@
 # expected-to-throw
+query TestQuery {
+  me {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on User {
   nameRenderer {
     ...frag1

@@ -28,3 +28,20 @@ query selectionSetConflictMultipleConflictsWithDifferentArgsQuery {
     8 │   root_alias: nodes(ids: [1, 2]) {
       │               ^^^^^
     9 │     ... on Actor {
+
+
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'actor_key' and 'id'
+
+  selection_set_conflict_multiple_conflicts_with_different_args.graphql:5:19
+    4 │     ... on Page {
+    5 │       same_alias: actor_key
+      │                   ^^^^^^^^^
+    6 │     }
+
+  ℹ︎ the other field
+
+  selection_set_conflict_multiple_conflicts_with_different_args.graphql:10:19
+    9 │     ... on Actor {
+   10 │       same_alias: id
+      │                   ^^
+   11 │     }

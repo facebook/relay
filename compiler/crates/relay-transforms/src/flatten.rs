@@ -11,15 +11,15 @@ use crate::util::{
     is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress,
 };
 use graphql_ir::{
-    Argument, Condition, Directive, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, TransformedValue, ValidationMessage,
+    Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
+    Program, Selection, TransformedValue, ValidationMessage,
 };
 use interner::StringKey;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
 use common::sync::*;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use schema::SDLSchema;
@@ -499,18 +499,6 @@ impl FlattenTransform {
                                 Selection::LinkedField(node) => node,
                                 _ => unreachable!("FlattenTransform: Expected a LinkedField."),
                             };
-                            if !ignoring_type_and_location::arguments_equals(
-                                &node.arguments,
-                                &flattened_node.arguments,
-                            ) {
-                                return Err(vec![self.create_conflicting_fields_error(
-                                    node.alias_or_name(&self.schema),
-                                    flattened_node.definition.location,
-                                    &flattened_node.arguments,
-                                    node.definition.location,
-                                    &node.arguments,
-                                )]);
-                            }
                             let type_ = self
                                 .schema
                                 .field(flattened_node.definition.item)
@@ -537,63 +525,13 @@ impl FlattenTransform {
                                 parent_type,
                             )?;
                         }
-                        Selection::ScalarField(flattened_node) => {
-                            let node = match selection {
-                                Selection::ScalarField(node) => node,
-                                _ => unreachable!("FlattenTransform: Expected a ScalarField."),
-                            };
-                            if !ignoring_type_and_location::arguments_equals(
-                                &node.arguments,
-                                &flattened_node.arguments,
-                            ) {
-                                return Err(vec![self.create_conflicting_fields_error(
-                                    node.alias_or_name(&self.schema),
-                                    flattened_node.definition.location,
-                                    &flattened_node.arguments,
-                                    node.definition.location,
-                                    &node.arguments,
-                                )]);
-                            }
-                        }
-                        Selection::FragmentSpread(_) => {}
+                        Selection::ScalarField(_) | Selection::FragmentSpread(_) => {}
                     };
                 }
             }
         }
 
         Ok(())
-    }
-
-    fn create_conflicting_fields_error(
-        &self,
-        field_name: StringKey,
-        location_a: Location,
-        arguments_a: &[Argument],
-        location_b: Location,
-        arguments_b: &[Argument],
-    ) -> Diagnostic {
-        Diagnostic::error(
-            ValidationMessage::InvalidSameFieldWithDifferentArguments {
-                field_name,
-                arguments_a: graphql_text_printer::print_arguments(
-                    &self.schema,
-                    &arguments_a,
-                    graphql_text_printer::PrinterOptions::default(),
-                ),
-            },
-            location_a,
-        )
-        .annotate(
-            format!(
-                "which conflicts with this field with applied argument values {}",
-                graphql_text_printer::print_arguments(
-                    &self.schema,
-                    &arguments_b,
-                    graphql_text_printer::PrinterOptions::default()
-                ),
-            ),
-            location_b,
-        )
     }
 }
 
@@ -646,58 +584,4 @@ fn merge_handle_directives(
     }
     directives.extend(handles.into_iter());
     directives
-}
-
-mod ignoring_type_and_location {
-    use crate::node_identifier::LocationAgnosticPartialEq;
-    use graphql_ir::{Argument, Value};
-
-    /// Verify that two sets of arguments are equivalent - same argument names
-    /// and values. Notably, this ignores the types of arguments and values,
-    /// which may not always be inferred identically.
-    pub fn arguments_equals(a: &[Argument], b: &[Argument]) -> bool {
-        order_agnostic_slice_equals(a, b, |a, b| {
-            a.name.location_agnostic_eq(&b.name) && value_equals(&a.value.item, &b.value.item)
-        })
-    }
-
-    fn value_equals(a: &Value, b: &Value) -> bool {
-        match (a, b) {
-            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq(b),
-            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq(&b.name),
-            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals),
-            (Value::Object(a), Value::Object(b)) => arguments_equals(a, b),
-            _ => false,
-        }
-    }
-
-    fn order_agnostic_slice_equals<T, F>(a: &[T], b: &[T], eq: F) -> bool
-    where
-        F: Fn(&T, &T) -> bool,
-    {
-        if a.len() != b.len() {
-            false
-        } else {
-            let len = a.len();
-            let mut matched = vec![false; len];
-            for l in a {
-                for i in 0..len {
-                    if !matched[i] {
-                        if eq(l, &b[i]) {
-                            matched[i] = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            matched.into_iter().all(|v| v)
-        }
-    }
-
-    fn slice_equals<T, F>(a: &[T], b: &[T], eq: F) -> bool
-    where
-        F: Fn(&T, &T) -> bool,
-    {
-        a.len() == b.len() && a.iter().zip(b).all(|(a, b)| eq(a, b))
-    }
 }

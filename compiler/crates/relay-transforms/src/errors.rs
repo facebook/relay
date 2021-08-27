@@ -146,4 +146,12 @@ pub enum ValidationMessage {
         "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
     )]
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
+
+    #[error(
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
+    )]
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
+    },
 }

@@ -1,4 +1,10 @@
 # expected-to-throw
+query  TestQuery {
+  node(id: 1) {
+    ...TestFragment
+  }
+}
+
 fragment TestFragment on Node {
     ... on Feedback {
         actor {

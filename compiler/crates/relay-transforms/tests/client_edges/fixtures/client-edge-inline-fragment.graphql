@@ -1,0 +1,26 @@
+fragment Foo_node on Node {
+  ... on Story {
+    author {
+      best_friend {
+        doesViewerLike
+      }
+    }
+  }
+  ... on PhotoStory {
+    author {
+      best_friend {
+        name
+      }
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

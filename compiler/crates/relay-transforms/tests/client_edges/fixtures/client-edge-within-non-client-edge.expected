@@ -23,7 +23,7 @@ fragment BestFriendResolverFragment_name on User {
 
 fragment Foo_user on User {
   nearest_neighbor {
-    best_friend @__clientEdge {
+    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend") {
       name
     }
   }

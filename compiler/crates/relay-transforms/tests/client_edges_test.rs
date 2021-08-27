@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1903fbba81a336e83f044b4885fc2730>>
+ * @generated SignedSource<<0ed0ad5f75dfb524d666bdca266ef103>>
  */
 
 mod client_edges;
@@ -17,6 +17,20 @@ fn client_edge() {
     let input = include_str!("client_edges/fixtures/client-edge.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge.expected");
     test_fixture(transform_fixture, "client-edge.graphql", "client_edges/fixtures/client-edge.expected", input, expected);
+}
+
+#[test]
+fn client_edge_inline_fragment() {
+    let input = include_str!("client_edges/fixtures/client-edge-inline-fragment.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-inline-fragment.expected");
+    test_fixture(transform_fixture, "client-edge-inline-fragment.graphql", "client_edges/fixtures/client-edge-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn client_edge_inline_fragment_no_type_condition() {
+    let input = include_str!("client_edges/fixtures/client-edge-inline-fragment-no-type-condition.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-inline-fragment-no-type-condition.expected");
+    test_fixture(transform_fixture, "client-edge-inline-fragment-no-type-condition.graphql", "client_edges/fixtures/client-edge-inline-fragment-no-type-condition.expected", input, expected);
 }
 
 #[test]

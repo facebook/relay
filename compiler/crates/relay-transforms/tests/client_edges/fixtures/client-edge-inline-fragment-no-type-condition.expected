@@ -1,6 +1,11 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
-  best_friend {
+  ... @skip(if: $some_var) {
+    best_friend {
+      doesViewerLike
+    }
+  }
+  ... @include(if: $some_var) {
     best_friend {
       name
     }
@@ -22,8 +27,13 @@ fragment BestFriendResolverFragment_name on User {
 }
 
 fragment Foo_user on User {
-  best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
-    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+  ... @skip(if: $some_var) {
+    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
+      doesViewerLike
+    }
+  }
+  ... @include(if: $some_var) {
+    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend_1") {
       name
     }
   }

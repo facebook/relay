@@ -132,18 +132,11 @@ fragment deferIfArguments_F2 on User {
         "plural": false,
         "selections": [
           {
-            "if": null,
-            "kind": "Defer",
-            "label": "deferIfArguments_F1$defer$defaultFalse",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ]
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
           },
           {
             "alias": null,
@@ -196,18 +189,11 @@ fragment deferIfArguments_F2 on User {
         "plural": false,
         "selections": [
           {
-            "if": null,
-            "kind": "Defer",
-            "label": "deferIfArguments_F1$defer$setToFalse",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              }
-            ]
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
           },
           {
             "alias": null,
@@ -308,7 +294,7 @@ fragment deferIfArguments_F1_39RTKZ on Query {
     id
   }
   withDefaultFalse: me {
-    ...deferIfArguments_F2 @defer(label: "deferIfArguments_F1$defer$defaultFalse", if: false)
+    ...deferIfArguments_F2
     id
   }
   setToTrue: me {
@@ -316,7 +302,7 @@ fragment deferIfArguments_F1_39RTKZ on Query {
     id
   }
   setToFalse: me {
-    ...deferIfArguments_F2 @defer(label: "deferIfArguments_F1$defer$setToFalse", if: false)
+    ...deferIfArguments_F2
     id
   }
   withValueFromQueryDirectly: me {

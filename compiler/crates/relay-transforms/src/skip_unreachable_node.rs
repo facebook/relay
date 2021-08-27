@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{no_inline::NO_INLINE_DIRECTIVE_NAME, ValidationMessage};
+use super::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::{no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, ValidationMessage};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use graphql_ir::{
-    Condition, ConditionValue, FragmentDefinition, FragmentSpread, Program, Selection, Transformed,
-    TransformedMulti, TransformedValue, Transformer,
+    Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment,
+    Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer, Value,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -49,9 +50,10 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
         // it or replace it with its contents.
         //
         // @include(if: false)  => remove
-        // @skip(if: true)      => remove
         // @include(if: true)   => replace with contents
-        // @include(if: false)  => replace with contents
+        // @skip(if: true)      => remove
+        // @skip(if: false)     => replace with contents
+        // @defer(if: false)    => replace with contents
         //
         // Removal of a condition or spread can result in a FragmentDefinition being deleted.
 
@@ -176,13 +178,33 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
             Selection::FragmentSpread(selection) => {
                 self.transform_fragment_spread(selection).into()
             }
-            Selection::InlineFragment(selection) => {
-                self.transform_inline_fragment(selection).into()
-            }
+            Selection::InlineFragment(selection) => self.transform_inline_fragment_multi(selection),
             Selection::LinkedField(selection) => self.transform_linked_field(selection).into(),
             Selection::ScalarField(selection) => self.transform_scalar_field(selection).into(),
             Selection::Condition(condition) => self.transform_constant_conditions(condition),
         }
+    }
+
+    fn transform_inline_fragment_multi(
+        &mut self,
+        inline_fragment: &InlineFragment,
+    ) -> TransformedMulti<Selection> {
+        if let Some(directive) = inline_fragment
+            .directives
+            .named(DEFER_STREAM_CONSTANTS.defer_name)
+        {
+            assert!(inline_fragment.directives.len() == 1);
+            if let Some(if_arg) = DeferDirective::from(directive).if_arg {
+                if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
+                    return TransformedMulti::ReplaceMultiple(
+                        self.transform_selections(&inline_fragment.selections)
+                            .replace_or_else(|| inline_fragment.selections.clone()),
+                    );
+                }
+            }
+        };
+        self.default_transform_inline_fragment(inline_fragment)
+            .into()
     }
 
     fn transform_constant_conditions(

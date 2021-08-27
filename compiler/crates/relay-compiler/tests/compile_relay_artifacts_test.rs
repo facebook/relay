@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e7af31287eceddcb110dc43d9bd1b6bf>>
+ * @generated SignedSource<<3621cc0ab7248cd1dd2a0adc4e821b66>>
  */
 
 mod compile_relay_artifacts;
@@ -311,6 +311,13 @@ fn constant_variable_matches_constant_value() {
     let input = include_str!("compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.expected");
     test_fixture(transform_fixture, "constant_variable_matches_constant_value.graphql", "compile_relay_artifacts/fixtures/constant_variable_matches_constant_value.expected", input, expected);
+}
+
+#[test]
+fn defer_if_arguments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/defer_if_arguments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/defer_if_arguments.expected");
+    test_fixture(transform_fixture, "defer_if_arguments.graphql", "compile_relay_artifacts/fixtures/defer_if_arguments.expected", input, expected);
 }
 
 #[test]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e78b7e61abe89e3c93bfafa6ed023eca>>
+ * @generated SignedSource<<46f61edeed64187b556777fcbe249606>>
  */
 
 mod compile_relay_artifacts;
@@ -479,6 +479,13 @@ fn id_as_alias_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/id-as-alias.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/id-as-alias.invalid.expected");
     test_fixture(transform_fixture, "id-as-alias.invalid.graphql", "compile_relay_artifacts/fixtures/id-as-alias.invalid.expected", input, expected);
+}
+
+#[test]
+fn incompatible_variable_usage_across_documents() {
+    let input = include_str!("compile_relay_artifacts/fixtures/incompatible-variable-usage-across-documents.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/incompatible-variable-usage-across-documents.expected");
+    test_fixture(transform_fixture, "incompatible-variable-usage-across-documents.graphql", "compile_relay_artifacts/fixtures/incompatible-variable-usage-across-documents.expected", input, expected);
 }
 
 #[test]

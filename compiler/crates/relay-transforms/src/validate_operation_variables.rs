@@ -64,7 +64,8 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        let variables = self.visitor.infer_operation_variables(operation);
+        let (variables, errors) = self.visitor.infer_operation_variables(operation);
+        self.errors.extend(errors);
         let schema = &self.program.schema;
         let mut has_unused_variable = false;
         for definition in &operation.variable_definitions {

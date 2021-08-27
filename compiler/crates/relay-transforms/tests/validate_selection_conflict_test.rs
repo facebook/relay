@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a94e963281330a0c9cc26694266a8bee>>
+ * @generated SignedSource<<c10eed24c27086d781779d8b0f18518e>>
  */
 
 mod validate_selection_conflict;
 
 use validate_selection_conflict::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn same_alias_list_non_list() {
+    let input = include_str!("validate_selection_conflict/fixtures/same-alias-list-non-list.graphql");
+    let expected = include_str!("validate_selection_conflict/fixtures/same-alias-list-non-list.expected");
+    test_fixture(transform_fixture, "same-alias-list-non-list.graphql", "validate_selection_conflict/fixtures/same-alias-list-non-list.expected", input, expected);
+}
 
 #[test]
 fn same_alias_nested() {

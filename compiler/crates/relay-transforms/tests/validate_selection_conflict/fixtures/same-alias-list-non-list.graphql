@@ -1,0 +1,13 @@
+# expected-to-throw
+fragment TestFragment on Node {
+    ... on Feedback {
+        actor {
+            name
+        }
+    }
+    ... on Comment {
+        actor: actors {
+            name
+        }
+    }
+}

@@ -16,7 +16,7 @@ use graphql_ir::{
     FragmentDefinition, LinkedField, OperationDefinition, Program, ScalarField, Selection,
 };
 use interner::StringKey;
-use schema::{SDLSchema, Schema, Type};
+use schema::{SDLSchema, Schema, Type, TypeReference};
 
 pub fn validate_selection_conflict(program: &Program) -> DiagnosticsResult<()> {
     ValidateSelectionConflict::new(program).validate_program(program)
@@ -188,15 +188,37 @@ impl<'s> ValidateSelectionConflict<'s> {
                             );
                         }
                     }
-                    let mut l_fields = self.validate_linked_field_selections(&l)?;
-                    let r_fields = self.validate_linked_field_selections(&r)?;
+                    if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
+                        let mut l_fields = self.validate_linked_field_selections(&l)?;
+                        let r_fields = self.validate_linked_field_selections(&r)?;
 
-                    if let Err(errs) = self.validate_and_merge_fields(
-                        Arc::make_mut(&mut l_fields),
-                        r_fields.to_vec(),
-                        fields_mutually_exclusive,
-                    ) {
-                        errors.extend(errs);
+                        if let Err(errs) = self.validate_and_merge_fields(
+                            Arc::make_mut(&mut l_fields),
+                            r_fields.to_vec(),
+                            fields_mutually_exclusive,
+                        ) {
+                            errors.extend(errs);
+                        }
+                    } else {
+                        errors.push(
+                            Diagnostic::error(
+                                ValidationMessage::AmbiguousFieldType {
+                                    response_key: key,
+                                    l_name: l_definition.name,
+                                    r_name: r_definition.name,
+                                    l_type_string: self
+                                        .program
+                                        .schema
+                                        .get_type_string(&l_definition.type_),
+                                    r_type_string: self
+                                        .program
+                                        .schema
+                                        .get_type_string(&r_definition.type_),
+                                },
+                                l.definition.location,
+                            )
+                            .annotate("the other field", r.definition.location),
+                        );
                     }
                 }
                 (Field::ScalarFeild(l), Field::ScalarFeild(r)) => {
@@ -232,7 +254,7 @@ impl<'s> ValidateSelectionConflict<'s> {
                                 },
                                 l.definition.location,
                             )
-                            .annotate("the other field", field.loc()),
+                            .annotate("the other field", r.definition.location),
                         );
                     }
                 }
@@ -265,6 +287,17 @@ impl<'s> ValidateSelectionConflict<'s> {
         } else {
             Err(errors)
         }
+    }
+}
+
+fn has_same_type_reference_wrapping(l: &TypeReference, r: &TypeReference) -> bool {
+    match (l, r) {
+        (TypeReference::Named(_), TypeReference::Named(_)) => true,
+        (TypeReference::NonNull(l), TypeReference::NonNull(r))
+        | (TypeReference::List(l), TypeReference::List(r)) => {
+            has_same_type_reference_wrapping(&l, &r)
+        }
+        _ => false,
     }
 }
 

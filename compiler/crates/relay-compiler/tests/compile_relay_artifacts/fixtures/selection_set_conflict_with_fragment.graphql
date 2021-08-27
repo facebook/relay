@@ -1,4 +1,4 @@
-# TODO throw
+# expected-to-throw
 query selectionSetConflictWithFragmentQuery {
   me {
     same_alias: name

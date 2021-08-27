@@ -1,15 +1,21 @@
-# TODO throw
+# expected-to-throw
 query selectionSetConflictCompositeVsNoncompositeQuery {
 
   node(id: 42) {
     ... on Page {
-      same_alias: id
+      same_alias: friends {
+        edges {
+          node {
+            alias: name
+          }
+        }
+      }
     }
     ... on User {
       same_alias: friends {
         edges {
           node {
-            id
+            alias: id
           }
         }
       }

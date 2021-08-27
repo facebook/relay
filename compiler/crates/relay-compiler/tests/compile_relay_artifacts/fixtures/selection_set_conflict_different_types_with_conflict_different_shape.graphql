@@ -1,11 +1,11 @@
-# TODO throw
+# expected-to-throw
 query selectionSetConflictDifferentTypesWithConflictDifferentShapeQuery {
-  me {
+  username(name: "me") {
     ... on User {
       same_alias: id
     }
-    ... on Actor {
-      same_alias: name
+    ... on Page {
+      same_alias: actorCount
     }
   }
 }

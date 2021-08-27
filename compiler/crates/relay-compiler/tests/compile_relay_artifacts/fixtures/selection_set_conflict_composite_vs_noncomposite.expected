@@ -1,238 +1,41 @@
 ==================================== INPUT ====================================
-# TODO throw
+# expected-to-throw
 query selectionSetConflictCompositeVsNoncompositeQuery {
 
   node(id: 42) {
     ... on Page {
-      same_alias: id
+      same_alias: friends {
+        edges {
+          node {
+            alias: name
+          }
+        }
+      }
     }
     ... on User {
       same_alias: friends {
         edges {
           node {
-            id
+            alias: id
           }
         }
       }
     }
   }
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "selectionSetConflictCompositeVsNoncompositeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Literal",
-            "name": "id",
-            "value": 42
-          }
-        ],
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": "same_alias",
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              }
-            ],
-            "type": "Page",
-            "abstractKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": "same_alias",
-                "args": null,
-                "concreteType": "FriendsConnection",
-                "kind": "LinkedField",
-                "name": "friends",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "FriendsEdge",
-                    "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "User",
-                        "kind": "LinkedField",
-                        "name": "node",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "id",
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": "node(id:42)"
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "selectionSetConflictCompositeVsNoncompositeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": [
-          {
-            "kind": "Literal",
-            "name": "id",
-            "value": 42
-          }
-        ],
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "node",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": "same_alias",
-                "args": null,
-                "kind": "ScalarField",
-                "name": "id",
-                "storageKey": null
-              }
-            ],
-            "type": "Page",
-            "abstractKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "alias": "same_alias",
-                "args": null,
-                "concreteType": "FriendsConnection",
-                "kind": "LinkedField",
-                "name": "friends",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "FriendsEdge",
-                    "kind": "LinkedField",
-                    "name": "edges",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "concreteType": "User",
-                        "kind": "LinkedField",
-                        "name": "node",
-                        "plural": false,
-                        "selections": [
-                          {
-                            "alias": null,
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "id",
-                            "storageKey": null
-                          }
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "type": "User",
-            "abstractKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": "node(id:42)"
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "selectionSetConflictCompositeVsNoncompositeQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Field 'alias' is ambiguous because it references fields with different types: 'name' with type 'String' and 'id' with type 'ID!'
 
-QUERY:
+  selection_set_conflict_composite_vs_noncomposite.graphql:9:20
+    8 │           node {
+    9 │             alias: name
+      │                    ^^^^
+   10 │           }
 
-query selectionSetConflictCompositeVsNoncompositeQuery {
-  node(id: 42) {
-    __typename
-    ... on Page {
-      same_alias: id
-    }
-    ... on User {
-      same_alias: friends {
-        edges {
-          node {
-            id
-          }
-        }
-      }
-    }
-    id
-  }
-}
+  ℹ︎ the other field
+
+  selection_set_conflict_composite_vs_noncomposite.graphql:18:20
+   17 │           node {
+   18 │             alias: id
+      │                    ^^
+   19 │           }

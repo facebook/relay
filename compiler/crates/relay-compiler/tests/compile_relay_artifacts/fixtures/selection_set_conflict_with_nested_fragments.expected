@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# TODO throw
+# expected-to-throw
 query selectionSetConflictWithNestedFragmentsQuery {
   me {
     same_alias: name
@@ -14,146 +14,19 @@ fragment selectionSetConflictWithNestedFragmentsFrag on User {
 fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
   same_alias: id
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "selectionSetConflictWithNestedFragmentsQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": "same_alias",
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "selectionSetConflictWithNestedFragmentsFrag"
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "selectionSetConflictWithNestedFragmentsQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": "same_alias",
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "TypeDiscriminator",
-            "abstractKey": "__isActor"
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "selectionSetConflictWithNestedFragmentsQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'id'
 
-QUERY:
+  selection_set_conflict_with_nested_fragments.graphql:4:17
+    3 │   me {
+    4 │     same_alias: name
+      │                 ^^^^
+    5 │     ...selectionSetConflictWithNestedFragmentsFrag
 
-query selectionSetConflictWithNestedFragmentsQuery {
-  me {
-    same_alias: name
-    ...selectionSetConflictWithNestedFragmentsFrag
-    id
-  }
-}
+  ℹ︎ the other field
 
-fragment selectionSetConflictWithNestedFragmentsFrag on User {
-  ... on Actor {
-    __isActor: __typename
-    ...selectionSetConflictWithNestedFragmentsFrag2
-  }
-}
-
-fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
-  same_alias: id
-}
-
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "selectionSetConflictWithNestedFragmentsFrag",
-  "selections": [
-    {
-      "kind": "InlineFragment",
-      "selections": [
-        {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "selectionSetConflictWithNestedFragmentsFrag2"
-        }
-      ],
-      "type": "Actor",
-      "abstractKey": "__isActor"
-    }
-  ],
-  "type": "User",
-  "abstractKey": null
-}
-
-{
-  "argumentDefinitions": [],
-  "kind": "Fragment",
-  "metadata": null,
-  "name": "selectionSetConflictWithNestedFragmentsFrag2",
-  "selections": [
-    {
-      "alias": "same_alias",
-      "args": null,
-      "kind": "ScalarField",
-      "name": "id",
-      "storageKey": null
-    }
-  ],
-  "type": "User",
-  "abstractKey": null
-}
+  selection_set_conflict_with_nested_fragments.graphql:14:15
+   13 │ fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
+   14 │   same_alias: id
+      │               ^^
+   15 │ }

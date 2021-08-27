@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# TODO throw
+# expected-to-throw
 query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
   viewer {
     newsFeed {
@@ -12,123 +12,19 @@ query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
     }
   }
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Viewer",
-        "kind": "LinkedField",
-        "name": "viewer",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "NewsFeedConnection",
-            "kind": "LinkedField",
-            "name": "newsFeed",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "NewsFeedEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": "same_alias",
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "sortKey",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Viewer",
-        "kind": "LinkedField",
-        "name": "viewer",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "NewsFeedConnection",
-            "kind": "LinkedField",
-            "name": "newsFeed",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "NewsFeedEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": "same_alias",
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "sortKey",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'sortKey' and 'cursor'
 
-QUERY:
+  selection_set_conflict_conflicting_selection_sets_inside_list_type.graphql:6:21
+    5 │       edges {
+    6 │         same_alias: sortKey
+      │                     ^^^^^^^
+    7 │       }
 
-query selectionSetConflictConflictingSelectionSetsInsideListTypeQuery {
-  viewer {
-    newsFeed {
-      edges {
-        same_alias: sortKey
-      }
-    }
-  }
-}
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_selection_sets_inside_list_type.graphql:9:21
+    8 │       edges {
+    9 │         same_alias: cursor
+      │                     ^^^^^^
+   10 │       }

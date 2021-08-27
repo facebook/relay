@@ -1,90 +1,26 @@
 ==================================== INPUT ====================================
-# TODO throw
+# expected-to-throw
 query selectionSetConflictWithInlineFragmentQuery {
-  me {
+  username(name: "me") {
     same_alias: name
     ... on User {
       same_alias: id
     }
   }
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "selectionSetConflictWithInlineFragmentQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": "same_alias",
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "selectionSetConflictWithInlineFragmentQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": "same_alias",
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "selectionSetConflictWithInlineFragmentQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'id'
 
-QUERY:
+  selection_set_conflict_with_inline_fragment.graphql:4:17
+    3 │   username(name: "me") {
+    4 │     same_alias: name
+      │                 ^^^^
+    5 │     ... on User {
 
-query selectionSetConflictWithInlineFragmentQuery {
-  me {
-    same_alias: name
-    id
-  }
-}
+  ℹ︎ the other field
+
+  selection_set_conflict_with_inline_fragment.graphql:6:19
+    5 │     ... on User {
+    6 │       same_alias: id
+      │                   ^^
+    7 │     }

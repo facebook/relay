@@ -1,10 +1,10 @@
 ==================================== INPUT ====================================
 query selectionSetConflictDifferentTypesWithoutConflictQuery {
-  me {
+  username(name: "me") {
     ... on User {
       same_alias: lastName
     }
-    ... on Actor {
+    ... on Page {
       same_alias: name
     }
   }
@@ -19,21 +19,48 @@ query selectionSetConflictDifferentTypesWithoutConflictQuery {
     "selections": [
       {
         "alias": null,
-        "args": null,
-        "concreteType": "User",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "name",
+            "value": "me"
+          }
+        ],
+        "concreteType": null,
         "kind": "LinkedField",
-        "name": "me",
+        "name": "username",
         "plural": false,
         "selections": [
           {
-            "alias": "same_alias",
-            "args": null,
-            "kind": "ScalarField",
-            "name": "lastName",
-            "storageKey": null
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Page",
+            "abstractKey": null
           }
         ],
-        "storageKey": null
+        "storageKey": "username(name:\"me\")"
       }
     ],
     "type": "Query",
@@ -47,18 +74,52 @@ query selectionSetConflictDifferentTypesWithoutConflictQuery {
     "selections": [
       {
         "alias": null,
-        "args": null,
-        "concreteType": "User",
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "name",
+            "value": "me"
+          }
+        ],
+        "concreteType": null,
         "kind": "LinkedField",
-        "name": "me",
+        "name": "username",
         "plural": false,
         "selections": [
           {
-            "alias": "same_alias",
+            "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "lastName",
+            "name": "__typename",
             "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": "same_alias",
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "Page",
+            "abstractKey": null
           },
           {
             "alias": null,
@@ -66,13 +127,9 @@ query selectionSetConflictDifferentTypesWithoutConflictQuery {
             "kind": "ScalarField",
             "name": "id",
             "storageKey": null
-          },
-          {
-            "kind": "TypeDiscriminator",
-            "abstractKey": "__isActor"
           }
         ],
-        "storageKey": null
+        "storageKey": "username(name:\"me\")"
       }
     ]
   },
@@ -88,10 +145,12 @@ query selectionSetConflictDifferentTypesWithoutConflictQuery {
 QUERY:
 
 query selectionSetConflictDifferentTypesWithoutConflictQuery {
-  me {
-    same_alias: lastName
-    ... on Actor {
-      __isActor: __typename
+  username(name: "me") {
+    __typename
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Page {
       same_alias: name
     }
     id

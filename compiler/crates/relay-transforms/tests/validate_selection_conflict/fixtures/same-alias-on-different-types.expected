@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-query selectionSetConflictDifferentNameQuery {
+query TestQuery {
   me {
     same_alias: name
     same_alias: canViewerComment
@@ -9,7 +9,7 @@ query selectionSetConflictDifferentNameQuery {
 ==================================== ERROR ====================================
 ✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'canViewerComment'
 
-  selection_set_conflict_different_name.graphql:4:17
+  same-alias-on-different-types.graphql:4:17
     3 │   me {
     4 │     same_alias: name
       │                 ^^^^
@@ -17,7 +17,7 @@ query selectionSetConflictDifferentNameQuery {
 
   ℹ︎ the other field
 
-  selection_set_conflict_different_name.graphql:5:17
+  same-alias-on-different-types.graphql:5:17
     4 │     same_alias: name
     5 │     same_alias: canViewerComment
       │                 ^^^^^^^^^^^^^^^^

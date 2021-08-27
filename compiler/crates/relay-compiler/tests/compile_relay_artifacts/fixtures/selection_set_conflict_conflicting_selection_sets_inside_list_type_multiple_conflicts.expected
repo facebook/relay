@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# TODO throw
+# expected-to-throw
 query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery {
   viewer {
     newsFeed {
@@ -13,123 +13,19 @@ query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflict
     }
   }
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Viewer",
-        "kind": "LinkedField",
-        "name": "viewer",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "NewsFeedConnection",
-            "kind": "LinkedField",
-            "name": "newsFeed",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "NewsFeedEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": "same_alias",
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "showBeeper",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Viewer",
-        "kind": "LinkedField",
-        "name": "viewer",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "NewsFeedConnection",
-            "kind": "LinkedField",
-            "name": "newsFeed",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "NewsFeedEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": "same_alias",
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "showBeeper",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'showBeeper' and 'sortKey'
 
-QUERY:
+  selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql:6:21
+    5 │       edges {
+    6 │         same_alias: showBeeper
+      │                     ^^^^^^^^^^
+    7 │         same_alias: sortKey
 
-query selectionSetConflictConflictingSelectionSetsInsideListTypeMultipleConflictsQuery {
-  viewer {
-    newsFeed {
-      edges {
-        same_alias: showBeeper
-      }
-    }
-  }
-}
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_selection_sets_inside_list_type_multiple_conflicts.graphql:7:21
+    6 │         same_alias: showBeeper
+    7 │         same_alias: sortKey
+      │                     ^^^^^^^
+    8 │       }

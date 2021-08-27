@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment TestFragment on User {
+  nameRenderer {
+    ...frag1
+    ...frag2
+
+  }
+}
+
+fragment frag1 on PlainUserNameRenderer {
+  data {
+    text
+  }
+}
+
+fragment frag2 on CustomNameRenderer {
+  data: user {
+    text: canViewerLike
+  }
+}
+==================================== ERROR ====================================
+✖︎ Field 'text' is ambiguous because it references fields with different types: 'text' with type 'String' and 'canViewerLike' with type 'Boolean'
+
+  same-alias-nested-mutually-exclusive.graphql:12:5
+   11 │   data {
+   12 │     text
+      │     ^^^^
+   13 │   }
+
+  ℹ︎ the other field
+
+  same-alias-nested-mutually-exclusive.graphql:18:11
+   17 │   data: user {
+   18 │     text: canViewerLike
+      │           ^^^^^^^^^^^^^
+   19 │   }

@@ -116,4 +116,24 @@ pub enum ValidationMessage {
         remove all selections."
     )]
     EmptyOperationResult { name: StringKey },
+
+    #[error(
+        "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
+    )]
+    AmbiguousFieldAlias {
+        response_key: StringKey,
+        l_name: StringKey,
+        r_name: StringKey,
+    },
+
+    #[error(
+        "Field '{response_key}' is ambiguous because it references fields with different types: '{l_name}' with type '{l_type_string}' and '{r_name}' with type '{r_type_string}'"
+    )]
+    AmbiguousFieldType {
+        response_key: StringKey,
+        l_name: StringKey,
+        l_type_string: String,
+        r_name: StringKey,
+        r_type_string: String,
+    },
 }

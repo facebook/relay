@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-# TODO throw
+# expected-to-throw
 query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
   viewer {
     newsFeed {
@@ -16,210 +16,19 @@ query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
     }
   }
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "selectionSetConflictConflictingNullableAndNonNullableTypesQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Viewer",
-        "kind": "LinkedField",
-        "name": "viewer",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "NewsFeedConnection",
-            "kind": "LinkedField",
-            "name": "newsFeed",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "NewsFeedEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": "same_alias",
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "__typename",
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "Story",
-                        "abstractKey": null
-                      },
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": "same_alias",
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "lastName",
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "PhotoStory",
-                        "abstractKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "selectionSetConflictConflictingNullableAndNonNullableTypesQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Viewer",
-        "kind": "LinkedField",
-        "name": "viewer",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "NewsFeedConnection",
-            "kind": "LinkedField",
-            "name": "newsFeed",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "NewsFeedEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": null,
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "__typename",
-                        "storageKey": null
-                      },
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": "same_alias",
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "__typename",
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "Story",
-                        "abstractKey": null
-                      },
-                      {
-                        "kind": "InlineFragment",
-                        "selections": [
-                          {
-                            "alias": "same_alias",
-                            "args": null,
-                            "kind": "ScalarField",
-                            "name": "lastName",
-                            "storageKey": null
-                          }
-                        ],
-                        "type": "PhotoStory",
-                        "abstractKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "id",
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
-  },
-  "params": {
-    "id": null,
-    "metadata": {},
-    "name": "selectionSetConflictConflictingNullableAndNonNullableTypesQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: '__typename' and 'lastName'
 
-QUERY:
+  selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql:8:25
+    7 │           ... on Story {
+    8 │             same_alias: __typename
+      │                         ^^^^^^^^^^
+    9 │           }
 
-query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
-  viewer {
-    newsFeed {
-      edges {
-        node {
-          __typename
-          ... on Story {
-            same_alias: __typename
-          }
-          ... on PhotoStory {
-            same_alias: lastName
-          }
-          id
-        }
-      }
-    }
-  }
-}
+  ℹ︎ the other field
+
+  selection_set_conflict_conflicting_nullable_and_non_nullable_types.graphql:11:25
+   10 │           ... on PhotoStory {
+   11 │             same_alias: lastName
+      │                         ^^^^^^^^
+   12 │           }

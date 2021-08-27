@@ -1,4 +1,4 @@
-# TODO throw
+# expected-to-throw
 query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
   viewer {
     newsFeed {

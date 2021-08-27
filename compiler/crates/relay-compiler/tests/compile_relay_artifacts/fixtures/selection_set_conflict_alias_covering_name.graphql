@@ -1,4 +1,4 @@
-# TODO to-throw
+# expected-to-throw
 query selectionSetConflictAliasCoveringNameQuery {
   me {
     name

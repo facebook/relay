@@ -1,4 +1,4 @@
-# TODO throw
+# expected-to-throw
 query selectionSetConflictMultipleConflictsQuery {
   me {
     same_alias: id

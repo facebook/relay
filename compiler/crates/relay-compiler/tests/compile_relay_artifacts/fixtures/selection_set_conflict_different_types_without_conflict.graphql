@@ -1,9 +1,9 @@
 query selectionSetConflictDifferentTypesWithoutConflictQuery {
-  me {
+  username(name: "me") {
     ... on User {
       same_alias: lastName
     }
-    ... on Actor {
+    ... on Page {
       same_alias: name
     }
   }

@@ -1,4 +1,4 @@
-# Todo throw
+# expected-to-throw
 query selectionSetConflictDifferentTypesWithConflictQuery {
   me {
     ...selectionSetConflictDifferentTypesWithConflictFrag1

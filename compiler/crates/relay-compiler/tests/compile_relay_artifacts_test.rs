@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3621cc0ab7248cd1dd2a0adc4e821b66>>
+ * @generated SignedSource<<e78b7e61abe89e3c93bfafa6ed023eca>>
  */
 
 mod compile_relay_artifacts;
@@ -1067,6 +1067,13 @@ fn selection_set_conflict_different_types_without_conflict_1() {
     let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_1.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_1.expected");
     test_fixture(transform_fixture, "selection_set_conflict_different_types_without_conflict_1.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_1.expected", input, expected);
+}
+
+#[test]
+fn selection_set_conflict_different_types_without_conflict_in_typeless_inline_fragments() {
+    let input = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_in_typeless_inline_fragments.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_in_typeless_inline_fragments.expected");
+    test_fixture(transform_fixture, "selection_set_conflict_different_types_without_conflict_in_typeless_inline_fragments.graphql", "compile_relay_artifacts/fixtures/selection_set_conflict_different_types_without_conflict_in_typeless_inline_fragments.expected", input, expected);
 }
 
 #[test]

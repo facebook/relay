@@ -21,7 +21,7 @@ use errors::validate_map;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage,
+    Directive, FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage,
     VariableDefinition,
 };
 use graphql_syntax::OperationKind;
@@ -38,6 +38,7 @@ pub use utils::{
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 use self::refetchable_directive::RefetchableDirective;
+pub use self::refetchable_directive::REFETCHABLE_NAME;
 
 /// This transform synthesizes "refetch" queries for fragments that
 /// are trivially refetchable. This is comprised of three main stages:
@@ -61,13 +62,7 @@ pub fn transform_refetchable_fragment(
     let mut next_program = Program::new(Arc::clone(&program.schema));
     let query_type = program.schema.query_type().unwrap();
 
-    let mut transformer = RefetchableFragment {
-        connection_constants: Default::default(),
-        existing_refetch_operations: Default::default(),
-        for_typegen,
-        program,
-        visitor: InferVariablesVisitor::new(program),
-    };
+    let mut transformer = RefetchableFragment::new(program, for_typegen);
 
     for operation in program.operations() {
         next_program.insert_operation(Arc::clone(operation));
@@ -106,7 +101,7 @@ pub fn transform_refetchable_fragment(
 
 type ExistingRefetchOperations = FnvHashMap<StringKey, WithLocation<StringKey>>;
 
-struct RefetchableFragment<'program> {
+pub struct RefetchableFragment<'program> {
     connection_constants: ConnectionConstants,
     existing_refetch_operations: ExistingRefetchOperations,
     for_typegen: bool,
@@ -114,46 +109,69 @@ struct RefetchableFragment<'program> {
     visitor: InferVariablesVisitor<'program>,
 }
 
-impl RefetchableFragment<'_> {
+impl<'program> RefetchableFragment<'program> {
+    pub fn new(program: &'program Program, for_typegen: bool) -> Self {
+        RefetchableFragment {
+            connection_constants: Default::default(),
+            existing_refetch_operations: Default::default(),
+            for_typegen,
+            program,
+            visitor: InferVariablesVisitor::new(program),
+        }
+    }
+
     fn transform_refetch_fragment(
         &mut self,
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
-        if let Some(refetchable_directive) =
-            RefetchableDirective::from_directives(&self.program.schema, &fragment.directives)?
-        {
-            self.validate_sibling_directives(fragment)?;
-            self.validate_refetch_name(fragment, &refetchable_directive)?;
-
-            let variables_map = self.visitor.infer_fragment_variables(fragment);
-            for generator in GENERATORS.iter() {
-                if let Some(refetch_root) = (generator.build_refetch_operation)(
-                    &self.program.schema,
+        fragment
+            .directives
+            .named(*REFETCHABLE_NAME)
+            .map(|refetchable_directive| {
+                self.transform_refetch_fragment_with_refetchable_directive(
                     fragment,
-                    refetchable_directive.query_name.item,
-                    &variables_map,
-                )? {
-                    if !self.for_typegen {
-                        self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
-                    }
-                    return Ok(Some((refetchable_directive, refetch_root)));
+                    refetchable_directive,
+                )
+            })
+            .transpose()
+    }
+
+    pub fn transform_refetch_fragment_with_refetchable_directive(
+        &mut self,
+        fragment: &Arc<FragmentDefinition>,
+        directive: &Directive,
+    ) -> DiagnosticsResult<(RefetchableDirective, RefetchRoot)> {
+        let refetchable_directive =
+            RefetchableDirective::from_directive(&self.program.schema, directive)?;
+        self.validate_sibling_directives(fragment)?;
+        self.validate_refetch_name(fragment, &refetchable_directive)?;
+
+        let variables_map = self.visitor.infer_fragment_variables(fragment);
+        for generator in GENERATORS.iter() {
+            if let Some(refetch_root) = (generator.build_refetch_operation)(
+                &self.program.schema,
+                fragment,
+                refetchable_directive.query_name.item,
+                &variables_map,
+            )? {
+                if !self.for_typegen {
+                    self.validate_connection_metadata(refetch_root.fragment.as_ref())?;
                 }
+                return Ok((refetchable_directive, refetch_root));
             }
-            let mut descriptions = String::new();
-            for generator in GENERATORS.iter() {
-                writeln!(descriptions, " - {}", generator.description).unwrap();
-            }
-            descriptions.pop();
-            Err(vec![Diagnostic::error(
-                ValidationMessage::UnsupportedRefetchableFragment {
-                    fragment_name: fragment.name.item,
-                    descriptions,
-                },
-                fragment.name.location,
-            )])
-        } else {
-            Ok(None)
         }
+        let mut descriptions = String::new();
+        for generator in GENERATORS.iter() {
+            writeln!(descriptions, " - {}", generator.description).unwrap();
+        }
+        descriptions.pop();
+        Err(vec![Diagnostic::error(
+            ValidationMessage::UnsupportedRefetchableFragment {
+                fragment_name: fragment.name.item,
+                descriptions,
+            },
+            fragment.name.location,
+        )])
     }
 
     fn validate_sibling_directives(
@@ -306,7 +324,7 @@ const GENERATORS: [QueryGenerator; 4] = [
 ];
 
 pub struct RefetchRoot {
-    fragment: Arc<FragmentDefinition>,
-    selections: Vec<Selection>,
-    variable_definitions: Vec<VariableDefinition>,
+    pub fragment: Arc<FragmentDefinition>,
+    pub selections: Vec<Selection>,
+    pub variable_definitions: Vec<VariableDefinition>,
 }

@@ -115,7 +115,7 @@ pub use react_flight::{
 };
 pub use refetchable_fragment::{
     extract_refetch_metadata_from_directive, transform_refetchable_fragment,
-    RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS,
+    RefetchableDerivedFromMetadata, CONSTANTS as REFETCHABLE_CONSTANTS, REFETCHABLE_NAME,
 };
 pub use relay_actor_change::{
     relay_actor_change_transform, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,

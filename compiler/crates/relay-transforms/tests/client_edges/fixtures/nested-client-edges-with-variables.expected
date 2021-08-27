@@ -1,7 +1,11 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
   best_friend {
-    name
+    url(site: $top_level_site)
+    best_friend {
+      name
+      url(site: $nested_site)
+    }
   }
 }
 
@@ -21,19 +25,44 @@ fragment BestFriendResolverFragment_name on User {
 
 fragment Foo_user on User {
   best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
-    name
+    url(site: $top_level_site)
+    best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+      name
+      url(site: $nested_site)
+    }
   }
 }
 
 fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_user_best_friend", ["node"], "id"]) {
+  url(site: $top_level_site)
+  best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+    name
+    url(site: $nested_site)
+  }
+  id
+}
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_user_best_friend__best_friend", ["node"], "id"]) {
   name
+  url(site: $nested_site)
   id
 }
 
 query ClientEdgeQuery_Foo_user_best_friend(
+  $nested_site: String
+  $top_level_site: String
   $id: ID!
 ) @__clientEdgeQuery {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend
+  }
+}
+
+query ClientEdgeQuery_Foo_user_best_friend__best_friend(
+  $nested_site: String
+  $id: ID!
+) @__clientEdgeQuery {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend
   }
 }

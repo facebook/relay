@@ -28,3 +28,31 @@ fragment Foo_user on User {
     }
   }
 }
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_user_best_friend", ["node"], "id"]) {
+  best_friend @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend__best_friend") {
+    name
+  }
+  id
+}
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @__refetchableMetadata(__refetchableMetadata: ["ClientEdgeQuery_Foo_user_best_friend__best_friend", ["node"], "id"]) {
+  name
+  id
+}
+
+query ClientEdgeQuery_Foo_user_best_friend(
+  $id: ID!
+) @__clientEdgeQuery {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend
+  }
+}
+
+query ClientEdgeQuery_Foo_user_best_friend__best_friend(
+  $id: ID!
+) @__clientEdgeQuery {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend
+  }
+}

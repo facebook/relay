@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0ed0ad5f75dfb524d666bdca266ef103>>
+ * @generated SignedSource<<8962ec4583214ba39506d7b4524792ab>>
  */
 
 mod client_edges;
@@ -34,6 +34,13 @@ fn client_edge_inline_fragment_no_type_condition() {
 }
 
 #[test]
+fn client_edge_variables() {
+    let input = include_str!("client_edges/fixtures/client-edge-variables.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-variables.expected");
+    test_fixture(transform_fixture, "client-edge-variables.graphql", "client_edges/fixtures/client-edge-variables.expected", input, expected);
+}
+
+#[test]
 fn client_edge_within_non_client_edge() {
     let input = include_str!("client_edges/fixtures/client-edge-within-non-client-edge.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-within-non-client-edge.expected");
@@ -45,6 +52,13 @@ fn nested_client_edges() {
     let input = include_str!("client_edges/fixtures/nested-client-edges.graphql");
     let expected = include_str!("client_edges/fixtures/nested-client-edges.expected");
     test_fixture(transform_fixture, "nested-client-edges.graphql", "client_edges/fixtures/nested-client-edges.expected", input, expected);
+}
+
+#[test]
+fn nested_client_edges_with_variables() {
+    let input = include_str!("client_edges/fixtures/nested-client-edges-with-variables.graphql");
+    let expected = include_str!("client_edges/fixtures/nested-client-edges-with-variables.expected");
+    test_fixture(transform_fixture, "nested-client-edges-with-variables.graphql", "client_edges/fixtures/nested-client-edges-with-variables.expected", input, expected);
 }
 
 #[test]

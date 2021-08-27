@@ -205,6 +205,12 @@ pub struct InlineFragment {
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
 }
+pub trait Field {
+    fn alias(&self) -> Option<WithLocation<StringKey>>;
+    fn definition(&self) -> WithLocation<FieldID>;
+    fn arguments(&self) -> &[Argument];
+    fn directives(&self) -> &[Directive];
+}
 
 /// Name Arguments? SelectionSet
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -214,6 +220,24 @@ pub struct LinkedField {
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+}
+
+impl Field for &LinkedField {
+    fn alias(&self) -> Option<WithLocation<StringKey>> {
+        self.alias
+    }
+
+    fn definition(&self) -> WithLocation<FieldID> {
+        self.definition
+    }
+
+    fn arguments(&self) -> &[Argument] {
+        &self.arguments
+    }
+
+    fn directives(&self) -> &[Directive] {
+        &self.directives
+    }
 }
 
 impl LinkedField {
@@ -240,6 +264,24 @@ pub struct ScalarField {
     pub definition: WithLocation<FieldID>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
+}
+
+impl Field for &ScalarField {
+    fn alias(&self) -> Option<WithLocation<StringKey>> {
+        self.alias
+    }
+
+    fn definition(&self) -> WithLocation<FieldID> {
+        self.definition
+    }
+
+    fn arguments(&self) -> &[Argument] {
+        &self.arguments
+    }
+
+    fn directives(&self) -> &[Directive] {
+        &self.directives
+    }
 }
 
 impl ScalarField {

@@ -136,4 +136,14 @@ pub enum ValidationMessage {
         r_name: StringKey,
         r_type_string: String,
     },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
+    )]
+    StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
+    )]
+    StreamConflictUsedInMultiplePlaces { response_key: StringKey },
 }

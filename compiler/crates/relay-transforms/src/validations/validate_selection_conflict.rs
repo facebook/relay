@@ -5,18 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::Arc;
-
+use crate::DEFER_STREAM_CONSTANTS;
 use crate::{PointerAddress, ValidationMessage};
-
 use common::{Diagnostic, DiagnosticsResult, Location};
 use dashmap::DashMap;
 use errors::{par_try_map, validate, validate_map};
 use graphql_ir::{
-    FragmentDefinition, LinkedField, OperationDefinition, Program, ScalarField, Selection,
+    Field as IRField, FragmentDefinition, LinkedField, OperationDefinition, Program, ScalarField,
+    Selection,
 };
 use interner::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
+use std::sync::Arc;
 
 pub fn validate_selection_conflict(program: &Program) -> DiagnosticsResult<()> {
     ValidateSelectionConflict::new(program).validate_program(program)
@@ -174,19 +174,11 @@ impl<'s> ValidateSelectionConflict<'s> {
                 (Field::LinkedField(l), Field::LinkedField(r)) => {
                     let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
                     if !fields_mutually_exclusive {
-                        if l_definition.name != r_definition.name {
-                            errors.push(
-                                Diagnostic::error(
-                                    ValidationMessage::AmbiguousFieldAlias {
-                                        response_key: key,
-                                        l_name: l_definition.name,
-                                        r_name: r_definition.name,
-                                    },
-                                    l.definition.location,
-                                )
-                                .annotate("the other field", r.definition.location),
-                            );
-                        }
+                        if let Err(err) =
+                            validate_same_field(key, l_definition.name, r_definition.name, l, r)
+                        {
+                            errors.push(err)
+                        };
                     }
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
                         let mut l_fields = self.validate_linked_field_selections(&l)?;
@@ -223,19 +215,11 @@ impl<'s> ValidateSelectionConflict<'s> {
                 }
                 (Field::ScalarFeild(l), Field::ScalarFeild(r)) => {
                     if !is_parent_fields_mutually_exclusive() {
-                        if l_definition.name != r_definition.name {
-                            errors.push(
-                                Diagnostic::error(
-                                    ValidationMessage::AmbiguousFieldAlias {
-                                        response_key: key,
-                                        l_name: l_definition.name,
-                                        r_name: r_definition.name,
-                                    },
-                                    l.definition.location,
-                                )
-                                .annotate("the other field", r.definition.location),
-                            );
-                        }
+                        if let Err(err) =
+                            validate_same_field(key, l_definition.name, r_definition.name, l, r)
+                        {
+                            errors.push(err)
+                        };
                     } else if l_definition.type_ != r_definition.type_ {
                         errors.push(
                             Diagnostic::error(
@@ -286,6 +270,53 @@ impl<'s> ValidateSelectionConflict<'s> {
             Ok(())
         } else {
             Err(errors)
+        }
+    }
+}
+
+fn validate_same_field<F: IRField>(
+    response_key: StringKey,
+    l_name: StringKey,
+    r_name: StringKey,
+    l: &F,
+    r: &F,
+) -> Result<(), Diagnostic> {
+    if l_name != r_name {
+        Err(Diagnostic::error(
+            ValidationMessage::AmbiguousFieldAlias {
+                response_key,
+                l_name,
+                r_name,
+            },
+            l.definition().location,
+        )
+        .annotate("the other field", r.definition().location))
+    } else {
+        let left_stream_directive = l
+            .directives()
+            .iter()
+            .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+        let right_stream_directive = r
+            .directives()
+            .iter()
+            .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+        match (left_stream_directive, right_stream_directive) {
+            (Some(_), None) => Err(Diagnostic::error(
+                ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },
+                l.definition().location,
+            )
+            .annotate("not marked in", r.definition().location)),
+            (None, Some(_)) => Err(Diagnostic::error(
+                ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },
+                r.definition().location,
+            )
+            .annotate("not marked in", l.definition().location)),
+            (Some(_), Some(_)) => Err(Diagnostic::error(
+                ValidationMessage::StreamConflictUsedInMultiplePlaces { response_key },
+                l.definition().location,
+            )
+            .annotate("the other field", r.definition().location)),
+            (None, None) => Ok(()),
         }
     }
 }

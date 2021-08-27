@@ -1,4 +1,4 @@
-# TODO throw
+# expected-to-throw
 query selectionSetConflictInconsistentStreamUsage2Query {
   me {
     ... on User {

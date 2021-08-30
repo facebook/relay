@@ -6,12 +6,15 @@
  */
 
 use super::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::{no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, ValidationMessage};
+use crate::{
+    no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, StreamDirective, ValidationMessage,
+};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment,
-    Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer, Value,
+    LinkedField, Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer,
+    Value,
 };
 use interner::StringKey;
 use std::sync::Arc;
@@ -139,6 +142,37 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
         } else {
             Transformed::Keep
         }
+    }
+
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+        let tranformed_field = self.default_transform_linked_field(field);
+        if let Some(directive) = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name) {
+            if let Some(if_arg) = StreamDirective::from(directive).if_arg {
+                if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
+                    let mut next_field = match tranformed_field {
+                        Transformed::Delete => return Transformed::Delete,
+                        Transformed::Keep => Arc::new(field.clone()),
+                        Transformed::Replace(Selection::LinkedField(replacement)) => replacement,
+                        Transformed::Replace(other) => {
+                            panic!("unexpected replacement: {:?}", other)
+                        }
+                    };
+                    let previous_directive_len = next_field.directives.len();
+                    Arc::make_mut(&mut next_field)
+                        .directives
+                        .retain(|directive| {
+                            directive.name.item != DEFER_STREAM_CONSTANTS.stream_name
+                        });
+                    assert_eq!(
+                        previous_directive_len,
+                        next_field.directives.len() + 1,
+                        "should have removed exactly one directive"
+                    );
+                    return Transformed::Replace(Selection::LinkedField(next_field));
+                }
+            }
+        }
+        tranformed_field
     }
 }
 

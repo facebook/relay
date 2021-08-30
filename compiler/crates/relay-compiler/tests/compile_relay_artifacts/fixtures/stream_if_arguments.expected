@@ -141,31 +141,22 @@ fragment streamIfArgumentsFragment on User
             "useCustomizedBatch": null
           },
           {
-            "if": null,
-            "kind": "Stream",
-            "label": "streamIfArgumentsFragment$stream$defaultFalse",
-            "metadata": null,
+            "alias": "withDefaultFalse",
+            "args": null,
+            "concreteType": "Task",
+            "kind": "LinkedField",
+            "name": "tasks",
+            "plural": true,
             "selections": [
               {
-                "alias": "withDefaultFalse",
+                "alias": null,
                 "args": null,
-                "concreteType": "Task",
-                "kind": "LinkedField",
-                "name": "tasks",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__typename",
-                    "storageKey": null
-                  }
-                ],
+                "kind": "ScalarField",
+                "name": "__typename",
                 "storageKey": null
               }
             ],
-            "useCustomizedBatch": null
+            "storageKey": null
           },
           {
             "if": null,
@@ -195,31 +186,22 @@ fragment streamIfArgumentsFragment on User
             "useCustomizedBatch": null
           },
           {
-            "if": null,
-            "kind": "Stream",
-            "label": "streamIfArgumentsFragment$stream$setToFalse",
-            "metadata": null,
+            "alias": "setToFalse",
+            "args": null,
+            "concreteType": "Task",
+            "kind": "LinkedField",
+            "name": "tasks",
+            "plural": true,
             "selections": [
               {
-                "alias": "setToFalse",
+                "alias": null,
                 "args": null,
-                "concreteType": "Task",
-                "kind": "LinkedField",
-                "name": "tasks",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__typename",
-                    "storageKey": null
-                  }
-                ],
+                "kind": "ScalarField",
+                "name": "__typename",
                 "storageKey": null
               }
             ],
-            "useCustomizedBatch": null
+            "storageKey": null
           },
           {
             "if": "valueFromQuery",
@@ -311,13 +293,13 @@ fragment streamIfArgumentsFragment_39RTKZ on User {
   withDefaultTrue: tasks @stream(label: "streamIfArgumentsFragment$stream$defaultTrue", if: true, initial_count: 1) {
     __typename
   }
-  withDefaultFalse: tasks @stream(label: "streamIfArgumentsFragment$stream$defaultFalse", if: false, initial_count: 1) {
+  withDefaultFalse: tasks {
     __typename
   }
   setToTrue: tasks @stream(label: "streamIfArgumentsFragment$stream$setToTrue", if: true, initial_count: 1) {
     __typename
   }
-  setToFalse: tasks @stream(label: "streamIfArgumentsFragment$stream$setToFalse", if: false, initial_count: 1) {
+  setToFalse: tasks {
     __typename
   }
   withValueFromQueryDirectly: tasks @stream(label: "streamIfArgumentsFragment$stream$fromQueryDirectly", if: $valueFromQuery, initial_count: 1) {

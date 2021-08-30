@@ -1105,7 +1105,13 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     use_customized_batch_arg,
                     initial_count_arg: _,
                 } = StreamDirective::from(stream);
-                let if_variable_name = extract_variable_name(if_arg);
+                let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
+                    // `true` is the default, remove as the AST is typed just as a variable name string
+                    // `false` constant values should've been transformed away in skip_unreachable_node
+                    Value::Constant(ConstantValue::Boolean(true)) => None,
+                    Value::Variable(var) => Some(var.name.item),
+                    other => panic!("unexpected value for @stream if argument: {:?}", other),
+                });
                 let use_customized_batch_variable_name =
                     extract_variable_name(use_customized_batch_arg);
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();

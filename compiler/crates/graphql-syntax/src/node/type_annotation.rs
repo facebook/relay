@@ -27,9 +27,9 @@ impl fmt::Display for TypeAnnotation {
 }
 
 impl TypeAnnotation {
-    pub fn inner(&self) -> &TypeAnnotation {
+    pub fn inner(&self) -> &Identifier {
         match self {
-            TypeAnnotation::Named(_) => self,
+            TypeAnnotation::Named(inner) => inner,
             TypeAnnotation::List(of) => (*of).type_.inner(),
             TypeAnnotation::NonNull(of) => (*of).type_.inner(),
         }

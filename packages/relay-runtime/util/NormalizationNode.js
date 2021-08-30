@@ -199,7 +199,7 @@ export type NormalizationStream = {|
   +kind: 'Stream',
   +label: string,
   +useCustomizedBatch: string | null,
-  +metadata: ?{+[key: string]: mixed, ...},
+  +metadata?: mixed,
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};
 

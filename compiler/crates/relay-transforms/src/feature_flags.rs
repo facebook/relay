@@ -40,6 +40,9 @@ pub struct FeatureFlags {
     /// later.
     #[serde(default)]
     pub text_artifacts: FeatureFlag,
+
+    #[serde(default)]
+    pub enable_client_edges: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

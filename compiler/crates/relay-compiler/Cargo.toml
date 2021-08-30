@@ -51,7 +51,7 @@ sha-1 = "0.8"
 signedsource = { path = "../signedsource" }
 structopt = "0.3.21"
 thiserror = "1.0"
-tokio = { version = "1.7.1", features = ["full", "test-util"] }
+tokio = { version = "1.10", features = ["full", "test-util"] }
 watchman_client = "0.7"
 
 [dev-dependencies]

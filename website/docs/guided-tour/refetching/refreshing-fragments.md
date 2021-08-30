@@ -188,7 +188,7 @@ function UserComponent(props: Props) {
 
 Let's distill what's going on here:
 
-* When refreshing, we now keep track of our own `isRefreshing` loading state, since we are avoiding supending. We can use this state to render a busy spinner or similar loading UI in our component, *without* hiding the content.
+* When refreshing, we now keep track of our own `isRefreshing` loading state, since we are avoiding suspending. We can use this state to render a busy spinner or similar loading UI in our component, *without* hiding the content.
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we call `refetch` so that we render the updated data, similar to the previous example.
 * At this point, when `refetch` is called, the data for the fragment should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
 

@@ -18,6 +18,8 @@ use graphql_syntax::{
 
 mod constant_value_root;
 pub use constant_value_root::ConstantValueRoot;
+mod argument_root;
+pub use argument_root::*;
 pub mod utils;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which

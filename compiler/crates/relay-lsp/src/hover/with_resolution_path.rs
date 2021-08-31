@@ -17,10 +17,10 @@ use crate::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
         ConstantStringPath, ConstantValueParent, ConstantValuePath, ConstantValueRoot,
-        DefaultValuePath, IdentParent, IdentPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
-        NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath, ResolutionPath,
-        SelectionPath, TypeAnnotationPath, VariableDefinitionPath, VariableIdentifierParent,
-        VariableIdentifierPath,
+        DefaultValuePath, IdentParent, IdentPath, LinkedFieldPath, ListTypeAnnotationPath,
+        NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
+        ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, VariableDefinitionPath,
+        VariableIdentifierParent, VariableIdentifierPath,
     },
     LSPExtraDataProvider,
 };
@@ -235,6 +235,84 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             schema_documentation,
         ),
 
+        // Scalar and linked fields
+        ResolutionPath::ScalarField(ScalarFieldPath {
+            inner: scalar_field,
+            parent: selection_path,
+        }) => on_hover_scalar_or_linked_field(
+            &scalar_field.name,
+            &selection_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::ScalarFieldAlias(ScalarFieldPath {
+                    inner: scalar_field,
+                    parent: selection_path,
+                }),
+        }) => on_hover_scalar_or_linked_field(
+            &scalar_field.name,
+            &selection_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::ScalarFieldName(ScalarFieldPath {
+                    inner: scalar_field,
+                    parent: selection_path,
+                }),
+        }) => on_hover_scalar_or_linked_field(
+            &scalar_field.name,
+            &selection_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::LinkedField(LinkedFieldPath {
+            inner: scalar_field,
+            parent: selection_path,
+        }) => on_hover_scalar_or_linked_field(
+            &scalar_field.name,
+            &selection_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::LinkedFieldAlias(LinkedFieldPath {
+                    inner: scalar_field,
+                    parent: selection_path,
+                }),
+        }) => on_hover_scalar_or_linked_field(
+            &scalar_field.name,
+            &selection_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::LinkedFieldName(LinkedFieldPath {
+                    inner: scalar_field,
+                    parent: selection_path,
+                }),
+        }) => on_hover_scalar_or_linked_field(
+            &scalar_field.name,
+            &selection_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+
         _ => None,
     }
 }
@@ -340,6 +418,23 @@ fn on_hover_argument_path<'a>(
     contents.extend(field_hover_info.into_iter());
 
     Some(HoverContents::Array(contents))
+}
+
+fn on_hover_scalar_or_linked_field(
+    field_name: &Identifier,
+    field_selection_path: &SelectionPath<'_>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
+) -> Option<HoverContents> {
+    let content = get_scalar_or_linked_field_hover_content(
+        field_name,
+        field_selection_path,
+        schema,
+        schema_name,
+        schema_documentation,
+    )?;
+    Some(HoverContents::Array(content))
 }
 
 fn get_scalar_or_linked_field_hover_content(

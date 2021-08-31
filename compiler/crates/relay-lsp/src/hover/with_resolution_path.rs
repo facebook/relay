@@ -17,11 +17,12 @@ use crate::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
         ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-        ConstantValueRoot, DefaultValuePath, IdentParent, IdentPath, LinkedFieldPath,
-        ListTypeAnnotationPath, NamedTypeAnnotationPath, NonNullTypeAnnotationPath,
-        OperationDefinitionPath, OperationPath, ResolutionPath, ScalarFieldPath, SelectionPath,
-        TypeAnnotationPath, ValueListPath, ValuePath, VariableDefinitionPath,
-        VariableIdentifierParent, VariableIdentifierPath,
+        ConstantValueRoot, DefaultValuePath, IdentParent, IdentPath, InlineFragmentPath,
+        LinkedFieldPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
+        NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath, ResolutionPath,
+        ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent, TypeConditionPath,
+        ValueListPath, ValuePath, VariableDefinitionPath, VariableIdentifierParent,
+        VariableIdentifierPath,
     },
     LSPExtraDataProvider,
 };
@@ -375,6 +376,35 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation)
         }
 
+        ResolutionPath::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
+            &inline_fragment_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::TypeConditionType(TypeConditionPath {
+                    inner: _,
+                    parent: TypeConditionParent::InlineFragment(inline_fragment_path),
+                }),
+        }) => on_hover_inline_fragment(
+            &inline_fragment_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::TypeCondition(TypeConditionPath {
+            inner: _,
+            parent: TypeConditionParent::InlineFragment(inline_fragment_path),
+        }) => on_hover_inline_fragment(
+            &inline_fragment_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+
         _ => None,
     }
 }
@@ -585,4 +615,64 @@ fn get_scalar_or_linked_field_hover_content(
         }
     }
     Some(hover_contents)
+}
+
+fn on_hover_inline_fragment(
+    inline_fragment: &InlineFragmentPath<'_>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
+) -> Option<HoverContents> {
+    let InlineFragmentPath {
+        inner: inline_fragment,
+        parent: selection_path,
+    } = inline_fragment;
+
+    let type_condition = inline_fragment.type_condition.as_ref()?;
+    let parent_types = selection_path.parent.find_type_path(schema);
+    let parent_type = parent_types.last()?;
+
+    let parent_type_name = schema.get_type_name(*parent_type);
+    let parent_type_path = parent_types
+        .iter()
+        .map(|parent_type| schema.get_type_name(*parent_type).lookup())
+        .collect::<Vec<_>>();
+
+    let inline_fragment_condition = type_condition.type_.value.lookup();
+    let inline_fragment_type_path = {
+        let mut inline_fragment_type_path = parent_type_path.clone();
+        inline_fragment_type_path.push(inline_fragment_condition);
+        inline_fragment_type_path
+    };
+
+    let description = schema_documentation.get_type_description(inline_fragment_condition);
+
+    let first_line = MarkedString::String(format!(
+        "An inline fragment refining **{}** to **{}**",
+        get_open_schema_explorer_command_link(
+            parent_type_name.lookup(),
+            &GraphQLSchemaExplorerParams {
+                path: parent_type_path,
+                schema_name: schema_name.lookup(),
+                filter: None,
+            },
+        ),
+        get_open_schema_explorer_command_link(
+            inline_fragment_condition,
+            &GraphQLSchemaExplorerParams {
+                path: inline_fragment_type_path,
+                schema_name: schema_name.lookup(),
+                filter: None,
+            },
+        )
+    ));
+
+    if let Some(description) = description {
+        return Some(HoverContents::Array(vec![
+            first_line,
+            MarkedString::String(description.to_string()),
+        ]));
+    } else {
+        return Some(HoverContents::Scalar(first_line));
+    }
 }

@@ -117,7 +117,6 @@ fragment streamIfArgumentsFragment on User
             "if": null,
             "kind": "Stream",
             "label": "streamIfArgumentsFragment$stream$defaultTrue",
-            "metadata": null,
             "selections": [
               {
                 "alias": "withDefaultTrue",
@@ -137,8 +136,7 @@ fragment streamIfArgumentsFragment on User
                 ],
                 "storageKey": null
               }
-            ],
-            "useCustomizedBatch": null
+            ]
           },
           {
             "alias": "withDefaultFalse",
@@ -162,7 +160,6 @@ fragment streamIfArgumentsFragment on User
             "if": null,
             "kind": "Stream",
             "label": "streamIfArgumentsFragment$stream$setToTrue",
-            "metadata": null,
             "selections": [
               {
                 "alias": "setToTrue",
@@ -182,8 +179,7 @@ fragment streamIfArgumentsFragment on User
                 ],
                 "storageKey": null
               }
-            ],
-            "useCustomizedBatch": null
+            ]
           },
           {
             "alias": "setToFalse",
@@ -207,7 +203,6 @@ fragment streamIfArgumentsFragment on User
             "if": "valueFromQuery",
             "kind": "Stream",
             "label": "streamIfArgumentsFragment$stream$fromQueryDirectly",
-            "metadata": null,
             "selections": [
               {
                 "alias": "withValueFromQueryDirectly",
@@ -227,14 +222,12 @@ fragment streamIfArgumentsFragment on User
                 ],
                 "storageKey": null
               }
-            ],
-            "useCustomizedBatch": null
+            ]
           },
           {
             "if": "valueFromQuery",
             "kind": "Stream",
             "label": "streamIfArgumentsFragment$stream$fromQueryViaArg",
-            "metadata": null,
             "selections": [
               {
                 "alias": "withValueFromQueryViaArgDef",
@@ -254,8 +247,7 @@ fragment streamIfArgumentsFragment on User
                 ],
                 "storageKey": null
               }
-            ],
-            "useCustomizedBatch": null
+            ]
           },
           {
             "alias": null,

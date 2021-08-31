@@ -5,19 +5,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_syntax::OperationDefinition;
+use graphql_syntax::{Identifier, OperationDefinition, OperationKind, VariableDefinition};
+use interner::StringKey;
 use lsp_types::{HoverContents, MarkedString};
+use schema::{SDLSchema, Schema, Type};
+use schema_documentation::SchemaDocumentation;
 
 use crate::{
+    hover::{get_open_schema_explorer_command_link, GraphQLSchemaExplorerParams},
     resolution_path::{
-        IdentParent, IdentPath, OperationDefinitionPath, OperationPath, ResolutionPath,
+        ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
+        ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
+        ConstantStringPath, ConstantValueParent, ConstantValuePath, ConstantValueRoot,
+        DefaultValuePath, FragmentDefinitionPath, IdentParent, IdentPath, InlineFragmentPath,
+        LinkedFieldPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
+        NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath, ResolutionPath,
+        SelectionParent, SelectionPath, TypeAnnotationPath, VariableDefinitionPath,
+        VariableIdentifierParent, VariableIdentifierPath,
     },
     LSPExtraDataProvider,
 };
 
 pub(crate) fn hover_with_node_resolution_path<'a>(
     path: ResolutionPath<'a>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
+    schema_documentation: &impl SchemaDocumentation,
 ) -> Option<HoverContents> {
     match path {
         // Show query stats on the operation definition name
@@ -43,6 +57,185 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
         // this match arm.
         ResolutionPath::OperationDefinition(_) => None,
 
+        // Variables definition for both operations and fragments (?):
+        // Name, Type and Default Value => info about variable and link to types
+        // Directives handled later
+        ResolutionPath::VariableIdentifier(VariableIdentifierPath {
+            inner: _,
+            parent:
+                VariableIdentifierParent::VariableDefinition(VariableDefinitionPath {
+                    inner: variable_definition,
+                    parent: _,
+                }),
+        }) => Some(on_hover_variable_definition(
+            variable_definition,
+            schema_name,
+        )),
+        ResolutionPath::DefaultValue(DefaultValuePath {
+            inner: _,
+            parent:
+                VariableDefinitionPath {
+                    inner: variable_definition,
+                    parent: _,
+                },
+        }) => Some(on_hover_variable_definition(
+            variable_definition,
+            schema_name,
+        )),
+        ResolutionPath::VariableDefinition(VariableDefinitionPath {
+            inner: variable_definition,
+            parent: _,
+        }) => Some(on_hover_variable_definition(
+            variable_definition,
+            schema_name,
+        )),
+        ResolutionPath::NonNullTypeAnnotation(NonNullTypeAnnotationPath {
+            inner: _,
+            parent: non_null_annotation_parent,
+        }) => Some(on_hover_variable_definition(
+            non_null_annotation_parent
+                .parent
+                .find_variable_definition_path()
+                .inner,
+            schema_name,
+        )),
+        ResolutionPath::ListTypeAnnotation(ListTypeAnnotationPath {
+            inner: _,
+            parent: list_type_annotation_parent,
+        }) => Some(on_hover_variable_definition(
+            list_type_annotation_parent
+                .parent
+                .find_variable_definition_path()
+                .inner,
+            schema_name,
+        )),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::NamedTypeAnnotation(NamedTypeAnnotationPath {
+                    inner: _,
+                    parent:
+                        TypeAnnotationPath {
+                            inner: _,
+                            parent: type_annotation_parent,
+                        },
+                }),
+        }) => Some(on_hover_variable_definition(
+            type_annotation_parent.find_variable_definition_path().inner,
+            schema_name,
+        )),
+
+        // Explicitly don't show hovers for VariableDefinitionList
+        ResolutionPath::VariableDefinitionList(_) => None,
+
+        // Constant values can either be rooted in variable definitions or arguments to
+        // directives or fields. Handle those cases.
+        ResolutionPath::ConstantInt(ConstantIntPath {
+            inner: _,
+            parent:
+                ConstantValuePath {
+                    inner: _,
+                    parent: constant_value_parent,
+                },
+        }) => on_hover_constant_value(
+            &constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantFloat(ConstantFloatPath {
+            inner: _,
+            parent:
+                ConstantValuePath {
+                    inner: _,
+                    parent: constant_value_parent,
+                },
+        }) => on_hover_constant_value(
+            &constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantString(ConstantStringPath {
+            inner: _,
+            parent:
+                ConstantValuePath {
+                    inner: _,
+                    parent: constant_value_parent,
+                },
+        }) => on_hover_constant_value(
+            &constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantBoolean(ConstantBooleanPath {
+            inner: _,
+            parent:
+                ConstantValuePath {
+                    inner: _,
+                    parent: constant_value_parent,
+                },
+        }) => on_hover_constant_value(
+            &constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantNull(ConstantNullPath {
+            inner: _,
+            parent:
+                ConstantValuePath {
+                    inner: _,
+                    parent: constant_value_parent,
+                },
+        }) => on_hover_constant_value(
+            &constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantEnum(ConstantEnumPath {
+            inner: _,
+            parent:
+                ConstantValuePath {
+                    inner: _,
+                    parent: constant_value_parent,
+                },
+        }) => on_hover_constant_value(
+            &constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantList(ConstantListPath {
+            inner: _,
+            parent: constant_value_path,
+        }) => on_hover_constant_value(
+            &constant_value_path.parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantObj(ConstantObjPath {
+            inner: _,
+            parent: constant_value_path,
+        }) => on_hover_constant_value(
+            &constant_value_path.parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantArg(ConstantArgPath {
+            inner: _,
+            parent: constant_obj_path,
+        }) => on_hover_constant_value(
+            &constant_obj_path.parent.parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+
         _ => None,
     }
 }
@@ -63,4 +256,235 @@ fn on_hover_operation(
     } else {
         None
     }
+}
+
+fn on_hover_variable_definition(
+    variable_definition: &VariableDefinition,
+    schema_name: StringKey,
+) -> HoverContents {
+    let variable_identifier = &variable_definition.name;
+    let variable_inner_type = variable_definition.type_.inner().name.value;
+    let variable_type = &variable_definition.type_;
+    let variable_default_value = variable_definition
+        .default_value
+        .as_ref()
+        .map(|default_value| format!(" with default value `{}`", default_value.value))
+        .unwrap_or_else(|| "".to_string());
+
+    HoverContents::Scalar(MarkedString::String(format!(
+        "`{}`: **{}**{}",
+        variable_identifier,
+        get_open_schema_explorer_command_link(
+            &variable_type.to_string(),
+            &GraphQLSchemaExplorerParams {
+                path: vec![variable_inner_type.lookup()],
+                schema_name: schema_name.lookup(),
+                filter: None,
+            }
+        ),
+        variable_default_value
+    )))
+}
+
+fn on_hover_constant_value<'a>(
+    constant_value_parent: &'a ConstantValueParent<'a>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
+) -> Option<HoverContents> {
+    match constant_value_parent.find_constant_value_root() {
+        ConstantValueRoot::VariableDefinition(variable_definition_path) => Some(
+            on_hover_variable_definition(variable_definition_path.inner, schema_name),
+        ),
+        ConstantValueRoot::Argument(argument_path) => {
+            on_hover_argument_path(argument_path, schema, schema_name, schema_documentation)
+        }
+    }
+}
+
+fn on_hover_argument_path<'a>(
+    argument_path: &ArgumentPath<'a>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
+) -> Option<HoverContents> {
+    let ArgumentPath {
+        inner: argument,
+        parent,
+    } = argument_path;
+
+    let argument_name = argument.name.value.lookup();
+    let argument_value = argument.value.to_string();
+    let argument_info =
+        MarkedString::String(format!("Argument `{}: {}`", argument_name, argument_value));
+
+    let field_hover_info = match parent.find_argument_root() {
+        ArgumentRoot::LinkedField(linked_field_path) => get_scalar_or_linked_field_hover_content(
+            &linked_field_path.inner.name,
+            &linked_field_path.parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        // TODO call on_hover_directive when that function is written
+        ArgumentRoot::Directive(_) => Some(vec![]),
+        ArgumentRoot::ScalarField(scalar_field_path) => get_scalar_or_linked_field_hover_content(
+            &scalar_field_path.inner.name,
+            &scalar_field_path.parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+    }?;
+
+    let mut contents = vec![argument_info];
+    contents.extend(field_hover_info.into_iter());
+
+    Some(HoverContents::Array(contents))
+}
+
+fn get_type_path_to_selection<'a>(
+    selection_parent: &'a SelectionParent<'a>,
+    schema: &SDLSchema,
+) -> Vec<Type> {
+    match selection_parent {
+        SelectionParent::OperationDefinitionSelection(OperationDefinitionPath {
+            inner: operation_definition,
+            parent: _,
+        }) => match operation_definition.operation_kind() {
+            OperationKind::Mutation => schema.mutation_type(),
+            OperationKind::Query => schema.query_type(),
+            OperationKind::Subscription => schema.subscription_type(),
+        }
+        .into_iter()
+        .collect::<Vec<_>>(),
+        SelectionParent::LinkedFieldSelection(LinkedFieldPath {
+            inner: linked_field,
+            parent: linked_field_selection_path,
+        }) => {
+            let mut path = get_type_path_to_selection(&linked_field_selection_path.parent, schema);
+            if let Some(type_) = path
+                .last()
+                .and_then(|parent_type| schema.named_field(*parent_type, linked_field.name.value))
+                .map(|field_id| schema.field(field_id).type_.inner())
+            {
+                path.push(type_)
+            }
+            path
+        }
+        SelectionParent::FragmentDefinitionSelection(FragmentDefinitionPath {
+            inner: fragment_definition,
+            parent: _,
+        }) => {
+            let type_ = fragment_definition.type_condition.type_.value;
+            schema.get_type(type_).into_iter().collect::<Vec<_>>()
+        }
+        SelectionParent::InlineFragmentSelection(InlineFragmentPath {
+            inner: inline_fragment,
+            parent: inline_fragment_selection_path,
+        }) => {
+            let mut path =
+                get_type_path_to_selection(&inline_fragment_selection_path.parent, schema);
+            if let Some(type_) =
+                inline_fragment
+                    .type_condition
+                    .as_ref()
+                    .and_then(|type_condition| {
+                        let type_ = type_condition.type_.value;
+                        schema.get_type(type_)
+                    })
+            {
+                path.push(type_)
+            };
+            path
+        }
+    }
+}
+
+fn get_scalar_or_linked_field_hover_content(
+    field_name: &Identifier,
+    field_selection_path: &SelectionPath<'_>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    schema_documentation: &impl SchemaDocumentation,
+) -> Option<Vec<MarkedString>> {
+    let parent_types = get_type_path_to_selection(&field_selection_path.parent, schema);
+    let parent_type = parent_types.last()?;
+
+    let mut type_path = parent_types
+        .iter()
+        .map(|parent_type| schema.get_type_name(*parent_type).lookup())
+        .collect::<Vec<_>>();
+    let parent_type_name = schema.get_type_name(*parent_type).lookup();
+
+    let field = schema
+        .named_field(*parent_type, field_name.value)
+        .map(|id| schema.field(id))?;
+
+    let rendered_type_string = schema.get_type_string(&field.type_);
+    let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
+
+    let mut hover_contents: Vec<MarkedString> =
+        vec![MarkedString::String(format!("Field: **{}**", field.name))];
+
+    if let Some(field_description) =
+        schema_documentation.get_field_description(parent_type_name, field.name.lookup())
+    {
+        hover_contents.push(MarkedString::String(field_description.to_string()));
+    }
+
+    type_path.push(field_type_name);
+
+    hover_contents.push(MarkedString::String(format!(
+        "Type: **{}**",
+        get_open_schema_explorer_command_link(
+            &rendered_type_string,
+            &GraphQLSchemaExplorerParams {
+                path: type_path,
+                schema_name: schema_name.lookup(),
+                filter: None,
+            }
+        )
+    )));
+
+    if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
+        hover_contents.push(MarkedString::String(type_description.to_string()));
+    }
+
+    if !field.arguments.is_empty() {
+        hover_contents.push(MarkedString::String(
+            "This field accepts these arguments".to_string(),
+        ));
+
+        for arg in field.arguments.iter() {
+            let arg_type_name = schema.get_type_name(arg.type_.inner()).lookup();
+            hover_contents.push(MarkedString::from_markdown(format!(
+                "{}: **{}**{}\n\n{}",
+                arg.name,
+                get_open_schema_explorer_command_link(
+                    &schema.get_type_string(&arg.type_),
+                    &GraphQLSchemaExplorerParams {
+                        path: vec![field_type_name, arg_type_name],
+                        schema_name: schema_name.lookup(),
+                        filter: None,
+                    }
+                ),
+                if let Some(default_value) = &arg.default_value {
+                    format!(" = {}", default_value)
+                } else {
+                    "".to_string()
+                },
+                if let Some(description) = schema_documentation.get_field_argument_description(
+                    parent_type_name,
+                    field.name.lookup(),
+                    arg.name.lookup(),
+                ) {
+                    description.to_string()
+                } else {
+                    "".to_string()
+                }
+            )));
+        }
+    }
+    Some(hover_contents)
 }

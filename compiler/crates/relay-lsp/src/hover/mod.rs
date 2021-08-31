@@ -340,9 +340,13 @@ pub(crate) fn on_hover<
     if let Some(schema) = state.get_schemas().get(&project_name) {
         let schema_documentation = state.get_schema_documentation(project_name.lookup());
 
-        if let Some(contents) =
-            hover_with_node_resolution_path(resolution_path, state.extra_data_provider.as_ref())
-        {
+        if let Some(contents) = hover_with_node_resolution_path(
+            resolution_path,
+            &schema,
+            project_name,
+            state.extra_data_provider.as_ref(),
+            &schema_documentation,
+        ) {
             return Ok(Some(Hover {
                 contents,
                 range: None,

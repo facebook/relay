@@ -458,7 +458,8 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                 }),
         }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
 
-        _ => None,
+        // Explicitly show no hover content of operation/fragment definitions
+        ResolutionPath::ExecutableDocument(_) => None,
     }
 }
 

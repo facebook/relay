@@ -10,7 +10,6 @@
 use crate::{
     location::to_lsp_location_of_graphql_literal,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    resolution_path::utils::find_selection_parent_type,
     resolution_path::{
         IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
         SelectionParent, TypeConditionPath,
@@ -146,7 +145,8 @@ fn resolve_field<'a>(
         LSPRuntimeError::UnexpectedError(format!("Project name {} not found", project_name))
     })?;
 
-    let parent_type = find_selection_parent_type(selection_parent, &source_program.schema)
+    let parent_type = selection_parent
+        .find_parent_type(&source_program.schema)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let field_name_key = field_name.intern();

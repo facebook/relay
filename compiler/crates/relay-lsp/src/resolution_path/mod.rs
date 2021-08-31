@@ -20,7 +20,7 @@ mod constant_value_root;
 pub use constant_value_root::ConstantValueRoot;
 mod argument_root;
 pub use argument_root::*;
-pub mod utils;
+mod selection_parent_type;
 mod variable_definition_path;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which

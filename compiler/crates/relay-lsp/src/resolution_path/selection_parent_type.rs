@@ -13,42 +13,94 @@ use super::{
     SelectionParent,
 };
 
-pub fn find_selection_parent_type(
-    selection_parent: SelectionParent<'_>,
-    schema: &SDLSchema,
-) -> Option<Type> {
-    match selection_parent {
-        SelectionParent::OperationDefinitionSelection(OperationDefinitionPath {
-            inner: operation_def,
-            parent: _,
-        }) => operation_def
-            .operation
-            .as_ref()
-            .and_then(|(_, kind)| match kind {
-                OperationKind::Query => schema.query_type(),
+impl<'a> SelectionParent<'a> {
+    pub fn find_parent_type(&self, schema: &SDLSchema) -> Option<Type> {
+        match self {
+            SelectionParent::OperationDefinitionSelection(OperationDefinitionPath {
+                inner: operation_definition,
+                parent: _,
+            }) => match operation_definition.operation_kind() {
                 OperationKind::Mutation => schema.mutation_type(),
+                OperationKind::Query => schema.query_type(),
                 OperationKind::Subscription => schema.subscription_type(),
-            }),
-        SelectionParent::LinkedFieldSelection(LinkedFieldPath {
-            inner: field,
-            parent: selection_path,
-        }) => {
-            let parent_type = find_selection_parent_type(selection_path.parent, schema)?;
-            let field_id = schema.named_field(parent_type, field.name.value)?;
-            let field = schema.field(field_id);
-            Some(field.type_.inner())
+            },
+            SelectionParent::LinkedFieldSelection(LinkedFieldPath {
+                inner: field,
+                parent: selection_path,
+            }) => {
+                let parent_type = selection_path.parent.find_parent_type(schema)?;
+                let field_id = schema.named_field(parent_type, field.name.value)?;
+                let field = schema.field(field_id);
+                Some(field.type_.inner())
+            }
+            SelectionParent::FragmentDefinitionSelection(FragmentDefinitionPath {
+                inner: definition,
+                parent: _,
+            }) => schema.get_type(definition.type_condition.type_.value),
+            SelectionParent::InlineFragmentSelection(InlineFragmentPath {
+                inner: fragment,
+                parent: selection_path,
+            }) => match &fragment.type_condition {
+                Some(condition) => schema.get_type(condition.type_.value),
+                None => selection_path.parent.find_parent_type(schema),
+            },
         }
-        SelectionParent::FragmentDefinitionSelection(FragmentDefinitionPath {
-            inner: definition,
-            parent: _,
-        }) => schema.get_type(definition.type_condition.type_.value),
-        SelectionParent::InlineFragmentSelection(InlineFragmentPath {
-            inner: fragment,
-            parent: selection_path,
-        }) => match &fragment.type_condition {
-            Some(condition) => schema.get_type(condition.type_.value),
-            None => find_selection_parent_type(selection_path.parent, schema),
-        },
+    }
+
+    pub fn find_type_path(&self, schema: &SDLSchema) -> Vec<Type> {
+        match self {
+            SelectionParent::OperationDefinitionSelection(OperationDefinitionPath {
+                inner: operation_definition,
+                parent: _,
+            }) => match operation_definition.operation_kind() {
+                OperationKind::Mutation => schema.mutation_type(),
+                OperationKind::Query => schema.query_type(),
+                OperationKind::Subscription => schema.subscription_type(),
+            }
+            .into_iter()
+            .collect::<Vec<_>>(),
+            SelectionParent::LinkedFieldSelection(LinkedFieldPath {
+                inner: linked_field,
+                parent: linked_field_selection_path,
+            }) => {
+                let mut path = linked_field_selection_path.parent.find_type_path(schema);
+                if let Some(type_) = path
+                    .last()
+                    .and_then(|parent_type| {
+                        schema.named_field(*parent_type, linked_field.name.value)
+                    })
+                    .map(|field_id| schema.field(field_id).type_.inner())
+                {
+                    path.push(type_)
+                }
+                path
+            }
+            SelectionParent::FragmentDefinitionSelection(FragmentDefinitionPath {
+                inner: fragment_definition,
+                parent: _,
+            }) => {
+                let type_ = fragment_definition.type_condition.type_.value;
+                schema.get_type(type_).into_iter().collect::<Vec<_>>()
+            }
+            SelectionParent::InlineFragmentSelection(InlineFragmentPath {
+                inner: inline_fragment,
+                parent: inline_fragment_selection_path,
+            }) => {
+                let mut path = inline_fragment_selection_path.parent.find_type_path(schema);
+                if let Some(type_) =
+                    inline_fragment
+                        .type_condition
+                        .as_ref()
+                        .and_then(|type_condition| {
+                            let type_ = type_condition.type_.value;
+                            schema.get_type(type_)
+                        })
+                {
+                    path.push(type_)
+                };
+                path
+            }
+        }
     }
 }
 
@@ -93,7 +145,7 @@ mod tests {
                         inner: _,
                         parent: selection,
                     }),
-            }) => find_selection_parent_type(selection.parent, &schema),
+            }) => selection.parent.find_parent_type(&schema),
             ResolutionPath::Ident(IdentPath {
                 inner: _,
                 parent:
@@ -101,7 +153,7 @@ mod tests {
                         inner: _,
                         parent: selection,
                     }),
-            }) => find_selection_parent_type(selection.parent, &schema),
+            }) => selection.parent.find_parent_type(&schema),
             _ => None,
         }
         .expect("Expected to get selection type.");

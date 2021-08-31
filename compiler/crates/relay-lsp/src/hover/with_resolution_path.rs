@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_syntax::{Identifier, OperationDefinition, OperationKind, VariableDefinition};
+use graphql_syntax::{Identifier, OperationDefinition, VariableDefinition};
 use interner::StringKey;
 use lsp_types::{HoverContents, MarkedString};
-use schema::{SDLSchema, Schema, Type};
+use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 
 use crate::{
@@ -17,11 +17,10 @@ use crate::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
         ConstantStringPath, ConstantValueParent, ConstantValuePath, ConstantValueRoot,
-        DefaultValuePath, FragmentDefinitionPath, IdentParent, IdentPath, InlineFragmentPath,
-        LinkedFieldPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
+        DefaultValuePath, IdentParent, IdentPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
         NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath, ResolutionPath,
-        SelectionParent, SelectionPath, TypeAnnotationPath, VariableDefinitionPath,
-        VariableIdentifierParent, VariableIdentifierPath,
+        SelectionPath, TypeAnnotationPath, VariableDefinitionPath, VariableIdentifierParent,
+        VariableIdentifierPath,
     },
     LSPExtraDataProvider,
 };
@@ -343,64 +342,6 @@ fn on_hover_argument_path<'a>(
     Some(HoverContents::Array(contents))
 }
 
-fn get_type_path_to_selection<'a>(
-    selection_parent: &'a SelectionParent<'a>,
-    schema: &SDLSchema,
-) -> Vec<Type> {
-    match selection_parent {
-        SelectionParent::OperationDefinitionSelection(OperationDefinitionPath {
-            inner: operation_definition,
-            parent: _,
-        }) => match operation_definition.operation_kind() {
-            OperationKind::Mutation => schema.mutation_type(),
-            OperationKind::Query => schema.query_type(),
-            OperationKind::Subscription => schema.subscription_type(),
-        }
-        .into_iter()
-        .collect::<Vec<_>>(),
-        SelectionParent::LinkedFieldSelection(LinkedFieldPath {
-            inner: linked_field,
-            parent: linked_field_selection_path,
-        }) => {
-            let mut path = get_type_path_to_selection(&linked_field_selection_path.parent, schema);
-            if let Some(type_) = path
-                .last()
-                .and_then(|parent_type| schema.named_field(*parent_type, linked_field.name.value))
-                .map(|field_id| schema.field(field_id).type_.inner())
-            {
-                path.push(type_)
-            }
-            path
-        }
-        SelectionParent::FragmentDefinitionSelection(FragmentDefinitionPath {
-            inner: fragment_definition,
-            parent: _,
-        }) => {
-            let type_ = fragment_definition.type_condition.type_.value;
-            schema.get_type(type_).into_iter().collect::<Vec<_>>()
-        }
-        SelectionParent::InlineFragmentSelection(InlineFragmentPath {
-            inner: inline_fragment,
-            parent: inline_fragment_selection_path,
-        }) => {
-            let mut path =
-                get_type_path_to_selection(&inline_fragment_selection_path.parent, schema);
-            if let Some(type_) =
-                inline_fragment
-                    .type_condition
-                    .as_ref()
-                    .and_then(|type_condition| {
-                        let type_ = type_condition.type_.value;
-                        schema.get_type(type_)
-                    })
-            {
-                path.push(type_)
-            };
-            path
-        }
-    }
-}
-
 fn get_scalar_or_linked_field_hover_content(
     field_name: &Identifier,
     field_selection_path: &SelectionPath<'_>,
@@ -408,7 +349,7 @@ fn get_scalar_or_linked_field_hover_content(
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
 ) -> Option<Vec<MarkedString>> {
-    let parent_types = get_type_path_to_selection(&field_selection_path.parent, schema);
+    let parent_types = field_selection_path.parent.find_type_path(schema);
     let parent_type = parent_types.last()?;
 
     let mut type_path = parent_types

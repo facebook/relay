@@ -6,7 +6,7 @@
  */
 
 use graphql_ir::{Program, Value};
-use graphql_syntax::{Identifier, OperationDefinition, VariableDefinition};
+use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
 use graphql_text_printer::print_value;
 use interner::StringKey;
 use lsp_types::{HoverContents, MarkedString};
@@ -20,12 +20,12 @@ use crate::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
         ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-        ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentSpreadPath, IdentParent,
-        IdentPath, InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath,
-        NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
-        ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent,
-        TypeConditionPath, ValueListPath, ValuePath, VariableDefinitionPath,
-        VariableIdentifierParent, VariableIdentifierPath,
+        ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentDefinitionPath,
+        FragmentSpreadPath, IdentParent, IdentPath, InlineFragmentPath, LinkedFieldPath,
+        ListTypeAnnotationPath, NamedTypeAnnotationPath, NonNullTypeAnnotationPath,
+        OperationDefinitionPath, OperationPath, ResolutionPath, ScalarFieldPath, SelectionPath,
+        TypeAnnotationPath, TypeConditionParent, TypeConditionPath, ValueListPath, ValuePath,
+        VariableDefinitionPath, VariableIdentifierParent, VariableIdentifierPath,
     },
     LSPExtraDataProvider,
 };
@@ -425,6 +425,39 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             parent: IdentParent::DirectiveName(directive_path),
         }) => on_hover_directive(&directive_path, schema),
 
+        ResolutionPath::FragmentDefinition(FragmentDefinitionPath {
+            inner: fragment_definition,
+            parent: _,
+        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::FragmentDefinitionName(FragmentDefinitionPath {
+                    inner: fragment_definition,
+                    parent: _,
+                }),
+        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::TypeConditionType(TypeConditionPath {
+                    inner: _,
+                    parent:
+                        TypeConditionParent::FragmentDefinition(FragmentDefinitionPath {
+                            inner: fragment_definition,
+                            parent: _,
+                        }),
+                }),
+        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        ResolutionPath::TypeCondition(TypeConditionPath {
+            inner: _,
+            parent:
+                TypeConditionParent::FragmentDefinition(FragmentDefinitionPath {
+                    inner: fragment_definition,
+                    parent: _,
+                }),
+        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+
         _ => None,
     }
 }
@@ -821,4 +854,44 @@ fn get_directive_hover_content<'a>(
     }
 
     Some(hover_contents)
+}
+
+fn on_hover_fragment_definition(
+    fragment_definition: &FragmentDefinition,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+) -> Option<HoverContents> {
+    let fragment_name = fragment_definition.name.value;
+    let fragment_type_condition = fragment_definition.type_condition.type_.value;
+    let fragment_type = schema.get_type(fragment_type_condition)?;
+
+    let type_name = schema.get_type_name(fragment_type);
+
+    let title = MarkedString::from_markdown(format!(
+        "fragment {} on {}",
+        fragment_name,
+        get_open_schema_explorer_command_link(
+            type_name.lookup(),
+            &GraphQLSchemaExplorerParams {
+                path: vec![type_name.lookup()],
+                schema_name: schema_name.lookup(),
+                filter: None
+            }
+        )
+    ));
+
+    let hover_contents = vec![
+        title,
+        MarkedString::String(
+            r#"Fragments let you select fields,
+and then include them in queries where you need to.
+
+---
+@see: https://graphql.org/learn/queries/#fragments
+"#
+            .to_string(),
+        ),
+    ];
+
+    Some(HoverContents::Array(hover_contents))
 }

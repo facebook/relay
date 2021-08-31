@@ -15,6 +15,9 @@ use graphql_syntax::{
     Selection, StringNode, Token, TypeAnnotation, TypeCondition, Value, VariableDefinition,
     VariableIdentifier,
 };
+
+mod constant_value_root;
+pub use constant_value_root::ConstantValueRoot;
 pub mod utils;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which

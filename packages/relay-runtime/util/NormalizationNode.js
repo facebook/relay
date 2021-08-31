@@ -198,7 +198,9 @@ export type NormalizationStream = {|
   +if: string | null,
   +kind: 'Stream',
   +label: string,
-  +useCustomizedBatch: string | null,
+  // TODO remove this field
+  +useCustomizedBatch?: mixed,
+  // TODO remove this field
   +metadata?: mixed,
   +selections: $ReadOnlyArray<NormalizationSelection>,
 |};

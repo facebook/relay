@@ -344,8 +344,6 @@ mod test {
     use common::{SourceLocationKey, Span};
     use graphql_syntax::parse_executable;
     use interner::Intern;
-    use relay_test_schema::get_test_schema;
-    use schema::Schema;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
         let document =
@@ -375,15 +373,8 @@ mod test {
             117,
         );
 
-        // assert_eq!(format!("{:?}", node_resolution_info), "".to_string());
         assert_eq!(node_resolution_info.kind, NodeKind::FieldName);
         assert_eq!(node_resolution_info.project_name.lookup(), "test_project");
-        let schema = get_test_schema();
-        let type_ref = node_resolution_info
-            .type_path
-            .resolve_current_type_reference(&schema)
-            .unwrap();
-        assert_eq!(schema.get_type_string(&type_ref), "String".to_string());
     }
 
     #[test]

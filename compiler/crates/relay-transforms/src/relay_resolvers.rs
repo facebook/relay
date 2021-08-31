@@ -22,7 +22,28 @@ use schema::{ArgumentValue, Field, SDLSchema, Schema};
 use std::{mem, sync::Arc};
 
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
-    let mut transform = ClientResolverTransform::new(program, enabled);
+    let transformed_fields_program = relay_resolvers_fields_transform(program, enabled)?;
+    relay_resolvers_spread_transform(&transformed_fields_program)
+}
+
+lazy_static! {
+    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
+    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: StringKey = "fragment_name".intern();
+    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
+    pub static ref RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE: StringKey =
+        "field_parent_type".intern();
+    pub static ref RELAY_RESOLVER_METADATA_FIELD_NAME: StringKey = "field_name".intern();
+    pub static ref RELAY_RESOLVER_METADATA_FIELD_ALIAS: StringKey = "field_alias".intern();
+    pub static ref RELAY_RESOLVER_METADATA_FRAGMENT_NAME: StringKey = "fragment_name".intern();
+    pub static ref RELAY_RESOLVER_FIELD_METADATA_DIRECTIVE_NAME: StringKey =
+        "__relayResolverField".intern();
+    pub static ref RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME: StringKey =
+        "__relayResolverSpread".intern();
+}
+
+/// Convert fields with Relay Resolver metadata attached to them into fragment spreads.
+fn relay_resolvers_spread_transform(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = RelayResolverSpreadTransform::new(program);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -34,25 +55,108 @@ pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Pr
     }
 }
 
-lazy_static! {
-    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
-    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: StringKey = "fragment_name".intern();
-    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
-    pub static ref RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE: StringKey =
-        "field_parent_type".intern();
-    pub static ref RELAY_RESOLVER_METADATA_FIELD_NAME: StringKey = "field_name".intern();
-    pub static ref RELAY_RESOLVER_METADATA_FIELD_ALIAS: StringKey = "field_alias".intern();
-    pub static ref RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME: StringKey =
-        "__relayResolverSpread".intern();
+struct RelayResolverSpreadTransform<'program> {
+    program: &'program Program,
+    errors: Vec<Diagnostic>,
 }
 
-struct ClientResolverTransform<'program> {
+impl<'program> RelayResolverSpreadTransform<'program> {
+    fn new(program: &'program Program) -> Self {
+        Self {
+            program,
+            errors: Default::default(),
+        }
+    }
+}
+
+impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
+    const NAME: &'static str = "RelayResolversSpreadTransform";
+    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
+        match field
+            .directives
+            .named(*RELAY_RESOLVER_FIELD_METADATA_DIRECTIVE_NAME)
+        {
+            Some(field_metadata_directive) => {
+                let fragment_name = field_metadata_directive
+                    .arguments
+                    .named(*RELAY_RESOLVER_METADATA_FRAGMENT_NAME)
+                    .unwrap()
+                    .value
+                    .item
+                    .get_string_literal()
+                    .unwrap();
+
+                let mut arguments = vec![
+                    field_metadata_directive
+                        .arguments
+                        .named(*RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE)
+                        .unwrap()
+                        .clone(),
+                    field_metadata_directive
+                        .arguments
+                        .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
+                        .unwrap()
+                        .clone(),
+                    Argument {
+                        name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_NAME),
+                        value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                            self.program.schema.field(field.definition.item).name,
+                        ))),
+                    },
+                ];
+
+                if let Some(alias) = field.alias {
+                    arguments.push(Argument {
+                        name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_ALIAS),
+                        value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                            alias.item,
+                        ))),
+                    })
+                }
+
+                Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    fragment: WithLocation::generated(fragment_name),
+                    directives: vec![Directive {
+                        name: WithLocation::generated(
+                            *RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
+                        ),
+                        arguments,
+                    }],
+                    arguments: vec![],
+                })))
+            }
+            None => Transformed::Keep,
+        }
+    }
+}
+
+/// Attach metadata directives to Relay Resolver fields.
+fn relay_resolvers_fields_transform(
+    program: &Program,
+    enabled: bool,
+) -> DiagnosticsResult<Program> {
+    let mut transform = RelayResolverFieldTransform::new(program, enabled);
+    let next_program = transform
+        .transform_program(program)
+        .replace_or_else(|| program.clone());
+
+    if transform.errors.is_empty() {
+        Ok(next_program)
+    } else {
+        Err(transform.errors)
+    }
+}
+
+struct RelayResolverFieldTransform<'program> {
     enabled: bool,
     program: &'program Program,
     errors: Vec<Diagnostic>,
 }
 
-impl<'program> ClientResolverTransform<'program> {
+impl<'program> RelayResolverFieldTransform<'program> {
     fn new(program: &'program Program, enabled: bool) -> Self {
         Self {
             program,
@@ -62,8 +166,8 @@ impl<'program> ClientResolverTransform<'program> {
     }
 }
 
-impl Transformer for ClientResolverTransform<'_> {
-    const NAME: &'static str = "RelayResolversTransform";
+impl Transformer for RelayResolverFieldTransform<'_> {
+    const NAME: &'static str = "RelayResolversFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
@@ -97,31 +201,16 @@ impl Transformer for ClientResolverTransform<'_> {
                             return Transformed::Keep;
                         }
                         let parent_type = field_type.parent_type.unwrap();
-                        Transformed::Replace(
-                            // Note: Using a fragment spread with a metadata
-                            // directive to represent a Relay Resolver field is
-                            // a bit awkward. Using a linked field would allow
-                            // us to more naturally preserve the name and alias
-                            // as well as any attached directives.
-                            //
-                            // While this would work well for the rest of our
-                            // compiler, we would need an additional transform
-                            // to convert the linked field to an inline fragment
-                            // for the actual persisted query.
-                            //
-                            // For now we'll use a fragment spread and disallow
-                            // directives on Relay Resolver fields.
-                            Selection::FragmentSpread(Arc::new(FragmentSpread {
-                                fragment: WithLocation::generated(fragment_name),
-                                directives: vec![get_metadata_directive(
-                                    import_path,
-                                    self.program.schema.get_type_name(parent_type),
-                                    self.program.schema.field(field.definition.item).name,
-                                    field.alias.map(|alias| alias.item),
-                                )],
-                                arguments: vec![],
-                            })),
-                        )
+                        let metadata_directive = get_field_metadata_directive(
+                            import_path,
+                            self.program.schema.get_type_name(parent_type),
+                            fragment_name,
+                        );
+                        Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
+                            // Note that we've checked above that the field had no pre-existing directives.
+                            directives: vec![metadata_directive],
+                            ..field.clone()
+                        })))
                     }
                     Err(diagnostics) => {
                         for diagnostic in diagnostics {
@@ -191,41 +280,33 @@ fn get_argument_value(
     }
 }
 
-fn get_metadata_directive(
+fn get_field_metadata_directive(
     resolver_import_path: StringKey,
     field_parent_type: StringKey,
-    field_name: StringKey,
-    field_alias: Option<StringKey>,
+    fragment_name: StringKey,
 ) -> Directive {
-    let mut arguments = vec![
-        Argument {
-            name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                field_parent_type,
-            ))),
-        },
-        Argument {
-            name: WithLocation::generated(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                resolver_import_path,
-            ))),
-        },
-        Argument {
-            name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_NAME),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(field_name))),
-        },
-    ];
-
-    if let Some(alias) = field_alias {
-        arguments.push(Argument {
-            name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_ALIAS),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(alias))),
-        })
-    }
-
     Directive {
-        name: WithLocation::generated(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME),
-        arguments,
+        name: WithLocation::generated(*RELAY_RESOLVER_FIELD_METADATA_DIRECTIVE_NAME),
+        arguments: vec![
+            Argument {
+                name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE),
+                value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                    field_parent_type,
+                ))),
+            },
+            Argument {
+                name: WithLocation::generated(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME),
+                value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                    resolver_import_path,
+                ))),
+            },
+            Argument {
+                name: WithLocation::generated(*RELAY_RESOLVER_METADATA_FRAGMENT_NAME),
+                value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                    fragment_name,
+                ))),
+            },
+        ],
     }
 }
 

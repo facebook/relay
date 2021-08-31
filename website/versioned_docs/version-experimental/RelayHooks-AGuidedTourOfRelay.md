@@ -2242,7 +2242,7 @@ function FriendsListComponent(props: Props) {
 module.exports = FriendsListComponent;
 ```
 
--   `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection .
+-   `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection.
 
 ### Blocking ("all-at-once") Pagination
 

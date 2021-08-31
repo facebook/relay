@@ -41,8 +41,8 @@ fn hover_content_wrapper(value: String) -> HoverContents {
 
 /// This will provide a more accurate information about some of the specific Relay directives
 /// that cannot be expressed via SDL
-fn argument_definition_hover_info(directive_name: &str) -> Option<HoverContents> {
-    let content = match directive_name {
+fn argument_definition_hover_info(directive_name: &str) -> Option<MarkedString> {
+    match directive_name {
         "argumentDefinitions" => Some(
             r#"
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment.
@@ -69,9 +69,7 @@ DEPRECATED version of `@arguments` directive.
 "#,
         ),
         _ => None,
-    };
-
-    content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
+    }.map(|s| MarkedString::String(s.to_string()))
 }
 
 fn get_hover_response_contents<'a>(
@@ -89,7 +87,7 @@ fn get_hover_response_contents<'a>(
             if let Some(argument_definition_hover_info) =
                 argument_definition_hover_info(directive_name.lookup())
             {
-                return Some(argument_definition_hover_info);
+                return Some(HoverContents::Scalar(argument_definition_hover_info));
             }
 
             let schema_directive = schema.get_directive(directive_name)?;

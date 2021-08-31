@@ -12,6 +12,7 @@ use interner::StringKey;
 use lsp_types::{HoverContents, MarkedString};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
+use schema_print::print_directive;
 
 use crate::{
     hover::{get_open_schema_explorer_command_link, GraphQLSchemaExplorerParams},
@@ -19,12 +20,12 @@ use crate::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
         ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-        ConstantValueRoot, DefaultValuePath, FragmentSpreadPath, IdentParent, IdentPath,
-        InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
-        NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath, ResolutionPath,
-        ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent, TypeConditionPath,
-        ValueListPath, ValuePath, VariableDefinitionPath, VariableIdentifierParent,
-        VariableIdentifierPath,
+        ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentSpreadPath, IdentParent,
+        IdentPath, InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath,
+        NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
+        ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent,
+        TypeConditionPath, ValueListPath, ValuePath, VariableDefinitionPath,
+        VariableIdentifierParent, VariableIdentifierPath,
     },
     LSPExtraDataProvider,
 };
@@ -418,6 +419,12 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             parent: IdentParent::FragmentSpreadName(fragment_spread_path),
         }) => on_hover_fragment_spread(&fragment_spread_path, schema, schema_name, source_program),
 
+        ResolutionPath::Directive(directive_path) => on_hover_directive(&directive_path, schema),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::DirectiveName(directive_path),
+        }) => on_hover_directive(&directive_path, schema),
+
         _ => None,
     }
 }
@@ -508,8 +515,9 @@ fn on_hover_argument_path<'a>(
             schema_name,
             schema_documentation,
         ),
-        // TODO call on_hover_directive when that function is written
-        ArgumentRoot::Directive(_) => Some(vec![]),
+        ArgumentRoot::Directive(directive_path) => {
+            get_directive_hover_content(directive_path, schema)
+        }
         ArgumentRoot::ScalarField(scalar_field_path) => get_scalar_or_linked_field_hover_content(
             &scalar_field_path.inner.name,
             &scalar_field_path.parent,
@@ -776,4 +784,41 @@ For example:
     ));
 
     Some(HoverContents::Array(hover_contents))
+}
+
+fn on_hover_directive<'a>(
+    directive_path: &DirectivePath<'a>,
+    schema: &SDLSchema,
+) -> Option<HoverContents> {
+    let content = get_directive_hover_content(directive_path, schema)?;
+    Some(HoverContents::Array(content))
+}
+
+fn get_directive_hover_content<'a>(
+    directive_path: &DirectivePath<'a>,
+    schema: &SDLSchema,
+) -> Option<Vec<MarkedString>> {
+    let DirectivePath {
+        inner: directive,
+        parent: _,
+    } = directive_path;
+
+    let directive_name = directive.name.value;
+
+    if let Some(argument_definition_hover_info) =
+        super::argument_definition_hover_info(directive_name.lookup())
+    {
+        return Some(vec![argument_definition_hover_info]);
+    }
+
+    let schema_directive = schema.get_directive(directive_name)?;
+
+    let directive_definition = print_directive(schema, &schema_directive);
+    let markdown_definition = super::graphql_marked_string(directive_definition);
+    let mut hover_contents: Vec<MarkedString> = vec![markdown_definition];
+    if let Some(description) = schema_directive.description {
+        hover_contents.push(MarkedString::String(description.to_string()));
+    }
+
+    Some(hover_contents)
 }

@@ -16,10 +16,11 @@ use crate::{
     resolution_path::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
-        ConstantStringPath, ConstantValueParent, ConstantValuePath, ConstantValueRoot,
-        DefaultValuePath, IdentParent, IdentPath, LinkedFieldPath, ListTypeAnnotationPath,
-        NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
-        ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, VariableDefinitionPath,
+        ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
+        ConstantValueRoot, DefaultValuePath, IdentParent, IdentPath, LinkedFieldPath,
+        ListTypeAnnotationPath, NamedTypeAnnotationPath, NonNullTypeAnnotationPath,
+        OperationDefinitionPath, OperationPath, ResolutionPath, ScalarFieldPath, SelectionPath,
+        TypeAnnotationPath, ValueListPath, ValuePath, VariableDefinitionPath,
         VariableIdentifierParent, VariableIdentifierPath,
     },
     LSPExtraDataProvider,
@@ -216,6 +217,23 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             schema_name,
             schema_documentation,
         ),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent:
+                IdentParent::ConstantArgKey(ConstantArgPath {
+                    inner: _,
+                    parent:
+                        ConstantObjPath {
+                            inner: _,
+                            parent: constant_value_path,
+                        },
+                }),
+        }) => on_hover_constant_value(
+            &constant_value_path.parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
         ResolutionPath::ConstantObj(ConstantObjPath {
             inner: _,
             parent: constant_value_path,
@@ -312,6 +330,50 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             schema_name,
             schema_documentation,
         ),
+
+        // Field and directive arguments
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ArgumentValue(argument_path),
+        }) => on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation),
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::ArgumentName(argument_path),
+        }) => on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation),
+        ResolutionPath::VariableIdentifier(VariableIdentifierPath {
+            inner: _,
+            parent:
+                VariableIdentifierParent::Value(ValuePath {
+                    inner: _,
+                    parent: value_parent,
+                }),
+        }) => on_hover_argument_path(
+            value_parent.find_enclosing_argument_path(),
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ValueList(ValueListPath {
+            inner: _,
+            parent: value_path,
+        }) => on_hover_argument_path(
+            value_path.parent.find_enclosing_argument_path(),
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::ConstantObject(ConstantObjectPath {
+            inner: _,
+            parent: value_path,
+        }) => on_hover_argument_path(
+            value_path.parent.find_enclosing_argument_path(),
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        ResolutionPath::Argument(argument_path) => {
+            on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation)
+        }
 
         _ => None,
     }

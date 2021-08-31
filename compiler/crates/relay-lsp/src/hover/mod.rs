@@ -10,8 +10,8 @@
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::{NodeKind, NodeResolutionInfo},
+    resolution_path::ResolvePosition,
     server::{LSPState, SourcePrograms},
-    LSPExtraDataProvider,
 };
 use common::PerfLogger;
 use graphql_ir::Value;
@@ -24,6 +24,9 @@ use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 use serde::Serialize;
+
+mod with_resolution_path;
+use with_resolution_path::hover_with_node_resolution_path;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -71,12 +74,11 @@ DEPRECATED version of `@arguments` directive.
     content.map(|value| HoverContents::Scalar(MarkedString::String(value.to_string())))
 }
 
-fn get_hover_response_contents(
+fn get_hover_response_contents<'a>(
     node_resolution_info: NodeResolutionInfo,
     schema: &SDLSchema,
-    schema_documentation: impl SchemaDocumentation,
+    schema_documentation: &impl SchemaDocumentation,
     source_programs: &SourcePrograms,
-    extra_data_provider: &dyn LSPExtraDataProvider,
 ) -> Option<HoverContents> {
     let kind = node_resolution_info.kind;
     let schema_name = node_resolution_info.project_name.lookup();
@@ -286,25 +288,7 @@ For example:
                 None
             }
         }
-        NodeKind::OperationDefinition(operation) => {
-            let search_token = if let Some(operation_name) = operation.name {
-                operation_name.value.lookup()
-            } else {
-                return None;
-            };
-
-            let extra_data = extra_data_provider.fetch_query_stats(search_token);
-            if !extra_data.is_empty() {
-                Some(HoverContents::Array(
-                    extra_data
-                        .iter()
-                        .map(|str| MarkedString::String(str.to_string()))
-                        .collect::<_>(),
-                ))
-            } else {
-                None
-            }
-        }
+        NodeKind::OperationDefinition(_operation) => None,
         NodeKind::FragmentDefinition(fragment) => {
             let type_ = node_resolution_info
                 .type_path
@@ -349,19 +333,30 @@ pub(crate) fn on_hover<
     state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <HoverRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HoverRequest as Request>::Result> {
-    let node_resolution_info = state.resolve_node(&params.text_document_position_params)?;
+    let (document, position_span, project_name) =
+        state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
+    let resolution_path = document.resolve((), position_span);
 
-    log::debug!("Hovering over {:?}", node_resolution_info);
-    if let Some(schema) = state.get_schemas().get(&node_resolution_info.project_name) {
-        let schema_documentation =
-            state.get_schema_documentation(&node_resolution_info.project_name.to_string());
+    if let Some(schema) = state.get_schemas().get(&project_name) {
+        let schema_documentation = state.get_schema_documentation(project_name.lookup());
+
+        if let Some(contents) =
+            hover_with_node_resolution_path(resolution_path, state.extra_data_provider.as_ref())
+        {
+            return Ok(Some(Hover {
+                contents,
+                range: None,
+            }));
+        }
+
+        let node_resolution_info = state.resolve_node(&params.text_document_position_params)?;
+        log::debug!("Hovering over {:?}", node_resolution_info);
 
         let contents = get_hover_response_contents(
             node_resolution_info,
             &schema,
-            schema_documentation,
+            &schema_documentation,
             state.get_source_programs_ref(),
-            state.extra_data_provider.as_ref(),
         )
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError("Unable to get hover contents".to_string())

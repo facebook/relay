@@ -60,13 +60,15 @@ SchemaDocument {
                                     value: "line",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 53:59,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 53:59,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 53:59,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,
@@ -91,13 +93,15 @@ SchemaDocument {
                                     value: "block",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 107:113,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 107:113,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 107:113,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,
@@ -122,13 +126,15 @@ SchemaDocument {
                                     value: "multiline_block",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 234:240,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 234:240,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 234:240,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,
@@ -182,13 +188,15 @@ SchemaDocument {
                                     value: "extended_line",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 322:328,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 322:328,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 322:328,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,
@@ -213,13 +221,15 @@ SchemaDocument {
                                     value: "extended_block",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 385:391,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 385:391,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 385:391,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,
@@ -244,13 +254,15 @@ SchemaDocument {
                                     value: "extended_multiline_block",
                                 },
                                 type_: Named(
-                                    Identifier {
-                                        span: 521:527,
-                                        token: Token {
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
                                             span: 521:527,
-                                            kind: Identifier,
+                                            token: Token {
+                                                span: 521:527,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
                                         },
-                                        value: "String",
                                     },
                                 ),
                                 arguments: None,

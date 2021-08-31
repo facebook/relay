@@ -152,7 +152,7 @@ pub enum Type {
 impl From<TypeAnnotation> for Type {
     fn from(type_: TypeAnnotation) -> Self {
         match type_ {
-            TypeAnnotation::Named(ident) => Type::Named(ident.value),
+            TypeAnnotation::Named(named_type) => Type::Named(named_type.name.value),
             TypeAnnotation::List(annotation) => Type::List(Box::new(Type::from(annotation.type_))),
             TypeAnnotation::NonNull(annotation) => {
                 Type::NonNull(Box::new(Type::from(annotation.type_)))

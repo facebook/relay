@@ -1332,17 +1332,17 @@ impl InMemorySchema {
         ast_type: &TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            TypeAnnotation::Named(name) => {
-                let type_ = self.type_map.get(&name.value).ok_or_else(|| {
+            TypeAnnotation::Named(named_type) => {
+                let type_ = self.type_map.get(&named_type.name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
-                        SchemaError::UndefinedType(name.value),
-                        Location::new(SourceLocationKey::generated(), name.span),
+                        SchemaError::UndefinedType(named_type.name.value),
+                        Location::new(SourceLocationKey::generated(), named_type.name.span),
                     )]
                 })?;
                 if !(type_.is_enum() || type_.is_scalar() || type_.is_input_object()) {
                     return Err(vec![Diagnostic::error(
-                        SchemaError::ExpectedInputType(name.value),
-                        Location::new(SourceLocationKey::generated(), name.span),
+                        SchemaError::ExpectedInputType(named_type.name.value),
+                        Location::new(SourceLocationKey::generated(), named_type.name.span),
                     )]);
                 }
 
@@ -1362,10 +1362,10 @@ impl InMemorySchema {
         ast_type: &TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            TypeAnnotation::Named(name) => {
-                TypeReference::Named(*self.type_map.get(&name.value).ok_or_else(|| {
+            TypeAnnotation::Named(named_type) => {
+                TypeReference::Named(*self.type_map.get(&named_type.name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
-                        SchemaError::UndefinedType(name.value),
+                        SchemaError::UndefinedType(named_type.name.value),
                         Location::generated(),
                     )]
                 })?)

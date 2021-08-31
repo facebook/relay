@@ -1044,7 +1044,9 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let token = self.peek();
         let type_annotation = match token.kind {
-            TokenKind::Identifier => TypeAnnotation::Named(self.parse_identifier()?),
+            TokenKind::Identifier => TypeAnnotation::Named(NamedTypeAnnotation {
+                name: self.parse_identifier()?,
+            }),
             TokenKind::OpenBracket => {
                 let open = self.parse_kind(TokenKind::OpenBracket)?;
                 let type_ = self.parse_type_annotation()?;

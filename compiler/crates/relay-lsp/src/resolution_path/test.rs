@@ -351,9 +351,12 @@ fn fragment_argument_type() {
             resolved,
             ResolutionPath::Ident(IdentPath {
                 inner: _,
-                parent: IdentParent::TypeAnnotation(TypeAnnotationPath {
+                parent: IdentParent::NamedTypeAnnotation(NamedTypeAnnotationPath {
                     inner: _,
-                    parent: TypeAnnotationParent::NonNullTypeAnnotation(_),
+                    parent: TypeAnnotationPath {
+                        inner: _,
+                        parent: TypeAnnotationParent::NonNullTypeAnnotation(_),
+                    }
                 }),
             })
         )

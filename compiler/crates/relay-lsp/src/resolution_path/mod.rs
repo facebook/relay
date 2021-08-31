@@ -11,8 +11,9 @@ use graphql_syntax::{
     Argument, BooleanNode, ConstantArgument, ConstantValue, DefaultValue, Directive, EnumNode,
     ExecutableDefinition, ExecutableDocument, FloatNode, FragmentDefinition, FragmentSpread,
     Identifier, InlineFragment, IntNode, LinkedField, List, ListTypeAnnotation,
-    NonNullTypeAnnotation, OperationDefinition, OperationKind, ScalarField, Selection, StringNode,
-    Token, TypeAnnotation, TypeCondition, Value, VariableDefinition, VariableIdentifier,
+    NamedTypeAnnotation, NonNullTypeAnnotation, OperationDefinition, OperationKind, ScalarField,
+    Selection, StringNode, Token, TypeAnnotation, TypeCondition, Value, VariableDefinition,
+    VariableIdentifier,
 };
 pub mod utils;
 
@@ -304,9 +305,7 @@ impl<'a> ResolvePosition<'a> for TypeAnnotation {
 
     fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a> {
         match self {
-            TypeAnnotation::Named(identifier) => {
-                identifier.resolve(IdentParent::TypeAnnotation(self.path(parent)), position)
-            }
+            TypeAnnotation::Named(named_type) => named_type.resolve(self.path(parent), position),
             TypeAnnotation::List(list) => list.resolve(Box::new(self.path(parent)), position),
             TypeAnnotation::NonNull(non_null) => {
                 non_null.resolve(Box::new(self.path(parent)), position)
@@ -318,6 +317,29 @@ impl<'a> ResolvePosition<'a> for TypeAnnotation {
         self.span().contains(position)
     }
 }
+
+// Note: since a NamedTypeAnnotation contains only a single Ident, it is impossible
+// to resolve a span to a NamedTypeAnnotationPath. Instead, such a span would resolve to
+// an IdentPath whose parent is a NamedTypeAnnotationPath.
+//
+// As a consequence, the ResolutionPath enum does not contain a NamedTypeAnnotation
+// variant, and we return self.name.resolve(...) directly instead.
+impl<'a> ResolvePosition<'a> for NamedTypeAnnotation {
+    type Parent = TypeAnnotationPath<'a>;
+
+    fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a> {
+        self.name.resolve(
+            IdentParent::NamedTypeAnnotation(self.path(parent)),
+            position,
+        )
+    }
+
+    fn contains(&'a self, position: Span) -> bool {
+        self.name.contains(position)
+    }
+}
+
+pub type NamedTypeAnnotationPath<'a> = Path<&'a NamedTypeAnnotation, TypeAnnotationPath<'a>>;
 
 pub type ListTypeAnnotationPath<'a> =
     Path<&'a ListTypeAnnotation, Box<ListTypeAnnotationParent<'a>>>;
@@ -475,7 +497,7 @@ pub enum IdentParent<'a> {
     DirectiveName(DirectivePath<'a>),
     ArgumentName(ArgumentPath<'a>),
     ArgumentValue(ArgumentPath<'a>),
-    TypeAnnotation(TypeAnnotationPath<'a>),
+    NamedTypeAnnotation(NamedTypeAnnotationPath<'a>),
     ConstantArgKey(ConstantArgPath<'a>),
 }
 

@@ -64,13 +64,15 @@ Document {
                                         NonNullTypeAnnotation {
                                             span: 62:65,
                                             type_: Named(
-                                                Identifier {
-                                                    span: 62:64,
-                                                    token: Token {
+                                                NamedTypeAnnotation {
+                                                    name: Identifier {
                                                         span: 62:64,
-                                                        kind: Identifier,
+                                                        token: Token {
+                                                            span: 62:64,
+                                                            kind: Identifier,
+                                                        },
+                                                        value: "ID",
                                                     },
-                                                    value: "ID",
                                                 },
                                             ),
                                             exclamation: Token {

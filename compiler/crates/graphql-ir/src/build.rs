@@ -469,31 +469,35 @@ impl<'schema, 'signatures> Builder<'schema, 'signatures> {
         is_for_input: bool,
     ) -> DiagnosticsResult<TypeReference> {
         match annotation {
-            graphql_syntax::TypeAnnotation::Named(name) => match self.schema.get_type(name.value) {
-                Some(type_) => {
-                    if is_for_input && !type_.is_input_type() {
-                        Err(vec![Diagnostic::error(
-                            ValidationMessage::ExpectedVariablesToHaveInputType(
-                                self.schema.get_type_name(type_),
-                            ),
-                            self.location.with_span(name.span),
-                        )])
-                    } else {
-                        Ok(TypeReference::Named(type_))
-                    }
-                }
-                None => Err(vec![Diagnostic::error_with_data(
-                    ValidationMessageWithData::UnknownType {
-                        type_name: name.value,
-                        suggestions: if is_for_input {
-                            self.suggestions.input_type_suggestions(name.value)
+            graphql_syntax::TypeAnnotation::Named(named_type) => {
+                match self.schema.get_type(named_type.name.value) {
+                    Some(type_) => {
+                        if is_for_input && !type_.is_input_type() {
+                            Err(vec![Diagnostic::error(
+                                ValidationMessage::ExpectedVariablesToHaveInputType(
+                                    self.schema.get_type_name(type_),
+                                ),
+                                self.location.with_span(named_type.name.span),
+                            )])
                         } else {
-                            self.suggestions.output_type_suggestions(name.value)
+                            Ok(TypeReference::Named(type_))
+                        }
+                    }
+                    None => Err(vec![Diagnostic::error_with_data(
+                        ValidationMessageWithData::UnknownType {
+                            type_name: named_type.name.value,
+                            suggestions: if is_for_input {
+                                self.suggestions
+                                    .input_type_suggestions(named_type.name.value)
+                            } else {
+                                self.suggestions
+                                    .output_type_suggestions(named_type.name.value)
+                            },
                         },
-                    },
-                    self.location.with_span(name.span),
-                )]),
-            },
+                        self.location.with_span(named_type.name.span),
+                    )]),
+                }
+            }
             graphql_syntax::TypeAnnotation::NonNull(non_null) => {
                 let inner = self.build_type_annotation_inner(&non_null.type_, is_for_input)?;
                 Ok(TypeReference::NonNull(Box::new(inner)))

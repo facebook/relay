@@ -21,6 +21,7 @@ pub use constant_value_root::ConstantValueRoot;
 mod argument_root;
 pub use argument_root::*;
 pub mod utils;
+mod variable_definition_path;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which
 /// enumerates the types of AST nodes which have a "surface area", meaning a

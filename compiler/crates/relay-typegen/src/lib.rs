@@ -33,8 +33,8 @@ use relay_transforms::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, RelayDirective,
     CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME, MATCH_CONSTANTS,
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
-    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
-    RELAY_RESOLVER_METADATA_FIELD_NAME, RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE,
+    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME,
+    RELAY_RESOLVER_METADATA_FIELD_PARENT_TYPE, RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
     REQUIRED_METADATA_KEY,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
@@ -422,7 +422,7 @@ impl<'a> TypeGenerator<'a> {
     ) {
         if let Some(module_directive) = fragment_spread
             .directives
-            .named(*RELAY_RESOLVER_METADATA_DIRECTIVE_NAME)
+            .named(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME)
         {
             self.visit_relay_resolver_fragment(type_selections, module_directive);
         } else {

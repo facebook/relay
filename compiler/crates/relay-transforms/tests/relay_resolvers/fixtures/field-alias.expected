@@ -20,7 +20,7 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ...PopStarNameResolverFragment_name @__relayResolver(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name", field_alias: "poppy")
+  ...PopStarNameResolverFragment_name @__relayResolverSpread(field_parent_type: "User", import_path: "PopStarNameResolver", field_name: "pop_star_name", field_alias: "poppy")
 }
 
 fragment PopStarNameResolverFragment_name on User {

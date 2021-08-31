@@ -42,7 +42,8 @@ lazy_static! {
         "field_parent_type".intern();
     pub static ref RELAY_RESOLVER_METADATA_FIELD_NAME: StringKey = "field_name".intern();
     pub static ref RELAY_RESOLVER_METADATA_FIELD_ALIAS: StringKey = "field_alias".intern();
-    pub static ref RELAY_RESOLVER_METADATA_DIRECTIVE_NAME: StringKey = "__relayResolver".intern();
+    pub static ref RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME: StringKey =
+        "__relayResolverSpread".intern();
 }
 
 struct ClientResolverTransform<'program> {
@@ -108,7 +109,7 @@ impl Transformer for ClientResolverTransform<'_> {
                             // to convert the linked field to an inline fragment
                             // for the actual persisted query.
                             //
-                            // For now we'll use a fragment spread an disallow
+                            // For now we'll use a fragment spread and disallow
                             // directives on Relay Resolver fields.
                             Selection::FragmentSpread(Arc::new(FragmentSpread {
                                 fragment: WithLocation::generated(fragment_name),
@@ -223,7 +224,7 @@ fn get_metadata_directive(
     }
 
     Directive {
-        name: WithLocation::generated(*RELAY_RESOLVER_METADATA_DIRECTIVE_NAME),
+        name: WithLocation::generated(*RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME),
         arguments,
     }
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31db02f7ebe2f1e9da3515362a6331a2>>
+ * @generated SignedSource<<5d2e95f38b6d42929daa424cf02f54c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -79,8 +79,7 @@ var node/*: NormalizationSplitOperation*/ = {
           ],
           "storageKey": null
         }
-      ],
-      "useCustomizedBatch": null
+      ]
     }
   ]
 };

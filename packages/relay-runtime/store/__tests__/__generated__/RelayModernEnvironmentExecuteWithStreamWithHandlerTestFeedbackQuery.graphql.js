@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<166d3d76e6ebd0cbf42162b0e94209ab>>
+ * @generated SignedSource<<be78b56f94edbb94eb61f425297421c3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -159,8 +159,7 @@ return {
                     "kind": "LinkedHandle",
                     "name": "actors"
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

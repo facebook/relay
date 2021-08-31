@@ -136,8 +136,7 @@ query selectionSetConflictValidStreamQuery {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "storageKey": null

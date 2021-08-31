@@ -21,16 +21,15 @@ use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_refetch_metadata_from_directive, extract_values_from_handle_field_directive,
-    extract_variable_name, generate_abstract_type_refinement_key, remove_directive,
-    ConnectionConstants, ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective,
-    ACTION_ARGUMENT, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
-    DIRECTIVE_SPLIT_OPERATION, INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS,
-    NO_INLINE_DIRECTIVE_NAME, PATH_METADATA_ARGUMENT,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME, RELAY_RESOLVER_METADATA_DIRECTIVE_NAME,
-    RELAY_RESOLVER_METADATA_FIELD_ALIAS, RELAY_RESOLVER_METADATA_FIELD_NAME, REQUIRED_METADATA_KEY,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    generate_abstract_type_refinement_key, remove_directive, ConnectionConstants,
+    ConnectionMetadata, DeferDirective, RelayDirective, StreamDirective, ACTION_ARGUMENT,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
+    INLINE_DATA_CONSTANTS, INTERNAL_METADATA_DIRECTIVE, MATCH_CONSTANTS, NO_INLINE_DIRECTIVE_NAME,
+    PATH_METADATA_ARGUMENT, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_METADATA_DIRECTIVE_NAME, RELAY_RESOLVER_METADATA_FIELD_ALIAS,
+    RELAY_RESOLVER_METADATA_FIELD_NAME, REQUIRED_METADATA_KEY, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -1102,7 +1101,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                 let StreamDirective {
                     if_arg,
                     label_arg,
-                    use_customized_batch_arg,
+                    use_customized_batch_arg: _,
                     initial_count_arg: _,
                 } = StreamDirective::from(stream);
                 let if_variable_name = if_arg.and_then(|arg| match &arg.value.item {
@@ -1112,8 +1111,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     Value::Variable(var) => Some(var.name.item),
                     other => panic!("unexpected value for @stream if argument: {:?}", other),
                 });
-                let use_customized_batch_variable_name =
-                    extract_variable_name(use_customized_batch_arg);
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
                 self.object(vec![
@@ -1132,10 +1129,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     ObjectEntry {
                         key: CODEGEN_CONSTANTS.selections,
                         value: next_selections,
-                    },
-                    ObjectEntry {
-                        key: CODEGEN_CONSTANTS.use_customized_batch,
-                        value: Primitive::string_or_null(use_customized_batch_variable_name),
                     },
                 ])
             }

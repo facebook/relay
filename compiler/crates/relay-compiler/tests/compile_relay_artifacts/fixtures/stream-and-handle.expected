@@ -131,8 +131,7 @@ fragment streamAndHandleFragment on Feedback {
                     "kind": "LinkedHandle",
                     "name": "actors"
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

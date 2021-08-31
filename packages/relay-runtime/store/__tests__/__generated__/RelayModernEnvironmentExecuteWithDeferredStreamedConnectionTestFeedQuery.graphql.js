@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<23db0a19e75d16a4d80ce55ed26da08f>>
+ * @generated SignedSource<<9861a90fec4d87a034c03424fec858d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -214,8 +214,7 @@ return {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "alias": null,

@@ -306,8 +306,7 @@ query streamConnection_NodeQuery($id: ID!) {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,

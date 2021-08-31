@@ -178,8 +178,7 @@ query selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "storageKey": null

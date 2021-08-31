@@ -154,8 +154,7 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

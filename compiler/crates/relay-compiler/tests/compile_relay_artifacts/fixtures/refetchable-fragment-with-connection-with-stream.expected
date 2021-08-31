@@ -210,8 +210,7 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment on Node
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,

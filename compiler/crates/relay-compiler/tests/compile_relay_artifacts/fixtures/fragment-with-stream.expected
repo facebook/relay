@@ -139,8 +139,7 @@ fragment fragmentWithStream_FeedbackFragment on Feedback {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",

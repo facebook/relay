@@ -68,6 +68,17 @@ pub struct OperationDefinition {
     pub selections: List<Selection>,
 }
 
+impl OperationDefinition {
+    pub fn operation_kind(&self) -> OperationKind {
+        // The GraphQL spec defines anonymous operations as queries.
+        // https://spec.graphql.org/June2018/#sec-Anonymous-Operation-Definitions
+        self.operation
+            .as_ref()
+            .map(|(_, operation_kind)| *operation_kind)
+            .unwrap_or(OperationKind::Query)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum OperationKind {
     Query,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<514c7a8445150ca7a2c402875c6b9c5c>>
+ * @generated SignedSource<<e6eff234f78875bd7f5905e7d7d312a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -110,7 +110,6 @@ return {
                 "if": null,
                 "kind": "Stream",
                 "label": "RelayResponseNormalizerTest8Fragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,

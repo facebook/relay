@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6cb826ffa6f767ef5f287dcab7c7e951>>
+ * @generated SignedSource<<7ef16a4421714bdd69500cf977025813>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -140,7 +140,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -173,7 +172,6 @@ return {
                     "if": "enableStream",
                     "kind": "Stream",
                     "label": "RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$stream$viewedBy",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,

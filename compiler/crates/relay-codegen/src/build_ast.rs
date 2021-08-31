@@ -1130,10 +1130,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         value: Primitive::String(label_name),
                     },
                     ObjectEntry {
-                        key: CODEGEN_CONSTANTS.metadata,
-                        value: Primitive::Null,
-                    },
-                    ObjectEntry {
                         key: CODEGEN_CONSTANTS.selections,
                         value: next_selections,
                     },

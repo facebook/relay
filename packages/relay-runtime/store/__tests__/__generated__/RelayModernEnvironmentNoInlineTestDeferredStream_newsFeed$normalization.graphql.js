@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<073ded725b54a5605f316eac030b4943>>
+ * @generated SignedSource<<ef4c17191b05d9f1cd98eb9278823c90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,7 +62,6 @@ return {
           "if": "RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$enableStream",
           "kind": "Stream",
           "label": "RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$stream$newsFeed",
-          "metadata": null,
           "selections": [
             {
               "alias": null,

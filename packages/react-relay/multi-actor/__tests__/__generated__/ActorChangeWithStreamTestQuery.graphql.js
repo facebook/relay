@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6f19e740b46f1e7fae2478eab8c55750>>
+ * @generated SignedSource<<357bbeec8e8340a1a1d33345ff31321d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -185,7 +185,6 @@ return {
                               "if": null,
                               "kind": "Stream",
                               "label": "ActorChangeWithStreamTestFragment$stream$actors",
-                              "metadata": null,
                               "selections": [
                                 {
                                   "alias": null,

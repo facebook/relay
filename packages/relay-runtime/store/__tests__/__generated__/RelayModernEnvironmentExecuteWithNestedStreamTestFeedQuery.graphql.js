@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<87906bdb8acf3579b8d2795dc94a550f>>
+ * @generated SignedSource<<a959c8f02e687913c9132753b8b5cd33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -112,7 +112,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$stream$newsFeed",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -151,7 +150,6 @@ return {
                                 "if": "enableStream",
                                 "kind": "Stream",
                                 "label": "RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$stream$actors",
-                                "metadata": null,
                                 "selections": [
                                   {
                                     "alias": null,

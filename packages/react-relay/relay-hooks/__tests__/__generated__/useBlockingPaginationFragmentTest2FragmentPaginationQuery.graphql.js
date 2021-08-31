@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<64499e5851dcd8e3372d91f28a23d612>>
+ * @generated SignedSource<<918e4fe129aebb24c6864f15898414c8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -202,7 +202,6 @@ return {
                     "if": null,
                     "kind": "Stream",
                     "label": "useBlockingPaginationFragmentTest2Fragment$stream$UserFragment_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,

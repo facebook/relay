@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d513722f86f761e98a0bb0fc4a15b6fe>>
+ * @generated SignedSource<<3938b19aa4497d8c7487327e0e25500c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -110,7 +110,6 @@ return {
                 "if": null,
                 "kind": "Stream",
                 "label": "DataCheckerTest7Fragment$stream$TestFragmentActors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,

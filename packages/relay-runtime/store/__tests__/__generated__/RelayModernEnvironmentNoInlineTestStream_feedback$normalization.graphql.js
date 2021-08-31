@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a3f3f024f1b59c9a01ade24ebdae249>>
+ * @generated SignedSource<<31db02f7ebe2f1e9da3515362a6331a2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,6 @@ var node/*: NormalizationSplitOperation*/ = {
       "if": null,
       "kind": "Stream",
       "label": "RelayModernEnvironmentNoInlineTestStream_feedback$stream$actors",
-      "metadata": null,
       "selections": [
         {
           "alias": null,

@@ -106,7 +106,6 @@ fragment fragmentWithStream_FeedbackFragment on Feedback {
                 "if": null,
                 "kind": "Stream",
                 "label": "fragmentWithStream_FeedbackFragment$stream$StreamedActorsLabel",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,

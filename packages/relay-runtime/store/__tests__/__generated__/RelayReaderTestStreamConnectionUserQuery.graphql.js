@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a311c7fb3c6639682ebfe293568ae56>>
+ * @generated SignedSource<<1d252d95f965817d3617841c9dd99268>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -124,7 +124,6 @@ return {
                     "if": null,
                     "kind": "Stream",
                     "label": "RelayReaderTestStreamConnectionUserProfile$stream$UserProfile_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,

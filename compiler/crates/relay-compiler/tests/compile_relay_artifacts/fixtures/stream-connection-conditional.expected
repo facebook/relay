@@ -221,7 +221,6 @@ query streamConnectionConditionalQuery($id: ID!, $cond: Boolean!) {
                     "if": "cond",
                     "kind": "Stream",
                     "label": "streamConnectionConditionalQuery$stream$NodeQuery_comments",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,

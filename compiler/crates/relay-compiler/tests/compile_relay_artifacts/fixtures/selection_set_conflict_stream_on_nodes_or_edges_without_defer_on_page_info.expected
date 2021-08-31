@@ -148,7 +148,6 @@ query selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery {
                 "if": null,
                 "kind": "Stream",
                 "label": "selectionSetConflictStreamOnNodesOrEdgesWithoutDeferOnPageInfoQuery$stream$b",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,

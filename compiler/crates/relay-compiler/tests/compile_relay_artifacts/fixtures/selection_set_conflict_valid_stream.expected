@@ -106,7 +106,6 @@ query selectionSetConflictValidStreamQuery {
                 "if": null,
                 "kind": "Stream",
                 "label": "selectionSetConflictValidStreamQuery$stream$jkdhg",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,

@@ -59,13 +59,13 @@ pub struct BuilderOptions {
     pub fragment_variables_semantic: FragmentVariablesSemantic,
 
     /// Enable a Relay special cases:
-    /// - Fields with a @match directive do not require to pass the non-nullable
+    /// - Fields with a @match directive are not required to pass the non-nullable
     ///   `supported` argument.
     pub relay_mode: bool,
 
-    /// By default Relay doesn't allow to use anonymous operations,
+    /// By default Relay doesn't allow the use of anonymous operations,
     /// but operations without name are valid, and can be executed on a server.
-    /// With this option `build_ir` can accept default name for anonymous operations.
+    /// This option allows `build_ir` to use a default name for anonymous operations.
     pub default_anonymous_operation_name: Option<StringKey>,
 }
 

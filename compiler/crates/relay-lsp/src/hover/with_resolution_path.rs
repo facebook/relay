@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::{Program, Value};
 use graphql_syntax::{Identifier, OperationDefinition, VariableDefinition};
+use graphql_text_printer::print_value;
 use interner::StringKey;
 use lsp_types::{HoverContents, MarkedString};
 use schema::{SDLSchema, Schema};
@@ -17,8 +19,8 @@ use crate::{
         ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
         ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
         ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-        ConstantValueRoot, DefaultValuePath, IdentParent, IdentPath, InlineFragmentPath,
-        LinkedFieldPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
+        ConstantValueRoot, DefaultValuePath, FragmentSpreadPath, IdentParent, IdentPath,
+        InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath, NamedTypeAnnotationPath,
         NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath, ResolutionPath,
         ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent, TypeConditionPath,
         ValueListPath, ValuePath, VariableDefinitionPath, VariableIdentifierParent,
@@ -33,6 +35,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
     schema_documentation: &impl SchemaDocumentation,
+    source_program: &Program,
 ) -> Option<HoverContents> {
     match path {
         // Show query stats on the operation definition name
@@ -376,6 +379,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation)
         }
 
+        // inline fragments
         ResolutionPath::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
             &inline_fragment_path,
             schema,
@@ -404,6 +408,15 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
             schema_name,
             schema_documentation,
         ),
+
+        // Fragment spreads
+        ResolutionPath::FragmentSpread(fragment_spread_path) => {
+            on_hover_fragment_spread(&fragment_spread_path, schema, schema_name, source_program)
+        }
+        ResolutionPath::Ident(IdentPath {
+            inner: _,
+            parent: IdentParent::FragmentSpreadName(fragment_spread_path),
+        }) => on_hover_fragment_spread(&fragment_spread_path, schema, schema_name, source_program),
 
         _ => None,
     }
@@ -675,4 +688,92 @@ fn on_hover_inline_fragment(
     } else {
         return Some(HoverContents::Scalar(first_line));
     }
+}
+
+fn on_hover_fragment_spread<'a>(
+    fragment_spread_path: &'a FragmentSpreadPath<'a>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    source_program: &Program,
+) -> Option<HoverContents> {
+    // TODO eventually show information about whether the fragment spread is
+    // infallible, fallible, interface-on-interface, etc.
+
+    let mut hover_contents = vec![];
+
+    let FragmentSpreadPath {
+        inner: fragment_spread,
+        parent: _,
+    } = fragment_spread_path;
+    let fragment_name = fragment_spread.name.value;
+
+    let fragment_definition = source_program.fragment(fragment_name)?;
+
+    let fragment_type_name = schema
+        .get_type_name(fragment_definition.type_condition)
+        .lookup();
+
+    hover_contents.push(MarkedString::String(format!(
+        "fragment {} on {}",
+        fragment_spread.name.value.lookup(),
+        get_open_schema_explorer_command_link(
+            fragment_type_name,
+            &GraphQLSchemaExplorerParams {
+                path: vec![fragment_type_name],
+                schema_name: schema_name.lookup(),
+                filter: None
+            }
+        )
+    )));
+
+    if !fragment_definition.variable_definitions.is_empty() {
+        let mut variables_string: Vec<String> =
+            vec!["This fragment accepts these arguments:".to_string()];
+        for var in &fragment_definition.variable_definitions {
+            let default_value = match var.default_value.clone() {
+                Some(default_value) => format!(
+                    ", with a default value of {}",
+                    print_value(schema, &Value::Constant(default_value.item))
+                ),
+                None => "".to_string(),
+            };
+            variables_string.push(format!(
+                "* {}: {}{}",
+                var.name.item,
+                get_open_schema_explorer_command_link(
+                    &schema.get_type_string(&var.type_),
+                    &GraphQLSchemaExplorerParams {
+                        path: vec![schema.get_type_name(var.type_.inner()).lookup()],
+                        schema_name: schema_name.lookup(),
+                        filter: None,
+                    }
+                ),
+                default_value,
+            ));
+        }
+        hover_contents.push(MarkedString::from_markdown(variables_string.join("\n")))
+    }
+
+    let fragment_name_details: Vec<&str> = fragment_name.lookup().split('_').collect();
+    // We expect the fragment name to be `ComponentName_propName`
+    if fragment_name_details.len() == 2 {
+        hover_contents.push(MarkedString::from_markdown(format!(
+            r#"
+To consume this fragment spread,
+pass it to the component where it was defined.
+
+For example:
+```js
+    <{} {}={{data.{}}} />
+```
+"#,
+            fragment_name_details[0], fragment_name_details[1], fragment_name_details[1],
+        )));
+    } // We may log an error (later), if that is not the case.
+
+    hover_contents.push(MarkedString::String(
+        "@see: https://relay.dev/docs/en/thinking-in-relay#data-masking".to_string(),
+    ));
+
+    Some(HoverContents::Array(hover_contents))
 }

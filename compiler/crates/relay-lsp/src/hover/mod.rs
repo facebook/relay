@@ -338,6 +338,12 @@ pub(crate) fn on_hover<
     let resolution_path = document.resolve((), position_span);
 
     if let Some(schema) = state.get_schemas().get(&project_name) {
+        let source_program = state
+            .get_source_programs_ref()
+            .get(&project_name)
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError("Unable to get source programs".to_string())
+            })?;
         let schema_documentation = state.get_schema_documentation(project_name.lookup());
 
         if let Some(contents) = hover_with_node_resolution_path(
@@ -346,6 +352,7 @@ pub(crate) fn on_hover<
             project_name,
             state.extra_data_provider.as_ref(),
             &schema_documentation,
+            &source_program,
         ) {
             return Ok(Some(Hover {
                 contents,

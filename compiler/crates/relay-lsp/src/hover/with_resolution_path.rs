@@ -9,7 +9,7 @@ use graphql_ir::{Program, Value};
 use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
 use graphql_text_printer::print_value;
 use interner::StringKey;
-use lsp_types::{HoverContents, MarkedString};
+use lsp_types::{Hover, HoverContents, MarkedString};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
@@ -30,14 +30,46 @@ use crate::{
     LSPExtraDataProvider,
 };
 
-pub(crate) fn hover_with_node_resolution_path<'a>(
-    path: ResolutionPath<'a>,
+pub(crate) fn get_hover<'a>(
+    path: &'a ResolutionPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
     schema_documentation: &impl SchemaDocumentation,
     source_program: &Program,
-) -> Option<HoverContents> {
+) -> Option<Hover> {
+    let hover_behavior = get_hover_behavior_from_resolution_path(path);
+    let hover_content = get_hover_contents(
+        hover_behavior,
+        schema,
+        schema_name,
+        extra_data_provider,
+        schema_documentation,
+        source_program,
+    );
+
+    hover_content.map(|contents| Hover {
+        contents,
+        range: None,
+    })
+}
+
+enum HoverBehavior<'a> {
+    OperationDefinitionName(&'a OperationDefinition),
+    OperationDefinitionRemainder,
+    VariableDefinition(&'a VariableDefinition),
+    VariableDefinitionList,
+    ConstantValue(&'a ConstantValueParent<'a>),
+    ScalarOrLinkedField(&'a Identifier, &'a SelectionPath<'a>),
+    ArgumentPath(&'a ArgumentPath<'a>),
+    InlineFragment(&'a InlineFragmentPath<'a>),
+    FragmentSpread(&'a FragmentSpreadPath<'a>),
+    Directive(&'a DirectivePath<'a>),
+    FragmentDefinition(&'a FragmentDefinition),
+    ExecutableDocument,
+}
+
+fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> HoverBehavior<'a> {
     match path {
         // Show query stats on the operation definition name
         // and "query/subscription/mutation" token
@@ -48,7 +80,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: operation_definition,
                     parent: _,
                 }),
-        }) => on_hover_operation(operation_definition, extra_data_provider),
+        }) => HoverBehavior::OperationDefinitionName(operation_definition),
         ResolutionPath::Operation(OperationPath {
             inner: _,
             parent:
@@ -56,11 +88,11 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: operation_definition,
                     parent: _,
                 },
-        }) => on_hover_operation(operation_definition, extra_data_provider),
+        }) => HoverBehavior::OperationDefinitionName(operation_definition),
         // Explicity show no hover in other parts of the operation definition.
         // For example, the curly braces after the operation variables are included in
         // this match arm.
-        ResolutionPath::OperationDefinition(_) => None,
+        ResolutionPath::OperationDefinition(_) => HoverBehavior::OperationDefinitionRemainder,
 
         // Variables definition for both operations and fragments (?):
         // Name, Type and Default Value => info about variable and link to types
@@ -72,10 +104,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: variable_definition,
                     parent: _,
                 }),
-        }) => Some(on_hover_variable_definition(
-            variable_definition,
-            schema_name,
-        )),
+        }) => HoverBehavior::VariableDefinition(variable_definition),
         ResolutionPath::DefaultValue(DefaultValuePath {
             inner: _,
             parent:
@@ -83,37 +112,29 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: variable_definition,
                     parent: _,
                 },
-        }) => Some(on_hover_variable_definition(
-            variable_definition,
-            schema_name,
-        )),
+        }) => HoverBehavior::VariableDefinition(variable_definition),
         ResolutionPath::VariableDefinition(VariableDefinitionPath {
             inner: variable_definition,
             parent: _,
-        }) => Some(on_hover_variable_definition(
-            variable_definition,
-            schema_name,
-        )),
+        }) => HoverBehavior::VariableDefinition(variable_definition),
         ResolutionPath::NonNullTypeAnnotation(NonNullTypeAnnotationPath {
             inner: _,
             parent: non_null_annotation_parent,
-        }) => Some(on_hover_variable_definition(
+        }) => HoverBehavior::VariableDefinition(
             non_null_annotation_parent
                 .parent
                 .find_variable_definition_path()
                 .inner,
-            schema_name,
-        )),
+        ),
         ResolutionPath::ListTypeAnnotation(ListTypeAnnotationPath {
             inner: _,
             parent: list_type_annotation_parent,
-        }) => Some(on_hover_variable_definition(
+        }) => HoverBehavior::VariableDefinition(
             list_type_annotation_parent
                 .parent
                 .find_variable_definition_path()
                 .inner,
-            schema_name,
-        )),
+        ),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -125,13 +146,12 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                             parent: type_annotation_parent,
                         },
                 }),
-        }) => Some(on_hover_variable_definition(
+        }) => HoverBehavior::VariableDefinition(
             type_annotation_parent.find_variable_definition_path().inner,
-            schema_name,
-        )),
+        ),
 
         // Explicitly don't show hovers for VariableDefinitionList
-        ResolutionPath::VariableDefinitionList(_) => None,
+        ResolutionPath::VariableDefinitionList(_) => HoverBehavior::VariableDefinitionList,
 
         // Constant values can either be rooted in variable definitions or arguments to
         // directives or fields. Handle those cases.
@@ -142,12 +162,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => on_hover_constant_value(
-            &constant_value_parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(constant_value_parent),
         ResolutionPath::ConstantFloat(ConstantFloatPath {
             inner: _,
             parent:
@@ -155,12 +170,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => on_hover_constant_value(
-            &constant_value_parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_parent),
         ResolutionPath::ConstantString(ConstantStringPath {
             inner: _,
             parent:
@@ -168,12 +178,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => on_hover_constant_value(
-            &constant_value_parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_parent),
         ResolutionPath::ConstantBoolean(ConstantBooleanPath {
             inner: _,
             parent:
@@ -181,12 +186,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => on_hover_constant_value(
-            &constant_value_parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_parent),
         ResolutionPath::ConstantNull(ConstantNullPath {
             inner: _,
             parent:
@@ -194,12 +194,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => on_hover_constant_value(
-            &constant_value_parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_parent),
         ResolutionPath::ConstantEnum(ConstantEnumPath {
             inner: _,
             parent:
@@ -207,21 +202,11 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => on_hover_constant_value(
-            &constant_value_parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_parent),
         ResolutionPath::ConstantList(ConstantListPath {
             inner: _,
             parent: constant_value_path,
-        }) => on_hover_constant_value(
-            &constant_value_path.parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_path.parent),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -233,42 +218,21 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                             parent: constant_value_path,
                         },
                 }),
-        }) => on_hover_constant_value(
-            &constant_value_path.parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_path.parent),
         ResolutionPath::ConstantObj(ConstantObjPath {
             inner: _,
             parent: constant_value_path,
-        }) => on_hover_constant_value(
-            &constant_value_path.parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_value_path.parent),
         ResolutionPath::ConstantArg(ConstantArgPath {
             inner: _,
             parent: constant_obj_path,
-        }) => on_hover_constant_value(
-            &constant_obj_path.parent.parent,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ConstantValue(&constant_obj_path.parent.parent),
 
         // Scalar and linked fields
         ResolutionPath::ScalarField(ScalarFieldPath {
             inner: scalar_field,
             parent: selection_path,
-        }) => on_hover_scalar_or_linked_field(
-            &scalar_field.name,
-            &selection_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -276,13 +240,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => on_hover_scalar_or_linked_field(
-            &scalar_field.name,
-            &selection_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -290,23 +248,11 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => on_hover_scalar_or_linked_field(
-            &scalar_field.name,
-            &selection_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
         ResolutionPath::LinkedField(LinkedFieldPath {
             inner: scalar_field,
             parent: selection_path,
-        }) => on_hover_scalar_or_linked_field(
-            &scalar_field.name,
-            &selection_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -314,13 +260,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => on_hover_scalar_or_linked_field(
-            &scalar_field.name,
-            &selection_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -328,23 +268,17 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => on_hover_scalar_or_linked_field(
-            &scalar_field.name,
-            &selection_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
 
         // Field and directive arguments
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::ArgumentValue(argument_path),
-        }) => on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation),
+        }) => HoverBehavior::ArgumentPath(&argument_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::ArgumentName(argument_path),
-        }) => on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation),
+        }) => HoverBehavior::ArgumentPath(&argument_path),
         ResolutionPath::VariableIdentifier(VariableIdentifierPath {
             inner: _,
             parent:
@@ -352,41 +286,21 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: value_parent,
                 }),
-        }) => on_hover_argument_path(
-            value_parent.find_enclosing_argument_path(),
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ArgumentPath(value_parent.find_enclosing_argument_path()),
         ResolutionPath::ValueList(ValueListPath {
             inner: _,
             parent: value_path,
-        }) => on_hover_argument_path(
-            value_path.parent.find_enclosing_argument_path(),
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::ArgumentPath(value_path.parent.find_enclosing_argument_path()),
         ResolutionPath::ConstantObject(ConstantObjectPath {
             inner: _,
             parent: value_path,
-        }) => on_hover_argument_path(
-            value_path.parent.find_enclosing_argument_path(),
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
-        ResolutionPath::Argument(argument_path) => {
-            on_hover_argument_path(&argument_path, schema, schema_name, schema_documentation)
-        }
+        }) => HoverBehavior::ArgumentPath(value_path.parent.find_enclosing_argument_path()),
+        ResolutionPath::Argument(argument_path) => HoverBehavior::ArgumentPath(&argument_path),
 
         // inline fragments
-        ResolutionPath::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
-            &inline_fragment_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        ResolutionPath::InlineFragment(inline_fragment_path) => {
+            HoverBehavior::InlineFragment(&inline_fragment_path)
+        }
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -394,41 +308,31 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: _,
                     parent: TypeConditionParent::InlineFragment(inline_fragment_path),
                 }),
-        }) => on_hover_inline_fragment(
-            &inline_fragment_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::InlineFragment(&inline_fragment_path),
         ResolutionPath::TypeCondition(TypeConditionPath {
             inner: _,
             parent: TypeConditionParent::InlineFragment(inline_fragment_path),
-        }) => on_hover_inline_fragment(
-            &inline_fragment_path,
-            schema,
-            schema_name,
-            schema_documentation,
-        ),
+        }) => HoverBehavior::InlineFragment(&inline_fragment_path),
 
         // Fragment spreads
         ResolutionPath::FragmentSpread(fragment_spread_path) => {
-            on_hover_fragment_spread(&fragment_spread_path, schema, schema_name, source_program)
+            HoverBehavior::FragmentSpread(&fragment_spread_path)
         }
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::FragmentSpreadName(fragment_spread_path),
-        }) => on_hover_fragment_spread(&fragment_spread_path, schema, schema_name, source_program),
+        }) => HoverBehavior::FragmentSpread(&fragment_spread_path),
 
-        ResolutionPath::Directive(directive_path) => on_hover_directive(&directive_path, schema),
+        ResolutionPath::Directive(directive_path) => HoverBehavior::Directive(&directive_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::DirectiveName(directive_path),
-        }) => on_hover_directive(&directive_path, schema),
+        }) => HoverBehavior::Directive(&directive_path),
 
         ResolutionPath::FragmentDefinition(FragmentDefinitionPath {
             inner: fragment_definition,
             parent: _,
-        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        }) => HoverBehavior::FragmentDefinition(fragment_definition),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -436,7 +340,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: fragment_definition,
                     parent: _,
                 }),
-        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        }) => HoverBehavior::FragmentDefinition(fragment_definition),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -448,7 +352,7 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                             parent: _,
                         }),
                 }),
-        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        }) => HoverBehavior::FragmentDefinition(fragment_definition),
         ResolutionPath::TypeCondition(TypeConditionPath {
             inner: _,
             parent:
@@ -456,10 +360,63 @@ pub(crate) fn hover_with_node_resolution_path<'a>(
                     inner: fragment_definition,
                     parent: _,
                 }),
-        }) => on_hover_fragment_definition(fragment_definition, schema, schema_name),
+        }) => HoverBehavior::FragmentDefinition(fragment_definition),
 
         // Explicitly show no hover content of operation/fragment definitions
-        ResolutionPath::ExecutableDocument(_) => None,
+        ResolutionPath::ExecutableDocument(_) => HoverBehavior::ExecutableDocument,
+    }
+}
+
+fn get_hover_contents<'a>(
+    hover_behavior: HoverBehavior<'a>,
+    schema: &SDLSchema,
+    schema_name: StringKey,
+    extra_data_provider: &dyn LSPExtraDataProvider,
+    schema_documentation: &impl SchemaDocumentation,
+    source_program: &Program,
+) -> Option<HoverContents> {
+    match hover_behavior {
+        HoverBehavior::OperationDefinitionName(operation_definition) => {
+            on_hover_operation(operation_definition, extra_data_provider)
+        }
+        HoverBehavior::OperationDefinitionRemainder => None,
+        HoverBehavior::VariableDefinition(variable_definition) => Some(
+            on_hover_variable_definition(variable_definition, schema_name),
+        ),
+        HoverBehavior::VariableDefinitionList => None,
+        HoverBehavior::ConstantValue(constant_value_parent) => on_hover_constant_value(
+            constant_value_parent,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        HoverBehavior::ScalarOrLinkedField(field_name, selection_path) => {
+            on_hover_scalar_or_linked_field(
+                field_name,
+                selection_path,
+                schema,
+                schema_name,
+                schema_documentation,
+            )
+        }
+        HoverBehavior::ArgumentPath(argument_path) => {
+            on_hover_argument_path(argument_path, schema, schema_name, schema_documentation)
+        }
+        HoverBehavior::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
+            inline_fragment_path,
+            schema,
+            schema_name,
+            schema_documentation,
+        ),
+        HoverBehavior::FragmentSpread(fragment_spread_path) => {
+            on_hover_fragment_spread(fragment_spread_path, schema, schema_name, source_program)
+        }
+        HoverBehavior::Directive(directive_path) => on_hover_directive(directive_path, schema),
+        HoverBehavior::FragmentDefinition(fragment_definition) => {
+            on_hover_fragment_definition(fragment_definition, schema, schema_name)
+        }
+
+        HoverBehavior::ExecutableDocument => None,
     }
 }
 

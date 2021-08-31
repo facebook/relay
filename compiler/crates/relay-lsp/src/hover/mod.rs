@@ -15,13 +15,13 @@ use crate::{
 use common::PerfLogger;
 use lsp_types::{
     request::{HoverRequest, Request},
-    Hover, LanguageString, MarkedString,
+    LanguageString, MarkedString,
 };
 use schema_documentation::SchemaDocumentation;
 use serde::Serialize;
 
 mod with_resolution_path;
-use with_resolution_path::hover_with_node_resolution_path;
+use with_resolution_path::get_hover;
 
 fn graphql_marked_string(value: String) -> MarkedString {
     MarkedString::LanguageString(LanguageString {
@@ -83,20 +83,15 @@ pub(crate) fn on_hover<
             })?;
         let schema_documentation = state.get_schema_documentation(project_name.lookup());
 
-        hover_with_node_resolution_path(
-            resolution_path,
+        get_hover(
+            &resolution_path,
             &schema,
             project_name,
             state.extra_data_provider.as_ref(),
             &schema_documentation,
             &source_program,
         )
-        .map(|contents| {
-            Some(Hover {
-                contents,
-                range: None,
-            })
-        })
+        .map(Option::Some)
         .ok_or(LSPRuntimeError::ExpectedError)
     } else {
         Err(LSPRuntimeError::ExpectedError)

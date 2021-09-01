@@ -448,7 +448,6 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
         : null,
     kind: 'Stream',
     label: node.label,
-    metadata: sortObjectByKey(node.metadata),
     selections: generateSelections(schema, node.selections),
   };
 }

@@ -9436,7 +9436,6 @@ Request {
               Stream {
                 if: null,
                 label: "FeedbackFragment$stream$StreamedActorsLabel",
-                metadata: null,
                 selections: [
                   LinkedField {
                     alias: null,
@@ -18442,7 +18441,6 @@ Request {
                   Stream {
                     if: null,
                     label: "PaginationFragment$stream$PaginationFragment_friends",
-                    metadata: null,
                     selections: [
                       LinkedField {
                         alias: null,
@@ -19210,7 +19208,6 @@ Request {
                   Stream {
                     if: null,
                     label: "PaginationFragment$stream$PaginationFragment_friends",
-                    metadata: null,
                     selections: [
                       LinkedField {
                         alias: null,
@@ -20622,7 +20619,6 @@ Request {
               Stream {
                 if: null,
                 label: "streamAndHandleFragment$stream$actors",
-                metadata: null,
                 selections: [
                   LinkedField {
                     alias: null,
@@ -20936,7 +20932,6 @@ Request {
                   Stream {
                     if: null,
                     label: "NodeQuery$stream$NodeQuery_comments",
-                    metadata: null,
                     selections: [
                       LinkedField {
                         alias: null,

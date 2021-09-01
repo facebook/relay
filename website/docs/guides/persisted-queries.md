@@ -38,7 +38,7 @@ In your `npm` script in `package.json`, run the relay compiler using the `--pers
 }
 ```
 
-The `--persist-ouput` flag does 2 things:
+The `--persist-output` flag does 2 things:
 
 1.  It converts all query and mutation operation texts to md5 hashes.
 
@@ -137,7 +137,7 @@ to push the query map at compile time to a location accessible by your server:
 ```javascript
 "scripts": {
   "push-queries": "node ./pushQueries.js",
-  "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-ouput <path> && npm run push-queries"
+  "relay": "relay-compiler --src ./src --schema ./schema.graphql --persist-output <path> && npm run push-queries"
 }
 ```
 

@@ -114,7 +114,7 @@ CurrencyAmount(context) {
 
 This is more straightforward - it is done via a call to `environment.mock.queuePendingOperation(query, variables)`
 
-* `Query` needs to match the query issues by the component. Simplest (and most robust agains query changes) is to export the query from the component module and use it in the test, but having an *identical* (but not the same) query works as well.
+* `Query` needs to match the query issues by the component. Simplest (and most robust against query changes) is to export the query from the component module and use it in the test, but having an *identical* (but not the same) query works as well.
 * `variables` has to match the variables that will be used in this test invocation.
    * Beware of nested objects and arrays - they are compared via `areEqual` ([invocation code](https://github.com/facebook/relay/blob/046f758c6b411608371d4cc2f0a594ced331864e/packages/relay-test-utils/RelayModernMockEnvironment.js#L233))
       * Arrays are compared by values (not by reference), but the order of elements matter

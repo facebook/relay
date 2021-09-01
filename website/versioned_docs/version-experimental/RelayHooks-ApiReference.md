@@ -882,7 +882,7 @@ fetchQuery<AppQuery>(
 #### Return Value
 
 -   `observable`: Returns an observable instance. To start the request, `subscribe` or `toPromise` must be called on the observable. Exposes the following methods:
-    -   `susbcribe`: Function that can be called to subscribe to the observable for the network request
+    -   `subscribe`: Function that can be called to subscribe to the observable for the network request
         -   Arguments:
             -   `observer`: Object that specifies observer functions for different events occurring on the network request observable. May specify the following event handlers as keys in the observer object:
                 -   `start`: Function that will be called when the network requests starts. It will receive a single `subscription` argument, which represents the subscription on the network observable.

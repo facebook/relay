@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use interner::StringKey;
 use schema::{
     DirectiveValue, EnumID, FieldID, InputObjectID, InterfaceID, ObjectID, SDLSchema, ScalarID,
     Schema, Type, UnionID,
@@ -74,6 +75,8 @@ pub(crate) struct SchemaExplorerUnion {
 #[derive(Deserialize, Serialize)]
 pub(crate) struct SchemaExplorerField {
     field_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    field_description: Option<String>,
     arguments: Vec<SchemaExplorerFieldArgument>,
     rendered_type_name: String,
     type_reference: SchemaExplorerTypeReference<()>,
@@ -84,6 +87,8 @@ pub(crate) struct SchemaExplorerField {
 #[derive(Deserialize, Serialize)]
 pub(crate) struct SchemaExplorerFieldArgument {
     argument_name: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    argument_description: Option<String>,
     default_value: Option<String>,
     rendered_type_name: String,
     type_reference: SchemaExplorerTypeReference<()>,
@@ -207,10 +212,19 @@ fn get_schema_explorer_interface(
         })
         .collect::<Vec<_>>();
 
+    let interface_type_name = schema.get_type_name(Type::Interface(interface_id));
     let fields = interface
         .fields
         .iter()
-        .filter_map(|field_id| get_schema_explorer_field(*field_id, schema, documentation, filter))
+        .filter_map(|field_id| {
+            get_schema_explorer_field(
+                *field_id,
+                interface_type_name,
+                schema,
+                documentation,
+                filter,
+            )
+        })
         .collect::<Vec<_>>();
 
     let subinterfaces = interface
@@ -249,6 +263,7 @@ fn get_schema_explorer_input_object(
 
             SchemaExplorerFieldArgument {
                 argument_name: arg.name.to_string(),
+                argument_description: None,
                 default_value: arg.default_value.as_ref().map(|value| value.to_string()),
                 rendered_type_name: schema.get_type_string(&arg.type_),
                 type_reference,
@@ -270,10 +285,13 @@ fn get_schema_explorer_object(
     count: Option<usize>,
 ) -> SchemaExplorerObject {
     let object = schema.object(object_id);
+    let object_type_name = schema.get_type_name(Type::Object(object_id));
     let fields = object
         .fields
         .iter()
-        .filter_map(|field_id| get_schema_explorer_field(*field_id, schema, documentation, filter))
+        .filter_map(|field_id| {
+            get_schema_explorer_field(*field_id, object_type_name, schema, documentation, filter)
+        })
         .take(count.unwrap_or(DEFAULT_COUNT))
         .collect::<Vec<_>>();
 
@@ -330,6 +348,7 @@ fn get_schema_explorer_scalar(scalar_id: ScalarID, schema: &SDLSchema) -> Schema
 
 fn get_schema_explorer_field(
     field_id: FieldID,
+    parent_type_name: StringKey,
     schema: &SDLSchema,
     documentation: &impl SchemaDocumentation,
     filter: &Option<String>,
@@ -341,7 +360,10 @@ fn get_schema_explorer_field(
 
     let field_type_description = documentation
         .get_type_description(&field_type_name)
-        .map(|x| x.to_string());
+        .map(|field_type_description| field_type_description.to_string());
+    let field_description = documentation
+        .get_field_description(parent_type_name.lookup(), &field_name)
+        .map(|field_description| field_description.to_string());
 
     if let Some(filter) = filter {
         if !field_passes_filter(
@@ -363,8 +385,18 @@ fn get_schema_explorer_field(
         .map(|arg| {
             let type_reference =
                 get_empty_schema_explorer_type_reference(arg.type_.inner(), schema, documentation);
+
+            let argument_description = documentation
+                .get_field_argument_description(
+                    parent_type_name.lookup(),
+                    &field_name,
+                    arg.name.lookup(),
+                )
+                .map(|field_argument_description| field_argument_description.to_string());
+
             SchemaExplorerFieldArgument {
                 argument_name: arg.name.to_string(),
+                argument_description,
                 rendered_type_name: schema.get_type_string(&arg.type_),
                 type_reference,
                 default_value: arg.default_value.as_ref().map(|value| value.to_string()),
@@ -374,6 +406,7 @@ fn get_schema_explorer_field(
 
     Some(SchemaExplorerField {
         field_name,
+        field_description,
         type_reference,
         rendered_type_name: schema.get_type_string(&field.type_),
         arguments,

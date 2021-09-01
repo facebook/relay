@@ -1634,7 +1634,7 @@ const missingFieldHandlers = [
         // value of $story_id.
         return argValues.story_id;
       }
-      return null;
+      return undefined;
     },
     kind: 'linked',
   },

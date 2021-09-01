@@ -248,6 +248,7 @@ impl CompilerState {
                         })
                         .collect::<Result<_>>()?;
                     log_event.stop(extract_timer);
+                    perf_logger.complete_event(log_event);
                     match source_set {
                         SourceSet::SourceSetName(source_set_name) => {
                             result.set_pending_source_set(source_set_name, sources);

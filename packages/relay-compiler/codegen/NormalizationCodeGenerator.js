@@ -450,11 +450,6 @@ function generateStream(schema: Schema, node: Stream): NormalizationStream {
     label: node.label,
     metadata: sortObjectByKey(node.metadata),
     selections: generateSelections(schema, node.selections),
-    useCustomizedBatch:
-      node.useCustomizedBatch != null &&
-      node.useCustomizedBatch.kind === 'Variable'
-        ? node.useCustomizedBatch.variableName
-        : null,
   };
 }
 

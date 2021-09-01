@@ -9467,7 +9467,6 @@ Request {
                     storageKey: null,
                   },
                 ],
-                useCustomizedBatch: null,
               },
             ],
             type: "Feedback",
@@ -18484,7 +18483,6 @@ Request {
                         storageKey: null,
                       },
                     ],
-                    useCustomizedBatch: null,
                   },
                   Defer {
                     if: null,
@@ -19253,7 +19251,6 @@ Request {
                         storageKey: null,
                       },
                     ],
-                    useCustomizedBatch: null,
                   },
                   Defer {
                     if: null,
@@ -20672,7 +20669,6 @@ Request {
                     name: "actors",
                   },
                 ],
-                useCustomizedBatch: null,
               },
             ],
             type: "Feedback",
@@ -21009,7 +21005,6 @@ Request {
                         storageKey: null,
                       },
                     ],
-                    useCustomizedBatch: null,
                   },
                   Defer {
                     if: null,

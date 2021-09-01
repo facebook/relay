@@ -377,16 +377,18 @@ impl CompilerState {
     pub fn merge_file_source_changes(
         &mut self,
         config: &Config,
-        setup_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
         // When loading from saved state, collect dirty artifacts for recompiling their source definitions
         should_collect_changed_artifacts: bool,
     ) -> Result<bool> {
         let mut has_changed = false;
         for file_source_changes in self.pending_file_source_changes.write().unwrap().drain(..) {
-            let categorized = setup_event.time("categorize_files_time", || {
+            let log_event = perf_logger.create_event("merge_file_source_changes");
+            log_event.number("number_of_changes", file_source_changes.size());
+            let categorized = log_event.time("categorize_files_time", || {
                 categorize_files(config, file_source_changes.files())
             });
+
             for (category, files) in categorized {
                 match category {
                     FileGroup::Source { source_set } => {

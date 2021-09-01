@@ -157,7 +157,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
                 let had_new_changes = compiler_state.merge_file_source_changes(
                     &self.config,
-                    &incremental_build_event,
                     self.perf_logger.as_ref(),
                     false,
                 )?;

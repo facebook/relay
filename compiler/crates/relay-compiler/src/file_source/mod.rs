@@ -152,6 +152,12 @@ impl FileSourceResult {
             Self::Watchman(file_source_result) => &file_source_result.saved_state_info,
         }
     }
+
+    pub fn size(&self) -> usize {
+        match self {
+            Self::Watchman(file_source_result) => file_source_result.files.len(),
+        }
+    }
 }
 
 pub enum FileSourceSubscription {

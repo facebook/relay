@@ -170,7 +170,6 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     ) -> Result<(), Error> {
         let has_new_changes = compiler_state.merge_file_source_changes(
             &self.config,
-            log_event,
             self.perf_logger.as_ref(),
             false,
         )?;

@@ -168,7 +168,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
 });
 ```
 
-In this example, `profilePicture(size: 50)` will be fetched for the intial render.
+In this example, `profilePicture(size: 50)` will be fetched for the initial render.
 
 ### prepareVariables
 
@@ -459,7 +459,7 @@ class Feed extends React.Component {
           var node = edge.node;
           if (this.props.relay.hasOptimisticUpdate(node)) {
             // Render pending story that has not been stored
-            // on the server using a diffrent component.
+            // on the server using a different component.
             return (
               <PendingStory
                 key={edge.node.id}
@@ -558,7 +558,7 @@ module.exports = Relay.createContainer(ProfilePicture, {
 -   `COMMIT_QUEUED` —  Transaction was committed but another transaction with the same collision key is pending, so the transaction has been queued to send to the server.
 -   `COLLISION_COMMIT_FAILED` — Transaction was queued for commit but another transaction with the same collision key failed. All transactions in the collision queue, including this one, have been failed. Transaction can be recommitted or rolled back.
 -   `COMMITTING` — Transaction is waiting for the server to respond.
--   `COMMIT_FAILED` — Transaction was sent to the server for comitting but failed.
+-   `COMMIT_FAILED` — Transaction was sent to the server for committing but failed.
 
 ## Static Methods
 

@@ -1265,7 +1265,7 @@ function App() {
 The provided `fetchPolicy` will determine:
 
 -   _if_ the query should be fulfilled from the local cache, and
--   _if_ a network request should be made to fetch the query from the server, depending on the [availablity of the data for that query in the store](#availability-of-cached-data).
+-   _if_ a network request should be made to fetch the query from the server, depending on the [availability of the data for that query in the store](#availability-of-cached-data).
 
 By default, Relay will try to read the query from the local cache; if any piece of data for that query is [missing](#presence-of-data) or [stale](#staleness-of-data), it will fetch the entire query from the network. This default `fetchPolicy` is called "**_store-or-network"._**
 
@@ -1418,7 +1418,7 @@ function ProfilePage(props) {
   )
 
   // Here we subscribe to changes in invalidation state for the given user ID.
-  // Whenever the user whith that ID is marked as stale, the provided callback will
+  // Whenever the user with that ID is marked as stale, the provided callback will
   // be executed*
   useSubscribeToInvalidationState([props.userID], () => {
     // Here we can do things like:

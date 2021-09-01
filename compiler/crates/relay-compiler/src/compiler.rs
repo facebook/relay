@@ -117,7 +117,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 info!("Compilation completed.");
             }
             self.perf_logger.complete_event(setup_event);
-
+            self.perf_logger.flush();
             info!("Waiting for changes...");
 
             self.incremental_build_loop(compiler_state, notify_receiver, &subscription_handle)

@@ -88,16 +88,25 @@ fn suggestion_list(input: StringKey, options: &[StringKey], limit: usize) -> Vec
 
 pub struct GraphQLSuggestions<'schema> {
     schema: &'schema SDLSchema,
+    enabled: bool,
 }
 
 impl<'schema> GraphQLSuggestions<'schema> {
     const MAX_SUGGESTIONS: usize = 5;
 
     pub fn new(schema: &'schema SDLSchema) -> Self {
-        Self { schema }
+        // If the schema is flatten schema, at this time, we need to temporary disable
+        // the GraphQLSuggestions as `get_type_map` in flattenn schema is not yet implemented.
+        let enabled = !matches!(schema, SDLSchema::FlatBuffer(_));
+
+        Self { schema, enabled }
     }
 
     pub fn input_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
         let input_types = self
             .schema
             .get_type_map()
@@ -114,6 +123,10 @@ impl<'schema> GraphQLSuggestions<'schema> {
     }
 
     pub fn output_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
         let type_names = self
             .schema
             .get_type_map()
@@ -130,6 +143,10 @@ impl<'schema> GraphQLSuggestions<'schema> {
     }
 
     pub fn composite_type_suggestions(&self, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
         let type_names = self
             .schema
             .get_type_map()
@@ -146,6 +163,10 @@ impl<'schema> GraphQLSuggestions<'schema> {
     }
 
     pub fn field_name_suggestion(&self, type_: Option<Type>, input: StringKey) -> Vec<StringKey> {
+        if !self.enabled {
+            return Vec::new();
+        }
+
         let field_names: Vec<StringKey> = match type_ {
             Some(Type::Object(object_id)) => self
                 .schema

@@ -8,8 +8,10 @@
 use lsp_types::{Position, Range};
 use serde::{Deserialize, Serialize};
 
-/// Represents GraphQL text extracted from a JS-like source
-/// file. Stores the text and some location information for
+/// Represents GraphQL text extracted from a source file
+/// The GraphQL text is potentially in some subrange of
+/// the file, like a JS file.
+/// Stores the text and some location information for
 /// error reporting.
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct GraphQLSource {
@@ -25,6 +27,10 @@ impl GraphQLSource {
             line_index,
             column_index,
         }
+    }
+
+    pub fn from_whole_document(text: impl Into<String>) -> Self {
+        GraphQLSource::new(text, 0, 0)
     }
 
     // Generate an LSP Range for this GraphQL source string. This provides the absolute

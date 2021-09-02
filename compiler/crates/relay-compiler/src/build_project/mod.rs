@@ -33,9 +33,7 @@ use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
 use fnv::{FnvHashMap, FnvHashSet};
 pub use generate_artifacts::{
     create_path_for_artifact, generate_artifacts, Artifact, ArtifactContent,
-    GenerateFragmentTextArtifactFn, GenerateOperationTextArtifactFn,
 };
-use generate_extra_artifacts::generate_extra_artifacts;
 use graphql_ir::Program;
 use interner::StringKey;
 pub use is_operation_preloadable::is_operation_preloadable;
@@ -316,12 +314,12 @@ pub async fn commit_project(
     // For that, we will use `generate_extra_artifacts` from the configs
     if let Some(generate_extra_artifacts_fn) = &config.generate_extra_artifacts {
         log_event.time("generate_extra_artifacts_time", || {
-            generate_extra_artifacts(
-                schema,
+            artifacts.extend(generate_extra_artifacts_fn(
                 project_config,
-                &mut artifacts,
-                generate_extra_artifacts_fn,
-            )
+                schema,
+                &programs,
+                &artifacts,
+            ))
         });
     }
 

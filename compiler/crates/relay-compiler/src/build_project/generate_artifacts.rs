@@ -14,18 +14,11 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::OperationPrinter;
 use interner::StringKey;
 use relay_transforms::{
-    FeatureFlag, Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata,
-    DIRECTIVE_SPLIT_OPERATION,
+    Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
 };
 use relay_typegen::TypegenLanguage;
-use schema::SDLSchema;
 use std::path::PathBuf;
 use std::sync::Arc;
-
-pub type GenerateFragmentTextArtifactFn =
-    Box<dyn Fn(&ProjectConfig, &SDLSchema, &FragmentDefinition) -> Artifact + Send + Sync>;
-pub type GenerateOperationTextArtifactFn =
-    Box<dyn Fn(&ProjectConfig, &SDLSchema, &OperationDefinition) -> Artifact + Send + Sync>;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
@@ -38,13 +31,13 @@ pub struct Artifact {
 }
 
 pub fn generate_artifacts(
-    config: &Config,
+    _config: &Config,
     project_config: &ProjectConfig,
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
     let mut operation_printer = OperationPrinter::new(&programs.operation_text);
-    let mut artifacts: Vec<_> = group_operations(programs)
+    return group_operations(programs)
         .into_iter()
         .map(|(_, operations)| {
             if let Some(directive) = operations
@@ -120,32 +113,6 @@ pub fn generate_artifacts(
             generate_reader_artifact(project_config, programs, reader_fragment, source_hash)
         }))
         .collect();
-
-    let text_artifacts_flag = &project_config.feature_flags.text_artifacts;
-    if !matches!(text_artifacts_flag, FeatureFlag::Disabled) {
-        let generate_fragment_text_artifact = config.generate_fragment_text_artifact.as_ref().expect("need a generate_fragment_text_artifact function, when text_artifacts feature flag is enabled");
-        for text_fragment in programs.operation_text.fragments() {
-            if text_artifacts_flag.is_enabled_for(text_fragment.name.item) {
-                artifacts.push(generate_fragment_text_artifact(
-                    project_config,
-                    &programs.operation_text.schema,
-                    text_fragment,
-                ));
-            }
-        }
-        let generate_operation_text_artifact = config.generate_operation_text_artifact.as_ref().expect("need a generate_fragment_text_artifact function, when text_artifacts feature flag is enabled");
-        for text_operation in programs.operation_text.operations() {
-            if text_artifacts_flag.is_enabled_for(text_operation.name.item) {
-                artifacts.push(generate_operation_text_artifact(
-                    project_config,
-                    &programs.operation_text.schema,
-                    text_operation,
-                ));
-            }
-        }
-    }
-
-    artifacts
 }
 
 fn generate_normalization_artifact(

@@ -111,8 +111,13 @@ impl AstBuilder {
     }
 }
 
-pub struct RequestParameters {
-    pub id: Option<String>,
+pub enum QueryID {
+    Persisted { id: String, text_hash: String },
+    External(StringKey),
+}
+
+pub struct RequestParameters<'a> {
+    pub id: &'a Option<QueryID>,
     pub metadata: FnvHashMap<String, String>,
     pub name: StringKey,
     pub operation_kind: OperationKind,

@@ -65,6 +65,8 @@ pub struct Config {
     pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
     pub generate_fragment_text_artifact: Option<GenerateFragmentTextArtifactFn>,
     pub generate_operation_text_artifact: Option<GenerateOperationTextArtifactFn>,
+    pub generate_virtual_id_file_name: Option<Box<dyn Fn(StringKey) -> StringKey + Send + Sync>>,
+
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
 
@@ -187,6 +189,7 @@ impl From<CliConfig> for Config {
             generate_extra_artifacts: None,
             generate_fragment_text_artifact: None,
             generate_operation_text_artifact: None,
+            generate_virtual_id_file_name: None,
             saved_state_config: None,
             saved_state_loader: None,
             saved_state_version: "MISSING".to_string(),
@@ -335,6 +338,7 @@ impl Config {
             generate_extra_artifacts: None,
             generate_fragment_text_artifact: None,
             generate_operation_text_artifact: None,
+            generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
             saved_state_version: hex::encode(hash.result()),

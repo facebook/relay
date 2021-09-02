@@ -9,8 +9,7 @@ use super::is_operation_preloadable;
 use crate::config::{Config, ProjectConfig};
 use common::{NamedItem, SourceLocationKey};
 use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
-use interner::StringKey;
-use relay_codegen::{build_request_params, Printer};
+use relay_codegen::{build_request_params, Printer, QueryID};
 use relay_transforms::{
     DATA_DRIVEN_DEPENDENCY_METADATA_KEY, INLINE_DATA_CONSTANTS,
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY,
@@ -21,11 +20,6 @@ use schema::SDLSchema;
 use signedsource::{sign_file, SIGNING_TOKEN};
 use std::fmt::{Result, Write};
 use std::sync::Arc;
-
-pub enum QueryID {
-    Persisted { id: String, text_hash: String },
-    External(StringKey),
-}
 
 pub enum ArtifactContent {
     Operation {
@@ -213,14 +207,20 @@ fn generate_operation(
     skip_types: bool,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(&normalization_operation);
-    let operation_hash: Option<String> =
-        if let Some(QueryID::Persisted { id, text_hash }) = id_and_text_hash {
-            request_parameters.id = Some(id.clone());
+    let operation_hash: Option<String> = match id_and_text_hash {
+        Some(QueryID::Persisted { text_hash, .. }) => {
+            request_parameters.id = id_and_text_hash;
             Some(text_hash.clone())
-        } else {
+        }
+        Some(QueryID::External(_)) => {
+            request_parameters.id = id_and_text_hash;
+            None
+        }
+        None => {
             request_parameters.text = Some(text.into());
             None
-        };
+        }
+    };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -249,7 +249,7 @@ fn generate_operation(
         writeln!(content, "'use strict';\n").unwrap();
     }
 
-    if let Some(id) = &request_parameters.id {
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id).unwrap();
     }
     if project_config.variable_names_comment {

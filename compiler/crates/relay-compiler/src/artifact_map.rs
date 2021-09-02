@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{Artifact, ArtifactContent, QueryID};
+use crate::build_project::{Artifact, ArtifactContent};
 use fnv::{FnvBuildHasher, FnvHashMap};
 use interner::StringKey;
+use relay_codegen::QueryID;
 use serde::{Deserialize, Serialize};
 use std::{collections::hash_map::Entry, path::PathBuf};
 

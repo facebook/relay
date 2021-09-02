@@ -7,7 +7,7 @@
 
 use std::path::Path;
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, RequestParameters};
+use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
@@ -36,7 +36,7 @@ use schema::{SDLSchema, Schema};
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
-    request_parameters: RequestParameters,
+    request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
 ) -> AstKey {
@@ -78,12 +78,12 @@ pub fn build_request(
     ]))
 }
 
-pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters {
+pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters<'_> {
     RequestParameters {
         name: operation.name.item,
         operation_kind: operation.kind,
         metadata: Default::default(),
-        id: None,
+        id: &None,
         text: None,
     }
 }
@@ -1645,7 +1645,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_request_parameters(
         &mut self,
         operation: &OperationDefinition,
-        mut request_parameters: RequestParameters,
+        mut request_parameters: RequestParameters<'_>,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
             .directives
@@ -1710,10 +1710,10 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
         let id_prop = ObjectEntry {
             key: CODEGEN_CONSTANTS.id,
-            value: if let Some(id) = request_parameters.id {
-                Primitive::RawString(id)
-            } else {
-                Primitive::Null
+            value: match request_parameters.id {
+                Some(QueryID::Persisted { id, .. }) => Primitive::RawString(id.clone()),
+                Some(QueryID::External(name)) => Primitive::JSModuleDependency(*name),
+                None => Primitive::Null,
             },
         };
 

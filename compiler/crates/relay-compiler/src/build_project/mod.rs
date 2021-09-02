@@ -26,7 +26,6 @@ use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
-pub use artifact_content::QueryID;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
@@ -297,6 +296,7 @@ pub async fn commit_project(
                 &config.root_dir,
                 &persist_config,
                 config,
+                project_config,
                 operation_persister.as_ref(),
                 &log_event,
             )

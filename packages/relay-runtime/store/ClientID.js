@@ -12,6 +12,10 @@
 
 'use strict';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+
+const {shorten} = require('../util/shortString');
+
 import type {DataID} from '../util/RelayRuntimeTypes';
 
 const PREFIX = 'client:';
@@ -21,7 +25,8 @@ function generateClientID(
   storageKey: string,
   index?: number,
 ): DataID {
-  let key = id + ':' + storageKey;
+  const sid = RelayFeatureFlags.STRING_INTERN_LEVEL <= 0 ? id : shorten(id);
+  let key = sid + ':' + storageKey;
   if (index != null) {
     key += ':' + index;
   }

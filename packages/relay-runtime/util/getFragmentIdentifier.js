@@ -23,6 +23,7 @@ const {
   getVariablesFromFragment,
   getSelector,
 } = require('../store/RelayModernSelector');
+const {shorten} = require('./shortString');
 
 import type {ReaderFragment} from './ReaderNode';
 
@@ -43,6 +44,16 @@ function getFragmentIdentifier(
   const dataIDs = getDataIDsFromFragment(fragmentNode, fragmentRef);
 
   if (RelayFeatureFlags.ENABLE_GETFRAGMENTIDENTIFIER_OPTIMIZATION) {
+    let ids =
+      typeof dataIDs === 'undefined'
+        ? 'missing'
+        : dataIDs == null
+        ? 'null'
+        : Array.isArray(dataIDs)
+        ? '[' + dataIDs.join(',') + ']'
+        : dataIDs;
+    ids = RelayFeatureFlags.STRING_INTERN_LEVEL <= 1 ? ids : shorten(ids);
+
     return (
       fragmentOwnerIdentifier +
       '/' +
@@ -52,15 +63,12 @@ function getFragmentIdentifier(
         ? '{}'
         : JSON.stringify(stableCopy(fragmentVariables))) +
       '/' +
-      (typeof dataIDs === 'undefined'
-        ? 'missing'
-        : dataIDs == null
-        ? 'null'
-        : Array.isArray(dataIDs)
-        ? '[' + dataIDs.join(',') + ']'
-        : dataIDs)
+      ids
     );
   } else {
+    let ids = JSON.stringify(dataIDs) ?? 'missing';
+    ids = RelayFeatureFlags.STRING_INTERN_LEVEL <= 1 ? ids : shorten(ids);
+
     return (
       fragmentOwnerIdentifier +
       '/' +
@@ -68,7 +76,7 @@ function getFragmentIdentifier(
       '/' +
       JSON.stringify(stableCopy(fragmentVariables)) +
       '/' +
-      (JSON.stringify(dataIDs) ?? 'missing')
+      ids
     );
   }
 }

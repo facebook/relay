@@ -19,6 +19,7 @@ const {
   getRequestIdentifier,
   Observable,
   PreloadableQueryRegistry,
+  RelayFeatureFlags,
   ReplaySubject,
 } = require('relay-runtime');
 
@@ -111,7 +112,20 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           }
           return () => {
             subscription?.unsubscribe();
-            cleanup(pendingQueries, queryEntry);
+            if (
+              RelayFeatureFlags.DELAY_CLEANUP_OF_PENDING_PRELOAD_QUERIES ===
+              true
+            ) {
+              setTimeout(() => {
+                // Clear the cache entry after the default timeout
+                // null-check for Flow
+                if (queryEntry != null) {
+                  cleanup(pendingQueries, queryEntry);
+                }
+              }, DEFAULT_PREFETCH_TIMEOUT);
+            } else {
+              cleanup(pendingQueries, queryEntry);
+            }
           };
         })
       : null;

@@ -710,10 +710,6 @@ struct ConfigFileProject {
     #[serde(flatten)]
     typegen_config: TypegenConfig,
 
-    /// Generate Query ($Parameters files)
-    #[serde(default)]
-    should_generate_parameters_file: bool,
-
     /// Generates a `// @relayVariables name1 name2` header in generated operation files
     #[serde(default)]
     variable_names_comment: bool,

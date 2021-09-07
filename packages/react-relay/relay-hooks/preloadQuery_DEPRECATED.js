@@ -112,6 +112,9 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           }
           return () => {
             subscription?.unsubscribe();
+            if (environment.isServer()) {
+              return;
+            }
             if (
               RelayFeatureFlags.DELAY_CLEANUP_OF_PENDING_PRELOAD_QUERIES ===
               true

@@ -1,5 +1,0 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-
-extend interface Actor {
-  client_actor_field: String
-}

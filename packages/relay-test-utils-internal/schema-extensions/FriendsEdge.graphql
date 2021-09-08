@@ -1,5 +1,0 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-
-extend type FriendsEdge {
-  client_friend_edge_field: String
-}

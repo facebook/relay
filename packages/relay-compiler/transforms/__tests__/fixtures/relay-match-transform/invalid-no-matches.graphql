@@ -1,5 +1,0 @@
-# expected-to-throw
-fragment NameRendererFragment on User {
-  id
-  nameRenderer @match
-}

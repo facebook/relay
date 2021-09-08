@@ -1,5 +1,0 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-
-extend type FriendsConnection {
-  client_friends_connection_field: String
-}

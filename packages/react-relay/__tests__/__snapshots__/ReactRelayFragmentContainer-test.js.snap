@@ -1,7 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`ReactRelayFragmentContainer can be unwrapped in tests 1`] = `
-<div>
-  Unwrapped
-</div>
-`;

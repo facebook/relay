@@ -203,7 +203,7 @@ impl<'a> TypeGenerator<'a> {
 
         // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
         if self.typegen_config.language == TypegenLanguage::TypeScript
-            && has_fragment_spread(typegen_operation)
+            && has_fragment_spread(&typegen_operation.selections)
         {
             self.runtime_imports.fragment_reference = true;
         }
@@ -1504,25 +1504,16 @@ fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool {
         .is_some()
 }
 
-fn has_fragment_spread(operation: &OperationDefinition) -> bool {
-    let mut selections: Vec<&[Selection]> = vec![&operation.selections];
-    while let Some(selection) = selections.pop() {
-        for sel in selection.iter() {
-            match sel {
-                Selection::FragmentSpread(_) => {
-                    return true;
-                }
-                Selection::Condition(condition) => selections.push(&condition.selections),
-                Selection::LinkedField(linked_field) => selections.push(&linked_field.selections),
-                Selection::InlineFragment(inline_fragment) => {
-                    selections.push(&inline_fragment.selections)
-                }
-                Selection::ScalarField(_) => {}
-            }
+fn has_fragment_spread(selections: &[Selection]) -> bool {
+    selections.iter().any(|selection| match selection {
+        Selection::FragmentSpread(_) => true,
+        Selection::Condition(condition) => has_fragment_spread(&condition.selections),
+        Selection::LinkedField(linked_field) => has_fragment_spread(&linked_field.selections),
+        Selection::InlineFragment(inline_fragment) => {
+            has_fragment_spread(&inline_fragment.selections)
         }
-    }
-
-    false
+        Selection::ScalarField(_) => false,
+    })
 }
 
 fn apply_required_directive_nullability(

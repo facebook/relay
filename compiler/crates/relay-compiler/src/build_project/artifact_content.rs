@@ -207,19 +207,10 @@ fn generate_operation(
     skip_types: bool,
 ) -> Vec<u8> {
     let mut request_parameters = build_request_params(&normalization_operation);
-    let operation_hash: Option<String> = match id_and_text_hash {
-        Some(QueryID::Persisted { text_hash, .. }) => {
-            request_parameters.id = id_and_text_hash;
-            Some(text_hash.clone())
-        }
-        Some(QueryID::External(_)) => {
-            request_parameters.id = id_and_text_hash;
-            None
-        }
-        None => {
-            request_parameters.text = Some(text.into());
-            None
-        }
+    if id_and_text_hash.is_some() {
+        request_parameters.id = id_and_text_hash;
+    } else {
+        request_parameters.text = Some(text.into());
     };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,
@@ -231,9 +222,11 @@ fn generate_operation(
     };
     let mut content = get_content_start(config);
     writeln!(content, " * {}", SIGNING_TOKEN).unwrap();
-    if let Some(operation_hash) = operation_hash {
-        writeln!(content, " * @relayHash {}", operation_hash).unwrap();
-    }
+
+    if let Some(QueryID::Persisted { text_hash, .. }) = id_and_text_hash {
+        writeln!(content, " * @relayHash {}", text_hash).unwrap();
+    };
+
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, " * @flow").unwrap();
     }
@@ -309,11 +302,13 @@ fn generate_operation(
         )
         .unwrap();
     }
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(content, "*/\n").unwrap();
-    }
-    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
-        writeln!(content).unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => {
+            writeln!(content, "*/\n").unwrap();
+        }
+        TypegenLanguage::TypeScript => {
+            writeln!(content).unwrap();
+        }
     }
 
     write_variable_value_with_type(
@@ -337,13 +332,12 @@ fn generate_operation(
         &source_hash,
     )
     .unwrap();
-    // TODO: T67052528 - revisit this, once we move fb-specific transforms under the feature flag
+
     if is_operation_preloadable(normalization_operation) {
         writeln!(
-              content,
-              "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
-          )
-          .unwrap();
+            content,
+            "if (node.params.id != null) {{\n  require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n}}\n",
+        ).unwrap();
     }
 
     write_export_generated_node(
@@ -405,11 +399,13 @@ fn generate_split_operation(
         )
         .unwrap();
     }
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(content, "*/\n").unwrap();
-    }
-    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
-        writeln!(content).unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => {
+            writeln!(content, "*/\n").unwrap();
+        }
+        TypegenLanguage::TypeScript => {
+            writeln!(content).unwrap();
+        }
     }
 
     write_variable_value_with_type(
@@ -520,11 +516,9 @@ fn generate_fragment(
         )
         .unwrap();
     }
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(content, "*/\n").unwrap();
-    }
-    if project_config.typegen_config.language == TypegenLanguage::TypeScript {
-        writeln!(content).unwrap();
+    match project_config.typegen_config.language {
+        TypegenLanguage::Flow => writeln!(content, "*/\n").unwrap(),
+        TypegenLanguage::TypeScript => writeln!(content).unwrap(),
     }
 
     write_variable_value_with_type(

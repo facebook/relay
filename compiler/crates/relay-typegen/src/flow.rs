@@ -7,6 +7,7 @@
 
 use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
 use interner::{Intern, StringKey};
+use itertools::Itertools;
 use lazy_static::lazy_static;
 use std::fmt::{Result, Write};
 
@@ -77,11 +78,7 @@ impl Writer for FlowPrinter {
         writeln!(
             &mut self.result,
             "import type {{ {} }} from \"{}\";",
-            types
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
+            types.iter().format(", "),
             from
         )
     }

@@ -1173,7 +1173,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_relay_resolver_imports(&mut self) -> Result {
-        for (from, name) in self.imported_resolvers.iter_mut().sorted() {
+        for (from, name) in self.imported_resolvers.iter().sorted() {
             self.writer.write_import_module_default(*name, *from)?
         }
         Ok(())

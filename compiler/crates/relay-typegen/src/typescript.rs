@@ -9,6 +9,7 @@ use crate::writer::{Prop, Writer, AST, SPREAD_KEY};
 use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_REFS, KEY_REF_TYPE};
 use interner::{Intern, StringKey};
+use itertools::Itertools;
 use std::fmt::{Result, Write};
 
 pub struct TypeScriptPrinter {
@@ -72,11 +73,7 @@ impl Writer for TypeScriptPrinter {
             } else {
                 ""
             },
-            types
-                .iter()
-                .map(|t| format!("{}", t))
-                .collect::<Vec<_>>()
-                .join(", "),
+            types.iter().format(", "),
             from
         )
     }

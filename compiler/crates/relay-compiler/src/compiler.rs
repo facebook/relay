@@ -51,7 +51,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         self.build_projects(&mut compiler_state, &setup_event)
             .await?;
 
-        self.perf_logger.complete_event(setup_event);
+        setup_event.complete();
         Ok(compiler_state)
     }
 
@@ -116,8 +116,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             } else {
                 info!("Compilation completed.");
             }
-            self.perf_logger.complete_event(setup_event);
-            self.perf_logger.flush();
+            setup_event.complete();
             info!("Waiting for changes...");
 
             self.incremental_build_loop(compiler_state, notify_receiver, &subscription_handle)
@@ -179,10 +178,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     debug!("No new changes detected.");
                     incremental_build_event.stop(incremental_build_time);
                 }
-                self.perf_logger.complete_event(incremental_build_event);
-                // We probably don't want the messages queue to grow indefinitely
-                // and we need to flush then, as the check/build is completed
-                self.perf_logger.flush();
+                incremental_build_event.complete();
             }
         }
     }

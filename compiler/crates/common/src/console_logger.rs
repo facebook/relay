@@ -29,6 +29,7 @@ impl PerfLogEvent for ConsoleLogEvent {
         let (name, time) = timer;
         print_time(&name, time);
     }
+    fn complete(self) {}
 }
 
 impl PerfLogger for ConsoleLogger {
@@ -36,8 +37,6 @@ impl PerfLogger for ConsoleLogger {
     fn create_event(&self, _name: impl Copy + Into<String>) -> Self::PerfLogEvent {
         ConsoleLogEvent
     }
-    fn complete_event(&self, _event: Self::PerfLogEvent) {}
-    fn flush(&self) {}
 }
 
 pub fn print_time(name: &str, time: Instant) {

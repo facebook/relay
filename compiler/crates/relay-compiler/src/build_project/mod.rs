@@ -258,7 +258,7 @@ pub fn build_project(
     );
 
     log_event.stop(build_time);
-    perf_logger.complete_event(log_event);
+    log_event.complete();
     Ok((project_config.name, schema, programs, artifacts))
 }
 
@@ -464,7 +464,7 @@ The compiler may produce outdated artifacts, but it will regenerate the correct 
         programs.operation_text.document_count()
     );
     log_event.stop(commit_time);
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(next_artifact_map)
 }

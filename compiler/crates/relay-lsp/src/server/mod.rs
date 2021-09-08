@@ -234,7 +234,7 @@ fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
         // an error, which is an invalid state.
 
         lsp_request_event.stop(lsp_request_processing_time);
-        perf_logger.complete_event(lsp_request_event);
+        lsp_request_event.complete();
 
         response
     }
@@ -275,7 +275,7 @@ fn handle_notification<
     }
 
     lsp_notification_event.stop(lsp_notification_processing_time);
-    perf_logger.complete_event(lsp_notification_event);
+    lsp_notification_event.complete();
 }
 
 fn dispatch_notification<

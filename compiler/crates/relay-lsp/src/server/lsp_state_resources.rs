@@ -121,8 +121,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             set_ready_status(&self.sender);
 
             setup_event.stop(timer);
-            self.perf_logger.complete_event(setup_event);
-            self.perf_logger.flush();
+            setup_event.complete();
 
             debug!("LSP server initialization completed!");
 
@@ -157,8 +156,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                 set_ready_status(&self.sender);
 
                 log_event.stop(log_time);
-                self.perf_logger.complete_event(log_event);
-                self.perf_logger.flush();
+                log_event.complete();
             }
         }
     }
@@ -415,7 +413,7 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
     fn log_errors(&self, log_event_name: &str, error: &Error) {
         let error_event = self.perf_logger.create_event(log_event_name);
         error_event.string("error", error.to_string());
-        self.perf_logger.complete_event(error_event);
+        error_event.complete();
     }
 
     /// Log errors and report the diagnostics to IDE

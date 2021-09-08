@@ -163,7 +163,7 @@ fn apply_common_transforms(
         relay_actor_change_transform(&program, &feature_flags.actor_change_support)
     })?;
 
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(Arc::new(program))
 }
@@ -198,7 +198,7 @@ fn apply_reader_transforms(
         generate_data_driven_dependency_metadata(&program)
     });
 
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(Arc::new(program))
 }
@@ -231,7 +231,7 @@ fn apply_operation_transforms(
         generate_live_query_metadata(&program)
     })?;
 
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(Arc::new(program))
 }
@@ -307,7 +307,7 @@ fn apply_normalization_transforms(
         print_stats("generate_test_operation_metadata", &program);
     }
 
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(Arc::new(program))
 }
@@ -364,7 +364,7 @@ fn apply_operation_text_transforms(
         unwrap_custom_directive_selection(&program)
     });
 
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(Arc::new(program))
 }
@@ -404,7 +404,7 @@ fn apply_typegen_transforms(
         relay_actor_change_transform(&program, &feature_flags.actor_change_support)
     })?;
 
-    perf_logger.complete_event(log_event);
+    log_event.complete();
 
     Ok(Arc::new(program))
 }

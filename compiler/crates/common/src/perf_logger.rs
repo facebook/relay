@@ -9,12 +9,6 @@ pub trait PerfLogger: Send + Sync {
     type PerfLogEvent: PerfLogEvent + Send;
     /// Create log event
     fn create_event(&self, name: impl Copy + Into<String>) -> Self::PerfLogEvent;
-
-    /// Push event to the logger queue
-    fn complete_event(&self, event: Self::PerfLogEvent);
-
-    /// Flush all log events
-    fn flush(&self);
 }
 
 pub trait PerfLogEvent: Send + Sync {
@@ -42,6 +36,9 @@ pub trait PerfLogEvent: Send + Sync {
         self.stop(timer);
         res
     }
+
+    /// Log the event
+    fn complete(self);
 }
 
 pub struct NoopPerfLogger;
@@ -50,8 +47,6 @@ impl PerfLogger for NoopPerfLogger {
     fn create_event(&self, _name: impl Copy + Into<String>) -> Self::PerfLogEvent {
         NoopPerfLoggerEvent
     }
-    fn complete_event(&self, _event: Self::PerfLogEvent) {}
-    fn flush(&self) {}
 }
 
 pub struct NoopPerfLoggerEvent;
@@ -61,4 +56,5 @@ impl PerfLogEvent for NoopPerfLoggerEvent {
     fn string(&self, _name: impl Copy + Into<String>, _value: String) {}
     fn start(&self, _name: impl Copy + Into<String>) -> Self::Timer {}
     fn stop(&self, _timer: Self::Timer) {}
+    fn complete(self) {}
 }

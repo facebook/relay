@@ -277,8 +277,7 @@ impl<'config> WatchmanFileSource<'config> {
             .map_err(|err| {
                 let error_event = perf_logger.create_event("saved_state_loader_error");
                 error_event.string("error", format!("Failed to deserialize: {}", err));
-                perf_logger.complete_event(error_event);
-                perf_logger.flush();
+                error_event.complete();
                 "failed to deserialize"
             })?;
         // For cases, where we want to debug saved state integration, that doesn't include

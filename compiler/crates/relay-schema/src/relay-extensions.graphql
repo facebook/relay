@@ -56,9 +56,11 @@ A directive that modifies queries and which causes Relay to generate
 `$Parameters.js` files and preloadable concrete requests. Required if the
 query is going to be used as part of an entry point.
 
+The `hackPreloader` argument is FB only and generates a Hack preloader file.
+
 [Read More](https://relay.dev/docs/glossary/#preloadable)
 """
-directive @preloadable on QUERY
+directive @preloadable(hackPreloader: Boolean = false) on QUERY
 
 """
 (Relay Only)

@@ -14,7 +14,6 @@ mod build_ir;
 mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
-mod is_operation_preloadable;
 mod log_program_stats;
 mod persist_operations;
 mod source_control;
@@ -36,7 +35,6 @@ pub use generate_artifacts::{
 };
 use graphql_ir::Program;
 use interner::StringKey;
-pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
 use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;

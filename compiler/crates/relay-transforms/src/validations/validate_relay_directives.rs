@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
+use crate::{
+    relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
+    should_generate_hack_preloader,
+};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::validate;
 use fnv::FnvHashMap;
@@ -165,7 +168,8 @@ impl Validator for RelayDirectiveValidation<'_> {
         // Initialize arguments state for @relay(mask: false),
         self.current_reachable_arguments = Default::default();
         validate!(
-            self.default_validate_operation(&operation),
+            self.default_validate_operation(operation),
+            should_generate_hack_preloader(operation).map(|_| ()),
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {

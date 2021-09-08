@@ -35,6 +35,7 @@ mod mask;
 mod match_;
 mod no_inline;
 mod node_identifier;
+mod preloadable_directive;
 mod react_flight;
 mod refetchable_fragment;
 mod relay_actor_change;
@@ -109,6 +110,7 @@ pub use match_::{
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
 pub use node_identifier::NodeIdentifier;
+pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
 pub use react_flight::{
     react_flight, REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_ARG_KEY,
     REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,

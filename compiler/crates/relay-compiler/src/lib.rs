@@ -30,8 +30,8 @@ pub use build_project::{
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    is_operation_preloadable, transform_program, validate, validate_program, AdditionalValidations,
-    Artifact, ArtifactContent, BuildProjectFailure, SourceHashes,
+    transform_program, validate, validate_program, AdditionalValidations, Artifact,
+    ArtifactContent, BuildProjectFailure, SourceHashes,
 };
 pub use config::{OperationPersister, PersistConfig};
 pub use file_source::{

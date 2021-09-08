@@ -22,6 +22,7 @@ use relay_compiler::{
     FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
     SourceControlUpdateStatus,
 };
+use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
 use tokio::{sync::Notify, task, task::JoinHandle};
 
@@ -359,7 +360,12 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
             }
         }
 
-        validate_program(&self.config, &base_program, log_event)?;
+        validate_program(
+            &self.config,
+            &FeatureFlags::default(),
+            &base_program,
+            log_event,
+        )?;
 
         transform_program(
             &self.config,

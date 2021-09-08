@@ -13,12 +13,15 @@ use relay_transforms::{
     validate_connections, validate_module_names,
     validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
     validate_unused_fragment_variables, validate_unused_variables, ConnectionInterface,
+    FeatureFlags,
 };
 
-pub type AdditionalValidations = Box<dyn Fn(&Program) -> DiagnosticsResult<()> + Sync + Send>;
+pub type AdditionalValidations =
+    Box<dyn Fn(&Program, &FeatureFlags) -> DiagnosticsResult<()> + Sync + Send>;
 
 pub fn validate(
     program: &Program,
+    feature_flags: &FeatureFlags,
     connection_interface: &ConnectionInterface,
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<()> {
@@ -32,7 +35,7 @@ pub fn validate(
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
         if let Some(ref validate) = additional_validations {
-            validate(program)
+            validate(program, feature_flags)
         } else {
             Ok(())
         },

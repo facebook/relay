@@ -40,7 +40,9 @@ pub use is_operation_preloadable::is_operation_preloadable;
 use log::{debug, info, warn};
 use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
-use relay_transforms::{apply_transforms, find_resolver_dependencies, DependencyMap, Programs};
+use relay_transforms::{
+    apply_transforms, find_resolver_dependencies, DependencyMap, FeatureFlags, Programs,
+};
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::{collections::hash_map::Entry, path::PathBuf, sync::Arc};
@@ -94,6 +96,7 @@ pub fn build_raw_program(
 
 pub fn validate_program(
     config: &Config,
+    feature_flags: &FeatureFlags,
     program: &Program,
     log_event: &impl PerfLogEvent,
 ) -> Result<(), BuildProjectError> {
@@ -101,6 +104,7 @@ pub fn validate_program(
     log_event.number("validate_documents_count", program.document_count());
     let result = validate(
         program,
+        feature_flags,
         &config.connection_interface,
         &config.additional_validations,
     )
@@ -172,7 +176,7 @@ pub fn build_programs(
     let (validation_results, _) = rayon::join(
         || {
             // Call validation rules that go beyond type checking.
-            validate_program(&config, &program, log_event)
+            validate_program(&config, &project_config.feature_flags, &program, log_event)
         },
         || {
             find_resolver_dependencies(

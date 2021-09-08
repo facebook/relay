@@ -47,8 +47,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let connection_interface = ConnectionInterface::default();
 
-    validate(&program, &connection_interface, &None)
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    validate(
+        &program,
+        &FeatureFlags::default(),
+        &connection_interface,
+        &None,
+    )
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     let feature_flags = FeatureFlags {
         enable_flight_transform: true,

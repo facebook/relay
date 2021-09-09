@@ -16,7 +16,7 @@ interner = { path = "../interner" }
 logos = "0.11"
 lsp-types = "0.89.0"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
-thiserror = "1.0"
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

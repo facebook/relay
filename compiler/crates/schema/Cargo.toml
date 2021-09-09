@@ -19,7 +19,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 interner = { path = "../interner" }
 ouroboros = "0.8"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
-thiserror = "1.0"
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

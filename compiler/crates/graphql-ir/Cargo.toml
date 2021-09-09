@@ -24,7 +24,7 @@ interner = { path = "../interner" }
 lazy_static = "1.0"
 schema = { path = "../schema" }
 strsim = "0.10.0"
-thiserror = "1.0"
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

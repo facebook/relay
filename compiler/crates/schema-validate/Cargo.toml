@@ -24,7 +24,7 @@ regex = "1.4.2"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
 structopt = "0.3.21"
-thiserror = "1.0"
+thiserror = "1.0.29"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -379,7 +379,9 @@ pub enum ValidationMessage {
         type_name: StringKey,
         alias_path: String,
     },
-    #[error("Found conflicting @module selections: use a unique alias on the parent fields")]
+    #[error(
+        "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
+    )]
     ConflictingModuleSelections,
 
     #[error(

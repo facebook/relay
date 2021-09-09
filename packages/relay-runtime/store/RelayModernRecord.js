@@ -174,10 +174,14 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
     'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
-      'was `%s`.',
+      'was `%s`.%s',
     record[ID_KEY],
     storageKey,
     JSON.stringify(link),
+    typeof link === 'object' && link[REFS_KEY] !== undefined
+      ? ' It appears to be a plural linked record: did you mean to call ' +
+          'getLinkedRecords() instead of getLinkedRecord()?'
+      : '',
   );
   return link[REF_KEY];
 }
@@ -199,10 +203,14 @@ function getLinkedRecordIDs(
   invariant(
     typeof links === 'object' && Array.isArray(links[REFS_KEY]),
     'RelayModernRecord.getLinkedRecordIDs(): Expected `%s.%s` to contain an array ' +
-      'of linked IDs, got `%s`.',
+      'of linked IDs, got `%s`.%s',
     record[ID_KEY],
     storageKey,
     JSON.stringify(links),
+    typeof links === 'object' && links[REF_KEY] !== undefined
+      ? ' It appears to be a singular linked record: did you mean to call ' +
+          'getLinkedRecord() instead of getLinkedRecords()?'
+      : '',
   );
   // assume items of the array are ids
   return (links[REFS_KEY]: any);

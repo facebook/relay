@@ -258,6 +258,23 @@ describe('RelayRecordSourceProxy', () => {
     });
   });
 
+  describe('getLinkedRecord and getLinkedRecords', () => {
+    it('throws if singular/plural is wrong', () => {
+      const zuck = store.get('4');
+      if (zuck == null) {
+        throw new Error('Exepcted to find record with id 4');
+      }
+      expect(() => zuck.getLinkedRecords('hometown')).toThrow(
+        'It appears to be a singular linked record: did you mean to call ' +
+          'getLinkedRecord() instead of getLinkedRecords()',
+      );
+      expect(() => zuck.getLinkedRecord('blockedPages')).toThrow(
+        'It appears to be a plural linked record: did you mean to call ' +
+          'getLinkedRecords() instead of getLinkedRecord()?',
+      );
+    });
+  });
+
   describe('getOrCreateLinkedRecord', () => {
     it('retrieves a record if it already exists', () => {
       const zuck = store.get('4');

@@ -253,7 +253,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                         if let Some(edge_typename_arg) = edge_typename_arg {
                             let field_definition = self.program.schema.field(field.definition.item);
                             match field_definition.type_.inner() {
-                                Type::Object(_) | Type::Interface(_) => {
+                                Type::Object(_) | Type::Interface(_) | Type::Union(_) => {
                                     let handle_directive =
                                         build_handle_field_directive(HandleFieldDirectiveValues {
                                             handle: node_directive.name.item,

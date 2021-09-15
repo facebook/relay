@@ -11,6 +11,7 @@ use crate::compiler_state::{ProjectName, ProjectSet, SourceSet};
 use crate::config::{Config, SchemaLocation};
 use common::sync::ParallelIterator;
 use fnv::FnvHashSet;
+use rayon::iter::IntoParallelRefIterator;
 use relay_typegen::TypegenLanguage;
 use std::collections::HashMap;
 use std::ffi::OsStr;
@@ -22,10 +23,7 @@ use std::{collections::hash_map::Entry, path::Path};
 /// schema files, extensions and sources by their source set name.
 ///
 /// See `FileGroup` for all groups of files.
-pub fn categorize_files(
-    config: &Config,
-    files: impl ParallelIterator<Item = File>,
-) -> HashMap<FileGroup, Vec<File>> {
+pub fn categorize_files(config: &Config, files: Vec<File>) -> HashMap<FileGroup, Vec<File>> {
     let categorizer = FileCategorizer::from_config(config);
 
     let mut has_disabled = false;
@@ -42,6 +40,7 @@ pub fn categorize_files(
     }
 
     let result = files
+        .par_iter()
         .filter_map(|file| {
             let file_group = categorizer.categorize(file.name());
             let should_skip = has_disabled
@@ -69,7 +68,7 @@ pub fn categorize_files(
                     } => !names.iter().any(|name| relevant_projects.contains(name)),
                 };
             if !should_skip {
-                Some((file_group, file))
+                Some((file_group, file.clone()))
             } else {
                 None
             }

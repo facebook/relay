@@ -18,7 +18,7 @@ mod watchman_query_builder;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Result;
-use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
+use common::{PerfLogEvent, PerfLogger};
 use serde_bser::value::Value;
 use std::path::{Path, PathBuf};
 
@@ -29,7 +29,6 @@ pub use self::extract_graphql::{
 use external_file_source::ExternalFileSource;
 pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
-use rayon::iter::IntoParallelRefIterator;
 pub use read_file_to_string::read_file_to_string;
 pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
@@ -148,17 +147,18 @@ impl FileSourceResult {
         }
     }
 
-    pub fn files(&self) -> impl ParallelIterator<Item = File> + '_ {
+    pub fn files(&self) -> Vec<File> {
         match self {
             Self::Watchman(file_source_result) => file_source_result
                 .files
-                .par_iter()
-                .map(|file| File::Watchman(file.clone())),
-            Self::External(_) => unimplemented!(),
-            // Self::External(file_source_result) => file_source_result
-            //     .files
-            //     .par_iter()
-            //     .map(|file| File::External(file.clone())),
+                .iter()
+                .map(|file| File::Watchman(file.clone()))
+                .collect::<Vec<File>>(),
+            Self::External(file_source_result) => file_source_result
+                .files
+                .iter()
+                .map(|file| File::External(file.clone()))
+                .collect::<Vec<File>>(),
         }
     }
 

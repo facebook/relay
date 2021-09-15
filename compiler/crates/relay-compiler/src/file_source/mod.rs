@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod external_file_source;
 mod extract_graphql;
 mod file_categorizer;
 mod file_group;
@@ -21,16 +22,17 @@ use common::{sync::ParallelIterator, PerfLogEvent, PerfLogger};
 use serde_bser::value::Value;
 use std::path::{Path, PathBuf};
 
+use self::external_file_source::{ExternalFile, ExternalFileSourceResult};
 pub use self::extract_graphql::{
     extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
 };
+use external_file_source::ExternalFileSource;
 pub use file_categorizer::{categorize_files, FileCategorizer};
 pub use file_group::FileGroup;
 use rayon::iter::IntoParallelRefIterator;
 pub use read_file_to_string::read_file_to_string;
 pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
-use watchman_client::ResolvedRoot;
 use watchman_file::WatchmanFile;
 use watchman_file_source::{
     WatchmanFileSource, WatchmanFileSourceResult, WatchmanFileSourceSubscription,
@@ -38,6 +40,7 @@ use watchman_file_source::{
 
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
+    External(ExternalFileSource),
     // TODO(T88130396):
     // Oss(OssFileSource<'config>),
 }
@@ -59,6 +62,7 @@ impl<'config> FileSource<'config> {
     ) -> Result<CompilerState> {
         match self {
             Self::Watchman(file_source) => file_source.query(perf_logger_event, perf_logger).await,
+            Self::External(_) => todo!(),
         }
     }
 
@@ -77,6 +81,7 @@ impl<'config> FileSource<'config> {
                     FileSourceSubscription::Watchman(watchman_subscription),
                 ))
             }
+            Self::External(_) => todo!(),
         }
     }
 }
@@ -84,6 +89,7 @@ impl<'config> FileSource<'config> {
 #[derive(Debug, Clone)]
 pub enum File {
     Watchman(WatchmanFile),
+    External(ExternalFile),
     // TODO(T88130396):
     // Oss(OssFile<'config>),
 }
@@ -92,25 +98,33 @@ impl File {
     pub fn name(&self) -> &Path {
         match self {
             Self::Watchman(file) => &(*file.name),
+            Self::External(file) => &file.name,
         }
     }
 
     pub fn into_name(self) -> PathBuf {
         match self {
             Self::Watchman(file) => file.name.into_inner(),
+            Self::External(file) => file.name,
         }
     }
 
     pub fn exists(&self) -> bool {
         match self {
             Self::Watchman(file) => (*file.exists),
+            Self::External(file) => file.exists,
         }
     }
 
-    pub fn absolute_path(&self, resolved_root: Option<ResolvedRoot>) -> PathBuf {
+    pub fn absolute_path(&self, resolved_root: PathBuf) -> PathBuf {
         match self {
             Self::Watchman(file) => {
-                let mut absolute_path = resolved_root.unwrap().path();
+                let mut absolute_path = resolved_root;
+                absolute_path.push(&*file.name);
+                absolute_path
+            }
+            Self::External(file) => {
+                let mut absolute_path = resolved_root;
                 absolute_path.push(&*file.name);
                 absolute_path
             }
@@ -121,14 +135,16 @@ impl File {
 #[derive(Debug)]
 pub enum FileSourceResult {
     Watchman(WatchmanFileSourceResult),
+    External(ExternalFileSourceResult),
     // TODO(T88130396):
-    // Oss(OssFileSourceResult<'config>),
+    // Oss(OssFileSourceResult<'config>)
 }
 
 impl FileSourceResult {
     pub fn clock(&self) -> Clock {
         match self {
             Self::Watchman(file_source) => file_source.clock.clone(),
+            Self::External(_) => unimplemented!(),
         }
     }
 
@@ -137,25 +153,33 @@ impl FileSourceResult {
             Self::Watchman(file_source_result) => file_source_result
                 .files
                 .par_iter()
-                .map(|file| File::Watchman(file.to_owned())),
+                .map(|file| File::Watchman(file.clone())),
+            Self::External(_) => unimplemented!(),
+            // Self::External(file_source_result) => file_source_result
+            //     .files
+            //     .par_iter()
+            //     .map(|file| File::External(file.clone())),
         }
     }
 
-    pub fn resolved_root(&self) -> Option<ResolvedRoot> {
+    pub fn resolved_root(&self) -> PathBuf {
         match self {
-            Self::Watchman(file_source_result) => Some(file_source_result.resolved_root.to_owned()),
+            Self::Watchman(file_source_result) => file_source_result.resolved_root.path(),
+            Self::External(file_source_result) => file_source_result.resolved_root.clone(),
         }
     }
 
     pub fn saved_state_info(&self) -> &Option<Value> {
         match self {
             Self::Watchman(file_source_result) => &file_source_result.saved_state_info,
+            Self::External(_) => unimplemented!(),
         }
     }
 
     pub fn size(&self) -> usize {
         match self {
             Self::Watchman(file_source_result) => file_source_result.files.len(),
+            Self::External(file_source_result) => file_source_result.files.len(),
         }
     }
 }

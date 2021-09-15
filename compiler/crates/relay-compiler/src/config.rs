@@ -95,6 +95,10 @@ pub struct Config {
     /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
     /// This config option is here to define the name of that special variable
     pub is_dev_variable_name: Option<String>,
+
+    /// List with changed files in format "file_path,exists".
+    /// This can be used to replace watchman queries
+    pub changed_files_list: Option<PathBuf>,
 }
 
 #[derive(StructOpt)]
@@ -196,6 +200,7 @@ impl From<CliConfig> for Config {
             post_artifacts_write: None,
             additional_validations: None,
             is_dev_variable_name: None,
+            changed_files_list: None,
         }
     }
 }
@@ -343,6 +348,7 @@ impl Config {
             post_artifacts_write: None,
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
+            changed_files_list: None,
         };
 
         let mut validation_errors = Vec::new();

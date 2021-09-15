@@ -49,9 +49,13 @@ impl<'config> FileSource<'config> {
         config: &'config Config,
         perf_logger_event: &impl PerfLogEvent,
     ) -> Result<FileSource<'config>> {
-        Ok(Self::Watchman(
-            WatchmanFileSource::connect(config, perf_logger_event).await?,
-        ))
+        if config.changed_files_list.is_some() {
+            Ok(Self::External(ExternalFileSource::new(config)))
+        } else {
+            Ok(Self::Watchman(
+                WatchmanFileSource::connect(config, perf_logger_event).await?,
+            ))
+        }
     }
 
     pub async fn query(
@@ -61,7 +65,7 @@ impl<'config> FileSource<'config> {
     ) -> Result<CompilerState> {
         match self {
             Self::Watchman(file_source) => file_source.query(perf_logger_event, perf_logger).await,
-            Self::External(_) => todo!(),
+            Self::External(_) => todo!("Implement query for files"),
         }
     }
 
@@ -80,7 +84,9 @@ impl<'config> FileSource<'config> {
                     FileSourceSubscription::Watchman(watchman_subscription),
                 ))
             }
-            Self::External(_) => todo!(),
+            Self::External(_) => {
+                unimplemented!("watch-mode (subscribe) is not available for external file source.")
+            }
         }
     }
 }

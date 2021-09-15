@@ -124,6 +124,15 @@ pub enum Error {
 
     #[error("Watchman subscription canceled")]
     WatchmanSubscriptionCanceled,
+
+    #[error("Unable to parse changed files list. {reason}")]
+    ExternalSourceParseError { reason: String },
+
+    #[error("JSON parse error in `{file}`: {source}")]
+    SerdeError {
+        file: PathBuf,
+        source: serde_json::Error,
+    },
 }
 
 #[derive(Debug, Error)]

@@ -39,7 +39,7 @@ use watchman_file_source::{
 
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
-    External(ExternalFileSource),
+    External(ExternalFileSource<'config>),
     // TODO(T88130396):
     // Oss(OssFileSource<'config>),
 }
@@ -65,7 +65,7 @@ impl<'config> FileSource<'config> {
     ) -> Result<CompilerState> {
         match self {
             Self::Watchman(file_source) => file_source.query(perf_logger_event, perf_logger).await,
-            Self::External(_) => todo!("Implement query for files"),
+            Self::External(file_source) => file_source.create_compiler_state(perf_logger),
         }
     }
 

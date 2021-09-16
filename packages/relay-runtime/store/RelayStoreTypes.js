@@ -53,6 +53,12 @@ import type {RecordState} from './RelayRecordState';
 export opaque type FragmentReference = empty;
 export type OperationTracker = RelayOperationTracker;
 
+export type MutationParameters = {|
+  +response: {...},
+  +variables: interface {},
+  +rawResponse?: {...},
+|};
+
 /*
  * An individual cached graph object.
  */

@@ -30,6 +30,7 @@ import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
   SelectorStoreUpdater,
+  MutationParameters,
 } from '../store/RelayStoreTypes';
 import type {
   CacheConfig,
@@ -50,12 +51,6 @@ export type DEPRECATED_MutationConfig<T> = {|
   optimisticUpdater?: ?SelectorStoreUpdater,
   optimisticResponse?: Object,
   updater?: ?SelectorStoreUpdater,
-|};
-
-export type MutationParameters = {|
-  +response: {...},
-  +variables: interface {},
-  +rawResponse?: {...},
 |};
 
 export type MutationConfig<T: MutationParameters> = {|

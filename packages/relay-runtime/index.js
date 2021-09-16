@@ -87,7 +87,6 @@ export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation
 export type {
   DEPRECATED_MutationConfig,
   MutationConfig,
-  MutationParameters,
 } from './mutations/commitMutation';
 export type {
   ExecuteFunction,
@@ -131,6 +130,7 @@ export type {
   MissingFieldHandler,
   MissingRequiredFields,
   ModuleImportPointer,
+  MutationParameters,
   NormalizationSelector,
   OperationAvailability,
   OperationDescriptor,

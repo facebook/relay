@@ -236,12 +236,12 @@ impl CompilerState {
                     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
                     let sources = files
                         .par_iter()
-                        .filter(|file| file.exists())
+                        .filter(|file| file.exists)
                         .filter_map(|file| {
                             match extract_graphql_strings_from_file(&file_source_changes, &file) {
                                 Ok(graphql_strings) if graphql_strings.is_empty() => None,
                                 Ok(graphql_strings) => {
-                                    Some(Ok(((*file.name()).to_owned(), graphql_strings)))
+                                    Some(Ok((file.name.clone(), graphql_strings)))
                                 }
                                 Err(err) => Some(Err(err)),
                             }
@@ -280,7 +280,7 @@ impl CompilerState {
                     result.artifacts.insert(
                         project_name,
                         Arc::new(ArtifactMapKind::Unconnected(
-                            files.into_iter().map(|file| file.into_name()).collect(),
+                            files.into_iter().map(|file| file.name).collect(),
                         )),
                     );
                 }
@@ -404,12 +404,12 @@ impl CompilerState {
                         let sources: FnvHashMap<PathBuf, Vec<GraphQLSource>> = files
                             .par_iter()
                             .map(|file| {
-                                let graphql_strings = if file.exists() {
+                                let graphql_strings = if file.exists {
                                     extract_graphql_strings_from_file(&file_source_changes, &file)?
                                 } else {
                                     Vec::new()
                                 };
-                                Ok(((file.name()).to_owned(), graphql_strings))
+                                Ok((file.name.clone(), graphql_strings))
                             })
                             .collect::<Result<_>>()?;
                         log_event.stop(extract_timer);
@@ -450,10 +450,8 @@ impl CompilerState {
                     }
                     FileGroup::Generated { project_name } => {
                         if should_collect_changed_artifacts {
-                            self.dirty_artifact_paths.insert(
-                                project_name,
-                                files.into_iter().map(|f| f.into_name()).collect(),
-                            );
+                            self.dirty_artifact_paths
+                                .insert(project_name, files.into_iter().map(|f| f.name).collect());
                         }
                     }
                 }
@@ -583,8 +581,8 @@ impl CompilerState {
         let mut removed_sources = vec![];
         let mut added_sources = FnvHashMap::default();
         for file in files {
-            let file_name = (file.name()).to_owned();
-            if file.exists() {
+            let file_name = file.name.clone();
+            if file.exists {
                 added_sources.insert(file_name, read_file_to_string(&file_source_changes, &file)?);
             } else {
                 removed_sources.push(file_name);

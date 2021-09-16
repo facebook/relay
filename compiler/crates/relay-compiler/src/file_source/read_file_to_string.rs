@@ -11,9 +11,11 @@ use crate::errors::{Error, Result};
 
 /// Reads a file into a string.
 pub fn read_file_to_string(file_source_result: &FileSourceResult, file: &File) -> Result<String> {
-    if !(file.exists()) {
-        unreachable!("Can't read from non-existent file: {:?}", file.name());
-    }
+    assert!(
+        file.exists,
+        "Can't read from non-existent file: {:?}",
+        &file.name
+    );
     let absolute_path = file.absolute_path(file_source_result.resolved_root());
     std::fs::read_to_string(&absolute_path).map_err(|err| Error::FileRead {
         file: absolute_path.clone(),

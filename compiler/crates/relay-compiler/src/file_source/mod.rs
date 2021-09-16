@@ -21,7 +21,7 @@ use crate::errors::Result;
 use common::{PerfLogEvent, PerfLogger};
 use serde::Deserialize;
 use serde_bser::value::Value;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::{
@@ -99,18 +99,6 @@ pub struct File {
 }
 
 impl File {
-    pub fn name(&self) -> &Path {
-        &self.name
-    }
-
-    pub fn into_name(self) -> PathBuf {
-        self.name
-    }
-
-    pub fn exists(&self) -> bool {
-        self.exists
-    }
-
     pub fn absolute_path(&self, resolved_root: PathBuf) -> PathBuf {
         let mut absolute_path = resolved_root;
         absolute_path.push(&self.name);

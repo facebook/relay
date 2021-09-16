@@ -42,7 +42,7 @@ pub fn categorize_files(config: &Config, files: Vec<File>) -> HashMap<FileGroup,
     let result = files
         .par_iter()
         .filter_map(|file| {
-            let file_group = categorizer.categorize(file.name());
+            let file_group = categorizer.categorize(&file.name);
             let should_skip = has_disabled
                 && match &file_group {
                     FileGroup::Source {

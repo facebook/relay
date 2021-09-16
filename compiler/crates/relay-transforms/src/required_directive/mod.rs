@@ -236,7 +236,7 @@ impl<'program> RequiredDirective<'program> {
         let previous_required_children = match self.required_children_map.get(&field_path) {
             Some(it) => it,
             _ => {
-                // We haven't seen any other instances of this field, so there's no validaiton to perform.
+                // We haven't seen any other instances of this field, so there's no validation to perform.
                 return;
             }
         };

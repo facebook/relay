@@ -19,10 +19,11 @@ use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Result;
 use common::{PerfLogEvent, PerfLogger};
+use serde::Deserialize;
 use serde_bser::value::Value;
 use std::path::{Path, PathBuf};
 
-use self::external_file_source::{ExternalFile, ExternalFileSourceResult};
+use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::{
     extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
 };
@@ -91,49 +92,29 @@ impl<'config> FileSource<'config> {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum File {
-    Watchman(WatchmanFile),
-    External(ExternalFile),
-    // TODO(T88130396):
-    // Oss(OssFile<'config>),
+#[derive(Debug, Clone, Deserialize)]
+pub struct File {
+    pub name: PathBuf,
+    pub exists: bool,
 }
 
 impl File {
     pub fn name(&self) -> &Path {
-        match self {
-            Self::Watchman(file) => &(*file.name),
-            Self::External(file) => &file.name,
-        }
+        &self.name
     }
 
     pub fn into_name(self) -> PathBuf {
-        match self {
-            Self::Watchman(file) => file.name.into_inner(),
-            Self::External(file) => file.name,
-        }
+        self.name
     }
 
     pub fn exists(&self) -> bool {
-        match self {
-            Self::Watchman(file) => (*file.exists),
-            Self::External(file) => file.exists,
-        }
+        self.exists
     }
 
     pub fn absolute_path(&self, resolved_root: PathBuf) -> PathBuf {
-        match self {
-            Self::Watchman(file) => {
-                let mut absolute_path = resolved_root;
-                absolute_path.push(&*file.name);
-                absolute_path
-            }
-            Self::External(file) => {
-                let mut absolute_path = resolved_root;
-                absolute_path.push(&*file.name);
-                absolute_path
-            }
-        }
+        let mut absolute_path = resolved_root;
+        absolute_path.push(&self.name);
+        absolute_path
     }
 }
 
@@ -158,13 +139,12 @@ impl FileSourceResult {
             Self::Watchman(file_source_result) => file_source_result
                 .files
                 .iter()
-                .map(|file| File::Watchman(file.clone()))
+                .map(|file| File {
+                    name: (*file.name).clone(),
+                    exists: *file.exists,
+                })
                 .collect::<Vec<File>>(),
-            Self::External(file_source_result) => file_source_result
-                .files
-                .iter()
-                .map(|file| File::External(file.clone()))
-                .collect::<Vec<File>>(),
+            Self::External(file_source_result) => file_source_result.files.clone(),
         }
     }
 

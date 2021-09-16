@@ -12,8 +12,9 @@ use crate::errors::{Error, Result};
 use crate::FileSourceResult;
 use crate::{compiler_state::CompilerState, config::Config};
 use common::PerfLogger;
-use serde::{Deserialize, Serialize};
 use std::fs::File as FsFile;
+
+use super::File;
 
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman
@@ -21,15 +22,9 @@ pub struct ExternalFileSource<'config> {
     config: &'config Config,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ExternalFile {
-    pub name: PathBuf,
-    pub exists: bool,
-}
-
 #[derive(Debug)]
 pub struct ExternalFileSourceResult {
-    pub files: Vec<ExternalFile>,
+    pub files: Vec<File>,
     pub resolved_root: PathBuf,
 }
 
@@ -39,7 +34,7 @@ impl ExternalFileSourceResult {
             file: path.clone(),
             source: err,
         })?;
-        let files: Vec<ExternalFile> =
+        let files: Vec<File> =
             serde_json::from_reader(BufReader::new(file)).map_err(|err| Error::SerdeError {
                 file: path.clone(),
                 source: err,

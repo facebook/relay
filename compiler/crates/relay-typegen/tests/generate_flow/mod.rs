@@ -44,6 +44,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             actor_change_support: FeatureFlag::Enabled,
             ..Default::default()
         }),
+        &None,
         Arc::new(ConsoleLogger),
         None,
     )

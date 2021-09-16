@@ -148,6 +148,13 @@ pub enum ValidationMessage {
     StreamConflictUsedInMultiplePlaces { response_key: StringKey },
 
     #[error(
+        "The `@relay_test_operation` directive is only allowed within test \
+        files because it creates larger generated files we don't want to \
+        include in production. File does not match test regex: {test_directory_regex}"
+    )]
+    TestOperationOutsideTestDirectory { test_directory_regex: String },
+
+    #[error(
         "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
     )]
     InvalidSameFieldWithDifferentArguments {

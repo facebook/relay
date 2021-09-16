@@ -11,6 +11,7 @@ use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use interner::StringKey;
+use regex::Regex;
 use std::sync::Arc;
 
 #[derive(Debug)]
@@ -28,6 +29,7 @@ pub fn apply_transforms<TPerfLogger>(
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     connection_interface: &ConnectionInterface,
     feature_flags: Arc<FeatureFlags>,
+    test_directory_regex: &Option<Regex>,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Programs>
@@ -74,6 +76,7 @@ where
                                 Arc::clone(&operation_program),
                                 Arc::clone(&base_fragment_names),
                                 Arc::clone(&feature_flags),
+                                test_directory_regex.clone(),
                                 Arc::clone(&perf_logger),
                                 print_stats,
                             )
@@ -245,6 +248,7 @@ fn apply_normalization_transforms(
     program: Arc<Program>,
     base_fragment_names: Arc<FnvHashSet<StringKey>>,
     feature_flags: Arc<FeatureFlags>,
+    test_directory_regex: Option<Regex>,
     perf_logger: Arc<impl PerfLogger>,
     maybe_print_stats: Option<fn(extra_info: &'static str, program: &Program) -> ()>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -301,8 +305,8 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("generate_test_operation_metadata", || {
-        generate_test_operation_metadata(&program)
-    });
+        generate_test_operation_metadata(&program, &test_directory_regex)
+    })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("generate_test_operation_metadata", &program);
     }

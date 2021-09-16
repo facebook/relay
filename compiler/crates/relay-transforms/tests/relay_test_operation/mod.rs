@@ -11,6 +11,6 @@ use relay_transforms::generate_test_operation_metadata;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {
-        Ok(generate_test_operation_metadata(program))
+        generate_test_operation_metadata(program, &None)
     })
 }

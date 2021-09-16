@@ -179,6 +179,7 @@ fn get_programs(schema: &Arc<SDLSchema>, document_text: &str) -> Result<Programs
         base_fragment_names,
         &connection_interface,
         Arc::new(feature_flags),
+        &None,
         Arc::new(perf_logger),
         None,
     )

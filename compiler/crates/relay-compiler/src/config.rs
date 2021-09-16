@@ -166,6 +166,7 @@ impl From<CliConfig> for Config {
             persist: None,
             variable_names_comment: false,
             extra: Default::default(),
+            test_directory_regex: None,
             feature_flags: Default::default(),
             filename_for_artifact: None,
             skip_types_for_artifact: None,
@@ -281,21 +282,31 @@ impl Config {
                         }),
                     }?;
 
-                let shard_strip_regex = match config_file_project.shard_strip_regex {
-                    None => Ok(None),
-                    Some(ref val) => match Regex::new(val) {
-                        Ok(val) => Ok(Some(val)),
-                        Err(error) => Err(Error::ConfigFileValidation {
-                            config_path: config_path.clone(),
-                            validation_errors: vec![
-                                ConfigValidationError::InvalidShardPathStripRegex {
-                                    project_name,
-                                    error,
-                                },
-                            ],
-                        }),
-                    },
-                }?;
+                let shard_strip_regex = config_file_project
+                    .shard_strip_regex
+                    .map(|s| Regex::new(&s))
+                    .transpose()
+                    .map_err(|error| Error::ConfigFileValidation {
+                        config_path: config_path.clone(),
+                        validation_errors: vec![ConfigValidationError::InvalidRegex {
+                            key: "shardStripRegex",
+                            project_name,
+                            error,
+                        }],
+                    })?;
+
+                let test_directory_regex = config_file_project
+                    .test_directory_regex
+                    .map(|s| Regex::new(&s))
+                    .transpose()
+                    .map_err(|error| Error::ConfigFileValidation {
+                        config_path: config_path.clone(),
+                        validation_errors: vec![ConfigValidationError::InvalidRegex {
+                            key: "testDirectoryRegex",
+                            project_name,
+                            error,
+                        }],
+                    })?;
 
                 let project_config = ProjectConfig {
                     name: project_name,
@@ -311,6 +322,7 @@ impl Config {
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
                     extra: config_file_project.extra,
+                    test_directory_regex,
                     feature_flags: Arc::new(
                         config_file_project
                             .feature_flags
@@ -558,6 +570,7 @@ pub struct ProjectConfig {
     pub variable_names_comment: bool,
     pub extra: Option<FnvIndexMap<String, String>>,
     pub feature_flags: Arc<FeatureFlags>,
+    pub test_directory_regex: Option<Regex>,
     pub filename_for_artifact:
         Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
@@ -582,6 +595,7 @@ impl Debug for ProjectConfig {
             variable_names_comment,
             extra,
             feature_flags,
+            test_directory_regex,
             filename_for_artifact,
             skip_types_for_artifact,
             rollout,
@@ -602,6 +616,7 @@ impl Debug for ProjectConfig {
             .field("variable_names_comment", variable_names_comment)
             .field("extra", extra)
             .field("feature_flags", feature_flags)
+            .field("test_directory_regex", test_directory_regex)
             .field(
                 "filename_for_artifact",
                 &if filename_for_artifact.is_some() {
@@ -722,6 +737,11 @@ struct ConfigFileProject {
 
     #[serde(flatten)]
     typegen_config: TypegenConfig,
+
+    /// Optional regex to restrict @relay_test_operation to directories matching
+    /// this regex. Defaults to no limitations.
+    #[serde(default)]
+    test_directory_regex: Option<String>,
 
     /// Generates a `// @relayVariables name1 name2` header in generated operation files
     #[serde(default)]

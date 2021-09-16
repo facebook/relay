@@ -41,6 +41,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             enable_required_transform: true,
             ..Default::default()
         }),
+        &None,
         Arc::new(ConsoleLogger),
         None,
     )

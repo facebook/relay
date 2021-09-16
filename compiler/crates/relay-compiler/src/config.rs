@@ -19,6 +19,7 @@ use async_trait::async_trait;
 use common::SourceLocationKey;
 use fmt::Debug;
 use fnv::{FnvBuildHasher, FnvHashSet};
+use graphql_ir::{OperationDefinition, Program};
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
 use persist_query::PersistError;
@@ -63,7 +64,13 @@ pub struct Config {
     pub load_saved_state_file: Option<PathBuf>,
     /// Function to generate extra
     pub generate_extra_artifacts: Option<GenerateExtraArtifactsFn>,
-    pub generate_virtual_id_file_name: Option<Box<dyn Fn(StringKey) -> StringKey + Send + Sync>>,
+    pub generate_virtual_id_file_name: Option<
+        Box<
+            dyn Fn(&ProjectConfig, &OperationDefinition, &Program) -> Option<StringKey>
+                + Send
+                + Sync,
+        >,
+    >,
 
     /// Path to which to write the output of the compilation
     pub artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,

@@ -18,6 +18,7 @@ use md5::{Digest, Md5};
 use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
 use relay_codegen::QueryID;
+use relay_transforms::Programs;
 use std::{fs, path::PathBuf};
 
 lazy_static! {
@@ -33,6 +34,7 @@ pub async fn persist_operations(
     project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
     log_event: &impl PerfLogEvent,
+    programs: &Programs,
 ) -> Result<(), BuildProjectError> {
     let handles = artifacts
         .par_iter_mut()
@@ -40,24 +42,16 @@ pub async fn persist_operations(
             if let ArtifactContent::Operation {
                 ref text,
                 ref mut id_and_text_hash,
-                ref normalization_operation,
+                ref reader_operation,
                 ..
             } = artifact.content
             {
-                if project_config
-                    .feature_flags
+                if let Some(Some(virtual_id_file_name)) = config
+                    .generate_virtual_id_file_name
                     .as_ref()
-                    .text_artifacts
-                    .is_enabled_for(normalization_operation.name.item)
+                    .map(|gen_name| gen_name(project_config, reader_operation, &programs.reader))
                 {
-                    let name = if let Some(generate_virtual_id_file_name) =
-                        &config.generate_virtual_id_file_name
-                    {
-                        generate_virtual_id_file_name(normalization_operation.name.item)
-                    } else {
-                        normalization_operation.name.item
-                    };
-                    *id_and_text_hash = Some(QueryID::External(name));
+                    *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
                     None
                 } else {
                     let text_hash = md5(text);

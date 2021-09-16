@@ -299,6 +299,7 @@ pub async fn commit_project(
                 project_config,
                 operation_persister.as_ref(),
                 &log_event,
+                &programs,
             )
             .await?;
             log_event.stop(persist_operations_timer);

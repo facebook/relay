@@ -19,7 +19,8 @@ type MyType {
 ==================================== ERROR ====================================
 ✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.
 
-  <generated>:1:1
-    1 │ # expected-to-throw
-      │ ^
-    2 │
+  <generated>:11:13
+   10 │ 
+   11 │ extend type MyType {
+      │             ^^^^^^
+   12 │   will_this_crash: Int

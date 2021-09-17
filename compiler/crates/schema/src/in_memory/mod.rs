@@ -937,7 +937,7 @@ impl InMemorySchema {
     fn add_definition(
         &mut self,
         definition: &TypeSystemDefinition,
-        _location_key: &SourceLocationKey,
+        location_key: &SourceLocationKey,
         is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match definition {
@@ -1161,7 +1161,7 @@ impl InMemorySchema {
                     let obj = self.objects.get(index).ok_or_else(|| {
                         vec![Diagnostic::error(
                             SchemaError::ExtendUndefinedType(name.value),
-                            Location::generated(),
+                            Location::new(location_key.clone(), name.span),
                         )]
                     })?;
 
@@ -1195,7 +1195,10 @@ impl InMemorySchema {
                     );
                 }
                 _ => {
-                    return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(location_key.clone(), name.span),
+                    )]);
                 }
             },
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
@@ -1209,7 +1212,7 @@ impl InMemorySchema {
                     let interface = self.interfaces.get(index).ok_or_else(|| {
                         vec![Diagnostic::error(
                             SchemaError::ExtendUndefinedType(name.value),
-                            Location::generated(),
+                            Location::new(location_key.clone(), name.span),
                         )]
                     })?;
                     let field_ids = &interface.fields;
@@ -1232,7 +1235,10 @@ impl InMemorySchema {
                     );
                 }
                 _ => {
-                    return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(location_key.clone(), name.span),
+                    )]);
                 }
             },
             TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),

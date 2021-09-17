@@ -18,9 +18,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let result = match parts.as_slice() {
         [base] => build_schema_with_extensions::<_, &str>(&[base], &[]),
-        [base, extensions] => {
-            build_schema_with_extensions(&[base], &[(extensions, SourceLocationKey::generated())])
-        }
+        [base, extensions] => build_schema_with_extensions(
+            &[base],
+            &[(extensions, SourceLocationKey::standalone(fixture.file_name))],
+        ),
         _ => panic!("Expected a single extension block"),
     };
 

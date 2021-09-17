@@ -7,10 +7,12 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
+use regex::Regex;
 use relay_transforms::generate_test_operation_metadata;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    let test_path_regex = Some(Regex::new(r#"^test"#).unwrap());
     apply_transform_for_test(fixture, |program| {
-        generate_test_operation_metadata(program, &None)
+        generate_test_operation_metadata(program, &test_path_regex)
     })
 }

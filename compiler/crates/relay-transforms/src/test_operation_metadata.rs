@@ -71,10 +71,8 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        if operation
-            .directives
-            .named(*TEST_OPERATION_DIRECTIVE)
-            .is_some()
+        if let Some(test_operation_directive) =
+            operation.directives.named(*TEST_OPERATION_DIRECTIVE)
         {
             if let Some(test_path_regex) = self.test_path_regex {
                 if !test_path_regex.is_match(operation.name.location.source_location().path()) {
@@ -82,7 +80,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                         ValidationMessage::TestOperationOutsideTestDirectory {
                             test_path_regex: test_path_regex.to_string(),
                         },
-                        operation.name.location,
+                        test_operation_directive.name.location,
                     ));
                     return Transformed::Keep;
                 }

@@ -14,7 +14,7 @@
 
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 
-const {shorten} = require('../util/shortString');
+const {intern} = require('../util/StringInterner');
 
 import type {DataID} from '../util/RelayRuntimeTypes';
 
@@ -25,8 +25,11 @@ function generateClientID(
   storageKey: string,
   index?: number,
 ): DataID {
-  const sid = RelayFeatureFlags.STRING_INTERN_LEVEL <= 0 ? id : shorten(id);
-  let key = sid + ':' + storageKey;
+  const internedId =
+    RelayFeatureFlags.STRING_INTERN_LEVEL <= 0
+      ? id
+      : intern(id, RelayFeatureFlags.MAX_DATA_ID_LENGTH);
+  let key = internedId + ':' + storageKey;
   if (index != null) {
     key += ':' + index;
   }

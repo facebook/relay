@@ -28,13 +28,13 @@ lazy_static! {
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed
 /// as runtime data during codegen.
-/// If a `test_directory_regex` is passed, only allows the directive in
+/// If a `test_path_regex` is passed, only allows the directive in
 /// directories matching the regex.
 pub fn generate_test_operation_metadata(
     program: &Program,
-    test_directory_regex: &Option<Regex>,
+    test_path_regex: &Option<Regex>,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = GenerateTestOperationMetadata::new(program, test_directory_regex);
+    let mut transformer = GenerateTestOperationMetadata::new(program, test_path_regex);
     let next_program = transformer
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -48,15 +48,15 @@ pub fn generate_test_operation_metadata(
 
 struct GenerateTestOperationMetadata<'a> {
     program: &'a Program,
-    test_directory_regex: &'a Option<Regex>,
+    test_path_regex: &'a Option<Regex>,
     errors: Vec<Diagnostic>,
 }
 
 impl<'a> GenerateTestOperationMetadata<'a> {
-    fn new(program: &'a Program, test_directory_regex: &'a Option<Regex>) -> Self {
+    fn new(program: &'a Program, test_path_regex: &'a Option<Regex>) -> Self {
         GenerateTestOperationMetadata {
             program,
-            test_directory_regex,
+            test_path_regex,
             errors: Vec::new(),
         }
     }
@@ -76,12 +76,11 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
             .named(*TEST_OPERATION_DIRECTIVE)
             .is_some()
         {
-            if let Some(test_directory_regex) = self.test_directory_regex {
-                if !test_directory_regex.is_match(operation.name.location.source_location().path())
-                {
+            if let Some(test_path_regex) = self.test_path_regex {
+                if !test_path_regex.is_match(operation.name.location.source_location().path()) {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::TestOperationOutsideTestDirectory {
-                            test_directory_regex: test_directory_regex.to_string(),
+                            test_path_regex: test_path_regex.to_string(),
                         },
                         operation.name.location,
                     ));

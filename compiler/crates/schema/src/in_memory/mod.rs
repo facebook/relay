@@ -648,9 +648,19 @@ impl InMemorySchema {
     }
 
     pub fn build(
-        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
-        client_definitions: &[graphql_syntax::TypeSystemDefinition],
+        schema_documents: &[SchemaDocument],
+        client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
+        let schema_definitions: Vec<&TypeSystemDefinition> = schema_documents
+            .iter()
+            .flat_map(|document| &document.definitions)
+            .collect();
+
+        let client_definitions: Vec<&TypeSystemDefinition> = client_schema_documents
+            .iter()
+            .flat_map(|document| &document.definitions)
+            .collect();
+
         // Step 1: build the type_map from type names to type keys
         let mut type_map =
             HashMap::with_capacity(schema_definitions.len() + client_definitions.len());
@@ -662,7 +672,8 @@ impl InMemorySchema {
         let mut next_scalar_id = 0;
         let mut field_count = 0;
         let mut directive_count = 0;
-        for definition in schema_definitions.iter().chain(client_definitions) {
+
+        for definition in schema_definitions.iter().chain(&client_definitions) {
             match definition {
                 TypeSystemDefinition::SchemaDefinition { .. } => {}
                 TypeSystemDefinition::DirectiveDefinition { .. } => {
@@ -762,33 +773,39 @@ impl InMemorySchema {
             unions: Vec::with_capacity(next_union_id.try_into().unwrap()),
         };
 
-        for definition in schema_definitions {
-            schema.add_definition(definition, false)?;
+        for document in schema_documents {
+            for definition in &document.definitions {
+                schema.add_definition(&definition, &document.location.source_location(), false)?;
+            }
         }
 
-        for definition in client_definitions {
-            schema.add_definition(definition, true)?;
+        for document in client_schema_documents {
+            for definition in &document.definitions {
+                schema.add_definition(&definition, &document.location.source_location(), true)?;
+            }
         }
 
-        for definition in schema_definitions.iter().chain(client_definitions) {
-            if let TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-                name,
-                interfaces,
-                ..
-            }) = definition
-            {
-                let object_id = match schema.type_map.get(&name.value) {
-                    Some(Type::Object(id)) => id,
-                    _ => unreachable!("Must be an Object type"),
-                };
-                for interface in interfaces {
-                    let type_ = schema.type_map.get(&interface.value).unwrap();
-                    match type_ {
-                        Type::Interface(id) => {
-                            let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
-                            interface.implementing_objects.push(*object_id)
+        for document in schema_documents.iter().chain(client_schema_documents) {
+            for definition in &document.definitions {
+                if let TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
+                    name,
+                    interfaces,
+                    ..
+                }) = definition
+                {
+                    let object_id = match schema.type_map.get(&name.value) {
+                        Some(Type::Object(id)) => id,
+                        _ => unreachable!("Must be an Object type"),
+                    };
+                    for interface in interfaces {
+                        let type_ = schema.type_map.get(&interface.value).unwrap();
+                        match type_ {
+                            Type::Interface(id) => {
+                                let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
+                                interface.implementing_objects.push(*object_id)
+                            }
+                            _ => unreachable!("Must be an interface"),
                         }
-                        _ => unreachable!("Must be an interface"),
                     }
                 }
             }
@@ -920,6 +937,7 @@ impl InMemorySchema {
     fn add_definition(
         &mut self,
         definition: &TypeSystemDefinition,
+        _location_key: &SourceLocationKey,
         is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match definition {

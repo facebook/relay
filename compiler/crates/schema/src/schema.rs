@@ -251,21 +251,21 @@ impl SDLSchema {
     }
 
     pub fn build(
-        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
-        client_definitions: &[graphql_syntax::TypeSystemDefinition],
+        schema_documents: &[SchemaDocument],
+        client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
         Ok(SDLSchema::InMemory(InMemorySchema::build(
-            schema_definitions,
-            client_definitions,
+            schema_documents,
+            client_schema_documents,
         )?))
     }
 
     pub fn build_flatbuffer(
-        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
-        client_definitions: &[graphql_syntax::TypeSystemDefinition],
+        schema_documents: &[SchemaDocument],
+        client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
         let sdl_schema =
-            crate::in_memory::InMemorySchema::build(schema_definitions, client_definitions)?;
+            crate::in_memory::InMemorySchema::build(schema_documents, client_schema_documents)?;
         let flatbuffer_bytes = crate::flatbuffer::serialize_as_flatbuffer(&sdl_schema);
         Ok(SDLSchema::FlatBuffer(SchemaWrapper::from_vec(
             flatbuffer_bytes,

@@ -147,7 +147,7 @@ impl Source for String {
 }
 
 impl SchemaSources {
-    pub fn get_sources(&self) -> Vec<&String> {
+    fn get_all(&self) -> Vec<(&PathBuf, &String)> {
         let mut sources: Vec<_>;
         if self.pending.is_empty() {
             sources = self.processed.iter().collect();
@@ -160,7 +160,24 @@ impl SchemaSources {
             }
         }
         sources.sort_by_key(|file_content| file_content.0);
+        sources
+    }
+    pub fn get_sources(&self) -> Vec<&String> {
+        let sources = self.get_all();
         sources.iter().map(|file_content| file_content.1).collect()
+    }
+
+    pub fn get_sources_with_location(&self) -> Vec<(&String, SourceLocationKey)> {
+        let sources = self.get_all();
+        sources
+            .iter()
+            .map(|file_content| {
+                (
+                    file_content.1,
+                    SourceLocationKey::standalone(file_content.0.to_str().unwrap()),
+                )
+            })
+            .collect()
     }
 
     pub fn get_old_sources(&self) -> Vec<&String> {

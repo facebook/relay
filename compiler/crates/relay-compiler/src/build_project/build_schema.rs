@@ -7,7 +7,7 @@
 
 use crate::compiler_state::CompilerState;
 use crate::config::ProjectConfig;
-use common::{DiagnosticsResult, SourceLocationKey};
+use common::DiagnosticsResult;
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -23,13 +23,13 @@ pub fn build_schema(
         _ => {
             let mut extensions = vec![];
             if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
-                extensions.extend(project_extensions.get_sources());
+                extensions.extend(project_extensions.get_sources_with_location());
             }
             if let Some(base_project_name) = project_config.base {
                 if let Some(base_project_extensions) =
                     compiler_state.extensions.get(&base_project_name)
                 {
-                    extensions.extend(base_project_extensions.get_sources());
+                    extensions.extend(base_project_extensions.get_sources_with_location());
                 }
             }
             let mut schema_sources = Vec::new();
@@ -39,15 +39,7 @@ pub fn build_schema(
                     .into_iter()
                     .map(String::as_str),
             );
-            let extensions_with_location_key: Vec<(&String, SourceLocationKey)> = extensions
-                .iter()
-                .map(|source| (*source, SourceLocationKey::generated()))
-                .collect();
-            relay_schema::build_schema_with_extensions(
-                &schema_sources,
-                &extensions_with_location_key,
-            )
-            .map(Arc::new)
+            relay_schema::build_schema_with_extensions(&schema_sources, &extensions).map(Arc::new)
         }
     }
 }

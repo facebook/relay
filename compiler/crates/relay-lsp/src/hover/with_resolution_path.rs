@@ -626,6 +626,10 @@ fn get_scalar_or_linked_field_hover_content(
             )));
         }
     }
+
+    if field.is_extension {
+        hover_contents.push(MarkedString::String("**Client Schema Extension**: This field was declared as a Relay Client Schema Extension, and is therefore only avalaible in Relay code. [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions).".to_string()))
+    }
     Some(hover_contents)
 }
 

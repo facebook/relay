@@ -6,8 +6,10 @@
  */
 
 use super::{CONNECTION_METADATA_ARGUMENT_NAME, CONNECTION_METADATA_DIRECTIVE_NAME};
-use crate::connections::{ConnectionConstants, ConnectionInterface};
-use crate::util::extract_variable_name;
+use crate::{
+    connections::{ConnectionConstants, ConnectionInterface},
+    util::extract_variable_name,
+};
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, InlineFragment, LinkedField, ScalarField, Selection, Value,

@@ -5,22 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
-use crate::connections::CONNECTION_METADATA_DIRECTIVE_NAME;
-use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
-use crate::inline_data_fragment::INLINE_DATA_CONSTANTS;
-use crate::match_::MATCH_CONSTANTS;
-use crate::react_flight::{
-    REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+use crate::{
+    client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME,
+    connections::CONNECTION_METADATA_DIRECTIVE_NAME,
+    handle_fields::HANDLE_FIELD_DIRECTIVE_NAME,
+    inline_data_fragment::INLINE_DATA_CONSTANTS,
+    match_::MATCH_CONSTANTS,
+    react_flight::{
+        REACT_FLIGHT_LOCAL_COMPONENTS_METADATA_KEY, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    },
+    refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS,
+    relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    relay_client_component::RELAY_CLIENT_COMPONENT_METADATA_KEY,
+    relay_resolvers::RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
+    required_directive::{
+        CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
+    },
+    DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
-use crate::refetchable_fragment::CONSTANTS as REFETCHABLE_CONSTANTS;
-use crate::relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
-use crate::relay_client_component::RELAY_CLIENT_COMPONENT_METADATA_KEY;
-use crate::relay_resolvers::RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME;
-use crate::required_directive::{
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME, REQUIRED_METADATA_KEY,
-};
-use crate::{DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 
 use graphql_ir::{
     Argument, Directive, Value, ARGUMENT_DEFINITION, UNUSED_LOCAL_VARIABLE_DEPRECATED,

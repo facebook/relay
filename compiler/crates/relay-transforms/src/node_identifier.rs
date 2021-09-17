@@ -5,14 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
-use crate::MATCH_CONSTANTS;
+use crate::{util::CustomMetadataDirectives, MATCH_CONSTANTS};
 use common::WithLocation;
 use graphql_ir::*;
 use interner::StringKey;
 use schema::SDLSchema;
-use std::hash::{Hash, Hasher};
-use std::sync::Arc;
+use std::{
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
 
 /// An identifier that is unique to a given selection: the alias for
 /// fields, the type for inline fragments, and a summary of the condition

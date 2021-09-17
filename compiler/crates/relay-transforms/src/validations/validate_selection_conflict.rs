@@ -6,8 +6,7 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use crate::DEFER_STREAM_CONSTANTS;
-use crate::{PointerAddress, ValidationMessage};
+use crate::{PointerAddress, ValidationMessage, DEFER_STREAM_CONSTANTS};
 use common::{Diagnostic, DiagnosticsResult, Location};
 use dashmap::DashMap;
 use errors::{par_try_map, validate_map};

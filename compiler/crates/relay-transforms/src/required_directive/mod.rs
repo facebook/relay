@@ -15,12 +15,10 @@ use graphql_ir::{
     OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
     Transformer, ValidationMessage, Value,
 };
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
-use std::mem;
-use std::sync::Arc;
+use std::{mem, sync::Arc};
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();

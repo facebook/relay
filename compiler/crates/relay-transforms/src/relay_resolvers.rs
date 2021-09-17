@@ -15,8 +15,7 @@ use graphql_ir::{
     Program, ScalarField, Selection, Transformed, Transformer, Value, Visitor,
 };
 use graphql_syntax::ConstantValue as SyntaxConstantValue;
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{ArgumentValue, Field, SDLSchema, Schema};
 use std::{mem, sync::Arc};

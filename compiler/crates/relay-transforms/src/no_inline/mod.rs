@@ -6,8 +6,7 @@
  */
 
 use crate::{ValidationMessage, MATCH_CONSTANTS, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME};
-use common::{Diagnostic, WithLocation};
-use common::{DiagnosticsResult, NamedItem};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{Argument, ConstantValue, Directive, FragmentSpread, Program, Validator, Value};
 use interner::{Intern, StringKey};

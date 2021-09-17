@@ -6,10 +6,9 @@
  */
 
 use crate::util::CustomMetadataDirectives;
-use graphql_ir::Selection;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
-    ScalarField, Transformed, Transformer,
+    ScalarField, Selection, Transformed, Transformer,
 };
 use interner::StringKey;
 use schema::Schema;

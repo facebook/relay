@@ -8,10 +8,12 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::match_::SplitOperationMetadata;
-use crate::no_inline::{NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG};
-use crate::util::get_normalization_operation_name;
-use crate::{feature_flags::FeatureFlag, no_inline::is_raw_response_type_enabled};
+use crate::{
+    feature_flags::FeatureFlag,
+    match_::SplitOperationMetadata,
+    no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
+    util::get_normalization_operation_name,
+};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_ir::{

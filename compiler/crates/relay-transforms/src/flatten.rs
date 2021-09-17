@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME};
-use crate::match_::MATCH_CONSTANTS;
-use crate::util::{
-    is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress,
+use crate::{
+    handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME},
+    match_::MATCH_CONSTANTS,
+    util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress},
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
@@ -18,8 +18,7 @@ use interner::StringKey;
 use schema::{Schema, Type};
 
 use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::sync::*;
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use common::{sync::*, Diagnostic, DiagnosticsResult, NamedItem};
 use fnv::FnvHashMap;
 use parking_lot::{Mutex, RwLock};
 use schema::SDLSchema;

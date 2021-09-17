@@ -10,8 +10,7 @@ use graphql_ir::{
     Argument, ConstantValue, FragmentDefinition, OperationDefinition, Program, ScalarField,
     Selection, Transformed, Transformer, ValidationMessage, Value,
 };
-use interner::Intern;
-use interner::StringKey;
+use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Argument as ArgumentDef, FieldID, SDLSchema, Schema};
 use std::sync::Arc;

@@ -5,20 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::node_identifier::NodeIdentifier;
-use crate::util::{is_relay_custom_inline_fragment_directive, PointerAddress};
-use crate::DEFER_STREAM_CONSTANTS;
+use crate::{
+    node_identifier::NodeIdentifier,
+    util::{is_relay_custom_inline_fragment_directive, PointerAddress},
+    DEFER_STREAM_CONSTANTS,
+};
 
-use common::sync::*;
-use common::NamedItem;
+use common::{sync::*, NamedItem};
 use dashmap::DashMap;
 use graphql_ir::{
     Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
     Selection, Transformed, TransformedValue,
 };
 use schema::SDLSchema;
-use std::iter::Iterator;
-use std::sync::Arc;
+use std::{iter::Iterator, sync::Arc};
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is

@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq};
-use crate::relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
+use crate::{
+    no_inline::NO_INLINE_DIRECTIVE_NAME,
+    node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
+    relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+};
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,

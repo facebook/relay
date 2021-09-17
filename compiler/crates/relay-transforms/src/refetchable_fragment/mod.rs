@@ -12,9 +12,11 @@ mod refetchable_directive;
 mod utils;
 mod viewer_query_generator;
 
-use crate::connections::{extract_connection_metadata_from_directive, ConnectionConstants};
-use crate::relay_directive::{PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
-use crate::root_variables::{InferVariablesVisitor, VariableMap};
+use crate::{
+    connections::{extract_connection_metadata_from_directive, ConnectionConstants},
+    relay_directive::{PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
+    root_variables::{InferVariablesVisitor, VariableMap},
+};
 
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use errors::validate_map;
@@ -29,8 +31,7 @@ use interner::StringKey;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
 use schema::{SDLSchema, Schema};
-use std::fmt::Write;
-use std::sync::Arc;
+use std::{fmt::Write, sync::Arc};
 use utils::*;
 pub use utils::{
     extract_refetch_metadata_from_directive, RefetchableDerivedFromMetadata, CONSTANTS,

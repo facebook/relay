@@ -11,8 +11,10 @@ use graphql_ir::{
     ValidationMessage,
 };
 
-use crate::connections::ConnectionInterface;
-use crate::handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues};
+use crate::{
+    connections::ConnectionInterface,
+    handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues},
+};
 use interner::{Intern, StringKey};
 use lazy_static::lazy_static;
 use schema::{Schema, Type};

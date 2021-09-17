@@ -11,6 +11,7 @@ use graphql_ir::{
     Transformer,
 };
 use std::{cmp::Ordering, collections::HashMap};
+
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
 /// Sorts selections in the fragments and queries (and their selections)

@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface};
-use crate::handle_fields::{
-    extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
-    DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
+use crate::{
+    connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface},
+    handle_fields::{
+        extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
+        DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
+    },
 };
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::{validate, validate_map};

@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::{
-    assert_connection_selections, build_connection_metadata,
-    build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,
-    extract_connection_directive, get_default_filters, ConnectionConstants, ConnectionInterface,
-    ConnectionMetadata,
+use crate::{
+    connections::{
+        assert_connection_selections, build_connection_metadata,
+        build_connection_metadata_as_directive, build_edge_selections, build_page_info_selections,
+        extract_connection_directive, get_default_filters, ConnectionConstants,
+        ConnectionInterface, ConnectionMetadata,
+    },
+    defer_stream::DEFER_STREAM_CONSTANTS,
+    handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME},
 };
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME};
 use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,

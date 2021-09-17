@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::match_::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
-use crate::{defer_stream::DEFER_STREAM_CONSTANTS, FeatureFlag};
-use crate::{feature_flags::FeatureFlags, no_inline::attach_no_inline_directives_to_fragments};
 use crate::{
-    inline_data_fragment::INLINE_DATA_CONSTANTS, no_inline::validate_required_no_inline_directive,
+    defer_stream::DEFER_STREAM_CONSTANTS,
+    feature_flags::FeatureFlags,
+    inline_data_fragment::INLINE_DATA_CONSTANTS,
+    match_::MATCH_CONSTANTS,
+    no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
+    util::get_normalization_operation_name,
+    FeatureFlag,
 };
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use fnv::{FnvBuildHasher, FnvHashMap};
@@ -22,8 +24,10 @@ use graphql_ir::{
 use indexmap::IndexSet;
 use interner::{Intern, StringKey};
 use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
-use std::hash::{Hash, Hasher};
-use std::sync::Arc;
+use std::{
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
 
 /// Transform and validate @match and @module
 pub fn transform_match(

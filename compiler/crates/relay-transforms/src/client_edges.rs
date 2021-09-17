@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::refetchable_fragment::RefetchableFragment;
-use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
 use fnv::FnvHashMap;
 use graphql_syntax::OperationKind;
 use interner::{Intern, StringKey};

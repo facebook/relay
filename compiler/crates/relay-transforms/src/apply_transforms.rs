@@ -6,8 +6,7 @@
  */
 
 use super::*;
-use common::sync::try_join;
-use common::{DiagnosticsResult, PerfLogEvent, PerfLogger};
+use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use interner::StringKey;

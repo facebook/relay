@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6e10503278cc3ace2f7b69557fb36253>>
+ * @generated SignedSource<<65d81bbe14605159aa701bad6cbaf098>>
  */
 
 mod compile_relay_artifacts;
@@ -377,10 +377,10 @@ fn false_positive_circular_fragment_reference_regression() {
 }
 
 #[test]
-fn fields_with_null_arugment_values() {
-    let input = include_str!("compile_relay_artifacts/fixtures/fields-with-null-arugment-values.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/fields-with-null-arugment-values.expected");
-    test_fixture(transform_fixture, "fields-with-null-arugment-values.graphql", "compile_relay_artifacts/fixtures/fields-with-null-arugment-values.expected", input, expected);
+fn fields_with_null_argument_values() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fields-with-null-argument-values.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fields-with-null-argument-values.expected");
+    test_fixture(transform_fixture, "fields-with-null-argument-values.graphql", "compile_relay_artifacts/fixtures/fields-with-null-argument-values.expected", input, expected);
 }
 
 #[test]

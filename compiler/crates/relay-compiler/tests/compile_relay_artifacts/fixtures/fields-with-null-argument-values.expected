@@ -1,5 +1,5 @@
 ==================================== INPUT ====================================
-query fieldsWithNullArugmentValues_NodeQuery($id: ID!) {
+query fieldsWithNullArgumentValues_NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
@@ -30,7 +30,7 @@ query fieldsWithNullArugmentValues_NodeQuery($id: ID!) {
     ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "fieldsWithNullArugmentValues_NodeQuery",
+    "name": "fieldsWithNullArgumentValues_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -167,7 +167,7 @@ query fieldsWithNullArugmentValues_NodeQuery($id: ID!) {
       }
     ],
     "kind": "Operation",
-    "name": "fieldsWithNullArugmentValues_NodeQuery",
+    "name": "fieldsWithNullArgumentValues_NodeQuery",
     "selections": [
       {
         "alias": null,
@@ -302,7 +302,7 @@ query fieldsWithNullArugmentValues_NodeQuery($id: ID!) {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "fieldsWithNullArugmentValues_NodeQuery",
+    "name": "fieldsWithNullArgumentValues_NodeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -310,7 +310,7 @@ query fieldsWithNullArugmentValues_NodeQuery($id: ID!) {
 
 QUERY:
 
-query fieldsWithNullArugmentValues_NodeQuery(
+query fieldsWithNullArgumentValues_NodeQuery(
   $id: ID!
 ) {
   node(id: $id) {

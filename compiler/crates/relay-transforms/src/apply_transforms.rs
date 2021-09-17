@@ -39,10 +39,10 @@ where
     // The execution pipeline is as follows, where items at the same indentation
     // can be computed independently and therefore in parallel:
     // |- common
-    //  |- reader
-    //  |- operation
-    //     |- normalization
-    //     |- operation_text
+    //    |- reader
+    //    |- operation
+    //       |- normalization
+    //       |- operation_text
     // |- typegen
     //
     // NOTE: try_join(f1, f2) prefers the errors from f1 over f2, so process the normalization

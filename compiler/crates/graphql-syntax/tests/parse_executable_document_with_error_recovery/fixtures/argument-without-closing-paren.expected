@@ -9,7 +9,7 @@ ExecutableDocument {
     span: 0:61,
     definitions: [
         FragmentDefinition {
-            location: arugment-without-closing-paren.graphql:0:60,
+            location: argument-without-closing-paren.graphql:0:60,
             fragment: Token {
                 span: 0:8,
                 kind: Identifier,
@@ -138,7 +138,7 @@ ExecutableDocument {
 Errors:
 ✖︎ Expected a closing paren (')')
 
-  arugment-without-closing-paren.graphql:2:22
+  argument-without-closing-paren.graphql:2:22
     1 │ fragment Test on User {
     2 │   photo (size: $size {
       │                      ^

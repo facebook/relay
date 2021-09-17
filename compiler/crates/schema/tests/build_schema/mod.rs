@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Diagnostic;
+use common::{Diagnostic, SourceLocationKey};
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use schema::{
@@ -18,7 +18,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     let result = match parts.as_slice() {
         [base] => build_schema_with_extensions::<_, &str>(&[base], &[]),
-        [base, extensions] => build_schema_with_extensions(&[base], &[extensions]),
+        [base, extensions] => {
+            build_schema_with_extensions(&[base], &[(extensions, SourceLocationKey::generated())])
+        }
         _ => panic!("Expected a single extension block"),
     };
 

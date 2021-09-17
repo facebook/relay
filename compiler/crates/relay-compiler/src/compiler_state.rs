@@ -12,7 +12,7 @@ use crate::file_source::{
     categorize_files, extract_graphql_strings_from_file, read_file_to_string, Clock, File,
     FileGroup, FileSourceResult, SourceControlUpdateStatus,
 };
-use common::{PerfLogEvent, PerfLogger};
+use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
 use fnv::{FnvHashMap, FnvHashSet};
 use graphql_syntax::GraphQLSource;
 use interner::StringKey;
@@ -340,7 +340,10 @@ impl CompilerState {
         if schema_change == SchemaChange::None {
             true
         } else {
-            match relay_schema::build_schema_with_extensions(&current, &Vec::<&str>::new()) {
+            match relay_schema::build_schema_with_extensions(
+                &current,
+                &Vec::<(&str, SourceLocationKey)>::new(),
+            ) {
                 Ok(schema) => schema_change.is_safe(&schema),
                 Err(_) => false,
             }

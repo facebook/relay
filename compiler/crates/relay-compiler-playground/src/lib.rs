@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, NoopPerfLogger, SourceLocationKey::Generated};
+use common::{
+    Diagnostic, NoopPerfLogger,
+    SourceLocationKey::{self, Generated},
+};
 use console_error_panic_hook;
 use fnv::FnvHashSet;
 use graphql_ir::Program;
@@ -83,7 +86,7 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
 
 
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<&str>::new())
+        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
 
@@ -105,7 +108,7 @@ pub fn parse_to_reader_ast(schema_text: &str, document_text: &str) -> String {
 
 pub fn parse_to_reader_ast_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<&str>::new())
+        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
 
@@ -134,7 +137,7 @@ pub fn transform(schema_text: &str, document_text: &str) -> String {
 
 fn transform_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<&str>::new())
+        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
             .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let programs = get_programs(&schema, document_text)?;

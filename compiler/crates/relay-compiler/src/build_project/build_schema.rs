@@ -7,7 +7,7 @@
 
 use crate::compiler_state::CompilerState;
 use crate::config::ProjectConfig;
-use common::DiagnosticsResult;
+use common::{DiagnosticsResult, SourceLocationKey};
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -39,7 +39,15 @@ pub fn build_schema(
                     .into_iter()
                     .map(String::as_str),
             );
-            relay_schema::build_schema_with_extensions(&schema_sources, &extensions).map(Arc::new)
+            let extensions_with_location_key: Vec<(&String, SourceLocationKey)> = extensions
+                .iter()
+                .map(|source| (*source, SourceLocationKey::generated()))
+                .collect();
+            relay_schema::build_schema_with_extensions(
+                &schema_sources,
+                &extensions_with_location_key,
+            )
+            .map(Arc::new)
         }
     }
 }

@@ -43,7 +43,7 @@ pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
-    extension_sdls: &[U],
+    extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let mut server_documents = vec![builtins()?];
     let mut combined_sdl: String = String::new();
@@ -57,10 +57,10 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     )?);
 
     let mut client_schema_documents = Vec::new();
-    for extension_sdl in extension_sdls {
+    for (extension_sdl, location_key) in extension_sdls {
         client_schema_documents.push(graphql_syntax::parse_schema_document(
             extension_sdl.as_ref(),
-            SourceLocationKey::generated(),
+            location_key.clone(),
         )?);
     }
 

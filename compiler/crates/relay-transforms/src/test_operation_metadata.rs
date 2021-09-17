@@ -8,8 +8,8 @@
 use crate::{ValidationMessage, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantArgument, ConstantValue, Directive, OperationDefinition, Program, Selection,
-    Transformed, Transformer, Value,
+    Argument, ConstantArgument, ConstantValue, Directive, FragmentDefinition, OperationDefinition,
+    Program, Selection, Transformed, Transformer, Value,
 };
 use indexmap::IndexMap;
 use interner::{Intern, StringKey};
@@ -123,6 +123,10 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
         } else {
             Transformed::Keep
         }
+    }
+
+    fn transform_fragment(&mut self, _: &FragmentDefinition) -> Transformed<FragmentDefinition> {
+        Transformed::Keep
     }
 }
 

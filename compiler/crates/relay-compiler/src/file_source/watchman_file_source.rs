@@ -7,8 +7,8 @@
 
 use super::watchman_query_builder::{get_all_roots, get_watchman_expr};
 use super::FileSourceResult;
-use super::FileSourceSubscriptionNextChange;
 use super::WatchmanFile;
+use super::WatchmanFileSourceSubscriptionNextChange;
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
@@ -319,24 +319,24 @@ impl WatchmanFileSourceSubscription {
 
     /// Awaits changes from Watchman and provides the next set of changes
     /// if there were any changes to files
-    pub async fn next_change(&mut self) -> Result<FileSourceSubscriptionNextChange> {
+    pub async fn next_change(&mut self) -> Result<WatchmanFileSourceSubscriptionNextChange> {
         match self.subscription.next().await? {
             SubscriptionData::FilesChanged(changes) => {
                 if let Some(files) = changes.files {
                     debug!("number of files in this update: {}", files.len());
-                    return Ok(FileSourceSubscriptionNextChange::Result(
-                        FileSourceResult::Watchman(WatchmanFileSourceResult {
+                    return Ok(WatchmanFileSourceSubscriptionNextChange::Result(
+                        WatchmanFileSourceResult {
                             files,
                             resolved_root: self.resolved_root.clone(),
                             clock: changes.clock,
                             saved_state_info: None,
-                        }),
+                        },
                     ));
                 }
             }
             SubscriptionData::StateEnter { state_name, .. } => {
                 if state_name == "hg.update" {
-                    return Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter);
+                    return Ok(WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter);
                 }
             }
             SubscriptionData::StateLeave {
@@ -352,9 +352,11 @@ impl WatchmanFileSourceSubscription {
                     let current_base_revision = get_base_revision(current_commit);
                     if current_base_revision != self.base_revision {
                         self.base_revision = current_base_revision;
-                        return Ok(FileSourceSubscriptionNextChange::SourceControlUpdate);
+                        return Ok(WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate);
                     } else {
-                        return Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave);
+                        return Ok(
+                            WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave,
+                        );
                     }
                 }
             }
@@ -362,7 +364,7 @@ impl WatchmanFileSourceSubscription {
                 return Err(Error::WatchmanSubscriptionCanceled);
             }
         }
-        Ok(FileSourceSubscriptionNextChange::None)
+        Ok(WatchmanFileSourceSubscriptionNextChange::None)
     }
 }
 

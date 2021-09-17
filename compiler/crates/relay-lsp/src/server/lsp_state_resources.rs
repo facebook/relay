@@ -20,7 +20,7 @@ use relay_compiler::{
     config::Config, config::ProjectConfig, errors::BuildProjectError, errors::Error,
     transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
-    SourceControlUpdateStatus,
+    SourceControlUpdateStatus, WatchmanFileSourceSubscriptionNextChange,
 };
 use relay_transforms::FeatureFlags;
 use schema::SDLSchema;
@@ -391,25 +391,31 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
                     Err(_) => {
                         // do nothing? compiler should panic, and restart the lsp
                     }
-                    Ok(FileSourceSubscriptionNextChange::None) => {}
-                    Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
-                        source_code_update_status.mark_as_started();
-                    }
-                    Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
-                        source_code_update_status.set_to_default();
-                    }
-                    Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
-                        source_code_update_status.mark_as_completed();
-                        notify_sender.notify_one();
-                        break;
-                    }
-                    Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
-                        pending_file_source_changes
-                            .write()
-                            .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on pending_file_source_changes")
-                            .push(file_source_changes);
+                    Ok(FileSourceSubscriptionNextChange::Watchman(watchman_next_change)) => {
+                        match watchman_next_change {
+                            WatchmanFileSourceSubscriptionNextChange::None => {}
+                            WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter => {
+                                source_code_update_status.mark_as_started();
+                            }
+                            WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave => {
+                                source_code_update_status.set_to_default();
+                            }
+                            WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate => {
+                                source_code_update_status.mark_as_completed();
+                                notify_sender.notify_one();
+                                break;
+                            }
+                            WatchmanFileSourceSubscriptionNextChange::Result(
+                                file_source_changes,
+                            ) => {
+                                pending_file_source_changes
+                                .write()
+                                .expect("LSPState::watch_and_update_schemas: expect to acquire write lock on pending_file_source_changes")
+                                .push(FileSourceResult::Watchman(file_source_changes));
 
-                        notify_sender.notify_one();
+                                notify_sender.notify_one();
+                            }
+                        }
                     }
                 }
             }

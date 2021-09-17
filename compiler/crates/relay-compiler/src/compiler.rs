@@ -13,7 +13,8 @@ use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::{
     compiler_state::{ArtifactMapKind, CompilerState},
-    file_source::FileSourceSubscriptionNextChange,
+    file_source::{FileSourceSubscriptionNextChange, WatchmanFileSourceSubscriptionNextChange},
+    FileSourceResult,
 };
 use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
@@ -76,28 +77,32 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 loop {
                     let next_change = subscription.next_change().await;
                     match next_change {
-                        Ok(FileSourceSubscriptionNextChange::Result(file_source_changes)) => {
-                            pending_file_source_changes
-                                .write()
-                                .unwrap()
-                                .push(file_source_changes);
-                            notify_sender.notify_one();
+                        Ok(FileSourceSubscriptionNextChange::Watchman(watchman_next_change)) => {
+                            match watchman_next_change {
+                                WatchmanFileSourceSubscriptionNextChange::Result(file_source_changes) => {
+                                    pending_file_source_changes
+                                        .write()
+                                        .unwrap()
+                                        .push(FileSourceResult::Watchman(file_source_changes));
+                                    notify_sender.notify_one();
+                                }
+                                WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter => {
+                                    info!("hg.update started...");
+                                    source_control_update_status.mark_as_started();
+                                }
+                                WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave => {
+                                    info!("hg.update completed.");
+                                    source_control_update_status.set_to_default();
+                                }
+                                WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate => {
+                                    info!("hg.update completed. Detected new base revision...");
+                                    source_control_update_status.mark_as_completed();
+                                    notify_sender.notify_one();
+                                    break;
+                                }
+                                WatchmanFileSourceSubscriptionNextChange::None => {}
+                            }
                         }
-                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdateEnter) => {
-                            info!("hg.update started...");
-                            source_control_update_status.mark_as_started();
-                        }
-                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdateLeave) => {
-                            info!("hg.update completed.");
-                            source_control_update_status.set_to_default();
-                        }
-                        Ok(FileSourceSubscriptionNextChange::SourceControlUpdate) => {
-                            info!("hg.update completed. Detected new base revision...");
-                            source_control_update_status.mark_as_completed();
-                            notify_sender.notify_one();
-                            break;
-                        }
-                        Ok(FileSourceSubscriptionNextChange::None) => {}
                         Err(err) => {
                             panic!("Watchman subscription error: {}", err);
                         }

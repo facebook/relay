@@ -165,16 +165,22 @@ pub enum FileSourceSubscription {
 impl FileSourceSubscription {
     pub async fn next_change(&mut self) -> Result<FileSourceSubscriptionNextChange> {
         match self {
-            Self::Watchman(file_source_subscription) => {
-                file_source_subscription.next_change().await
-            }
+            Self::Watchman(file_source_subscription) => file_source_subscription
+                .next_change()
+                .await
+                .map(|next_change| FileSourceSubscriptionNextChange::Watchman(next_change)),
         }
     }
 }
 
 #[derive(Debug)]
 pub enum FileSourceSubscriptionNextChange {
-    Result(FileSourceResult),
+    Watchman(WatchmanFileSourceSubscriptionNextChange),
+}
+
+#[derive(Debug)]
+pub enum WatchmanFileSourceSubscriptionNextChange {
+    Result(WatchmanFileSourceResult),
     /// This value indicated the beginning of the source control update.
     /// We may stop the compilation process and wait for the next event.
     SourceControlUpdateEnter,

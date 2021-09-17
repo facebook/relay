@@ -1140,7 +1140,14 @@ impl InMemorySchema {
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
-                    let field_ids = &self.objects[index].fields;
+                    let obj = self.objects.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::generated(),
+                        )]
+                    })?;
+
+                    let field_ids = &obj.fields;
                     let mut existing_fields =
                         HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
@@ -1181,7 +1188,13 @@ impl InMemorySchema {
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
-                    let field_ids = &self.interfaces[index].fields;
+                    let interface = self.interfaces.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::generated(),
+                        )]
+                    })?;
+                    let field_ids = &interface.fields;
                     let mut existing_fields =
                         HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {

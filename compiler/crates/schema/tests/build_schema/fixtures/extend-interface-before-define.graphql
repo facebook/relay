@@ -1,0 +1,17 @@
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: MyType
+}
+
+extend type MyType {
+  will_this_crash: Int
+}
+
+type MyType {
+  is_this_cool: Boolean
+}

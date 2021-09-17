@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af01acc6b17dbce8e5d8dbf2e2b9c617>>
+ * @generated SignedSource<<097aba04fdcca2d264b97ae5c608a345>>
  */
 
 mod build_schema;
@@ -17,6 +17,20 @@ fn directives_for_external_types() {
     let input = include_str!("build_schema/fixtures/directives-for-external-types.graphql");
     let expected = include_str!("build_schema/fixtures/directives-for-external-types.expected");
     test_fixture(transform_fixture, "directives-for-external-types.graphql", "build_schema/fixtures/directives-for-external-types.expected", input, expected);
+}
+
+#[test]
+fn extend_interface_before_define() {
+    let input = include_str!("build_schema/fixtures/extend-interface-before-define.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-interface-before-define.expected");
+    test_fixture(transform_fixture, "extend-interface-before-define.graphql", "build_schema/fixtures/extend-interface-before-define.expected", input, expected);
+}
+
+#[test]
+fn extend_object_before_define() {
+    let input = include_str!("build_schema/fixtures/extend-object-before-define.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-object-before-define.expected");
+    test_fixture(transform_fixture, "extend-object-before-define.graphql", "build_schema/fixtures/extend-object-before-define.expected", input, expected);
 }
 
 #[test]

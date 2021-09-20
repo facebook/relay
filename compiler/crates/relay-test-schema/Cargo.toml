@@ -7,7 +7,7 @@ edition = "2018"
 license = "MIT"
 
 [dependencies]
+common = { path = "../common" }
 lazy_static = "1.0"
 relay-schema = { path = "../relay-schema" }
-common = { path = "../common" }
 schema = { path = "../schema" }

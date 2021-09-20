@@ -11,14 +11,17 @@ mod file_categorizer;
 mod file_group;
 mod read_file_to_string;
 mod source_control_update_status;
-mod watchman_file;
 mod watchman_file_source;
 mod watchman_query_builder;
 
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
-use crate::errors::Result;
+use crate::errors::{Error, Result};
 use common::{PerfLogEvent, PerfLogger};
+use graphql_watchman::{
+    WatchmanFileSourceResult, WatchmanFileSourceSubscription,
+    WatchmanFileSourceSubscriptionNextChange,
+};
 use serde::Deserialize;
 use serde_bser::value::Value;
 use std::path::PathBuf;
@@ -33,10 +36,7 @@ pub use file_group::FileGroup;
 pub use read_file_to_string::read_file_to_string;
 pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
-use watchman_file::WatchmanFile;
-use watchman_file_source::{
-    WatchmanFileSource, WatchmanFileSourceResult, WatchmanFileSourceSubscription,
-};
+use watchman_file_source::WatchmanFileSource;
 
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
@@ -165,10 +165,12 @@ pub enum FileSourceSubscription {
 impl FileSourceSubscription {
     pub async fn next_change(&mut self) -> Result<FileSourceSubscriptionNextChange> {
         match self {
-            Self::Watchman(file_source_subscription) => file_source_subscription
-                .next_change()
-                .await
-                .map(|next_change| FileSourceSubscriptionNextChange::Watchman(next_change)),
+            Self::Watchman(file_source_subscription) => {
+                file_source_subscription.next_change().await.map_or_else(
+                    |err| Err(Error::from(err)),
+                    |next_change| Ok(FileSourceSubscriptionNextChange::Watchman(next_change)),
+                )
+            }
         }
     }
 }
@@ -176,20 +178,4 @@ impl FileSourceSubscription {
 #[derive(Debug)]
 pub enum FileSourceSubscriptionNextChange {
     Watchman(WatchmanFileSourceSubscriptionNextChange),
-}
-
-#[derive(Debug)]
-pub enum WatchmanFileSourceSubscriptionNextChange {
-    Result(WatchmanFileSourceResult),
-    /// This value indicated the beginning of the source control update.
-    /// We may stop the compilation process and wait for the next event.
-    SourceControlUpdateEnter,
-    /// If source control update has not changed the base revision of the commit
-    /// We may continue the `watch(...)` loop of the compiler, expecting to receive
-    /// a `Result` event after `SourceControlUpdateLeave`.
-    SourceControlUpdateLeave,
-    /// When source control update completed and we detected changed base revision,
-    /// we may need to create a new compiler state.
-    SourceControlUpdate,
-    None,
 }

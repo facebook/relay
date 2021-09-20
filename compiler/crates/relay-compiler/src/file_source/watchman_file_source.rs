@@ -7,30 +7,18 @@
 
 use super::watchman_query_builder::{get_all_roots, get_watchman_expr};
 use super::FileSourceResult;
-use super::WatchmanFile;
-use super::WatchmanFileSourceSubscriptionNextChange;
 use crate::errors::{Error, Result};
 use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
 use common::{PerfLogEvent, PerfLogger};
+use graphql_watchman::{WatchmanFile, WatchmanFileSourceResult, WatchmanFileSourceSubscription};
 use log::{debug, info, warn};
-use serde_bser::value::Value;
-use std::process::Command;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
-use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
 
 pub struct WatchmanFileSource<'config> {
     client: Client,
     config: &'config Config,
     resolved_root: ResolvedRoot,
-}
-
-#[derive(Debug)]
-pub struct WatchmanFileSourceResult {
-    pub files: Vec<WatchmanFile>,
-    pub resolved_root: ResolvedRoot,
-    pub clock: Clock,
-    pub saved_state_info: Option<Value>,
 }
 
 impl<'config> WatchmanFileSource<'config> {
@@ -300,98 +288,6 @@ impl<'config> WatchmanFileSource<'config> {
             Ok(Ok(compiler_state))
         }
     }
-}
-
-pub struct WatchmanFileSourceSubscription {
-    resolved_root: ResolvedRoot,
-    subscription: WatchmanSubscription<WatchmanFile>,
-    base_revision: String,
-}
-
-impl WatchmanFileSourceSubscription {
-    fn new(resolved_root: ResolvedRoot, subscription: WatchmanSubscription<WatchmanFile>) -> Self {
-        Self {
-            resolved_root,
-            subscription,
-            base_revision: get_base_revision(None),
-        }
-    }
-
-    /// Awaits changes from Watchman and provides the next set of changes
-    /// if there were any changes to files
-    pub async fn next_change(&mut self) -> Result<WatchmanFileSourceSubscriptionNextChange> {
-        match self.subscription.next().await? {
-            SubscriptionData::FilesChanged(changes) => {
-                if let Some(files) = changes.files {
-                    debug!("number of files in this update: {}", files.len());
-                    return Ok(WatchmanFileSourceSubscriptionNextChange::Result(
-                        WatchmanFileSourceResult {
-                            files,
-                            resolved_root: self.resolved_root.clone(),
-                            clock: changes.clock,
-                            saved_state_info: None,
-                        },
-                    ));
-                }
-            }
-            SubscriptionData::StateEnter { state_name, .. } => {
-                if state_name == "hg.update" {
-                    return Ok(WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter);
-                }
-            }
-            SubscriptionData::StateLeave {
-                state_name,
-                metadata,
-            } => {
-                if state_name == "hg.update" {
-                    let current_commit = if let Some(Value::ByteString(value)) = metadata {
-                        Some(value.to_string())
-                    } else {
-                        None
-                    };
-                    let current_base_revision = get_base_revision(current_commit);
-                    if current_base_revision != self.base_revision {
-                        self.base_revision = current_base_revision;
-                        return Ok(WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate);
-                    } else {
-                        return Ok(
-                            WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave,
-                        );
-                    }
-                }
-            }
-            SubscriptionData::Canceled => {
-                return Err(Error::WatchmanSubscriptionCanceled);
-            }
-        }
-        Ok(WatchmanFileSourceSubscriptionNextChange::None)
-    }
-}
-
-/// Base revision in this case is a common ancestor of two revisions:
-/// `master` and current commit hash or `.`
-///
-/// TODO: Make this dynamic on the default branch name.
-fn get_base_revision(commit_hash: Option<String>) -> String {
-    let output = Command::new("hg")
-        .arg("log".to_string())
-        .arg("-r".to_string())
-        .arg(format!(
-            "ancestor(master, {})",
-            commit_hash.unwrap_or_else(|| ".".to_string())
-        ))
-        .arg("-T={node}")
-        .output()
-        .expect("Expect `hg` command getting base revision.");
-
-    if output.stdout.is_empty() {
-        panic!(
-            "Failed to get base revision hash:\n {:?}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-    }
-
-    String::from_utf8_lossy(&output.stdout).to_string()
 }
 
 fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {

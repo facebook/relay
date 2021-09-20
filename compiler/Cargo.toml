@@ -10,6 +10,7 @@ members = [
     "crates/graphql-syntax",
     "crates/graphql-test-helpers",
     "crates/graphql-text-printer",
+    "crates/graphql-watchman",
     "crates/interner",
     "crates/js-config-loader",
     "crates/persist-query",

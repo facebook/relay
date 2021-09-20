@@ -13,11 +13,12 @@ use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::{
     compiler_state::{ArtifactMapKind, CompilerState},
-    file_source::{FileSourceSubscriptionNextChange, WatchmanFileSourceSubscriptionNextChange},
+    file_source::FileSourceSubscriptionNextChange,
     FileSourceResult,
 };
 use common::{PerfLogEvent, PerfLogger};
 use futures::future::join_all;
+use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::{debug, info};
 use rayon::prelude::*;
 use std::sync::Arc;

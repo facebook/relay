@@ -11,6 +11,7 @@ use common::{PerfLogEvent, PerfLogger};
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
+use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use interner::StringKey;
 use log::debug;
 use lsp_server::Message;
@@ -20,7 +21,7 @@ use relay_compiler::{
     config::Config, config::ProjectConfig, errors::BuildProjectError, errors::Error,
     transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
-    SourceControlUpdateStatus, WatchmanFileSourceSubscriptionNextChange,
+    SourceControlUpdateStatus,
 };
 use relay_transforms::FeatureFlags;
 use schema::SDLSchema;

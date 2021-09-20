@@ -15,6 +15,7 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
+graphql-watchman = { path = "../graphql-watchman" }
 interner = { path = "../interner" }
 lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }

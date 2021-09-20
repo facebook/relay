@@ -37,7 +37,7 @@ pub use config::{OperationPersister, PersistConfig};
 pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
-    SourceControlUpdateStatus, SourceReader, WatchmanFileSourceSubscriptionNextChange,
+    SourceControlUpdateStatus, SourceReader,
 };
 pub use graphql_asts::GraphQLAsts;
 pub use remote_persister::RemotePersister;

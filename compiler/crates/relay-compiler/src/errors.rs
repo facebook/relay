@@ -122,9 +122,6 @@ pub enum Error {
     #[error("IO error {0}")]
     IOError(std::io::Error),
 
-    #[error("Watchman subscription canceled")]
-    WatchmanSubscriptionCanceled,
-
     #[error("Unable to parse changed files list. {reason}")]
     ExternalSourceParseError { reason: String },
 

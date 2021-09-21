@@ -57,12 +57,12 @@ impl StatusReporter for LSPStatusReporter {
     }
 }
 
-pub struct StatusReportingArtifactWriter {
+pub struct StatusReporterArtifactWriter {
     sender: Sender<Message>,
     artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
 }
 
-impl StatusReportingArtifactWriter {
+impl StatusReporterArtifactWriter {
     pub fn new(
         sender: Sender<Message>,
         artifact_writer: Box<dyn ArtifactWriter + Send + Sync>,
@@ -74,7 +74,7 @@ impl StatusReportingArtifactWriter {
     }
 }
 
-impl ArtifactWriter for StatusReportingArtifactWriter {
+impl ArtifactWriter for StatusReporterArtifactWriter {
     fn should_write(&self, path: &PathBuf, content: &[u8]) -> Result<bool, BuildProjectError> {
         self.artifact_writer.should_write(path, content)
     }

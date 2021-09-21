@@ -28,7 +28,7 @@ mod resolved_types_at_location;
 mod search_schema_items;
 mod server;
 mod shutdown;
-mod status_reporting;
+mod status_reporter;
 mod status_updater;
 mod text_documents;
 mod utils;

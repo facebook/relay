@@ -29,7 +29,7 @@ use crate::{
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
     search_schema_items::{on_search_schema_items, SearchSchemaItems},
     shutdown::{on_exit, on_shutdown},
-    status_reporting::{LSPStatusReporter, StatusReportingArtifactWriter},
+    status_reporter::{LSPStatusReporter, StatusReporterArtifactWriter},
     status_updater::set_initializing_status,
     text_documents::{
         on_cancel, on_did_change_text_document, on_did_close_text_document,
@@ -115,7 +115,7 @@ where
     config.artifact_writer = if extension_config.no_artifacts {
         Box::new(NoopArtifactWriter)
     } else {
-        Box::new(StatusReportingArtifactWriter::new(
+        Box::new(StatusReporterArtifactWriter::new(
             connection.sender.clone(),
             config.artifact_writer,
         ))

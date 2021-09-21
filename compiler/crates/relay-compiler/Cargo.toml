@@ -46,12 +46,14 @@ relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.126", features = ["derive", "rc"] }
+serde_bser = "0.3"
 serde_json = { version = "1.0", features = ["float_roundtrip"] }
 sha-1 = "0.8"
 signedsource = { path = "../signedsource" }
 structopt = "0.3.21"
 thiserror = "1.0.29"
 tokio = { version = "1.10", features = ["full", "test-util", "tracing"] }
+watchman_client = "0.7"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

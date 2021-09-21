@@ -7,11 +7,17 @@
 
 use common::{Named, NamedItem};
 use graphql_syntax::*;
-use interner::StringKey;
+use interner::{Intern, StringKey};
+use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
 use std::hash::Hash;
 use std::slice::Iter;
+
+lazy_static! {
+    static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();
+    static ref ARGUMENT_REASON: StringKey = "reason".intern();
+}
 
 pub(crate) type TypeMap = HashMap<StringKey, Type>;
 
@@ -304,6 +310,23 @@ pub struct Field {
     /// a single parent type.
     pub parent_type: Option<Type>,
     pub description: Option<StringKey>,
+}
+
+pub struct Deprecation {
+    pub reason: Option<StringKey>,
+}
+
+impl Field {
+    pub fn deprecated(&self) -> Option<Deprecation> {
+        self.directives
+            .named(*DIRECTIVE_DEPRECATED)
+            .map(|directive| Deprecation {
+                reason: directive
+                    .arguments
+                    .named(*ARGUMENT_REASON)
+                    .and_then(|reason| reason.value.get_string_literal()),
+            })
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

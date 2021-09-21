@@ -22,8 +22,7 @@ use graphql_syntax::{
     ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
     OperationKind, ScalarField, Selection, TokenKind, Value,
 };
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
+use interner::StringKey;
 use log::debug;
 use lsp_types::{
     request::{Completion, Request},
@@ -35,9 +34,6 @@ use schema::{
 };
 use std::iter::once;
 
-lazy_static! {
-    static ref DEPRECATED_DIRECTIVE: StringKey = "deprecated".intern();
-}
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
     FieldName {
@@ -817,18 +813,11 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
         .map(|field_id| {
             let field = schema.field(*field_id);
             let field_name = field.name.to_string();
-            let deprecated_directive = field.directives.named(*DEPRECATED_DIRECTIVE);
-            let deprecated_reason = if let Some(deprecated_directive) = deprecated_directive {
-                if let Some(ConstantValue::String(reason)) =
-                    deprecated_directive.arguments.get(0).map(|arg| &arg.value)
-                {
-                    Some(reason.value.lookup().to_string())
-                } else {
-                    None
-                }
-            } else {
-                None
-            };
+            let deprecated = field.deprecated();
+            let is_deprecated = deprecated.is_some();
+            let deprecated_reason = deprecated
+                .and_then(|deprecated| deprecated.reason)
+                .map(|reason| reason.lookup().to_string());
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -876,7 +865,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
                 kind: None,
                 detail: deprecated_reason,
                 documentation: Some(documentation),
-                deprecated: Some(deprecated_directive.is_some()),
+                deprecated: Some(is_deprecated),
                 preselect: None,
                 sort_text: None,
                 filter_text: None,

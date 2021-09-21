@@ -17,7 +17,6 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 interner = { path = "../interner" }
-lazy_static = "1.0"
 log = { version = "0.4.8", features = ["kv_unstable"] }
 lsp-server = "0.5.2"
 lsp-types = "0.89.0"

@@ -13,7 +13,7 @@ use crate::{
 use crossbeam::channel::Sender;
 use lsp_server::Message;
 use relay_compiler::{
-    errors::{BuildProjectError, Result as CompilerResult},
+    errors::{BuildProjectError, Error},
     status_reporter::StatusReporter,
     ArtifactWriter,
 };
@@ -43,13 +43,16 @@ impl StatusReporter for LSPStatusReporter {
         );
     }
 
-    fn build_finishes(&self, result: &CompilerResult<()>) {
+    fn build_completes(&self) {
         set_ready_status(&self.sender);
         self.diagnostic_reporter.clear_regular_diagnostics();
+        self.diagnostic_reporter.commit_diagnostics();
+    }
 
-        if let Err(error) = result {
-            self.diagnostic_reporter.report_error(error);
-        }
+    fn build_errors(&self, error: &Error) {
+        set_ready_status(&self.sender);
+        self.diagnostic_reporter.clear_regular_diagnostics();
+        self.diagnostic_reporter.report_error(error);
         self.diagnostic_reporter.commit_diagnostics();
     }
 }

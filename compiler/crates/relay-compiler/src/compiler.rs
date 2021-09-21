@@ -45,88 +45,120 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
 
     pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
-        let file_source = FileSource::connect(&self.config, &setup_event).await?;
-        let mut compiler_state = file_source
-            .query(&setup_event, self.perf_logger.as_ref())
-            .await?;
+        self.config.status_reporter.build_starts();
+        let result: Result<CompilerState> = async {
+            let file_source = FileSource::connect(&self.config, &setup_event).await?;
+            let mut compiler_state = file_source
+                .query(&setup_event, self.perf_logger.as_ref())
+                .await?;
 
-        self.build_projects(&mut compiler_state, &setup_event)
-            .await?;
+            self.build_projects(&mut compiler_state, &setup_event)
+                .await?;
 
+            Ok(compiler_state)
+        }
+        .await;
         setup_event.complete();
-        Ok(compiler_state)
+
+        match result {
+            Ok(compiler_state) => {
+                self.config.status_reporter.build_completes();
+                Ok(compiler_state)
+            }
+            Err(error) => {
+                self.config.status_reporter.build_errors(&error);
+                Err(error)
+            }
+        }
     }
 
     pub async fn watch(&self) -> Result<()> {
-        loop {
+        'watch: loop {
             let setup_event = self.perf_logger.create_event("compiler_setup");
-            let file_source = FileSource::connect(&self.config, &setup_event).await?;
+            self.config.status_reporter.build_starts();
+            let result: Result<(CompilerState, Arc<Notify>, JoinHandle<()>)> = async {
+                let file_source = FileSource::connect(&self.config, &setup_event).await?;
 
-            let (mut compiler_state, mut subscription) = file_source
-                .subscribe(&setup_event, self.perf_logger.as_ref())
-                .await?;
+                let (compiler_state, mut subscription) = file_source
+                    .subscribe(&setup_event, self.perf_logger.as_ref())
+                    .await?;
 
-            let pending_file_source_changes = compiler_state.pending_file_source_changes.clone();
-            let source_control_update_status =
-                Arc::clone(&compiler_state.source_control_update_status);
+                let pending_file_source_changes =
+                    compiler_state.pending_file_source_changes.clone();
+                let source_control_update_status =
+                    Arc::clone(&compiler_state.source_control_update_status);
 
-            let notify_sender = Arc::new(Notify::new());
-            let notify_receiver = notify_sender.clone();
+                let notify_sender = Arc::new(Notify::new());
+                let notify_receiver = notify_sender.clone();
 
-            // First, set up watchman subscription
-            let subscription_handle = task::spawn(async move {
-                loop {
-                    let next_change = subscription.next_change().await;
-                    match next_change {
-                        Ok(FileSourceSubscriptionNextChange::Watchman(watchman_next_change)) => {
-                            match watchman_next_change {
-                                WatchmanFileSourceSubscriptionNextChange::Result(file_source_changes) => {
-                                    pending_file_source_changes
-                                        .write()
-                                        .unwrap()
-                                        .push(FileSourceResult::Watchman(file_source_changes));
-                                    notify_sender.notify_one();
+                // First, set up watchman subscription
+                let subscription_handle = task::spawn(async move {
+                    loop {
+                        let next_change = subscription.next_change().await;
+                        match next_change {
+                            Ok(FileSourceSubscriptionNextChange::Watchman(watchman_next_change)) => {
+                                match watchman_next_change {
+                                    WatchmanFileSourceSubscriptionNextChange::Result(file_source_changes) => {
+                                        pending_file_source_changes
+                                            .write()
+                                            .unwrap()
+                                            .push(FileSourceResult::Watchman(file_source_changes));
+                                        notify_sender.notify_one();
+                                    }
+                                    WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter => {
+                                        info!("hg.update started...");
+                                        source_control_update_status.mark_as_started();
+                                    }
+                                    WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave => {
+                                        info!("hg.update completed.");
+                                        source_control_update_status.set_to_default();
+                                    }
+                                    WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate => {
+                                        info!("hg.update completed. Detected new base revision...");
+                                        source_control_update_status.mark_as_completed();
+                                        notify_sender.notify_one();
+                                        break;
+                                    }
+                                    WatchmanFileSourceSubscriptionNextChange::None => {}
                                 }
-                                WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateEnter => {
-                                    info!("hg.update started...");
-                                    source_control_update_status.mark_as_started();
-                                }
-                                WatchmanFileSourceSubscriptionNextChange::SourceControlUpdateLeave => {
-                                    info!("hg.update completed.");
-                                    source_control_update_status.set_to_default();
-                                }
-                                WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate => {
-                                    info!("hg.update completed. Detected new base revision...");
-                                    source_control_update_status.mark_as_completed();
-                                    notify_sender.notify_one();
-                                    break;
-                                }
-                                WatchmanFileSourceSubscriptionNextChange::None => {}
+                            }
+                            Err(err) => {
+                                panic!("Watchman subscription error: {}", err);
                             }
                         }
-                        Err(err) => {
-                            panic!("Watchman subscription error: {}", err);
-                        }
                     }
-                }
-            });
+                });
 
-            let mut red_to_green = RedToGreen::new();
-            if self
-                .build_projects(&mut compiler_state, &setup_event)
-                .await
-                .is_err()
-            {
-                // build_projects should have logged already
-                red_to_green.log_error()
-            } else {
-                info!("Compilation completed.");
+                Ok((compiler_state, notify_receiver, subscription_handle))
+
             }
-            setup_event.complete();
-            info!("Waiting for changes...");
+            .await;
 
-            self.incremental_build_loop(compiler_state, notify_receiver, &subscription_handle)
-                .await?
+            match result {
+                Ok((mut compiler_state, notify_receiver, subscription_handle)) => {
+                    let mut red_to_green = RedToGreen::new();
+                    if let Err(err) = self.build_projects(&mut compiler_state, &setup_event).await {
+                        red_to_green.log_error();
+                        self.config.status_reporter.build_errors(&err);
+                    } else {
+                        info!("Compilation completed.");
+                        self.config.status_reporter.build_completes();
+                    }
+                    setup_event.complete();
+                    info!("Waiting for changes...");
+
+                    self.incremental_build_loop(
+                        compiler_state,
+                        notify_receiver,
+                        &subscription_handle,
+                    )
+                    .await?;
+                }
+                Err(err) => {
+                    self.config.status_reporter.build_errors(&err);
+                    break 'watch Err(err);
+                }
+            }
         }
     }
 
@@ -167,15 +199,17 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 )?;
 
                 if had_new_changes {
+                    self.config.status_reporter.build_starts();
                     info!("Change detected, start compiling...");
-                    if self
+                    if let Err(err) = self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
-                        .is_err()
                     {
-                        red_to_green.log_error()
+                        red_to_green.log_error();
+                        self.config.status_reporter.build_errors(&err);
                     } else {
                         info!("Compilation completed.");
+                        self.config.status_reporter.build_completes();
                         red_to_green.clear_error_and_log(self.perf_logger.as_ref());
                     }
                     incremental_build_event.stop(incremental_build_time);
@@ -194,7 +228,6 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
     ) -> Result<()> {
-        self.config.status_reporter.build_starts();
         let build_projects_time = setup_event.start("build_projects_time");
         let result = build_projects(
             Arc::clone(&self.config),
@@ -204,25 +237,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         )
         .await;
         setup_event.stop(build_projects_time);
-        let result = setup_event.time("post_build_projects_time", || match result {
-            Ok(()) => {
+        setup_event.time("post_build_projects_time", || {
+            result.and_then(|_| {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
                 if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
-                    if let Err(error) = post_artifacts_write(&self.config) {
-                        let error = Error::PostArtifactsError { error };
-                        Err(error)
-                    } else {
-                        Ok(())
-                    }
-                } else {
-                    Ok(())
+                    post_artifacts_write(&self.config)
+                        .map_err(|error| Error::PostArtifactsError { error })?;
                 }
-            }
-            Err(error) => Err(error),
-        });
-        self.config.status_reporter.build_finishes(&result);
-        result
+
+                Ok(())
+            })
+        })
     }
 }
 

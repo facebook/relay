@@ -20,7 +20,6 @@ use crate::{
 };
 use common::{NamedItem, PerfLogger};
 
-use graphql_syntax::ConstantValue;
 use interner::{Intern, StringKey};
 use lsp_types::{
     request::{GotoDefinition, Request},
@@ -207,10 +206,7 @@ fn get_relay_resolver_location(
         let resolver_path = resolver_directive
             .arguments
             .named(*RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME)
-            .and_then(|argument| match &argument.value {
-                ConstantValue::String(import_path) => Some(import_path.value),
-                _ => None,
-            })
+            .and_then(|argument| argument.value.get_string_literal())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(
                 "Error resolving field definition location. Malformed schema for Relay Resolver."

@@ -16,7 +16,6 @@ use graphql_ir::{
     Argument, FragmentDefinition, LinkedField, ScalarField, Selection, ValidationMessage, Value,
     Variable, VariableDefinition,
 };
-use graphql_syntax::ConstantValue;
 use interner::{Intern, StringKey};
 use schema::{Argument as ArgumentDef, FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
@@ -108,8 +107,8 @@ fn get_fetchable_field_name(
         if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
             let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
             if let Some(field_name_arg) = field_name_arg {
-                if let ConstantValue::String(name) = &field_name_arg.value {
-                    return Ok(Some(name.value));
+                if let Some(value) = field_name_arg.value.get_string_literal() {
+                    return Ok(Some(value));
                 }
             }
             return Err(vec![Diagnostic::error(

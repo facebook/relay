@@ -202,17 +202,13 @@ fn extract_values_from_handle_field_directive_helper(
     // We expect these values to be available since they should've been
     // validated first as part of validate_connections validation step.
     let key = match key_arg {
-        Some((_, value)) => match value {
-            ConstantValue::String(string_val) => *string_val,
-            _ => unreachable!("Expected key_arg to have been previously validated."),
-        },
+        Some((_, value)) => value
+            .get_string_literal()
+            .expect("Expected key_arg to have been previously validated."),
         None => "".intern(),
     };
     let handle= match handler_arg {
-         Some((_, value)) => match value {
-             ConstantValue::String(string_val) => *string_val,
-             _ => unreachable!("Expected handler_arg to have been previously validated."),
-         },
+         Some((_, value)) => value.get_string_literal().expect("Expected handler_arg to have been previously validated."),
          None => default_handler.expect("Expected handler_arg to have been previously validated or a default to have been provided."),
      };
     let filters = match filters_arg {
@@ -220,11 +216,9 @@ fn extract_values_from_handle_field_directive_helper(
             ConstantValue::List(list_val) => Some(
                 list_val
                     .iter()
-                    .map(|val| match val {
-                        ConstantValue::String(string_val) => *string_val,
-                        _ => {
-                            unreachable!("Expected filters_arg to have been previously validated.")
-                        }
+                    .map(|val| {
+                        val.get_string_literal()
+                            .expect("Expected filters_arg to have been previously validated.")
                     })
                     .collect::<Vec<_>>(),
             ),

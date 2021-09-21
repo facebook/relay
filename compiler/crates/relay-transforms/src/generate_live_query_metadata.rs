@@ -113,9 +113,9 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }],
                         });
                     } else if let Some(config_id) = config_id {
-                        let config_id_value = match config_id.value.item {
-                            Value::Constant(ConstantValue::String(value)) => value,
-                            _ => {
+                        let config_id_value = match config_id.value.item.get_string_literal() {
+                            Some(value) => value,
+                            None => {
                                 self.errors.push(Diagnostic::error(
                                     ValidationMessage::LiveQueryTransformInvalidConfigId {
                                         query_name: operation.name.item,

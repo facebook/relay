@@ -198,11 +198,8 @@ pub fn extract_connection_metadata_from_directive(
                     let path = match &metadata_value[0] {
                         ConstantValue::List(list) => Some(
                             list.iter()
-                                .map(|item| match item {
-                                    ConstantValue::String(string_val) => *string_val,
-                                    _ => unreachable!(
-                                        "Expected connection metadata path to be a list of strings."
-                                    ),
+                                .map(|item| {
+                                    item.get_string_literal().expect("Expected connection metadata path to be a list of strings.")
                                 })
                                 .collect::<Vec<StringKey>>(),
                         ),
@@ -211,10 +208,7 @@ pub fn extract_connection_metadata_from_directive(
                             "Expected connection metadata path to be a nullable list of strings."
                         ),
                     };
-                    let direction = match &metadata_value[1] {
-                        ConstantValue::String(string_val) => *string_val,
-                        _ => unreachable!("Expected connection metadata direction to be a string."),
-                    };
+                    let direction =  metadata_value[1].get_string_literal().expect("Expected connection metadata direction to be a string.");
                     let first = match &metadata_value[2] {
                         ConstantValue::String(string_val) => Some(*string_val),
                         ConstantValue::Null() => None,

@@ -208,18 +208,15 @@ pub fn extract_refetch_metadata_from_directive(
             metadata_values.len() == 3,
             "Expected metadata value to be a list with 3 elements"
         );
-        let operation_name = match metadata_values[0] {
-            ConstantValue::String(string_val) => string_val,
-            _ => unreachable!("Expected refetchable metadata operation_name to be a string."),
-        };
+        let operation_name = metadata_values[0]
+            .get_string_literal()
+            .expect("Expected refetchable metadata operation_name to be a string.");
         let path = match &metadata_values[1] {
             ConstantValue::List(list) => list
                 .iter()
-                .map(|item| match item {
-                    ConstantValue::String(string_val) => *string_val,
-                    _ => {
-                        unreachable!("Expected refetchable metadata path to be a list of strings.")
-                    }
+                .map(|item| {
+                    item.get_string_literal()
+                        .expect("Expected refetchable metadata path to be a list of strings.")
                 })
                 .collect::<Vec<StringKey>>(),
             _ => unreachable!("Expected refetchable metadata path to be a list of strings."),

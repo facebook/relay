@@ -14,8 +14,8 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition,
     Program, ScalarField, Selection, Transformed, Transformer, Value, Visitor,
 };
-use graphql_syntax::ConstantValue as SyntaxConstantValue;
-use interner::{Intern, StringKey};
+use interner::Intern;
+use interner::StringKey;
 use lazy_static::lazy_static;
 use schema::{ArgumentValue, Field, SDLSchema, Schema};
 use std::{mem, sync::Arc};
@@ -258,9 +258,9 @@ fn get_argument_value(
 ) -> DiagnosticsResult<StringKey> {
     match arguments.named(argument_name) {
         Some(argument) => {
-            match &argument.value {
-                SyntaxConstantValue::String(import_path) => Ok(import_path.value),
-                _ => {
+            match argument.value.get_string_literal() {
+                Some(import_path) => Ok(import_path),
+                None => {
                     // This is a validation error, but ideally it would be done when we validate the client schema.
                     Err(vec![Diagnostic::error(
                         ValidationMessage::InvalidRelayResolverKeyArg { key: argument_name },
@@ -377,10 +377,7 @@ impl<'a> Visitor for ResolverFieldFinder<'a> {
                     .arguments
                     .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
             })
-            .and_then(|arg| match &arg.value {
-                SyntaxConstantValue::String(string_node) => Some(string_node.value),
-                _ => None,
-            });
+            .and_then(|arg| arg.value.get_string_literal());
 
         if let Some(fragment_name) = maybe_fragment_name {
             self.seen_resolver_fragments.insert(fragment_name);

@@ -399,6 +399,13 @@ impl ConstantValue {
     pub fn is_non_null(&self) -> bool {
         !self.is_null()
     }
+
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        match self {
+            ConstantValue::String(value) => Some(*value),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

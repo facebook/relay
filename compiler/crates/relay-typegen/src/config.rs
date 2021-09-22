@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashMap;
+use fnv::{FnvHashMap, FnvHashSet};
 use interner::StringKey;
 use serde::{Deserialize, Serialize};
 
@@ -36,6 +36,13 @@ pub struct TypegenConfig {
     /// Note: an empty string is allowed and different from not setting the
     /// value, in the example above it would just import from "Foo".
     pub enum_module_suffix: Option<String>,
+
+    /// # For Flow type generation
+    /// Generate enum files using Flow Enums instead of string unions except
+    /// for the denylist or enums that contain lowercase first letters which
+    /// are invalid Flow Enum values.
+    #[serde(default)]
+    pub legacy_enum_style: FnvHashSet<StringKey>,
 
     /// # For Flow type generation
     /// When set, generated input types will have the listed fields optional

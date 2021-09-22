@@ -423,14 +423,14 @@ impl<TPerfLogger: PerfLogger + 'static> LSPStateResources<TPerfLogger> {
         })
     }
 
-    fn log_errors(&self, log_event_name: &str, error: &Error) {
+    fn log_errors(&self, log_event_name: &'static str, error: &Error) {
         let error_event = self.perf_logger.create_event(log_event_name);
         error_event.string("error", error.to_string());
         error_event.complete();
     }
 
     /// Log errors and report the diagnostics to IDE
-    fn publish_errors(&self, error: &Error, log_event_name: &str) {
+    fn publish_errors(&self, error: &Error, log_event_name: &'static str) {
         self.diagnostic_reporter.report_error(&error);
         self.diagnostic_reporter.commit_diagnostics();
         self.log_errors(log_event_name, error)

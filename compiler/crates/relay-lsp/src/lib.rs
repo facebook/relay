@@ -12,7 +12,6 @@ mod code_action;
 mod completion;
 mod diagnostic_reporter;
 mod explore_schema_for_type;
-mod extension_config;
 mod goto_definition;
 mod graphql_tools;
 mod hover;
@@ -32,7 +31,6 @@ mod status_reporter;
 mod status_updater;
 mod text_documents;
 mod utils;
-pub use crate::extension_config::ExtensionConfig;
 use common::PerfLogger;
 pub use js_language_server::JSLanguageServer;
 use js_language_server::NoopJSLanguageServer;
@@ -54,7 +52,6 @@ extern crate assert_matches;
 
 pub async fn start_language_server<TPerfLogger, TSchemaDocumentation: SchemaDocumentation>(
     config: Config,
-    extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
@@ -70,7 +67,6 @@ where
     server::run(
         connection,
         config,
-        extension_config,
         params,
         perf_logger,
         extra_data_provider,

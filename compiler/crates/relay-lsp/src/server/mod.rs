@@ -29,13 +29,12 @@ use crate::{
     resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
     search_schema_items::{on_search_schema_items, SearchSchemaItems},
     shutdown::{on_exit, on_shutdown},
-    status_reporter::{LSPStatusReporter, StatusReporterArtifactWriter},
+    status_reporter::LSPStatusReporter,
     status_updater::set_initializing_status,
     text_documents::{
         on_cancel, on_did_change_text_document, on_did_close_text_document,
         on_did_open_text_document, on_did_save_text_document,
     },
-    ExtensionConfig,
 };
 use common::{PerfLogEvent, PerfLogger};
 use crossbeam::channel::{SendError, Sender};
@@ -96,7 +95,6 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
 pub async fn run<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     connection: Connection,
     mut config: Config,
-    extension_config: ExtensionConfig,
     _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
@@ -112,14 +110,7 @@ where
     );
     set_initializing_status(&connection.sender);
 
-    config.artifact_writer = if extension_config.no_artifacts {
-        Box::new(NoopArtifactWriter)
-    } else {
-        Box::new(StatusReporterArtifactWriter::new(
-            connection.sender.clone(),
-            config.artifact_writer,
-        ))
-    };
+    config.artifact_writer = Box::new(NoopArtifactWriter);
     config.status_reporter = Box::new(LSPStatusReporter::new(
         config.root_dir.clone(),
         connection.sender.clone(),
@@ -131,7 +122,6 @@ where
         extra_data_provider,
         schema_documentation_loader,
         js_resource,
-        &extension_config,
         connection.sender.clone(),
     );
 

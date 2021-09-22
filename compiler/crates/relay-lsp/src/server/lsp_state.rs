@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::LSPExtraDataProvider;
 use crate::{
     diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
     js_language_server::JSLanguageServer,
@@ -13,7 +14,6 @@ use crate::{
     utils::extract_project_name_from_url,
     utils::{extract_executable_definitions_from_text, extract_executable_document_from_text},
 };
-use crate::{ExtensionConfig, LSPExtraDataProvider};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::channel::Sender;
 use dashmap::{mapref::entry::Entry, DashMap};
@@ -29,7 +29,6 @@ use log::debug;
 use lsp_server::Message;
 use lsp_types::{Diagnostic, DiagnosticSeverity, Range, TextDocumentPositionParams, Url};
 use relay_compiler::{
-    compiler::Compiler,
     config::{Config, ProjectConfig},
     FileCategorizer,
 };
@@ -56,7 +55,6 @@ pub enum ProjectStatus {
 /// handlers. Such as schema, programs, extra_data_providers, etc...
 pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation> {
     config: Arc<Config>,
-    compiler: Option<Compiler<TPerfLogger>>,
     root_dir: PathBuf,
     root_dir_str: String,
     pub extra_data_provider: Box<dyn LSPExtraDataProvider>,
@@ -92,7 +90,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Arc::new(DiagnosticReporter::new(config.root_dir.clone(), sender));
 
         Self {
-            compiler: None,
             config,
             diagnostic_reporter,
             extra_data_provider,
@@ -121,11 +118,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>,
         >,
         js_resource: Box<dyn JSLanguageServer<TPerfLogger, TSchemaDocumentation>>,
-        extensions_config: &ExtensionConfig,
         sender: Sender<Message>,
     ) -> Self {
         debug!("Creating lsp_state...");
-        let mut lsp_state = Self::new(
+        let lsp_state = Self::new(
             config,
             perf_logger,
             extra_data_provider,
@@ -158,16 +154,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             );
             resources.watch().await.unwrap();
         });
-
-        lsp_state.compiler = if extensions_config.enable_compiler {
-            debug!("extensions_config.enable_compiler = true");
-            Some(Compiler::new(
-                Arc::clone(&lsp_state.config),
-                Arc::clone(&lsp_state.perf_logger),
-            ))
-        } else {
-            None
-        };
 
         debug!("Creating lsp_state created!");
         lsp_state
@@ -250,7 +236,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {
-        self.start_compiler_once();
         self.synced_graphql_documents.insert(url, sources);
     }
 
@@ -294,12 +279,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
-    }
-
-    fn start_compiler_once(&mut self) {
-        if let Some(compiler) = self.compiler.take() {
-            tokio::spawn(async move { compiler.watch().await });
-        }
     }
 
     fn preload_documentation(&self) {

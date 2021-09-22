@@ -26,7 +26,8 @@ use interner::StringKey;
 use log::debug;
 use lsp_types::{
     request::{Completion, Request},
-    CompletionItem, CompletionResponse, Documentation, InsertTextFormat, MarkupContent, MarkupKind,
+    CompletionItem, CompletionItemKind, CompletionResponse, Documentation, InsertTextFormat,
+    MarkupContent, MarkupKind,
 };
 use schema::{
     Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
@@ -860,9 +861,20 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
                 type_description.unwrap_or(""),
             );
 
+            let kind = match field.type_.inner() {
+                Type::Enum(_) => Some(CompletionItemKind::Enum),
+                Type::Interface(_) => Some(CompletionItemKind::Interface),
+                // There is no Kind for union, so we'll use interface
+                Type::Union(_) => Some(CompletionItemKind::Interface),
+                Type::Object(_) => Some(CompletionItemKind::Struct),
+                Type::InputObject(_) => Some(CompletionItemKind::Struct),
+                type_ if schema.is_string(type_) => Some(CompletionItemKind::Text),
+                _ => Some(CompletionItemKind::Value),
+            };
+
             CompletionItem {
                 label: field_name,
-                kind: None,
+                kind,
                 detail: deprecated_reason,
                 documentation: Some(documentation),
                 deprecated: Some(is_deprecated),

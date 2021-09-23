@@ -84,6 +84,13 @@ const options = {
     type: 'boolean',
     default: false,
   },
+  generateModuleNameFunction: {
+    describe:
+      'A function (or path to a module exporting this function) which will generate a module name for a given file path.',
+    demandOption: false,
+    type: 'string',
+    array: false,
+  },
   persistFunction: {
     describe:
       'An async function (or path to a module exporting this function) which will persist the query text and return the id.',

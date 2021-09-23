@@ -61,7 +61,10 @@ const getSchemaInstance = require('./runner/getSchemaInstance');
 const md5 = require('./util/md5');
 const writeRelayGeneratedFile = require('./codegen/writeRelayGeneratedFile');
 
-const {main} = require('./bin/RelayCompilerMain');
+const {
+  main,
+  getGenerateModuleNameFunction,
+} = require('./bin/RelayCompilerMain');
 const {SourceControlMercurial} = require('./codegen/SourceControl');
 const {
   getReaderSourceDefinitionName,
@@ -175,6 +178,7 @@ module.exports = {
   transformASTSchema: ASTConvert.transformASTSchema,
 
   getReaderSourceDefinitionName,
+  getGenerateModuleNameFunction,
 
   writeRelayGeneratedFile,
 

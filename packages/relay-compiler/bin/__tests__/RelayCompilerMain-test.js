@@ -13,6 +13,7 @@
 const RelayCompilerMain = require('../RelayCompilerMain');
 const RelayFileWriter = require('../../codegen/RelayFileWriter');
 const RelayLanguagePluginJavaScript = require('../../language/javascript/RelayLanguagePluginJavaScript');
+const getModuleName = require('../../util/getModuleName');
 
 const path = require('path');
 
@@ -23,6 +24,7 @@ const {testSchemaPath} = require('relay-test-utils-internal');
 const {
   getCodegenRunner,
   getLanguagePlugin,
+  getGenerateModuleNameFunction,
   getWatchConfig,
   main,
 } = RelayCompilerMain;
@@ -331,6 +333,37 @@ describe('RelayCompilerMain', () => {
         RelayLanguagePluginJavaScript(),
       );
       expect(plugin).toHaveBeenCalled();
+    });
+  });
+
+  describe('getGenerateModuleNameFunction', () => {
+    it('uses the builtin module name generator if not configured', () => {
+      expect(config.generateModuleNameFunction).toBeUndefined();
+
+      expect(getGenerateModuleNameFunction(config)).toBe(getModuleName);
+    });
+
+    it('loads a module name generator from a local module', () => {
+      config = {
+        ...config,
+        generateModuleNameFunction: path.join(
+          __dirname,
+          '..',
+          '__fixtures__',
+          'name-generator-module.js',
+        ),
+      };
+      const generateModuleName = getGenerateModuleNameFunction(config);
+      expect(generateModuleName('foo')).toEqual('FOO');
+    });
+
+    it('accepts a module name generator function', () => {
+      const generate = jest.fn();
+      config = {
+        ...config,
+        generateModuleNameFunction: generate,
+      };
+      expect(getGenerateModuleNameFunction(config)).toBe(generate);
     });
   });
 

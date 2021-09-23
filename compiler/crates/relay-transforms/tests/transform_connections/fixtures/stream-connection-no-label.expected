@@ -23,7 +23,7 @@ query NodeQuery($id: ID!) {
 ==================================== OUTPUT ===================================
 query NodeQuery(
   $id: ID!
-) @__connectionMetadata(__connectionMetadataArgument: [[["node", "comments"], "forward", null, null, null, null, true]]) {
+) @__ConnectionMetadataDirective {
   node(id: $id) {
     id
     ... on Story {

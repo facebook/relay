@@ -81,7 +81,7 @@ pub use client_edges::client_edges;
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{
     extract_connection_metadata_from_directive, ConnectionConstants, ConnectionInterface,
-    ConnectionMetadata, CONNECTION_METADATA_ARGUMENT_NAME, CONNECTION_METADATA_DIRECTIVE_NAME,
+    ConnectionMetadata,
 };
 pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::{

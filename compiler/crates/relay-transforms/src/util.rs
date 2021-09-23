@@ -7,7 +7,7 @@
 
 use crate::{
     client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME,
-    connections::CONNECTION_METADATA_DIRECTIVE_NAME,
+    connections::ConnectionMetadataDirective,
     handle_fields::HANDLE_FIELD_DIRECTIVE_NAME,
     inline_data_fragment::INLINE_DATA_CONSTANTS,
     match_::MATCH_CONSTANTS,
@@ -92,7 +92,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 lazy_static! {
     static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 18] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        *CONNECTION_METADATA_DIRECTIVE_NAME,
+        *ConnectionMetadataDirective::DIRECTIVE_NAME,
         *HANDLE_FIELD_DIRECTIVE_NAME,
         MATCH_CONSTANTS.custom_module_directive_name,
         *DIRECTIVE_SPLIT_OPERATION,
@@ -112,7 +112,7 @@ lazy_static! {
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
-        *CONNECTION_METADATA_DIRECTIVE_NAME,
+        *ConnectionMetadataDirective::DIRECTIVE_NAME,
         *HANDLE_FIELD_DIRECTIVE_NAME,
         REFETCHABLE_CONSTANTS.refetchable_metadata_name,
         REFETCHABLE_CONSTANTS.refetchable_operation_metadata_name,

@@ -95,18 +95,20 @@ pub fn extract_project_name_from_url(
         ))
     })?;
 
-    let project_name =
-        if let FileGroup::Source { source_set } = file_categorizer.categorize(&file_path) {
-            match source_set {
-                SourceSet::SourceSetName(source) => source,
-                SourceSet::SourceSetNames(sources) => sources[0],
-            }
-        } else {
-            return Err(LSPRuntimeError::UnexpectedError(format!(
-                "File path {:?} is not a source set",
-                file_path
-            )));
-        };
+    let project_name = if let FileGroup::Source { source_set } = file_categorizer
+        .categorize(&file_path)
+        .ok_or(LSPRuntimeError::ExpectedError)?
+    {
+        match source_set {
+            SourceSet::SourceSetName(source) => source,
+            SourceSet::SourceSetNames(sources) => sources[0],
+        }
+    } else {
+        return Err(LSPRuntimeError::UnexpectedError(format!(
+            "File path {:?} is not a source set",
+            file_path
+        )));
+    };
     Ok(project_name)
 }
 

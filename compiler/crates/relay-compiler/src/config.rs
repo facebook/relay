@@ -568,7 +568,7 @@ pub struct ProjectConfig {
     pub typegen_config: TypegenConfig,
     pub persist: Option<PersistConfig>,
     pub variable_names_comment: bool,
-    pub extra: Option<FnvIndexMap<String, String>>,
+    pub extra: serde_json::Value,
     pub feature_flags: Arc<FeatureFlags>,
     pub test_path_regex: Option<Regex>,
     pub filename_for_artifact:
@@ -747,7 +747,9 @@ struct ConfigFileProject {
     #[serde(default)]
     variable_names_comment: bool,
 
-    extra: Option<FnvIndexMap<String, String>>,
+    /// A placeholder for allowing extra information in the config file
+    #[serde(default)]
+    extra: serde_json::Value,
 
     #[serde(default)]
     feature_flags: Option<FeatureFlags>,

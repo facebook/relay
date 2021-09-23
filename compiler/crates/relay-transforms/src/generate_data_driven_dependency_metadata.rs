@@ -252,6 +252,7 @@ fn create_metadata_directive(module_entries: FnvHashMap<StringKey, ModuleEntry>)
     Directive {
         name: WithLocation::generated(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
         arguments,
+        data: None,
     }
 }
 

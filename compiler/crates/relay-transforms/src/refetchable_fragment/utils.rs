@@ -146,6 +146,7 @@ pub fn build_fragment_metadata_as_directive(
                 ])),
             ),
         }],
+        data: None,
     });
     next_directives
 }
@@ -170,6 +171,7 @@ impl RefetchableDerivedFromMetadata {
                     Value::Constant(ConstantValue::String(fragment_name.item)),
                 ),
             }],
+            data: None,
         }
     }
 

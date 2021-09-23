@@ -86,6 +86,7 @@ fragment Foo($localId: ID!) on User {
                         item: "argumentDefinitions",
                     },
                     arguments: [],
+                    data: None,
                 },
             ],
             selections: [

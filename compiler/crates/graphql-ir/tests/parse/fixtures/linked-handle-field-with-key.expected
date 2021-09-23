@@ -76,6 +76,7 @@ fragment LinkedHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                     ],
                     selections: [

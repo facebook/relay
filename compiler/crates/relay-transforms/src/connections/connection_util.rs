@@ -128,6 +128,7 @@ pub fn build_connection_metadata_as_directive(
     Directive {
         name: WithLocation::generated(*CONNECTION_METADATA_DIRECTIVE_NAME),
         arguments: vec![metadata_argument],
+        data: None,
     }
 }
 

@@ -136,6 +136,7 @@ impl<'s> ConnectionTransform<'s> {
                     DEFER_STREAM_CONSTANTS.stream_name,
                 ),
                 arguments,
+                data: None,
             });
         }
 
@@ -230,6 +231,7 @@ impl<'s> ConnectionTransform<'s> {
                         DEFER_STREAM_CONSTANTS.defer_name,
                     ),
                     arguments,
+                    data: None,
                 }],
             }))
         } else {

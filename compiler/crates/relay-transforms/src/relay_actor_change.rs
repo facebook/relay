@@ -161,6 +161,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
                     ),
                     arguments: vec![],
+                    data: None,
                 }],
                 selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                     selections: next_selections,

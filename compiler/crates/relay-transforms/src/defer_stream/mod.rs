@@ -142,6 +142,7 @@ impl DeferStreamTransform<'_> {
         let next_defer = Directive {
             name: defer.name,
             arguments: next_arguments,
+            data: None,
         };
 
         Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -247,6 +248,7 @@ impl DeferStreamTransform<'_> {
         let next_stream = Directive {
             name: stream.name,
             arguments: next_arguments,
+            data: None,
         };
 
         Ok(get_next_selection(replace_directive(

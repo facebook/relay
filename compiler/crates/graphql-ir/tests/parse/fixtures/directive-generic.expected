@@ -44,6 +44,7 @@ fragment TestFragment on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                     ],
                 },

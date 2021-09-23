@@ -50,6 +50,7 @@ fragment F2 on Query @argumentDefinitions(
                         item: "argumentDefinitions",
                     },
                     arguments: [],
+                    data: None,
                 },
             ],
             selections: [
@@ -117,6 +118,7 @@ fragment F2 on Query @argumentDefinitions(
                         item: "argumentDefinitions",
                     },
                     arguments: [],
+                    data: None,
                 },
             ],
             selections: [

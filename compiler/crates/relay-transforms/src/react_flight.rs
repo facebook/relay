@@ -214,6 +214,7 @@ impl<'s> ReactFlightTransform<'s> {
                     components.into_iter().map(ConstantValue::String).collect(),
                 ))),
             }],
+            data: None,
         }
     }
 
@@ -230,6 +231,7 @@ impl<'s> ReactFlightTransform<'s> {
                     components.into_iter().map(ConstantValue::String).collect(),
                 ))),
             }],
+            data: None,
         }
     }
 }
@@ -385,6 +387,7 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
         directives.push(Directive {
             name: WithLocation::generated(*REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY),
             arguments: vec![],
+            data: None,
         });
         Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(alias),

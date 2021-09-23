@@ -241,6 +241,7 @@ fn build_fragment_variable_definitions(
                                     *UNUSED_LOCAL_VARIABLE_DEPRECATED,
                                 ),
                                 arguments: Vec::new(),
+                                data: None,
                             }]
                         } else {
                             Vec::new()

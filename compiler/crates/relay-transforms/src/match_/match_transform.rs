@@ -899,6 +899,7 @@ pub(crate) fn build_module_metadata_as_directive(
     Directive {
         name: WithLocation::new(location, MATCH_CONSTANTS.custom_module_directive_name),
         arguments,
+        data: None,
     }
 }
 

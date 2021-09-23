@@ -52,6 +52,7 @@ pub fn attach_no_inline_directives_to_fragments(
             fragment.directives.push(Directive {
                 name: WithLocation::new(fragment.name.location, *NO_INLINE_DIRECTIVE_NAME),
                 arguments: vec![create_parent_documents_arg(parent_sources)],
+                data: None,
             })
         }
     }

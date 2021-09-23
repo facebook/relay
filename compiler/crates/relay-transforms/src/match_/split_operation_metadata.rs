@@ -83,6 +83,7 @@ impl SplitOperationMetadata {
         Directive {
             name: WithLocation::generated(*DIRECTIVE_SPLIT_OPERATION),
             arguments,
+            data: None,
         }
     }
 }

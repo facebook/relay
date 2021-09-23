@@ -123,6 +123,7 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
                             *RELAY_RESOLVER_SPREAD_METADATA_DIRECTIVE_NAME,
                         ),
                         arguments,
+                        data: None,
                     }],
                     arguments: vec![],
                 })))
@@ -306,6 +307,7 @@ fn get_field_metadata_directive(
                 ))),
             },
         ],
+        data: None,
     }
 }
 

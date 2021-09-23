@@ -445,6 +445,7 @@ fn add_metadata_directive(
                 value: WithLocation::generated(Value::Constant(ConstantValue::String(path_name))),
             },
         ],
+        data: None,
     });
     next_directives
 }
@@ -468,6 +469,7 @@ fn maybe_add_children_can_bubble_metadata_directive(
     next_directives.push(Directive {
         name: WithLocation::generated(*CHILDREN_CAN_BUBBLE_METADATA_KEY),
         arguments: vec![],
+        data: None,
     });
     TransformedValue::Replace(next_directives)
 }

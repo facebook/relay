@@ -46,6 +46,7 @@ fragment ScalarHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                         Directive {
                             name: WithLocation {
@@ -68,6 +69,7 @@ fragment ScalarHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                     ],
                 },

@@ -268,6 +268,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                         module_id,
                     ))),
                 }],
+                data: None,
             };
         }
 
@@ -326,6 +327,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                     split_operation_filenames,
                 ))),
             }],
+            data: None,
         }
     }
 }

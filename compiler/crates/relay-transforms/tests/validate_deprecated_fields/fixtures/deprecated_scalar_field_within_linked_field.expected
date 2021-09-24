@@ -12,7 +12,7 @@ extend type User {
   some_old_field: String @deprecated
 }
 ==================================== OUTPUT ===================================
-✖︎ The field `User.some_old_field` is deprecated.
+ℹ The field `User.some_old_field` is deprecated.
 
   deprecated_scalar_field_within_linked_field.graphql:5:7
     4 │       name

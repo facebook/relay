@@ -38,7 +38,21 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         writer: &mut W,
         diagnostic: &Diagnostic,
     ) -> std::fmt::Result {
-        writeln!(writer, "{}\n", format!("✖︎ {}", diagnostic.message()).red())?;
+        match diagnostic.severity() {
+            common::DiagnosticSeverity::Error => {
+                writeln!(writer, "{}\n", format!("✖︎ {}", diagnostic.message()).red())?;
+            }
+            common::DiagnosticSeverity::Warning => {
+                writeln!(
+                    writer,
+                    "{}\n",
+                    format!("︎⚠ {}", diagnostic.message()).yellow()
+                )?;
+            }
+            common::DiagnosticSeverity::Information | common::DiagnosticSeverity::Hint => {
+                writeln!(writer, "{}\n", format!("ℹ {}", diagnostic.message()).blue())?;
+            }
+        }
         self.write_source(writer, diagnostic.location())?;
         for related_information in diagnostic.related_information() {
             writeln!(

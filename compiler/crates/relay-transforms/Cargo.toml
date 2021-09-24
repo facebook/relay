@@ -87,6 +87,10 @@ name = "graphql_validate_required_arguments_test"
 path = "tests/validate_required_arguments_test.rs"
 
 [[test]]
+name = "graphql_validate_deprecated_fields_test"
+path = "tests/validate_deprecated_fields_test.rs"
+
+[[test]]
 name = "graphql_validate_selection_conflict_test"
 path = "tests/validate_selection_conflict_test.rs"
 

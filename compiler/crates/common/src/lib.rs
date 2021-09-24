@@ -23,6 +23,7 @@ pub use diagnostic::{
     WithDiagnosticData, WithDiagnostics,
 };
 pub use location::{Location, SourceLocationKey, WithLocation};
+pub use lsp_types::{DiagnosticSeverity, DiagnosticTag};
 pub use named_item::{Named, NamedItem};
 pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
 pub use span::Span;

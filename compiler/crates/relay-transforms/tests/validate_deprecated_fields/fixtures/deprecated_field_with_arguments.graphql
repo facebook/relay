@@ -1,0 +1,7 @@
+fragment Foo on MyNewType {
+  some_old_field(my_arg: "Hello")
+}
+%extensions%
+type MyNewType {
+  some_old_field(my_arg: String!): String @deprecated
+}

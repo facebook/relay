@@ -58,7 +58,7 @@ use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
-pub use lsp_state::{LSPState, Schemas, SourcePrograms};
+pub use lsp_state::{convert_diagnostic, LSPState, Schemas, SourcePrograms};
 
 use heartbeat::{on_heartbeat, HeartbeatRequest};
 

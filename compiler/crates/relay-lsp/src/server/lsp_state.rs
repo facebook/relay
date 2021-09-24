@@ -27,11 +27,12 @@ use graphql_syntax::{
 use interner::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticSeverity, Range, TextDocumentPositionParams, Url};
+use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
 use relay_compiler::{
     config::{Config, ProjectConfig},
     FileCategorizer,
 };
+use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::{
     CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
@@ -255,11 +256,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             diagnostics.extend(
                 result
                     .errors
-                    .into_iter()
+                    .iter()
                     .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
             );
             if let Some(schema) = self.schemas.get(&project_name) {
-                if let Err(errors) = build_ir_with_extra_features(
+                let compiler_diagnostics = match build_ir_with_extra_features(
                     &schema,
                     &result.item.definitions,
                     BuilderOptions {
@@ -268,13 +269,28 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         relay_mode: true,
                         default_anonymous_operation_name: None,
                     },
-                ) {
-                    diagnostics.extend(
-                        errors
-                            .into_iter()
-                            .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-                    );
-                }
+                )
+                .and_then(|documents| {
+                    let mut warnings = vec![];
+                    for document in documents {
+                        // Today the only warning we check for is deprecated
+                        // fields, but in the future we could check for more
+                        // things here by making this more generic.
+                        warnings.extend(deprecated_fields_for_executable_definition(
+                            &schema, &document,
+                        )?)
+                    }
+                    Ok(warnings)
+                }) {
+                    Ok(warnings) => warnings,
+                    Err(errors) => errors,
+                };
+
+                diagnostics.extend(
+                    compiler_diagnostics
+                        .iter()
+                        .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
+                );
             }
         }
         self.diagnostic_reporter
@@ -321,10 +337,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 }
 
-fn convert_diagnostic(
+pub fn convert_diagnostic(
     graphql_source: &GraphQLSource,
-    diagnostic: CompilerDiagnostic,
+    diagnostic: &CompilerDiagnostic,
 ) -> Diagnostic {
+    let tags: Vec<DiagnosticTag> = diagnostic.tags();
+
     Diagnostic {
         code: None,
         data: get_diagnostics_data(&diagnostic),
@@ -335,9 +353,9 @@ fn convert_diagnostic(
             graphql_source.column_index,
         ),
         related_information: None,
-        severity: Some(DiagnosticSeverity::Error),
+        severity: Some(diagnostic.severity()),
+        tags: if tags.len() == 0 { None } else { Some(tags) },
         source: None,
-        tags: None,
         ..Default::default()
     }
 }

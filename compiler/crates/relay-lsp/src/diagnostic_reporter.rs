@@ -7,6 +7,7 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp_process_error::LSPProcessResult;
+use crate::server::convert_diagnostic;
 use common::{Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::channel::Sender;
 use dashmap::{mapref::entry::Entry, DashMap};
@@ -157,8 +158,6 @@ impl DiagnosticReporter {
     }
 
     fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
-        let message = diagnostic.message().to_string();
-        let data = get_diagnostics_data(diagnostic);
         let location = diagnostic.location();
 
         let url = match url_from_location(location, &self.root_dir) {
@@ -183,21 +182,7 @@ impl DiagnosticReporter {
             return;
         };
 
-        let range = location
-            .span()
-            .to_range(&source.text, source.line_index, source.column_index);
-
-        let diagnostic = Diagnostic {
-            code: None,
-            data,
-            message,
-            range,
-            related_information: None,
-            severity: Some(DiagnosticSeverity::Error),
-            source: None,
-            tags: None,
-            ..Default::default()
-        };
+        let diagnostic = convert_diagnostic(&source, diagnostic);
         self.add_diagnostic(url, diagnostic);
     }
 

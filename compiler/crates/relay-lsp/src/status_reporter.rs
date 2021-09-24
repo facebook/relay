@@ -8,7 +8,7 @@
 //! Utilities for reporting errors to an LSP client
 use crate::{
     diagnostic_reporter::DiagnosticReporter,
-    status_updater::{set_ready_status, update_in_progress_status},
+    status_updater::{set_error_status, set_ready_status, update_in_progress_status},
 };
 use crossbeam::channel::Sender;
 use lsp_server::Message;
@@ -46,9 +46,15 @@ impl StatusReporter for LSPStatusReporter {
     }
 
     fn build_errors(&self, error: &Error) {
-        set_ready_status(&self.sender);
-        self.diagnostic_reporter.clear_regular_diagnostics();
-        self.diagnostic_reporter.report_error(error);
-        self.diagnostic_reporter.commit_diagnostics();
+        match error {
+            Error::BuildProjectsErrors { .. } | Error::DiagnosticsError { .. } => {
+                set_ready_status(&self.sender);
+                self.diagnostic_reporter.clear_regular_diagnostics();
+                self.diagnostic_reporter.report_error(error);
+                self.diagnostic_reporter.commit_diagnostics();
+            }
+            Error::Cancelled => {}
+            _ => set_error_status(&self.sender, error),
+        }
     }
 }

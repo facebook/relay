@@ -192,7 +192,7 @@ impl FileCategorizer {
             .unwrap_or_else(|| panic!("Got unexpected path without extension: `{:?}`.", path));
 
         if is_source_code_extension(extension) {
-            let source_set = self.source_mapping.get(path);
+            let source_set = self.source_mapping.find(path)?;
             if self.in_relative_generated_dir(path) {
                 if let SourceSet::SourceSetName(source_set_name) = source_set {
                     Some(FileGroup::Generated {
@@ -293,15 +293,6 @@ impl<T: Clone> PathMapping<T> {
         Self(entries)
     }
 
-    fn get(&self, path: &Path) -> T {
-        self.find(path).unwrap_or_else(|| {
-            panic!(
-                "Path '{:?}' not in any of the expected directories. Available directories: {:?}",
-                path,
-                self.0.iter().map(|(prefix, _)| prefix).collect::<Vec<_>>()
-            );
-        })
-    }
     fn find(&self, path: &Path) -> Option<T> {
         self.0.iter().find_map(|(prefix, item)| {
             if path.starts_with(prefix) {

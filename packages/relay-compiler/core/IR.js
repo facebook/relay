@@ -13,10 +13,10 @@
 'use strict';
 
 import type {
-  LinkedFieldTypeID,
-  ScalarFieldTypeID,
   CompositeTypeID,
   InputTypeID,
+  LinkedFieldTypeID,
+  ScalarFieldTypeID,
 } from './Schema';
 import type {Source} from 'graphql';
 

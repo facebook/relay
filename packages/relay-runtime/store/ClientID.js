@@ -12,11 +12,10 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-
-const {intern} = require('../util/StringInterner');
-
 import type {DataID} from '../util/RelayRuntimeTypes';
+
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {intern} = require('../util/StringInterner');
 
 const PREFIX = 'client:';
 

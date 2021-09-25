@@ -13,14 +13,14 @@
 
 'use strict';
 
-const preloadQuery = require('./preloadQuery_DEPRECATED');
-
 import type {
   EntryPoint,
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
 } from './EntryPointTypes.flow';
+
+const preloadQuery = require('./preloadQuery_DEPRECATED');
 
 function prepareEntryPoint<
   TEntryPointParams: {...},

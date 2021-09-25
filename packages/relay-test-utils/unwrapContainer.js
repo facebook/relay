@@ -9,15 +9,15 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type React from 'React';
 import type {
-  $RelayProps,
-  RelayProp,
   RelayPaginationProp,
+  RelayProp,
   RelayRefetchProp,
+  $RelayProps,
 } from 'react-relay';
+
+const invariant = require('invariant');
 
 /**
  * Returns original component class wrapped by e.g. createFragmentContainer

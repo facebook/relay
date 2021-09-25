@@ -13,21 +13,20 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-
 const {MockPayloadGenerator, createMockEnvironment} = require('../');
+const React = require('react');
 const {
   QueryRenderer,
   createFragmentContainer,
   createPaginationContainer,
   createRefetchContainer,
 } = require('react-relay');
+const ReactTestRenderer = require('react-test-renderer');
 const {
-  graphql,
-  commitMutation,
-  requestSubscription,
   DefaultHandlerProvider,
+  commitMutation,
+  graphql,
+  requestSubscription,
 } = require('relay-runtime');
 
 const {useState, useEffect} = React;

@@ -13,23 +13,21 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernStore = require('../RelayModernStore');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const defaultGetDataID = require('../defaultGetDataID');
-const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {check} = require('../DataChecker');
+const defaultGetDataID = require('../defaultGetDataID');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('../TypeID');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 // TODO:

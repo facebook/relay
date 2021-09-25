@@ -11,10 +11,9 @@
 
 'use strict';
 
-const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
 const {SCALAR_FIELD, SCALAR_HANDLE} = require('../../util/RelayConcreteNode');
+const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
 const {getRequest, graphql} = require('relay-runtime');
 
 describe('cloneRelayScalarHandleSourceField()', () => {

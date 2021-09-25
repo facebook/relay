@@ -13,17 +13,15 @@
 
 'use strict';
 
-const React = require('react');
-const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
 const preloadQuery = require('../../react-relay/relay-hooks/preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
-
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {getRequest, graphql} = require('relay-runtime');
 const {
-  createMockEnvironment,
   MockPayloadGenerator,
+  createMockEnvironment,
 } = require('relay-test-utils');
 
 const query = getRequest(graphql`

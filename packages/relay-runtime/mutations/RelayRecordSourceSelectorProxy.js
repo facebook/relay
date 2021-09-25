@@ -12,10 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getStorageKey, ROOT_TYPE} = require('../store/RelayStoreUtils');
-
 import type {
   RecordProxy,
   RecordSourceProxy,
@@ -25,6 +21,9 @@ import type {
 import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * @internal

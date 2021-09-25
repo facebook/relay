@@ -13,9 +13,9 @@
 
 const ACTOR_IDENTIFIER_FIELD_NAME = 'actor_key';
 
-const {getActorIdentifier} = require('./ActorIdentifier');
-
 import type {ActorIdentifier} from './ActorIdentifier';
+
+const {getActorIdentifier} = require('./ActorIdentifier');
 
 function getActorIdentifierFromPayload(payload: mixed): ?ActorIdentifier {
   if (

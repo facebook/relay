@@ -12,11 +12,10 @@
 
 'use strict';
 
-const CompilerContext = require('./CompilerContext');
-
-const {visit} = require('./IRVisitor');
-
 import type {Fragment, FragmentSpread, Root} from './IR';
+
+const CompilerContext = require('./CompilerContext');
+const {visit} = require('./IRVisitor');
 
 /**
  * Returns a CompilerContext containing only the documents referenced

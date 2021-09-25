@@ -13,11 +13,10 @@
 
 'use strict';
 
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {createNormalizationSelector} = require('../RelayModernSelector');
+const RelayRecordSource = require('../RelayRecordSource');
 const {mark} = require('../RelayReferenceMarker');
 const {ROOT_ID} = require('../RelayStoreUtils');
 

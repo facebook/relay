@@ -12,19 +12,17 @@
 
 'use strict';
 
-const SchemaUtils = require('../../core/SchemaUtils');
-
-const nullthrows = require('nullthrows');
+import type {QueryGenerator, RefetchRoot} from '.';
+import type {Fragment} from '../../core/IR';
+import type {Schema} from '../../core/Schema';
 
 const {createUserError} = require('../../core/CompilerError');
+const SchemaUtils = require('../../core/SchemaUtils');
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,
 } = require('./utils');
-
-import type {Fragment} from '../../core/IR';
-import type {Schema} from '../../core/Schema';
-import type {QueryGenerator, RefetchRoot} from '.';
+const nullthrows = require('nullthrows');
 
 const NODE_TYPE_NAME = 'Node';
 const NODE_FIELD_NAME = 'node';

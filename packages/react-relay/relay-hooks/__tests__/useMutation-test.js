@@ -13,20 +13,18 @@
 
 'use strict';
 
+import type {PayloadData, PayloadError} from 'relay-runtime';
+
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useMutation = require('../useMutation');
-
 const {
   createOperationDescriptor,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {PayloadData, PayloadError} from 'relay-runtime';
 
 const {useState, useMemo} = React;
 let environment;

@@ -13,14 +13,14 @@
 
 'use strict';
 
+import type {IEnvironment} from 'relay-runtime';
+import type {
+  ActorIdentifier,
+  IActorEnvironment,
+} from 'relay-runtime/multi-actor-environment';
+
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-
-import type {
-  IActorEnvironment,
-  ActorIdentifier,
-} from 'relay-runtime/multi-actor-environment';
-import type {IEnvironment} from 'relay-runtime';
 
 const {useMemo} = React;
 

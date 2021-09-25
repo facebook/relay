@@ -12,9 +12,9 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type {ArgumentValue} from './IR';
+
+const invariant = require('invariant');
 
 /**
  * Generates an identifier for an argument value. The identifier is based on the

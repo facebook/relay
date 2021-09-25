@@ -9,7 +9,6 @@
 
 'use strict';
 
-const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
@@ -31,11 +30,12 @@ const babelOptions = require('./scripts/getBabelOptions')({
 const del = require('del');
 const fs = require('fs');
 const gulp = require('gulp');
+const babel = require('gulp-babel');
 const chmod = require('gulp-chmod');
-const gulpUtil = require('gulp-util');
 const header = require('gulp-header');
-const path = require('path');
 const rename = require('gulp-rename');
+const gulpUtil = require('gulp-util');
+const path = require('path');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 

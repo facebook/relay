@@ -13,19 +13,18 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const RelayNetwork = require('../../network/RelayNetwork');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();

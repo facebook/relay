@@ -10,12 +10,11 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
 const ReactRelayFragmentMockRenderer = require('../ReactRelayFragmentMockRenderer');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('ReactRelayFragmentMockRenderer', () => {

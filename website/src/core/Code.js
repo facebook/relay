@@ -9,8 +9,8 @@
 
 /* eslint-disable lint/no-value-import */
 import useThemeContext from '@theme/hooks/useThemeContext';
-import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import * as React from 'react';
+import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 /* eslint-enable lint/no-value-import */
 
 // Light theme

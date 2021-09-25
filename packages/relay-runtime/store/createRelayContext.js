@@ -12,10 +12,10 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
 import type {RelayContext} from './RelayStoreTypes.js';
 import typeof {createContext} from 'react';
+
+const invariant = require('invariant');
 
 // Ideally, we'd just import the type of the react module, but this causes Flow
 // problems.

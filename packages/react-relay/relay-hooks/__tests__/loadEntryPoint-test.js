@@ -14,7 +14,6 @@
 'use strict';
 
 const loadEntryPoint = require('../loadEntryPoint');
-
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 class FakeJSResource<T> {

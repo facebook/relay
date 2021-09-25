@@ -13,11 +13,11 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const warning = require('warning');
-
 import type {ReaderPaginationMetadata} from './ReaderNode';
 import type {Variables} from './RelayRuntimeTypes';
+
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type Direction = 'forward' | 'backward';
 

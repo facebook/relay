@@ -12,10 +12,10 @@
 
 'use strict';
 
+import type {Fragment, Root, Schema} from 'relay-compiler';
+
 const {parse} = require('graphql');
 const {Parser, convertASTDocuments} = require('relay-compiler');
-
-import type {Fragment, Root, Schema} from 'relay-compiler';
 
 function parseGraphQLText(
   schema: Schema,

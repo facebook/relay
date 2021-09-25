@@ -12,14 +12,13 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {generateIDField} = require('../core/SchemaUtils');
-const {hasUnaliasedSelection} = require('./TransformUtils');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {InlineFragment, LinkedField, ScalarField} from '../core/IR';
 import type {CompositeTypeID} from '../core/Schema';
+
+const IRTransformer = require('../core/IRTransformer');
+const {generateIDField} = require('../core/SchemaUtils');
+const {hasUnaliasedSelection} = require('./TransformUtils');
 
 const ID = 'id';
 const NODE_TYPE = 'Node';

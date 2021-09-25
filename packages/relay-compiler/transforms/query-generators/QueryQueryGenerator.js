@@ -12,14 +12,14 @@
 
 'use strict';
 
+import type {QueryGenerator, RefetchRoot} from '.';
+import type {Fragment} from '../../core/IR';
+import type {Schema} from '../../core/Schema';
+
 const {
   buildFragmentSpread,
   buildOperationArgumentDefinitions,
 } = require('./utils');
-
-import type {Fragment} from '../../core/IR';
-import type {Schema} from '../../core/Schema';
-import type {QueryGenerator, RefetchRoot} from '.';
 
 function buildRefetchOperation(
   schema: Schema,

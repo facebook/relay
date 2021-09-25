@@ -13,25 +13,6 @@
 
 'use strict';
 
-const OperationExecutor = require('./OperationExecutor');
-const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayObservable = require('../network/RelayObservable');
-const RelayOperationTracker = require('../store/RelayOperationTracker');
-const RelayPublishQueue = require('./RelayPublishQueue');
-const RelayRecordSource = require('./RelayRecordSource');
-
-const defaultGetDataID = require('./defaultGetDataID');
-const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
-const invariant = require('invariant');
-const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
-const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
-
-const {
-  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  assertInternalActorIndentifier,
-} = require('../multi-actor-environment/ActorIdentifier');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
@@ -63,6 +44,23 @@ import type {
   Store,
   StoreUpdater,
 } from './RelayStoreTypes';
+
+const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
+const {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+  assertInternalActorIndentifier,
+} = require('../multi-actor-environment/ActorIdentifier');
+const RelayObservable = require('../network/RelayObservable');
+const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
+const RelayOperationTracker = require('../store/RelayOperationTracker');
+const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const defaultGetDataID = require('./defaultGetDataID');
+const defaultRequiredFieldLogger = require('./defaultRequiredFieldLogger');
+const OperationExecutor = require('./OperationExecutor');
+const RelayPublishQueue = require('./RelayPublishQueue');
+const RelayRecordSource = require('./RelayRecordSource');
+const invariant = require('invariant');
 
 export type EnvironmentConfig = {|
   +configName?: string,

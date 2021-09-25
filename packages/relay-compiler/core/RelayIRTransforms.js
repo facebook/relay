@@ -12,6 +12,9 @@
 
 'use strict';
 
+import type {IRTransform} from './CompilerContext';
+
+const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
 const ApplyFragmentArgumentTransform = require('../transforms/ApplyFragmentArgumentTransform');
 const ClientExtensionsTransform = require('../transforms/ClientExtensionsTransform');
 const ConnectionTransform = require('../transforms/ConnectionTransform');
@@ -32,7 +35,6 @@ const MatchTransform = require('../transforms/MatchTransform');
 const ReactFlightComponentTransform = require('../transforms/ReactFlightComponentTransform');
 const RefetchableFragmentTransform = require('../transforms/RefetchableFragmentTransform');
 const RelayDirectiveTransform = require('../transforms/RelayDirectiveTransform');
-const RelayFlowGenerator = require('../language/javascript/RelayFlowGenerator');
 const RequiredFieldTransform = require('../transforms/RequiredFieldTransform');
 const SkipClientExtensionsTransform = require('../transforms/SkipClientExtensionsTransform');
 const SkipHandleFieldTransform = require('../transforms/SkipHandleFieldTransform');
@@ -45,8 +47,6 @@ const TestOperationTransform = require('../transforms/TestOperationTransform');
 const ValidateGlobalVariablesTransform = require('../transforms/ValidateGlobalVariablesTransform');
 const ValidateRequiredArgumentsTransform = require('../transforms/ValidateRequiredArgumentsTransform');
 const ValidateUnusedVariablesTransform = require('../transforms/ValidateUnusedVariablesTransform');
-
-import type {IRTransform} from './CompilerContext';
 
 // Transforms applied to the code used to process a query response.
 const relaySchemaExtensions: $ReadOnlyArray<string> = [

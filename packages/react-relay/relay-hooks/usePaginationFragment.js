@@ -13,26 +13,25 @@
 
 'use strict';
 
+import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
+import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
+import type {
+  FragmentReference,
+  GraphQLResponse,
+  GraphQLTaggedNode,
+  Observer,
+  OperationType,
+} from 'relay-runtime';
+
 const useLoadMoreFunction = require('./useLoadMoreFunction');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
-
 const {useCallback, useDebugValue, useState} = require('react');
 const {
   getFragment,
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
-
-import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
-import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
-import type {
-  GraphQLResponse,
-  GraphQLTaggedNode,
-  Observer,
-  OperationType,
-  FragmentReference,
-} from 'relay-runtime';
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   data: TFragmentData,

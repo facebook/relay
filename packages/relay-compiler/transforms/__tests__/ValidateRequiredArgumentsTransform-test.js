@@ -15,9 +15,7 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-
 const validateRelayRequiredArguments = require('../ValidateRequiredArgumentsTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

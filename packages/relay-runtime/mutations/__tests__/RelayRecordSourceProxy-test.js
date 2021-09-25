@@ -11,14 +11,12 @@
 
 'use strict';
 
-const RelayRecordProxy = require('../RelayRecordProxy');
+const defaultGetDataID = require('../../store/defaultGetDataID');
 const RelayRecordSource = require('../../store/RelayRecordSource');
+const RelayStoreUtils = require('../../store/RelayStoreUtils');
+const RelayRecordProxy = require('../RelayRecordProxy');
 const RelayRecordSourceMutator = require('../RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../RelayRecordSourceProxy');
-const RelayStoreUtils = require('../../store/RelayStoreUtils');
-
-const defaultGetDataID = require('../../store/defaultGetDataID');
-
 const {simpleClone} = require('relay-test-utils-internal');
 
 const {

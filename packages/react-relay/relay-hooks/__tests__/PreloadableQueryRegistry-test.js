@@ -11,9 +11,9 @@
 
 'use strict';
 
-const {PreloadableQueryRegistry} = require('relay-runtime');
-
 import type {ConcreteRequest} from 'relay-runtime';
+
+const {PreloadableQueryRegistry} = require('relay-runtime');
 
 // We don't actually make use of the internals of ConcreteRequest,
 // so an empty object (that supports === equality) is enough.

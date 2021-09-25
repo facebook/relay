@@ -13,6 +13,12 @@
 
 'use strict';
 
+import type {
+  LoadQueryOptions,
+  PreloadableConcreteRequest,
+} from '../EntryPointTypes.flow';
+import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+
 const {loadQuery} = require('../loadQuery');
 const {
   Network,
@@ -23,12 +29,6 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {
-  LoadQueryOptions,
-  PreloadableConcreteRequest,
-} from '../EntryPointTypes.flow';
-import type {OperationType, GraphQLTaggedNode} from 'relay-runtime';
 
 const query = getRequest(graphql`
   query loadQuerySourceBehaviorTestQuery($id: ID!) {

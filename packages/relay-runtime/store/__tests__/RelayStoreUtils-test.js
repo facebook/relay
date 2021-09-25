@@ -10,10 +10,9 @@
 
 'use strict';
 
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayStoreUtils = require('../RelayStoreUtils');
-
-const {graphql} = require('../../query/GraphQLTag');
 
 describe('RelayStoreUtils', () => {
   describe('getArgumentValues()', () => {

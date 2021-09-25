@@ -13,22 +13,22 @@
 
 'use strict';
 
-const React = require('react');
-const {useMemo} = React;
-const TestRenderer = require('react-test-renderer');
-
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+
+const {useMemo} = React;
 
 describe('useRefetchableFragment', () => {
   let environment;

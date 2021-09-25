@@ -10,17 +10,15 @@
 
 'use strict';
 
-const React = require('react');
+const {act: internalAct} = require('../jest-react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const ReactTestRenderer = require('react-test-renderer');
-
 const readContext = require('../readContext');
-
-const {act: internalAct} = require('../jest-react');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
-  createReaderSelector,
   createOperationDescriptor,
+  createReaderSelector,
   graphql,
 } = require('relay-runtime');
 const {

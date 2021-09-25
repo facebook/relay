@@ -13,15 +13,14 @@
 
 'use strict';
 
+const {
+  MultiActorEnvironment,
+  getActorIdentifier,
+} = require('../../multi-actor-environment');
+const RelayNetwork = require('../../network/RelayNetwork');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
 const RelayRecordSource = require('../RelayRecordSource');
-
-const {
-  getActorIdentifier,
-  MultiActorEnvironment,
-} = require('../../multi-actor-environment');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();

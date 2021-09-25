@@ -12,29 +12,21 @@
 
 'use strict';
 
-const argumentContainsVariables = require('../util/argumentContainsVariables');
-const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
-const partitionArray = require('../util/partitionArray');
-const sortObjectByKey = require('./sortObjectByKey');
-
-const {createCompilerError, createUserError} = require('../core/CompilerError');
-const {getStorageKey, stableCopy} = require('relay-runtime');
-
 import type {
   Argument,
   ArgumentValue,
   ClientExtension,
+  Condition,
+  Defer,
+  InlineFragment,
+  LinkedField,
+  LocalArgumentDefinition,
   Metadata,
+  ModuleImport,
   Root,
   Selection,
   SplitOperation,
-  LinkedField,
-  Defer,
   Stream,
-  Condition,
-  InlineFragment,
-  ModuleImport,
-  LocalArgumentDefinition,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
 import type {
@@ -51,6 +43,13 @@ import type {
   NormalizationStream,
   NormalizationTypeDiscriminator,
 } from 'relay-runtime';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const argumentContainsVariables = require('../util/argumentContainsVariables');
+const generateAbstractTypeRefinementKey = require('../util/generateAbstractTypeRefinementKey');
+const partitionArray = require('../util/partitionArray');
+const sortObjectByKey = require('./sortObjectByKey');
+const {getStorageKey, stableCopy} = require('relay-runtime');
 
 /**
  * @public

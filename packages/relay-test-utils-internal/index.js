@@ -12,21 +12,19 @@
 
 'use strict';
 
+const {
+  FIXTURE_TAG,
+  generateTestsFromFixtures,
+} = require('./generateTestsFromFixtures');
 const Matchers = require('./Matchers');
-
 const parseGraphQLText = require('./parseGraphQLText');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
-
 const {TestSchema, testSchemaPath} = require('./TestSchema');
 const {
-  generateTestsFromFixtures,
-  FIXTURE_TAG,
-} = require('./generateTestsFromFixtures');
-const {
+  disallowWarnings,
   expectToWarn,
   expectWarningWillFire,
-  disallowWarnings,
 } = require('./warnings');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 

@@ -15,7 +15,6 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const ValidateUnusedVariablesTransform = require('../ValidateUnusedVariablesTransform');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

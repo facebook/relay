@@ -12,18 +12,17 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-
-const invariant = require('invariant');
-const warning = require('warning');
-
 import type {
   ReaderFragment,
-  ReaderRefetchableFragment,
-  ReaderPaginationFragment,
   ReaderInlineDataFragment,
+  ReaderPaginationFragment,
+  ReaderRefetchableFragment,
 } from '../util/ReaderNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
+
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const invariant = require('invariant');
+const warning = require('warning');
 
 // The type of a graphql`...` tagged template expression.
 export type GraphQLTaggedNode =

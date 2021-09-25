@@ -11,9 +11,8 @@
 
 'use strict';
 
-const MultiActorEnvironment = require('./MultiActorEnvironment');
-
 const {getActorIdentifier} = require('./ActorIdentifier');
+const MultiActorEnvironment = require('./MultiActorEnvironment');
 
 export type {ActorIdentifier} from './ActorIdentifier';
 export type {

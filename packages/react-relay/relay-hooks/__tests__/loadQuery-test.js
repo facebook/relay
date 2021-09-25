@@ -13,22 +13,21 @@
 
 'use strict';
 
+import type {ConcreteRequest, GraphQLTaggedNode} from 'relay-runtime';
+
+const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
-const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 const {
-  graphql,
   Network,
   Observable,
-  getRequest,
   PreloadableQueryRegistry,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-import type {GraphQLTaggedNode, ConcreteRequest} from 'relay-runtime';
 
 describe('loadQuery', () => {
   const q: GraphQLTaggedNode = graphql`

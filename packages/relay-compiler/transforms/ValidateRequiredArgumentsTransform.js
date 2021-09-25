@@ -12,11 +12,6 @@
 
 'use strict';
 
-const IRValidator = require('../core/IRValidator');
-
-const {createUserError} = require('../core/CompilerError');
-const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Directive,
@@ -25,7 +20,11 @@ import type {
   Root,
   SplitOperation,
 } from '../core/IR';
-import type {Schema, TypeID, Argument} from '../core/Schema';
+import type {Argument, Schema, TypeID} from '../core/Schema';
+
+const {createUserError} = require('../core/CompilerError');
+const {getFieldDefinitionStrict} = require('../core/getFieldDefinition');
+const IRValidator = require('../core/IRValidator');
 
 type State = {|
   +rootNode: Fragment | Root | SplitOperation,

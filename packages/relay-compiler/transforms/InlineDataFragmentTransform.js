@@ -12,16 +12,15 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const {createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Fragment,
   FragmentSpread,
   InlineDataFragmentSpread,
 } from '../core/IR';
+
+const {createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
 
 const SCHEMA_EXTENSION = `
 directive @inline on FRAGMENT_DEFINITION

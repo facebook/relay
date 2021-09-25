@@ -12,9 +12,11 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
+import type CompilerContext from '../core/CompilerContext';
+import type {Handle, LinkedField, Root, ScalarField} from '../core/IR';
 
 const {createUserError} = require('../core/CompilerError');
+const IRTransformer = require('../core/IRTransformer');
 const {ConnectionInterface} = require('relay-runtime');
 
 const DELETE_RECORD = 'deleteRecord';
@@ -29,7 +31,6 @@ const LINKED_FIELD_DIRECTIVES = [
   ...EDGE_LINKED_FIELD_DIRECTIVES,
   ...NODE_LINKED_FIELD_DIRECTIVES,
 ];
-
 const SCHEMA_EXTENSION = `
   directive @${DELETE_RECORD} on FIELD
   directive @${DELETE_EDGE}(
@@ -50,9 +51,6 @@ const SCHEMA_EXTENSION = `
     edgeTypeName: String!
   ) on FIELD
 `;
-
-import type CompilerContext from '../core/CompilerContext';
-import type {ScalarField, LinkedField, Root, Handle} from '../core/IR';
 
 function transform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {

@@ -15,9 +15,8 @@
 
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
-const ReactFlightComponentTransform = require('../ReactFlightComponentTransform');
 const RelayParser = require('../../core/RelayParser');
-
+const ReactFlightComponentTransform = require('../ReactFlightComponentTransform');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,

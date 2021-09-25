@@ -13,13 +13,13 @@
 
 'use strict';
 
+import type {JSResourceReference} from 'JSResourceReference';
+import type {NormalizationSplitOperation} from './NormalizationNode';
+
 const {
   getModuleComponentKey,
   getModuleOperationKey,
 } = require('../store/RelayStoreUtils');
-
-import type {NormalizationSplitOperation} from './NormalizationNode';
-import type {JSResourceReference} from 'JSResourceReference';
 
 export opaque type Local3DPayload<
   +DocumentName: string,

@@ -12,17 +12,16 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getArgumentValues} = require('./RelayStoreUtils');
-
 import type {
-  NormalizationLocalArgumentDefinition,
   NormalizationArgument,
+  NormalizationLocalArgumentDefinition,
   NormalizationOperation,
 } from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const {getArgumentValues} = require('./RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * Determines the variables that are in scope for a fragment given the variables

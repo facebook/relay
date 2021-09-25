@@ -12,22 +12,20 @@
 
 'use strict';
 
-const ConnectionInterface = require('./ConnectionInterface');
-
-const getRelayHandleKey = require('../../util/getRelayHandleKey');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {generateClientID} = require('../../store/ClientID');
-const {getStableStorageKey} = require('../../store/RelayStoreUtils');
-
 import type {
   HandleFieldPayload,
-  RecordProxy,
   ReadOnlyRecordProxy,
+  RecordProxy,
   RecordSourceProxy,
 } from '../../store/RelayStoreTypes';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
+
+const {generateClientID} = require('../../store/ClientID');
+const {getStableStorageKey} = require('../../store/RelayStoreUtils');
+const getRelayHandleKey = require('../../util/getRelayHandleKey');
+const ConnectionInterface = require('./ConnectionInterface');
+const invariant = require('invariant');
+const warning = require('warning');
 
 export type ConnectionMetadata = {
   path: ?Array<string>,

@@ -13,15 +13,14 @@
 
 'use strict';
 
-const MultiActorEnvironment = require('../MultiActorEnvironment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
+const MultiActorEnvironment = require('../MultiActorEnvironment');
 const {
   disallowWarnings,
   expectWarningWillFire,

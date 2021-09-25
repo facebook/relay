@@ -11,7 +11,6 @@
 'use strict';
 
 const createFragmentSpecResolver = require('../createFragmentSpecResolver');
-
 const {getFragment, graphql} = require('relay-runtime');
 const {matchers} = require('relay-test-utils-internal');
 

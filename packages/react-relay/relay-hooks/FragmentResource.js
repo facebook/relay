@@ -13,19 +13,6 @@
 
 'use strict';
 
-const LRUCache = require('./LRUCache');
-
-const invariant = require('invariant');
-
-const {
-  getFragmentIdentifier,
-  getPendingOperationsForFragment,
-  getSelector,
-  isPromise,
-  recycleNodesInto,
-  reportMissingRequiredFields,
-} = require('relay-runtime');
-
 import type {Cache} from './LRUCache';
 import type {
   Disposable,
@@ -34,6 +21,17 @@ import type {
   RequestDescriptor,
   Snapshot,
 } from 'relay-runtime';
+
+const LRUCache = require('./LRUCache');
+const invariant = require('invariant');
+const {
+  getFragmentIdentifier,
+  getPendingOperationsForFragment,
+  getSelector,
+  isPromise,
+  recycleNodesInto,
+  reportMissingRequiredFields,
+} = require('relay-runtime');
 
 export type FragmentResource = FragmentResourceImpl;
 

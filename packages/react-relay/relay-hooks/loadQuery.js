@@ -11,36 +11,34 @@
 
 'use strict';
 
-const React = require('react');
-
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  PreloadableQueryRegistry,
-  ReplaySubject,
-  createOperationDescriptor,
-  getRequest,
-  getRequestIdentifier,
-  Observable,
-  RelayFeatureFlags,
-  __internal: {fetchQueryDeduped},
-} = require('relay-runtime');
-
 import type {
+  LoadQueryOptions,
   PreloadableConcreteRequest,
   PreloadedQueryInner,
-  LoadQueryOptions,
 } from './EntryPointTypes.flow';
 import type {
+  GraphQLResponse,
+  GraphQLTaggedNode,
   IEnvironment,
   OperationDescriptor,
   OperationType,
-  GraphQLTaggedNode,
-  GraphQLResponse,
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
+
+const invariant = require('invariant');
+const React = require('react');
+const {
+  Observable,
+  PreloadableQueryRegistry,
+  RelayFeatureFlags,
+  ReplaySubject,
+  __internal: {fetchQueryDeduped},
+  createOperationDescriptor,
+  getRequest,
+  getRequestIdentifier,
+} = require('relay-runtime');
+const warning = require('warning');
 
 let RenderDispatcher = null;
 let fetchKey = 100001;

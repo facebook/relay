@@ -12,10 +12,6 @@
 
 'use strict';
 
-const IRValidator = require('../core/IRValidator');
-
-const {createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   ClientExtension,
@@ -24,6 +20,9 @@ import type {
   Selection,
   Stream,
 } from '../core/IR';
+
+const {createUserError} = require('../core/CompilerError');
+const IRValidator = require('../core/IRValidator');
 
 type State = {rootClientSelection: ?Selection, ...};
 

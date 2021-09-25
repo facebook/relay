@@ -13,30 +13,29 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
-const {useMemo, useState, useEffect} = React;
-const TestRenderer = require('react-test-renderer');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+import type {OperationDescriptor, Variables} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   Observable,
   __internal: {fetchQuery},
-  graphql,
-  getRequest,
+  createOperationDescriptor,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
+const Scheduler = require('scheduler');
 
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+const {useMemo, useState, useEffect} = React;
 
 describe('useRefetchableFragmentNode', () => {
   let environment;

@@ -13,16 +13,6 @@
 
 'use strict';
 
-const {
-  createOperationDescriptor,
-  getRequest,
-  getRequestIdentifier,
-  Observable,
-  PreloadableQueryRegistry,
-  RelayFeatureFlags,
-  ReplaySubject,
-} = require('relay-runtime');
-
 import type {
   PreloadableConcreteRequest,
   PreloadedQueryInner_DEPRECATED,
@@ -39,6 +29,16 @@ import type {
   OperationType,
   Subscription,
 } from 'relay-runtime';
+
+const {
+  Observable,
+  PreloadableQueryRegistry,
+  RelayFeatureFlags,
+  ReplaySubject,
+  createOperationDescriptor,
+  getRequest,
+  getRequestIdentifier,
+} = require('relay-runtime');
 
 // Expire results by this delay after they resolve.
 const DEFAULT_PREFETCH_TIMEOUT = 30 * 1000; // 30 seconds

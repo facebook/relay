@@ -13,12 +13,17 @@
 
 'use strict';
 
-const ProfilerContext = require('./ProfilerContext');
-const React = require('react');
+import type {
+  EntryPoint,
+  EntryPointComponent,
+  EnvironmentProviderOptions,
+  IEnvironmentProvider,
+} from './EntryPointTypes.flow';
 
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
+const ProfilerContext = require('./ProfilerContext');
 const useRelayEnvironment = require('./useRelayEnvironment');
-
+const React = require('react');
 const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
 
@@ -35,13 +40,6 @@ type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
   queries: $PropertyType<React.ElementConfig<TEntryPointComponent>, 'queries'>,
   rootModuleID: string,
 |}>;
-
-import type {
-  EntryPoint,
-  EntryPointComponent,
-  EnvironmentProviderOptions,
-  IEnvironmentProvider,
-} from './EntryPointTypes.flow';
 
 type EntryPointContainerProps<
   TEntryPointParams,

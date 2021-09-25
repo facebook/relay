@@ -15,7 +15,6 @@
 
 const CompilerContext = require('../CompilerContext');
 const IRTransformer = require('../IRTransformer');
-
 const {TestSchema, parseGraphQLText} = require('relay-test-utils-internal');
 
 describe('IRTransformer', () => {

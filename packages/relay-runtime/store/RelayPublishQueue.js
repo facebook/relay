@@ -12,15 +12,6 @@
 
 'use strict';
 
-const RelayReader = require('./RelayReader');
-const RelayRecordSource = require('./RelayRecordSource');
-const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
-const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
-
-const invariant = require('invariant');
-const warning = require('warning');
-
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -37,6 +28,14 @@ import type {
   Store,
   StoreUpdater,
 } from './RelayStoreTypes';
+
+const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
+const RelayReader = require('./RelayReader');
+const RelayRecordSource = require('./RelayRecordSource');
+const invariant = require('invariant');
+const warning = require('warning');
 
 type PendingCommit = PendingRelayPayload | PendingRecordSource | PendingUpdater;
 type PendingRelayPayload = {|

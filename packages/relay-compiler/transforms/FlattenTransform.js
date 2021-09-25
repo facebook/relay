@@ -12,13 +12,6 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const areEqualArgValues = require('../util/areEqualArgValues');
-const getIdentifierForSelection = require('../core/getIdentifierForSelection');
-
-const {createCompilerError, createUserError} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
@@ -31,6 +24,11 @@ import type {
   Selection,
 } from '../core/IR';
 import type {Schema, TypeID} from '../core/Schema';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const getIdentifierForSelection = require('../core/getIdentifierForSelection');
+const IRTransformer = require('../core/IRTransformer');
+const areEqualArgValues = require('../util/areEqualArgValues');
 
 export type FlattenOptions = {|+isForCodegen?: boolean|};
 

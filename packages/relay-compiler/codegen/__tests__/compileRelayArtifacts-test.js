@@ -13,12 +13,10 @@
 
 'use strict';
 
-const CodeMarker = require('../../util/CodeMarker');
 const CompilerContext = require('../../core/CompilerContext');
 const RelayIRTransforms = require('../../core/RelayIRTransforms');
-
+const CodeMarker = require('../../util/CodeMarker');
 const compileRelayArtifacts = require('../compileRelayArtifacts');
-
 const {RelayFeatureFlags} = require('relay-runtime');
 const {
   TestSchema,

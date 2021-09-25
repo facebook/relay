@@ -13,17 +13,16 @@
 
 'use strict';
 
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernStore = require('../RelayModernStore');
-const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
+const RelayRecordSource = require('../RelayRecordSource');
 const {INVALIDATED_AT_KEY, REF_KEY} = require('../RelayStoreUtils');
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {

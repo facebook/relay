@@ -13,8 +13,8 @@ import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import Layout from '@theme/Layout';
 import useThemeContext from '@theme/hooks/useThemeContext';
+import Layout from '@theme/Layout';
 import * as React from 'react';
 import {useEffect, useRef, useState} from 'react';
 /* eslint-enable lint/no-value-import */

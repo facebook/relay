@@ -13,19 +13,19 @@
 
 'use strict';
 
+import type {Observer} from 'relay-runtime';
+
 const {
   fetchQuery,
-  getPromiseForActiveRequest,
   getObservableForActiveRequest,
+  getPromiseForActiveRequest,
 } = require('../fetchQueryInternal');
 const {
   createOperationDescriptor,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {Observer} from 'relay-runtime';
 
 let response;
 let gqlQuery;

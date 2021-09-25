@@ -12,14 +12,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {
-  createOperationDescriptor,
-  isRelayModernEnvironment,
-  __internal: {fetchQuery},
-} = require('relay-runtime');
-
 import type {
   CacheConfig,
   Disposable,
@@ -28,6 +20,13 @@ import type {
   OperationDescriptor,
   Snapshot,
 } from 'relay-runtime';
+
+const invariant = require('invariant');
+const {
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  isRelayModernEnvironment,
+} = require('relay-runtime');
 
 type OnDataChange = ({
   error?: Error,

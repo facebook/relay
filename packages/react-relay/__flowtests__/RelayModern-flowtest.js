@@ -12,15 +12,6 @@
 
 'use strict';
 
-const React = require('react');
-
-declare function nullthrows<T>(x: ?T): T;
-
-const {
-  createContainer: createFragmentContainer,
-} = require('../ReactRelayFragmentContainer');
-const {graphql} = require('relay-runtime');
-
 import type {$FragmentRef} from '../ReactRelayTypes';
 import type {RelayModernFlowtest_badref} from './RelayModernFlowtest_badref.graphql';
 import type {RelayModernFlowtest_notref} from './RelayModernFlowtest_notref.graphql';
@@ -32,6 +23,14 @@ import type {
   RelayModernFlowtest_users,
   RelayModernFlowtest_users$ref,
 } from './RelayModernFlowtest_users.graphql';
+
+const {
+  createContainer: createFragmentContainer,
+} = require('../ReactRelayFragmentContainer');
+const React = require('react');
+const {graphql} = require('relay-runtime');
+
+declare function nullthrows<T>(x: ?T): T;
 
 class NotReferencedTest_ extends React.Component<{
   notref: RelayModernFlowtest_notref,

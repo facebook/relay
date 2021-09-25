@@ -12,18 +12,17 @@
 
 'use strict';
 
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayRecordSource = require('./RelayRecordSource');
-const RelayResponseNormalizer = require('./RelayResponseNormalizer');
-
-const {ROOT_TYPE} = require('./RelayStoreUtils');
-
 import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {NormalizationOptions} from './RelayResponseNormalizer';
 import type {
-  RelayResponsePayload,
   NormalizationSelector,
+  RelayResponsePayload,
 } from './RelayStoreTypes';
+
+const RelayModernRecord = require('./RelayModernRecord');
+const RelayRecordSource = require('./RelayRecordSource');
+const RelayResponseNormalizer = require('./RelayResponseNormalizer');
+const {ROOT_TYPE} = require('./RelayStoreUtils');
 
 function normalizeRelayPayload(
   selector: NormalizationSelector,

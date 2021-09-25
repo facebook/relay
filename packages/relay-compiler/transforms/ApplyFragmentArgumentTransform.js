@@ -12,17 +12,6 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-const RelayCompilerScope = require('../core/RelayCompilerScope');
-
-const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
-const murmurHash = require('../util/murmurHash');
-
-const {
-  createCompilerError,
-  createNonRecoverableUserError,
-} = require('../core/CompilerError');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
@@ -39,6 +28,15 @@ import type {
   Stream,
 } from '../core/IR';
 import type {Scope} from '../core/RelayCompilerScope';
+
+const {
+  createCompilerError,
+  createNonRecoverableUserError,
+} = require('../core/CompilerError');
+const getIdentifierForArgumentValue = require('../core/getIdentifierForArgumentValue');
+const IRTransformer = require('../core/IRTransformer');
+const RelayCompilerScope = require('../core/RelayCompilerScope');
+const murmurHash = require('../util/murmurHash');
 
 const {getFragmentScope, getRootScope} = RelayCompilerScope;
 

@@ -13,8 +13,8 @@
 
 import type {
   EntryPoint,
-  EntryPointProps,
   EntryPointElementConfig,
+  EntryPointProps,
 } from '../../EntryPointTypes.flow';
 
 type MyComponentOtherProps = $ReadOnly<{|

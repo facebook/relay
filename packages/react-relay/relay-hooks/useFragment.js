@@ -13,14 +13,13 @@
 
 'use strict';
 
-const useFragmentNode = require('./useFragmentNode');
-const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
+import type {FragmentReference, GraphQLTaggedNode} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
+const useFragmentNode = require('./useFragmentNode');
+const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
-
-import type {GraphQLTaggedNode, FragmentReference} from 'relay-runtime';
 
 // NOTE: These declares ensure that the type of the returned data is:
 //   - non-nullable if the provided ref type is non-nullable

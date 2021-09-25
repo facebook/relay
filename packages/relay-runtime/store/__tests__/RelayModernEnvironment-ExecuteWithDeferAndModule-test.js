@@ -13,31 +13,30 @@
 
 'use strict';
 
-const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
-const RelayNetwork = require('../../network/RelayNetwork');
-const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {ReaderFragment} from '../../util/ReaderNode';
+import type {ConcreteRequest} from '../../util/RelayConcreteNode';
 
 const {
-  getActorIdentifier,
   MultiActorEnvironment,
+  getActorIdentifier,
 } = require('../../multi-actor-environment');
+const RelayNetwork = require('../../network/RelayNetwork');
+const RelayObservable = require('../../network/RelayObservable');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
 const {graphql} = require('relay-runtime');
 const {
   disallowWarnings,
   expectWarningWillFire,
 } = require('relay-test-utils-internal');
-
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
-import type {ReaderFragment} from '../../util/ReaderNode';
-import type {ConcreteRequest} from '../../util/RelayConcreteNode';
 
 disallowWarnings();
 

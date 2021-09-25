@@ -12,10 +12,10 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {ClientExtension, Fragment, FragmentSpread} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
 
 function skipClientExtensionTransform(
   context: CompilerContext,

@@ -13,10 +13,9 @@
 'use strict';
 
 const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
-const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
-const RelayRuntime = require('relay-runtime');
-
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
+const {loadQuery} = require('./relay-hooks/loadQuery');
+const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
 const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
 const useFragment = require('./relay-hooks/useFragment');
 const useLazyLoadQuery = require('./relay-hooks/useLazyLoadQuery');
@@ -28,8 +27,7 @@ const useRefetchableFragment = require('./relay-hooks/useRefetchableFragment');
 const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
-
-const {loadQuery} = require('./relay-hooks/loadQuery');
+const RelayRuntime = require('relay-runtime');
 
 export type * from './relay-hooks/EntryPointTypes.flow';
 export type {

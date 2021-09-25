@@ -12,20 +12,6 @@
 
 'use strict';
 
-const RelayModernRecord = require('./RelayModernRecord');
-
-const recycleNodesInto = require('../util/recycleNodesInto');
-const warning = require('warning');
-
-const {generateClientID} = require('./ClientID');
-const {
-  RELAY_RESOLVER_VALUE_KEY,
-  RELAY_RESOLVER_INVALIDATION_KEY,
-  RELAY_RESOLVER_INPUTS_KEY,
-  RELAY_RESOLVER_READER_SELECTOR_KEY,
-  getStorageKey,
-} = require('./RelayStoreUtils');
-
 import type {ReaderRelayResolver} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -33,6 +19,18 @@ import type {
   Record,
   SingularReaderSelector,
 } from './RelayStoreTypes';
+
+const recycleNodesInto = require('../util/recycleNodesInto');
+const {generateClientID} = require('./ClientID');
+const RelayModernRecord = require('./RelayModernRecord');
+const {
+  RELAY_RESOLVER_INPUTS_KEY,
+  RELAY_RESOLVER_INVALIDATION_KEY,
+  RELAY_RESOLVER_READER_SELECTOR_KEY,
+  RELAY_RESOLVER_VALUE_KEY,
+  getStorageKey,
+} = require('./RelayStoreUtils');
+const warning = require('warning');
 
 type ResolverID = string;
 

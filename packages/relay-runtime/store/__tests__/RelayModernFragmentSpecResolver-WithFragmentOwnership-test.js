@@ -10,16 +10,15 @@
 
 'use strict';
 
+const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-
-const {getRequest, getFragment, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {
-  createReaderSelector,
   createNormalizationSelector,
+  createReaderSelector,
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {createMockEnvironment} = require('relay-test-utils');

@@ -11,9 +11,9 @@
 
 'use strict';
 
-const MultiActorEnvironment = require('../MultiActorEnvironment');
-
 const {create} = require('../../network/RelayNetwork');
+const {getDefaultActorIdentifier} = require('../ActorIdentifier');
+const MultiActorEnvironment = require('../MultiActorEnvironment');
 const {
   createOperationDescriptor,
   getRequest,
@@ -27,8 +27,6 @@ jest.mock('../ActorIdentifier', () => {
     }),
   };
 });
-
-const {getDefaultActorIdentifier} = require('../ActorIdentifier');
 
 test('send a network request with actor specific params', () => {
   const actorIdentifier = getDefaultActorIdentifier();

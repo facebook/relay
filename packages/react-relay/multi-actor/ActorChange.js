@@ -11,12 +11,11 @@
 
 'use strict';
 
-const React = require('react');
-const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
-
-const useRelayActorEnvironment = require('./useRelayActorEnvironment');
-
 import type {ActorIdentifier} from 'relay-runtime/multi-actor-environment';
+
+const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
+const useRelayActorEnvironment = require('./useRelayActorEnvironment');
+const React = require('react');
 
 export opaque type ActorChangePoint<TFragmentRef> = $ReadOnly<{
   __fragmentRef: TFragmentRef,

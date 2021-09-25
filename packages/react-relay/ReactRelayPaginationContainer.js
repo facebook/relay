@@ -12,39 +12,12 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-
-const areEqual = require('areEqual');
-const buildReactRelayContainer = require('./buildReactRelayContainer');
-const getRootVariablesForFragments = require('./getRootVariablesForFragments');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  getComponentName,
-  getContainerName,
-} = require('./ReactRelayContainerUtils');
-const {assertRelayContext} = require('./RelayContext');
-const {
-  ConnectionInterface,
-  Observable,
-  createFragmentSpecResolver,
-  createOperationDescriptor,
-  getDataIDsFromObject,
-  getRequest,
-  getVariablesFromObject,
-  isScalarAndEqual,
-  RelayFeatureFlags,
-} = require('relay-runtime');
-
 import type {
-  $RelayProps,
-  ObserverOrCallback,
   GeneratedNodeMap,
+  ObserverOrCallback,
   RefetchOptions,
   RelayPaginationProp,
+  $RelayProps,
 } from './ReactRelayTypes';
 import type {
   CacheConfig,
@@ -59,6 +32,31 @@ import type {
   Subscription,
   Variables,
 } from 'relay-runtime';
+
+const buildReactRelayContainer = require('./buildReactRelayContainer');
+const getRootVariablesForFragments = require('./getRootVariablesForFragments');
+const {
+  getComponentName,
+  getContainerName,
+} = require('./ReactRelayContainerUtils');
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const {assertRelayContext} = require('./RelayContext');
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const React = require('react');
+const {
+  ConnectionInterface,
+  Observable,
+  RelayFeatureFlags,
+  createFragmentSpecResolver,
+  createOperationDescriptor,
+  getDataIDsFromObject,
+  getRequest,
+  getVariablesFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
+const warning = require('warning');
 
 type ContainerState = {
   data: {[key: string]: mixed, ...},

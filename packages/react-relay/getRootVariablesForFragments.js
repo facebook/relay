@@ -12,9 +12,9 @@
 
 'use strict';
 
-const {getSelector} = require('relay-runtime');
-
 import type {FragmentMap, Variables} from 'relay-runtime';
+
+const {getSelector} = require('relay-runtime');
 
 function getRootVariablesForFragments<TProps: {...}>(
   fragments: FragmentMap,

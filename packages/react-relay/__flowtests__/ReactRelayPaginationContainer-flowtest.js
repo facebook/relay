@@ -12,11 +12,10 @@
 
 'use strict';
 
-const React = require('react');
-
 const {
   createContainer: createPaginationContainer,
 } = require('../ReactRelayPaginationContainer');
+const React = require('react');
 const {graphql} = require('relay-runtime');
 
 /**

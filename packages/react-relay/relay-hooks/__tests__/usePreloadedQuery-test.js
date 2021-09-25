@@ -14,15 +14,12 @@
 'use strict';
 
 jest.mock('warning');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
-const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const usePreloadedQuery = require('../usePreloadedQuery');
-const warning = require('warning');
-
 const {loadQuery} = require('../loadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const usePreloadedQuery = require('../usePreloadedQuery');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,
@@ -34,6 +31,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const warning = require('warning');
 
 const query = getRequest(graphql`
   query usePreloadedQueryTestQuery($id: ID!) {

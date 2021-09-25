@@ -12,9 +12,9 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
+
+const IRTransformer = require('../core/IRTransformer');
 
 function skipNode() {
   return null;

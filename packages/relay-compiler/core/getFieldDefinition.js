@@ -12,11 +12,11 @@
 
 'use strict';
 
+import type {FieldID, Schema, TypeID} from './Schema';
+import type {FieldNode} from 'graphql';
+
 const {createCompilerError} = require('./CompilerError');
 const {SchemaMetaFieldDef, TypeMetaFieldDef} = require('graphql');
-
-import type {Schema, TypeID, FieldID} from './Schema';
-import type {FieldNode} from 'graphql';
 
 export type GetFieldDefinitionFn = (
   schema: Schema,

@@ -14,11 +14,10 @@
 'use strict';
 
 const CompilerContext = require('../../core/CompilerContext');
+const RelayParser = require('../../core/RelayParser');
 const FlattenTransform = require('../FlattenTransform');
 const GenerateTypeNameTransform = require('../GenerateTypeNameTransform');
 const InlineFragmentsTransform = require('../InlineFragmentsTransform');
-const RelayParser = require('../../core/RelayParser');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

@@ -12,10 +12,10 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Field} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
 
 /**
  * A transform that removes field `handles`. Intended for use when e.g.

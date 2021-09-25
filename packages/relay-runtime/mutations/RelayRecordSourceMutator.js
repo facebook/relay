@@ -12,12 +12,6 @@
 
 'use strict';
 
-const RelayModernRecord = require('../store/RelayModernRecord');
-
-const invariant = require('invariant');
-
-const {EXISTENT} = require('../store/RelayRecordState');
-
 import type {RecordState} from '../store/RelayRecordState';
 import type {
   MutableRecordSource,
@@ -25,6 +19,10 @@ import type {
   RecordSource,
 } from '../store/RelayStoreTypes';
 import type {DataID} from '../util/RelayRuntimeTypes';
+
+const RelayModernRecord = require('../store/RelayModernRecord');
+const {EXISTENT} = require('../store/RelayRecordState');
+const invariant = require('invariant');
 
 /**
  * @internal

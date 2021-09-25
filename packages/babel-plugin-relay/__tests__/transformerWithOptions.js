@@ -11,7 +11,6 @@
 'use strict';
 
 const BabelPluginRelay = require('../BabelPluginRelay');
-
 const babel = require('@babel/core');
 const prettier = require('prettier');
 

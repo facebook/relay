@@ -10,17 +10,16 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayRecordSource = require('../RelayRecordSource');
-
 const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {generateTypeID, TYPE_SCHEMA_TYPE} = require('../TypeID');
+const {TYPE_SCHEMA_TYPE, generateTypeID} = require('../TypeID');
 
 describe('RelayReader', () => {
   let source;

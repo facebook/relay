@@ -13,13 +13,13 @@
 
 'use strict';
 
-const {REQUEST, SPLIT_OPERATION} = require('./RelayConcreteNode');
-
 import type {
   NormalizationOperation,
   NormalizationRootNode,
   NormalizationSplitOperation,
 } from './NormalizationNode';
+
+const {REQUEST, SPLIT_OPERATION} = require('./RelayConcreteNode');
 
 /**
  * OperationLoaders can return either a NormalizationSplitOperation or

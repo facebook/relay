@@ -18,16 +18,15 @@ const {createFragmentResource} = require('../FragmentResource');
 const {
   createOperationDescriptor,
   createReaderSelector,
-  graphql,
-  getRequest,
   getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const RelayOperationTracker = require('relay-runtime/store/RelayOperationTracker');
 const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
-
 const warning = require('warning');
 
 describe('FragmentResource with Operation Tracker and Missing Data', () => {

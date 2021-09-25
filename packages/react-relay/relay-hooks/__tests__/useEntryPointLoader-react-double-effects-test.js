@@ -14,20 +14,18 @@
 'use strict';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const loadEntryPoint = require('../loadEntryPoint');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useEntryPointLoader = require('../useEntryPointLoader');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  graphql,
   getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 

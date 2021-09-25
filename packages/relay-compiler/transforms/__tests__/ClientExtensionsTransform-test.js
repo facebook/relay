@@ -13,10 +13,9 @@
 
 'use strict';
 
-const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const CompilerContext = require('../../core/CompilerContext');
 const IRPrinter = require('../../core/IRPrinter');
-
+const ClientExtensionsTransform = require('../ClientExtensionsTransform');
 const {
   TestSchema,
   generateTestsFromFixtures,

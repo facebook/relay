@@ -12,12 +12,11 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
+import type CompilerContext from '../core/CompilerContext';
+import type {LinkedField, ScalarField} from '../core/IR';
 
 const {createUserError} = require('../core/CompilerError');
-
-import type CompilerContext from '../core/CompilerContext';
-import type {ScalarField, LinkedField} from '../core/IR';
+const IRTransformer = require('../core/IRTransformer');
 
 function visitField<T: ScalarField | LinkedField>(field: T): T {
   if (field.alias === 'id' && field.name !== 'id') {

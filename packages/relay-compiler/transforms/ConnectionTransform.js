@@ -12,32 +12,30 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-const RelayParser = require('../core/RelayParser');
-const SchemaUtils = require('../core/SchemaUtils');
-
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-
-const {createCompilerError, createUserError} = require('../core/CompilerError');
-const {parse} = require('graphql');
-const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {
   Argument,
+  Defer,
   Directive,
   Fragment,
   Handle,
   InlineFragment,
   LinkedField,
+  Location,
   Root,
   Selection,
   Variable,
-  Location,
-  Defer,
 } from '../core/IR';
-import type {Schema, CompositeTypeID} from '../core/Schema';
+import type {CompositeTypeID, Schema} from '../core/Schema';
 import type {ConnectionMetadata} from 'relay-runtime';
+
+const {createCompilerError, createUserError} = require('../core/CompilerError');
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+const IRTransformer = require('../core/IRTransformer');
+const RelayParser = require('../core/RelayParser');
+const SchemaUtils = require('../core/SchemaUtils');
+const {parse} = require('graphql');
+const {ConnectionInterface, RelayFeatureFlags} = require('relay-runtime');
 
 type Options = {
   documentName: string,

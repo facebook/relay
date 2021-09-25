@@ -13,11 +13,11 @@
 
 'use strict';
 
-const fs = require('fs');
-const invariant = require('invariant');
-
 import type {Filesystem} from '../codegen/CodegenDirectory';
 import type {SourceControl} from '../codegen/SourceControl';
+
+const fs = require('fs');
+const invariant = require('invariant');
 
 /**
  * A filesystem wrapper that buffers file reads and writes until `commit()` is

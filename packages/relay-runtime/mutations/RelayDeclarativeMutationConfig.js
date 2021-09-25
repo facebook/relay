@@ -12,10 +12,6 @@
 
 'use strict';
 
-const ConnectionHandler = require('../handlers/connection/ConnectionHandler');
-
-const warning = require('warning');
-
 import type {
   RecordSourceSelectorProxy,
   SelectorData,
@@ -23,6 +19,9 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+
+const ConnectionHandler = require('../handlers/connection/ConnectionHandler');
+const warning = require('warning');
 
 const MutationTypes = Object.freeze({
   RANGE_ADD: 'RANGE_ADD',

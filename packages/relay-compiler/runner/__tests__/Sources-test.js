@@ -13,10 +13,9 @@
 
 'use strict';
 
-const Sources = require('../Sources');
-
-const {getName} = require('../GraphQLASTUtils');
 const {parseExecutableNode, toASTRecord} = require('../extractAST');
+const {getName} = require('../GraphQLASTUtils');
+const Sources = require('../Sources');
 
 function getNames(sources) {
   return Array.from(sources.nodes()).map(getName);

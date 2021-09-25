@@ -13,14 +13,12 @@
 
 'use strict';
 
-const RelayOperationTracker = require('../RelayOperationTracker');
-
-const invariant = require('invariant');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayOperationTracker = require('../RelayOperationTracker');
+const invariant = require('invariant');
 
 describe('RelayOperationTracker', () => {
   let tracker;

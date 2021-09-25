@@ -11,8 +11,6 @@
 
 'use strict';
 
-const {loadQuery} = require('./loadQuery');
-
 import type {
   EntryPoint,
   EntryPointComponent,
@@ -20,6 +18,8 @@ import type {
   IEnvironmentProvider,
   PreloadedEntryPoint,
 } from './EntryPointTypes.flow';
+
+const {loadQuery} = require('./loadQuery');
 
 function loadEntryPoint<
   TEntryPointParams: {...},

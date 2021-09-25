@@ -13,10 +13,8 @@
 
 'use strict';
 
-const Schema = require('../Schema');
-
 const nullthrows = require('../../util/nullthrowsOSS');
-
+const Schema = require('../Schema');
 const {Source, parse, parseType} = require('graphql');
 
 describe('Schema: RelayCompiler Internal GraphQL Schema Interface', () => {

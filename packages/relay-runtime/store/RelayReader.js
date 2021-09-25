@@ -12,11 +12,32 @@
 
 'use strict';
 
-const ClientID = require('./ClientID');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-
-const invariant = require('invariant');
+import type {
+  ReaderActorChange,
+  ReaderFlightField,
+  ReaderFragment,
+  ReaderFragmentSpread,
+  ReaderInlineDataFragmentSpread,
+  ReaderLinkedField,
+  ReaderModuleImport,
+  ReaderNode,
+  ReaderRelayResolver,
+  ReaderRequiredField,
+  ReaderScalarField,
+  ReaderSelection,
+} from '../util/ReaderNode';
+import type {DataID, Variables} from '../util/RelayRuntimeTypes';
+import type {
+  DataIDSet,
+  MissingRequiredFields,
+  Record,
+  RecordSource,
+  RequestDescriptor,
+  SelectorData,
+  SingularReaderSelector,
+  Snapshot,
+} from './RelayStoreTypes';
+import type {ResolverCache} from './ResolverCache';
 
 const {
   ACTOR_CHANGE,
@@ -29,54 +50,31 @@ const {
   INLINE_FRAGMENT,
   LINKED_FIELD,
   MODULE_IMPORT,
-  REQUIRED_FIELD,
   RELAY_RESOLVER,
+  REQUIRED_FIELD,
   SCALAR_FIELD,
   STREAM,
 } = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const ClientID = require('./ClientID');
+const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
-  FRAGMENTS_KEY,
   FRAGMENT_OWNER_KEY,
   FRAGMENT_PROP_NAME_KEY,
+  FRAGMENTS_KEY,
   ID_KEY,
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT,
   MODULE_COMPONENT_KEY,
   ROOT_ID,
   getArgumentValues,
-  getStorageKey,
   getModuleComponentKey,
+  getStorageKey,
 } = require('./RelayStoreUtils');
 const {NoopResolverCache} = require('./ResolverCache');
 const {withResolverContext} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
-
-import type {
-  ReaderFlightField,
-  ReaderFragment,
-  ReaderFragmentSpread,
-  ReaderInlineDataFragmentSpread,
-  ReaderLinkedField,
-  ReaderActorChange,
-  ReaderModuleImport,
-  ReaderNode,
-  ReaderRelayResolver,
-  ReaderRequiredField,
-  ReaderScalarField,
-  ReaderSelection,
-} from '../util/ReaderNode';
-import type {DataID, Variables} from '../util/RelayRuntimeTypes';
-import type {
-  Record,
-  RecordSource,
-  RequestDescriptor,
-  SelectorData,
-  SingularReaderSelector,
-  Snapshot,
-  MissingRequiredFields,
-  DataIDSet,
-} from './RelayStoreTypes';
-import type {ResolverCache} from './ResolverCache';
+const invariant = require('invariant');
 
 function read(
   recordSource: RecordSource,

@@ -13,10 +13,10 @@
 
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
+  RelayFeatureFlags,
   __internal: {fetchQuery},
   createOperationDescriptor,
   getFragment,
-  RelayFeatureFlags,
   getRequest,
   graphql,
 } = require('relay-runtime');

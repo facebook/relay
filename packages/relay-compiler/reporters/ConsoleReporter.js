@@ -12,9 +12,9 @@
 
 'use strict';
 
-const chalk = require('chalk');
-
 import type {Reporter} from './Reporter';
+
+const chalk = require('chalk');
 
 function getMemoryUsageString() {
   return chalk.blue(

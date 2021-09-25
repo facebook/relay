@@ -12,25 +12,23 @@
 
 'use strict';
 
-const React = require('react');
-
-const areEqual = require('areEqual');
-const buildReactRelayContainer = require('./buildReactRelayContainer');
-
-const {getContainerName} = require('./ReactRelayContainerUtils');
-const {assertRelayContext} = require('./RelayContext');
-const {
-  createFragmentSpecResolver,
-  getDataIDsFromObject,
-  isScalarAndEqual,
-} = require('relay-runtime');
-
-import type {$RelayProps, GeneratedNodeMap, RelayProp} from './ReactRelayTypes';
+import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,
   RelayContext,
 } from 'relay-runtime';
+
+const buildReactRelayContainer = require('./buildReactRelayContainer');
+const {getContainerName} = require('./ReactRelayContainerUtils');
+const {assertRelayContext} = require('./RelayContext');
+const areEqual = require('areEqual');
+const React = require('react');
+const {
+  createFragmentSpecResolver,
+  getDataIDsFromObject,
+  isScalarAndEqual,
+} = require('relay-runtime');
 
 type ContainerProps = $FlowFixMeProps;
 type ContainerState = {

@@ -12,16 +12,14 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-const SchemaUtils = require('../core/SchemaUtils');
-
-const invariant = require('invariant');
-const nullthrows = require('nullthrows');
-
-const {getRelayHandleKey} = require('relay-runtime');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {LinkedField, ScalarField} from '../core/IR';
+
+const IRTransformer = require('../core/IRTransformer');
+const SchemaUtils = require('../core/SchemaUtils');
+const invariant = require('invariant');
+const nullthrows = require('nullthrows');
+const {getRelayHandleKey} = require('relay-runtime');
 
 function fieldHandleTransform(context: CompilerContext): CompilerContext {
   return IRTransformer.transform(context, {

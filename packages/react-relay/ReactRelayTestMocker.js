@@ -12,16 +12,6 @@
 
 'use strict';
 
-const areEqual = require('areEqual');
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  createOperationDescriptor,
-  isRelayModernEnvironment,
-  Network,
-} = require('relay-runtime');
-
 import type {
   CacheConfig,
   ConcreteRequest,
@@ -31,6 +21,15 @@ import type {
   RequestParameters,
   Variables,
 } from 'relay-runtime';
+
+const areEqual = require('areEqual');
+const invariant = require('invariant');
+const {
+  Network,
+  createOperationDescriptor,
+  isRelayModernEnvironment,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type DataWriteConfig = {
   query: ConcreteRequest,

@@ -11,23 +11,21 @@
 
 'use strict';
 
+const {createContainer} = require('../ReactRelayPaginationContainer');
+const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
-
-const warning = require('warning');
-
-const {createContainer} = require('../ReactRelayPaginationContainer');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
-  createOperationDescriptor,
-  getRequest,
-  getFragment,
-  graphql,
   RelayFeatureFlags,
+  createOperationDescriptor,
+  getFragment,
+  getRequest,
+  graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const warning = require('warning');
 
 let environment;
 let query;

@@ -13,17 +13,16 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
-const ReactTestRenderer = require('react-test-renderer');
-
+const React = require('react');
 const {useEffect} = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
+  RelayFeatureFlags,
   createOperationDescriptor,
   getRequest,
   graphql,
-  RelayFeatureFlags,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 

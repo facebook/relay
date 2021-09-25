@@ -13,14 +13,13 @@
 
 'use strict';
 
+import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
+
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const {getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
 
 const CommentCreateSubscription = getRequest(graphql`
   subscription useSubscriptionTestCommentCreateSubscription(

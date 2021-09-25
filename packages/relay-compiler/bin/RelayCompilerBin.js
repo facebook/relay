@@ -12,11 +12,10 @@
 
 'use strict';
 
-const _yargs = require('yargs');
+import type {Config} from './RelayCompilerMain';
 
 const {main} = require('./RelayCompilerMain');
-
-import type {Config} from './RelayCompilerMain';
+const _yargs = require('yargs');
 
 let RelayConfig;
 try {

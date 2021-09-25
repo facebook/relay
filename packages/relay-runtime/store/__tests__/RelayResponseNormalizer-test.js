@@ -11,23 +11,21 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const defaultGetDataID = require('../defaultGetDataID');
-
 const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const defaultGetDataID = require('../defaultGetDataID');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
+const RelayRecordSource = require('../RelayRecordSource');
 const {normalize} = require('../RelayResponseNormalizer');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {
   disallowWarnings,
-  expectWarningWillFire,
   expectToWarn,
+  expectWarningWillFire,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();

@@ -13,14 +13,12 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const loadQueryModule = require('../loadQuery');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Network,
   Observable,

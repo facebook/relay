@@ -16,7 +16,6 @@
 const CompilerContext = require('../CompilerContext');
 const IRPrinter = require('../IRPrinter');
 const RelayParser = require('../RelayParser');
-
 const {
   TestSchema,
   generateTestsFromFixtures,

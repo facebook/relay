@@ -13,9 +13,9 @@
 
 'use strict';
 
-const RelayReplaySubject = require('../RelayReplaySubject');
-
 import type {Subscription} from 'relay-runtime';
+
+const RelayReplaySubject = require('../RelayReplaySubject');
 
 let subject;
 

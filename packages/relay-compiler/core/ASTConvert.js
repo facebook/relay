@@ -12,14 +12,6 @@
 
 'use strict';
 
-const Profiler = require('./GraphQLCompilerProfiler');
-
-const {
-  isExecutableDefinitionAST,
-  isSchemaDefinitionAST,
-} = require('./SchemaUtils');
-const {extendSchema, parse, print, visit} = require('graphql');
-
 import type {Fragment, Root} from './IR';
 import type {Schema} from './Schema';
 import type {
@@ -32,6 +24,13 @@ import type {
   TypeSystemDefinitionNode,
   TypeSystemExtensionNode,
 } from 'graphql';
+
+const Profiler = require('./GraphQLCompilerProfiler');
+const {
+  isExecutableDefinitionAST,
+  isSchemaDefinitionAST,
+} = require('./SchemaUtils');
+const {extendSchema, parse, print, visit} = require('graphql');
 
 type ASTDefinitionNode = FragmentDefinitionNode | OperationDefinitionNode;
 type TransformFn = (

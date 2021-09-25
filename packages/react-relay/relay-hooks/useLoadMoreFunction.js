@@ -13,23 +13,6 @@
 
 'use strict';
 
-const invariant = require('invariant');
-const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useIsMountedRef = require('./useIsMountedRef');
-const useIsOperationNodeActive = require('./useIsOperationNodeActive');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {useCallback, useEffect, useState} = require('react');
-const {
-  ConnectionInterface,
-  __internal: {fetchQuery},
-  createOperationDescriptor,
-  getPaginationVariables,
-  getValueAtPath,
-  getSelector,
-} = require('relay-runtime');
-
 import type {
   ConcreteRequest,
   Direction,
@@ -41,6 +24,22 @@ import type {
   ReaderPaginationMetadata,
   VariablesOf,
 } from 'relay-runtime';
+
+const useFetchTrackingRef = require('./useFetchTrackingRef');
+const useIsMountedRef = require('./useIsMountedRef');
+const useIsOperationNodeActive = require('./useIsOperationNodeActive');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useCallback, useEffect, useState} = require('react');
+const {
+  ConnectionInterface,
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  getPaginationVariables,
+  getSelector,
+  getValueAtPath,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type LoadMoreFn<TQuery: OperationType> = (
   count: number,

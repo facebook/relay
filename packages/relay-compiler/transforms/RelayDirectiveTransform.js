@@ -12,13 +12,12 @@
 
 'use strict';
 
-const IRTransformer = require('../core/IRTransformer');
-
-const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
-const invariant = require('invariant');
-
 import type CompilerContext from '../core/CompilerContext';
 import type {Fragment, FragmentSpread} from '../core/IR';
+
+const getLiteralArgumentValues = require('../core/getLiteralArgumentValues');
+const IRTransformer = require('../core/IRTransformer');
+const invariant = require('invariant');
 
 const RELAY = 'relay';
 const SCHEMA_EXTENSION = `

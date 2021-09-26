@@ -15,10 +15,11 @@ jobs:
       matrix:
         node-version: [12.x, 14.x, 16.x]
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run tests
@@ -28,10 +29,11 @@ jobs:
     name: JS Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 16.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Test dependencies
@@ -43,10 +45,11 @@ jobs:
     name: Flow Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 16.x
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Flow
@@ -107,11 +110,12 @@ jobs:
     if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
     needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 14.x
           registry-url: https://registry.npmjs.org/
+          cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Download artifact relay-compiler-linux-x64

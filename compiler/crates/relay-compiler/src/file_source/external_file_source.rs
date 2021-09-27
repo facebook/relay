@@ -19,7 +19,7 @@ use super::File;
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman
 pub struct ExternalFileSource<'config> {
-    config: &'config Config,
+    pub config: &'config Config,
 }
 
 #[derive(Debug)]

@@ -13,7 +13,7 @@ use console_error_panic_hook;
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use graphql_syntax;
-use graphql_text_printer;
+use graphql_text_printer::{self, PrinterOptions};
 use interner::Intern;
 use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
 use relay_schema::build_schema_with_extensions;
@@ -145,14 +145,18 @@ fn transform_impl(schema_text: &str, document_text: &str) -> PlaygroundResult {
     let transformed_operations = programs
         .operation_text
         .operations()
-        .map(|operation| graphql_text_printer::print_operation(&schema, operation))
+        .map(|operation| {
+            graphql_text_printer::print_operation(&schema, operation, PrinterOptions::default())
+        })
         .collect::<Vec<_>>()
         .join("\n");
 
     let transformed_fragments = programs
         .operation_text
         .fragments()
-        .map(|operation| graphql_text_printer::print_fragment(&schema, operation))
+        .map(|operation| {
+            graphql_text_printer::print_fragment(&schema, operation, PrinterOptions::default())
+        })
         .collect::<Vec<_>>()
         .join("\n");
 

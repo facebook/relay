@@ -35,7 +35,58 @@ query NodeQuery(
   $id: ID!
   $last: Int
   $first: Int
-) @__ConnectionMetadataDirective {
+) @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "forwardComments",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "backwardComments",
+#                 ],
+#             ),
+#             direction: "backward",
+#             first: None,
+#             last: None,
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "node",
+#                     "mixedDirectionComments",
+#                 ],
+#             ),
+#             direction: "bidirectional",
+#             first: Some(
+#                 "first",
+#             ),
+#             last: Some(
+#                 "last",
+#             ),
+#             before: None,
+#             after: None,
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
   node(id: $id) {
     id
     ... on Story {

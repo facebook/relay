@@ -29,15 +29,23 @@ pub fn print_definition(schema: &SDLSchema, definition: &ExecutableDefinition) -
     result
 }
 
-pub fn print_operation(schema: &SDLSchema, operation: &OperationDefinition) -> String {
+pub fn print_operation(
+    schema: &SDLSchema,
+    operation: &OperationDefinition,
+    options: PrinterOptions,
+) -> String {
     let mut result = String::new();
-    write_operation(schema, operation, &mut result).unwrap();
+    write_operation(schema, operation, options, &mut result).unwrap();
     result
 }
 
-pub fn print_fragment(schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
+pub fn print_fragment(
+    schema: &SDLSchema,
+    fragment: &FragmentDefinition,
+    options: PrinterOptions,
+) -> String {
     let mut result = String::new();
-    write_fragment(schema, fragment, &mut result).unwrap();
+    write_fragment(schema, fragment, options, &mut result).unwrap();
     result
 }
 
@@ -81,18 +89,20 @@ pub fn write_definition(
 pub fn write_operation(
     schema: &SDLSchema,
     operation: &OperationDefinition,
+    options: PrinterOptions,
     mut result: &mut impl Write,
 ) -> Result {
-    let printer = Printer::new(&schema, &mut result, PrinterOptions::default());
+    let printer = Printer::new(&schema, &mut result, options);
     printer.print_operation(operation)
 }
 
 pub fn write_fragment(
     schema: &SDLSchema,
     fragment: &FragmentDefinition,
+    options: PrinterOptions,
     mut result: &mut impl Write,
 ) -> Result {
-    let printer = Printer::new(&schema, &mut result, PrinterOptions::default());
+    let printer = Printer::new(&schema, &mut result, options);
     printer.print_fragment(fragment)
 }
 
@@ -129,18 +139,12 @@ pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Writ
     printer.print_value(value)
 }
 
+#[derive(Clone, Default)]
 pub struct PrinterOptions {
     pub compact: bool,
     pub sort_keys: bool,
-}
-
-impl PrinterOptions {
-    pub fn default() -> Self {
-        Self {
-            compact: false,
-            sort_keys: false,
-        }
-    }
+    /// Print `data` from Directive nodes
+    pub debug_directive_data: bool,
 }
 
 struct Printer<'schema, 'writer, W: Write> {
@@ -353,6 +357,16 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_directive(&mut self, directive: &Directive) -> Result {
         write!(self.writer, " @{}", directive.name.item)?;
         self.print_arguments(&directive.arguments)?;
+
+        if self.options.debug_directive_data {
+            if let Some(data) = &directive.data {
+                for debug_line in format!("{:#?}", data).lines() {
+                    self.next_line()?;
+                    write!(self.writer, "# {}", debug_line)?;
+                }
+                self.next_line()?;
+            }
+        }
 
         Ok(())
     }

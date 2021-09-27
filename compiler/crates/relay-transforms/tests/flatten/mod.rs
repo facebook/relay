@@ -9,7 +9,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
-use graphql_text_printer::{print_fragment, print_operation};
+use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::flatten;
 use std::sync::Arc;
@@ -30,14 +30,19 @@ directive @serverInlineDirective on INLINE_FRAGMENT"#,
     )
     .unwrap();
 
+    let printer_options = PrinterOptions {
+        debug_directive_data: true,
+        ..Default::default()
+    };
+
     let mut printed_queries = context
         .operations()
-        .map(|def| print_operation(&schema, def))
+        .map(|def| print_operation(&schema, def, printer_options.clone()))
         .collect::<Vec<_>>();
 
     let mut printed = context
         .fragments()
-        .map(|def| print_fragment(&schema, def))
+        .map(|def| print_fragment(&schema, def, printer_options.clone()))
         .collect::<Vec<_>>();
     printed.append(&mut printed_queries);
     printed.sort();

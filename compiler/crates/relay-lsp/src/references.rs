@@ -105,7 +105,7 @@ pub(crate) fn on_references<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <References as Request>::Params,
 ) -> LSPRuntimeResult<<References as Request>::Result> {
     let node_resolution_info = state.resolve_node(&params.text_document_position)?;

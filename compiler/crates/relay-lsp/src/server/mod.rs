@@ -116,7 +116,7 @@ where
         connection.sender.clone(),
     ));
 
-    let mut lsp_state = LSPState::create_state(
+    let lsp_state = LSPState::create_state(
         Arc::new(config),
         Arc::clone(&perf_logger),
         extra_data_provider,
@@ -129,11 +129,11 @@ where
         debug!("waiting for incoming messages...");
         match connection.receiver.recv() {
             Ok(Message::Request(req)) => {
-                handle_request(&mut lsp_state, req, &connection.sender, &perf_logger)
+                handle_request(&lsp_state, req, &connection.sender, &perf_logger)
                     .map_err(LSPProcessError::from)?;
             }
             Ok(Message::Notification(notification)) => {
-                handle_notification(&mut lsp_state, notification, &perf_logger);
+                handle_notification(&lsp_state, notification, &perf_logger);
             }
             Ok(_) => {
                 // Ignore responses for now
@@ -146,7 +146,7 @@ where
 }
 
 fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     request: lsp_server::Request,
     sender: &Sender<Message>,
     perf_logger: &Arc<TPerfLogger>,
@@ -163,7 +163,7 @@ fn dispatch_request<
     TSchemaDocumentation: SchemaDocumentation,
 >(
     request: lsp_server::Request,
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
 ) -> ServerResponse {
     let get_response = || -> Result<_, ServerResponse> {
         let request = LSPRequestDispatch::new(request, lsp_state)
@@ -234,7 +234,7 @@ fn handle_notification<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     notification: Notification,
     perf_logger: &Arc<TPerfLogger>,
 ) {
@@ -273,7 +273,7 @@ fn dispatch_notification<
     TSchemaDocumentation: SchemaDocumentation,
 >(
     notification: lsp_server::Notification,
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
 ) -> Result<(), Option<LSPRuntimeError>> {
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?

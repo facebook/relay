@@ -244,7 +244,7 @@ pub(crate) fn on_graphql_execute_query<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: GraphQLExecuteQueryParams,
 ) -> LSPRuntimeResult<<GraphQLExecuteQuery as Request>::Result> {
     let project_name = if let Some(url) = &params.get_url() {

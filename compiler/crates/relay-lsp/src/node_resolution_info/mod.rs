@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     utils::extract_executable_document_from_text,
 };
 use common::Span;
+use dashmap::DashMap;
 use graphql_syntax::{
     Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentDefinition,
     FragmentSpread, GraphQLSource, InlineFragment, LinkedField, List, OperationDefinition,
@@ -315,7 +316,7 @@ fn build_node_resolution_info_from_selections(
 /// within a GraphQL document.
 pub fn get_node_resolution_info(
     text_document_position: &TextDocumentPositionParams,
-    graphql_source_cache: &HashMap<Url, Vec<GraphQLSource>>,
+    graphql_source_cache: &DashMap<Url, Vec<GraphQLSource>>,
     file_categorizer: &FileCategorizer,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<NodeResolutionInfo> {

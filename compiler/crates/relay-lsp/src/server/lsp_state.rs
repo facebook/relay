@@ -37,7 +37,7 @@ use schema::SDLSchema;
 use schema_documentation::{
     CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
 };
-use std::{collections::HashMap, path::PathBuf, sync::Arc};
+use std::{path::PathBuf, sync::Arc};
 use tokio::{sync::Notify, task};
 
 use super::lsp_state_resources::LSPStateResources;
@@ -63,7 +63,7 @@ pub struct LSPState<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Sch
     schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     source_programs: SourcePrograms,
-    synced_graphql_documents: HashMap<Url, Vec<GraphQLSource>>,
+    synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
     perf_logger: Arc<TPerfLogger>,
     diagnostic_reporter: Arc<DiagnosticReporter>,
     notify_sender: Arc<Notify>,
@@ -195,14 +195,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self.root_dir_str
     }
 
-    pub(crate) fn remove_synced_sources(&mut self, url: &Url) {
+    pub(crate) fn remove_synced_sources(&self, url: &Url) {
         self.synced_graphql_documents.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
     }
 
     pub(crate) fn extract_executable_document_from_text(
-        &mut self,
+        &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span, StringKey)> {
@@ -216,7 +216,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     pub(crate) fn process_synced_sources(
-        &mut self,
+        &self,
         url: Url,
         sources: Vec<GraphQLSource>,
     ) -> LSPRuntimeResult<()> {
@@ -236,12 +236,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         extract_project_name_from_url(&self.file_categorizer, url, &self.root_dir)
     }
 
-    fn insert_synced_sources(&mut self, url: Url, sources: Vec<GraphQLSource>) {
+    fn insert_synced_sources(&self, url: Url, sources: Vec<GraphQLSource>) {
         self.synced_graphql_documents.insert(url, sources);
     }
 
     fn validate_synced_sources(
-        &mut self,
+        &self,
         url: Url,
         project_name: StringKey,
         graphql_sources: &[GraphQLSource],

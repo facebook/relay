@@ -228,7 +228,7 @@ pub(crate) fn on_goto_definition<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
     let (document, position_span, project_name) =
@@ -284,7 +284,7 @@ pub(crate) fn on_get_source_location_of_type_definition<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <GetSourceLocationOfTypeDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GetSourceLocationOfTypeDefinition as Request>::Result> {
     let field_definition_source_info = state

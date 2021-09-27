@@ -24,7 +24,7 @@ pub(crate) fn on_heartbeat<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    _state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    _state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <HeartbeatRequest as Request>::Params,
 ) -> LSPRuntimeResult<<HeartbeatRequest as Request>::Result> {
     Ok("Connected.".to_string())

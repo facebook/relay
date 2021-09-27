@@ -23,7 +23,7 @@ pub(crate) fn on_did_open_text_document<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
@@ -47,7 +47,7 @@ pub(crate) fn on_did_close_text_document<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
@@ -63,7 +63,7 @@ pub(crate) fn on_did_change_text_document<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     params: <DidChangeTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidChangeTextDocumentParams {
@@ -100,7 +100,7 @@ pub(crate) fn on_did_save_text_document<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    _lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    _lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <DidSaveTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     Ok(())
@@ -111,7 +111,7 @@ pub(crate) fn on_cancel<
     TPerfLogger: PerfLogger + 'static,
     TSchemaDocumentation: SchemaDocumentation,
 >(
-    _lsp_state: &mut LSPState<TPerfLogger, TSchemaDocumentation>,
+    _lsp_state: &LSPState<TPerfLogger, TSchemaDocumentation>,
     _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     Ok(())
